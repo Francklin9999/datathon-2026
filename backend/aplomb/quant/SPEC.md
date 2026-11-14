@@ -54,3 +54,19 @@ Default portfolios have no actual cash: `from_cash` is infeasible even though th
 QNT-01 starter counts/calendar/FX. QNT-02 all printed asset returns/vols/drawdowns. QNT-03 baseline and scenario portfolio controls within printed tolerance. QNT-04 all four funding equations on held and unheld target, insufficient donor balance and new denominator. QNT-05 percent/fraction conversion and positive drawdown. QNT-06 missing history, zero variance, foreign cash and no prior FX. QNT-07 historical cutoff never changes from future-row perturbation. QNT-08 2022 stress returns vs positive loss inputs.
 
 Done: offline controls pass, facts have sources/methods/windows and unavailable values propagate to rules. Expose reusable aligned return matrices for T07 so grid scans do not reload CSVs hundreds of times.
+
+## 11. Implementation status (T05, 2026-11-14)
+
+Implemented in `backend/aplomb/quant/` (no AWS, model or network imports):
+
+| Module | Content |
+|---|---|
+| `metrics.py` | Pure maths: simple returns, sample-SD volatility x sqrt(252), positive drawdown, worst rolling 252, constant-weight compounding, Pearson, HHI |
+| `funding.py` | `apply_move(weights, ticker, size_pct, mode, from_tickers)` -> `MoveResult`; exact §8 equations; `FundingError(code, reason)` |
+| `market.py` | `MarketData`: gated master-calendar levels in the reporting currency, FX only from an earlier or same-day rate, nothing filled |
+| `engine.py` | `QuantEngine(gate, ledger, currency, subject_id, created_at, window)`; `PortfolioView.measure(metric, key)`, `.metrics()`, `.snapshot()`; `asset_metrics`, `calendar_year_return`, `correlation`, `price_move_after`, raw `risk_values` for grid scans |
+| `facts.py` | Fact builder validated by `aplomb.contracts.models.Fact`, EN/FR display formatting, interim `LocalLedger` (subset of T10's `Ledger`: `add_fact`, `get_fact`) |
+
+`measure()` returns `Measurement(value, fact_id, unit, worst, nee_reason)`; unavailable figures carry a catalog NeeReason (`short_history`, `not_visible_at_asof`, `asset_unknown`). A-21 (252 master observations) gates risk metrics per asset. Ties for the largest position/sector follow portfolio order (controls list NVDA for Amira). Facts with the same key and value are reused; a different value under one key is rejected, so callers must give each portfolio its own variant. Stress 2022 and the rate cycle are unavailable until `asOf` reaches the window end.
+
+Verification: `uv run pytest backend/tests/unit/quant` reproduces every value of controls §4, §6, §8 (volatility, drawdown, 2022, total, YTD, 1y, rate cycle) and the §9 scenario risk figures, plus QNT-04…QNT-08 with synthetic snapshots. Tool wrappers (`quant.*` with `ToolContext`) wait for T08's registry.
