@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Offline checks for spec links, wire fixtures and selected numeric controls.
 
-This does not validate a product implementation or replace future Pydantic tests.
+This does not validate a product implementation or replace the Pydantic contract suite.
 """
 import contextlib
 import hashlib
 import io
 import json
 import math
+import os
 from pathlib import Path
 import re
 import runpy
@@ -51,8 +52,11 @@ def load_fixture(name):
 
 def check_links():
     documents = [ROOT / "README.md"]
+    ignored = {"node_modules", ".venv", ".next", "out", "__pycache__", ".pytest_cache"}
     for folder in ("docs", "contracts", "backend", "data", "infra", "web", "tests"):
-        documents.extend((ROOT / folder).rglob("*.md"))
+        for directory, subdirs, names in os.walk(ROOT / folder):
+            subdirs[:] = [name for name in subdirs if name not in ignored]
+            documents.extend(Path(directory) / name for name in names if name.endswith(".md"))
     for path in documents:
         content = path.read_text()
         check(content.strip() not in ("pending", "TODO", ""), f"{path}: placeholder document")
@@ -201,7 +205,7 @@ def main():
         print("\n".join("FAIL: " + error for error in ERRORS))
         return 1
     print(f"PASS: {count} specification documents linked; 3 fixtures validated; numeric controls reproduced.")
-    print("Application, live sources and AWS execution remain unimplemented/unverified by this check.")
+    print("Application runtime, live sources and AWS execution are not verified by this check.")
     return 0
 
 

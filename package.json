@@ -1,0 +1,21 @@
+{
+  "name": "aplomb",
+  "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "workspaces": [
+    "web"
+  ],
+  "scripts": {
+    "generate:contracts": "uv run python scripts/export_contracts.py && node scripts/generate_contracts.mjs",
+    "check:generated": "uv run python scripts/export_contracts.py --check && node scripts/generate_contracts.mjs --check",
+    "typecheck": "npm run typecheck --workspace web",
+    "test:contracts": "npm run test:contracts --workspace web",
+    "check": "npm run check:generated && uv run ruff check backend/aplomb/contracts backend/tests/contract scripts/export_contracts.py && uv run pytest && npm run typecheck && npm run test:contracts && python3 scripts/check_specs.py"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "16.0.0"
+  }
+}

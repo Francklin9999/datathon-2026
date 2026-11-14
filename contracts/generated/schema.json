@@ -1,0 +1,8171 @@
+{
+  "$defs": {
+    "AgentRole": {
+      "enum": [
+        "planner",
+        "researcher",
+        "quant",
+        "risk_officer",
+        "writer",
+        "auditor"
+      ],
+      "type": "string"
+    },
+    "AnswerRequest": {
+      "properties": {
+        "questionId": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "questionId",
+        "value"
+      ],
+      "title": "AnswerRequest",
+      "type": "object"
+    },
+    "AnswerResponse": {
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/RunId"
+        },
+        "status": {
+          "const": "running",
+          "type": "string"
+        }
+      },
+      "required": [
+        "runId",
+        "status"
+      ],
+      "title": "AnswerResponse",
+      "type": "object"
+    },
+    "ApiError": {
+      "properties": {
+        "error": {
+          "$ref": "#/$defs/ErrorDetail"
+        }
+      },
+      "required": [
+        "error"
+      ],
+      "title": "ApiError",
+      "type": "object"
+    },
+    "Asset": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "name": {
+          "type": "string"
+        },
+        "assetClass": {
+          "$ref": "#/$defs/AssetClass"
+        },
+        "assetGroup": {
+          "$ref": "#/$defs/AssetGroup"
+        },
+        "market": {
+          "type": "string"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "sector": {
+          "type": "string"
+        },
+        "gicsSector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isSingleName": {
+          "type": "boolean"
+        },
+        "country": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "themes": {
+          "items": {
+            "$ref": "#/$defs/ThemeTag"
+          },
+          "type": "array"
+        },
+        "tier": {
+          "enum": [
+            "starter",
+            "extended",
+            "on_demand"
+          ],
+          "type": "string"
+        },
+        "history": {
+          "$ref": "#/$defs/AssetHistory"
+        },
+        "flags": {
+          "items": {
+            "$ref": "#/$defs/AssetFlag"
+          },
+          "type": "array"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "datasetId": {
+          "$ref": "#/$defs/DatasetId"
+        }
+      },
+      "required": [
+        "ticker",
+        "name",
+        "assetClass",
+        "assetGroup",
+        "market",
+        "currency",
+        "sector",
+        "gicsSector",
+        "isSingleName",
+        "country",
+        "themes",
+        "tier",
+        "history",
+        "flags",
+        "dataVersion",
+        "datasetId"
+      ],
+      "title": "Asset",
+      "type": "object"
+    },
+    "AssetClass": {
+      "enum": [
+        "equity",
+        "etf_equity",
+        "etf_bond",
+        "etf_commodity",
+        "crypto",
+        "cash"
+      ],
+      "type": "string"
+    },
+    "AssetFlag": {
+      "enum": [
+        "short_history",
+        "zero_volume_rows",
+        "split_anomaly",
+        "on_demand",
+        "no_fx_needed",
+        "seven_day_calendar",
+        "sector_label_unsourced"
+      ],
+      "title": "AssetFlag",
+      "type": "string"
+    },
+    "AssetGroup": {
+      "enum": [
+        "equity",
+        "fixed_income",
+        "commodity",
+        "crypto",
+        "cash"
+      ],
+      "type": "string"
+    },
+    "AssetHistory": {
+      "properties": {
+        "firstDate": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "lastDate": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "nObs": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "nObsMaster": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "firstDate",
+        "lastDate",
+        "nObs",
+        "nObsMaster"
+      ],
+      "title": "AssetHistory",
+      "type": "object"
+    },
+    "AssetsResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Asset"
+          },
+          "type": "array"
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "total": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor",
+        "total"
+      ],
+      "title": "AssetsResponse",
+      "type": "object"
+    },
+    "AttentionResponse": {
+      "properties": {
+        "signal": {
+          "$ref": "#/$defs/AttentionSignal"
+        },
+        "fact": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Fact"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Evidence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "series": {
+          "items": {
+            "$ref": "#/$defs/PageviewsPoint"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "signal",
+        "fact",
+        "evidence",
+        "series"
+      ],
+      "title": "AttentionResponse",
+      "type": "object"
+    },
+    "AttentionSignal": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "article": {
+          "type": "string"
+        },
+        "ratio": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recentPeriod": {
+          "$ref": "#/$defs/Period"
+        },
+        "baselinePeriod": {
+          "$ref": "#/$defs/Period"
+        },
+        "flag": {
+          "enum": [
+            "elevated",
+            "normal",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "factId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FactId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidenceId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EvidenceId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "ticker",
+        "article",
+        "ratio",
+        "recentPeriod",
+        "baselinePeriod",
+        "flag",
+        "factId",
+        "evidenceId"
+      ],
+      "title": "AttentionSignal",
+      "type": "object"
+    },
+    "AuditCheckCode": {
+      "enum": [
+        "A01",
+        "A02",
+        "A03",
+        "A04",
+        "A05",
+        "A06",
+        "A07",
+        "A08",
+        "A09",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14"
+      ],
+      "title": "AuditCheckCode",
+      "type": "string"
+    },
+    "AuditCheckResult": {
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/AuditCheckCode"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "code",
+            "llm",
+            "guardrail"
+          ],
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "sentenceIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "ok",
+        "kind",
+        "detail",
+        "sentenceIds"
+      ],
+      "title": "AuditCheckResult",
+      "type": "object"
+    },
+    "AuditReport": {
+      "properties": {
+        "status": {
+          "enum": [
+            "passed",
+            "passed_with_strikes",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/AuditCheckResult"
+          },
+          "type": "array"
+        },
+        "sentencesChecked": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "sentencesStruck": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "rewrites": {
+          "ge": 0,
+          "le": 1,
+          "type": "integer"
+        },
+        "guardrail": {
+          "$ref": "#/$defs/GuardrailAudit"
+        },
+        "llmReview": {
+          "$ref": "#/$defs/LlmReview"
+        },
+        "ledgerHash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "signedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "status",
+        "checks",
+        "sentencesChecked",
+        "sentencesStruck",
+        "rewrites",
+        "guardrail",
+        "llmReview",
+        "ledgerHash",
+        "signedAt"
+      ],
+      "title": "AuditReport",
+      "type": "object"
+    },
+    "BatchCheckRequest": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/CheckRequest"
+          },
+          "maxItems": 5,
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "BatchCheckRequest",
+      "type": "object"
+    },
+    "BatchCheckResponse": {
+      "properties": {
+        "results": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/CheckResult"
+              },
+              {
+                "$ref": "#/$defs/ApiError"
+              }
+            ]
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "results"
+      ],
+      "title": "BatchCheckResponse",
+      "type": "object"
+    },
+    "Benchmark": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "series": {
+          "items": {
+            "$ref": "#/$defs/SeriesPoint"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "ticker",
+        "series"
+      ],
+      "title": "Benchmark",
+      "type": "object"
+    },
+    "Brief": {
+      "properties": {
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        },
+        "sections": {
+          "items": {
+            "$ref": "#/$defs/BriefSection"
+          },
+          "type": "array"
+        },
+        "disclaimer": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "generatedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "model": {
+          "type": "string"
+        },
+        "audit": {
+          "$ref": "#/$defs/AuditReport"
+        }
+      },
+      "required": [
+        "lang",
+        "sections",
+        "disclaimer",
+        "generatedAt",
+        "model",
+        "audit"
+      ],
+      "title": "Brief",
+      "type": "object"
+    },
+    "BriefSection": {
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/BriefSectionId"
+        },
+        "title": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "sentences": {
+          "items": {
+            "$ref": "#/$defs/Sentence"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "sentences"
+      ],
+      "title": "BriefSection",
+      "type": "object"
+    },
+    "BriefSectionId": {
+      "enum": [
+        "summary",
+        "facts",
+        "assumptions",
+        "limits",
+        "scenarios",
+        "next_checks"
+      ],
+      "type": "string"
+    },
+    "CachedBriefResponse": {
+      "properties": {
+        "run": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Run"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stale": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "run",
+        "stale"
+      ],
+      "title": "CachedBriefResponse",
+      "type": "object"
+    },
+    "CachedRunResponse": {
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/RunId"
+        },
+        "status": {
+          "const": "succeeded",
+          "type": "string"
+        }
+      },
+      "required": [
+        "runId",
+        "status"
+      ],
+      "title": "CachedRunResponse",
+      "type": "object"
+    },
+    "CancelResponse": {
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/RunId"
+        },
+        "status": {
+          "const": "cancelled",
+          "type": "string"
+        }
+      },
+      "required": [
+        "runId",
+        "status"
+      ],
+      "title": "CancelResponse",
+      "type": "object"
+    },
+    "CheckRequest": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "move": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProposedMove"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ruleOverrides": {
+          "default": null,
+          "items": {
+            "$ref": "#/$defs/RuleOverride"
+          },
+          "type": "array"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec",
+          "default": null
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate",
+          "default": null
+        },
+        "compareFunding": {
+          "default": null,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "profileId",
+        "move"
+      ],
+      "title": "CheckRequest",
+      "type": "object"
+    },
+    "CheckResult": {
+      "properties": {
+        "verdict": {
+          "$ref": "#/$defs/Verdict"
+        },
+        "counts": {
+          "$ref": "#/$defs/VerdictCounts"
+        },
+        "ruleChecks": {
+          "items": {
+            "$ref": "#/$defs/RuleCheck"
+          },
+          "type": "array"
+        },
+        "portfolioBefore": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "portfolioAfter": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "fundingUsed": {
+          "$ref": "#/$defs/Funding"
+        },
+        "fundingOptions": {
+          "items": {
+            "$ref": "#/$defs/FundingOption"
+          },
+          "type": "array"
+        },
+        "maxCompatibleSizePct": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "baselineConflict": {
+          "type": "boolean"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        },
+        "computeMs": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "verdict",
+        "counts",
+        "ruleChecks",
+        "portfolioBefore",
+        "portfolioAfter",
+        "fundingUsed",
+        "fundingOptions",
+        "maxCompatibleSizePct",
+        "baselineConflict",
+        "facts",
+        "asOf",
+        "dataVersion",
+        "window",
+        "computeMs"
+      ],
+      "title": "CheckResult",
+      "type": "object"
+    },
+    "ClarifyingQuestion": {
+      "properties": {
+        "questionId": {
+          "type": "string"
+        },
+        "text": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "field": {
+          "type": "string"
+        },
+        "options": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/QuestionOption"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "questionId",
+        "text",
+        "field",
+        "options"
+      ],
+      "title": "ClarifyingQuestion",
+      "type": "object"
+    },
+    "Comparator": {
+      "enum": [
+        "<=",
+        ">=",
+        "==",
+        "none"
+      ],
+      "type": "string"
+    },
+    "Concentration": {
+      "properties": {
+        "hhi": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "effectiveN": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "topPositions": {
+          "items": {
+            "$ref": "#/$defs/TopPosition"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "hhi",
+        "effectiveN",
+        "topPositions"
+      ],
+      "title": "Concentration",
+      "type": "object"
+    },
+    "Correlation": {
+      "properties": {
+        "tickers": {
+          "items": {
+            "$ref": "#/$defs/Ticker"
+          },
+          "type": "array"
+        },
+        "matrix": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "tickers",
+        "matrix"
+      ],
+      "title": "Correlation",
+      "type": "object"
+    },
+    "CountryExposure": {
+      "properties": {
+        "countryIso3": {
+          "type": "string"
+        },
+        "weightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "basis": {
+          "enum": [
+            "listing_country",
+            "etf_lookthrough",
+            "mixed"
+          ],
+          "type": "string"
+        },
+        "holdings": {
+          "items": {
+            "$ref": "#/$defs/HoldingWeight"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "countryIso3",
+        "weightPct",
+        "basis",
+        "holdings"
+      ],
+      "title": "CountryExposure",
+      "type": "object"
+    },
+    "CreateDecisionRunRequest": {
+      "properties": {
+        "kind": {
+          "const": "decision",
+          "type": "string"
+        },
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        },
+        "request": {
+          "$ref": "#/$defs/DecisionRequest"
+        },
+        "originalText": {
+          "default": null,
+          "type": "string"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec",
+          "default": null
+        }
+      },
+      "required": [
+        "kind",
+        "profileId",
+        "lang",
+        "request"
+      ],
+      "title": "CreateDecisionRunRequest",
+      "type": "object"
+    },
+    "CreateEventBriefRunRequest": {
+      "properties": {
+        "kind": {
+          "const": "event_brief",
+          "type": "string"
+        },
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        },
+        "eventId": {
+          "$ref": "#/$defs/EventId"
+        }
+      },
+      "required": [
+        "kind",
+        "profileId",
+        "lang",
+        "eventId"
+      ],
+      "title": "CreateEventBriefRunRequest",
+      "type": "object"
+    },
+    "CreatePortfolioBriefRunRequest": {
+      "properties": {
+        "kind": {
+          "const": "portfolio_brief",
+          "type": "string"
+        },
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec",
+          "default": null
+        },
+        "force": {
+          "default": null,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "profileId",
+        "lang"
+      ],
+      "title": "CreatePortfolioBriefRunRequest",
+      "type": "object"
+    },
+    "CreateProfileDraftRunRequest": {
+      "properties": {
+        "kind": {
+          "const": "profile_draft",
+          "type": "string"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        },
+        "text": {
+          "type": "string"
+        },
+        "fields": {
+          "$ref": "#/$defs/PartialProfile",
+          "default": null
+        }
+      },
+      "required": [
+        "kind",
+        "lang",
+        "text"
+      ],
+      "title": "CreateProfileDraftRunRequest",
+      "type": "object"
+    },
+    "CreateProfileRequest": {
+      "properties": {
+        "name": {
+          "maxLength": 40,
+          "minLength": 1,
+          "type": "string"
+        },
+        "age": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "riskLevel": {
+          "$ref": "#/$defs/RiskLevel"
+        },
+        "horizonYears": {
+          "$ref": "#/$defs/HorizonYears"
+        },
+        "objective": {
+          "$ref": "#/$defs/Objective"
+        },
+        "experience": {
+          "$ref": "#/$defs/Experience"
+        },
+        "reportingCurrency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "preferences": {
+          "$ref": "#/$defs/Preferences"
+        },
+        "portfolio": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InitialPortfolio"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rules": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PolicyRule"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fromDraftRunId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "age",
+        "riskLevel",
+        "horizonYears",
+        "objective",
+        "experience",
+        "reportingCurrency",
+        "preferences",
+        "portfolio",
+        "rules",
+        "fromDraftRunId"
+      ],
+      "title": "CreateProfileRequest",
+      "type": "object"
+    },
+    "CreateReplayRunRequest": {
+      "properties": {
+        "kind": {
+          "const": "replay",
+          "type": "string"
+        },
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        },
+        "request": {
+          "$ref": "#/$defs/DecisionRequest"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec",
+          "default": null
+        }
+      },
+      "required": [
+        "kind",
+        "profileId",
+        "lang",
+        "request",
+        "asOf"
+      ],
+      "title": "CreateReplayRunRequest",
+      "type": "object"
+    },
+    "CreateRunRequest": {
+      "discriminator": {
+        "mapping": {
+          "decision": "#/$defs/CreateDecisionRunRequest",
+          "event_brief": "#/$defs/CreateEventBriefRunRequest",
+          "portfolio_brief": "#/$defs/CreatePortfolioBriefRunRequest",
+          "profile_draft": "#/$defs/CreateProfileDraftRunRequest",
+          "replay": "#/$defs/CreateReplayRunRequest"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/CreateDecisionRunRequest"
+        },
+        {
+          "$ref": "#/$defs/CreatePortfolioBriefRunRequest"
+        },
+        {
+          "$ref": "#/$defs/CreateEventBriefRunRequest"
+        },
+        {
+          "$ref": "#/$defs/CreateReplayRunRequest"
+        },
+        {
+          "$ref": "#/$defs/CreateProfileDraftRunRequest"
+        }
+      ]
+    },
+    "Currency": {
+      "enum": [
+        "CAD",
+        "USD"
+      ],
+      "type": "string"
+    },
+    "DataVersion": {
+      "pattern": "^snap-[0-9]{8}-[a-z0-9_-]+$",
+      "type": "string"
+    },
+    "DatasetCheck": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "checkedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "name",
+        "ok",
+        "detail",
+        "checkedAt"
+      ],
+      "title": "DatasetCheck",
+      "type": "object"
+    },
+    "DatasetField": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description"
+      ],
+      "title": "DatasetField",
+      "type": "object"
+    },
+    "DatasetId": {
+      "enum": [
+        "assets_universe",
+        "prices_daily",
+        "corporate_actions",
+        "fx_usdcad_daily",
+        "macro_rates",
+        "asset_themes",
+        "default_profiles",
+        "macro_release_dates",
+        "etf_holdings",
+        "world_events",
+        "attention_pageviews",
+        "emissions_facilities",
+        "natural_hazards",
+        "research_documents",
+        "filings_index"
+      ],
+      "title": "DatasetId",
+      "type": "string"
+    },
+    "DatasetPassport": {
+      "properties": {
+        "datasetId": {
+          "$ref": "#/$defs/DatasetId"
+        },
+        "name": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "role": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "status": {
+          "enum": [
+            "in_use",
+            "planned",
+            "rejected"
+          ],
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "sourceUrl": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "accessMethod": {
+          "type": "string"
+        },
+        "licence": {
+          "type": "string"
+        },
+        "licenceUrl": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrievedOn": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coverage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Period"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "frequency": {
+          "type": "string"
+        },
+        "rowCount": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dataVersion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataVersion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema": {
+          "items": {
+            "$ref": "#/$defs/DatasetField"
+          },
+          "type": "array"
+        },
+        "processing": {
+          "items": {
+            "$ref": "#/$defs/I18nText"
+          },
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        },
+        "availabilityRule": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/DatasetCheck"
+          },
+          "type": "array"
+        },
+        "rejectedReason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/I18nText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "datasetId",
+        "name",
+        "role",
+        "status",
+        "source",
+        "sourceUrl",
+        "accessMethod",
+        "licence",
+        "licenceUrl",
+        "retrievedOn",
+        "coverage",
+        "frequency",
+        "rowCount",
+        "dataVersion",
+        "schema",
+        "processing",
+        "limitations",
+        "availabilityRule",
+        "checks",
+        "rejectedReason"
+      ],
+      "title": "DatasetPassport",
+      "type": "object"
+    },
+    "DatasetRead": {
+      "properties": {
+        "datasetId": {
+          "$ref": "#/$defs/DatasetId"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "rows": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "rowsWithheld": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "datasetId",
+        "dataVersion",
+        "rows",
+        "rowsWithheld"
+      ],
+      "title": "DatasetRead",
+      "type": "object"
+    },
+    "DatasetTrap": {
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/LimitationCode"
+        },
+        "handledBy": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "handled",
+            "disclosed",
+            "open"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "handledBy",
+        "status"
+      ],
+      "title": "DatasetTrap",
+      "type": "object"
+    },
+    "DatasetsResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/DatasetPassport"
+          },
+          "type": "array"
+        },
+        "traps": {
+          "items": {
+            "$ref": "#/$defs/DatasetTrap"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items",
+        "traps"
+      ],
+      "title": "DatasetsResponse",
+      "type": "object"
+    },
+    "DecisionInput": {
+      "properties": {
+        "kind": {
+          "const": "decision",
+          "type": "string"
+        },
+        "request": {
+          "$ref": "#/$defs/DecisionRequest"
+        },
+        "originalText": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        }
+      },
+      "required": [
+        "kind",
+        "request",
+        "originalText",
+        "window"
+      ],
+      "title": "DecisionInput",
+      "type": "object"
+    },
+    "DecisionRequest": {
+      "discriminator": {
+        "mapping": {
+          "goal": "#/$defs/GoalRequest",
+          "move": "#/$defs/MoveRequest"
+        },
+        "propertyName": "type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/MoveRequest"
+        },
+        {
+          "$ref": "#/$defs/GoalRequest"
+        }
+      ]
+    },
+    "DecisionResult": {
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/DecisionRequest"
+        },
+        "verdict": {
+          "$ref": "#/$defs/Verdict"
+        },
+        "counts": {
+          "$ref": "#/$defs/VerdictCounts"
+        },
+        "selectedScenarioId": {
+          "$ref": "#/$defs/ScenarioId"
+        },
+        "scenarios": {
+          "items": {
+            "$ref": "#/$defs/Scenario"
+          },
+          "type": "array"
+        },
+        "portfolioBefore": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "maxCompatibleSizePct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fundingOptions": {
+          "items": {
+            "$ref": "#/$defs/FundingOption"
+          },
+          "type": "array"
+        },
+        "attention": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AttentionSignal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "macroContext": {
+          "items": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "array"
+        },
+        "brief": {
+          "$ref": "#/$defs/Brief"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "request",
+        "verdict",
+        "counts",
+        "selectedScenarioId",
+        "scenarios",
+        "portfolioBefore",
+        "maxCompatibleSizePct",
+        "fundingOptions",
+        "attention",
+        "macroContext",
+        "brief",
+        "limitations"
+      ],
+      "title": "DecisionResult",
+      "type": "object"
+    },
+    "DecisionRunResult": {
+      "properties": {
+        "kind": {
+          "const": "decision",
+          "type": "string"
+        },
+        "decision": {
+          "$ref": "#/$defs/DecisionResult"
+        }
+      },
+      "required": [
+        "kind",
+        "decision"
+      ],
+      "title": "DecisionRunResult",
+      "type": "object"
+    },
+    "DeriveRulesRequest": {
+      "properties": {
+        "reset": {
+          "type": "boolean"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec",
+          "default": null
+        }
+      },
+      "required": [
+        "reset"
+      ],
+      "title": "DeriveRulesRequest",
+      "type": "object"
+    },
+    "DeriveRulesResponse": {
+      "properties": {
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/PolicyRule"
+          },
+          "type": "array"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        },
+        "profileVersion": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rules",
+        "facts",
+        "profileVersion"
+      ],
+      "title": "DeriveRulesResponse",
+      "type": "object"
+    },
+    "EmptyRequest": {
+      "properties": {},
+      "title": "EmptyRequest",
+      "type": "object"
+    },
+    "ErrorCode": {
+      "enum": [
+        "validation_error",
+        "not_found",
+        "conflict",
+        "forbidden_action",
+        "insufficient_data",
+        "rate_limited",
+        "upstream_unavailable",
+        "feature_disabled",
+        "internal"
+      ],
+      "title": "ErrorCode",
+      "type": "string"
+    },
+    "ErrorDetail": {
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "additionalProperties": true,
+          "default": null,
+          "type": "object"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "requestId"
+      ],
+      "title": "ErrorDetail",
+      "type": "object"
+    },
+    "EventBriefInput": {
+      "properties": {
+        "kind": {
+          "const": "event_brief",
+          "type": "string"
+        },
+        "eventId": {
+          "$ref": "#/$defs/EventId"
+        }
+      },
+      "required": [
+        "kind",
+        "eventId"
+      ],
+      "title": "EventBriefInput",
+      "type": "object"
+    },
+    "EventBriefResult": {
+      "properties": {
+        "event": {
+          "$ref": "#/$defs/WorldEvent"
+        },
+        "exposures": {
+          "items": {
+            "$ref": "#/$defs/HoldingExposure"
+          },
+          "type": "array"
+        },
+        "brief": {
+          "$ref": "#/$defs/Brief"
+        },
+        "impactStatement": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "event",
+        "exposures",
+        "brief",
+        "impactStatement"
+      ],
+      "title": "EventBriefResult",
+      "type": "object"
+    },
+    "EventBriefRunResult": {
+      "properties": {
+        "kind": {
+          "const": "event_brief",
+          "type": "string"
+        },
+        "eventBrief": {
+          "$ref": "#/$defs/EventBriefResult"
+        }
+      },
+      "required": [
+        "kind",
+        "eventBrief"
+      ],
+      "title": "EventBriefRunResult",
+      "type": "object"
+    },
+    "EventCategory": {
+      "enum": [
+        "monetary_policy",
+        "macro_release",
+        "geopolitical",
+        "trade_regulation",
+        "corporate",
+        "energy_commodities",
+        "markets",
+        "natural_disaster",
+        "other"
+      ],
+      "type": "string"
+    },
+    "EventId": {
+      "pattern": "^evt_[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "EventLocation": {
+      "properties": {
+        "lat": {
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "lon": {
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "countryIso3": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "placeName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "precision": {
+          "enum": [
+            "point",
+            "city",
+            "country"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "lat",
+        "lon",
+        "countryIso3",
+        "placeName",
+        "precision"
+      ],
+      "title": "EventLocation",
+      "type": "object"
+    },
+    "EventSource": {
+      "properties": {
+        "publisher": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "publishedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceType": {
+          "enum": [
+            "news",
+            "official",
+            "filing",
+            "data"
+          ],
+          "type": "string"
+        },
+        "lang": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "publisher",
+        "title",
+        "url",
+        "publishedAt",
+        "sourceType",
+        "lang"
+      ],
+      "title": "EventSource",
+      "type": "object"
+    },
+    "Evidence": {
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/EvidenceId"
+        },
+        "type": {
+          "$ref": "#/$defs/EvidenceType"
+        },
+        "tier": {
+          "enum": [
+            1,
+            2,
+            3
+          ],
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "publisher": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "publishedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrievedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "maxLength": 400,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "claim": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "subject": {
+          "$ref": "#/$defs/EvidenceSubject"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "documentRef": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "licence": {
+          "type": "string"
+        },
+        "verification": {
+          "$ref": "#/$defs/Verification"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "tier",
+        "title",
+        "publisher",
+        "url",
+        "publishedAt",
+        "retrievedAt",
+        "lang",
+        "quote",
+        "claim",
+        "subject",
+        "tool",
+        "documentRef",
+        "licence",
+        "verification"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "EvidenceId": {
+      "pattern": "^E-[0-9]{3,}$",
+      "type": "string"
+    },
+    "EvidenceSegment": {
+      "properties": {
+        "t": {
+          "const": "evidence",
+          "type": "string"
+        },
+        "evidenceId": {
+          "$ref": "#/$defs/EvidenceId"
+        },
+        "display": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "t",
+        "evidenceId",
+        "display"
+      ],
+      "title": "EvidenceSegment",
+      "type": "object"
+    },
+    "EvidenceSubject": {
+      "properties": {
+        "type": {
+          "enum": [
+            "asset",
+            "sector",
+            "country",
+            "event",
+            "theme"
+          ],
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "EvidenceSubject",
+      "type": "object"
+    },
+    "EvidenceType": {
+      "enum": [
+        "filing",
+        "company_report",
+        "fund_document",
+        "official_release",
+        "news",
+        "registry",
+        "attention",
+        "web_page"
+      ],
+      "type": "string"
+    },
+    "Experience": {
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "type": "string"
+    },
+    "ExposureGoal": {
+      "anyOf": [
+        {
+          "properties": {
+            "themes": {
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "properties": {
+            "assetClasses": {
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "properties": {
+            "tickers": {
+              "minItems": 1
+            }
+          }
+        }
+      ],
+      "properties": {
+        "themes": {
+          "items": {
+            "$ref": "#/$defs/ThemeTag"
+          },
+          "type": "array"
+        },
+        "assetClasses": {
+          "items": {
+            "$ref": "#/$defs/AssetClass"
+          },
+          "type": "array"
+        },
+        "tickers": {
+          "items": {
+            "$ref": "#/$defs/Ticker"
+          },
+          "type": "array"
+        },
+        "targetExposurePct": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxLossPct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxVolPct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "themes",
+        "assetClasses",
+        "tickers",
+        "targetExposurePct",
+        "maxLossPct",
+        "maxVolPct",
+        "notes"
+      ],
+      "title": "ExposureGoal",
+      "type": "object"
+    },
+    "FacilitiesResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Facility"
+          },
+          "type": "array"
+        },
+        "total": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "reportingYear": {
+          "type": "integer"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "reportingYear",
+        "limitations"
+      ],
+      "title": "FacilitiesResponse",
+      "type": "object"
+    },
+    "Facility": {
+      "properties": {
+        "facilityId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "operator": {
+          "type": "string"
+        },
+        "ticker": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Ticker"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "matchConfidence": {
+          "enum": [
+            "exact",
+            "probable",
+            "none"
+          ],
+          "type": "string"
+        },
+        "lat": {
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "lon": {
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "countryIso3": {
+          "type": "string"
+        },
+        "reportingYear": {
+          "type": "integer"
+        },
+        "emissionsTco2e": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "registry": {
+          "enum": [
+            "eccc_ghgrp",
+            "epa_ghgrp"
+          ],
+          "type": "string"
+        },
+        "sourceUrl": {
+          "type": "string"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        }
+      },
+      "required": [
+        "facilityId",
+        "name",
+        "operator",
+        "ticker",
+        "matchConfidence",
+        "lat",
+        "lon",
+        "countryIso3",
+        "reportingYear",
+        "emissionsTco2e",
+        "registry",
+        "sourceUrl",
+        "dataVersion"
+      ],
+      "title": "Facility",
+      "type": "object"
+    },
+    "Fact": {
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/FactId"
+        },
+        "key": {
+          "$ref": "#/$defs/FactKey"
+        },
+        "kind": {
+          "$ref": "#/$defs/FactKind"
+        },
+        "metric": {
+          "$ref": "#/$defs/MetricCode"
+        },
+        "label": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "$ref": "#/$defs/Unit"
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Currency"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "display": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "subject": {
+          "$ref": "#/$defs/FactSubject"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Period"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "window": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WindowSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "availableAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method": {
+          "$ref": "#/$defs/FactMethod"
+        },
+        "inputs": {
+          "items": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "array"
+        },
+        "nObs": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceRef"
+          },
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        },
+        "verification": {
+          "$ref": "#/$defs/Verification"
+        },
+        "createdBy": {
+          "enum": [
+            "quant",
+            "rules",
+            "optimizer",
+            "research",
+            "profile",
+            "user",
+            "world",
+            "timemachine"
+          ],
+          "type": "string"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "id",
+        "key",
+        "kind",
+        "metric",
+        "label",
+        "value",
+        "unit",
+        "currency",
+        "display",
+        "subject",
+        "period",
+        "window",
+        "asOf",
+        "availableAt",
+        "method",
+        "inputs",
+        "nObs",
+        "sources",
+        "limitations",
+        "verification",
+        "createdBy",
+        "createdAt"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "FactId": {
+      "pattern": "^F-[0-9]{3,}$",
+      "type": "string"
+    },
+    "FactKey": {
+      "pattern": "^[^|]+\\|[^|:]+:[^|]+\\|[^|]+\\|[^|]+$",
+      "type": "string"
+    },
+    "FactKind": {
+      "enum": [
+        "observed",
+        "computed",
+        "assumption",
+        "input",
+        "scenario",
+        "rule_check",
+        "evidence"
+      ],
+      "type": "string"
+    },
+    "FactMethod": {
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/MethodId"
+        },
+        "description": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "params"
+      ],
+      "title": "FactMethod",
+      "type": "object"
+    },
+    "FactResponse": {
+      "properties": {
+        "fact": {
+          "$ref": "#/$defs/Fact"
+        },
+        "inputs": {
+          "items": {
+            "$ref": "#/$defs/Fact"
+          },
+          "type": "array"
+        },
+        "usedBy": {
+          "$ref": "#/$defs/FactUsage"
+        }
+      },
+      "required": [
+        "fact",
+        "inputs",
+        "usedBy"
+      ],
+      "title": "FactResponse",
+      "type": "object"
+    },
+    "FactSegment": {
+      "properties": {
+        "t": {
+          "const": "fact",
+          "type": "string"
+        },
+        "factId": {
+          "$ref": "#/$defs/FactId"
+        },
+        "display": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "t",
+        "factId",
+        "display"
+      ],
+      "title": "FactSegment",
+      "type": "object"
+    },
+    "FactSubject": {
+      "properties": {
+        "type": {
+          "enum": [
+            "asset",
+            "portfolio",
+            "sector",
+            "asset_group",
+            "asset_class",
+            "theme",
+            "country",
+            "rule",
+            "macro",
+            "event",
+            "request",
+            "universe"
+          ],
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "variant": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "variant"
+      ],
+      "title": "FactSubject",
+      "type": "object"
+    },
+    "FactUsage": {
+      "properties": {
+        "sentenceIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "ruleIds": {
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "sentenceIds",
+        "ruleIds"
+      ],
+      "title": "FactUsage",
+      "type": "object"
+    },
+    "FeatureFlag": {
+      "enum": [
+        "bilingual",
+        "world_explorer",
+        "world_layer_facilities",
+        "world_layer_hazards",
+        "time_machine",
+        "profile_creator",
+        "goal_requests",
+        "sabotage_demo",
+        "research_open_web",
+        "guardrails",
+        "on_demand_tickers",
+        "frontier_chart"
+      ],
+      "title": "FeatureFlag",
+      "type": "string"
+    },
+    "FetchAssetResponse": {
+      "properties": {
+        "asset": {
+          "$ref": "#/$defs/Asset"
+        },
+        "accepted": {
+          "type": "boolean"
+        },
+        "rejectedReason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/I18nText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "passport": {
+          "$ref": "#/$defs/DatasetPassport"
+        }
+      },
+      "required": [
+        "asset",
+        "accepted",
+        "rejectedReason",
+        "passport"
+      ],
+      "title": "FetchAssetResponse",
+      "type": "object"
+    },
+    "FieldExplanation": {
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "text": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "field",
+        "text"
+      ],
+      "title": "FieldExplanation",
+      "type": "object"
+    },
+    "FocusCard": {
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "body": {
+          "items": {
+            "$ref": "#/$defs/Sentence"
+          },
+          "type": "array"
+        },
+        "factIds": {
+          "items": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "title",
+        "body",
+        "factIds"
+      ],
+      "title": "FocusCard",
+      "type": "object"
+    },
+    "FrontierAsset": {
+      "properties": {
+        "volPct": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "histReturnPct": {
+          "type": "number"
+        },
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        }
+      },
+      "required": [
+        "volPct",
+        "histReturnPct",
+        "ticker"
+      ],
+      "title": "FrontierAsset",
+      "type": "object"
+    },
+    "FrontierMetrics": {
+      "properties": {
+        "volPct": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "histReturnPct": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "volPct",
+        "histReturnPct"
+      ],
+      "title": "FrontierMetrics",
+      "type": "object"
+    },
+    "FrontierPoint": {
+      "properties": {
+        "volPct": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "histReturnPct": {
+          "type": "number"
+        },
+        "weights": {
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "volPct",
+        "histReturnPct",
+        "weights"
+      ],
+      "title": "FrontierPoint",
+      "type": "object"
+    },
+    "FrontierResponse": {
+      "properties": {
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "assets": {
+          "items": {
+            "$ref": "#/$defs/FrontierAsset"
+          },
+          "type": "array"
+        },
+        "minVarFrontier": {
+          "items": {
+            "$ref": "#/$defs/FrontierPoint"
+          },
+          "type": "array"
+        },
+        "histMvFrontier": {
+          "items": {
+            "$ref": "#/$defs/FrontierPoint"
+          },
+          "type": "array"
+        },
+        "portfolio": {
+          "$ref": "#/$defs/FrontierMetrics"
+        },
+        "portfolioAfter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FrontierMetrics"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "volBudgetPct": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "window",
+        "currency",
+        "assets",
+        "minVarFrontier",
+        "histMvFrontier",
+        "portfolio",
+        "portfolioAfter",
+        "volBudgetPct",
+        "limitations",
+        "facts"
+      ],
+      "title": "FrontierResponse",
+      "type": "object"
+    },
+    "Funding": {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "from_holdings"
+          }
+        }
+      },
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/FundingMode"
+        },
+        "fromTickers": {
+          "default": null,
+          "items": {
+            "$ref": "#/$defs/Ticker"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "then": {
+        "properties": {
+          "fromTickers": {
+            "minItems": 1
+          }
+        },
+        "required": [
+          "fromTickers"
+        ]
+      },
+      "title": "Funding",
+      "type": "object"
+    },
+    "FundingMode": {
+      "enum": [
+        "auto",
+        "pro_rata",
+        "from_cash",
+        "from_holdings",
+        "new_money"
+      ],
+      "type": "string"
+    },
+    "FundingOption": {
+      "properties": {
+        "funding": {
+          "$ref": "#/$defs/Funding"
+        },
+        "feasible": {
+          "type": "boolean"
+        },
+        "infeasibleReason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/I18nText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "verdict": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Verdict"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "counts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VerdictCounts"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxCompatibleSizePct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recommended": {
+          "type": "boolean"
+        },
+        "rank": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "funding",
+        "feasible",
+        "infeasibleReason",
+        "verdict",
+        "counts",
+        "maxCompatibleSizePct",
+        "recommended",
+        "rank",
+        "note"
+      ],
+      "title": "FundingOption",
+      "type": "object"
+    },
+    "GateDataset": {
+      "properties": {
+        "datasetId": {
+          "$ref": "#/$defs/DatasetId"
+        },
+        "rowsVisible": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "rowsWithheld": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "lastVisibleDate": {
+          "$ref": "#/$defs/ISODate"
+        }
+      },
+      "required": [
+        "datasetId",
+        "rowsVisible",
+        "rowsWithheld",
+        "lastVisibleDate"
+      ],
+      "title": "GateDataset",
+      "type": "object"
+    },
+    "GateReport": {
+      "properties": {
+        "datasets": {
+          "items": {
+            "$ref": "#/$defs/GateDataset"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "datasets"
+      ],
+      "title": "GateReport",
+      "type": "object"
+    },
+    "GoalRequest": {
+      "properties": {
+        "type": {
+          "const": "goal",
+          "type": "string"
+        },
+        "goal": {
+          "$ref": "#/$defs/ExposureGoal"
+        }
+      },
+      "required": [
+        "type",
+        "goal"
+      ],
+      "title": "GoalRequest",
+      "type": "object"
+    },
+    "GroupWeight": {
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/AssetGroup"
+        },
+        "weightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "key",
+        "weightPct"
+      ],
+      "title": "GroupWeight",
+      "type": "object"
+    },
+    "GuardrailAudit": {
+      "properties": {
+        "applied": {
+          "type": "boolean"
+        },
+        "action": {
+          "enum": [
+            "none",
+            "blocked",
+            "masked"
+          ],
+          "type": "string"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "applied",
+        "action",
+        "id"
+      ],
+      "title": "GuardrailAudit",
+      "type": "object"
+    },
+    "Hazard": {
+      "properties": {
+        "hazardId": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "earthquake",
+            "wildfire"
+          ],
+          "type": "string"
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "lat": {
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "lon": {
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "magnitude": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "usgs",
+            "firms"
+          ],
+          "type": "string"
+        },
+        "sourceUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "hazardId",
+        "type",
+        "occurredAt",
+        "lat",
+        "lon",
+        "magnitude",
+        "title",
+        "origin",
+        "sourceUrl"
+      ],
+      "title": "Hazard",
+      "type": "object"
+    },
+    "HazardsResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Hazard"
+          },
+          "type": "array"
+        },
+        "total": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "total"
+      ],
+      "title": "HazardsResponse",
+      "type": "object"
+    },
+    "HealthResponse": {
+      "properties": {
+        "status": {
+          "const": "ok",
+          "type": "string"
+        },
+        "time": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "status",
+        "time"
+      ],
+      "title": "HealthResponse",
+      "type": "object"
+    },
+    "HoldingExposure": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "weightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "linkType": {
+          "enum": [
+            "named_in_source",
+            "listing_country",
+            "sector",
+            "theme",
+            "documented_exposure",
+            "etf_lookthrough"
+          ],
+          "type": "string"
+        },
+        "evidenceIds": {
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          },
+          "type": "array"
+        },
+        "impact": {
+          "enum": [
+            "not_established",
+            "measured_price_move"
+          ],
+          "type": "string"
+        },
+        "impactFactId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FactId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "ticker",
+        "weightPct",
+        "linkType",
+        "evidenceIds",
+        "impact",
+        "impactFactId",
+        "note"
+      ],
+      "title": "HoldingExposure",
+      "type": "object"
+    },
+    "HoldingWeight": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "weightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "ticker",
+        "weightPct"
+      ],
+      "title": "HoldingWeight",
+      "type": "object"
+    },
+    "HorizonYears": {
+      "properties": {
+        "min": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "title": "HorizonYears",
+      "type": "object"
+    },
+    "I18nText": {
+      "properties": {
+        "en": {
+          "type": "string"
+        },
+        "fr": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "en",
+        "fr"
+      ],
+      "title": "I18nText",
+      "type": "object"
+    },
+    "ISODate": {
+      "format": "date",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "type": "string"
+    },
+    "ISODateTime": {
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+      "type": "string"
+    },
+    "InitialPortfolio": {
+      "properties": {
+        "totalValue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "totalValue",
+        "positions"
+      ],
+      "title": "InitialPortfolio",
+      "type": "object"
+    },
+    "LabelWeight": {
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "weightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "key",
+        "weightPct"
+      ],
+      "title": "LabelWeight",
+      "type": "object"
+    },
+    "Lang": {
+      "enum": [
+        "en",
+        "fr"
+      ],
+      "type": "string"
+    },
+    "LegendItem": {
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "color": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "color"
+      ],
+      "title": "LegendItem",
+      "type": "object"
+    },
+    "LimitationCode": {
+      "enum": [
+        "LIM_PAST_NOT_FUTURE",
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_FX_FFILL",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CNQ_FACTOR",
+        "LIM_ETF_NO_LOOKTHROUGH",
+        "LIM_SECTOR_LABELS",
+        "LIM_THEME_TAGS",
+        "LIM_THRESHOLDS_ASSUMED",
+        "LIM_BONDS_SAMPLE",
+        "LIM_MACRO_REVISED",
+        "LIM_MACRO_LAG_ASSUMED",
+        "LIM_NO_CONTROVERSY_DATA",
+        "LIM_EVIDENCE_TIER",
+        "LIM_IMPACT_NOT_ESTABLISHED",
+        "LIM_PRICE_MOVE_NOT_CAUSAL",
+        "LIM_LLM_KNOWLEDGE",
+        "LIM_SHORT_HISTORY",
+        "LIM_CASH_NO_INTEREST",
+        "LIM_SIMULATION_ONLY",
+        "LIM_ATTENTION_PROXY",
+        "LIM_REGISTRY_MATCH",
+        "LIM_MV_ILLUSTRATION"
+      ],
+      "title": "LimitationCode",
+      "type": "string"
+    },
+    "LlmReview": {
+      "properties": {
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/ReviewFinding"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "model",
+        "findings"
+      ],
+      "title": "LlmReview",
+      "type": "object"
+    },
+    "Meta": {
+      "properties": {
+        "contractVersion": {
+          "type": "string"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "dataAsOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "environment": {
+          "enum": [
+            "local",
+            "aws"
+          ],
+          "type": "string"
+        },
+        "languages": {
+          "items": {
+            "$ref": "#/$defs/Lang"
+          },
+          "type": "array"
+        },
+        "features": {
+          "additionalProperties": {
+            "type": "boolean"
+          },
+          "properties": {
+            "bilingual": {
+              "type": "boolean"
+            },
+            "world_explorer": {
+              "type": "boolean"
+            },
+            "world_layer_facilities": {
+              "type": "boolean"
+            },
+            "world_layer_hazards": {
+              "type": "boolean"
+            },
+            "time_machine": {
+              "type": "boolean"
+            },
+            "profile_creator": {
+              "type": "boolean"
+            },
+            "goal_requests": {
+              "type": "boolean"
+            },
+            "sabotage_demo": {
+              "type": "boolean"
+            },
+            "research_open_web": {
+              "type": "boolean"
+            },
+            "guardrails": {
+              "type": "boolean"
+            },
+            "on_demand_tickers": {
+              "type": "boolean"
+            },
+            "frontier_chart": {
+              "type": "boolean"
+            }
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FeatureFlag"
+          },
+          "required": [
+            "bilingual",
+            "world_explorer",
+            "world_layer_facilities",
+            "world_layer_hazards",
+            "time_machine",
+            "profile_creator",
+            "goal_requests",
+            "sabotage_demo",
+            "research_open_web",
+            "guardrails",
+            "on_demand_tickers",
+            "frontier_chart"
+          ],
+          "type": "object"
+        },
+        "models": {
+          "$ref": "#/$defs/ModelIds"
+        },
+        "universe": {
+          "$ref": "#/$defs/UniverseSummary"
+        },
+        "disclaimer": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "contractVersion",
+        "dataVersion",
+        "dataAsOf",
+        "environment",
+        "languages",
+        "features",
+        "models",
+        "universe",
+        "disclaimer"
+      ],
+      "title": "Meta",
+      "type": "object"
+    },
+    "MethodId": {
+      "enum": [
+        "M_PRICE_ADJ_CLOSE",
+        "M_FX_BOC_FFILL",
+        "M_CAL_INTERSECTION",
+        "M_RET_SIMPLE",
+        "M_RET_CALENDAR_YEAR",
+        "M_VOL_STDEV_252",
+        "M_MDD_PEAK_TROUGH",
+        "M_WORST_ROLLING_252",
+        "M_CORR_PEARSON",
+        "M_PORT_CONST_WEIGHTS",
+        "M_WEIGHTS_AFTER_MOVE",
+        "M_STRESS_REPLAY",
+        "M_DERIVE_VOL_BUDGET",
+        "M_DERIVE_POSITION_CAP",
+        "M_DERIVE_SECTOR_CAP",
+        "M_DERIVE_CRYPTO_CAP",
+        "M_DERIVE_GROWTH_CAP",
+        "M_DERIVE_STRESS_LIMIT",
+        "M_DERIVE_DRAWDOWN_LIMIT",
+        "M_MAXSIZE_GRID",
+        "M_FRONTIER_MINVAR",
+        "M_FRONTIER_HIST_MV",
+        "M_RULE_COMPARE",
+        "M_USER_INPUT",
+        "M_PROFILE_ASSUMPTION",
+        "M_OBSERVED_ROW",
+        "M_ATTENTION_RATIO",
+        "M_QUOTE_VERBATIM",
+        "M_EVENT_IMPORTANCE",
+        "M_PRICE_MOVE_AFTER_EVENT",
+        "M_GATE_COUNT"
+      ],
+      "title": "MethodId",
+      "type": "string"
+    },
+    "MetricCode": {
+      "enum": [
+        "price.last",
+        "fx.usdcad",
+        "return.period",
+        "return.calendar_year",
+        "return.ytd",
+        "return.trailing",
+        "return.worst_12m",
+        "vol.annualized",
+        "drawdown.max",
+        "corr.pair",
+        "value.portfolio",
+        "value.position",
+        "weight.position",
+        "weight.position.max_single",
+        "weight.sector",
+        "weight.sector.max",
+        "weight.asset_class",
+        "weight.asset_group",
+        "weight.growth_assets",
+        "weight.fixed_income",
+        "weight.diversifiers",
+        "weight.theme",
+        "weight.country",
+        "concentration.hhi",
+        "concentration.effective_n",
+        "stress.replay_2022",
+        "stress.rate_cycle",
+        "size.requested",
+        "size.max_compatible",
+        "threshold.rule",
+        "budget.volatility",
+        "ref.sigma_single_stock_q3",
+        "ref.sigma_crypto_median",
+        "ref.mix_volatility",
+        "frontier.point",
+        "macro.level",
+        "macro.change",
+        "attention.pageviews_ratio",
+        "emissions.facility_total",
+        "count.rules",
+        "count.sources",
+        "gate.rows_withheld",
+        "quote.figure"
+      ],
+      "title": "MetricCode",
+      "type": "string"
+    },
+    "MissingField": {
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "question": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "field",
+        "question"
+      ],
+      "title": "MissingField",
+      "type": "object"
+    },
+    "ModelIds": {
+      "properties": {
+        "strong": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fast": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "strong",
+        "fast"
+      ],
+      "title": "ModelIds",
+      "type": "object"
+    },
+    "MoveRequest": {
+      "properties": {
+        "type": {
+          "const": "move",
+          "type": "string"
+        },
+        "move": {
+          "$ref": "#/$defs/ProposedMove"
+        }
+      },
+      "required": [
+        "type",
+        "move"
+      ],
+      "title": "MoveRequest",
+      "type": "object"
+    },
+    "NeeReason": {
+      "enum": [
+        "short_history",
+        "no_evidence_loaded",
+        "evidence_unverified",
+        "not_visible_at_asof",
+        "asset_unknown",
+        "dataset_missing"
+      ],
+      "title": "NeeReason",
+      "type": "string"
+    },
+    "Objective": {
+      "enum": [
+        "preserve",
+        "balanced",
+        "growth"
+      ],
+      "type": "string"
+    },
+    "OverviewResponse": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "returns": {
+          "$ref": "#/$defs/OverviewReturns"
+        },
+        "risk": {
+          "$ref": "#/$defs/OverviewRisk"
+        },
+        "concentration": {
+          "$ref": "#/$defs/Concentration"
+        },
+        "correlation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Correlation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ruleChecks": {
+          "items": {
+            "$ref": "#/$defs/RuleCheck"
+          },
+          "type": "array"
+        },
+        "verdict": {
+          "$ref": "#/$defs/Verdict"
+        },
+        "counts": {
+          "$ref": "#/$defs/VerdictCounts"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "profileId",
+        "asOf",
+        "dataVersion",
+        "window",
+        "snapshot",
+        "returns",
+        "risk",
+        "concentration",
+        "correlation",
+        "ruleChecks",
+        "verdict",
+        "counts",
+        "facts",
+        "limitations"
+      ],
+      "title": "OverviewResponse",
+      "type": "object"
+    },
+    "OverviewReturns": {
+      "properties": {
+        "ytdPct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "y1Pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "y3Pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "y5Pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "factIds": {
+          "additionalProperties": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "ytdPct",
+        "y1Pct",
+        "y3Pct",
+        "y5Pct",
+        "factIds"
+      ],
+      "title": "OverviewReturns",
+      "type": "object"
+    },
+    "OverviewRisk": {
+      "properties": {
+        "volatilityPct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxDrawdownPct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "worst12mPct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stress2022Pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "riskCategory": {
+          "$ref": "#/$defs/RiskLevel"
+        },
+        "factIds": {
+          "additionalProperties": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "volatilityPct",
+        "maxDrawdownPct",
+        "worst12mPct",
+        "stress2022Pct",
+        "riskCategory",
+        "factIds"
+      ],
+      "title": "OverviewRisk",
+      "type": "object"
+    },
+    "PageviewsPoint": {
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "views": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "date",
+        "views"
+      ],
+      "title": "PageviewsPoint",
+      "type": "object"
+    },
+    "ParseRequest": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "text": {
+          "maxLength": 600,
+          "minLength": 1,
+          "type": "string"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        }
+      },
+      "required": [
+        "profileId",
+        "text",
+        "lang"
+      ],
+      "title": "ParseRequest",
+      "type": "object"
+    },
+    "ParsedRequest": {
+      "properties": {
+        "request": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DecisionRequest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interpretation": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "type": "string"
+        },
+        "missing": {
+          "items": {
+            "$ref": "#/$defs/MissingField"
+          },
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "$ref": "#/$defs/I18nText"
+          },
+          "type": "array"
+        },
+        "refused": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Refusal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "request",
+        "interpretation",
+        "confidence",
+        "missing",
+        "warnings",
+        "refused"
+      ],
+      "title": "ParsedRequest",
+      "type": "object"
+    },
+    "PartialProfile": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId",
+          "default": null
+        },
+        "isDefault": {
+          "default": null,
+          "type": "boolean"
+        },
+        "origin": {
+          "default": null,
+          "enum": [
+            "brief",
+            "user",
+            "agent_draft"
+          ],
+          "type": "string"
+        },
+        "name": {
+          "default": null,
+          "type": "string"
+        },
+        "initial": {
+          "default": null,
+          "maxLength": 1,
+          "minLength": 1,
+          "type": "string"
+        },
+        "age": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "occupation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "riskLevel": {
+          "$ref": "#/$defs/RiskLevel",
+          "default": null
+        },
+        "horizonYears": {
+          "$ref": "#/$defs/HorizonYears",
+          "default": null
+        },
+        "objective": {
+          "$ref": "#/$defs/Objective",
+          "default": null
+        },
+        "objectiveText": {
+          "$ref": "#/$defs/I18nText",
+          "default": null
+        },
+        "experience": {
+          "$ref": "#/$defs/Experience",
+          "default": null
+        },
+        "reportingCurrency": {
+          "$ref": "#/$defs/Currency",
+          "default": null
+        },
+        "preferences": {
+          "$ref": "#/$defs/Preferences",
+          "default": null
+        },
+        "blurb": {
+          "$ref": "#/$defs/I18nText",
+          "default": null
+        },
+        "personaTest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/I18nText"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "portfolio": {
+          "$ref": "#/$defs/Portfolio",
+          "default": null
+        },
+        "rules": {
+          "default": null,
+          "items": {
+            "$ref": "#/$defs/PolicyRule"
+          },
+          "type": "array"
+        },
+        "version": {
+          "default": null,
+          "ge": 1,
+          "type": "integer"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/ISODateTime",
+          "default": null
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/ISODateTime",
+          "default": null
+        }
+      },
+      "title": "PartialProfile",
+      "type": "object"
+    },
+    "PerformanceResponse": {
+      "properties": {
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "series": {
+          "items": {
+            "$ref": "#/$defs/SeriesPoint"
+          },
+          "type": "array"
+        },
+        "benchmark": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Benchmark"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method": {
+          "$ref": "#/$defs/MethodId"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "window",
+        "currency",
+        "series",
+        "benchmark",
+        "method",
+        "limitations"
+      ],
+      "title": "PerformanceResponse",
+      "type": "object"
+    },
+    "Period": {
+      "properties": {
+        "start": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "end": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "label": {
+          "default": null,
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "Period",
+      "type": "object"
+    },
+    "PolicyRule": {
+      "properties": {
+        "ruleId": {
+          "$ref": "#/$defs/RuleId"
+        },
+        "code": {
+          "$ref": "#/$defs/RuleCode"
+        },
+        "type": {
+          "$ref": "#/$defs/RuleType"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "label": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "rationale": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "metric": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MetricCode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/RuleTarget"
+        },
+        "comparator": {
+          "$ref": "#/$defs/Comparator"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "$ref": "#/$defs/Unit"
+        },
+        "editable": {
+          "type": "boolean"
+        },
+        "bounds": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RuleBounds"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "origin": {
+          "$ref": "#/$defs/RuleOrigin"
+        },
+        "isAssumption": {
+          "type": "boolean"
+        },
+        "derivation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RuleDerivation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "countsInVerdict": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "ruleId",
+        "code",
+        "type",
+        "enabled",
+        "label",
+        "rationale",
+        "metric",
+        "target",
+        "comparator",
+        "threshold",
+        "unit",
+        "editable",
+        "bounds",
+        "origin",
+        "isAssumption",
+        "derivation",
+        "countsInVerdict",
+        "updatedAt"
+      ],
+      "title": "PolicyRule",
+      "type": "object"
+    },
+    "Portfolio": {
+      "properties": {
+        "isFictional": {
+          "const": true,
+          "type": "boolean"
+        },
+        "totalValue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "type": "array"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "isFictional",
+        "totalValue",
+        "currency",
+        "positions",
+        "updatedAt"
+      ],
+      "title": "Portfolio",
+      "type": "object"
+    },
+    "PortfolioBriefInput": {
+      "properties": {
+        "kind": {
+          "const": "portfolio_brief",
+          "type": "string"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        }
+      },
+      "required": [
+        "kind",
+        "window"
+      ],
+      "title": "PortfolioBriefInput",
+      "type": "object"
+    },
+    "PortfolioBriefResult": {
+      "properties": {
+        "snapshot": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "ruleChecks": {
+          "items": {
+            "$ref": "#/$defs/RuleCheck"
+          },
+          "type": "array"
+        },
+        "verdict": {
+          "$ref": "#/$defs/Verdict"
+        },
+        "counts": {
+          "$ref": "#/$defs/VerdictCounts"
+        },
+        "focusCards": {
+          "items": {
+            "$ref": "#/$defs/FocusCard"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        },
+        "brief": {
+          "$ref": "#/$defs/Brief"
+        },
+        "horizonBand": {
+          "enum": [
+            "short",
+            "medium",
+            "long"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "snapshot",
+        "ruleChecks",
+        "verdict",
+        "counts",
+        "focusCards",
+        "brief",
+        "horizonBand"
+      ],
+      "title": "PortfolioBriefResult",
+      "type": "object"
+    },
+    "PortfolioBriefRunResult": {
+      "properties": {
+        "kind": {
+          "const": "portfolio_brief",
+          "type": "string"
+        },
+        "portfolioBrief": {
+          "$ref": "#/$defs/PortfolioBriefResult"
+        }
+      },
+      "required": [
+        "kind",
+        "portfolioBrief"
+      ],
+      "title": "PortfolioBriefRunResult",
+      "type": "object"
+    },
+    "PortfolioSnapshot": {
+      "properties": {
+        "variant": {
+          "type": "string"
+        },
+        "totalValue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/SnapshotPosition"
+          },
+          "type": "array"
+        },
+        "byAssetGroup": {
+          "items": {
+            "$ref": "#/$defs/GroupWeight"
+          },
+          "type": "array"
+        },
+        "bySector": {
+          "items": {
+            "$ref": "#/$defs/LabelWeight"
+          },
+          "type": "array"
+        },
+        "byCountry": {
+          "items": {
+            "$ref": "#/$defs/LabelWeight"
+          },
+          "type": "array"
+        },
+        "metrics": {
+          "$ref": "#/$defs/SnapshotMetrics"
+        }
+      },
+      "required": [
+        "variant",
+        "totalValue",
+        "currency",
+        "positions",
+        "byAssetGroup",
+        "bySector",
+        "byCountry",
+        "metrics"
+      ],
+      "title": "PortfolioSnapshot",
+      "type": "object"
+    },
+    "Position": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "weightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "ticker",
+        "weightPct"
+      ],
+      "title": "Position",
+      "type": "object"
+    },
+    "Preferences": {
+      "properties": {
+        "themesOfInterest": {
+          "items": {
+            "$ref": "#/$defs/ThemeTag"
+          },
+          "type": "array"
+        },
+        "excludedSectors": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "excludedAssetClasses": {
+          "items": {
+            "$ref": "#/$defs/AssetClass"
+          },
+          "type": "array"
+        },
+        "esgFocus": {
+          "type": "boolean"
+        },
+        "avoidControversies": {
+          "type": "boolean"
+        },
+        "avoidSpeculative": {
+          "type": "boolean"
+        },
+        "cryptoInterest": {
+          "enum": [
+            "none",
+            "low",
+            "open"
+          ],
+          "type": "string"
+        },
+        "wantsDiversification": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "themesOfInterest",
+        "excludedSectors",
+        "excludedAssetClasses",
+        "esgFocus",
+        "avoidControversies",
+        "avoidSpeculative",
+        "cryptoInterest",
+        "wantsDiversification",
+        "notes"
+      ],
+      "title": "Preferences",
+      "type": "object"
+    },
+    "Profile": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "isDefault": {
+          "type": "boolean"
+        },
+        "origin": {
+          "enum": [
+            "brief",
+            "user",
+            "agent_draft"
+          ],
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "initial": {
+          "maxLength": 1,
+          "minLength": 1,
+          "type": "string"
+        },
+        "age": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "occupation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "riskLevel": {
+          "$ref": "#/$defs/RiskLevel"
+        },
+        "horizonYears": {
+          "$ref": "#/$defs/HorizonYears"
+        },
+        "objective": {
+          "$ref": "#/$defs/Objective"
+        },
+        "objectiveText": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "experience": {
+          "$ref": "#/$defs/Experience"
+        },
+        "reportingCurrency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "preferences": {
+          "$ref": "#/$defs/Preferences"
+        },
+        "blurb": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "personaTest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/I18nText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "portfolio": {
+          "$ref": "#/$defs/Portfolio"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/PolicyRule"
+          },
+          "type": "array"
+        },
+        "version": {
+          "ge": 1,
+          "type": "integer"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "profileId",
+        "isDefault",
+        "origin",
+        "name",
+        "initial",
+        "age",
+        "occupation",
+        "riskLevel",
+        "horizonYears",
+        "objective",
+        "objectiveText",
+        "experience",
+        "reportingCurrency",
+        "preferences",
+        "blurb",
+        "personaTest",
+        "portfolio",
+        "rules",
+        "version",
+        "createdAt",
+        "updatedAt"
+      ],
+      "title": "Profile",
+      "type": "object"
+    },
+    "ProfileDraftInput": {
+      "properties": {
+        "kind": {
+          "const": "profile_draft",
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "fields": {
+          "$ref": "#/$defs/PartialProfile"
+        }
+      },
+      "required": [
+        "kind",
+        "text",
+        "fields"
+      ],
+      "title": "ProfileDraftInput",
+      "type": "object"
+    },
+    "ProfileDraftResult": {
+      "properties": {
+        "profile": {
+          "$ref": "#/$defs/PartialProfile"
+        },
+        "explanations": {
+          "items": {
+            "$ref": "#/$defs/FieldExplanation"
+          },
+          "type": "array"
+        },
+        "unresolved": {
+          "items": {
+            "$ref": "#/$defs/MissingField"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "profile",
+        "explanations",
+        "unresolved"
+      ],
+      "title": "ProfileDraftResult",
+      "type": "object"
+    },
+    "ProfileDraftRunResult": {
+      "properties": {
+        "kind": {
+          "const": "profile_draft",
+          "type": "string"
+        },
+        "draft": {
+          "$ref": "#/$defs/ProfileDraftResult"
+        }
+      },
+      "required": [
+        "kind",
+        "draft"
+      ],
+      "title": "ProfileDraftRunResult",
+      "type": "object"
+    },
+    "ProfileId": {
+      "pattern": "^(robert|amira|mateo|p_[0-9a-hjkmnp-tv-z]{10})$",
+      "type": "string"
+    },
+    "ProfilesResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Profile"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "ProfilesResponse",
+      "type": "object"
+    },
+    "ProposedMove": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "sizePct": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "funding": {
+          "$ref": "#/$defs/Funding"
+        }
+      },
+      "required": [
+        "ticker",
+        "sizePct",
+        "funding"
+      ],
+      "title": "ProposedMove",
+      "type": "object"
+    },
+    "QuestionOption": {
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "label": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "title": "QuestionOption",
+      "type": "object"
+    },
+    "QueuedRunResponse": {
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/RunId"
+        },
+        "status": {
+          "const": "queued",
+          "type": "string"
+        },
+        "pollAfterMs": {
+          "const": 1000,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "runId",
+        "status",
+        "pollAfterMs"
+      ],
+      "title": "QueuedRunResponse",
+      "type": "object"
+    },
+    "Refusal": {
+      "properties": {
+        "reason": {
+          "enum": [
+            "trade_execution",
+            "advice_request",
+            "off_topic"
+          ],
+          "type": "string"
+        },
+        "message": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "reason",
+        "message"
+      ],
+      "title": "Refusal",
+      "type": "object"
+    },
+    "ReplayInput": {
+      "properties": {
+        "kind": {
+          "const": "replay",
+          "type": "string"
+        },
+        "request": {
+          "$ref": "#/$defs/DecisionRequest"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        }
+      },
+      "required": [
+        "kind",
+        "request",
+        "asOf",
+        "window"
+      ],
+      "title": "ReplayInput",
+      "type": "object"
+    },
+    "ReplayPreset": {
+      "properties": {
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "label": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "why": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "asOf",
+        "label",
+        "why"
+      ],
+      "title": "ReplayPreset",
+      "type": "object"
+    },
+    "ReplayPresetsResponse": {
+      "properties": {
+        "earliestAsOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "latestAsOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "presets": {
+          "items": {
+            "$ref": "#/$defs/ReplayPreset"
+          },
+          "type": "array"
+        },
+        "notices": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "earliestAsOf",
+        "latestAsOf",
+        "presets",
+        "notices"
+      ],
+      "title": "ReplayPresetsResponse",
+      "type": "object"
+    },
+    "ReplayResult": {
+      "properties": {
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "decision": {
+          "$ref": "#/$defs/DecisionResult"
+        },
+        "gate": {
+          "$ref": "#/$defs/GateReport"
+        },
+        "notices": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        },
+        "revealAvailableUntil": {
+          "$ref": "#/$defs/ISODate"
+        }
+      },
+      "required": [
+        "asOf",
+        "decision",
+        "gate",
+        "notices",
+        "revealAvailableUntil"
+      ],
+      "title": "ReplayResult",
+      "type": "object"
+    },
+    "ReplayRunResult": {
+      "properties": {
+        "kind": {
+          "const": "replay",
+          "type": "string"
+        },
+        "replay": {
+          "$ref": "#/$defs/ReplayResult"
+        }
+      },
+      "required": [
+        "kind",
+        "replay"
+      ],
+      "title": "ReplayRunResult",
+      "type": "object"
+    },
+    "RevealOutcome": {
+      "properties": {
+        "scenarioId": {
+          "$ref": "#/$defs/ScenarioId"
+        },
+        "label": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "returnPct": {
+          "type": "number"
+        },
+        "maxDrawdownPct": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "series": {
+          "items": {
+            "$ref": "#/$defs/SeriesPoint"
+          },
+          "type": "array"
+        },
+        "factIds": {
+          "items": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "label",
+        "returnPct",
+        "maxDrawdownPct",
+        "series",
+        "factIds"
+      ],
+      "title": "RevealOutcome",
+      "type": "object"
+    },
+    "RevealRequest": {
+      "properties": {
+        "until": {
+          "$ref": "#/$defs/ISODate",
+          "default": null
+        }
+      },
+      "title": "RevealRequest",
+      "type": "object"
+    },
+    "RevealResult": {
+      "properties": {
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "until": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "outcomes": {
+          "items": {
+            "$ref": "#/$defs/RevealOutcome"
+          },
+          "type": "array"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        },
+        "statement": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "asOf",
+        "until",
+        "outcomes",
+        "facts",
+        "statement"
+      ],
+      "title": "RevealResult",
+      "type": "object"
+    },
+    "ReviewFinding": {
+      "properties": {
+        "sentenceId": {
+          "type": "string"
+        },
+        "issue": {
+          "type": "string"
+        },
+        "code": {
+          "$ref": "#/$defs/AuditCheckCode"
+        }
+      },
+      "required": [
+        "sentenceId",
+        "issue",
+        "code"
+      ],
+      "title": "ReviewFinding",
+      "type": "object"
+    },
+    "RiskLevel": {
+      "enum": [
+        "low",
+        "low_moderate",
+        "moderate",
+        "moderate_high",
+        "high"
+      ],
+      "type": "string"
+    },
+    "RuleBounds": {
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "step": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "min",
+        "max",
+        "step"
+      ],
+      "title": "RuleBounds",
+      "type": "object"
+    },
+    "RuleCheck": {
+      "properties": {
+        "ruleId": {
+          "$ref": "#/$defs/RuleId"
+        },
+        "code": {
+          "$ref": "#/$defs/RuleCode"
+        },
+        "status": {
+          "$ref": "#/$defs/RuleStatus"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "$ref": "#/$defs/Unit"
+        },
+        "comparator": {
+          "$ref": "#/$defs/Comparator"
+        },
+        "headroom": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "worst": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorstExposure"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "valueFactId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FactId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "thresholdFactId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FactId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "detail": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "neeReason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NeeReason"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidenceIds": {
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "ruleId",
+        "code",
+        "status",
+        "value",
+        "threshold",
+        "unit",
+        "comparator",
+        "headroom",
+        "worst",
+        "valueFactId",
+        "thresholdFactId",
+        "detail",
+        "neeReason",
+        "evidenceIds"
+      ],
+      "title": "RuleCheck",
+      "type": "object"
+    },
+    "RuleCode": {
+      "pattern": "^R[1-9][0-9]*$",
+      "type": "string"
+    },
+    "RuleDerivation": {
+      "properties": {
+        "methodId": {
+          "$ref": "#/$defs/MethodId"
+        },
+        "formula": {
+          "type": "string"
+        },
+        "inputs": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "type": "object"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        }
+      },
+      "required": [
+        "methodId",
+        "formula",
+        "inputs",
+        "dataVersion",
+        "window"
+      ],
+      "title": "RuleDerivation",
+      "type": "object"
+    },
+    "RuleId": {
+      "pattern": "^(cap\\.(position|sector|asset_class\\.crypto|growth_assets|theme\\.(ai|semiconductors|software|cloud|ecommerce|electric_vehicles|big_tech|banks|insurance|fossil_energy|pipelines|utilities|rail_transport|consumer_staples|healthcare|retail|broad_canada|broad_us|nasdaq_growth|esg_screened|bonds_canada|bonds_us|long_treasuries|cash_like|gold|crypto|dividend_payers))|floor\\.(fixed_income|diversifiers)|limit\\.(volatility|stress_2022|drawdown)|exclude\\.(sector\\.[a-z]+(_[a-z]+)*|asset_class\\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|ticker\\.[A-Z0-9][A-Z0-9.^=-]*)|evidence\\.controversy|flag\\.(attention|rate_cycle|short_history)|sim\\.only)$",
+      "type": "string"
+    },
+    "RuleOrigin": {
+      "enum": [
+        "derived",
+        "profile_preference",
+        "user",
+        "system"
+      ],
+      "type": "string"
+    },
+    "RuleOverride": {
+      "properties": {
+        "threshold": {
+          "default": null,
+          "type": "number"
+        },
+        "enabled": {
+          "default": null,
+          "type": "boolean"
+        },
+        "ruleId": {
+          "$ref": "#/$defs/RuleId"
+        }
+      },
+      "required": [
+        "ruleId"
+      ],
+      "title": "RuleOverride",
+      "type": "object"
+    },
+    "RulePatchRequest": {
+      "anyOf": [
+        {
+          "required": [
+            "threshold"
+          ]
+        },
+        {
+          "required": [
+            "enabled"
+          ]
+        }
+      ],
+      "properties": {
+        "threshold": {
+          "default": null,
+          "type": "number"
+        },
+        "enabled": {
+          "default": null,
+          "type": "boolean"
+        }
+      },
+      "title": "RulePatchRequest",
+      "type": "object"
+    },
+    "RulePatchResponse": {
+      "properties": {
+        "rule": {
+          "$ref": "#/$defs/PolicyRule"
+        },
+        "profileVersion": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rule",
+        "profileVersion"
+      ],
+      "title": "RulePatchResponse",
+      "type": "object"
+    },
+    "RuleSegment": {
+      "properties": {
+        "t": {
+          "const": "rule",
+          "type": "string"
+        },
+        "ruleId": {
+          "$ref": "#/$defs/RuleId"
+        },
+        "display": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "t",
+        "ruleId",
+        "display"
+      ],
+      "title": "RuleSegment",
+      "type": "object"
+    },
+    "RuleStatus": {
+      "enum": [
+        "pass",
+        "tension",
+        "conflict",
+        "nee",
+        "info"
+      ],
+      "type": "string"
+    },
+    "RuleTarget": {
+      "properties": {
+        "dimension": {
+          "enum": [
+            "position",
+            "sector",
+            "asset_class",
+            "asset_group",
+            "theme",
+            "portfolio",
+            "none"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "dimension",
+        "key"
+      ],
+      "title": "RuleTarget",
+      "type": "object"
+    },
+    "RuleType": {
+      "enum": [
+        "cap",
+        "floor",
+        "limit",
+        "exclude",
+        "evidence",
+        "flag",
+        "sim"
+      ],
+      "type": "string"
+    },
+    "Run": {
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/RunId"
+        },
+        "kind": {
+          "$ref": "#/$defs/RunKind"
+        },
+        "status": {
+          "$ref": "#/$defs/RunStatus"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/SessionId"
+        },
+        "profileId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProfileId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parentRunId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "input": {
+          "$ref": "#/$defs/RunInput"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/Step"
+          },
+          "type": "array"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        },
+        "evidence": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/EvidenceId"
+          },
+          "type": "object"
+        },
+        "question": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ClarifyingQuestion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunResult"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorDetail"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "flags": {
+          "$ref": "#/$defs/RunFlags"
+        },
+        "usage": {
+          "$ref": "#/$defs/RunUsage"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "runId",
+        "kind",
+        "status",
+        "sessionId",
+        "profileId",
+        "parentRunId",
+        "lang",
+        "asOf",
+        "dataVersion",
+        "input",
+        "steps",
+        "facts",
+        "evidence",
+        "question",
+        "result",
+        "error",
+        "flags",
+        "usage",
+        "createdAt",
+        "updatedAt"
+      ],
+      "title": "Run",
+      "type": "object"
+    },
+    "RunFlags": {
+      "properties": {
+        "sabotage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SabotageMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fixture": {
+          "type": "boolean"
+        },
+        "timeMachine": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "sabotage",
+        "fixture",
+        "timeMachine"
+      ],
+      "title": "RunFlags",
+      "type": "object"
+    },
+    "RunId": {
+      "pattern": "^run_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "type": "string"
+    },
+    "RunInput": {
+      "discriminator": {
+        "mapping": {
+          "decision": "#/$defs/DecisionInput",
+          "event_brief": "#/$defs/EventBriefInput",
+          "portfolio_brief": "#/$defs/PortfolioBriefInput",
+          "profile_draft": "#/$defs/ProfileDraftInput",
+          "replay": "#/$defs/ReplayInput",
+          "sabotage": "#/$defs/SabotageInput"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/DecisionInput"
+        },
+        {
+          "$ref": "#/$defs/PortfolioBriefInput"
+        },
+        {
+          "$ref": "#/$defs/EventBriefInput"
+        },
+        {
+          "$ref": "#/$defs/ReplayInput"
+        },
+        {
+          "$ref": "#/$defs/ProfileDraftInput"
+        },
+        {
+          "$ref": "#/$defs/SabotageInput"
+        }
+      ]
+    },
+    "RunKind": {
+      "enum": [
+        "decision",
+        "portfolio_brief",
+        "event_brief",
+        "replay",
+        "profile_draft",
+        "sabotage"
+      ],
+      "type": "string"
+    },
+    "RunResult": {
+      "discriminator": {
+        "mapping": {
+          "decision": "#/$defs/DecisionRunResult",
+          "event_brief": "#/$defs/EventBriefRunResult",
+          "portfolio_brief": "#/$defs/PortfolioBriefRunResult",
+          "profile_draft": "#/$defs/ProfileDraftRunResult",
+          "replay": "#/$defs/ReplayRunResult",
+          "sabotage": "#/$defs/SabotageRunResult"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/DecisionRunResult"
+        },
+        {
+          "$ref": "#/$defs/PortfolioBriefRunResult"
+        },
+        {
+          "$ref": "#/$defs/EventBriefRunResult"
+        },
+        {
+          "$ref": "#/$defs/ReplayRunResult"
+        },
+        {
+          "$ref": "#/$defs/ProfileDraftRunResult"
+        },
+        {
+          "$ref": "#/$defs/SabotageRunResult"
+        }
+      ]
+    },
+    "RunStatus": {
+      "enum": [
+        "queued",
+        "running",
+        "waiting_input",
+        "succeeded",
+        "failed",
+        "cancelled"
+      ],
+      "type": "string"
+    },
+    "RunSummary": {
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/RunId"
+        },
+        "kind": {
+          "$ref": "#/$defs/RunKind"
+        },
+        "status": {
+          "$ref": "#/$defs/RunStatus"
+        },
+        "profileId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProfileId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "title": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "verdict": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Verdict"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "durationMs": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "runId",
+        "kind",
+        "status",
+        "profileId",
+        "createdAt",
+        "title",
+        "verdict",
+        "durationMs"
+      ],
+      "title": "RunSummary",
+      "type": "object"
+    },
+    "RunUsage": {
+      "properties": {
+        "inputTokens": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "outputTokens": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "llmCalls": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "toolCalls": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "durationMs": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "inputTokens",
+        "outputTokens",
+        "llmCalls",
+        "toolCalls",
+        "durationMs"
+      ],
+      "title": "RunUsage",
+      "type": "object"
+    },
+    "RunsResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/RunSummary"
+          },
+          "type": "array"
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "title": "RunsResponse",
+      "type": "object"
+    },
+    "SabotageInput": {
+      "properties": {
+        "kind": {
+          "const": "sabotage",
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/SabotageMode"
+        }
+      },
+      "required": [
+        "kind",
+        "mode"
+      ],
+      "title": "SabotageInput",
+      "type": "object"
+    },
+    "SabotageMode": {
+      "enum": [
+        "invented_number",
+        "false_comparison",
+        "unsupported_interpretation"
+      ],
+      "type": "string"
+    },
+    "SabotageRequest": {
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/SabotageMode",
+          "default": "invented_number"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        }
+      },
+      "required": [
+        "lang"
+      ],
+      "title": "SabotageRequest",
+      "type": "object"
+    },
+    "SabotageResult": {
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/SabotageMode"
+        },
+        "injectedInstruction": {
+          "type": "string"
+        },
+        "briefBeforeAudit": {
+          "$ref": "#/$defs/Brief"
+        },
+        "briefAfterAudit": {
+          "$ref": "#/$defs/Brief"
+        },
+        "caught": {
+          "type": "boolean"
+        },
+        "failedChecks": {
+          "items": {
+            "$ref": "#/$defs/AuditCheckResult"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "mode",
+        "injectedInstruction",
+        "briefBeforeAudit",
+        "briefAfterAudit",
+        "caught",
+        "failedChecks"
+      ],
+      "title": "SabotageResult",
+      "type": "object"
+    },
+    "SabotageRunResult": {
+      "properties": {
+        "kind": {
+          "const": "sabotage",
+          "type": "string"
+        },
+        "sabotage": {
+          "$ref": "#/$defs/SabotageResult"
+        }
+      },
+      "required": [
+        "kind",
+        "sabotage"
+      ],
+      "title": "SabotageRunResult",
+      "type": "object"
+    },
+    "Scenario": {
+      "properties": {
+        "scenarioId": {
+          "$ref": "#/$defs/ScenarioId"
+        },
+        "kind": {
+          "$ref": "#/$defs/ScenarioKind"
+        },
+        "label": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "moves": {
+          "items": {
+            "$ref": "#/$defs/ProposedMove"
+          },
+          "type": "array"
+        },
+        "verdict": {
+          "$ref": "#/$defs/Verdict"
+        },
+        "counts": {
+          "$ref": "#/$defs/VerdictCounts"
+        },
+        "ruleChecks": {
+          "items": {
+            "$ref": "#/$defs/RuleCheck"
+          },
+          "type": "array"
+        },
+        "portfolioAfter": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "exposure": {
+          "items": {
+            "$ref": "#/$defs/ThemeExposure"
+          },
+          "type": "array"
+        },
+        "rationale": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "isBestFit": {
+          "type": "boolean"
+        },
+        "rank": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "keyFactIds": {
+          "items": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "kind",
+        "label",
+        "moves",
+        "verdict",
+        "counts",
+        "ruleChecks",
+        "portfolioAfter",
+        "exposure",
+        "rationale",
+        "isBestFit",
+        "rank",
+        "keyFactIds"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    },
+    "ScenarioId": {
+      "pattern": "^sc_[a-z0-9_]+$",
+      "type": "string"
+    },
+    "ScenarioKind": {
+      "enum": [
+        "requested",
+        "max_compatible",
+        "alternative",
+        "goal_candidate",
+        "rebalance"
+      ],
+      "type": "string"
+    },
+    "Segment": {
+      "discriminator": {
+        "mapping": {
+          "evidence": "#/$defs/EvidenceSegment",
+          "fact": "#/$defs/FactSegment",
+          "rule": "#/$defs/RuleSegment",
+          "status": "#/$defs/StatusSegment",
+          "text": "#/$defs/TextSegment"
+        },
+        "propertyName": "t"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/TextSegment"
+        },
+        {
+          "$ref": "#/$defs/FactSegment"
+        },
+        {
+          "$ref": "#/$defs/RuleSegment"
+        },
+        {
+          "$ref": "#/$defs/StatusSegment"
+        },
+        {
+          "$ref": "#/$defs/EvidenceSegment"
+        }
+      ]
+    },
+    "Sentence": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "segments": {
+          "items": {
+            "$ref": "#/$defs/Segment"
+          },
+          "type": "array"
+        },
+        "audit": {
+          "$ref": "#/$defs/SentenceAudit"
+        }
+      },
+      "required": [
+        "id",
+        "segments",
+        "audit"
+      ],
+      "title": "Sentence",
+      "type": "object"
+    },
+    "SentenceAudit": {
+      "properties": {
+        "status": {
+          "enum": [
+            "verified",
+            "struck",
+            "repaired"
+          ],
+          "type": "string"
+        },
+        "failedChecks": {
+          "items": {
+            "$ref": "#/$defs/AuditCheckCode"
+          },
+          "type": "array"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/I18nText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "failedChecks",
+        "note"
+      ],
+      "title": "SentenceAudit",
+      "type": "object"
+    },
+    "SeriesPoint": {
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "date",
+        "value"
+      ],
+      "title": "SeriesPoint",
+      "type": "object"
+    },
+    "SessionId": {
+      "pattern": "^s_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "SnapshotMetrics": {
+      "properties": {
+        "volatilityPct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxDrawdownPct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stress2022Pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "factIds": {
+          "additionalProperties": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "volatilityPct",
+        "maxDrawdownPct",
+        "stress2022Pct",
+        "factIds"
+      ],
+      "title": "SnapshotMetrics",
+      "type": "object"
+    },
+    "SnapshotPosition": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "weightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        },
+        "assetClass": {
+          "$ref": "#/$defs/AssetClass"
+        },
+        "assetGroup": {
+          "$ref": "#/$defs/AssetGroup"
+        },
+        "sector": {
+          "type": "string"
+        },
+        "marketValue": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "ticker",
+        "weightPct",
+        "name",
+        "assetClass",
+        "assetGroup",
+        "sector",
+        "marketValue"
+      ],
+      "title": "SnapshotPosition",
+      "type": "object"
+    },
+    "SourceRef": {
+      "properties": {
+        "datasetId": {
+          "$ref": "#/$defs/DatasetId"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceUrl": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrievedOn": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "licence": {
+          "type": "string"
+        },
+        "rowsRead": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "datasetId",
+        "dataVersion",
+        "sourceName",
+        "sourceUrl",
+        "retrievedOn",
+        "licence",
+        "rowsRead"
+      ],
+      "title": "SourceRef",
+      "type": "object"
+    },
+    "StatusSegment": {
+      "properties": {
+        "t": {
+          "const": "status",
+          "type": "string"
+        },
+        "ruleId": {
+          "$ref": "#/$defs/RuleId"
+        },
+        "display": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "t",
+        "ruleId",
+        "display"
+      ],
+      "title": "StatusSegment",
+      "type": "object"
+    },
+    "Step": {
+      "properties": {
+        "seq": {
+          "ge": 1,
+          "type": "integer"
+        },
+        "type": {
+          "$ref": "#/$defs/StepType"
+        },
+        "iteration": {
+          "ge": 1,
+          "type": "integer"
+        },
+        "agent": {
+          "$ref": "#/$defs/AgentRole"
+        },
+        "actor": {
+          "enum": [
+            "llm",
+            "llm+tools",
+            "code",
+            "code+llm"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "running",
+            "done",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "startedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "endedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "durationMs": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "summary": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TokenUsage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "toolCalls": {
+          "items": {
+            "$ref": "#/$defs/ToolCall"
+          },
+          "type": "array"
+        },
+        "factIds": {
+          "items": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "array"
+        },
+        "evidenceIds": {
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "seq",
+        "type",
+        "iteration",
+        "agent",
+        "actor",
+        "status",
+        "startedAt",
+        "endedAt",
+        "durationMs",
+        "summary",
+        "model",
+        "usage",
+        "toolCalls",
+        "factIds",
+        "evidenceIds"
+      ],
+      "title": "Step",
+      "type": "object"
+    },
+    "StepType": {
+      "enum": [
+        "plan",
+        "research",
+        "quant",
+        "risk_check",
+        "revise",
+        "write",
+        "audit",
+        "sign"
+      ],
+      "type": "string"
+    },
+    "TextSegment": {
+      "properties": {
+        "t": {
+          "const": "text",
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "t",
+        "text"
+      ],
+      "title": "TextSegment",
+      "type": "object"
+    },
+    "ThemeExposure": {
+      "properties": {
+        "theme": {
+          "$ref": "#/$defs/ThemeTag"
+        },
+        "beforePct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "afterPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "theme",
+        "beforePct",
+        "afterPct"
+      ],
+      "title": "ThemeExposure",
+      "type": "object"
+    },
+    "ThemeTag": {
+      "enum": [
+        "ai",
+        "semiconductors",
+        "software",
+        "cloud",
+        "ecommerce",
+        "electric_vehicles",
+        "big_tech",
+        "banks",
+        "insurance",
+        "fossil_energy",
+        "pipelines",
+        "utilities",
+        "rail_transport",
+        "consumer_staples",
+        "healthcare",
+        "retail",
+        "broad_canada",
+        "broad_us",
+        "nasdaq_growth",
+        "esg_screened",
+        "bonds_canada",
+        "bonds_us",
+        "long_treasuries",
+        "cash_like",
+        "gold",
+        "crypto",
+        "dividend_payers"
+      ],
+      "title": "ThemeTag",
+      "type": "string"
+    },
+    "Ticker": {
+      "pattern": "^[A-Z0-9][A-Z0-9.^=-]*$",
+      "type": "string"
+    },
+    "TokenUsage": {
+      "properties": {
+        "inputTokens": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "outputTokens": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "inputTokens",
+        "outputTokens"
+      ],
+      "title": "TokenUsage",
+      "type": "object"
+    },
+    "ToolCall": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "args": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "startedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "durationMs": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "resultSummary": {
+          "type": "string"
+        },
+        "datasetsRead": {
+          "items": {
+            "$ref": "#/$defs/DatasetRead"
+          },
+          "type": "array"
+        },
+        "factIds": {
+          "items": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "array"
+        },
+        "evidenceIds": {
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          },
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "tool",
+        "args",
+        "startedAt",
+        "durationMs",
+        "ok",
+        "resultSummary",
+        "datasetsRead",
+        "factIds",
+        "evidenceIds",
+        "error"
+      ],
+      "title": "ToolCall",
+      "type": "object"
+    },
+    "TopPosition": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "name": {
+          "type": "string"
+        },
+        "weightPct": {
+          "type": "number"
+        },
+        "marketValue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "return1yPct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "assetClass": {
+          "$ref": "#/$defs/AssetClass"
+        }
+      },
+      "required": [
+        "ticker",
+        "name",
+        "weightPct",
+        "marketValue",
+        "return1yPct",
+        "assetClass"
+      ],
+      "title": "TopPosition",
+      "type": "object"
+    },
+    "Unit": {
+      "enum": [
+        "pct",
+        "pts",
+        "ratio",
+        "count",
+        "days",
+        "cad",
+        "usd",
+        "date",
+        "text",
+        "bool"
+      ],
+      "type": "string"
+    },
+    "UniverseSummary": {
+      "properties": {
+        "total": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "byTier": {
+          "additionalProperties": {
+            "ge": 0,
+            "type": "integer"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "total",
+        "byTier"
+      ],
+      "title": "UniverseSummary",
+      "type": "object"
+    },
+    "UpdatePortfolioRequest": {
+      "properties": {
+        "totalValue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "type": "array"
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "totalValue",
+        "positions",
+        "version"
+      ],
+      "title": "UpdatePortfolioRequest",
+      "type": "object"
+    },
+    "UpdateProfileRequest": {
+      "properties": {
+        "name": {
+          "maxLength": 40,
+          "minLength": 1,
+          "type": "string"
+        },
+        "age": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "riskLevel": {
+          "$ref": "#/$defs/RiskLevel"
+        },
+        "horizonYears": {
+          "$ref": "#/$defs/HorizonYears"
+        },
+        "objective": {
+          "$ref": "#/$defs/Objective"
+        },
+        "experience": {
+          "$ref": "#/$defs/Experience"
+        },
+        "reportingCurrency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "preferences": {
+          "$ref": "#/$defs/Preferences"
+        },
+        "portfolio": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InitialPortfolio"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rules": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PolicyRule"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fromDraftRunId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "age",
+        "riskLevel",
+        "horizonYears",
+        "objective",
+        "experience",
+        "reportingCurrency",
+        "preferences",
+        "portfolio",
+        "rules",
+        "fromDraftRunId",
+        "version"
+      ],
+      "title": "UpdateProfileRequest",
+      "type": "object"
+    },
+    "Verdict": {
+      "enum": [
+        "compatible",
+        "tension",
+        "conflict",
+        "insufficient"
+      ],
+      "type": "string"
+    },
+    "VerdictCounts": {
+      "properties": {
+        "pass": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "tension": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "conflict": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "nee": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "info": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pass",
+        "tension",
+        "conflict",
+        "nee",
+        "info"
+      ],
+      "title": "VerdictCounts",
+      "type": "object"
+    },
+    "Verification": {
+      "properties": {
+        "status": {
+          "enum": [
+            "verified",
+            "unverified",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/VerificationCheck"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "checks"
+      ],
+      "title": "Verification",
+      "type": "object"
+    },
+    "VerificationCheck": {
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "detail": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "ok",
+        "detail"
+      ],
+      "title": "VerificationCheck",
+      "type": "object"
+    },
+    "WindowCode": {
+      "enum": [
+        "full",
+        "1y",
+        "3y",
+        "5y",
+        "ytd",
+        "custom"
+      ],
+      "type": "string"
+    },
+    "WindowSpec": {
+      "if": {
+        "properties": {
+          "code": {
+            "const": "custom"
+          }
+        }
+      },
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/WindowCode"
+        },
+        "start": {
+          "$ref": "#/$defs/ISODate",
+          "default": null
+        },
+        "end": {
+          "$ref": "#/$defs/ISODate",
+          "default": null
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "then": {
+        "required": [
+          "start",
+          "end"
+        ]
+      },
+      "title": "WindowSpec",
+      "type": "object"
+    },
+    "WorldCountryResponse": {
+      "properties": {
+        "countryIso3": {
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "exposure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CountryExposure"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "events": {
+          "items": {
+            "$ref": "#/$defs/WorldEvent"
+          },
+          "type": "array"
+        },
+        "macro": {
+          "items": {
+            "$ref": "#/$defs/Fact"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "countryIso3",
+        "name",
+        "exposure",
+        "events",
+        "macro"
+      ],
+      "title": "WorldCountryResponse",
+      "type": "object"
+    },
+    "WorldEvent": {
+      "properties": {
+        "eventId": {
+          "$ref": "#/$defs/EventId"
+        },
+        "title": {
+          "type": "string"
+        },
+        "category": {
+          "$ref": "#/$defs/EventCategory"
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "publishedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "location": {
+          "$ref": "#/$defs/EventLocation"
+        },
+        "origin": {
+          "enum": [
+            "gdelt",
+            "official",
+            "curated",
+            "usgs",
+            "firms",
+            "live"
+          ],
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/EventSource"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "sourceCount": {
+          "ge": 1,
+          "type": "integer"
+        },
+        "importance": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "relatedTickers": {
+          "items": {
+            "$ref": "#/$defs/Ticker"
+          },
+          "type": "array"
+        },
+        "relatedThemes": {
+          "items": {
+            "$ref": "#/$defs/ThemeTag"
+          },
+          "type": "array"
+        },
+        "relatedCountries": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "datasetId": {
+          "$ref": "#/$defs/DatasetId"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        }
+      },
+      "required": [
+        "eventId",
+        "title",
+        "category",
+        "occurredAt",
+        "publishedAt",
+        "location",
+        "origin",
+        "sources",
+        "sourceCount",
+        "importance",
+        "relatedTickers",
+        "relatedThemes",
+        "relatedCountries",
+        "datasetId",
+        "dataVersion"
+      ],
+      "title": "WorldEvent",
+      "type": "object"
+    },
+    "WorldEventItem": {
+      "properties": {
+        "eventId": {
+          "$ref": "#/$defs/EventId"
+        },
+        "title": {
+          "type": "string"
+        },
+        "category": {
+          "$ref": "#/$defs/EventCategory"
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "publishedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "location": {
+          "$ref": "#/$defs/EventLocation"
+        },
+        "origin": {
+          "enum": [
+            "gdelt",
+            "official",
+            "curated",
+            "usgs",
+            "firms",
+            "live"
+          ],
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/EventSource"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "sourceCount": {
+          "ge": 1,
+          "type": "integer"
+        },
+        "importance": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "relatedTickers": {
+          "items": {
+            "$ref": "#/$defs/Ticker"
+          },
+          "type": "array"
+        },
+        "relatedThemes": {
+          "items": {
+            "$ref": "#/$defs/ThemeTag"
+          },
+          "type": "array"
+        },
+        "relatedCountries": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "datasetId": {
+          "$ref": "#/$defs/DatasetId"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "portfolioRelevant": {
+          "default": null,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "eventId",
+        "title",
+        "category",
+        "occurredAt",
+        "publishedAt",
+        "location",
+        "origin",
+        "sources",
+        "sourceCount",
+        "importance",
+        "relatedTickers",
+        "relatedThemes",
+        "relatedCountries",
+        "datasetId",
+        "dataVersion"
+      ],
+      "title": "WorldEventItem",
+      "type": "object"
+    },
+    "WorldEventResponse": {
+      "properties": {
+        "event": {
+          "$ref": "#/$defs/WorldEvent"
+        },
+        "related": {
+          "items": {
+            "$ref": "#/$defs/WorldEvent"
+          },
+          "type": "array"
+        },
+        "exposures": {
+          "items": {
+            "$ref": "#/$defs/HoldingExposure"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "event",
+        "related",
+        "exposures"
+      ],
+      "title": "WorldEventResponse",
+      "type": "object"
+    },
+    "WorldEventsResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/WorldEventItem"
+          },
+          "type": "array"
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "total": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "coverage": {
+          "$ref": "#/$defs/Period"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor",
+        "total",
+        "coverage",
+        "dataVersion"
+      ],
+      "title": "WorldEventsResponse",
+      "type": "object"
+    },
+    "WorldExposureResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/CountryExposure"
+          },
+          "type": "array"
+        },
+        "basisNote": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "items",
+        "basisNote",
+        "limitations",
+        "facts"
+      ],
+      "title": "WorldExposureResponse",
+      "type": "object"
+    },
+    "WorldLayer": {
+      "properties": {
+        "layerId": {
+          "enum": [
+            "events",
+            "exposure",
+            "facilities",
+            "hazards"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "tier": {
+          "enum": [
+            "P1",
+            "P2"
+          ],
+          "type": "string"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "datasetIds": {
+          "items": {
+            "$ref": "#/$defs/DatasetId"
+          },
+          "type": "array"
+        },
+        "legend": {
+          "items": {
+            "$ref": "#/$defs/LegendItem"
+          },
+          "type": "array"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coverage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Period"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "layerId",
+        "title",
+        "tier",
+        "available",
+        "datasetIds",
+        "legend",
+        "count",
+        "coverage"
+      ],
+      "title": "WorldLayer",
+      "type": "object"
+    },
+    "WorldLayersResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/WorldLayer"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "WorldLayersResponse",
+      "type": "object"
+    },
+    "WorstExposure": {
+      "properties": {
+        "type": {
+          "enum": [
+            "asset",
+            "sector",
+            "asset_group",
+            "theme"
+          ],
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "WorstExposure",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "AgentRole": {
+      "$ref": "#/$defs/AgentRole"
+    },
+    "AnswerRequest": {
+      "$ref": "#/$defs/AnswerRequest"
+    },
+    "AnswerResponse": {
+      "$ref": "#/$defs/AnswerResponse"
+    },
+    "ApiError": {
+      "$ref": "#/$defs/ApiError"
+    },
+    "Asset": {
+      "$ref": "#/$defs/Asset"
+    },
+    "AssetClass": {
+      "$ref": "#/$defs/AssetClass"
+    },
+    "AssetFlag": {
+      "$ref": "#/$defs/AssetFlag"
+    },
+    "AssetGroup": {
+      "$ref": "#/$defs/AssetGroup"
+    },
+    "AssetHistory": {
+      "$ref": "#/$defs/AssetHistory"
+    },
+    "AssetsResponse": {
+      "$ref": "#/$defs/AssetsResponse"
+    },
+    "AttentionResponse": {
+      "$ref": "#/$defs/AttentionResponse"
+    },
+    "AttentionSignal": {
+      "$ref": "#/$defs/AttentionSignal"
+    },
+    "AuditCheckCode": {
+      "$ref": "#/$defs/AuditCheckCode"
+    },
+    "AuditCheckResult": {
+      "$ref": "#/$defs/AuditCheckResult"
+    },
+    "AuditReport": {
+      "$ref": "#/$defs/AuditReport"
+    },
+    "BatchCheckRequest": {
+      "$ref": "#/$defs/BatchCheckRequest"
+    },
+    "BatchCheckResponse": {
+      "$ref": "#/$defs/BatchCheckResponse"
+    },
+    "Benchmark": {
+      "$ref": "#/$defs/Benchmark"
+    },
+    "Brief": {
+      "$ref": "#/$defs/Brief"
+    },
+    "BriefSection": {
+      "$ref": "#/$defs/BriefSection"
+    },
+    "BriefSectionId": {
+      "$ref": "#/$defs/BriefSectionId"
+    },
+    "CachedBriefResponse": {
+      "$ref": "#/$defs/CachedBriefResponse"
+    },
+    "CachedRunResponse": {
+      "$ref": "#/$defs/CachedRunResponse"
+    },
+    "CancelResponse": {
+      "$ref": "#/$defs/CancelResponse"
+    },
+    "CheckRequest": {
+      "$ref": "#/$defs/CheckRequest"
+    },
+    "CheckResult": {
+      "$ref": "#/$defs/CheckResult"
+    },
+    "ClarifyingQuestion": {
+      "$ref": "#/$defs/ClarifyingQuestion"
+    },
+    "Comparator": {
+      "$ref": "#/$defs/Comparator"
+    },
+    "Concentration": {
+      "$ref": "#/$defs/Concentration"
+    },
+    "Correlation": {
+      "$ref": "#/$defs/Correlation"
+    },
+    "CountryExposure": {
+      "$ref": "#/$defs/CountryExposure"
+    },
+    "CreateDecisionRunRequest": {
+      "$ref": "#/$defs/CreateDecisionRunRequest"
+    },
+    "CreateEventBriefRunRequest": {
+      "$ref": "#/$defs/CreateEventBriefRunRequest"
+    },
+    "CreatePortfolioBriefRunRequest": {
+      "$ref": "#/$defs/CreatePortfolioBriefRunRequest"
+    },
+    "CreateProfileDraftRunRequest": {
+      "$ref": "#/$defs/CreateProfileDraftRunRequest"
+    },
+    "CreateProfileRequest": {
+      "$ref": "#/$defs/CreateProfileRequest"
+    },
+    "CreateReplayRunRequest": {
+      "$ref": "#/$defs/CreateReplayRunRequest"
+    },
+    "CreateRunRequest": {
+      "$ref": "#/$defs/CreateRunRequest"
+    },
+    "Currency": {
+      "$ref": "#/$defs/Currency"
+    },
+    "DataVersion": {
+      "$ref": "#/$defs/DataVersion"
+    },
+    "DatasetCheck": {
+      "$ref": "#/$defs/DatasetCheck"
+    },
+    "DatasetField": {
+      "$ref": "#/$defs/DatasetField"
+    },
+    "DatasetId": {
+      "$ref": "#/$defs/DatasetId"
+    },
+    "DatasetPassport": {
+      "$ref": "#/$defs/DatasetPassport"
+    },
+    "DatasetRead": {
+      "$ref": "#/$defs/DatasetRead"
+    },
+    "DatasetTrap": {
+      "$ref": "#/$defs/DatasetTrap"
+    },
+    "DatasetsResponse": {
+      "$ref": "#/$defs/DatasetsResponse"
+    },
+    "DecisionInput": {
+      "$ref": "#/$defs/DecisionInput"
+    },
+    "DecisionRequest": {
+      "$ref": "#/$defs/DecisionRequest"
+    },
+    "DecisionResult": {
+      "$ref": "#/$defs/DecisionResult"
+    },
+    "DecisionRunResult": {
+      "$ref": "#/$defs/DecisionRunResult"
+    },
+    "DeriveRulesRequest": {
+      "$ref": "#/$defs/DeriveRulesRequest"
+    },
+    "DeriveRulesResponse": {
+      "$ref": "#/$defs/DeriveRulesResponse"
+    },
+    "EmptyRequest": {
+      "$ref": "#/$defs/EmptyRequest"
+    },
+    "ErrorCode": {
+      "$ref": "#/$defs/ErrorCode"
+    },
+    "ErrorDetail": {
+      "$ref": "#/$defs/ErrorDetail"
+    },
+    "EventBriefInput": {
+      "$ref": "#/$defs/EventBriefInput"
+    },
+    "EventBriefResult": {
+      "$ref": "#/$defs/EventBriefResult"
+    },
+    "EventBriefRunResult": {
+      "$ref": "#/$defs/EventBriefRunResult"
+    },
+    "EventCategory": {
+      "$ref": "#/$defs/EventCategory"
+    },
+    "EventId": {
+      "$ref": "#/$defs/EventId"
+    },
+    "EventLocation": {
+      "$ref": "#/$defs/EventLocation"
+    },
+    "EventSource": {
+      "$ref": "#/$defs/EventSource"
+    },
+    "Evidence": {
+      "$ref": "#/$defs/Evidence"
+    },
+    "EvidenceId": {
+      "$ref": "#/$defs/EvidenceId"
+    },
+    "EvidenceSegment": {
+      "$ref": "#/$defs/EvidenceSegment"
+    },
+    "EvidenceSubject": {
+      "$ref": "#/$defs/EvidenceSubject"
+    },
+    "EvidenceType": {
+      "$ref": "#/$defs/EvidenceType"
+    },
+    "Experience": {
+      "$ref": "#/$defs/Experience"
+    },
+    "ExposureGoal": {
+      "$ref": "#/$defs/ExposureGoal"
+    },
+    "FacilitiesResponse": {
+      "$ref": "#/$defs/FacilitiesResponse"
+    },
+    "Facility": {
+      "$ref": "#/$defs/Facility"
+    },
+    "Fact": {
+      "$ref": "#/$defs/Fact"
+    },
+    "FactId": {
+      "$ref": "#/$defs/FactId"
+    },
+    "FactKey": {
+      "$ref": "#/$defs/FactKey"
+    },
+    "FactKind": {
+      "$ref": "#/$defs/FactKind"
+    },
+    "FactMethod": {
+      "$ref": "#/$defs/FactMethod"
+    },
+    "FactResponse": {
+      "$ref": "#/$defs/FactResponse"
+    },
+    "FactSegment": {
+      "$ref": "#/$defs/FactSegment"
+    },
+    "FactSubject": {
+      "$ref": "#/$defs/FactSubject"
+    },
+    "FactUsage": {
+      "$ref": "#/$defs/FactUsage"
+    },
+    "FeatureFlag": {
+      "$ref": "#/$defs/FeatureFlag"
+    },
+    "FetchAssetResponse": {
+      "$ref": "#/$defs/FetchAssetResponse"
+    },
+    "FieldExplanation": {
+      "$ref": "#/$defs/FieldExplanation"
+    },
+    "FocusCard": {
+      "$ref": "#/$defs/FocusCard"
+    },
+    "FrontierAsset": {
+      "$ref": "#/$defs/FrontierAsset"
+    },
+    "FrontierMetrics": {
+      "$ref": "#/$defs/FrontierMetrics"
+    },
+    "FrontierPoint": {
+      "$ref": "#/$defs/FrontierPoint"
+    },
+    "FrontierResponse": {
+      "$ref": "#/$defs/FrontierResponse"
+    },
+    "Funding": {
+      "$ref": "#/$defs/Funding"
+    },
+    "FundingMode": {
+      "$ref": "#/$defs/FundingMode"
+    },
+    "FundingOption": {
+      "$ref": "#/$defs/FundingOption"
+    },
+    "GateDataset": {
+      "$ref": "#/$defs/GateDataset"
+    },
+    "GateReport": {
+      "$ref": "#/$defs/GateReport"
+    },
+    "GoalRequest": {
+      "$ref": "#/$defs/GoalRequest"
+    },
+    "GroupWeight": {
+      "$ref": "#/$defs/GroupWeight"
+    },
+    "GuardrailAudit": {
+      "$ref": "#/$defs/GuardrailAudit"
+    },
+    "Hazard": {
+      "$ref": "#/$defs/Hazard"
+    },
+    "HazardsResponse": {
+      "$ref": "#/$defs/HazardsResponse"
+    },
+    "HealthResponse": {
+      "$ref": "#/$defs/HealthResponse"
+    },
+    "HoldingExposure": {
+      "$ref": "#/$defs/HoldingExposure"
+    },
+    "HoldingWeight": {
+      "$ref": "#/$defs/HoldingWeight"
+    },
+    "HorizonYears": {
+      "$ref": "#/$defs/HorizonYears"
+    },
+    "I18nText": {
+      "$ref": "#/$defs/I18nText"
+    },
+    "ISODate": {
+      "$ref": "#/$defs/ISODate"
+    },
+    "ISODateTime": {
+      "$ref": "#/$defs/ISODateTime"
+    },
+    "InitialPortfolio": {
+      "$ref": "#/$defs/InitialPortfolio"
+    },
+    "LabelWeight": {
+      "$ref": "#/$defs/LabelWeight"
+    },
+    "Lang": {
+      "$ref": "#/$defs/Lang"
+    },
+    "LegendItem": {
+      "$ref": "#/$defs/LegendItem"
+    },
+    "LimitationCode": {
+      "$ref": "#/$defs/LimitationCode"
+    },
+    "LlmReview": {
+      "$ref": "#/$defs/LlmReview"
+    },
+    "Meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "MethodId": {
+      "$ref": "#/$defs/MethodId"
+    },
+    "MetricCode": {
+      "$ref": "#/$defs/MetricCode"
+    },
+    "MissingField": {
+      "$ref": "#/$defs/MissingField"
+    },
+    "ModelIds": {
+      "$ref": "#/$defs/ModelIds"
+    },
+    "MoveRequest": {
+      "$ref": "#/$defs/MoveRequest"
+    },
+    "NeeReason": {
+      "$ref": "#/$defs/NeeReason"
+    },
+    "Objective": {
+      "$ref": "#/$defs/Objective"
+    },
+    "OverviewResponse": {
+      "$ref": "#/$defs/OverviewResponse"
+    },
+    "OverviewReturns": {
+      "$ref": "#/$defs/OverviewReturns"
+    },
+    "OverviewRisk": {
+      "$ref": "#/$defs/OverviewRisk"
+    },
+    "PageviewsPoint": {
+      "$ref": "#/$defs/PageviewsPoint"
+    },
+    "ParseRequest": {
+      "$ref": "#/$defs/ParseRequest"
+    },
+    "ParsedRequest": {
+      "$ref": "#/$defs/ParsedRequest"
+    },
+    "PartialProfile": {
+      "$ref": "#/$defs/PartialProfile"
+    },
+    "PerformanceResponse": {
+      "$ref": "#/$defs/PerformanceResponse"
+    },
+    "Period": {
+      "$ref": "#/$defs/Period"
+    },
+    "PolicyRule": {
+      "$ref": "#/$defs/PolicyRule"
+    },
+    "Portfolio": {
+      "$ref": "#/$defs/Portfolio"
+    },
+    "PortfolioBriefInput": {
+      "$ref": "#/$defs/PortfolioBriefInput"
+    },
+    "PortfolioBriefResult": {
+      "$ref": "#/$defs/PortfolioBriefResult"
+    },
+    "PortfolioBriefRunResult": {
+      "$ref": "#/$defs/PortfolioBriefRunResult"
+    },
+    "PortfolioSnapshot": {
+      "$ref": "#/$defs/PortfolioSnapshot"
+    },
+    "Position": {
+      "$ref": "#/$defs/Position"
+    },
+    "Preferences": {
+      "$ref": "#/$defs/Preferences"
+    },
+    "Profile": {
+      "$ref": "#/$defs/Profile"
+    },
+    "ProfileDraftInput": {
+      "$ref": "#/$defs/ProfileDraftInput"
+    },
+    "ProfileDraftResult": {
+      "$ref": "#/$defs/ProfileDraftResult"
+    },
+    "ProfileDraftRunResult": {
+      "$ref": "#/$defs/ProfileDraftRunResult"
+    },
+    "ProfileId": {
+      "$ref": "#/$defs/ProfileId"
+    },
+    "ProfilesResponse": {
+      "$ref": "#/$defs/ProfilesResponse"
+    },
+    "ProposedMove": {
+      "$ref": "#/$defs/ProposedMove"
+    },
+    "QuestionOption": {
+      "$ref": "#/$defs/QuestionOption"
+    },
+    "QueuedRunResponse": {
+      "$ref": "#/$defs/QueuedRunResponse"
+    },
+    "Refusal": {
+      "$ref": "#/$defs/Refusal"
+    },
+    "ReplayInput": {
+      "$ref": "#/$defs/ReplayInput"
+    },
+    "ReplayPreset": {
+      "$ref": "#/$defs/ReplayPreset"
+    },
+    "ReplayPresetsResponse": {
+      "$ref": "#/$defs/ReplayPresetsResponse"
+    },
+    "ReplayResult": {
+      "$ref": "#/$defs/ReplayResult"
+    },
+    "ReplayRunResult": {
+      "$ref": "#/$defs/ReplayRunResult"
+    },
+    "RevealOutcome": {
+      "$ref": "#/$defs/RevealOutcome"
+    },
+    "RevealRequest": {
+      "$ref": "#/$defs/RevealRequest"
+    },
+    "RevealResult": {
+      "$ref": "#/$defs/RevealResult"
+    },
+    "ReviewFinding": {
+      "$ref": "#/$defs/ReviewFinding"
+    },
+    "RiskLevel": {
+      "$ref": "#/$defs/RiskLevel"
+    },
+    "RuleBounds": {
+      "$ref": "#/$defs/RuleBounds"
+    },
+    "RuleCheck": {
+      "$ref": "#/$defs/RuleCheck"
+    },
+    "RuleCode": {
+      "$ref": "#/$defs/RuleCode"
+    },
+    "RuleDerivation": {
+      "$ref": "#/$defs/RuleDerivation"
+    },
+    "RuleId": {
+      "$ref": "#/$defs/RuleId"
+    },
+    "RuleOrigin": {
+      "$ref": "#/$defs/RuleOrigin"
+    },
+    "RuleOverride": {
+      "$ref": "#/$defs/RuleOverride"
+    },
+    "RulePatchRequest": {
+      "$ref": "#/$defs/RulePatchRequest"
+    },
+    "RulePatchResponse": {
+      "$ref": "#/$defs/RulePatchResponse"
+    },
+    "RuleSegment": {
+      "$ref": "#/$defs/RuleSegment"
+    },
+    "RuleStatus": {
+      "$ref": "#/$defs/RuleStatus"
+    },
+    "RuleTarget": {
+      "$ref": "#/$defs/RuleTarget"
+    },
+    "RuleType": {
+      "$ref": "#/$defs/RuleType"
+    },
+    "Run": {
+      "$ref": "#/$defs/Run"
+    },
+    "RunFlags": {
+      "$ref": "#/$defs/RunFlags"
+    },
+    "RunId": {
+      "$ref": "#/$defs/RunId"
+    },
+    "RunInput": {
+      "$ref": "#/$defs/RunInput"
+    },
+    "RunKind": {
+      "$ref": "#/$defs/RunKind"
+    },
+    "RunResult": {
+      "$ref": "#/$defs/RunResult"
+    },
+    "RunStatus": {
+      "$ref": "#/$defs/RunStatus"
+    },
+    "RunSummary": {
+      "$ref": "#/$defs/RunSummary"
+    },
+    "RunUsage": {
+      "$ref": "#/$defs/RunUsage"
+    },
+    "RunsResponse": {
+      "$ref": "#/$defs/RunsResponse"
+    },
+    "SabotageInput": {
+      "$ref": "#/$defs/SabotageInput"
+    },
+    "SabotageMode": {
+      "$ref": "#/$defs/SabotageMode"
+    },
+    "SabotageRequest": {
+      "$ref": "#/$defs/SabotageRequest"
+    },
+    "SabotageResult": {
+      "$ref": "#/$defs/SabotageResult"
+    },
+    "SabotageRunResult": {
+      "$ref": "#/$defs/SabotageRunResult"
+    },
+    "Scenario": {
+      "$ref": "#/$defs/Scenario"
+    },
+    "ScenarioId": {
+      "$ref": "#/$defs/ScenarioId"
+    },
+    "ScenarioKind": {
+      "$ref": "#/$defs/ScenarioKind"
+    },
+    "Segment": {
+      "$ref": "#/$defs/Segment"
+    },
+    "Sentence": {
+      "$ref": "#/$defs/Sentence"
+    },
+    "SentenceAudit": {
+      "$ref": "#/$defs/SentenceAudit"
+    },
+    "SeriesPoint": {
+      "$ref": "#/$defs/SeriesPoint"
+    },
+    "SessionId": {
+      "$ref": "#/$defs/SessionId"
+    },
+    "SnapshotMetrics": {
+      "$ref": "#/$defs/SnapshotMetrics"
+    },
+    "SnapshotPosition": {
+      "$ref": "#/$defs/SnapshotPosition"
+    },
+    "SourceRef": {
+      "$ref": "#/$defs/SourceRef"
+    },
+    "StatusSegment": {
+      "$ref": "#/$defs/StatusSegment"
+    },
+    "Step": {
+      "$ref": "#/$defs/Step"
+    },
+    "StepType": {
+      "$ref": "#/$defs/StepType"
+    },
+    "TextSegment": {
+      "$ref": "#/$defs/TextSegment"
+    },
+    "ThemeExposure": {
+      "$ref": "#/$defs/ThemeExposure"
+    },
+    "ThemeTag": {
+      "$ref": "#/$defs/ThemeTag"
+    },
+    "Ticker": {
+      "$ref": "#/$defs/Ticker"
+    },
+    "TokenUsage": {
+      "$ref": "#/$defs/TokenUsage"
+    },
+    "ToolCall": {
+      "$ref": "#/$defs/ToolCall"
+    },
+    "TopPosition": {
+      "$ref": "#/$defs/TopPosition"
+    },
+    "Unit": {
+      "$ref": "#/$defs/Unit"
+    },
+    "UniverseSummary": {
+      "$ref": "#/$defs/UniverseSummary"
+    },
+    "UpdatePortfolioRequest": {
+      "$ref": "#/$defs/UpdatePortfolioRequest"
+    },
+    "UpdateProfileRequest": {
+      "$ref": "#/$defs/UpdateProfileRequest"
+    },
+    "Verdict": {
+      "$ref": "#/$defs/Verdict"
+    },
+    "VerdictCounts": {
+      "$ref": "#/$defs/VerdictCounts"
+    },
+    "Verification": {
+      "$ref": "#/$defs/Verification"
+    },
+    "VerificationCheck": {
+      "$ref": "#/$defs/VerificationCheck"
+    },
+    "WindowCode": {
+      "$ref": "#/$defs/WindowCode"
+    },
+    "WindowSpec": {
+      "$ref": "#/$defs/WindowSpec"
+    },
+    "WorldCountryResponse": {
+      "$ref": "#/$defs/WorldCountryResponse"
+    },
+    "WorldEvent": {
+      "$ref": "#/$defs/WorldEvent"
+    },
+    "WorldEventItem": {
+      "$ref": "#/$defs/WorldEventItem"
+    },
+    "WorldEventResponse": {
+      "$ref": "#/$defs/WorldEventResponse"
+    },
+    "WorldEventsResponse": {
+      "$ref": "#/$defs/WorldEventsResponse"
+    },
+    "WorldExposureResponse": {
+      "$ref": "#/$defs/WorldExposureResponse"
+    },
+    "WorldLayer": {
+      "$ref": "#/$defs/WorldLayer"
+    },
+    "WorldLayersResponse": {
+      "$ref": "#/$defs/WorldLayersResponse"
+    },
+    "WorstExposure": {
+      "$ref": "#/$defs/WorstExposure"
+    }
+  },
+  "required": [
+    "AgentRole",
+    "AnswerRequest",
+    "AnswerResponse",
+    "ApiError",
+    "Asset",
+    "AssetClass",
+    "AssetFlag",
+    "AssetGroup",
+    "AssetHistory",
+    "AssetsResponse",
+    "AttentionResponse",
+    "AttentionSignal",
+    "AuditCheckCode",
+    "AuditCheckResult",
+    "AuditReport",
+    "BatchCheckRequest",
+    "BatchCheckResponse",
+    "Benchmark",
+    "Brief",
+    "BriefSection",
+    "BriefSectionId",
+    "CachedBriefResponse",
+    "CachedRunResponse",
+    "CancelResponse",
+    "CheckRequest",
+    "CheckResult",
+    "ClarifyingQuestion",
+    "Comparator",
+    "Concentration",
+    "Correlation",
+    "CountryExposure",
+    "CreateDecisionRunRequest",
+    "CreateEventBriefRunRequest",
+    "CreatePortfolioBriefRunRequest",
+    "CreateProfileDraftRunRequest",
+    "CreateProfileRequest",
+    "CreateReplayRunRequest",
+    "CreateRunRequest",
+    "Currency",
+    "DataVersion",
+    "DatasetCheck",
+    "DatasetField",
+    "DatasetId",
+    "DatasetPassport",
+    "DatasetRead",
+    "DatasetTrap",
+    "DatasetsResponse",
+    "DecisionInput",
+    "DecisionRequest",
+    "DecisionResult",
+    "DecisionRunResult",
+    "DeriveRulesRequest",
+    "DeriveRulesResponse",
+    "EmptyRequest",
+    "ErrorCode",
+    "ErrorDetail",
+    "EventBriefInput",
+    "EventBriefResult",
+    "EventBriefRunResult",
+    "EventCategory",
+    "EventId",
+    "EventLocation",
+    "EventSource",
+    "Evidence",
+    "EvidenceId",
+    "EvidenceSegment",
+    "EvidenceSubject",
+    "EvidenceType",
+    "Experience",
+    "ExposureGoal",
+    "FacilitiesResponse",
+    "Facility",
+    "Fact",
+    "FactId",
+    "FactKey",
+    "FactKind",
+    "FactMethod",
+    "FactResponse",
+    "FactSegment",
+    "FactSubject",
+    "FactUsage",
+    "FeatureFlag",
+    "FetchAssetResponse",
+    "FieldExplanation",
+    "FocusCard",
+    "FrontierAsset",
+    "FrontierMetrics",
+    "FrontierPoint",
+    "FrontierResponse",
+    "Funding",
+    "FundingMode",
+    "FundingOption",
+    "GateDataset",
+    "GateReport",
+    "GoalRequest",
+    "GroupWeight",
+    "GuardrailAudit",
+    "Hazard",
+    "HazardsResponse",
+    "HealthResponse",
+    "HoldingExposure",
+    "HoldingWeight",
+    "HorizonYears",
+    "I18nText",
+    "ISODate",
+    "ISODateTime",
+    "InitialPortfolio",
+    "LabelWeight",
+    "Lang",
+    "LegendItem",
+    "LimitationCode",
+    "LlmReview",
+    "Meta",
+    "MethodId",
+    "MetricCode",
+    "MissingField",
+    "ModelIds",
+    "MoveRequest",
+    "NeeReason",
+    "Objective",
+    "OverviewResponse",
+    "OverviewReturns",
+    "OverviewRisk",
+    "PageviewsPoint",
+    "ParseRequest",
+    "ParsedRequest",
+    "PartialProfile",
+    "PerformanceResponse",
+    "Period",
+    "PolicyRule",
+    "Portfolio",
+    "PortfolioBriefInput",
+    "PortfolioBriefResult",
+    "PortfolioBriefRunResult",
+    "PortfolioSnapshot",
+    "Position",
+    "Preferences",
+    "Profile",
+    "ProfileDraftInput",
+    "ProfileDraftResult",
+    "ProfileDraftRunResult",
+    "ProfileId",
+    "ProfilesResponse",
+    "ProposedMove",
+    "QuestionOption",
+    "QueuedRunResponse",
+    "Refusal",
+    "ReplayInput",
+    "ReplayPreset",
+    "ReplayPresetsResponse",
+    "ReplayResult",
+    "ReplayRunResult",
+    "RevealOutcome",
+    "RevealRequest",
+    "RevealResult",
+    "ReviewFinding",
+    "RiskLevel",
+    "RuleBounds",
+    "RuleCheck",
+    "RuleCode",
+    "RuleDerivation",
+    "RuleId",
+    "RuleOrigin",
+    "RuleOverride",
+    "RulePatchRequest",
+    "RulePatchResponse",
+    "RuleSegment",
+    "RuleStatus",
+    "RuleTarget",
+    "RuleType",
+    "Run",
+    "RunFlags",
+    "RunId",
+    "RunInput",
+    "RunKind",
+    "RunResult",
+    "RunStatus",
+    "RunSummary",
+    "RunUsage",
+    "RunsResponse",
+    "SabotageInput",
+    "SabotageMode",
+    "SabotageRequest",
+    "SabotageResult",
+    "SabotageRunResult",
+    "Scenario",
+    "ScenarioId",
+    "ScenarioKind",
+    "Segment",
+    "Sentence",
+    "SentenceAudit",
+    "SeriesPoint",
+    "SessionId",
+    "SnapshotMetrics",
+    "SnapshotPosition",
+    "SourceRef",
+    "StatusSegment",
+    "Step",
+    "StepType",
+    "TextSegment",
+    "ThemeExposure",
+    "ThemeTag",
+    "Ticker",
+    "TokenUsage",
+    "ToolCall",
+    "TopPosition",
+    "Unit",
+    "UniverseSummary",
+    "UpdatePortfolioRequest",
+    "UpdateProfileRequest",
+    "Verdict",
+    "VerdictCounts",
+    "Verification",
+    "VerificationCheck",
+    "WindowCode",
+    "WindowSpec",
+    "WorldCountryResponse",
+    "WorldEvent",
+    "WorldEventItem",
+    "WorldEventResponse",
+    "WorldEventsResponse",
+    "WorldExposureResponse",
+    "WorldLayer",
+    "WorldLayersResponse",
+    "WorstExposure"
+  ],
+  "title": "AplombContracts",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aplomb.local/contracts/1.0.0/schema.json",
+  "x-contract-version": "1.0.0",
+  "x-spec-sha256": {
+    "schemas.md": "a9c32017b1ae14af8d23b876cc24988142fdd15b35a914718f2e62fd514aaf42",
+    "catalog.md": "bbb2dc5a3d14f79db60dcb72d12306501fee14f6101749d87dbce4b9a8d0c3be",
+    "api.md": "3846d1515f9348ada696116279bb0f296512b0b0b3fb615e0f634af9b8b37246",
+    "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
+    "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
+  }
+}

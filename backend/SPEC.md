@@ -6,6 +6,8 @@
 
 Implement one Python package under `backend/aplomb/`. HTTP entry point `aplomb.api.app:create_app`; AWS handler `aplomb.api.lambda_handler:handler`; worker handler `aplomb.agents.worker:handler`. These are planned paths, not existing runnable files. Target a mutually supported Python runtime, pin FastAPI/Pydantic/Strands/AWS SDK versions and commit a lockfile. A Lambda HTTP adapter may be used; T02/T03 verify payload compatibility before deployment.
 
+T01 has initialized the root `pyproject.toml`/`uv.lock` with Python 3.12, Pydantic and contract-test tools. `uv sync --locked` installs the package; `uv run pytest` runs the shared contract suite. T03 extends this manifest for FastAPI/serving; T08 requests agent dependencies. Application entry points above still await their owners.
+
 | Module | Owner | Specification |
 |---|---|---|
 | contracts | T01 | [Shared schemas](../contracts/schemas.md) and [catalog](../contracts/catalog.md) |

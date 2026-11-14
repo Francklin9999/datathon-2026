@@ -14,6 +14,6 @@ World fixture geography is a display location for the Canadian central-bank obse
 
 ## Validation and ownership
 
-T01 owns shapes and IDs; T05 owns numeric updates; module owners propose changes centrally. Run `python3 scripts/check_specs.py` from root after edits. It checks required fields, weights, rule/fact references, counts, hash and numeric controls, plus documentation links. Once T01 creates actual Pydantic/TypeScript models, contract tests must validate these payloads directly; the present integrity checker is not a replacement for generated schema validation.
+T01 owns shapes and IDs; T05 owns numeric updates; module owners propose changes centrally. Run `npm run check` from root after edits. It validates these payloads directly with Pydantic and the web JSON Schema validator, verifies Python-to-web serialization, and runs the integrity checker for weights, rule/fact references, counts, hash, numeric controls and documentation links. The standard-library subset remains available as `python3 scripts/check_specs.py`.
 
 Use the invalid/empty/failed cases in module test specs to construct test responses in tests, not as unlabeled production fallback. Never switch automatically from failed live service to this succeeded run.

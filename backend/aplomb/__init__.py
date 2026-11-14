@@ -1,1 +1,1 @@
-"""Aplomb backend package (see backend/SPEC.md)."""
+"""Aplomb. Importing the package never opens network connections."""

@@ -46,6 +46,18 @@ Owner: track **T01 (Contracts & integration)**. See `docs/04-TRACKS.md`.
 
 T01 writes the two mirrored files once and owns them. Other tracks import them and never redefine a type locally.
 
+### Implemented generation and verification
+
+The written 1.0.0 contract remains the authority for scope. Its executable mirror is now [Pydantic models](../backend/aplomb/contracts/models.py), [API envelopes](../backend/aplomb/contracts/api.py), and [wire primitives](../backend/aplomb/contracts/base.py). The catalog is generated directly from `catalog.md`. Python exports [JSON Schema](generated/schema.json); the locked local generator derives [TypeScript types](../web/src/contracts/types.ts). Do not hand-edit generated files.
+
+Run `npm run generate:contracts` to update artifacts, and `npm run check` to verify them. CI rejects stale generated output. Tests compile every TypeScript declaration in `schemas.md` against the generated types, check every named type is exported, run shared [validation cases](validation-cases.json) in both languages, validate all three canonical fixtures, and pass actual Python serialization into the web validator. Schema references are restricted to local definitions; generation and validation make no network calls.
+
+Use `model.to_wire()` for Python payloads so omitted optional keys remain absent while required nullable fields remain present. Optional keys reject explicit null unless the written type includes null. Use `validateContract(name, unknownJson)` from [the web validator](../web/src/contracts/validate.ts) before consuming HTTP JSON. `PartialProfile` mirrors the shallow `Partial<Profile>` draft type; supplied fields retain their original types and nullability.
+
+Wire validation covers shapes, closed enums, finite numbers, dates, identifiers, custom-window dates, funding donors, nonempty goal targets and nonempty rule patches. Calculation correctness, sums of portfolio weights, horizon ordering, resource existence, reference integrity, run transitions, and session authorization remain service responsibilities (T03–T12); fixture reference and numeric integrity are independently checked by `scripts/check_specs.py`. Contract validation does not replace those domain checks.
+
+T01's handoff and exact consumer imports are in [the integration handoff](../docs/T01-HANDOFF.md). No HTTP service or cloud deployment is implied by the generated schema registry.
+
 ## Changelog
 
 | Version | Date | Change |
@@ -55,3 +67,5 @@ T01 writes the two mirrored files once and owns them. Other tracks import them a
 ### Pre-implementation completion review (2026-11-14)
 
 The interrupted 1.0.0 draft was completed before implementation. Corrections: baseline Mateo is insufficient without controversy evidence; profile drafts use Partial<Profile>; nullable overview risk matches missing-data behavior; batch endpoint is indexed; informational counts include flags; first-conflict boundary wording is explicit; async idempotency is session/body-scoped; polling uses completed-step watermark and indexes include session/profile version. No deployed v1 clients existed. See decision-log §6 and the per-module specs for rationale. T01 freezes mirrors against this completed 1.0.0 pack.
+
+T01 implementation freeze (2026-11-14): executable mirrors, generated registry, shared rejection cases, fixture serialization checks, lockfiles, and CI added without changing wire version 1.0.0. `RuleId` has fixed enum constants plus the documented validated theme/sector/asset/ticker families; custom IDs use lowercase Crockford base32, matching the published example.
