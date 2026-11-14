@@ -48,3 +48,18 @@ For a bounded eligible universe use sample covariance of aligned returns. `M_FRO
 OPT-01 reproduce all default thresholds, Q3=31.22 and crypto median=59.97 controls within tolerance. OPT-02 reproduce TSLA boundaries Robert 6.0, Amira 11.0, Mateo financial-prefix 10.0 plus evidence limitation; CNQ Mateo 0. OPT-03 new-money and donor-set controls. OPT-04 synthetic nonmonotone grid does not skip first conflict. OPT-05 baseline conflict and no feasible mix. OPT-06 deterministic tie-breaking and no return-based candidate ranking. OPT-07 no double-counting overlapping theme exposure (union of matched positions). OPT-08 frontier never affects verdict.
 
 Handoff includes structured missing/no-solution results and performance measurements; it does not require P1 charts to finish before P0 size search is integrated.
+
+## 8. Implementation status (T07, 2026-11-14)
+
+P0 is implemented in `backend/aplomb/optimizer/`:
+
+| Module | Content |
+|---|---|
+| `derive.py` | `derive_thresholds(profile, engine, created_at, window)` -> `Derivation(rules, fact_ids, values, issues)`: A-02..A-10 from recomputed reference statistics (starter single-stock Q3, crypto median, full 0–100 reference-mix grid); `no_feasible_reference_mix` issue instead of a least-bad mix |
+| `search.py` | `max_compatible_size` (contiguous 0.5-point prefix from zero, stops at the first conflict, records remaining tension/nee), `compare_funding` (four modes, lexicographic ranking, one recommended), `auto_donors` (theme-sharing growth holdings first, owned and not excluded) |
+| `check.py` | `CheckServiceImpl` for T03 (`POST /check`): overrides, as-of gate (historical before the data date), funding resolution, rule checks, baseline conflict, size facts; `prepare`/`assess` split for the agent steps |
+| `services.py` | `deriver`/`proposer` hooks for `ProfileServiceImpl`, `DecisionControls` (T08 `CodeControls` for move requests: requested and max-compatible scenarios), `build_domain_services` |
+
+Grid points use `PortfolioView(record=False)` and `rules.engine.quick_statuses` (same comparisons, no facts); only retained results become facts. `uv run pytest backend/tests/unit/optimizer` reproduces controls §7 thresholds (Q3 31.22, crypto median 59.97) and every §9 boundary (Robert 6.0, Amira 11.0, Mateo TSLA 10.0 with the evidence gap attached, Mateo CNQ 0, new money 6.0/11.0/12.5, named donors 12.0), the §9.2 funding table, AT-01/02/03/18, PRF-04 and a synthetic nonmonotone grid. A warm `/check` for Robert +25 TSLA takes about 0.1 s locally.
+
+Not implemented yet (P1): `goal_candidates`, `alternatives`, `rebalance` and `frontier`. `DecisionControls.quant` raises for goal requests and `ProfileServiceImpl.frontier` returns `feature_disabled`, so no candidate or chart is invented. The proposed starting portfolio uses broad reference funds (XIU.TO, SPY or ESGV, XBB.TO, optional GLD and same-currency cash) at a fictional 100,000 value and keeps the largest equity share without a rule conflict.

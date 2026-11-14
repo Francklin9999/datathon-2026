@@ -592,4 +592,12 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     return app
 
 
-app = create_app()
+def create_default_app(settings: Settings | None = None) -> FastAPI:
+    """The exported application: configured snapshot plus the implemented domain providers."""
+    from .domain import default_services
+
+    settings = settings if settings is not None else Settings.from_env()
+    return create_app(settings, default_services(settings))
+
+
+app = create_default_app()

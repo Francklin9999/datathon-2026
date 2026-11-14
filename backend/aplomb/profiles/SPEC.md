@@ -238,3 +238,9 @@ Validation applied to every created or edited profile:
 - All eight tests pass without network access.
 - `GET /v1/profiles` returns the three defaults in the order Robert, Amira, Mateo (the demo starts with Robert).
 - French labels exist for every rule label and blurb (or repeat English if the bilingual feature is cut).
+
+## 7. Implementation status (T06, 2026-11-14)
+
+`defaults.py` builds the three personas (thresholds and printed derivation inputs from controls §5/§7) and writes `defaults.json` (`uv run python -m aplomb.profiles.defaults`); a test fails on drift. `rulebuilder.make_rule` builds validated `PolicyRule`s for defaults and derivation. `service.ProfileServiceImpl(repository, snapshot, clock, deriver, proposer)` implements T03's `ProfileService`: defaults + session overlays (only changed rules/portfolio stored; version = 1 + overlay revision), custom profiles (`p_` + 10 Crockford base32 characters as in the contract pattern), rule PATCH with bounds and `editable` checks, portfolio validation (sum 100 ± 0.01, at most 40 positions, unique known tickers, positive value), optimistic versions, deterministic `overview` (snapshot, YTD/1y/3y/5y returns or null, risk with `riskCategory`, top five positions, correlation of assets with defined correlations, rule checks, facts) and `performance` (constant-weight index from total value, optional benchmark).
+
+`deriver`/`proposer` come from the optimizer (T07); without them rule derivation, custom profiles without rules and portfolio proposals return `upstream_unavailable`. `frontier` returns `feature_disabled` and `brief` belongs to the run coordinator (T08). PRF-04 (rederive) is tested with T07; PRF-08 (free-text draft) belongs to T08.
