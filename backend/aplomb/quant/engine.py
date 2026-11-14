@@ -223,9 +223,10 @@ class QuantEngine:
     # Public views -----------------------------------------------------------------------------
 
     def view(self, weights: dict[str, float], variant: str, total_value: float, *, after_move: bool | None = None,
-             window: dict | None = None) -> "PortfolioView":
+             window: dict | None = None, record: bool = True) -> "PortfolioView":
+        """``record=False`` computes the same values without registering facts (grid scans)."""
         return PortfolioView(self, weights, variant, total_value, after_move=variant != "before" if after_move is None else after_move,
-                             window=window)
+                             window=window, record=record)
 
     def asset_metrics(self, ticker: str, window: dict | None = None) -> dict[str, Measurement]:
         """quant.asset_metrics: return.period, vol.annualized, drawdown.max, return.worst_12m (reporting currency)."""
@@ -365,11 +366,15 @@ class QuantEngine:
             return ticker
 
 
+class _NoRecord(Exception):
+    pass
+
+
 class PortfolioView:
     """A portfolio variant (fractional weights) with lazily registered facts."""
 
     def __init__(self, engine: QuantEngine, weights: dict[str, float], variant: str, total_value: float, *,
-                 after_move: bool, window: dict | None = None) -> None:
+                 after_move: bool, window: dict | None = None, record: bool = True) -> None:
         total = math.fsum(weights.values())
         if abs(total - 1.0) > 1e-6:
             raise ValueError(f"weights sum to {total}, not 1")
@@ -379,6 +384,7 @@ class PortfolioView:
         self.total_value = total_value
         self.after_move = after_move
         self.wr_spec = window
+        self.record = record
         self.assets = {t: engine.universe.get(t) for t in self.weights}  # raises UnknownTicker
         self._cache: dict[tuple, Measurement] = {}
         self._metrics: PortfolioMetrics | None = None
@@ -390,7 +396,9 @@ class PortfolioView:
         return {"type": "portfolio", "id": self.engine.subject_id, "variant": self.variant}
 
     def _weight_fact(self, metric: str, value: float, *, subject: dict | None = None, key_suffix: str = "",
-                     label: dict, lims: tuple[str, ...] = ()) -> str:
+                     label: dict, lims: tuple[str, ...] = ()) -> str | None:
+        if not self.record:
+            return None
         subject = subject or self.subject
         method = "M_WEIGHTS_AFTER_MOVE" if self.after_move else "M_PROFILE_ASSUMPTION"
         key = fact_key(metric, subject["type"], subject["id"] + key_suffix, self.variant, "weights")
@@ -501,12 +509,12 @@ class PortfolioView:
             value = getattr(pm, attr)
             if value is None:
                 return Measurement(None, None, nee_reason=pm.missing.get(metric, "short_history"))
-            return Measurement(value, pm.fact_ids[metric])
+            return Measurement(value, pm.fact_ids.get(metric))
         if metric == "stress.rate_cycle":
             return self._replay("stress.rate_cycle", *RATE_CYCLE, label=("rate-hiking cycle", "cycle de hausse des taux"))
         if metric == "concentration.hhi" or metric == "concentration.effective_n":
             pm = self.metrics()
-            return Measurement(pm.hhi if metric == "concentration.hhi" else pm.effective_n, pm.fact_ids[metric],
+            return Measurement(pm.hhi if metric == "concentration.hhi" else pm.effective_n, pm.fact_ids.get(metric),
                                unit="ratio" if metric == "concentration.hhi" else "count")
         raise ValueError(f"metric {metric!r} is not measured by quant")
 
@@ -520,6 +528,8 @@ class PortfolioView:
             value = mx.period_return_pct(eng.portfolio_levels(self.weights, i0, i1))
         except Unavailable as exc:
             return Measurement(None, None, nee_reason=exc.reason, detail=exc.detail)
+        if not self.record:
+            return Measurement(value, None)
         fid = eng.add_series_fact(
             metric=metric, value=value, subject=self.subject, variant_key=self.variant, window_code=metric.split(".")[1],
             tickers=list(self.weights), i0=i0, i1=i1, method_id="M_STRESS_REPLAY", kind="scenario",
@@ -546,6 +556,8 @@ class PortfolioView:
             levels = eng.portfolio_levels(self.weights, wr.i0, wr.i1)
             pm.volatility_pct = mx.annualized_vol_pct(mx.simple_returns(levels))
             pm.max_drawdown_pct = mx.max_drawdown_pct(levels)
+            if not self.record:
+                raise _NoRecord
             common = dict(subject=self.subject, variant_key=self.variant, window_code=wr.code, tickers=tickers,
                           i0=wr.i0, i1=wr.i1, window_spec=wr.spec)
             pm.fact_ids["vol.annualized"] = eng.add_series_fact(
@@ -558,6 +570,8 @@ class PortfolioView:
                        "fr": f"Plus forte baisse d'un sommet à un creux, {name} ({self.variant}), {eng.currency}"}, **common)
         except Unavailable as exc:
             pm.missing["vol.annualized"] = pm.missing["drawdown.max"] = exc.reason
+        except _NoRecord:
+            pass
         stress = self._replay("stress.replay_2022", *STRESS_2022, label=("calendar 2022", "année civile 2022"))
         pm.stress2022_pct = stress.value
         if stress.value is None:
@@ -565,6 +579,8 @@ class PortfolioView:
         else:
             pm.fact_ids["stress.replay_2022"] = stress.fact_id
         for metric, value, unit in (("concentration.hhi", h, "ratio"), ("concentration.effective_n", 1.0 / h, "count")):
+            if not self.record:
+                break
             key = fact_key(metric, "portfolio", name, self.variant, "weights")
             pm.fact_ids[metric] = eng.ledger.add_fact(make_fact(
                 eng.ctx, key=key, kind="computed", metric=metric, value=value, unit=unit, currency=None,

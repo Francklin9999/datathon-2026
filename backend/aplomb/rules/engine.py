@@ -176,10 +176,7 @@ class RuleEngine:
 
     def _evidence(self, rule: PolicyRule, inputs: RuleInputs, base: dict) -> RuleCheck:
         view = inputs.view
-        if inputs.moved_tickers:
-            scope = [t for t in inputs.moved_tickers if t in view.assets and view.assets[t].is_single_name]
-        else:
-            scope = [t for t, a in view.assets.items() if a.is_single_name]
+        scope = _evidence_scope(view, inputs.moved_tickers)
         relevant = [e for e in inputs.evidence if e.subject.type == "asset" and e.subject.id in scope]
         strong = [e for e in relevant if e.verification.status == "verified" and e.tier in (1, 2)]
         label = ", ".join(scope) if scope else "the moved assets"
@@ -241,6 +238,47 @@ class RuleEngine:
             **base, "status": status, "value": float(value) if value is not None else None, "headroom": headroom,
             "worst": worst, "valueFactId": value_id, "thresholdFactId": threshold_id, "detail": detail, "neeReason": nee_reason,
         })
+
+
+def _evidence_scope(view: PortfolioView, moved: tuple[str, ...]) -> list[str]:
+    if moved:
+        return [t for t in moved if t in view.assets and view.assets[t].is_single_name]
+    return [t for t, a in view.assets.items() if a.is_single_name]
+
+
+def quick_statuses(rules: list[PolicyRule], inputs: RuleInputs) -> dict[str, str]:
+    """Statuses only, no facts (optimizer grid scans). Same comparisons as ``check_rules``."""
+    view = inputs.view
+    out: dict[str, str] = {}
+    for rule in rules:
+        if not rule.enabled:
+            continue
+        if rule.type in ("sim", "flag"):
+            out[rule.rule_id] = "info"
+            continue
+        if rule.type == "evidence":
+            scope = _evidence_scope(view, inputs.moved_tickers)
+            strong = [e for e in inputs.evidence if e.subject.type == "asset" and e.subject.id in scope
+                      and e.verification.status == "verified" and e.tier in (1, 2)]
+            out[rule.rule_id] = "tension" if strong else "nee"
+            continue
+        d = rule_def(rule.rule_id)
+        m = view.measure(d.metric, d.key)
+        if m.value is None:
+            out[rule.rule_id] = "nee"
+            continue
+        value = max(0.0, -m.value) if rule.rule_id == "limit.stress_2022" else m.value
+        out[rule.rule_id] = compare(rule.type, value, float(rule.threshold))
+    return out
+
+
+def verdict_of_statuses(statuses) -> str:
+    st = set(statuses)
+    if "conflict" in st:
+        return "conflict"
+    if "tension" in st:
+        return "tension"
+    return "insufficient" if "nee" in st else "compatible"
 
 
 def verdict_of(checks: list[RuleCheck]) -> tuple[str, VerdictCounts]:

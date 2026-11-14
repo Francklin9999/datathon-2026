@@ -13,6 +13,10 @@ from aplomb.datastore.constants import CASH_TICKERS
 EPS = 1e-12
 
 
+def _fr(value: float, decimals: int = 2) -> str:
+    return f"{value:.{decimals}f}".replace(".", ",")
+
+
 class FundingError(ValueError):
     """Infeasible or invalid move. ``code`` is stable, ``reason`` is bilingual text."""
 
@@ -34,7 +38,7 @@ def _check_weights(weights: dict[str, float]) -> None:
     total = math.fsum(weights.values())
     if abs(total - 1.0) > 1e-6:
         raise FundingError("weights_sum", f"Portfolio weights sum to {total * 100:.4f}%, not 100%.",
-                           f"Les pondérations totalisent {total * 100:.4f} %, pas 100 %.")
+                           f"Les pondérations totalisent {_fr(total * 100, 4)} %, pas 100 %.")
     if any(w < -EPS or not math.isfinite(w) for w in weights.values()):
         raise FundingError("weights_invalid", "Portfolio weights must be finite and non-negative.",
                            "Les pondérations doivent être finies et non négatives.")
@@ -63,7 +67,7 @@ def apply_move(weights: dict[str, float], ticker: str, size_pct: float, mode: st
         if s > 1.0 - w_t + EPS:
             raise FundingError("size_too_large",
                                f"The move exceeds the {100 * (1 - w_t):.2f} points not already in {ticker}.",
-                               f"Le mouvement dépasse les {100 * (1 - w_t):.2f} points qui ne sont pas déjà dans {ticker}.")
+                               f"Le mouvement dépasse les {_fr(100 * (1 - w_t), 2)} points qui ne sont pas déjà dans {ticker}.")
         if mode == "pro_rata":
             denom = 1.0 - w_t
             if denom <= EPS:
@@ -79,7 +83,7 @@ def apply_move(weights: dict[str, float], ticker: str, size_pct: float, mode: st
             if d + EPS < s:
                 raise FundingError("insufficient_cash",
                                    f"Cash positions total {d * 100:.2f} points, less than the {size_pct:g} points needed.",
-                                   f"L'encaisse totalise {d * 100:.2f} points, moins que les {size_pct:g} points requis.")
+                                   f"L'encaisse totalise {_fr(d * 100, 2)} points, moins que les {_fr(size_pct, 1)} points requis.")
             out = dict(weights)
             for k in cash:
                 out[k] = weights[k] * (d - s) / d
@@ -104,7 +108,7 @@ def apply_move(weights: dict[str, float], ticker: str, size_pct: float, mode: st
             if available + EPS < s:
                 raise FundingError("insufficient_donors",
                                    f"Named holdings total {available * 100:.2f} points, less than the {size_pct:g} points needed.",
-                                   f"Les positions nommées totalisent {available * 100:.2f} points, moins que les {size_pct:g} points requis.")
+                                   f"Les positions nommées totalisent {_fr(available * 100, 2)} points, moins que les {_fr(size_pct, 1)} points requis.")
             out = dict(weights)
             remaining = s
             used = []
