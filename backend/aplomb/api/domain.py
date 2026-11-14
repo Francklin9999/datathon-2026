@@ -71,4 +71,4 @@ def default_services(settings: Settings, store=None) -> Services:
     profile_repo, _, _ = create_repositories(settings, store)
     profiles, checks = build_domain_services(profile_repo, snapshot)
     # Advertise only flags whose provider is implemented and tested here.
-    return Services(profiles=profiles, checks=checks, datastore=DatastoreService(snapshot), capabilities={"profile_creator"})
+    return Services(profiles=profiles, checks=checks, datastore=DatastoreService(snapshot), capabilities={"profile_creator", "frontier_chart"})

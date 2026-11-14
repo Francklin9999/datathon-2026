@@ -11,7 +11,7 @@ from aplomb.rules.engine import RuleInputs, quick_statuses, verdict_of_statuses
 from .check import assess, prepare
 from .derive import derive_thresholds
 
-PROPOSAL_VALUE = 100000.0
+PROPOSAL_VALUE = 100000.0  # fictional starting capital of a proposed portfolio (labelled hypothetical)
 
 
 def _control_outcome_type():
@@ -31,7 +31,7 @@ def _control_outcome_type():
             selected_scenario_id: str
             limitations: list = field(default_factory=list)
 
-        return ControlOutcome  # fictional starting capital of a proposed portfolio (labelled hypothetical)
+        return ControlOutcome
 
 
 def _profile_engine(profile: m.Profile, snapshot: Snapshot, created_at: str, ledger=None) -> QuantEngine:
@@ -93,13 +93,17 @@ def proposer(*, request, snapshot: Snapshot, created_at: str) -> dict:
 
 
 class DecisionControls:
-    """``CodeControls`` provider for the agent workflow (T08): move requests.
+    """``CodeControls`` provider for the agent workflow (T08).
 
-    ``quant`` registers snapshots/metrics/funding facts in the run ledger and returns a JSON
-    state; ``risk`` evaluates every enabled rule, the first-conflict boundary and builds the
-    requested and max-compatible scenarios. Goal requests are not implemented yet (P1) and fail
-    explicitly instead of returning an empty or invented candidate.
+    ``quant`` registers snapshot/metrics/funding facts in the run ledger and returns a JSON state;
+    ``risk`` evaluates every enabled rule and builds the scenarios. Move requests: the requested
+    move, the largest size before the first conflict and, when the move conflicts, up to two
+    alternatives sharing a theme tag. Goal requests: up to three goal candidates (best fit
+    selected). A rebalance scenario is added when the current portfolio already conflicts
+    (D-14). At most six scenarios; a goal with no supported candidate fails explicitly.
     """
+
+    MAX_SCENARIOS = 6
 
     def _engine(self, ctx, window: dict) -> QuantEngine:
         clock = getattr(ctx.ledger, "clock", None)
@@ -114,46 +118,74 @@ class DecisionControls:
 
     def quant(self, ctx, request, window, tasks, scenarios) -> dict:
         req = self._wire(request)
-        if req.get("type") != "move":
-            raise RuntimeError("Goal candidates are not implemented in the optimizer yet (P1); no candidate was produced")
         win = self._wire(window) if window is not None else {"code": "full"}
         engine = self._engine(ctx, win)
+        profile = ctx.profile
+        if req.get("type") == "goal":
+            goal = m.ExposureGoal.model_validate(req["goal"])
+            engine.view(prepare(engine, profile, profile.rules, None, False)["weightsBefore"], "before",
+                        profile.portfolio.total_value, window=win).snapshot()
+            return {"kind": "goal", "window": win, "goal": goal.to_wire()}
+        if req.get("type") != "move":
+            raise RuntimeError(f"Unsupported decision request type {req.get('type')!r}")
         move = m.ProposedMove.model_validate(req["move"])
-        prepared = prepare(engine, ctx.profile, ctx.profile.rules, move, compare=True)
-        engine.view(prepared["weightsBefore"], "before", ctx.profile.portfolio.total_value, window=win).snapshot()
-        engine.view(prepared["weightsAfter"], "after", ctx.profile.portfolio.total_value * prepared["valueFactor"], window=win).snapshot()
+        prepared = prepare(engine, profile, profile.rules, move, compare=True)
+        engine.view(prepared["weightsBefore"], "before", profile.portfolio.total_value, window=win).snapshot()
+        engine.view(prepared["weightsAfter"], "after", profile.portfolio.total_value * prepared["valueFactor"], window=win).snapshot()
         return {"kind": "move", "window": win, "prepared": prepared}
 
     def risk(self, ctx, computed: dict):
-        ControlOutcome = _control_outcome_type()
+        from .scenarios import alternatives, goal_candidates, rebalance
 
+        ControlOutcome = _control_outcome_type()
         win = computed["window"]
         engine = self._engine(ctx, win)
         profile = ctx.profile
-        prepared = computed["prepared"]
-        check = assess(engine, profile, profile.rules, prepared, window=win)
-        scenarios = [self._scenario("sc_requested", "requested", prepared["move"], check.verdict, check.counts.to_wire(),
-                                    [c.to_wire() for c in check.rule_checks], check.portfolio_after.to_wire(), 1, True, check)]
-        size = check.max_compatible_size_pct
-        if 0 < size < prepared["move"]["sizePct"]:
-            from aplomb.quant import apply_move
-            from aplomb.rules.engine import RuleEngine, verdict_of
+        if computed["kind"] == "goal":
+            found = goal_candidates(engine, profile, m.ExposureGoal.model_validate(computed["goal"]))
+            if not found.scenarios:
+                reason = "; ".join(n["en"] for n in found.notes) or "No goal candidate fits the profile's rules"
+                raise RuntimeError(f"No goal candidate: {reason}")
+            best = found.scenarios[0]
+            prepared = prepare(engine, profile, profile.rules, m.ProposedMove.model_validate(best["moves"][0]), compare=True)
+            check = assess(engine, profile, profile.rules, prepared, window=win)
+            scenarios = list(found.scenarios)
+            selected = best["scenarioId"]
+        else:
+            prepared = computed["prepared"]
+            check = assess(engine, profile, profile.rules, prepared, window=win)
+            scenarios = [self._scenario("sc_requested", "requested", prepared["move"], check.verdict, check.counts.to_wire(),
+                                        [c.to_wire() for c in check.rule_checks], check.portfolio_after.to_wire(), 1, True)]
+            size = check.max_compatible_size_pct
+            if 0 < size < prepared["move"]["sizePct"]:
+                from aplomb.quant import apply_move
+                from aplomb.rules.engine import RuleEngine, verdict_of
 
-            f = prepared["funding"]
-            res = apply_move(prepared["weightsBefore"], prepared["move"]["ticker"], size, f["mode"], f.get("fromTickers"))
-            view = engine.view(res.weights, "scenario:sc_max_compatible", profile.portfolio.total_value * res.value_factor, window=win)
-            checks = RuleEngine(engine.ledger, engine.ctx).check_rules(profile.rules, RuleInputs(view, profile.profile_id, (prepared["move"]["ticker"],)))
-            verdict, counts = verdict_of(checks)
-            move = {**prepared["move"], "sizePct": size}
-            scenarios.append(self._scenario("sc_max_compatible", "max_compatible", move, verdict, counts.to_wire(),
-                                            [c.to_wire() for c in checks], view.snapshot().to_wire(), 2, False, None, checks))
+                f = prepared["funding"]
+                res = apply_move(prepared["weightsBefore"], prepared["move"]["ticker"], size, f["mode"], f.get("fromTickers"))
+                view = engine.view(res.weights, "scenario:sc_max_compatible", profile.portfolio.total_value * res.value_factor, window=win)
+                checks = RuleEngine(engine.ledger, engine.ctx).check_rules(
+                    profile.rules, RuleInputs(view, profile.profile_id, (prepared["move"]["ticker"],)))
+                verdict, counts = verdict_of(checks)
+                move = {**prepared["move"], "sizePct": size}
+                scenarios.append(self._scenario("sc_max_compatible", "max_compatible", move, verdict, counts.to_wire(),
+                                                [c.to_wire() for c in checks], view.snapshot().to_wire(), 2, False))
+            if check.verdict == "conflict":
+                alts = alternatives(engine, profile, prepared["move"]["ticker"], prepared["move"]["sizePct"], max_candidates=2)
+                for s in alts.scenarios:
+                    scenarios.append({**s, "rank": len(scenarios) + 1})
+            selected = "sc_requested"
+        if check.baseline_conflict and len(scenarios) < self.MAX_SCENARIOS:
+            for s in rebalance(engine, profile).scenarios:
+                scenarios.append({**s, "rank": len(scenarios) + 1})
+        scenarios = scenarios[: self.MAX_SCENARIOS]
         facts = engine.ledger.export().facts if hasattr(engine.ledger, "export") else engine.ledger.facts()
         limitations = sorted({lim for f in facts.values() for lim in f.limitations} | {"LIM_SIMULATION_ONLY"})
         return ControlOutcome(check=check, scenarios=[m.Scenario.model_validate(s) for s in scenarios],
-                              selected_scenario_id="sc_requested", limitations=limitations)
+                              selected_scenario_id=selected, limitations=limitations)
 
     @staticmethod
-    def _scenario(sid, kind, move, verdict, counts, rule_checks, portfolio_after, rank, best, check, checks=None) -> dict:
+    def _scenario(sid, kind, move, verdict, counts, rule_checks, portfolio_after, rank, best) -> dict:
         refs = [c["valueFactId"] for c in rule_checks if c["status"] in ("conflict", "tension") and c["valueFactId"]]
         n_en = f"{move['sizePct']:g}"
         n_fr = n_en.replace(".", ",")

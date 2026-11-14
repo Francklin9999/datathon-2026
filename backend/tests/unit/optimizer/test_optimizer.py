@@ -234,7 +234,7 @@ class Adapters(unittest.TestCase):
         self.assertEqual(outcome.scenarios[1].verdict, "tension")
         self.assertIn("LIM_SIMULATION_ONLY", outcome.limitations)
         with self.assertRaises(RuntimeError):
-            controls.quant(ctx, {"type": "goal", "goal": {}}, {"code": "full"}, [], [])
+            controls.quant(ctx, {"type": "other"}, {"code": "full"}, [], [])  # unknown request type
 
 
 if __name__ == "__main__":

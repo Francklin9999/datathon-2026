@@ -140,7 +140,14 @@ def _size_facts(engine: QuantEngine, profile: m.Profile, move: dict, search) -> 
         label={"en": f"Requested size for {move['ticker']}", "fr": f"Taille demandée pour {move['ticker']}"},
         value=float(move["sizePct"]), unit="pts", currency=None, subject=subject, method_id="M_USER_INPUT", created_by="user",
         params={"fundingMode": move["funding"]["mode"]}, checks=[{"code": "schema", "ok": True, "detail": "Validated request field."}]))
-    engine.ledger.add_fact(make_fact(
+    max_size_fact(engine, profile, move["ticker"], move["funding"], search, [req_id])
+
+
+def max_size_fact(engine: QuantEngine, profile: m.Profile, ticker: str, funding: dict, search, inputs: list[str]) -> str:
+    """``size.max_compatible`` fact for a grid search (inputs: the requested size, when there is one)."""
+    ctx = engine.ctx
+    move = {"ticker": ticker, "funding": funding}
+    return engine.ledger.add_fact(make_fact(
         ctx, key=fact_key("size.max_compatible", "portfolio", profile.profile_id, f"after:{move['ticker']}:{move['funding']['mode']}", "na"),
         kind="scenario", metric="size.max_compatible",
         label={"en": f"Largest size before the first rule conflict, {move['ticker']} ({move['funding']['mode']})",
@@ -149,7 +156,7 @@ def _size_facts(engine: QuantEngine, profile: m.Profile, move: dict, search) -> 
         subject={"type": "portfolio", "id": profile.profile_id, "variant": "after"}, method_id="M_MAXSIZE_GRID", created_by="optimizer",
         params={"step": 0.5, "stoppedBy": search.stopped_by, "firstConflictPct": search.first_conflict_pct if search.first_conflict_pct is not None else "none",
                 "remainingAtBoundary": "; ".join(search.remaining_at_max) or "none", "baselineConflict": search.baseline_conflict},
-        inputs=[req_id], limitations=["LIM_THRESHOLDS_ASSUMED", "LIM_PAST_NOT_FUTURE"],
+        inputs=inputs, limitations=["LIM_THRESHOLDS_ASSUMED", "LIM_PAST_NOT_FUTURE"],
         checks=[{"code": "grid_prefix", "ok": True, "detail": "Contiguous 0.5-point scan from zero, stopped at the first conflict; tension or missing evidence may remain."}]))
 
 

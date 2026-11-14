@@ -367,8 +367,13 @@ class ProfileServiceImpl:
             "window": window, "currency": profile.reporting_currency, "series": series, "benchmark": benchmark,
             "method": "M_PORT_CONST_WEIGHTS", "limitations": lims})
 
-    def frontier(self, session_id: str, profile_id: str, query: dict):
-        raise ServiceError("feature_disabled", "The frontier chart is not implemented yet")
+    def frontier(self, session_id: str, profile_id: str, query: dict) -> a.FrontierResponse:
+        """Descriptive frontier (optimizer SPEC §6); never feeds a rule or a verdict."""
+        from aplomb.optimizer.frontier import frontier
+
+        profile = self.get(session_id, profile_id)
+        eng, _ = self._engine(profile, {"window": (query or {}).get("window") or "full"}, LocalLedger())
+        return a.FrontierResponse.model_validate(frontier(eng, profile, query or {}))
 
     def brief(self, session_id: str, profile_id: str, query: dict):
         raise unavailable("Portfolio brief lookup")

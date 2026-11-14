@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
+from typing import Callable
 
 from aplomb.contracts.models import PolicyRule
 from aplomb.quant import FundingError, QuantEngine, apply_move
@@ -40,11 +41,17 @@ def capacity(weights: dict[str, float], ticker: str, mode: str) -> float:
 
 
 def max_compatible_size(engine: QuantEngine, rules: list[PolicyRule], weights: dict[str, float], ticker: str, mode: str,
-                        from_tickers: list[str] | None = None, evidence=(), profile_id: str = "") -> SizeSearch:
+                        from_tickers: list[str] | None = None, evidence=(), profile_id: str = "",
+                        extra_conflict: Callable[[dict[str, float]], bool] | None = None,
+                        max_size: float | None = None) -> SizeSearch:
+    """``extra_conflict`` adds request-specific constraints (a goal's own loss/volatility limits);
+    it can only add conflicts, never loosen a profile rule. ``max_size`` bounds the scan."""
     base = evaluate(engine, rules, weights, (), evidence, profile_id)
     if verdict_of_statuses(base.values()) == "conflict":
         return SizeSearch(0.0, True, 0.0, capacity(weights, ticker, mode), "conflict", [(0.0, "conflict")])
     cap = capacity(weights, ticker, mode)
+    if max_size is not None:
+        cap = min(cap, max_size)
     best, statuses_at_best = 0.0, base
     grid: list[tuple[float, str]] = [(0.0, verdict_of_statuses(base.values()))]
     k = 1
@@ -56,6 +63,8 @@ def max_compatible_size(engine: QuantEngine, rules: list[PolicyRule], weights: d
             return SizeSearch(best, False, None, cap, "funding", grid, _remaining(statuses_at_best))
         st = evaluate(engine, rules, w, (ticker,), evidence, profile_id)
         verdict = verdict_of_statuses(st.values())
+        if verdict != "conflict" and extra_conflict is not None and extra_conflict(w):
+            verdict = "conflict"
         grid.append((size, verdict))
         if verdict == "conflict":
             return SizeSearch(best, False, size, cap, "conflict", grid, _remaining(statuses_at_best))

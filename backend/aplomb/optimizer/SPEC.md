@@ -62,4 +62,12 @@ P0 is implemented in `backend/aplomb/optimizer/`:
 
 Grid points use `PortfolioView(record=False)` and `rules.engine.quick_statuses` (same comparisons, no facts); only retained results become facts. `uv run pytest backend/tests/unit/optimizer` reproduces controls §7 thresholds (Q3 31.22, crypto median 59.97) and every §9 boundary (Robert 6.0, Amira 11.0, Mateo TSLA 10.0 with the evidence gap attached, Mateo CNQ 0, new money 6.0/11.0/12.5, named donors 12.0), the §9.2 funding table, AT-01/02/03/18, PRF-04 and a synthetic nonmonotone grid. A warm `/check` for Robert +25 TSLA takes about 0.1 s locally.
 
-Not implemented yet (P1): `goal_candidates`, `alternatives`, `rebalance` and `frontier`. `DecisionControls.quant` raises for goal requests and `ProfileServiceImpl.frontier` returns `feature_disabled`, so no candidate or chart is invented. The proposed starting portfolio uses broad reference funds (XIU.TO, SPY or ESGV, XBB.TO, optional GLD and same-currency cash) at a fictional 100,000 value and keeps the largest equity share without a rule conflict.
+P1 is implemented too:
+
+| Module | Content |
+|---|---|
+| `scenarios.py` | `goal_candidates` (screen up to 8 eligible named/theme/class matches, goal loss/volatility limits only add conflicts, smallest size reaching a target exposure else the first-conflict boundary, union exposure without double counting, ranking by conflicts, tensions, nee, target shortfall, turnover, ticker), `alternatives` (assets sharing a theme tag, sized to fit), `rebalance` (bounded greedy search over broad funds, bonds, gold and same-currency cash, donors = assets driving conflicts; "none found" is reported, never claimed impossible) |
+| `frontier.py` | `M_FRONTIER_MINVAR` at 0–100% equity targets and `M_FRONTIER_HIST_MV` via a risk-aversion grid, long-only, FISTA projected gradient (no numpy), fixed tolerance/iteration limits, facts per point, served by `GET /profiles/{id}/frontier` |
+| `tools.py` | The 21 catalog tools of T04–T07 (`universe.*`, `profile.get`, `data.describe`, `macro.series`, `quant.*`, `rules.check`, `optimizer.*`) with Pydantic args; `register_domain_tools(registry)` for T08 |
+
+`DecisionControls` handles goal requests (up to three candidates, best fit selected; no candidate fails explicitly), adds up to two alternatives when a move conflicts and a rebalance when the current portfolio already conflicts, within six scenarios. Tests: `backend/tests/unit/optimizer/test_scenarios.py` (the agent-registry part needs POSIX `fcntl` through T03's storage import).
