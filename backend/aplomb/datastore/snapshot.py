@@ -18,15 +18,18 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import Callable, Protocol
+from typing import TYPE_CHECKING, Callable, Protocol
 
 from .constants import CONTRACT_VERSION, DATASET_IDS
 from .errors import DatasetMissing, DatasetNotFound, SnapshotIntegrityError
 from .integrity import VERSION_RE, sha256_hex
-from .passports import build_passport, build_passports, traps
+from .passports import build_passports, traps
 from .schemas import MANIFEST_SCHEMA_VERSION, NORMALIZED, NormalizedSchema
 from .timeutil import parse_date
 from .types import GATE_MODES
+
+if TYPE_CHECKING:
+    from .gate import TemporalGate
 
 _NULLABLE = frozenset({"gics_sector", "country", "source_url", "published_at", "vintage_at"})
 AVAIL_KEYS = {"current": "available_at", "historical": "available_at_historical"}

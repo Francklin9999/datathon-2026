@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import unittest
-from datetime import timedelta
 
 from aplomb.datastore import LocalDataStore
 from aplomb.datastore.ondemand import FetchedAsset, publish_on_demand

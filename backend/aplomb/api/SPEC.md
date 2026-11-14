@@ -1,5 +1,10 @@
 # API, repositories and asynchronous dispatch
 
+Implementation status: T03 boundaries and deterministic adapter tests are implemented;
+see [handoff](../../../docs/T03-HANDOFF.md) for composition signatures, checkpoint limits,
+verification and exact remaining domain dependencies. Default missing providers return
+typed unavailable errors; this does not claim completed deterministic checks or live workers.
+
 **Track:** T03. **Tier:** P0; optional endpoints follow their flags. **Authority:** [HTTP contract](../../../contracts/api.md), [types](../../../contracts/schemas.md), [lifecycle](../../../contracts/run-events.md).
 
 ## 1. HTTP boundary
@@ -14,12 +19,15 @@ Generate request IDs, validate `X-Aplomb-Session` as `s_` + UUIDv4, attach data 
 class CheckService(Protocol):
     def check(self, session_id: str, request: CheckRequest) -> CheckResult: ...
 
+
 class RunService(Protocol):
-    def create(self, session_id: str, request: RunCreate,
-               idempotency_key: str | None) -> RunAccepted: ...
+    def create(
+        self, session_id: str, request: RunCreate, idempotency_key: str | None
+    ) -> RunAccepted: ...
     def get(self, session_id: str, run_id: str, since: int | None = None) -> Run: ...
     def answer(self, session_id: str, run_id: str, answer: RunAnswer) -> RunAccepted: ...
     def cancel(self, session_id: str, run_id: str) -> RunStatusResponse: ...
+
 
 class Dispatcher(Protocol):
     def dispatch(self, run_id: str, generation: int) -> None: ...

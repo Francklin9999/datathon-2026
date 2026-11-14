@@ -25,7 +25,15 @@ from .errors import (
 )
 from .gate import TemporalGate
 from .snapshot import CachedObjectStore, DataStore, LocalDataStore, Snapshot
-from .types import DataSlice, DatasetRead, FxSeries, GateMode, MasterCalendar, PriceFrame, merge_reads
+from .types import (
+    DatasetRead,
+    DataSlice,
+    FxSeries,
+    GateMode,
+    MasterCalendar,
+    PriceFrame,
+    merge_reads,
+)
 from .universe import AssetHistory, AssetRecord, Universe
 
 __all__ = [

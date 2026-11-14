@@ -7,11 +7,11 @@ import json
 import re
 import unittest
 
-from aplomb.datastore import DatasetNotFound, LocalDataStore
+from aplomb.datastore import DatasetNotFound
 from aplomb.datastore import constants as C
 from aplomb.datastore.passports import PASSPORT_KEYS
 
-from ._support import REPO, STARTER_VERSION, starter_root, starter_snapshot
+from ._support import REPO, STARTER_VERSION, starter_snapshot
 
 CATALOG = (REPO / "contracts" / "catalog.md").read_text(encoding="utf-8")
 SCHEMAS = (REPO / "contracts" / "schemas.md").read_text(encoding="utf-8")

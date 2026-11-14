@@ -52,7 +52,8 @@ def load_fixture(name):
 
 def check_links():
     documents = [ROOT / "README.md"]
-    ignored = {"node_modules", ".venv", ".next", "out", "__pycache__", ".pytest_cache"}
+    ignored = {"node_modules", ".venv", ".next", "out", "__pycache__", ".pytest_cache",
+               "cdk.out", ".build", ".artifacts"}
     for folder in ("docs", "contracts", "backend", "data", "infra", "web", "tests"):
         for directory, subdirs, names in os.walk(ROOT / folder):
             subdirs[:] = [name for name in subdirs if name not in ignored]

@@ -1,6 +1,6 @@
 # Verification strategy and implementation gates
 
-**Track:** T16 integrates; module owners implement relevant tests. [Acceptance matrix](../docs/07-ACCEPTANCE.md) is the release checklist; this file explains how to test it. T01's shared contract suite is implemented; application tests still await their owning tracks.
+**Track:** T16 integrates; module owners implement relevant tests. [Acceptance matrix](../docs/07-ACCEPTANCE.md) is the release checklist; this file explains how to test it. Shared contracts, API/persistence boundaries, API Gateway composition and infrastructure synthesis have implemented deterministic checks. Domain execution and deployed application acceptance still await their owning tracks.
 
 ## Test layers
 
@@ -14,7 +14,7 @@
 | Browser | `web/tests/` | Forms/compare/slider/citations/polling/accessibility/static deep links |
 | Live provider/AWS | separate opt-in smoke commands | Actual source adapters and cloud execution, with captured provenance |
 
-Run `uv sync --locked` and `npm ci` once, then `npm run check` from root. CI installs the same lockfiles and runs that command with uv offline. Deterministic checks require no credentials or provider calls. Keep live tests opt-in and bounded; missing AWS access is reported blocked, never passed through a fixture. Do not regenerate price data in any test.
+Run `uv sync --locked`, `npm ci` and `npm --prefix infra ci` once, then `npm run check` from root. CI installs the same lockfiles and runs that command with uv offline. Deterministic checks require no credentials or provider calls. Keep live tests opt-in and bounded; missing AWS access is reported blocked, never passed through a fixture. Do not regenerate price data in any test.
 
 ## Numeric oracle and synthetic edge cases
 

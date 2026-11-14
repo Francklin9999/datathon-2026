@@ -20,7 +20,6 @@ from ._support import (
     US_HOLIDAY_INDEX,
     ingest_synthetic,
     read_starter_csv,
-    starter_root,
     starter_snapshot,
     temp_root,
     weekdays,

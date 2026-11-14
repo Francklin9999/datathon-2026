@@ -3,10 +3,20 @@ name = "aplomb"
 version = "0.1.0"
 description = "Aplomb shared contracts and deterministic integration checks"
 requires-python = ">=3.12,<3.15"
-dependencies = ["pydantic==2.14.3"]
+dependencies = [
+    "boto3==1.44.3",
+    "fastapi==0.163.0",
+    "mangum==0.22.0",
+    "pydantic==2.14.3",
+    "uvicorn==0.54.0",
+]
 
 [dependency-groups]
-dev = ["pytest==9.2.0", "ruff==0.17.5"]
+dev = [
+    "httpx==0.28.1",
+    "pytest==9.2.0",
+    "ruff==0.17.5",
+]
 
 [build-system]
 requires = ["hatchling>=1.27,<2"]

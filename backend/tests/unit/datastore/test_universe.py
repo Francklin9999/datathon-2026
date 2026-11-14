@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import unittest
 
-from aplomb.datastore import InvalidGateRequest, LocalDataStore, UnknownTicker
+from aplomb.datastore import InvalidGateRequest, UnknownTicker
 
-from ._support import STARTER_VERSION, read_starter_csv, starter_root, starter_snapshot
+from ._support import STARTER_VERSION, read_starter_csv, starter_snapshot
 
 ASSET_KEYS = {"ticker", "name", "assetClass", "assetGroup", "market", "currency", "sector", "gicsSector", "isSingleName",
               "country", "themes", "tier", "history", "flags", "dataVersion", "datasetId"}

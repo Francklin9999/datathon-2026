@@ -7,6 +7,8 @@ node_modules/
 .next/
 out/
 coverage/
+cdk.out/
+.artifacts/
 .env
 .env.*
 !.env.example

@@ -1,4 +1,4 @@
-name: Contracts and integration
+name: Contracts, API and infrastructure
 
 on:
   push:
@@ -16,6 +16,9 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            infra/package-lock.json
       - uses: astral-sh/setup-uv@v6
         with:
           version: '0.9.26'
@@ -23,6 +26,7 @@ jobs:
       - run: uv python install 3.12
       - run: uv sync --locked
       - run: npm ci
+      - run: npm --prefix infra ci
       - run: npm run check
         env:
           UV_OFFLINE: 'true'

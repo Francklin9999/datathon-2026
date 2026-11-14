@@ -4,9 +4,9 @@
 
 ## Runtime and package layout
 
-Implement one Python package under `backend/aplomb/`. HTTP entry point `aplomb.api.app:create_app`; AWS handler `aplomb.api.lambda_handler:handler`; worker handler `aplomb.agents.worker:handler`. These are planned paths, not existing runnable files. Target a mutually supported Python runtime, pin FastAPI/Pydantic/Strands/AWS SDK versions and commit a lockfile. A Lambda HTTP adapter may be used; T02/T03 verify payload compatibility before deployment.
+One Python package lives under `backend/aplomb/`. T03 implements HTTP entry point `aplomb.api.app:create_app` and AWS handler `aplomb.api.lambda_handler:handler`. The worker handler `aplomb.agents.worker:handler` remains T08's implementation boundary. Python 3.12, FastAPI/Pydantic/Mangum/AWS SDK versions are pinned in the root manifest/lockfile; Strands belongs to T08. API Gateway v2 adapter compatibility is tested locally; deployed compatibility still requires live smoke.
 
-T01 has initialized the root `pyproject.toml`/`uv.lock` with Python 3.12, Pydantic and contract-test tools. `uv sync --locked` installs the package; `uv run pytest` runs the shared contract suite. T03 extends this manifest for FastAPI/serving; T08 requests agent dependencies. Application entry points above still await their owners.
+The root `pyproject.toml`/`uv.lock` includes Python 3.12, Pydantic, FastAPI, uvicorn, Mangum, boto3 and test tools. `uv sync --locked` installs the package; `uv run pytest` runs the contract, API and composition suites. T08 requests agent dependencies through the shared-manifest owner.
 
 | Module | Owner | Specification |
 |---|---|---|
@@ -30,6 +30,6 @@ Configuration is read once into validated Settings. Required fields: environment
 
 ## Local implementation milestone
 
-T03 supplies a backend manifest, `.env.example` without secrets, and documented commands for installing, serving and testing. Intended development invocation after implementation: `python -m uvicorn aplomb.api.app:app --reload --port 8000` from `backend/`, provided an `app` export is created. A local asynchronous dispatcher must run independently of the HTTP response lifecycle and checkpoint through the same repository protocol as AWS.
+T03 supplies [.env.example](../.env.example), dependency-injected services, repositories and a local dispatcher. Run `uv run uvicorn aplomb.api.app:app --reload --port 8000` from root after installation. Missing domain providers return explicit unavailable/disabled errors. See [the API handoff](../docs/T03-HANDOFF.md) for interfaces, configuration and limitations. The local asynchronous dispatcher runs independently of the HTTP response lifecycle and checkpoints through the same repository protocol as AWS.
 
 No AWS calls in module import paths or pure unit tests. No automatic model calls at startup. No dependency from quant/rules back into agents/API. Run the shared fixture validation and relevant module tests before integration. Completion requires deterministic `/check`, genuine worker persistence and consistent API error envelopes.

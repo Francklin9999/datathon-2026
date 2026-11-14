@@ -1,0 +1,84 @@
+{
+  "recordedAt": "2026-11-14T22:27:00Z",
+  "region": "us-east-1",
+  "transport": "official AWS MCP run_script / call_boto3",
+  "applicationStackDeployed": false,
+  "strongModel": {
+    "modelId": "us.anthropic.claude-sonnet-4-6",
+    "operation": "Converse",
+    "output": "APLOMB_OK",
+    "usage": {
+      "inputTokens": 22,
+      "outputTokens": 8,
+      "totalTokens": 30
+    },
+    "latencyMs": 657,
+    "stopReason": "end_turn"
+  },
+  "fastModel": {
+    "modelId": "us.anthropic.claude-haiku-5-5",
+    "operation": "Converse",
+    "output": "APLOMB_OK",
+    "usage": {
+      "inputTokens": 31,
+      "outputTokens": 10,
+      "totalTokens": 41
+    },
+    "latencyMs": 1633,
+    "evidenceOwner": "root preflight"
+  },
+  "rejectedStrongModel": {
+    "modelId": "us.anthropic.claude-fable-5-2",
+    "error": "ValidationException: data retention mode 'default' is not available for this model",
+    "accountRetentionPolicyChanged": false
+  },
+  "guardrail": {
+    "id": "685ahdwc4uye",
+    "version": "DRAFT",
+    "name": "aplomb-t02-policy-preflight",
+    "status": "READY",
+    "createdAt": "2026-11-14T22:26:50.651784+00:00",
+    "deniedTopic": "PersonalizedTradingInstructions",
+    "blockedProbe": {
+      "action": "GUARDRAIL_INTERVENED",
+      "topicAction": "BLOCKED",
+      "latencyMs": 107,
+      "topicPolicyUnits": 1
+    },
+    "educationProbe": {
+      "action": "NONE",
+      "topicPolicyUnits": 1
+    },
+    "initialCreateError": "ValidationException: topic definition exceeded maximum length; shortened before successful create",
+    "applicationIntegrated": false,
+    "featureEnabled": false
+  },
+  "browser": {
+    "identifier": "aws.browser.v1",
+    "startBrowserSession": "success",
+    "stopBrowserSession": "success",
+    "sessionTimeoutSeconds": 60,
+    "navigationVerified": false,
+    "applicationIntegrated": false,
+    "featureEnabled": false
+  },
+  "unverified": [
+    "Lambda cold start",
+    "deployed HTTP smoke",
+    "real worker run",
+    "S3 manifest and hash read",
+    "DynamoDB persistence",
+    "web export and deep links",
+    "Guardrail model integration",
+    "Browser navigation and source citation"
+  ],
+  "cloudFormationFoundation": {
+    "operation": "ValidateTemplate",
+    "success": true,
+    "capabilities": [],
+    "parameters": [
+      "BootstrapVersion"
+    ],
+    "templateSha256": "c5984225ea7b2390421d50616af6768c0f6ef4684d2370ba0d5ba3c5604e3e23"
+  }
+}
