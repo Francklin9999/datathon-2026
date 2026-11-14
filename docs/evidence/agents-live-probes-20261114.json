@@ -1,0 +1,37 @@
+{
+  "transport": "Official AWS MCP run_script / Bedrock Converse; local FileStore worker via opt-in file bridge",
+  "region": "us-east-1",
+  "modelId": "us.anthropic.claude-haiku-5-5",
+  "probes": [
+    {
+      "runId": "run_01M7E52VJZDA9Q8ATQ78N5C041",
+      "status": "failed",
+      "stage": "provider validation",
+      "reason": "ValidationException: temperature is deprecated for this model",
+      "actualApiAttempts": 1,
+      "providerTokenUsage": null,
+      "correction": "Omitted unsupported temperature; no account policy changed"
+    },
+    {
+      "runId": "run_01M7E54P9TZ6K3VKNBME2THFJ2",
+      "status": "failed",
+      "stage": "typed model-output validation",
+      "reason": "Model supplied null for nonnullable optional profile.isDefault",
+      "actualApiAttempts": 1,
+      "providerTokenUsage": {"inputTokens": 5945, "outputTokens": 1285, "totalTokens": 7230},
+      "correction": "Kept strict validation; added charged bounded repair and optional-key omission guidance"
+    },
+    {
+      "runId": "run_01M7E58536MMNMYHYQWWXFZ8X6",
+      "status": "succeeded",
+      "actualApiAttempts": 1,
+      "providerTokenUsage": {"inputTokens": 5945, "outputTokens": 1327, "totalTokens": 7272},
+      "executedSteps": ["plan", "audit", "sign"],
+      "freshFileStoreReadVerified": true,
+      "sanitizedRunFile": "agents-profile-draft-20261114.json"
+    }
+  ],
+  "applicationStackDeployed": false,
+  "liveStrandsTransportVerified": false,
+  "notes": "All prompts concern a fictional profile. Session bearer capabilities are omitted. Failed probes are not successful application executions. The production Strands adapter has offline source/constructor/repair tests; live requests used the explicit MCP bridge."
+}

@@ -1,0 +1,1 @@
+{"items":[{"project":"en.wikipedia","article":"Apple_Inc.","granularity":"daily","timestamp":"2026110100","access":"all-access","agent":"user","views":4538},{"project":"en.wikipedia","article":"Apple_Inc.","granularity":"daily","timestamp":"2026110200","access":"all-access","agent":"user","views":5401}]}

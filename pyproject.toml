@@ -8,6 +8,7 @@ dependencies = [
     "fastapi==0.163.0",
     "mangum==0.22.0",
     "pydantic==2.14.3",
+    "strands-agents==1.65.0",
     "uvicorn==0.54.0",
 ]
 

@@ -1,0 +1,195 @@
+{
+  "transport": "Fresh Bedrock Converse calls through the official AWS MCP file bridge",
+  "redactedFields": [
+    "sessionId"
+  ],
+  "applicationStackDeployed": false,
+  "run": {
+    "runId": "run_01M7E58536MMNMYHYQWWXFZ8X6",
+    "kind": "profile_draft",
+    "status": "succeeded",
+    "profileId": null,
+    "parentRunId": null,
+    "lang": "en",
+    "asOf": "2026-11-14",
+    "dataVersion": "snap-20261113-starter",
+    "input": {
+      "kind": "profile_draft",
+      "text": "Fictional Alex works as a librarian. Their age, risk tolerance, horizon, objective, experience, currency, preferences and holdings have not been provided.",
+      "fields": {}
+    },
+    "steps": [
+      {
+        "seq": 1,
+        "type": "plan",
+        "iteration": 1,
+        "agent": "planner",
+        "actor": "llm",
+        "status": "done",
+        "startedAt": "2026-11-14T23:11:00.200Z",
+        "endedAt": "2026-11-14T23:11:20.067Z",
+        "durationMs": 19864.38816500231,
+        "summary": {
+          "en": "plan done",
+          "fr": "plan done"
+        },
+        "model": "us.anthropic.claude-haiku-5-5",
+        "usage": {
+          "inputTokens": 5945,
+          "outputTokens": 1327
+        },
+        "toolCalls": [],
+        "factIds": [],
+        "evidenceIds": []
+      },
+      {
+        "seq": 2,
+        "type": "audit",
+        "iteration": 1,
+        "agent": "auditor",
+        "actor": "code",
+        "status": "done",
+        "startedAt": "2026-11-14T23:11:20.070Z",
+        "endedAt": "2026-11-14T23:11:20.072Z",
+        "durationMs": 0.1274839996767696,
+        "summary": {
+          "en": "audit done",
+          "fr": "audit done"
+        },
+        "model": null,
+        "usage": null,
+        "toolCalls": [],
+        "factIds": [],
+        "evidenceIds": []
+      },
+      {
+        "seq": 3,
+        "type": "sign",
+        "iteration": 1,
+        "agent": "auditor",
+        "actor": "code",
+        "status": "done",
+        "startedAt": "2026-11-14T23:11:20.074Z",
+        "endedAt": "2026-11-14T23:11:20.076Z",
+        "durationMs": 0.15787099982844666,
+        "summary": {
+          "en": "sign done",
+          "fr": "sign done"
+        },
+        "model": null,
+        "usage": null,
+        "toolCalls": [],
+        "factIds": [],
+        "evidenceIds": []
+      }
+    ],
+    "facts": {},
+    "evidence": {},
+    "question": null,
+    "result": {
+      "kind": "profile_draft",
+      "draft": {
+        "profile": {
+          "name": "Alex",
+          "occupation": "librarian"
+        },
+        "explanations": [
+          {
+            "field": "name",
+            "text": {
+              "en": "The brief identifies the fictional client as Alex.",
+              "fr": "Le dossier identifie le client fictif comme Alex."
+            }
+          },
+          {
+            "field": "occupation",
+            "text": {
+              "en": "The brief states that Alex works as a librarian.",
+              "fr": "Le dossier indique qu'Alex travaille comme bibliothécaire."
+            }
+          }
+        ],
+        "unresolved": [
+          {
+            "field": "age",
+            "question": {
+              "en": "What is Alex's age?",
+              "fr": "Quel est l'âge d'Alex?"
+            }
+          },
+          {
+            "field": "riskLevel",
+            "question": {
+              "en": "What is Alex's risk tolerance?",
+              "fr": "Quelle est la tolérance au risque d'Alex?"
+            }
+          },
+          {
+            "field": "horizonYears",
+            "question": {
+              "en": "What is Alex's investment time horizon, in years?",
+              "fr": "Quel est l'horizon de placement d'Alex, en années?"
+            }
+          },
+          {
+            "field": "objective",
+            "question": {
+              "en": "What is Alex's investment objective: preserve, balanced, or growth?",
+              "fr": "Quel est l'objectif de placement d'Alex : préservation, équilibré ou croissance?"
+            }
+          },
+          {
+            "field": "experience",
+            "question": {
+              "en": "What is Alex's investment experience level: beginner, intermediate, or advanced?",
+              "fr": "Quel est le niveau d'expérience en placement d'Alex : débutant, intermédiaire ou avancé?"
+            }
+          },
+          {
+            "field": "reportingCurrency",
+            "question": {
+              "en": "What is Alex's reporting currency: CAD or USD?",
+              "fr": "Quelle est la devise de référence d'Alex : CAD ou USD?"
+            }
+          },
+          {
+            "field": "preferences",
+            "question": {
+              "en": "What are Alex's investment preferences, such as themes, exclusions, ESG focus, and crypto interest?",
+              "fr": "Quelles sont les préférences de placement d'Alex, notamment les thèmes, les exclusions, l'intérêt ESG et l'intérêt pour les cryptomonnaies?"
+            }
+          },
+          {
+            "field": "portfolio",
+            "question": {
+              "en": "What are Alex's current holdings, including positions, weights, and total value?",
+              "fr": "Quels sont les avoirs actuels d'Alex, incluant les positions, les pondérations et la valeur totale?"
+            }
+          },
+          {
+            "field": "origin",
+            "question": {
+              "en": "Confirm origin",
+              "fr": "Confirm origin"
+            }
+          }
+        ]
+      }
+    },
+    "error": null,
+    "flags": {
+      "sabotage": null,
+      "fixture": false,
+      "timeMachine": false
+    },
+    "usage": {
+      "inputTokens": 5945,
+      "outputTokens": 1327,
+      "llmCalls": 1,
+      "toolCalls": 0,
+      "durationMs": 19878.528118133545
+    },
+    "createdAt": "2026-11-14T23:11:00.198Z",
+    "updatedAt": "2026-11-14T23:11:20.079Z"
+  }
+}

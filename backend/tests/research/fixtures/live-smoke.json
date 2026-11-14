@@ -1,0 +1,73 @@
+[
+  {
+    "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+    "checked_at": "2026-11-14T23:04:55.891806+00:00",
+    "status": 403,
+    "content_type": "text/html",
+    "bytes": 4819
+  },
+  {
+    "url": "https://www.sec.gov/files/company_tickers.json",
+    "checked_at": "2026-11-14T23:04:56.082975+00:00",
+    "status": 403,
+    "content_type": "text/html",
+    "bytes": 1925
+  },
+  {
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+    "checked_at": "2026-11-14T23:04:56.406763+00:00",
+    "status": 403,
+    "content_type": "text/html",
+    "bytes": 4819
+  },
+  {
+    "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Apple_Inc./daily/2026110100/2026110200",
+    "checked_at": "2026-11-14T23:04:56.501244+00:00",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 305
+  },
+  {
+    "url": "https://www.sec.gov/about/developer-resources",
+    "checked_at": "2026-11-14T23:04:56.739973+00:00",
+    "status": 403,
+    "content_type": "text/html",
+    "bytes": 1925
+  },
+  {
+    "url": "https://www.ishares.com/us/products/239726/ishares-core-sp-500-etf",
+    "checked_at": "2026-11-14T23:04:56.952052+00:00",
+    "status": 200,
+    "content_type": "text/html;charset=UTF-8",
+    "bytes": 3063379
+  },
+  {
+    "url": "https://api.gdeltproject.org/api/v2/doc/doc?query=apple&mode=artlist&maxrecords=1&format=json&timespan=1d",
+    "error": "TimeoutError"
+  },
+  {
+    "url": "https://www.ishares.com/us/products/239726/ishares-core-sp-500-etf/1467271812596.ajax?fileType=csv&fileName=IVV_holdings&dataType=fund",
+    "checked_at": "2026-11-14T23:05:34.429089+00:00",
+    "status": 200,
+    "content_type": "text/csv;charset=UTF-8",
+    "bytes": 2370673
+  },
+  {
+    "url": "https://www.sec.gov/files/company_tickers.json",
+    "checked_at": "2026-11-14T23:10:33.583734+00:00",
+    "user_agent": "AplombDatathon/0.1 (https://github.com/Francklin9999/datathon-2026)",
+    "transport": "absolute-deadline-v1",
+    "status": 403,
+    "bytes": 1925,
+    "content_type": "text/html"
+  },
+  {
+    "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Apple_Inc./daily/2026110100/2026110200",
+    "checked_at": "2026-11-14T23:10:33.876640+00:00",
+    "user_agent": "AplombDatathon/0.1 (https://github.com/Francklin9999/datathon-2026)",
+    "transport": "absolute-deadline-v1",
+    "status": 200,
+    "bytes": 305,
+    "content_type": "application/json; charset=utf-8"
+  }
+]

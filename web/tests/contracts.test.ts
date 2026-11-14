@@ -99,6 +99,8 @@ test('generated types remain assignable to every documented schema', () => {
     type Assert<T extends true> = T;\n${checks}`;
   const config = ts.readConfigFile(path.join(root, 'web/tsconfig.json'), ts.sys.readFile);
   const options = ts.parseJsonConfigFileContent(config.config, ts.sys, path.join(root, 'web')).options;
+  // The virtual declaration check never emits or shares the Next.js build cache.
+  options.incremental = false;
   const host = ts.createCompilerHost(options);
   const read = host.readFile.bind(host);
   host.readFile = file => file === filename ? content : read(file);

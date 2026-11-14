@@ -4,7 +4,7 @@
 
 ## Runtime and package layout
 
-One Python package lives under `backend/aplomb/`. T03 implements HTTP entry point `aplomb.api.app:create_app` and AWS handler `aplomb.api.lambda_handler:handler`. The worker handler `aplomb.agents.worker:handler` remains T08's implementation boundary. Python 3.12, FastAPI/Pydantic/Mangum/AWS SDK versions are pinned in the root manifest/lockfile; Strands belongs to T08. API Gateway v2 adapter compatibility is tested locally; deployed compatibility still requires live smoke.
+One Python package lives under `backend/aplomb/`. T03 implements HTTP entry point `aplomb.api.app:create_app` and AWS handler `aplomb.api.lambda_handler:handler`; T08 implements `aplomb.agents.worker:handler`, requiring an explicitly configured services factory. Python 3.12, FastAPI/Pydantic/Mangum/AWS SDK/Strands versions are pinned in the root manifest/lockfile. API Gateway v2 adapter compatibility is tested locally; deployed compatibility still requires live smoke. See the [T08 handoff](../docs/T08-HANDOFF.md) for supported workflows and missing providers.
 
 The root `pyproject.toml`/`uv.lock` includes Python 3.12, Pydantic, FastAPI, uvicorn, Mangum, boto3 and test tools. `uv sync --locked` installs the package; `uv run pytest` runs the contract, API and composition suites. T08 requests agent dependencies through the shared-manifest owner.
 

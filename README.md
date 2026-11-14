@@ -4,7 +4,7 @@ Aplomb tests hypothetical investment changes against a fictional investor's plan
 
 ## Current repository status
 
-The shared contracts (T01), API/persistence foundation (T03), and AWS CDK foundation (T02) are implemented. Domain services, agent execution and the web application remain with their provider tracks; no application stack is deployed. The API returns explicit unavailable/disabled responses for missing providers. JSON fixtures remain development examples. See the [T01 handoff](docs/T01-HANDOFF.md), [API handoff](docs/T03-HANDOFF.md), and [AWS handoff](infra/README.md) for interfaces and evidence.
+Shared contracts (T01), AWS CDK (T02), API/persistence (T03), datastore (T04), agent execution (T08), research capture (T09), and ledger/audit (T10) have implemented modules and deterministic checks. A genuine Bedrock profile-draft run completed plan/audit/sign and was re-read from durable local storage. Decision controls and application composition remain provider dependencies; the default API returns explicit unavailable/disabled responses. No application stack is deployed. JSON fixtures remain development examples. See the [track integration report](docs/T08-T10-INTEGRATION.md) for evidence and precise limits, plus the [API](docs/T03-HANDOFF.md) and [AWS](infra/README.md) handoffs.
 
 Start with [the team entry point](docs/00-START-HERE.md), then claim a track in [the parallel work map](docs/04-TRACKS.md). The binding interfaces live in [contracts](contracts/README.md). Product-owner decisions and explicitly unconfirmed defaults are in [the decision log](docs/02-DECISIONS.md).
 
