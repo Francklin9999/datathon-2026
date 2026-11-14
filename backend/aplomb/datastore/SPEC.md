@@ -56,3 +56,63 @@ Theme assignment is a sourced team assumption. ETF holdings have effective/repor
 DS-01 hashes/row counts match starter. DS-02 1,228 master dates and ten missing same-day FX rows. DS-03 future price/FX/macro rows withheld. DS-04 missing release date historical behavior. DS-05 old snapshot unchanged after fetch. DS-06 malformed duplicate/nonpositive rows rejected. DS-07 master-calendar missing asset observations never price-filled. DS-08 two read contexts cannot see each other's cutoff/version.
 
 Supply T05 a local CSV-backed gated reader, T12 synthetic release-date fixtures, T09 a document-cache adapter and T13 complete dataset passports. Done includes offline tests and documented availability rules for every loaded dataset.
+
+## 7. Implementation status (T04, 2026-11-14)
+
+Implemented in `backend/aplomb/datastore/` with the Python standard library only (no manifest needed). Readers never import the ingestion module.
+
+| Module | Content |
+|---|---|
+| `ingest.py` | Raw bundle → validation → normalization → staged write → hash re-check → atomic publish; CLI |
+| `snapshot.py` | `LocalDataStore`, `CachedObjectStore` (S3-shaped, injected `fetch(key)`), `Snapshot` |
+| `gate.py` | `TemporalGate` (spec interface plus quant/T12 helpers) |
+| `universe.py` | `Universe`, `AssetRecord.to_wire()` (`Asset` wire shape) |
+| `passports.py` | `DatasetPassport` for all 15 catalog datasets; trap register for `GET /datasets` |
+| `ondemand.py` | `FetchedAsset`, `PriceProvider` protocol, `publish_on_demand` (P1) |
+| `availability.py`, `quality.py`, `schemas.py`, `types.py`, `constants.py` | Policies, checks, schemas, result types, catalog subset |
+
+### 7.1 Public calls
+
+```python
+store = LocalDataStore("data")                     # or CachedObjectStore(fetch, "/tmp/aplomb")
+snap = store.open(store.active_version())          # verifies manifest + every checksum; pin for the run
+gate = snap.gate(as_of, mode)                      # mode: "current" | "historical"
+gate.prices(tickers, start, end) / gate.fx(start, end) / gate.macro(series_id, start, end)
+gate.dataset(dataset_id, filters)                  # equality filters, plus "start"/"end" on the date column
+gate.describe(dataset_id)                          # passport dict
+gate.master_calendar(start=None, end=None)         # MasterCalendar: visible XIU.TO ∩ SPY dates
+gate.price_frame(tickers, start=None, end=None, calendar="master")  # PriceFrame for T05; None = no observation
+gate.fx_series(start=None, end=None)               # FxSeries.rate_on_or_before(day) -> (rate, published) | None
+gate.universe()                                    # Universe.get/search/all/counts/cash
+gate.availability_summary()                        # per dataset rowsVisible/rowsWithheld/lastVisibleDate (T12)
+snap.datasets_response()                           # body of GET /datasets
+```
+
+`end=None` means `as_of`. Rows are fresh dicts with source columns plus `available_at` for the gate's mode. `DataSlice.dataset_read().to_wire()` gives a `ToolCall.datasetsRead` entry; `merge_reads` sums repeated reads (trace totals, not unique I/O). Errors: `UnknownTicker`, `UnknownSeries`, `DatasetNotFound` (→ `not_found`), `DatasetMissing` (→ nee `dataset_missing`), `InvalidGateRequest` (→ `validation_error`), `SnapshotIntegrityError`, `IngestionError`.
+
+### 7.2 Availability rules actually applied
+
+| Dataset | Current mode | Historical mode |
+|---|---|---|
+| prices_daily | TSX/U.S. row D at D 21:00Z; crypto row D at D 23:59:59.999Z | same |
+| fx_usdcad_daily | D 21:30Z (Bank of Canada ~16:30 ET); reads add the last earlier visible rate | same |
+| corporate_actions | ex-date 00:00Z, annotation only | same |
+| assets_universe | availability of the asset's first price row | same |
+| macro_rates | real release time if loaded; else A-22 (daily: next weekday 00:00Z; monthly: reference month end + 45 days) | monthly needs a real release time; revised series (FRED, per `data/metadata/macro_series.csv`) also need `vintageAt`; else withheld |
+| asset_themes | not gated | from `assignedAt` (a 2026 team assignment is not historical evidence) |
+| macro_release_dates | `publishedAt` | same |
+
+The 21:00Z/21:30Z stamps equal the Eastern close/publication in winter and are one hour late in summer (never early). Weekdays approximate business days (no holiday calendar).
+
+### 7.3 Decisions and known limits
+
+- Source hashes use content with CRLF normalized to LF (`sha256`, equal on every checkout); `sha256Bytes` records local bytes. Normalized files are deterministic, so a clean clone re-materializes `raw/` and `normalized/` from the committed manifest and fails if a hash differs.
+- Universe and price reads raise `UnknownTicker` for an asset not yet known at `as_of`. `no_fx_needed` is not emitted (it depends on the profile's reporting currency).
+- Theme tags rest on the organizer universe file and team judgement (`sourceUrl` empty, `isAssumption=true`); no `dividend_payers` assignment yet. In historical mode they are withheld, so `Universe.search(theme=...)` returns nothing before 2026-11-14 (T07/T12 to confirm this is wanted).
+- `CPIAUCSL` and `UNRATE` have no 2025-10 observation in the organizer file: flagged, not filled.
+- No live price provider is wired for on-demand fetches (Yahoo live terms unverified). A rejected fetch whose input cannot form a valid `Asset` (e.g. EUR listing) returns `asset: null`, although api.md §2.3 types `asset` as non-null: T01 to decide.
+- Cold `open()` of the starter snapshot parses ~50k rows (about 2 s on the development laptop); snapshots are cached per process.
+
+### 7.4 Verification
+
+`cd backend && python -m pytest tests/unit/datastore -q` (or `python -m unittest discover -s tests/unit/datastore -t .`): 99 offline tests covering DS-01…DS-08 and DAT-01…DAT-07, plus catalog mirror checks against `contracts/catalog.md`. Synthetic bundles with release/vintage dates for T12 live in `backend/tests/unit/datastore/_support.py` (`synthetic_bundle(with_releases=True)`).

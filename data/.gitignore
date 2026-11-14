@@ -1,0 +1,6 @@
+# Generated snapshot contents are reproducible from the committed manifest (data/SPEC.md):
+# run the ingestion CLI to materialize them. Manifests and metadata stay in Git.
+raw/
+normalized/
+.staging/
+cache/

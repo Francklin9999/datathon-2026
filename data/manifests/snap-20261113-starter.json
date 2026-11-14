@@ -1,0 +1,615 @@
+{
+  "manifestSchemaVersion": 1,
+  "contractVersion": "1.0.0",
+  "dataVersion": "snap-20261113-starter",
+  "parentVersion": null,
+  "createdAt": "2026-11-14T22:42:34Z",
+  "dataAsOf": "2026-11-12",
+  "sources": [
+    {
+      "file": "asset_themes.csv",
+      "path": "raw/snap-20261113-starter/asset_themes.csv",
+      "origin": "data/metadata/asset_themes.csv",
+      "sha256": "e75eb247b0faf9d345a0a06b7d834fdc17bf9abb48209d1e5c451ffa788fe591",
+      "sha256Bytes": "e75eb247b0faf9d345a0a06b7d834fdc17bf9abb48209d1e5c451ffa788fe591",
+      "bytes": 5122
+    },
+    {
+      "file": "assets_universe.csv",
+      "path": "raw/snap-20261113-starter/assets_universe.csv",
+      "origin": "Datathon2026/alphaforge_starter/assets_universe.csv",
+      "sha256": "f78de8ecb36d914a3448db63498cc9a04a34d805bccb79c481dda1650755467d",
+      "sha256Bytes": "960ad8caea9689acbbf09e7388a895feaf8b4bfbf0af0b36fb03dee6ed2825c7",
+      "bytes": 2121
+    },
+    {
+      "file": "corporate_actions.csv",
+      "path": "raw/snap-20261113-starter/corporate_actions.csv",
+      "origin": "Datathon2026/alphaforge_starter/corporate_actions.csv",
+      "sha256": "37d99f1472f9f1c7360432835353488bdf72bb055295ec66155211a30d8312b1",
+      "sha256Bytes": "b13a7984153d5f83c034acdd92728f248173ef872d7556208eeb2ddbcc69a3c0",
+      "bytes": 30387
+    },
+    {
+      "file": "data_quality_warnings.txt",
+      "path": "raw/snap-20261113-starter/data_quality_warnings.txt",
+      "origin": "Datathon2026/alphaforge_starter/data_quality_warnings.txt",
+      "sha256": "87fdb2abea76029c6ad32c57548c6a04e8018be0c1aadc9b7438561eef5789b6",
+      "sha256Bytes": "2128d52921cc7fe4b649fa134690fe81ee5d6e261dfe1eaa576f3d8be9057520",
+      "bytes": 70
+    },
+    {
+      "file": "fx_usdcad_daily.csv",
+      "path": "raw/snap-20261113-starter/fx_usdcad_daily.csv",
+      "origin": "Datathon2026/alphaforge_starter/fx_usdcad_daily.csv",
+      "sha256": "f04e218ac5b0145fd552b3d0dcfbf73e5e17bb9a6fb4562460dbec95cb8972b3",
+      "sha256Bytes": "f3937d2b75de0bb9072971201aea4b97d4f7962ecd39d1eb5ea8af88bbdc50f7",
+      "bytes": 34590
+    },
+    {
+      "file": "macro_rates.csv",
+      "path": "raw/snap-20261113-starter/macro_rates.csv",
+      "origin": "Datathon2026/alphaforge_starter/macro_rates.csv",
+      "sha256": "2c04b0ca5590396fee1f0de13c0b2a95731125a61c79166d553d106f0375c73e",
+      "sha256Bytes": "2e507a863a9e74bbc850a90854961ae3be2836368e620dd98ccec9a92460ea4f",
+      "bytes": 1082800
+    },
+    {
+      "file": "macro_series.csv",
+      "path": "raw/snap-20261113-starter/macro_series.csv",
+      "origin": "data/metadata/macro_series.csv",
+      "sha256": "3fae88ea24d223fccbf90fb6baae7f5bd1c2a52ce40efbe1ecf07c1282e26320",
+      "sha256Bytes": "3fae88ea24d223fccbf90fb6baae7f5bd1c2a52ce40efbe1ecf07c1282e26320",
+      "bytes": 1873
+    },
+    {
+      "file": "prices_daily.csv",
+      "path": "raw/snap-20261113-starter/prices_daily.csv",
+      "origin": "Datathon2026/alphaforge_starter/prices_daily.csv",
+      "sha256": "ff2a3f2d0a7d72ea835e8d616d041e0510f018340cef3d3e55b918830e8a569d",
+      "sha256Bytes": "049a79f678613cebf49f4fc22c3a05a310424729080959a07e8e941ec4690ae2",
+      "bytes": 3265035
+    },
+    {
+      "file": "sources_metadata.csv",
+      "path": "raw/snap-20261113-starter/sources_metadata.csv",
+      "origin": "Datathon2026/alphaforge_starter/sources_metadata.csv",
+      "sha256": "7ff17052c8235888c4984430830610ae0d81c0df71585afaacb87ba5fe531bdf",
+      "sha256Bytes": "0d147bba60c2b9ccaba028468d5c05c4acb5676d649933f76ed8b94d6b3230ff",
+      "bytes": 2853
+    }
+  ],
+  "sourceMetadata": {
+    "assets_universe.csv": [
+      {
+        "file": "assets_universe.csv",
+        "content": "31 assets: 10 Canadian equities; 10 U.S. equities; 9 ETFs (equity; bond; gold; ESG-screened); Bitcoin and Ether",
+        "source": "Compiled by organizers; sector labels follow GICS sector names",
+        "source_url": "n/a",
+        "retrieved_on": "2026-11-13",
+        "coverage": "n/a",
+        "frequency": "static",
+        "processing": "Hand-curated selection",
+        "limitations": "Sector labels are organizer-assigned and simplified; ETF 'sector' describes exposure; not an official classification",
+        "terms_of_use": "Free to use within the datathon"
+      }
+    ],
+    "prices_daily.csv": [
+      {
+        "file": "prices_daily.csv",
+        "content": "Daily OHLC; close; adjusted close; volume",
+        "source": "Yahoo Finance via the open-source yfinance Python library",
+        "source_url": "https://finance.yahoo.com",
+        "retrieved_on": "2026-11-13",
+        "coverage": "2021-11-12 to 2026-11-12",
+        "frequency": "daily (trading days per market; crypto 7 days/week)",
+        "processing": "No forward-fill; no calendar alignment; rows only on days Yahoo reports a price; prices in the asset's listing currency",
+        "limitations": "adj_close is back-adjusted for splits and dividends so values shift when data is re-downloaded; crypto rows are UTC calendar days; Yahoo data is not exchange-certified",
+        "terms_of_use": "Yahoo terms: https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html (retrieved 2026-11-13)"
+      }
+    ],
+    "corporate_actions.csv": [
+      {
+        "file": "corporate_actions.csv",
+        "content": "Dividends and stock splits by ex-date",
+        "source": "Yahoo Finance via yfinance",
+        "source_url": "https://finance.yahoo.com",
+        "retrieved_on": "2026-11-13",
+        "coverage": "2021-11-12 to 2026-11-12",
+        "frequency": "event",
+        "processing": "Extracted from the same download as prices",
+        "limitations": "Dividend amounts are per share in listing currency; may be incomplete for ETFs",
+        "terms_of_use": "Same as prices_daily.csv"
+      }
+    ],
+    "fx_usdcad_daily.csv": [
+      {
+        "file": "fx_usdcad_daily.csv",
+        "content": "USD/CAD daily exchange rate and its inverse",
+        "source": "Bank of Canada Valet API series FXUSDCAD",
+        "source_url": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD/json",
+        "retrieved_on": "2026-11-13",
+        "coverage": "2021-11-12 to 2026-11-12",
+        "frequency": "business daily (Canadian business days)",
+        "processing": "cadusd = 1/usdcad rounded to 6 decimals",
+        "limitations": "Single daily rate published around 16:30 ET; no rate on Canadian holidays",
+        "terms_of_use": "Bank of Canada terms: https://www.bankofcanada.ca/terms/"
+      }
+    ],
+    "macro_rates.csv": [
+      {
+        "file": "macro_rates.csv",
+        "content": "Bank of Canada policy rate; GoC 2y and 10y yields; Canada CPI y/y",
+        "source": "Bank of Canada Valet API (V39079; BD.CDN.2YR.DQ.YLD; BD.CDN.10YR.DQ.YLD; STATIC_TOTALCPICHANGE)",
+        "source_url": "https://www.bankofcanada.ca/valet/docs",
+        "retrieved_on": "2026-11-13",
+        "coverage": "2021-11-12 to 2026-11-12",
+        "frequency": "daily / monthly",
+        "processing": "Long format; one row per (date; series_id)",
+        "limitations": "Monthly CPI is dated to the reference month and is published several weeks later; do not use before its release date",
+        "terms_of_use": "Bank of Canada terms: https://www.bankofcanada.ca/terms/"
+      },
+      {
+        "file": "macro_rates.csv",
+        "content": "U.S. fed funds rate; Treasury 2y and 10y yields; CPI; unemployment rate",
+        "source": "FRED (Federal Reserve Bank of St. Louis): DFF; DGS2; DGS10; CPIAUCSL; UNRATE",
+        "source_url": "https://fred.stlouisfed.org",
+        "retrieved_on": "2026-11-13",
+        "coverage": "2021-11-12 to 2026-11-12",
+        "frequency": "daily / monthly",
+        "processing": "Long format; missing values dropped",
+        "limitations": "Monthly series are dated to the reference month and released weeks later; values are latest vintage (revised) not as first published",
+        "terms_of_use": "Original sources are U.S. government agencies (Federal Reserve Board; BLS); see FRED terms https://fred.stlouisfed.org/legal/"
+      }
+    ]
+  },
+  "onDemand": [],
+  "datasets": {
+    "assets_universe": {
+      "schemaVersion": 1,
+      "path": "normalized/snap-20261113-starter/assets_universe.csv",
+      "sha256": "6143e47e07ce22b69c684031eecca8048c4fba652766b64acc28ecad0cce8f71",
+      "bytes": 4830,
+      "rowCount": 31,
+      "firstDate": null,
+      "lastDate": null,
+      "sourceFiles": [
+        "assets_universe.csv"
+      ],
+      "availabilityPolicy": "first_visible_price_row",
+      "checks": [
+        {
+          "name": "Header matches organizer schema",
+          "ok": true,
+          "detail": "asset_id, ticker, name, asset_class, market, currency, sector",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Ticker and asset_id unique",
+          "ok": true,
+          "detail": "31 assets",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Asset class and currency in closed lists",
+          "ok": true,
+          "detail": "classes: crypto, equity, etf_bond, etf_commodity, etf_equity",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Every asset has price rows",
+          "ok": true,
+          "detail": "31 of 31",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        }
+      ],
+      "details": {
+        "byTier": {
+          "starter": 31
+        }
+      }
+    },
+    "prices_daily": {
+      "schemaVersion": 1,
+      "path": "normalized/snap-20261113-starter/prices_daily.csv",
+      "sha256": "c8a5ed3aa738364a70885fc89bef01c788c293f9b34c429046930a49adff89c9",
+      "bytes": 5227472,
+      "rowCount": 40049,
+      "firstDate": "2021-11-12",
+      "lastDate": "2026-11-12",
+      "sourceFiles": [
+        "prices_daily.csv"
+      ],
+      "availabilityPolicy": "daily_close_21:00Z_crypto_eod_23:59:59.999Z",
+      "checks": [
+        {
+          "name": "Header matches organizer schema",
+          "ok": true,
+          "detail": "date, ticker, open, high, low, close, adj_close, volume, currency",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "No duplicate (date, ticker) keys, valid dates, finite values",
+          "ok": true,
+          "detail": "40049 rows",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Adjusted close strictly positive",
+          "ok": true,
+          "detail": "all rows",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Ticker and currency match the universe",
+          "ok": true,
+          "detail": "31 tickers",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "No zero-volume observations",
+          "ok": false,
+          "detail": "1 flagged and retained, not deleted: ZST.TO 2022-07-06",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Each listed asset follows its market reference calendar (XIU.TO or SPY)",
+          "ok": true,
+          "detail": "all match",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "No one-day adjusted move above 40%",
+          "ok": true,
+          "detail": "none",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "No observation gaps above 5 days (crypto 1)",
+          "ok": true,
+          "detail": "none",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Open/high/low/close consistent",
+          "ok": true,
+          "detail": "none",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Master calendar (XIU.TO ∩ SPY)",
+          "ok": true,
+          "detail": "1228 days, 2021-11-12 to 2026-11-12",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        }
+      ],
+      "details": {
+        "rowsByTicker": {
+          "AAPL": 1255,
+          "AGG": 1255,
+          "AMZN": 1255,
+          "ATD.TO": 1255,
+          "BTC-USD": 1827,
+          "CNQ.TO": 1255,
+          "CNR.TO": 1255,
+          "CSU.TO": 1255,
+          "ENB.TO": 1255,
+          "ESGV": 1255,
+          "ETH-USD": 1827,
+          "FTS.TO": 1255,
+          "GLD": 1255,
+          "GOOGL": 1255,
+          "JNJ": 1255,
+          "JPM": 1255,
+          "MFC.TO": 1255,
+          "MSFT": 1255,
+          "NVDA": 1255,
+          "PG": 1255,
+          "QQQ": 1255,
+          "RY.TO": 1255,
+          "SHOP.TO": 1255,
+          "SPY": 1255,
+          "TD.TO": 1255,
+          "TLT": 1255,
+          "TSLA": 1255,
+          "XBB.TO": 1255,
+          "XIU.TO": 1255,
+          "XOM": 1255,
+          "ZST.TO": 1255
+        },
+        "masterCalendarDays": 1228
+      }
+    },
+    "corporate_actions": {
+      "schemaVersion": 1,
+      "path": "normalized/snap-20261113-starter/corporate_actions.csv",
+      "sha256": "d2a39d6dbe232d040a8ff6defd94c19fb1b5350d7b038a073118bb309deefbf1",
+      "bytes": 62665,
+      "rowCount": 658,
+      "firstDate": "2021-11-12",
+      "lastDate": "2026-11-12",
+      "sourceFiles": [
+        "corporate_actions.csv"
+      ],
+      "availabilityPolicy": "ex_date_00:00Z_reference_only",
+      "checks": [
+        {
+          "name": "Header matches organizer schema",
+          "ok": true,
+          "detail": "ex_date, ticker, action, value, unit",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "No duplicate (ex_date, ticker, action), known tickers, positive values",
+          "ok": true,
+          "detail": "658 rows: 651 dividends, 7 splits",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Split ratios are ordinary ratios",
+          "ok": false,
+          "detail": "1 flagged and retained: CNQ.TO 2022-08-22 (split ratio 1.021 is not an ordinary ratio)",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Never re-applied to prices",
+          "ok": true,
+          "detail": "annotation only; prices use adj_close (M_PRICE_ADJ_CLOSE)",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        }
+      ]
+    },
+    "fx_usdcad_daily": {
+      "schemaVersion": 1,
+      "path": "normalized/snap-20261113-starter/fx_usdcad_daily.csv",
+      "sha256": "063c715b31cd75900a3c7fe54f2b4a161a5b4a81813a664d7b64aca560d09e54",
+      "bytes": 95631,
+      "rowCount": 1245,
+      "firstDate": "2021-11-12",
+      "lastDate": "2026-11-12",
+      "sourceFiles": [
+        "fx_usdcad_daily.csv"
+      ],
+      "availabilityPolicy": "boc_same_day_21:30Z",
+      "checks": [
+        {
+          "name": "Header matches organizer schema",
+          "ok": true,
+          "detail": "date, usdcad, cadusd",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Dates unique, rates finite and positive",
+          "ok": true,
+          "detail": "1245 rows",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "cadusd equals 1/usdcad rounded to 6 decimals",
+          "ok": true,
+          "detail": "none",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Every master-calendar day has a rate on or before it",
+          "ok": true,
+          "detail": "10 master days use the previous publication (LIM_FX_FFILL): 2022-09-30, 2022-11-11, 2023-10-02, 2023-11-13, 2024-09-30, 2024-11-11, 2025-09-30, 2025-11-11, 2026-09-30, 2026-11-11",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        }
+      ],
+      "details": {
+        "masterDaysWithoutSameDayRate": [
+          "2022-09-30",
+          "2022-11-11",
+          "2023-10-02",
+          "2023-11-13",
+          "2024-09-30",
+          "2024-11-11",
+          "2025-09-30",
+          "2025-11-11",
+          "2026-09-30",
+          "2026-11-11"
+        ]
+      }
+    },
+    "macro_rates": {
+      "schemaVersion": 1,
+      "path": "normalized/snap-20261113-starter/macro_rates.csv",
+      "sha256": "c290c0aa86044a4d03fd6abe922865f33b026e07ee8ed718e4608b9de5c377f7",
+      "bytes": 1739779,
+      "rowCount": 8281,
+      "firstDate": "2021-11-01",
+      "lastDate": "2026-11-12",
+      "sourceFiles": [
+        "macro_rates.csv",
+        "macro_series.csv"
+      ],
+      "availabilityPolicy": "release_date_else_A22_lag_historical_requires_release_and_vintage",
+      "checks": [
+        {
+          "name": "Header matches organizer schema",
+          "ok": true,
+          "detail": "date, series_id, value, unit, frequency, label, source",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "No duplicate (date, series_id), finite values",
+          "ok": true,
+          "detail": "8281 rows, 9 series",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Per-series coverage without gaps",
+          "ok": false,
+          "detail": "BD.CDN.10YR.DQ.YLD 1245 rows 2021-11-12..2026-11-12; BD.CDN.2YR.DQ.YLD 1245 rows 2021-11-12..2026-11-12; CPIAUCSL 59 rows 2021-11-01..2026-10-01; DFF 1826 rows 2021-11-12..2026-11-11; DGS10 1248 rows 2021-11-12..2026-11-10; DGS2 1248 rows 2021-11-12..2026-11-10; STATIC_TOTALCPICHANGE 58 rows 2021-12-01..2026-09-01; UNRATE 59 rows 2021-11-01..2026-10-01; V39079 1293 rows 2021-11-12..2026-11-12; gaps: 2 flagged and retained: CPIAUCSL  (reference months without a value (not filled): 2025-10), UNRATE  (reference months without a value (not filled): 2025-10)",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Real release dates loaded for monthly series",
+          "ok": false,
+          "detail": "none loaded (O-05): monthly values use the A-22 45-day lag in current runs and are withheld in historical runs",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Rows readable in historical runs",
+          "ok": false,
+          "detail": "4498 of 8281 rows withheld in historical runs (unknown release date or revised without vintage)",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        }
+      ],
+      "details": {
+        "series": {
+          "BD.CDN.10YR.DQ.YLD": {
+            "rows": 1245,
+            "firstDate": "2021-11-12",
+            "lastDate": "2026-11-12",
+            "frequencyClass": "daily",
+            "revisedLatestVintage": false,
+            "releaseDatesLoaded": 0,
+            "gaps": 0
+          },
+          "BD.CDN.2YR.DQ.YLD": {
+            "rows": 1245,
+            "firstDate": "2021-11-12",
+            "lastDate": "2026-11-12",
+            "frequencyClass": "daily",
+            "revisedLatestVintage": false,
+            "releaseDatesLoaded": 0,
+            "gaps": 0
+          },
+          "CPIAUCSL": {
+            "rows": 59,
+            "firstDate": "2021-11-01",
+            "lastDate": "2026-10-01",
+            "frequencyClass": "monthly",
+            "revisedLatestVintage": true,
+            "releaseDatesLoaded": 0,
+            "gaps": 1
+          },
+          "DFF": {
+            "rows": 1826,
+            "firstDate": "2021-11-12",
+            "lastDate": "2026-11-11",
+            "frequencyClass": "daily",
+            "revisedLatestVintage": true,
+            "releaseDatesLoaded": 0,
+            "gaps": 0
+          },
+          "DGS10": {
+            "rows": 1248,
+            "firstDate": "2021-11-12",
+            "lastDate": "2026-11-10",
+            "frequencyClass": "daily",
+            "revisedLatestVintage": true,
+            "releaseDatesLoaded": 0,
+            "gaps": 0
+          },
+          "DGS2": {
+            "rows": 1248,
+            "firstDate": "2021-11-12",
+            "lastDate": "2026-11-10",
+            "frequencyClass": "daily",
+            "revisedLatestVintage": true,
+            "releaseDatesLoaded": 0,
+            "gaps": 0
+          },
+          "STATIC_TOTALCPICHANGE": {
+            "rows": 58,
+            "firstDate": "2021-12-01",
+            "lastDate": "2026-09-01",
+            "frequencyClass": "monthly",
+            "revisedLatestVintage": false,
+            "releaseDatesLoaded": 0,
+            "gaps": 0
+          },
+          "UNRATE": {
+            "rows": 59,
+            "firstDate": "2021-11-01",
+            "lastDate": "2026-10-01",
+            "frequencyClass": "monthly",
+            "revisedLatestVintage": true,
+            "releaseDatesLoaded": 0,
+            "gaps": 1
+          },
+          "V39079": {
+            "rows": 1293,
+            "firstDate": "2021-11-12",
+            "lastDate": "2026-11-12",
+            "frequencyClass": "daily",
+            "revisedLatestVintage": false,
+            "releaseDatesLoaded": 0,
+            "gaps": 0
+          }
+        }
+      }
+    },
+    "asset_themes": {
+      "schemaVersion": 1,
+      "path": "normalized/snap-20261113-starter/asset_themes.csv",
+      "sha256": "ce7abdc19020c21f2a48334dc576566b27b99dda4ccb63f8db7fe122abfe7fe4",
+      "bytes": 7346,
+      "rowCount": 44,
+      "firstDate": null,
+      "lastDate": null,
+      "sourceFiles": [
+        "asset_themes.csv"
+      ],
+      "availabilityPolicy": "current_ungated_historical_from_assigned_at",
+      "checks": [
+        {
+          "name": "Tickers known, tags in catalog §8, justification present",
+          "ok": true,
+          "detail": "44 assignments",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Every asset has at least one theme",
+          "ok": true,
+          "detail": "all tagged",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        },
+        {
+          "name": "Assignments backed by a source URL",
+          "ok": false,
+          "detail": "44 of 44 rest on the organizer universe file only (team assumptions)",
+          "checkedAt": "2026-11-14T22:42:34Z"
+        }
+      ],
+      "details": {
+        "assignedAt": [
+          "2026-11-14"
+        ]
+      }
+    }
+  },
+  "qualityFlags": [
+    {
+      "datasetId": "corporate_actions",
+      "code": "split_anomaly",
+      "ticker": "CNQ.TO",
+      "date": "2022-08-22",
+      "detail": "split ratio 1.021 is not an ordinary ratio"
+    },
+    {
+      "datasetId": "macro_rates",
+      "code": "coverage_gap",
+      "ticker": "CPIAUCSL",
+      "date": null,
+      "detail": "reference months without a value (not filled): 2025-10"
+    },
+    {
+      "datasetId": "macro_rates",
+      "code": "coverage_gap",
+      "ticker": "UNRATE",
+      "date": null,
+      "detail": "reference months without a value (not filled): 2025-10"
+    },
+    {
+      "datasetId": "prices_daily",
+      "code": "zero_volume",
+      "ticker": "ZST.TO",
+      "date": "2022-07-06",
+      "detail": "zero-volume observation retained"
+    }
+  ]
+}

@@ -40,3 +40,15 @@ T09 owns fetched documents/attention/filings; T11 events/facilities/hazards; T04
 ## Tests and handoff
 
 DAT-01 all starter counts/keys. DAT-02 idempotent ingestion and source hash stability. DAT-03 staged failure cannot corrupt active version. DAT-04 release/reference-date separation. DAT-05 source traps mapped to passports. DAT-06 on-demand acceptance/short-history/rejection. DAT-07 metadata round-trips to `GET /datasets`. Done includes a small local snapshot, S3-upload-ready manifest and deterministic loader tests; no AWS access required for the first handoff.
+
+## Current state (T04, 2026-11-14)
+
+Snapshot `snap-20261113-starter` is published and active: `data/manifests/snap-20261113-starter.json` (hashes, counts, coverage, availability policies, checks, quality flags) and `data/manifests/active.json`. `raw/` and `normalized/` are gitignored and rebuilt from the manifest. Team metadata copied into each snapshot: `data/metadata/asset_themes.csv` (44 theme assumptions) and `data/metadata/macro_series.csv` (frequency class and revision status per series, from the organizer metadata). `macro_release_dates.csv` is optional and absent until O-05 is closed.
+
+Materialize or verify the snapshot (idempotent; fails without changing anything if a source or hash differs):
+
+```bash
+cd backend && python -m aplomb.datastore.ingest --source ../Datathon2026/alphaforge_starter --data-root ../data --version snap-20261113-starter
+```
+
+A changed source or metadata file needs a new version label. Implementation details, availability rules and limits: [datastore §7](../backend/aplomb/datastore/SPEC.md).
