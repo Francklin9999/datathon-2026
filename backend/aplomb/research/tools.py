@@ -1,10 +1,16 @@
 """Catalog-compatible model tool bindings with explicit missingness."""
+import copy
+import json
+import math
+from contextlib import nullcontext
 from datetime import date
+from weakref import WeakKeyDictionary
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from .adapters import AttentionAdapter, EdgarAdapter, ETFAdapter, GdeltAdapter
 from .core import ResearchContext, ResearchError
+from .numeric import document_ref, fact_input, fact_value, source_evidence
 
 
 class Args(BaseModel):
@@ -140,27 +146,80 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
         return ToolResult(False, "Browser adapter disabled pending navigation capture", error="browser_disabled")
 
     def company_facts(ctx, **kw):
-        units, document = edgar.company_facts(context=context(ctx), **kw)
-        # The source is captured, but ambiguous XBRL unit semantics are never guessed.
-        return ToolResult(True, "Captured company facts; explicit sourced unit verification required", data={
-            "document_ref": document.document_id, "available_units": list(units),
-            "figures": [], "reason": "numeric_quote_verification_required", "evidence_gap": True})
+        rc = context(ctx)
+        units, document = edgar.company_facts(context=rc, **kw)
+        figures, fact_ids, unavailable = [], [], []
+        # Bound output by selecting up to five latest filed records for each recognized currency.
+        for source_unit, rows in units.items():
+            unit = {"USD": "usd", "CAD": "cad"}.get(source_unit)
+            if unit is None:
+                unavailable.append({"source_unit": source_unit, "reason": "unsupported_explicit_unit"})
+                continue
+            selected = [(index, row) for index, row in enumerate(rows)
+                        if isinstance(row, dict) and isinstance(row.get("filed"), str)
+                        and isinstance(row.get("end"), str)
+                        and row["filed"] <= str(rc.as_of) and row["end"] <= str(rc.as_of)]
+            selected.sort(key=lambda item: (item[1]["filed"], item[1]["end"]), reverse=True)
+            for index, row in selected[:5]:
+                value = row.get("val")
+                if isinstance(value, bool) or not isinstance(value, (float, int)) or not math.isfinite(value):
+                    unavailable.append({"source_unit": source_unit, "reason": "invalid_source_value"})
+                    continue
+                fact = fact_input(document, rc, value=value, unit=unit, subject_id=kw["cik"].zfill(10),
+                                  variant=f"{kw['concept']}:{source_unit}:{index}:{document.document_id}", label=kw["concept"])
+                fact_id = ctx.ledger.add_source_fact(fact, document_ref(document), {
+                    "format": "sec_companyfacts", "concept": kw["concept"], "unit": source_unit, "row_index": index})
+                fact_ids.append(fact_id)
+                figures.append({"concept": kw["concept"], "figure": fact_value(ctx.ledger, fact_id),
+                                "source_unit": source_unit, "period_start": row.get("start"),
+                                "period_end": row["end"], "filed": row["filed"], "form": row.get("form"),
+                                "accession": row.get("accn")})
+        evidence_ids = [source_evidence(service, document, rc, ctx.ledger, type="filing",
+                         title="SEC company facts source", subject_id=kw["cik"].zfill(10))] if figures else []
+        return ToolResult(True, "Verified structured SEC reported figures" if figures else "No supported visible figures",
+                          fact_ids=fact_ids, evidence_ids=evidence_ids, data={
+            "document_ref": document.document_id, "available_units": list(units), "figures": figures,
+            "unavailable": unavailable, "reason": "verified_source_records" if figures else "no_supported_visible_figures",
+            "evidence_gap": not bool(figures)})
 
     def pageviews(ctx, **kw):
-        result, document = attention.pageviews(context=context(ctx), **kw)
-        # Until ledger has a verified series-derivation registration path, do not expose untagged ratio.
+        rc = context(ctx)
+        result, document = attention.pageviews(context=rc, **kw)
         ratio = result.pop("ratio", None)
-        if ratio is not None:
-            result["flag"] = "unknown"
-            result["reason"] = "fact_registration_required"
-        return ToolResult(True, result["reason"], data=result)
+        if ratio is None:
+            return ToolResult(True, result["reason"], data=result)
+        fact = fact_input(document, rc, value=ratio, unit="ratio", subject_id=result["article"], subject_type="event",
+                          variant=document.document_id, label="Wikipedia daily pageview attention ratio",
+                          metric="attention.pageviews_ratio", limitations=["LIM_ATTENTION_PROXY"])
+        fact_id = ctx.ledger.add_pageviews_ratio(fact, document_ref(document), article=result["article"])
+        result["ratio"] = fact_value(ctx.ledger, fact_id)
+        evidence_id = source_evidence(service, document, rc, ctx.ledger, type="attention",
+                                      title="Wikimedia daily pageviews", subject_id=kw["ticker"])
+        result.update(fact_id=fact_id, evidence_id=evidence_id, informational_only=True)
+        return ToolResult(True, "Verified complete daily pageview ratio; informational only", fact_ids=[fact_id],
+                          evidence_ids=[evidence_id], data=result)
 
     def holdings(ctx, **kw):
-        result, document = etf.holdings(context=context(ctx), **kw)
+        rc = context(ctx)
+        result, document = etf.holdings(context=rc, **kw)
+        config = etf.files[kw["ticker"]]
+        fact_ids = []
         for row in result["holdings"]:
-            row.pop("weight_pct")
-        result.update(document_ref=document.document_id, reason="weight_fact_registration_required")
-        return ToolResult(True, "Issuer identities captured; weight facts unavailable", data=result)
+            value = row.pop("weight_pct")
+            fact = fact_input(document, rc, value=value, unit="pct", subject_id=row["identifier"],
+                              variant=f"etf:{kw['ticker']}:{config.effective_date}:{document.document_id}",
+                              label=f"{kw['ticker']} issuer weight of {row['identifier']}")
+            fact_id = ctx.ledger.add_source_fact(fact, document_ref(document), {
+                "format": "issuer_holdings_csv", "identifier": row["identifier"],
+                "effective_date": str(config.effective_date), "identifier_column": config.identifier_column,
+                "weight_column": "Weight (%)"})
+            fact_ids.append(fact_id)
+            row["weight_pct"] = fact_value(ctx.ledger, fact_id)
+        evidence_id = source_evidence(service, document, rc, ctx.ledger, type="fund_document",
+                                     title=f"{kw['ticker']} issuer holdings source", subject_id=kw["ticker"])
+        result.update(document_ref=document.document_id, reason="verified_source_records")
+        return ToolResult(True, "Verified dated issuer weights; partial coverage", fact_ids=fact_ids,
+                          evidence_ids=[evidence_id], data=result)
 
     bindings = {
         "edgar.find_company": (FindCompanyArgs, find), "edgar.list_filings": (ListFilingsArgs, filings),
@@ -170,12 +229,31 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
         "etf.holdings": (HoldingsArgs, holdings), "research.save_evidence": (SaveEvidenceArgs, save),
     }
 
-    def guarded(fn):
+    completed = WeakKeyDictionary()
+
+    def guarded(name, fn):
         def run(ctx, **kw):
             try:
-                return fn(ctx, **kw)
+                rc = context(ctx)
+                ledger = getattr(ctx, "ledger", None)
+                cache_key = (name, rc.run_id, str(rc.as_of), rc.mode, rc.data_version,
+                             str(service.clock().date()), json.dumps(kw, sort_keys=True, default=str))
+                prior = completed.get(ledger, {}) if ledger is not None else {}
+                if cache_key in prior:
+                    cached = prior[cache_key]
+                    view = ledger.export()
+                    if all(fid in view.facts for fid in cached.fact_ids) and all(
+                        eid in view.evidence for eid in cached.evidence_ids
+                    ):
+                        return copy.deepcopy(cached)
+                # Source/document caches may survive failure; ledger facts/evidence are atomic.
+                with ledger.transaction() if ledger is not None else nullcontext():
+                    result = fn(ctx, **kw)
+                if result.ok and ledger is not None:
+                    completed.setdefault(ledger, {})[cache_key] = copy.deepcopy(result)
+                return result
             except Exception as exc:
                 reason = str(exc) if isinstance(exc, ResearchError) else "source_unavailable"
                 return ToolResult(False, "Research unavailable; evidence gap remains", error=reason)
         return run
-    return {name: (schema, guarded(fn)) for name, (schema, fn) in bindings.items()}
+    return {name: (schema, guarded(name, fn)) for name, (schema, fn) in bindings.items()}

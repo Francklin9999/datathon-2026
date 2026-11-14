@@ -1,0 +1,9 @@
+{
+  "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Apple_Inc./daily/2025101500/2026111300",
+  "retrieved_at": "2026-11-14T23:30:10.481003+00:00",
+  "status": 200,
+  "content_hash": "7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27",
+  "items": 395,
+  "coverage": "complete",
+  "ratio_internal": 0.8359944473541175
+}

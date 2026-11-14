@@ -36,7 +36,7 @@ class EdgarAdapter:
         result = []
         for index, form in enumerate(rows["form"]):
             filed = rows["filingDate"][index]
-            if form not in form_types or (since and filed < str(since)):
+            if form not in form_types or filed > str(context.as_of) or (since and filed < str(since)):
                 continue
             accession = rows["accessionNumber"][index]
             primary = rows["primaryDocument"][index]
@@ -151,6 +151,8 @@ class ETFAdapter:
         config = self.files.get(ticker)
         if not config:
             raise ResearchError("issuer_file_not_configured")
+        if config.effective_date > context.as_of:
+            raise ResearchError("holdings_date_after_asof")
         document = self.service.fetch(config.url, context)
         lines = document.text.splitlines()
         header = next((i for i, line in enumerate(lines) if line.startswith("Ticker,") or line.startswith('"Ticker",')), None)

@@ -3,6 +3,7 @@
 import hashlib
 import json
 import re
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Callable, Mapping
@@ -91,6 +92,32 @@ class Ledger:
     def _writable(self):
         if self._frozen:
             raise ValueError("Ledger is frozen")
+
+    @contextmanager
+    def transaction(self):
+        """Rollback this synchronous run-local registration batch on any exception."""
+        self._writable()
+        state = (self.export(), dict(self._documents), dict(self._keys), self._frozen)
+        try:
+            yield self
+        except BaseException:
+            view, self._documents, self._keys, self._frozen = state
+            self._facts, self._evidence = view.facts, view.evidence
+            raise
+
+    def add_source_fact(self, fact: Fact | Mapping, document: DocumentRef, extraction: dict) -> str:
+        from .sources import source_fact
+
+        with self.transaction():
+            return source_fact(self, fact, document, extraction)
+
+    def add_pageviews_ratio(
+        self, fact: Fact | Mapping, document: DocumentRef, *, article: str
+    ) -> str:
+        from .sources import pageviews_ratio
+
+        with self.transaction():
+            return pageviews_ratio(self, fact, document, article=article)
 
     def register_document(self, document: DocumentRef) -> None:
         self._writable()

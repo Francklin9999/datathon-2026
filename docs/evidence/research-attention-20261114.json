@@ -1,0 +1,341 @@
+{
+  "run_id": "research-smoke-608a826e19b74150ac4ca207989103f7",
+  "as_of": "2026-11-14",
+  "tool": {
+    "ok": true,
+    "summary": "Verified complete daily pageview ratio; informational only",
+    "fact_ids": [
+      "F-002"
+    ],
+    "evidence_ids": [
+      "E-001"
+    ],
+    "data": {
+      "ticker": "AAPL",
+      "article": "Apple_Inc.",
+      "flag": "normal",
+      "reason": "complete",
+      "recent_start": "2026-10-15",
+      "recent_end": "2026-11-13",
+      "baseline_start": "2025-10-15",
+      "baseline_end": "2026-10-14",
+      "mapping_evidence": "https://en.wikipedia.org/wiki/Apple_Inc.",
+      "project": "en.wikipedia.org",
+      "access": "all-access",
+      "agent": "user",
+      "ratio": {
+        "value": 0.8359944473541175,
+        "unit": "ratio",
+        "factId": "F-002"
+      },
+      "fact_id": "F-002",
+      "evidence_id": "E-001",
+      "informational_only": true
+    },
+    "datasets_read": [],
+    "error": null
+  },
+  "llm_calls": 0,
+  "scope": "public research tool boundary; no portfolio workflow",
+  "audit": {
+    "status": "passed",
+    "checks": [
+      {
+        "code": "A01",
+        "ok": true,
+        "kind": "code",
+        "detail": "Exact writer grammar and references resolved",
+        "sentenceIds": [
+          "S-assumption",
+          "S-limit",
+          "S-ratio"
+        ]
+      },
+      {
+        "code": "A02",
+        "ok": true,
+        "kind": "code",
+        "detail": "Free prose checked for Unicode numeric characters and EN/FR number words",
+        "sentenceIds": [
+          "S-assumption",
+          "S-limit",
+          "S-ratio"
+        ]
+      },
+      {
+        "code": "A04",
+        "ok": true,
+        "kind": "code",
+        "detail": "Factual references and cited fact provenance checked",
+        "sentenceIds": [
+          "S-assumption",
+          "S-limit",
+          "S-ratio"
+        ]
+      },
+      {
+        "code": "A07",
+        "ok": true,
+        "kind": "code",
+        "detail": "Instruction, guarantee and prediction lexicon checked",
+        "sentenceIds": [
+          "S-assumption",
+          "S-limit",
+          "S-ratio"
+        ]
+      },
+      {
+        "code": "A08",
+        "ok": true,
+        "kind": "code",
+        "detail": "Cited evidence verification and writer quotations checked",
+        "sentenceIds": [
+          "S-assumption",
+          "S-limit",
+          "S-ratio"
+        ]
+      },
+      {
+        "code": "A11",
+        "ok": true,
+        "kind": "code",
+        "detail": "Next-day-exclusive UTC availability boundary",
+        "sentenceIds": []
+      },
+      {
+        "code": "A09",
+        "ok": true,
+        "kind": "llm",
+        "detail": "Required interpretation review executed",
+        "sentenceIds": []
+      },
+      {
+        "code": "A13",
+        "ok": true,
+        "kind": "code",
+        "detail": "Appended cited fact limitation codes",
+        "sentenceIds": []
+      },
+      {
+        "code": "A06",
+        "ok": true,
+        "kind": "code",
+        "detail": "Code inserted simulation disclaimer",
+        "sentenceIds": []
+      },
+      {
+        "code": "A05",
+        "ok": true,
+        "kind": "code",
+        "detail": "Mandatory sections contain surviving sentences",
+        "sentenceIds": []
+      },
+      {
+        "code": "A12",
+        "ok": true,
+        "kind": "code",
+        "detail": "Conflict/tension assumptions all cited",
+        "sentenceIds": []
+      }
+    ],
+    "sentencesChecked": 3,
+    "sentencesStruck": 0,
+    "rewrites": 0,
+    "guardrail": {
+      "applied": false,
+      "action": "none",
+      "id": null
+    },
+    "llmReview": {
+      "model": "code-smoke-review",
+      "findings": []
+    },
+    "ledgerHash": "595ffe41ffd3bc0ded6c986262b999dbc1eca44ea7f8cc4ce0ca243b975db160",
+    "signedAt": "2026-11-14T23:38:37.557693Z"
+  },
+  "facts": {
+    "F-001": {
+      "id": "F-001",
+      "key": "count.sources|event:Apple_Inc.|source:7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27|full",
+      "kind": "observed",
+      "metric": "count.sources",
+      "label": {
+        "en": "Validated daily pageview source",
+        "fr": "Source quotidienne de consultations valid\u00e9e"
+      },
+      "value": 1.0,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1.0 count (2025-10-15 \u2013 2026-11-13)",
+        "fr": "1,0 \u00e9l\u00e9ments (2025-10-15 \u2013 2026-11-13)"
+      },
+      "subject": {
+        "type": "event",
+        "id": "Apple_Inc.",
+        "variant": "source:7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27"
+      },
+      "period": {
+        "start": "2025-10-15",
+        "end": "2026-11-13"
+      },
+      "window": null,
+      "asOf": "2026-11-14",
+      "availableAt": null,
+      "method": {
+        "id": "M_OBSERVED_ROW",
+        "description": {
+          "en": "Code validated complete contiguous daily source, dimensions, article and count domain",
+          "fr": "Code validated complete contiguous daily source, dimensions, article and count domain"
+        },
+        "params": {
+          "documentRef": "DOC-7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27",
+          "documentHash": "7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27",
+          "firstDay": "2025-10-15",
+          "lastDay": "2026-11-13",
+          "days": 395.0
+        }
+      },
+      "inputs": [],
+      "nObs": 395,
+      "sources": [
+        {
+          "datasetId": "research_documents",
+          "dataVersion": "snap-20261114-research-v1",
+          "sourceName": "Wikimedia",
+          "sourceUrl": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Apple_Inc./daily/2025101500/2026111300",
+          "retrievedOn": "2026-11-14",
+          "licence": "CC0 1.0 (analytics data)",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_ATTENTION_PROXY"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "LED_PAGEVIEWS_SERIES",
+            "ok": true,
+            "detail": "Code validated complete contiguous daily source, dimensions, article and count domain; SHA-256 7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27"
+          }
+        ]
+      },
+      "createdBy": "research",
+      "createdAt": "2026-11-14T23:38:37.556039Z"
+    },
+    "F-002": {
+      "id": "F-002",
+      "key": "attention.pageviews_ratio|event:Apple_Inc.|DOC-7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27|full",
+      "kind": "computed",
+      "metric": "attention.pageviews_ratio",
+      "label": {
+        "en": "Wikipedia daily pageview attention ratio",
+        "fr": "Wikipedia daily pageview attention ratio"
+      },
+      "value": 0.8359944473541175,
+      "unit": "ratio",
+      "currency": null,
+      "display": {
+        "en": "0.8\u00d7 (2026-10-15 \u2013 2026-11-13)",
+        "fr": "0,8\u00d7 (2026-10-15 \u2013 2026-11-13)"
+      },
+      "subject": {
+        "type": "event",
+        "id": "Apple_Inc.",
+        "variant": "DOC-7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27"
+      },
+      "period": {
+        "start": "2026-10-15",
+        "end": "2026-11-13"
+      },
+      "window": null,
+      "asOf": "2026-11-14",
+      "availableAt": null,
+      "method": {
+        "id": "M_ATTENTION_RATIO",
+        "description": {
+          "en": "Code computed recent daily mean divided by baseline daily mean from validated source",
+          "fr": "Code computed recent daily mean divided by baseline daily mean from validated source"
+        },
+        "params": {
+          "documentRef": "DOC-7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27",
+          "documentHash": "7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27",
+          "recentDays": 30.0,
+          "baselineDays": 365.0,
+          "recentSum": 162025.0,
+          "baselineSum": 2358035.0,
+          "sourceFactId": "F-001"
+        }
+      },
+      "inputs": [
+        "F-001"
+      ],
+      "nObs": 395,
+      "sources": [
+        {
+          "datasetId": "research_documents",
+          "dataVersion": "snap-20261114-research-v1",
+          "sourceName": "Wikimedia",
+          "sourceUrl": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Apple_Inc./daily/2025101500/2026111300",
+          "retrievedOn": "2026-11-14",
+          "licence": "CC0 1.0 (analytics data)",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_ATTENTION_PROXY"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "LED_PAGEVIEWS_RATIO",
+            "ok": true,
+            "detail": "Code computed recent daily mean divided by baseline daily mean from validated source; SHA-256 7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27"
+          }
+        ]
+      },
+      "createdBy": "research",
+      "createdAt": "2026-11-14T23:38:37.556384Z"
+    }
+  },
+  "evidence": {
+    "E-001": {
+      "id": "E-001",
+      "type": "attention",
+      "tier": 1,
+      "title": "Wikimedia daily pageviews",
+      "publisher": "Wikimedia",
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Apple_Inc./daily/2025101500/2026111300",
+      "publishedAt": null,
+      "retrievedAt": "2026-11-14T23:38:37.544918Z",
+      "lang": "en",
+      "quote": "{\"items\":[{\"project\":\"en.wikipedia\",\"article\":\"Apple_Inc.\",\"granularity\":\"daily\",\"timestamp\":\"2025101500\",\"access\":\"all-access\",\"agent\":\"user\",\"views\":7690},{\"project\":\"en.wikipedia\",\"article\":\"Apple_Inc.\",\"granularity\":\"daily\",\"timestamp\":\"2025101600\",\"access\":\"all-access\",\"agent\":\"user\",\"views\":7492},{\"project\":\"en.wikipedia\",\"article\":\"Apple_Inc",
+      "claim": {
+        "en": "Captured source excerpt; numerical facts are verified separately against structured records.",
+        "fr": "Extrait de source conserv\u00e9; les faits num\u00e9riques sont v\u00e9rifi\u00e9s s\u00e9par\u00e9ment dans les donn\u00e9es structur\u00e9es."
+      },
+      "subject": {
+        "type": "asset",
+        "id": "AAPL"
+      },
+      "tool": "research.save_evidence",
+      "documentRef": "DOC-7cb6d7e57181ba507867a49873e51484de50f7d19f10ab529e8eb6450bde7e27",
+      "licence": "CC0 1.0 (analytics data)",
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "A08",
+            "ok": true,
+            "detail": "Exact quote matched cached same-run source"
+          }
+        ]
+      }
+    }
+  },
+  "research_calls": 1,
+  "checkpoint_roundtrip": true
+}
