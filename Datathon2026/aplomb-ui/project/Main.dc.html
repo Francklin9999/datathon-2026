@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Aplomb</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F0F3F4;color:#12202F;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;line-height:1.5}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3,p,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
+a{color:#0B5E66}a:hover{color:#08464C}
+:focus-visible{outline:3px solid #E3A53B;outline-offset:2px}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.serif{font-family:'Fraunces',Georgia,serif}
+.num{font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+.card{background:#fff;border:1px solid #D6DEE3;border-radius:16px;box-shadow:0 1px 2px rgba(15,34,51,.04)}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4A5B6C}
+.muted{color:#4A5B6C}
+
+/* header */
+.topbar{background:#0F2233;color:#fff}
+.tab{min-height:48px;padding:0 16px;border:0;background:none;color:#C5D2DE;font-weight:500;border-bottom:3px solid transparent}
+.tab:hover{color:#fff}
+.tab[aria-current="page"]{color:#fff;font-weight:600;border-bottom-color:#E3A53B}
+.who{min-height:44px;display:inline-flex;align-items:center;gap:10px;padding:0 14px 0 8px;border-radius:999px;border:1px solid #3B536B;background:#17324A;color:#fff;font-weight:500}
+.who:hover{background:#1D3E5B}
+.avatar{width:28px;height:28px;border-radius:50%;background:#E3A53B;color:#0F2233;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.notice{background:#F8EDD3;color:#5B3E08;font-size:13px}
+
+/* buttons */
+.btn{min-height:44px;padding:0 20px;border-radius:12px;border:1px solid #0B5E66;background:#0B5E66;color:#fff;font-weight:600}
+.btn:hover{background:#08494F}
+.btn.ghost{background:#fff;color:#0B5E66}
+.btn.ghost:hover{background:#E8F2F3}
+.btn.gold{background:#E3A53B;border-color:#E3A53B;color:#0F2233}
+.btn.gold:hover{background:#EDB75A}
+.btn:disabled{opacity:.6;cursor:default}
+
+/* hero composer */
+.hero{background:#0F2233;color:#fff;padding:32px 0 36px}
+.hero .req{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:clamp(26px,4vw,40px);line-height:1.2;letter-spacing:-.01em}
+.reqnum{display:inline-block;padding:0 12px;border-radius:10px;background:#1D3E5B;color:#F4C873;font-size:.82em;vertical-align:.04em}
+.hero input[type=range]{accent-color:#E3A53B;width:100%;min-height:44px;margin:0}
+
+/* status pills */
+.pill{display:inline-flex;align-items:center;min-height:26px;padding:0 11px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid;white-space:nowrap}
+.s-conflict{background:#FCE9E6;color:#8A1B12;border-color:#E9B3AB}
+.s-tension{background:#FFF0D2;color:#734300;border-color:#E8C781}
+.s-nee{background:#E7ECF1;color:#334759;border-color:#B7C4D1}
+.s-pass{background:#E0F2E6;color:#145B2E;border-color:#A4D2B3}
+.vbadge-conflict{background:#8A1B12;color:#fff}
+.vbadge-tension{background:#734300;color:#fff}
+.vbadge-nee{background:#334759;color:#fff}
+.vbadge-pass{background:#145B2E;color:#fff}
+.vbadge{display:inline-flex;align-items:center;min-height:30px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:.02em}
+
+/* chips (clickable proof) */
+.chip{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;margin:0 1px;border-radius:8px;border:1px solid #9FC4C8;background:#E8F4F5;color:#08464C;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;font-weight:500;vertical-align:baseline}
+.chip:hover{background:#D3EAEC;border-color:#0B5E66}
+
+/* stat tiles */
+.tile{flex:1 1 180px;min-width:0;padding:16px 18px;border-radius:14px;background:#F0F3F4}
+.tile .big{font-family:'Fraunces',Georgia,serif;font-size:34px;font-weight:600;line-height:1.1;letter-spacing:-.01em}
+
+/* rule rows */
+.rrow{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:flex-start;width:100%;text-align:left;padding:14px 16px;border:1px solid #E1E7EB;border-radius:12px;background:#fff}
+.rrow:hover{border-color:#0B5E66;background:#F7FBFB}
+
+/* timeline */
+.step{display:flex;gap:12px;padding:12px 0;border-top:1px solid #E6EBEF}
+.step:first-child{border-top:0}
+.dot{flex:none;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:2px solid #B7C4D1;color:#4A5B6C;background:#fff}
+.step.done .dot{background:#0B5E66;border-color:#0B5E66;color:#fff}
+.step.run .dot{border-color:#E3A53B;color:#12202F;background:#FFF0D2;animation:pulse 1s ease-in-out infinite}
+.step.wait{opacity:.75}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(227,165,59,.5)}50%{box-shadow:0 0 0 7px rgba(227,165,59,0)}}
+@media (prefers-reduced-motion:reduce){.step.run .dot{animation:none}}
+
+/* brief */
+.sent{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:flex-start;justify-content:space-between;padding:14px 0;border-top:1px solid #E6EBEF}
+.sent:first-child{border-top:0}
+.sent .txt{flex:1 1 380px;font-size:16px;line-height:1.65}
+.sent.struck .txt{text-decoration:line-through;text-decoration-color:#8A1B12;color:#6B7886}
+.srcnote{font-size:12px;color:#8A1B12;margin-top:4px;text-decoration:none}
+
+/* switches */
+.switch{flex:none;width:52px;min-height:44px;border:0;background:none;padding:0;display:inline-flex;align-items:center}
+.switch .track{width:44px;height:26px;border-radius:999px;background:#B7C4D1;position:relative;transition:background .15s}
+.switch .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:left .15s}
+.switch.on .track{background:#0B5E66}
+.switch.on .knob{left:21px}
+@media (prefers-reduced-motion:reduce){.switch .track,.switch .knob{transition:none}}
+
+/* persona cards */
+.pcard{flex:1 1 280px;min-width:0;text-align:left;padding:22px;border-radius:18px;border:2px solid #D6DEE3;background:#fff}
+.pcard:hover{border-color:#8FB3B8}
+.pcard.sel{border-color:#0B5E66;background:#F2F9F9;box-shadow:0 6px 20px rgba(11,94,102,.12)}
+
+/* stepper */
+.stepper{display:inline-flex;align-items:center;border:1px solid #C3CFD8;border-radius:12px;background:#fff;overflow:hidden}
+.stepper button{width:44px;min-height:44px;border:0;background:#fff;font-size:20px;font-weight:600}
+.stepper button:hover{background:#E8F2F3}
+.stepper .val{min-width:84px;text-align:center;font-weight:600}
+
+/* data room */
+.dgrid{display:grid;grid-template-columns:1.1fr 1.5fr 1fr 1.2fr 1.4fr;gap:16px;padding:16px 20px;border-top:1px solid #E6EBEF;font-size:14px;align-items:start;min-width:960px}
+.dhead{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#4A5B6C;background:#F6F8F9;border-top:0}
+
+/* bars */
+.bar{height:12px;border-radius:6px;background:#B7C4D1}
+.bar.hl{background:#8A1B12}
+.bar.dim{background:#C9D4DD}
+
+/* drawer */
+.backdrop{position:fixed;inset:0;background:rgba(15,34,51,.45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:#fff;z-index:50;overflow:auto;padding:24px;box-shadow:-12px 0 40px rgba(15,34,51,.25)}
+.kv{display:flex;flex-wrap:wrap;gap:2px 16px;padding:12px 0;border-top:1px solid #E6EBEF}
+.kv .k{flex:0 0 110px;font-size:13px;color:#4A5B6C}
+.kv .v{flex:1 1 200px;min-width:0;font-size:14px}
+</style>
+</helmet>
+
+<div>
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; padding-top: 10px">
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 48px">
+        <svg width="26" height="34" viewBox="0 0 26 34" aria-hidden="true">
+          <circle cx="13" cy="4" r="3" fill="none" stroke="#E3A53B" stroke-width="2"></circle>
+          <line x1="13" y1="7" x2="13" y2="22" stroke="#E3A53B" stroke-width="2"></line>
+          <path d="M13 21 L20 28 L13 33 L6 28 Z" fill="#E3A53B"></path>
+        </svg>
+        <span class="serif" style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em">Aplomb</span>
+      </div>
+      <nav aria-label="Sections" style="display: flex; flex-wrap: wrap; gap: 0 4px; flex: 1 1 auto">
+        <sc-for list="{{navTabs}}" as="t" hint-placeholder-count="4">
+          <button type="button" class="tab" aria-current="{{t.cur}}" onClick="{{t.go}}">{{t.label}}</button>
+        </sc-for>
+      </nav>
+      <button type="button" class="who" onClick="{{goPlan}}" aria-label="Change profile">
+        <span class="avatar" aria-hidden="true">{{whoInitial}}</span>
+        <span>{{whoLabel}}</span>
+      </button>
+    </div>
+  </header>
+  <div class="notice">
+    <div class="wrap" style="padding-top: 8px; padding-bottom: 8px">Simulation only. Fictional profiles. Not financial advice. Prototype on fixture data, not yet connected to AWS.</div>
+  </div>
+
+  <!-- ============ PLAN ============ -->
+  <sc-if value="{{isPlan}}" hint-placeholder-val="{{ true }}">
+    <main class="wrap" style="padding-top: 40px; padding-bottom: 72px; display: flex; flex-direction: column; gap: 32px">
+      <div style="max-width: 760px; display: flex; flex-direction: column; gap: 12px">
+        <p class="eyebrow">Step 1 · Your plan</p>
+        <h1 class="serif" style="font-size: clamp(32px, 5vw, 50px); font-weight: 500; line-height: 1.1; letter-spacing: -0.015em">Tell Aplomb what you are tempted to do. It checks the move against your own plan.</h1>
+        <p class="muted" style="font-size: 17px">Pick who is deciding. Each profile becomes six plain rules you can edit. Aplomb tests a move against those rules, never against a forecast.</p>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 16px">
+        <sc-for list="{{personaCards}}" as="p" hint-placeholder-count="3">
+          <button type="button" class="pcard {{p.cls}}" aria-pressed="{{p.pressed}}" onClick="{{p.pick}}">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span class="avatar" style="width: 40px; height: 40px; font-size: 17px" aria-hidden="true">{{p.initial}}</span>
+              <div>
+                <div class="serif" style="font-size: 24px; font-weight: 600; line-height: 1.1">{{p.name}}</div>
+                <div class="muted" style="font-size: 13px">{{p.tag}}</div>
+              </div>
+            </div>
+            <p style="margin-top: 14px; font-size: 15px">{{p.blurb}}</p>
+            <p class="eyebrow" style="margin-top: 14px">{{p.test}}</p>
+          </button>
+        </sc-for>
+      </div>
+
+      <section class="card" style="padding: 28px">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; align-items: baseline">
+          <h2 class="serif" style="font-size: 28px; font-weight: 500">{{planTitle}}</h2>
+          <span class="pill s-nee">Assumptions, editable</span>
+        </div>
+        <p class="muted" style="margin-top: 6px">Lower or raise a threshold and the verdict re-checks instantly. Rules marked “needs evidence” stay unverified until the data exists.</p>
+        <ol style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px">
+          <sc-for list="{{planRules}}" as="r" hint-placeholder-count="6">
+            <li style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 16px; border: 1px solid #E1E7EB; border-radius: 12px">
+              <span class="mono muted" style="flex: none; width: 34px; font-size: 13px">{{r.id}}</span>
+              <span style="flex: 1 1 320px; font-size: 16px">{{r.text}}</span>
+              <sc-if value="{{r.hasCap}}" hint-placeholder-val="{{ true }}">
+                <div class="stepper">
+                  <button type="button" aria-label="{{r.decLabel}}" onClick="{{r.dec}}">−</button>
+                  <span class="val num">{{r.capText}}</span>
+                  <button type="button" aria-label="{{r.incLabel}}" onClick="{{r.inc}}">+</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{r.needsEvidence}}" hint-placeholder-val="{{ false }}">
+                <span class="pill s-nee">Needs evidence</span>
+              </sc-if>
+              <sc-if value="{{r.isFixed}}" hint-placeholder-val="{{ false }}">
+                <span class="pill s-pass">Always on</span>
+              </sc-if>
+            </li>
+          </sc-for>
+        </ol>
+        <div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px">
+          <button type="button" class="btn" onClick="{{goCheck}}">Test a move against this plan</button>
+          <button type="button" class="btn ghost" onClick="{{goCompare}}">See all three profiles side by side</button>
+        </div>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- ============ CHECK ============ -->
+  <sc-if value="{{isCheck}}" hint-placeholder-val="{{ false }}">
+    <section class="hero">
+      <div class="wrap" style="display: flex; flex-direction: column; gap: 18px">
+        <p class="eyebrow" style="color: #9FB2C5">Step 2 · Your request · {{personaLine}}</p>
+        <p class="req">Move <span class="reqnum mono num">{{size}}%</span> of my portfolio into Tesla (TSLA)</p>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px">
+          <div style="flex: 1 1 320px; min-width: 0">
+            <label for="sz" class="sr-only">Move size, percent of portfolio</label>
+            <input id="sz" type="range" min="1" max="40" step="1" value="{{size}}" onChange="{{onSize}}">
+            <div class="mono" style="display: flex; justify-content: space-between; font-size: 12px; color: #9FB2C5"><span>1%</span><span>40%</span></div>
+          </div>
+          <button type="button" class="btn gold" onClick="{{onRun}}" disabled="{{runDisabled}}">{{runLabel}}</button>
+        </div>
+      </div>
+    </section>
+
+    <main class="wrap" style="padding-top: 32px; padding-bottom: 72px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+
+        <sc-if value="{{showIdle}}" hint-placeholder-val="{{ false }}">
+          <section class="card" style="padding: 40px 32px; text-align: center">
+            <h2 class="serif" style="font-size: 26px; font-weight: 500">Nothing has been checked yet</h2>
+            <p class="muted" style="margin-top: 8px; max-width: 520px; margin-left: auto; margin-right: auto">Press “Run the check” above. Agents will test the move against {{personaName}}’s rules, and every number in the answer will open its proof.</p>
+          </section>
+        </sc-if>
+
+        <sc-if value="{{showResult}}" hint-placeholder-val="{{ true }}">
+          <!-- verdict -->
+          <section class="card" style="padding: 28px">
+            <span class="vbadge {{verdict.badge}}">{{verdict.label}}</span>
+            <h2 class="serif" style="margin-top: 14px; font-size: clamp(28px, 3.6vw, 40px); font-weight: 500; line-height: 1.15; letter-spacing: -0.01em">{{verdict.headline}}</h2>
+            <p class="muted" style="margin-top: 8px; font-size: 16px">{{verdict.sub}}</p>
+            <div style="margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px">
+              <div class="tile">
+                <div class="eyebrow">Largest size inside your rules</div>
+                <div class="big num" style="margin-top: 6px">{{verdict.maxLabel}}</div>
+                <button type="button" class="chip" style="margin-top: 8px" onClick="{{verdict.openMax}}">F-06</button>
+              </div>
+              <div class="tile">
+                <div class="eyebrow">Rules in conflict</div>
+                <div class="big num" style="margin-top: 6px">{{verdict.conflictCount}}<span class="muted" style="font-size: 20px"> of 6</span></div>
+              </div>
+              <div class="tile">
+                <div class="eyebrow">Rules without evidence</div>
+                <div class="big num" style="margin-top: 6px">{{verdict.neeCount}}<span class="muted" style="font-size: 20px"> of 6</span></div>
+              </div>
+            </div>
+            <p class="muted" style="margin-top: 16px; font-size: 14px">Drag the size slider above. This verdict re-checks live.</p>
+          </section>
+
+          <!-- rules -->
+          <section class="card" style="padding: 28px">
+            <h2 class="serif" style="font-size: 26px; font-weight: 500">One line per rule</h2>
+            <p class="muted" style="margin-top: 4px">Select a rule to see how it was decided.</p>
+            <ul style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px">
+              <sc-for list="{{ruleRows}}" as="r" hint-placeholder-count="6">
+                <li>
+                  <button type="button" class="rrow" onClick="{{r.open}}">
+                    <span class="mono muted" style="flex: none; width: 30px; font-size: 13px; padding-top: 2px">{{r.id}}</span>
+                    <span style="flex: 1 1 260px; min-width: 0">
+                      <span style="display: block; font-weight: 500">{{r.text}}</span>
+                      <span class="muted" style="display: block; font-size: 14px; margin-top: 2px">{{r.detail}}</span>
+                    </span>
+                    <span class="pill {{r.cls}}">{{r.label}}</span>
+                  </button>
+                </li>
+              </sc-for>
+            </ul>
+          </section>
+
+          <!-- brief -->
+          <section class="card" style="padding: 28px">
+            <div style="display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: baseline">
+              <h2 class="serif" style="font-size: 26px; font-weight: 500">The brief</h2>
+              <span class="pill s-pass">{{brief.summary}}</span>
+            </div>
+            <p class="muted" style="margin-top: 4px">Every number below comes from the evidence ledger, not from the model. Select a green chip to open its proof.</p>
+            <ul style="margin-top: 12px">
+              <sc-for list="{{brief.items}}" as="s" hint-placeholder-count="4">
+                <li class="sent {{s.cls}}">
+                  <div class="txt">
+                    <p><sc-for list="{{s.parts}}" as="p" hint-placeholder-count="3"><sc-if value="{{p.isChip}}" hint-placeholder-val="{{ false }}"><button type="button" class="chip" onClick="{{p.open}}">{{p.text}}</button></sc-if><sc-if value="{{p.isText}}" hint-placeholder-val="{{ true }}"><span>{{p.text}}</span></sc-if></sc-for></p>
+                    <sc-if value="{{s.note}}" hint-placeholder-val="{{ false }}"><p class="srcnote">{{s.noteText}}</p></sc-if>
+                  </div>
+                  <span class="pill {{s.auditCls}}">{{s.auditLabel}}</span>
+                </li>
+              </sc-for>
+            </ul>
+          </section>
+
+          <!-- stress -->
+          <section class="card" style="padding: 28px">
+            <h2 class="serif" style="font-size: 26px; font-weight: 500">Try to break it</h2>
+            <p class="muted" style="margin-top: 4px">Two switches that show why the answer can be trusted.</p>
+
+            <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 16px; border-radius: 12px; background: #F0F3F4">
+              <div style="flex: 1 1 320px">
+                <div style="font-weight: 600">Make the writer lie</div>
+                <div class="muted" style="font-size: 14px">The writer is told to add an invented statistic. The auditor should strike it.</div>
+              </div>
+              <button type="button" role="switch" aria-checked="{{sabOn}}" aria-label="Make the writer lie" class="switch {{sabCls}}" onClick="{{sabToggle}}"><span class="track"><span class="knob"></span></span></button>
+            </div>
+
+            <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 16px; border-radius: 12px; background: #F0F3F4">
+              <div style="flex: 1 1 320px">
+                <div style="font-weight: 600">Time machine · as of {{asOfLabel}}</div>
+                <div class="muted" style="font-size: 14px">{{tmNote}}</div>
+              </div>
+              <button type="button" role="switch" aria-checked="{{tmOn}}" aria-label="Time machine" class="switch {{tmCls}}" onClick="{{tmToggle}}"><span class="track"><span class="knob"></span></span></button>
+            </div>
+
+            <sc-if value="{{canReveal}}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top: 16px"><button type="button" class="btn" onClick="{{reveal}}">Reveal what followed in 2022</button></div>
+            </sc-if>
+            <sc-if value="{{showReveal}}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top: 20px">
+                <p class="eyebrow">What followed · 2022 returns, starter data</p>
+                <ul style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px">
+                  <sc-for list="{{revealBars}}" as="b" hint-placeholder-count="4">
+                    <li style="display: flex; align-items: center; gap: 12px">
+                      <span class="mono" style="flex: none; width: 52px; font-size: 13px">{{b.tk}}</span>
+                      <div style="flex: 1 1 auto; min-width: 0"><div class="bar {{b.cls}}" style="width: {{b.w}}%"></div></div>
+                      <span class="mono num" style="flex: none; width: 64px; text-align: right; font-size: 13px">{{b.v}}</span>
+                    </li>
+                  </sc-for>
+                </ul>
+                <p class="muted" style="margin-top: 12px; font-size: 14px">Aplomb sizes risk. It does not predict.</p>
+              </div>
+            </sc-if>
+          </section>
+        </sc-if>
+      </div>
+
+      <!-- timeline -->
+      <aside style="flex: 1 1 320px; min-width: 0; max-width: 100%; display: flex; flex-direction: column; gap: 24px">
+        <section class="card" style="padding: 24px">
+          <h2 class="serif" style="font-size: 22px; font-weight: 500">What the agents did</h2>
+          <p class="muted" style="font-size: 13px; margin-top: 2px">Fixed order for auditability. The model chooses what to investigate, not whether the controls run.</p>
+          <ol style="margin-top: 12px">
+            <sc-for list="{{steps}}" as="s" hint-placeholder-count="7">
+              <li class="step {{s.cls}}">
+                <span class="dot">{{s.n}}</span>
+                <div style="min-width: 0; flex: 1 1 auto">
+                  <div style="font-weight: 600">{{s.title}}</div>
+                  <div class="muted" style="font-size: 13px">{{s.role}}</div>
+                  <sc-if value="{{s.showOut}}" hint-placeholder-val="{{ false }}">
+                    <div class="mono" style="margin-top: 6px; font-size: 12px; color: #08464C; overflow-wrap: anywhere">{{s.tool}}</div>
+                    <div style="margin-top: 4px; font-size: 14px">{{s.out}}</div>
+                  </sc-if>
+                </div>
+              </li>
+            </sc-for>
+          </ol>
+          <p class="muted" style="margin-top: 8px; font-size: 12px">Simulated steps in this prototype. The real timeline lists actual tool calls.</p>
+        </section>
+        <section class="card" style="padding: 24px">
+          <p class="eyebrow">Target architecture</p>
+          <p style="margin-top: 8px; font-size: 14px">Bedrock (Claude) · AgentCore Runtime · Bedrock Guardrails · S3 · DynamoDB · CloudWatch</p>
+        </section>
+      </aside>
+    </main>
+  </sc-if>
+
+  <!-- ============ COMPARE ============ -->
+  <sc-if value="{{isCompare}}" hint-placeholder-val="{{ false }}">
+    <main class="wrap" style="padding-top: 40px; padding-bottom: 72px; display: flex; flex-direction: column; gap: 28px">
+      <div style="max-width: 760px; display: flex; flex-direction: column; gap: 12px">
+        <p class="eyebrow">Step 3 · Compare</p>
+        <h1 class="serif" style="font-size: clamp(32px, 5vw, 48px); font-weight: 500; line-height: 1.1; letter-spacing: -0.015em">Same request, three plans, three answers.</h1>
+        <p class="muted" style="font-size: 17px">{{compareLead}}</p>
+        <div style="max-width: 560px">
+          <label for="sz2" class="eyebrow" style="display: block">Move size · {{size}}% of portfolio</label>
+          <input id="sz2" type="range" min="1" max="40" step="1" value="{{size}}" onChange="{{onSize}}" style="width: 100%; min-height: 44px; accent-color: #0B5E66; margin: 0">
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch">
+        <sc-for list="{{cols}}" as="c" hint-placeholder-count="3">
+          <section class="card" style="flex: 1 1 320px; min-width: 0; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span class="avatar" style="width: 40px; height: 40px; font-size: 17px" aria-hidden="true">{{c.initial}}</span>
+              <div>
+                <div class="serif" style="font-size: 24px; font-weight: 600; line-height: 1.1">{{c.name}}</div>
+                <div class="muted" style="font-size: 13px">{{c.tag}}</div>
+              </div>
+            </div>
+            <div><span class="vbadge {{c.badge}}">{{c.label}}</span></div>
+            <p class="serif" style="font-size: 22px; line-height: 1.2">{{c.headline}}</p>
+            <div class="tile">
+              <div class="eyebrow">Largest size inside the rules</div>
+              <div class="big num" style="margin-top: 4px">{{c.maxLabel}}</div>
+            </div>
+            <ul style="display: flex; flex-direction: column; gap: 8px">
+              <sc-for list="{{c.rules}}" as="r" hint-placeholder-count="6">
+                <li style="display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: flex-start; justify-content: space-between; font-size: 14px">
+                  <span style="flex: 1 1 160px; min-width: 0"><span class="mono muted">{{r.id}}</span> {{r.text}}</span>
+                  <span class="pill {{r.cls}}">{{r.label}}</span>
+                </li>
+              </sc-for>
+            </ul>
+          </section>
+        </sc-for>
+      </div>
+
+      <section class="card" style="padding: 28px">
+        <h2 class="serif" style="font-size: 26px; font-weight: 500">Why the answers differ</h2>
+        <p class="muted" style="margin-top: 4px">The request is identical. Only the stated thresholds change.</p>
+        <ul style="margin-top: 16px; display: flex; flex-direction: column; gap: 0">
+          <sc-for list="{{diffs}}" as="d" hint-placeholder-count="3">
+            <li class="kv">
+              <span class="k" style="flex-basis: 200px; color: #12202F; font-weight: 600">{{d.label}}</span>
+              <span class="v" style="display: flex; flex-wrap: wrap; gap: 6px 24px">
+                <sc-for list="{{d.vals}}" as="v" hint-placeholder-count="3"><span><span class="muted">{{v.who}}</span> <span class="mono num" style="font-weight: 500">{{v.v}}</span></span></sc-for>
+              </span>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+    </main>
+  </sc-if>
+
+  <!-- ============ DATA ROOM ============ -->
+  <sc-if value="{{isData}}" hint-placeholder-val="{{ false }}">
+    <main class="wrap" style="padding-top: 40px; padding-bottom: 72px; display: flex; flex-direction: column; gap: 32px">
+      <div style="max-width: 760px; display: flex; flex-direction: column; gap: 12px">
+        <p class="eyebrow">Step 4 · Data Room</p>
+        <h1 class="serif" style="font-size: clamp(32px, 5vw, 48px); font-weight: 500; line-height: 1.1; letter-spacing: -0.015em">Every dataset carries a passport.</h1>
+        <p class="muted" style="font-size: 17px">Source, access, licence, last check and the job it does in Aplomb. Status comes from the calls made on Nov 14, 2026.</p>
+      </div>
+
+      <section class="card" style="overflow-x: auto">
+        <div class="dgrid dhead"><span>Source</span><span>Contains</span><span>Access</span><span>Licence</span><span>Check · Nov 14</span></div>
+        <sc-for list="{{datasets}}" as="d" hint-placeholder-count="10">
+          <div class="dgrid">
+            <span><strong style="font-weight: 600">{{d.name}}</strong><br><span class="muted" style="font-size: 13px">Used for: {{d.use}}</span></span>
+            <span>{{d.has}}</span>
+            <span>{{d.access}}</span>
+            <span>{{d.licence}}</span>
+            <span><span class="pill {{d.cls}}">{{d.pill}}</span><br><span class="muted" style="font-size: 13px; display: inline-block; margin-top: 4px">{{d.result}}</span></span>
+          </div>
+        </sc-for>
+      </section>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+        <section class="card" style="flex: 1 1 400px; min-width: 0; padding: 28px">
+          <h2 class="serif" style="font-size: 24px; font-weight: 500">Starter-data traps</h2>
+          <p class="muted" style="margin-top: 4px; font-size: 14px">Listed in the starter README. Each one is to be handled and displayed.</p>
+          <ul style="margin-top: 14px">
+            <sc-for list="{{traps}}" as="t" hint-placeholder-count="9">
+              <li class="kv" style="padding: 10px 0"><span class="v">{{t}}</span></li>
+            </sc-for>
+          </ul>
+        </section>
+        <section class="card" style="flex: 1 1 400px; min-width: 0; padding: 28px">
+          <h2 class="serif" style="font-size: 24px; font-weight: 500">Not relied on</h2>
+          <p class="muted" style="margin-top: 4px; font-size: 14px">Sources that failed a check or cannot be licensed cleanly.</p>
+          <ul style="margin-top: 14px">
+            <sc-for list="{{avoid}}" as="t" hint-placeholder-count="4">
+              <li class="kv" style="padding: 10px 0"><span class="v">{{t}}</span></li>
+            </sc-for>
+          </ul>
+        </section>
+      </div>
+    </main>
+  </sc-if>
+
+  <!-- ============ DRAWER ============ -->
+  <sc-if value="{{drawer.open}}" hint-placeholder-val="{{ false }}">
+    <div class="backdrop" onClick="{{drawer.close}}"></div>
+    <aside class="drawer" role="dialog" aria-label="Evidence">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+        <div>
+          <p class="eyebrow">{{drawer.kicker}}</p>
+          <h2 class="serif" style="margin-top: 4px; font-size: 26px; font-weight: 500; line-height: 1.15">{{drawer.title}}</h2>
+        </div>
+        <button type="button" class="btn ghost" style="flex: none; padding: 0 14px" onClick="{{drawer.close}}">Close</button>
+      </div>
+      <div class="serif num" style="margin-top: 16px; font-size: 44px; font-weight: 600; letter-spacing: -0.02em">{{drawer.value}}</div>
+      <sc-if value="{{drawer.hasPill}}" hint-placeholder-val="{{ false }}"><div style="margin-top: 4px"><span class="pill {{drawer.pillCls}}">{{drawer.pillLabel}}</span></div></sc-if>
+      <p class="muted" style="margin-top: 12px">{{drawer.note}}</p>
+      <sc-if value="{{drawer.hasBars}}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top: 20px">
+          <p class="eyebrow">2022 returns in the starter data</p>
+          <ul style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px">
+            <sc-for list="{{drawer.bars}}" as="b" hint-placeholder-count="4">
+              <li style="display: flex; align-items: center; gap: 12px">
+                <span class="mono" style="flex: none; width: 52px; font-size: 13px">{{b.tk}}</span>
+                <div style="flex: 1 1 auto; min-width: 0"><div class="bar {{b.cls}}" style="width: {{b.w}}%"></div></div>
+                <span class="mono num" style="flex: none; width: 64px; text-align: right; font-size: 13px">{{b.v}}</span>
+              </li>
+            </sc-for>
+          </ul>
+        </div>
+      </sc-if>
+      <div style="margin-top: 20px">
+        <sc-for list="{{drawer.rows}}" as="r" hint-placeholder-count="7">
+          <div class="kv"><span class="k">{{r.k}}</span><span class="v">{{r.v}}</span></div>
+        </sc-for>
+      </div>
+    </aside>
+  </sc-if>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1800}}'>
+const PERSONAS = {
+  robert: {
+    name: 'Robert', initial: 'R', tag: '59 · retires in four years',
+    blurb: 'All week he has read about one stock. A chatbot would agree with him.',
+    test: 'Test: challenge a request that conflicts with the profile',
+    rules: [
+      { id: 'R1', kind: 'single', pre: 'No single stock above', suf: 'of the portfolio', cap: 10, unit: '%', min: 2, max: 30 },
+      { id: 'R2', kind: 'size', pre: 'No single move larger than', suf: 'of the portfolio', cap: 10, unit: '%', min: 2, max: 30 },
+      { id: 'R3', kind: 'loss', pre: 'A repeat of 2022 may cost, from the moved slice alone, at most', suf: 'of portfolio value', cap: 5, unit: 'pts', min: 1, max: 20 },
+      { id: 'R4', kind: 'evid', need: 'holdings', pre: 'No sector above 30% of the portfolio' },
+      { id: 'R5', kind: 'evid', need: 'holdings', pre: 'Keep bonds and cash at 40% or more of the portfolio' },
+      { id: 'R6', kind: 'sim', pre: 'Simulation only: no order is ever placed' }
+    ]
+  },
+  amira: {
+    name: 'Amira', initial: 'A', tag: '26 · higher risk tolerance',
+    blurb: 'High risk does not mean anything goes. She still expects diversification.',
+    test: 'Test: high risk, but keep diversification',
+    rules: [
+      { id: 'R1', kind: 'single', pre: 'No single stock above', suf: 'of the portfolio', cap: 20, unit: '%', min: 2, max: 40 },
+      { id: 'R2', kind: 'size', pre: 'No single move larger than', suf: 'of the portfolio', cap: 30, unit: '%', min: 2, max: 40 },
+      { id: 'R3', kind: 'loss', pre: 'A repeat of 2022 may cost, from the moved slice alone, at most', suf: 'of portfolio value', cap: 20, unit: 'pts', min: 1, max: 30 },
+      { id: 'R4', kind: 'evid', need: 'holdings', pre: 'Hold at least three asset classes' },
+      { id: 'R5', kind: 'evid', need: 'holdings', pre: 'No sector above 40% of the portfolio' },
+      { id: 'R6', kind: 'sim', pre: 'Simulation only: no order is ever placed' }
+    ]
+  },
+  mateo: {
+    name: 'Mateo', initial: 'M', tag: 'Values-led investor',
+    blurb: 'Wants non-financial criteria weighed. A controversy claim needs outside evidence.',
+    test: 'Test: use non-financial criteria, with evidence',
+    rules: [
+      { id: 'R1', kind: 'single', pre: 'No single stock above', suf: 'of the portfolio', cap: 15, unit: '%', min: 2, max: 40 },
+      { id: 'R2', kind: 'size', pre: 'No single move larger than', suf: 'of the portfolio', cap: 20, unit: '%', min: 2, max: 40 },
+      { id: 'R3', kind: 'loss', pre: 'A repeat of 2022 may cost, from the moved slice alone, at most', suf: 'of portfolio value', cap: 12, unit: 'pts', min: 1, max: 30 },
+      { id: 'R4', kind: 'evid', need: 'esg', pre: 'A controversy claim needs outside evidence before it counts' },
+      { id: 'R5', kind: 'evid', need: 'esg', pre: 'Prefer holdings that pass my exclusions' },
+      { id: 'R6', kind: 'sim', pre: 'Simulation only: no order is ever placed' }
+    ]
+  }
+};
+
+const BARS = [
+  { id: 'F-01', tk: 'TSLA', val: -65.0 },
+  { id: 'F-05', tk: 'ESGV', val: -24.0 },
+  { id: 'F-02', tk: 'SPY', val: -18.2 },
+  { id: 'F-03', tk: 'AGG', val: -13.0 }
+];
+
+const FACTS = {
+  'F-01': { title: 'Tesla (TSLA) return, 2022', val: -65.0, tk: 'TSLA' },
+  'F-02': { title: 'SPY return, 2022', val: -18.2, tk: 'SPY' },
+  'F-03': { title: 'AGG return, 2022', val: -13.0, tk: 'AGG' },
+  'F-05': { title: 'ESGV return, 2022', val: -24.0, tk: 'ESGV' }
+};
+
+const STATUS = {
+  conflict: { cls: 's-conflict', label: 'Conflict' },
+  tension: { cls: 's-tension', label: 'Tension' },
+  nee: { cls: 's-nee', label: 'Not enough evidence' },
+  pass: { cls: 's-pass', label: 'Fits' }
+};
+
+const STEPS = [
+  { title: 'Plan', role: 'Case Planner · first line' },
+  { title: 'Gather', role: 'Quant engine, code · first line' },
+  { title: 'Check', role: 'Risk Officer · second line' },
+  { title: 'Revise', role: 'Case Planner · first line' },
+  { title: 'Write', role: 'Writer · first line' },
+  { title: 'Audit', role: 'Auditor · third line' },
+  { title: 'Sign', role: 'Auditor · third line' }
+];
+
+const DATASETS = [
+  { name: 'Starter pack', use: 'base universe', has: '31 assets, daily prices 2021-11-12 to 2026-11-12, corporate actions, USD/CAD, 9 macro series', access: 'Local CSV, no key', licence: 'See sources_metadata.csv', cls: 's-pass', pill: 'Read', result: '40,049 price rows read' },
+  { name: 'Yahoo via yfinance', use: 'history back to 2015', has: 'Longer history, extra tickers', access: 'Python package, no key', licence: 'Yahoo terms', cls: 's-nee', pill: 'Not run', result: 'Not installed here; the organizers built the pack with it' },
+  { name: 'Bank of Canada Valet', use: 'CAD conversion', has: 'FX, policy rate, yields, CPI', access: 'Free, no key', licence: 'Not stated in plan', cls: 's-pass', pill: 'HTTP 200', result: 'Daily JSON and CSV' },
+  { name: 'FRED and ALFRED', use: 'macro as first published', has: 'US rates, CPI, unemployment, plus vintages', access: 'CSV without key; JSON API needs a free key', licence: 'Not stated in plan', cls: 's-pass', pill: 'Returned data', result: 'JSON API returned 400 without a key' },
+  { name: 'SEC EDGAR APIs', use: 'company facts by filing date', has: 'Financials, filing index, full-text search', access: 'Descriptive User-Agent, 10 requests per second', licence: 'Not stated in plan', cls: 's-tension', pill: 'Partly', result: 'NVDA, Royal Bank, search: 200. company_tickers.json: 403 to a generic User-Agent' },
+  { name: 'GDELT DOC 2.0', use: 'dated headlines, news half of hype meter', has: 'Article lists, volume and tone', access: 'Free, no key', licence: 'Not stated in plan', cls: 's-tension', pill: 'Rate-limited', result: '200 but about 17 s each; a second call got 429. Batch overnight.' },
+  { name: 'Wikimedia Pageviews', use: 'attention meter', has: 'Daily views per article', access: 'Free, set a User-Agent', licence: 'Not stated in plan', cls: 's-pass', pill: 'HTTP 200', result: 'Back to January 2021' },
+  { name: 'ECCC GHG Reporting', use: 'facility emissions, Canada', has: 'Emissions with company and coordinates, 2004 onward', access: 'CSV download', licence: 'Open Government Licence – Canada', cls: 's-pass', pill: 'Header read', result: 'Latitude and Longitude present' },
+  { name: 'US EPA Envirofacts', use: 'facility emissions, US', has: 'US facility emissions', access: 'Free API', licence: 'Not stated in plan', cls: 's-pass', pill: 'HTTP 200', result: 'Annual updates' },
+  { name: 'ETF holdings', use: 'look-through concentration', has: 'Constituents, weights, bond duration', access: 'Issuer CSV and XLSX', licence: 'Issuer terms', cls: 's-tension', pill: 'Partly', result: 'XIU and XBB returned holdings dated Nov 12, 2026' }
+];
+
+const TRAPS = [
+  'CAD versus USD',
+  'Mismatched holiday calendars and 7-day crypto',
+  'Use adj_close for returns',
+  'Splits are already applied',
+  'CNQ factor of 1.021 on 2022-08-22',
+  'ZST zero-volume row',
+  'Macro release lags',
+  'Revised FRED values',
+  'Survivorship bias'
+];
+
+const AVOID = [
+  'Automated holdings URLs for iShares US, Vanguard ESGV and Invesco QQQ returned HTML or 404. Download once by hand and log the date.',
+  'SEDAR+ has no API.',
+  'Third-party ESG scores. The organizers declined to ship ratings for licensing reasons.',
+  'Climate TRACE answered, but fields are marked license restricted.'
+];
+
+const fmt = (v) => (v < 0 ? '−' : '+') + Math.abs(v).toFixed(1) + '%';
+const plural = (n, a, b) => (n === 1 ? a : b);
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      view: 'plan', persona: 'robert', size: 25,
+      ran: false, running: false, step: 0,
+      tm: false, revealed: false, sab: false, drawer: null,
+      caps: {
+        robert: { R1: 10, R2: 10, R3: 5 },
+        amira: { R1: 20, R2: 30, R3: 20 },
+        mateo: { R1: 15, R2: 20, R3: 12 }
+      }
+    };
+  }
+
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  runCheck() {
+    clearTimeout(this._t);
+    this.setState({ running: true, ran: false, step: 0 });
+    const tick = () => {
+      this._t = setTimeout(() => {
+        const next = this.state.step + 1;
+        if (next >= 7) { this.setState({ step: 7, running: false, ran: true }); }
+        else { this.setState({ step: next }); tick(); }
+      }, 650);
+    };
+    tick();
+  }
+
+  adjustCap(pk, id, delta, min, max) {
+    const caps = this.state.caps;
+    const cur = caps[pk][id];
+    const next = Math.max(min, Math.min(max, cur + delta));
+    this.setState({ caps: { ...caps, [pk]: { ...caps[pk], [id]: next } } });
+  }
+
+  evaluate(pk, size, vis) {
+    const P = PERSONAS[pk];
+    const caps = this.state.caps[pk];
+    const grade = (v, c) => (v > c ? 'conflict' : v > 0.8 * c ? 'tension' : 'pass');
+    let max = 100;
+    const rules = [];
+    P.rules.forEach((r) => {
+      const cap = caps[r.id] != null ? caps[r.id] : r.cap;
+      let status = 'pass';
+      let detail = '';
+      let text = r.pre;
+      if (r.kind === 'single' || r.kind === 'size') {
+        text = r.pre + ' ' + cap + '% ' + r.suf;
+        status = grade(size, cap);
+        detail = r.kind === 'single'
+          ? size + '% in one stock, against a cap of ' + cap + '%.'
+          : 'This move is ' + size + '% of the portfolio, against a cap of ' + cap + '%.';
+        max = Math.min(max, cap);
+      } else if (r.kind === 'loss') {
+        text = r.pre + ' ' + cap + ' points ' + r.suf;
+        if (vis) {
+          const loss = size * 0.65;
+          status = grade(loss, cap);
+          detail = size + '% × −65.0% = ' + loss.toFixed(1) + ' points, against a limit of ' + cap + ' points.';
+          max = Math.min(max, cap / 0.65);
+        } else {
+          status = 'nee';
+          detail = 'Needs the 2022 replay, which was published after the chosen as-of date.';
+        }
+      } else if (r.kind === 'evid') {
+        status = 'nee';
+        detail = r.need === 'holdings'
+          ? 'Current holdings were not provided, so this rule is not checked.'
+          : 'No registry, holdings or headline evidence is loaded for TSLA in this prototype.';
+      } else {
+        detail = 'Aplomb compares a hypothetical move with your rules. It places no order.';
+      }
+      rules.push({ id: r.id, text, detail, status, cls: STATUS[status].cls, label: STATUS[status].label, cap, kind: r.kind, need: r.need });
+    });
+    const count = (k) => rules.filter((r) => r.status === k).length;
+    const c = { conflict: count('conflict'), tension: count('tension'), nee: count('nee'), pass: count('pass') };
+    const key = c.conflict ? 'conflict' : c.tension ? 'tension' : c.nee ? 'nee' : 'pass';
+    const maxFloor = Math.floor(max * 10 + 1e-9) / 10;
+    let headline;
+    let sub;
+    if (key === 'conflict') {
+      headline = 'Conflict with ' + c.conflict + ' of ' + P.name + '’s ' + plural(c.conflict, 'rule', 'rules');
+      sub = 'This move would break ' + plural(c.conflict, 'a rule', 'rules') + ' ' + P.name + ' wrote. The largest size inside the rules is ' + maxFloor + '%.';
+    } else if (key === 'tension') {
+      headline = 'Tension with ' + c.tension + ' ' + plural(c.tension, 'rule', 'rules');
+      sub = 'No rule is broken, but ' + plural(c.tension, 'one is', 'some are') + ' within 20% of the limit.';
+    } else if (key === 'nee') {
+      headline = 'Inside every rule that could be checked';
+      sub = c.nee + ' ' + plural(c.nee, 'rule has', 'rules have') + ' no evidence yet, so Aplomb does not call this a fit.';
+    } else {
+      headline = 'Fits ' + P.name + '’s plan';
+      sub = 'Every rule passes on the evidence in the ledger.';
+    }
+    return { rules, counts: c, key, max: maxFloor, headline, sub };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const pk = s.persona;
+    const P = PERSONAS[pk];
+    const vis = !s.tm || s.revealed;
+    const asOf = s.tm ? '2021-12-31' : '2026-11-12';
+    const ev = this.evaluate(pk, s.size, vis);
+    const open = (id) => () => this.setState({ drawer: id });
+    const set = (patch) => () => this.setState(patch);
+
+    const tabs = [['plan', '1 · Plan'], ['check', '2 · Check'], ['compare', '3 · Compare'], ['data', '4 · Data Room']];
+    const navTabs = tabs.map((t) => ({ label: t[1], cur: s.view === t[0] ? 'page' : 'false', go: set({ view: t[0] }) }));
+
+    const personaCards = Object.keys(PERSONAS).map((k) => {
+      const p = PERSONAS[k];
+      return { key: k, name: p.name, initial: p.initial, tag: p.tag, blurb: p.blurb, test: p.test,
+        cls: k === pk ? 'sel' : '', pressed: k === pk, pick: set({ persona: k }) };
+    });
+
+    const planRules = P.rules.map((r) => {
+      const cap = s.caps[pk][r.id];
+      const hasCap = r.kind === 'single' || r.kind === 'size' || r.kind === 'loss';
+      const unitTxt = r.unit === 'pts' ? ' pts' : '%';
+      const text = hasCap ? r.pre + ' … ' + r.suf : r.pre;
+      return {
+        id: r.id, text, hasCap, needsEvidence: r.kind === 'evid', isFixed: r.kind === 'sim',
+        capText: hasCap ? cap + unitTxt : '',
+        decLabel: 'Lower ' + r.id + ' threshold', incLabel: 'Raise ' + r.id + ' threshold',
+        dec: () => this.adjustCap(pk, r.id, -1, r.min, r.max),
+        inc: () => this.adjustCap(pk, r.id, 1, r.min, r.max)
+      };
+    });
+
+    // timeline
+    const nee = ev.counts.nee;
+    const eviIds = ev.rules.filter((r) => r.status === 'nee' && r.kind === 'evid').map((r) => r.id);
+    const baseCount = 3 + (pk === 'mateo' && vis ? 1 : 0) + (eviIds.length ? 1 : 0) + 1;
+    const nSent = baseCount + (s.sab ? 1 : 0);
+    const outs = [
+      ['planner.select_tools', nee + ' ' + plural(nee, 'rule needs', 'rules need') + ' evidence that was not provided. Marked, not guessed.'],
+      ['pit.gate(as_of=' + asOf + ') → quant.stress_replay(TSLA, 2022)', vis ? 'F-01 to F-03 computed. No row published after the as-of date was read.' : 'Gate withheld every row after ' + asOf + '. The 2022 facts are not visible.'],
+      ['rules.check(R1…R6)', ev.counts.conflict + ' conflict, ' + ev.counts.tension + ' tension, ' + ev.counts.pass + ' fit, ' + ev.counts.nee + ' not enough evidence.'],
+      ['planner.revise(objection)', 'Objection sent back. Largest size inside the rules computed: ' + ev.max + '% (F-06).'],
+      ['writer.draft(facts)', 'Sentences drafted with fact references. Digits typed by the model are rejected.'],
+      ['auditor.verify(brief)', nSent + ' sentences checked, ' + (s.sab ? 1 : 0) + ' struck.'],
+      ['auditor.sign(run)', 'Brief signed against the ledger.']
+    ];
+    const steps = STEPS.map((st, i) => {
+      const done = s.ran || i < s.step;
+      const run = !done && s.running && i === s.step;
+      return { n: i + 1, title: st.title, role: st.role, cls: done ? 'done' : run ? 'run' : 'wait',
+        showOut: done, tool: outs[i][0], out: outs[i][1] };
+    });
+
+    // verdict
+    const verdict = {
+      badge: 'vbadge-' + ev.key, label: ev.key === 'pass' ? 'Fits your plan' : STATUS[ev.key].label,
+      headline: ev.headline, sub: ev.sub,
+      maxLabel: ev.max + '%', conflictCount: ev.counts.conflict, neeCount: ev.counts.nee,
+      openMax: open('F-06')
+    };
+    const ruleRows = ev.rules.map((r) => ({ id: r.id, text: r.text, detail: r.detail, cls: r.cls, label: r.label, open: open(r.id) }));
+
+    // brief
+    const T = (text) => ({ isChip: false, isText: true, text, open: null });
+    const C = (id, text) => ({ isChip: true, isText: false, text: text || id, open: open(id) });
+    const loss = (s.size * 0.65).toFixed(1);
+    const r1 = ev.rules[0]; const r3 = ev.rules[2];
+    const items = [];
+    items.push([T('This move would put '), C('F-07', s.size + '%'), T(' of the portfolio into one stock; your rule '), C('R1'), T(' sets the cap at ' + r1.cap + '%.')]);
+    if (vis) {
+      items.push([T('In the 2022 replay, TSLA returned '), C('F-01', fmt(-65.0)), T('. The moved slice alone would have cut portfolio value by '), C('F-04', loss + ' points'), T(', against your limit of ' + r3.cap + ' points ('), C('R3'), T(').')]);
+      items.push([T('For context, SPY returned '), C('F-02', fmt(-18.2)), T(' and AGG '), C('F-03', fmt(-13.0)), T(' over the same year.')]);
+    } else {
+      items.push([T('The 2022 replay was published after ' + asOf + ', so the stress rule ('), C('R3'), T(') cannot be evaluated yet.')]);
+    }
+    if (pk === 'mateo' && vis) {
+      items.push([T('Screening has a cost in this sample: ESGV returned '), C('F-05', fmt(-24.0)), T(' against SPY '), C('F-02', fmt(-18.2)), T(' in 2022.')]);
+    }
+    items.push([T('The largest size inside your rules is '), C('F-06', ev.max + '%'), T('.')]);
+    if (eviIds.length) {
+      const need = ev.rules.find((r) => r.id === eviIds[0]).need;
+      items.push([T('Rules ' + eviIds.join(' and ') + ' stay unverified: ' + (need === 'holdings' ? 'your holdings were not provided.' : 'no outside evidence is loaded.'))]);
+    }
+    const briefItems = items.map((parts) => ({ parts, cls: '', auditCls: 's-pass', auditLabel: 'Verified', note: false, noteText: '' }));
+    if (s.sab) {
+      briefItems.splice(2, 0, {
+        parts: [T('[Injected for the test] Analysts expect the stock to rise 40% next year.')],
+        cls: 'struck', auditCls: 's-conflict', auditLabel: 'Struck by auditor', note: true,
+        noteText: 'No fact reference. Digits typed by the writer are rejected. Logged.'
+      });
+    }
+    const brief = { items: briefItems, summary: briefItems.length + ' sentences checked · ' + (s.sab ? 1 : 0) + ' struck' };
+
+    // drawer
+    const drawer = this.buildDrawer(s.drawer, s, ev, vis, asOf);
+    drawer.close = set({ drawer: null });
+
+    // stress card
+    const showReveal = s.tm && s.revealed;
+    const revealBars = BARS.map((b) => ({ tk: b.tk, v: fmt(b.val), w: Math.abs(b.val) / 70 * 100, cls: b.tk === 'TSLA' ? 'hl' : 'dim' }));
+    const tmNote = s.tm
+      ? (s.revealed ? 'Post-date data is now revealed. This needs the planned 2015 history backfill; the starter pack begins 2021-11-12.' : 'Only data published by this date is visible. The 2022 facts are hidden. This needs the planned 2015 backfill.')
+      : 'Off. Switch on to see only what was known on December 31, 2021.';
+
+    // compare
+    const cols = Object.keys(PERSONAS).map((k) => {
+      const e = this.evaluate(k, s.size, vis);
+      const p = PERSONAS[k];
+      return { name: p.name, initial: p.initial, tag: p.tag, badge: 'vbadge-' + e.key,
+        label: e.key === 'pass' ? 'Fits the plan' : STATUS[e.key].label,
+        headline: e.headline, maxLabel: e.max + '%',
+        rules: e.rules.map((r) => ({ id: r.id, text: r.text, cls: r.cls, label: r.label })) };
+    });
+    const capOf = (k, i) => { const r = PERSONAS[k].rules[i]; const c = s.caps[k][r.id]; return c + (r.unit === 'pts' ? ' pts' : '%'); };
+    const diffs = [['Single-stock cap', 0], ['Move-size cap', 1], ['2022 repeat, moved slice', 2]].map((d) => ({
+      label: d[0], vals: Object.keys(PERSONAS).map((k) => ({ who: PERSONAS[k].name, v: capOf(k, d[1]) }))
+    }));
+
+    return {
+      navTabs, whoLabel: P.name + ' · ' + (pk === 'robert' ? '59' : pk === 'amira' ? '26' : 'values-led'), whoInitial: P.initial, goPlan: set({ view: 'plan' }),
+      isPlan: s.view === 'plan', isCheck: s.view === 'check', isCompare: s.view === 'compare', isData: s.view === 'data',
+      personaCards, planRules, planTitle: P.name + '’s plan, in six rules',
+      goCheck: set({ view: 'check' }), goCompare: set({ view: 'compare' }),
+      personaLine: P.name + ' · ' + P.tag, personaName: P.name,
+      size: s.size, onSize: (e) => this.setState({ size: Number(e.target.value) }),
+      runLabel: s.running ? 'Running…' : s.ran ? 'Run again' : 'Run the check', runDisabled: s.running, onRun: () => this.runCheck(),
+      showIdle: !s.ran && !s.running, showResult: s.ran,
+      steps, verdict, ruleRows, brief,
+      sabOn: s.sab, sabCls: s.sab ? 'on' : '', sabToggle: () => this.setState({ sab: !s.sab }),
+      tmOn: s.tm, tmCls: s.tm ? 'on' : '', tmToggle: () => this.setState({ tm: !s.tm, revealed: false }),
+      asOfLabel: asOf, tmNote, canReveal: s.tm && !s.revealed, reveal: set({ revealed: true }),
+      showReveal, revealBars,
+      drawer,
+      cols, diffs, compareLead: 'A request to move ' + s.size + '% of the portfolio into Tesla, checked against each profile’s own thresholds.',
+      datasets: DATASETS, traps: TRAPS, avoid: AVOID
+    };
+  }
+
+  buildDrawer(id, s, ev, vis, asOf) {
+    if (!id) return { open: false, bars: [], rows: [], hasBars: false, hasPill: false };
+    const base = { open: true, hasBars: false, bars: [], hasPill: false, pillCls: '', pillLabel: '' };
+    const bars = (hl) => BARS.map((b) => ({ tk: b.tk, v: fmt(b.val), w: Math.abs(b.val) / 70 * 100, cls: b.id === hl ? 'hl' : 'dim' }));
+    const pack = [
+      { k: 'Dataset', v: 'alphaforge_starter · daily prices, 31 assets, 2021-11-12 to 2026-11-12' },
+      { k: 'Window', v: '2022 calendar year' },
+      { k: 'Method', v: 'Return on adj_close, so splits and dividends are in.' },
+      { k: 'Source', v: 'Organizer starter pack, built Nov 13 with yfinance' },
+      { k: 'Licence', v: 'See sources_metadata.csv in the pack' },
+      { k: 'Retrieved', v: '2026-11-13 (pack build date)' },
+      { k: 'Row count', v: 'Not computed in this prototype' }
+    ];
+    if (FACTS[id]) {
+      const f = FACTS[id];
+      return { ...base, kicker: 'Fact ' + id + ' · measured', title: f.title, value: fmt(f.val),
+        note: 'This number is read from the ledger. The model cannot type or change it.', hasBars: true, bars: bars(id), rows: pack };
+    }
+    if (id === 'F-04') {
+      return { ...base, kicker: 'Fact F-04 · computed', title: 'Moved slice, contribution to the 2022 loss',
+        value: '−' + (s.size * 0.65).toFixed(1) + ' pts',
+        note: 'Counts the moved slice alone, as if all of it were TSLA. The rest of the portfolio is not modelled because holdings are missing.',
+        rows: [{ k: 'Method', v: 'Move size × F-01' }, { k: 'Input', v: 'Move size ' + s.size + '% (your request)' }, { k: 'Input', v: 'F-01 = −65.0%' }, { k: 'As of', v: asOf }] };
+    }
+    if (id === 'F-07') {
+      return { ...base, kicker: 'Fact F-07 · your input', title: 'Size of the move', value: s.size + '%',
+        note: 'Set by the slider on the request. Change it and every dependent fact recomputes.', rows: [{ k: 'Origin', v: 'Your request' }] };
+    }
+    if (id === 'F-06') {
+      const caps = ev.rules.filter((r) => r.kind === 'single' || r.kind === 'size' || r.kind === 'loss');
+      return { ...base, kicker: 'Fact F-06 · computed', title: 'Largest size inside your rules', value: ev.max + '%',
+        note: 'The smallest size any rule allows, rounded down to 0.1%.',
+        rows: caps.map((r) => ({ k: r.id, v: r.kind === 'loss' ? (vis ? 'Cap ' + r.cap + ' pts ÷ 0.65 = ' + (r.cap / 0.65).toFixed(1) + '%' : 'Not evaluated at this as-of date') : 'Cap ' + r.cap + '%' })) };
+    }
+    const r = ev.rules.find((x) => x.id === id);
+    if (r) {
+      return { ...base, kicker: 'Rule ' + id + ' · assumption, editable in Plan', title: r.text, value: r.status === 'nee' ? 'No evidence' : r.status === 'pass' ? 'Fits' : r.label,
+        hasPill: true, pillCls: r.cls, pillLabel: r.label, note: r.detail,
+        rows: [{ k: 'Origin', v: 'Stated by the profile, not predicted' }, { k: 'Checked by', v: 'Risk Officer (rule engine)' }, { k: 'This request', v: s.size + '% of portfolio into TSLA' }] };
+    }
+    return { ...base, kicker: '', title: '', value: '', note: '', rows: [] };
+  }
+}
+</script>
+</body>
+</html>
