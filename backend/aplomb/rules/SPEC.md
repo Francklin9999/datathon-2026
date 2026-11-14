@@ -143,3 +143,9 @@ All expected values are in `contracts/controls.md` §8–9.
 - `check_rules` and `verdict_of` are pure functions with no imports from `agents`, `api` or AWS SDKs.
 - RUL-01 to RUL-12 pass.
 - `POST /v1/check` for Robert +25 TSLA returns in under 1.5 s locally with a warm data cache.
+
+## 9. Implementation status (T06, 2026-11-14)
+
+`backend/aplomb/rules/`: `definitions.py` (one `RuleDef` per family: type, measured metric, target, unit, bounds, EN/FR label), `templates.py` (EN/FR detail sentences per family/status), `engine.py` (`RuleEngine(ledger, ctx).check_rules(rules, RuleInputs(view, profile_id, moved_tickers, evidence, attention))`, `verdict_of(checks)`, `explain_difference(a, b)`, `compare(type, value, threshold)`).
+
+Values come from quant (`PortfolioView.measure`), so every value fact is a quant fact; the engine registers one `threshold.rule` assumption per thresholded rule (method = the rule's derivation method, `M_USER_INPUT` after an edit, else `M_PROFILE_ASSUMPTION`), the positive 2022 loss fact (`max(0, -stress)`, input = the signed stress fact) and one `rule_check` fact per rule (`count.rules`, variant `<variant>:status:<status>`, inputs = value and threshold facts), following the canonical fixture. Comparison mirrors `contracts/controls/rules_ctl.py` (1e-9 tolerance, 10% band). The evidence rule receives controversy evidence already selected by the researcher; it never returns `pass`. `uv run pytest backend/tests/unit/rules` covers RUL-01…RUL-12 with the controls §8–§9 values.

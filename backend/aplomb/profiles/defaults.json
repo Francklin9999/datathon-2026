@@ -1,0 +1,1628 @@
+[
+  {
+    "profileId": "robert",
+    "isDefault": true,
+    "origin": "brief",
+    "name": "Robert",
+    "initial": "R",
+    "age": 59,
+    "occupation": "Healthcare professional",
+    "riskLevel": "low_moderate",
+    "horizonYears": {
+      "min": 3.0,
+      "max": 5.0
+    },
+    "objective": "preserve",
+    "objectiveText": {
+      "en": "Preserve capital while keeping some growth potential.",
+      "fr": "Préserver le capital tout en conservant un certain potentiel de croissance."
+    },
+    "experience": "advanced",
+    "reportingCurrency": "CAD",
+    "preferences": {
+      "themesOfInterest": [],
+      "excludedSectors": [],
+      "excludedAssetClasses": [
+        "crypto"
+      ],
+      "esgFocus": false,
+      "avoidControversies": false,
+      "avoidSpeculative": true,
+      "cryptoInterest": "none",
+      "wantsDiversification": true,
+      "notes": "Prefers established companies and business models he understands; values stability and quality; may be tempted by a highly publicized company even when riskier than he would normally prefer."
+    },
+    "blurb": {
+      "en": "59, healthcare professional. Low-to-moderate risk over 3 to 5 years; values stability and quality, little interest in crypto.",
+      "fr": "59 ans, professionnel de la santé. Risque faible à modéré sur 3 à 5 ans; privilégie la stabilité et la qualité, peu d'intérêt pour la crypto."
+    },
+    "personaTest": {
+      "en": "Aplomb must challenge a request that conflicts with the profile, explain the risks and avoid simply agreeing.",
+      "fr": "Aplomb doit contester une demande qui va à l'encontre du profil, expliquer les risques et éviter de simplement acquiescer."
+    },
+    "portfolio": {
+      "isFictional": true,
+      "totalValue": 600000.0,
+      "currency": "CAD",
+      "positions": [
+        {
+          "ticker": "XBB.TO",
+          "weightPct": 30.0
+        },
+        {
+          "ticker": "ZST.TO",
+          "weightPct": 15.0
+        },
+        {
+          "ticker": "AGG",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "XIU.TO",
+          "weightPct": 15.0
+        },
+        {
+          "ticker": "SPY",
+          "weightPct": 10.0
+        },
+        {
+          "ticker": "RY.TO",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "FTS.TO",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "ENB.TO",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "JNJ",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "PG",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "GLD",
+          "weightPct": 3.0
+        }
+      ],
+      "updatedAt": "2026-11-14T00:00:00Z"
+    },
+    "rules": [
+      {
+        "ruleId": "cap.position",
+        "code": "R1",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+          "fr": "Aucune action ni cryptoactif au-dessus de {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "Sized from the low-to-moderate volatility budget relative to the upper-quartile volatility of single stocks (A-03).",
+          "fr": "Établi à partir du budget de volatilité faible à modéré rapporté à la volatilité du quartile supérieur des actions (A-03)."
+        },
+        "metric": "weight.position.max_single",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 10.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_POSITION_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaStockQ3Pct), 5, 25)",
+          "inputs": {
+            "budgetPct": 9.0,
+            "sigmaStockQ3Pct": 31.22
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "cap.sector",
+        "code": "R2",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No sector above {threshold}% of the portfolio (directly held stocks)",
+          "fr": "Aucun secteur au-dessus de {threshold} % du portefeuille (actions détenues directement)"
+        },
+        "rationale": {
+          "en": "At least two names per sector at the position cap (A-04).",
+          "fr": "Au moins deux titres par secteur au plafond par position (A-04)."
+        },
+        "metric": "weight.sector.max",
+        "target": {
+          "dimension": "sector",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 20.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_SECTOR_CAP",
+          "formula": "min(40, 2 x positionCapPct)",
+          "inputs": {
+            "positionCapPct": 10.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "cap.growth_assets",
+        "code": "R3",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "Stocks, equity funds and crypto together at most {threshold}%",
+          "fr": "Actions, fonds d'actions et crypto ensemble à au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest equity share of a broad reference mix that stays within the volatility budget (A-06).",
+          "fr": "Plus grande part d'actions d'un mélange de référence large qui respecte le budget de volatilité (A-06)."
+        },
+        "metric": "weight.growth_assets",
+        "target": {
+          "dimension": "asset_group",
+          "key": "equity+crypto"
+        },
+        "comparator": "<=",
+        "threshold": 55.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 5.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_GROWTH_CAP",
+          "formula": "max equity share e in 0,5,..,100 with vol(refMix(e)) <= budgetPct",
+          "inputs": {
+            "budgetPct": 9.0,
+            "referenceMix": "50% XIU.TO + 50% SPY, rest XBB.TO"
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "floor.fixed_income",
+        "code": "R4",
+        "type": "floor",
+        "enabled": true,
+        "label": {
+          "en": "Keep bonds and cash at {threshold}% or more",
+          "fr": "Garder obligations et encaisse à {threshold} % ou plus"
+        },
+        "rationale": {
+          "en": "Bonds and cash complement the growth-assets cap (A-06).",
+          "fr": "Obligations et encaisse complètent le plafond des actifs de croissance (A-06)."
+        },
+        "metric": "weight.fixed_income",
+        "target": {
+          "dimension": "asset_group",
+          "key": "fixed_income+cash"
+        },
+        "comparator": ">=",
+        "threshold": 35.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_GROWTH_CAP",
+          "formula": "max(0, 100 - growthCapPct - 10)",
+          "inputs": {
+            "growthCapPct": 55.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "limit.volatility",
+        "code": "R5",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Portfolio volatility at most {threshold}% a year",
+          "fr": "Volatilité du portefeuille d'au plus {threshold} % par an"
+        },
+        "rationale": {
+          "en": "Volatility budget for a low-to-moderate risk level (A-02).",
+          "fr": "Budget de volatilité d'un niveau de risque faible à modéré (A-02)."
+        },
+        "metric": "vol.annualized",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 9.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 40.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_VOL_BUDGET",
+          "formula": "budget(riskLevel)",
+          "inputs": {
+            "riskLevel": "low_moderate",
+            "budgetPct": 9.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "limit.stress_2022",
+        "code": "R6",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "A repeat of 2022 may cost at most {threshold}% of the portfolio",
+          "fr": "Une répétition de 2022 peut coûter au plus {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "A shorter horizon leaves less time to recover from a 2022-like year (A-07).",
+          "fr": "Un horizon plus court laisse moins de temps pour se remettre d'une année comme 2022 (A-07)."
+        },
+        "metric": "stress.replay_2022",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 9.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 1.0,
+          "max": 60.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_STRESS_LIMIT",
+          "formula": "budgetPct x m(horizonMidpointYears)",
+          "inputs": {
+            "budgetPct": 9.0,
+            "horizonMidpointYears": 4.0,
+            "multiplier": 1.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "limit.drawdown",
+        "code": "R7",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Largest historical peak-to-trough fall at most {threshold}%",
+          "fr": "Plus forte baisse historique d'un sommet à un creux d'au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest tolerated fall set at twice the volatility budget (A-08).",
+          "fr": "Plus forte baisse tolérée fixée au double du budget de volatilité (A-08)."
+        },
+        "metric": "drawdown.max",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 18.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 80.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+          "formula": "2 x budgetPct",
+          "inputs": {
+            "budgetPct": 9.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "exclude.asset_class.crypto",
+        "code": "R8",
+        "type": "exclude",
+        "enabled": true,
+        "label": {
+          "en": "No crypto assets",
+          "fr": "Aucun cryptoactif"
+        },
+        "rationale": {
+          "en": "Robert has little interest in crypto assets (brief p.7; A-12, editable).",
+          "fr": "Robert a peu d'intérêt pour les cryptoactifs (énoncé p. 7; A-12, modifiable)."
+        },
+        "metric": "weight.asset_class",
+        "target": {
+          "dimension": "asset_class",
+          "key": "crypto"
+        },
+        "comparator": "==",
+        "threshold": 0.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": null,
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "flag.attention",
+        "code": "R9",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show when the requested asset is drawing unusual public attention",
+          "fr": "Signaler quand l'actif demandé attire une attention publique inhabituelle"
+        },
+        "rationale": {
+          "en": "Public attention is context, never a verdict on its own (A-19).",
+          "fr": "L'attention du public est un contexte, jamais un verdict à elle seule (A-19)."
+        },
+        "metric": "attention.pageviews_ratio",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "ratio",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "flag.rate_cycle",
+        "code": "R10",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show how the portfolio behaved while interest rates rose",
+          "fr": "Montrer le comportement du portefeuille pendant la hausse des taux"
+        },
+        "rationale": {
+          "en": "The rate-hiking cycle is replayed for information only (A-23).",
+          "fr": "Le cycle de hausse des taux est rejoué à titre informatif seulement (A-23)."
+        },
+        "metric": "stress.rate_cycle",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "pct",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "sim.only",
+        "code": "R11",
+        "type": "sim",
+        "enabled": true,
+        "label": {
+          "en": "Simulation only: no order is ever placed",
+          "fr": "Simulation seulement : aucun ordre n'est jamais passé"
+        },
+        "rationale": {
+          "en": "Aplomb is a simulation with fictional profiles; it never places orders.",
+          "fr": "Aplomb est une simulation avec des profils fictifs; il ne passe jamais d'ordres."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": false,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      }
+    ],
+    "version": 1,
+    "createdAt": "2026-11-14T00:00:00Z",
+    "updatedAt": "2026-11-14T00:00:00Z"
+  },
+  {
+    "profileId": "amira",
+    "isDefault": true,
+    "origin": "brief",
+    "name": "Amira",
+    "initial": "A",
+    "age": 26,
+    "occupation": "Software engineer",
+    "riskLevel": "high",
+    "horizonYears": {
+      "min": 15.0,
+      "max": null
+    },
+    "objective": "growth",
+    "objectiveText": {
+      "en": "Grow her capital over the long term.",
+      "fr": "Faire croître son capital à long terme."
+    },
+    "experience": "intermediate",
+    "reportingCurrency": "CAD",
+    "preferences": {
+      "themesOfInterest": [
+        "ai",
+        "semiconductors",
+        "software",
+        "crypto"
+      ],
+      "excludedSectors": [],
+      "excludedAssetClasses": [],
+      "esgFocus": false,
+      "avoidControversies": false,
+      "avoidSpeculative": false,
+      "cryptoInterest": "open",
+      "wantsDiversification": true,
+      "notes": "Very interested in AI and emerging technologies; open to high-growth companies and significant volatility; still wants some diversification and not only technology."
+    },
+    "blurb": {
+      "en": "26, software engineer. High risk over 15 years or more; drawn to AI and crypto but wants some diversification.",
+      "fr": "26 ans, ingénieure logicielle. Risque élevé sur 15 ans ou plus; attirée par l'IA et la crypto, mais souhaite une certaine diversification."
+    },
+    "personaTest": {
+      "en": "An aggressive profile that must not read high risk as anything goes, while respecting her wish for diversification.",
+      "fr": "Un profil audacieux qui ne doit pas confondre risque élevé et absence de limites, tout en respectant son souhait de diversification."
+    },
+    "portfolio": {
+      "isFictional": true,
+      "totalValue": 60000.0,
+      "currency": "CAD",
+      "positions": [
+        {
+          "ticker": "NVDA",
+          "weightPct": 8.0
+        },
+        {
+          "ticker": "MSFT",
+          "weightPct": 8.0
+        },
+        {
+          "ticker": "GOOGL",
+          "weightPct": 6.0
+        },
+        {
+          "ticker": "SHOP.TO",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "AMZN",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "QQQ",
+          "weightPct": 12.0
+        },
+        {
+          "ticker": "SPY",
+          "weightPct": 12.0
+        },
+        {
+          "ticker": "XIU.TO",
+          "weightPct": 10.0
+        },
+        {
+          "ticker": "BTC-USD",
+          "weightPct": 6.0
+        },
+        {
+          "ticker": "ETH-USD",
+          "weightPct": 3.0
+        },
+        {
+          "ticker": "JPM",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "CNR.TO",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "ATD.TO",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "JNJ",
+          "weightPct": 3.0
+        },
+        {
+          "ticker": "XBB.TO",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "GLD",
+          "weightPct": 5.0
+        }
+      ],
+      "updatedAt": "2026-11-14T00:00:00Z"
+    },
+    "rules": [
+      {
+        "ruleId": "cap.position",
+        "code": "R1",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+          "fr": "Aucune action ni cryptoactif au-dessus de {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "Sized from the high volatility budget relative to the upper-quartile volatility of single stocks (A-03).",
+          "fr": "Établi à partir du budget de volatilité élevé rapporté à la volatilité du quartile supérieur des actions (A-03)."
+        },
+        "metric": "weight.position.max_single",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 25.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_POSITION_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaStockQ3Pct), 5, 25)",
+          "inputs": {
+            "budgetPct": 22.0,
+            "sigmaStockQ3Pct": 31.22
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "cap.sector",
+        "code": "R2",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No sector above {threshold}% of the portfolio (directly held stocks)",
+          "fr": "Aucun secteur au-dessus de {threshold} % du portefeuille (actions détenues directement)"
+        },
+        "rationale": {
+          "en": "At least two names per sector at the position cap (A-04).",
+          "fr": "Au moins deux titres par secteur au plafond par position (A-04)."
+        },
+        "metric": "weight.sector.max",
+        "target": {
+          "dimension": "sector",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 40.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_SECTOR_CAP",
+          "formula": "min(40, 2 x positionCapPct)",
+          "inputs": {
+            "positionCapPct": 25.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "cap.asset_class.crypto",
+        "code": "R3",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "Crypto assets at most {threshold}%",
+          "fr": "Cryptoactifs à au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Crypto cap from her high volatility budget relative to median crypto volatility (A-05).",
+          "fr": "Plafond crypto tiré de son budget de volatilité élevé rapporté à la volatilité médiane des cryptos (A-05)."
+        },
+        "metric": "weight.asset_group",
+        "target": {
+          "dimension": "asset_group",
+          "key": "crypto"
+        },
+        "comparator": "<=",
+        "threshold": 15.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_CRYPTO_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaCryptoMedianPct), 0, 25)",
+          "inputs": {
+            "budgetPct": 22.0,
+            "sigmaCryptoMedianPct": 59.97,
+            "halved": "false"
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "floor.diversifiers",
+        "code": "R4",
+        "type": "floor",
+        "enabled": true,
+        "label": {
+          "en": "Keep bonds, cash and gold together at {threshold}% or more",
+          "fr": "Garder obligations, encaisse et or ensemble à {threshold} % ou plus"
+        },
+        "rationale": {
+          "en": "She still wants some diversification (brief p.5); the 8% level is our assumption (A-10).",
+          "fr": "Elle souhaite tout de même une certaine diversification (énoncé p. 5); le niveau de 8 % est notre hypothèse (A-10)."
+        },
+        "metric": "weight.diversifiers",
+        "target": {
+          "dimension": "asset_group",
+          "key": "fixed_income+cash+commodity"
+        },
+        "comparator": ">=",
+        "threshold": 8.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 1.0
+        },
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "limit.volatility",
+        "code": "R5",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Portfolio volatility at most {threshold}% a year",
+          "fr": "Volatilité du portefeuille d'au plus {threshold} % par an"
+        },
+        "rationale": {
+          "en": "Volatility budget for a high risk level (A-02).",
+          "fr": "Budget de volatilité d'un niveau de risque élevé (A-02)."
+        },
+        "metric": "vol.annualized",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 22.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 40.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_VOL_BUDGET",
+          "formula": "budget(riskLevel)",
+          "inputs": {
+            "riskLevel": "high",
+            "budgetPct": 22.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "limit.stress_2022",
+        "code": "R6",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "A repeat of 2022 may cost at most {threshold}% of the portfolio",
+          "fr": "Une répétition de 2022 peut coûter au plus {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "A shorter horizon leaves less time to recover from a 2022-like year (A-07).",
+          "fr": "Un horizon plus court laisse moins de temps pour se remettre d'une année comme 2022 (A-07)."
+        },
+        "metric": "stress.replay_2022",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 33.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 1.0,
+          "max": 60.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_STRESS_LIMIT",
+          "formula": "budgetPct x m(horizonMidpointYears)",
+          "inputs": {
+            "budgetPct": 22.0,
+            "horizonMidpointYears": 15.0,
+            "multiplier": 1.5
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "limit.drawdown",
+        "code": "R7",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Largest historical peak-to-trough fall at most {threshold}%",
+          "fr": "Plus forte baisse historique d'un sommet à un creux d'au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest tolerated fall set at twice the volatility budget (A-08).",
+          "fr": "Plus forte baisse tolérée fixée au double du budget de volatilité (A-08)."
+        },
+        "metric": "drawdown.max",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 44.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 80.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+          "formula": "2 x budgetPct",
+          "inputs": {
+            "budgetPct": 22.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "flag.attention",
+        "code": "R8",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show when the requested asset is drawing unusual public attention",
+          "fr": "Signaler quand l'actif demandé attire une attention publique inhabituelle"
+        },
+        "rationale": {
+          "en": "Public attention is context, never a verdict on its own (A-19).",
+          "fr": "L'attention du public est un contexte, jamais un verdict à elle seule (A-19)."
+        },
+        "metric": "attention.pageviews_ratio",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "ratio",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "flag.rate_cycle",
+        "code": "R9",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show how the portfolio behaved while interest rates rose",
+          "fr": "Montrer le comportement du portefeuille pendant la hausse des taux"
+        },
+        "rationale": {
+          "en": "The rate-hiking cycle is replayed for information only (A-23).",
+          "fr": "Le cycle de hausse des taux est rejoué à titre informatif seulement (A-23)."
+        },
+        "metric": "stress.rate_cycle",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "pct",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "sim.only",
+        "code": "R10",
+        "type": "sim",
+        "enabled": true,
+        "label": {
+          "en": "Simulation only: no order is ever placed",
+          "fr": "Simulation seulement : aucun ordre n'est jamais passé"
+        },
+        "rationale": {
+          "en": "Aplomb is a simulation with fictional profiles; it never places orders.",
+          "fr": "Aplomb est une simulation avec des profils fictifs; il ne passe jamais d'ordres."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": false,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      }
+    ],
+    "version": 1,
+    "createdAt": "2026-11-14T00:00:00Z",
+    "updatedAt": "2026-11-14T00:00:00Z"
+  },
+  {
+    "profileId": "mateo",
+    "isDefault": true,
+    "origin": "brief",
+    "name": "Mateo",
+    "initial": "M",
+    "age": 41,
+    "occupation": "Operations manager",
+    "riskLevel": "moderate",
+    "horizonYears": {
+      "min": 8.0,
+      "max": 12.0
+    },
+    "objective": "balanced",
+    "objectiveText": {
+      "en": "Balanced capital growth over the medium and long term.",
+      "fr": "Croissance équilibrée du capital à moyen et long terme."
+    },
+    "experience": "intermediate",
+    "reportingCurrency": "CAD",
+    "preferences": {
+      "themesOfInterest": [],
+      "excludedSectors": [
+        "Energy"
+      ],
+      "excludedAssetClasses": [],
+      "esgFocus": true,
+      "avoidControversies": true,
+      "avoidSpeculative": true,
+      "cryptoInterest": "low",
+      "wantsDiversification": true,
+      "notes": "High importance on ESG factors; avoids companies involved in significant environmental or social controversies; open to emerging technologies that fit his risk profile."
+    },
+    "blurb": {
+      "en": "41, operations manager. Moderate risk over 8 to 12 years; ESG matters and he avoids companies with significant controversies.",
+      "fr": "41 ans, gestionnaire des opérations. Risque modéré sur 8 à 12 ans; les facteurs ESG comptent et il évite les sociétés aux controverses importantes."
+    },
+    "personaTest": {
+      "en": "Aplomb must use more than return and risk: financial factors and personal preferences together.",
+      "fr": "Aplomb doit aller au-delà du rendement et du risque : facteurs financiers et préférences personnelles ensemble."
+    },
+    "portfolio": {
+      "isFictional": true,
+      "totalValue": 250000.0,
+      "currency": "CAD",
+      "positions": [
+        {
+          "ticker": "ESGV",
+          "weightPct": 28.0
+        },
+        {
+          "ticker": "XBB.TO",
+          "weightPct": 25.0
+        },
+        {
+          "ticker": "AGG",
+          "weightPct": 7.0
+        },
+        {
+          "ticker": "ZST.TO",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "MSFT",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "CNR.TO",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "RY.TO",
+          "weightPct": 5.0
+        },
+        {
+          "ticker": "FTS.TO",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "ATD.TO",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "JNJ",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "PG",
+          "weightPct": 4.0
+        },
+        {
+          "ticker": "GLD",
+          "weightPct": 4.0
+        }
+      ],
+      "updatedAt": "2026-11-14T00:00:00Z"
+    },
+    "rules": [
+      {
+        "ruleId": "cap.position",
+        "code": "R1",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+          "fr": "Aucune action ni cryptoactif au-dessus de {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "Sized from the moderate volatility budget relative to the upper-quartile volatility of single stocks (A-03).",
+          "fr": "Établi à partir du budget de volatilité modéré rapporté à la volatilité du quartile supérieur des actions (A-03)."
+        },
+        "metric": "weight.position.max_single",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 15.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_POSITION_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaStockQ3Pct), 5, 25)",
+          "inputs": {
+            "budgetPct": 12.0,
+            "sigmaStockQ3Pct": 31.22
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "cap.sector",
+        "code": "R2",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No sector above {threshold}% of the portfolio (directly held stocks)",
+          "fr": "Aucun secteur au-dessus de {threshold} % du portefeuille (actions détenues directement)"
+        },
+        "rationale": {
+          "en": "At least two names per sector at the position cap (A-04).",
+          "fr": "Au moins deux titres par secteur au plafond par position (A-04)."
+        },
+        "metric": "weight.sector.max",
+        "target": {
+          "dimension": "sector",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 30.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_SECTOR_CAP",
+          "formula": "min(40, 2 x positionCapPct)",
+          "inputs": {
+            "positionCapPct": 15.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "cap.growth_assets",
+        "code": "R3",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "Stocks, equity funds and crypto together at most {threshold}%",
+          "fr": "Actions, fonds d'actions et crypto ensemble à au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest equity share of a broad reference mix that stays within the volatility budget (A-06).",
+          "fr": "Plus grande part d'actions d'un mélange de référence large qui respecte le budget de volatilité (A-06)."
+        },
+        "metric": "weight.growth_assets",
+        "target": {
+          "dimension": "asset_group",
+          "key": "equity+crypto"
+        },
+        "comparator": "<=",
+        "threshold": 80.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 5.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_GROWTH_CAP",
+          "formula": "max equity share e in 0,5,..,100 with vol(refMix(e)) <= budgetPct",
+          "inputs": {
+            "budgetPct": 12.0,
+            "referenceMix": "50% XIU.TO + 50% SPY, rest XBB.TO"
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "floor.fixed_income",
+        "code": "R4",
+        "type": "floor",
+        "enabled": true,
+        "label": {
+          "en": "Keep bonds and cash at {threshold}% or more",
+          "fr": "Garder obligations et encaisse à {threshold} % ou plus"
+        },
+        "rationale": {
+          "en": "Bonds and cash complement the growth-assets cap (A-06).",
+          "fr": "Obligations et encaisse complètent le plafond des actifs de croissance (A-06)."
+        },
+        "metric": "weight.fixed_income",
+        "target": {
+          "dimension": "asset_group",
+          "key": "fixed_income+cash"
+        },
+        "comparator": ">=",
+        "threshold": 10.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_GROWTH_CAP",
+          "formula": "max(0, 100 - growthCapPct - 10)",
+          "inputs": {
+            "growthCapPct": 80.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "limit.volatility",
+        "code": "R5",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Portfolio volatility at most {threshold}% a year",
+          "fr": "Volatilité du portefeuille d'au plus {threshold} % par an"
+        },
+        "rationale": {
+          "en": "Volatility budget for a moderate risk level (A-02).",
+          "fr": "Budget de volatilité d'un niveau de risque modéré (A-02)."
+        },
+        "metric": "vol.annualized",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 12.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 40.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_VOL_BUDGET",
+          "formula": "budget(riskLevel)",
+          "inputs": {
+            "riskLevel": "moderate",
+            "budgetPct": 12.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "limit.stress_2022",
+        "code": "R6",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "A repeat of 2022 may cost at most {threshold}% of the portfolio",
+          "fr": "Une répétition de 2022 peut coûter au plus {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "A shorter horizon leaves less time to recover from a 2022-like year (A-07).",
+          "fr": "Un horizon plus court laisse moins de temps pour se remettre d'une année comme 2022 (A-07)."
+        },
+        "metric": "stress.replay_2022",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 15.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 1.0,
+          "max": 60.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_STRESS_LIMIT",
+          "formula": "budgetPct x m(horizonMidpointYears)",
+          "inputs": {
+            "budgetPct": 12.0,
+            "horizonMidpointYears": 10.0,
+            "multiplier": 1.25
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "limit.drawdown",
+        "code": "R7",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Largest historical peak-to-trough fall at most {threshold}%",
+          "fr": "Plus forte baisse historique d'un sommet à un creux d'au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest tolerated fall set at twice the volatility budget (A-08).",
+          "fr": "Plus forte baisse tolérée fixée au double du budget de volatilité (A-08)."
+        },
+        "metric": "drawdown.max",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 24.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 80.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+          "formula": "2 x budgetPct",
+          "inputs": {
+            "budgetPct": 12.0
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "cap.asset_class.crypto",
+        "code": "R8",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "Crypto assets at most {threshold}%",
+          "fr": "Cryptoactifs à au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Formula cap of 10% halved because Mateo has little interest in speculative assets (A-05).",
+          "fr": "Plafond calculé de 10 % réduit de moitié, car Mateo s'intéresse peu aux actifs spéculatifs (A-05)."
+        },
+        "metric": "weight.asset_group",
+        "target": {
+          "dimension": "asset_group",
+          "key": "crypto"
+        },
+        "comparator": "<=",
+        "threshold": 5.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_CRYPTO_CAP",
+          "formula": "floor5(clamp(round5(100 x 0.4 x budgetPct / sigmaCryptoMedianPct), 0, 25) / 2)",
+          "inputs": {
+            "budgetPct": 12.0,
+            "sigmaCryptoMedianPct": 59.97,
+            "halved": "true"
+          },
+          "dataVersion": "snap-20261113-starter",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "exclude.sector.energy",
+        "code": "R9",
+        "type": "exclude",
+        "enabled": true,
+        "label": {
+          "en": "No directly held Energy-sector companies",
+          "fr": "Aucune société du secteur Énergie détenue directement"
+        },
+        "rationale": {
+          "en": "Our reading of his wish to avoid environmental controversies: no direct Energy holdings (A-11, editable).",
+          "fr": "Notre lecture de son souhait d'éviter les controverses environnementales : aucune action du secteur Énergie (A-11, modifiable)."
+        },
+        "metric": "weight.sector",
+        "target": {
+          "dimension": "sector",
+          "key": "Energy"
+        },
+        "comparator": "==",
+        "threshold": 0.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": null,
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "evidence.controversy",
+        "code": "R10",
+        "type": "evidence",
+        "enabled": true,
+        "label": {
+          "en": "No company involved in a significant environmental or social controversy (needs outside evidence)",
+          "fr": "Aucune société impliquée dans une controverse environnementale ou sociale importante (exige des preuves externes)"
+        },
+        "rationale": {
+          "en": "He avoids companies with significant controversies (brief p.6); this needs outside evidence.",
+          "fr": "Il évite les sociétés aux controverses importantes (énoncé p. 6); cela exige des preuves externes."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "flag.attention",
+        "code": "R11",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show when the requested asset is drawing unusual public attention",
+          "fr": "Signaler quand l'actif demandé attire une attention publique inhabituelle"
+        },
+        "rationale": {
+          "en": "Public attention is context, never a verdict on its own (A-19).",
+          "fr": "L'attention du public est un contexte, jamais un verdict à elle seule (A-19)."
+        },
+        "metric": "attention.pageviews_ratio",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "ratio",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "flag.rate_cycle",
+        "code": "R12",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show how the portfolio behaved while interest rates rose",
+          "fr": "Montrer le comportement du portefeuille pendant la hausse des taux"
+        },
+        "rationale": {
+          "en": "The rate-hiking cycle is replayed for information only (A-23).",
+          "fr": "Le cycle de hausse des taux est rejoué à titre informatif seulement (A-23)."
+        },
+        "metric": "stress.rate_cycle",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "pct",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      },
+      {
+        "ruleId": "sim.only",
+        "code": "R13",
+        "type": "sim",
+        "enabled": true,
+        "label": {
+          "en": "Simulation only: no order is ever placed",
+          "fr": "Simulation seulement : aucun ordre n'est jamais passé"
+        },
+        "rationale": {
+          "en": "Aplomb is a simulation with fictional profiles; it never places orders.",
+          "fr": "Aplomb est une simulation avec des profils fictifs; il ne passe jamais d'ordres."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": false,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-14T00:00:00Z"
+      }
+    ],
+    "version": 1,
+    "createdAt": "2026-11-14T00:00:00Z",
+    "updatedAt": "2026-11-14T00:00:00Z"
+  }
+]
