@@ -1,0 +1,3178 @@
+{
+  "runId": "run_01JCQ000000000000000000001",
+  "kind": "decision",
+  "status": "succeeded",
+  "sessionId": "s_00000000-0000-4000-8000-000000000001",
+  "profileId": "robert",
+  "parentRunId": null,
+  "lang": "en",
+  "asOf": "2026-11-12",
+  "dataVersion": "snap-20261113-starter",
+  "input": {
+    "kind": "decision",
+    "request": {
+      "type": "move",
+      "move": {
+        "ticker": "TSLA",
+        "sizePct": 25,
+        "funding": {
+          "mode": "pro_rata"
+        }
+      }
+    },
+    "originalText": "Development fixture: add twenty-five points TSLA",
+    "window": {
+      "code": "full"
+    }
+  },
+  "steps": [
+    {
+      "seq": 1,
+      "type": "plan",
+      "iteration": 1,
+      "agent": "planner",
+      "actor": "llm",
+      "status": "done",
+      "startedAt": "2026-11-14T21:30:00Z",
+      "endedAt": "2026-11-14T21:30:00Z",
+      "durationMs": 0,
+      "summary": {
+        "en": "Development fixture: illustrative step; no execution took place.",
+        "fr": "Development fixture: illustrative step; no execution took place."
+      },
+      "model": "fixture-no-model-executed",
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "toolCalls": [],
+      "factIds": [],
+      "evidenceIds": []
+    },
+    {
+      "seq": 2,
+      "type": "quant",
+      "iteration": 1,
+      "agent": "quant",
+      "actor": "code",
+      "status": "done",
+      "startedAt": "2026-11-14T21:30:00Z",
+      "endedAt": "2026-11-14T21:30:00Z",
+      "durationMs": 0,
+      "summary": {
+        "en": "Development fixture: illustrative step; no execution took place.",
+        "fr": "Development fixture: illustrative step; no execution took place."
+      },
+      "model": null,
+      "usage": null,
+      "toolCalls": [],
+      "factIds": [
+        "F-001",
+        "F-002",
+        "F-003",
+        "F-004",
+        "F-005",
+        "F-006",
+        "F-007",
+        "F-008",
+        "F-009",
+        "F-010",
+        "F-011",
+        "F-012",
+        "F-013",
+        "F-014",
+        "F-015",
+        "F-016",
+        "F-017",
+        "F-018",
+        "F-019",
+        "F-020",
+        "F-021",
+        "F-022",
+        "F-023",
+        "F-024",
+        "F-025",
+        "F-026",
+        "F-027",
+        "F-028",
+        "F-029",
+        "F-030",
+        "F-031",
+        "F-032"
+      ],
+      "evidenceIds": []
+    },
+    {
+      "seq": 3,
+      "type": "risk_check",
+      "iteration": 1,
+      "agent": "risk_officer",
+      "actor": "code",
+      "status": "done",
+      "startedAt": "2026-11-14T21:30:00Z",
+      "endedAt": "2026-11-14T21:30:00Z",
+      "durationMs": 0,
+      "summary": {
+        "en": "Development fixture: illustrative step; no execution took place.",
+        "fr": "Development fixture: illustrative step; no execution took place."
+      },
+      "model": null,
+      "usage": null,
+      "toolCalls": [],
+      "factIds": [],
+      "evidenceIds": []
+    },
+    {
+      "seq": 4,
+      "type": "write",
+      "iteration": 1,
+      "agent": "writer",
+      "actor": "llm",
+      "status": "done",
+      "startedAt": "2026-11-14T21:30:00Z",
+      "endedAt": "2026-11-14T21:30:00Z",
+      "durationMs": 0,
+      "summary": {
+        "en": "Development fixture: illustrative step; no execution took place.",
+        "fr": "Development fixture: illustrative step; no execution took place."
+      },
+      "model": "fixture-no-model-executed",
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "toolCalls": [],
+      "factIds": [],
+      "evidenceIds": []
+    },
+    {
+      "seq": 5,
+      "type": "audit",
+      "iteration": 1,
+      "agent": "auditor",
+      "actor": "code+llm",
+      "status": "done",
+      "startedAt": "2026-11-14T21:30:00Z",
+      "endedAt": "2026-11-14T21:30:00Z",
+      "durationMs": 0,
+      "summary": {
+        "en": "Development fixture: illustrative step; no execution took place.",
+        "fr": "Development fixture: illustrative step; no execution took place."
+      },
+      "model": "fixture-no-model-executed",
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "toolCalls": [],
+      "factIds": [],
+      "evidenceIds": []
+    },
+    {
+      "seq": 6,
+      "type": "sign",
+      "iteration": 1,
+      "agent": "auditor",
+      "actor": "code",
+      "status": "done",
+      "startedAt": "2026-11-14T21:30:00Z",
+      "endedAt": "2026-11-14T21:30:00Z",
+      "durationMs": 0,
+      "summary": {
+        "en": "Development fixture: illustrative step; no execution took place.",
+        "fr": "Development fixture: illustrative step; no execution took place."
+      },
+      "model": null,
+      "usage": null,
+      "toolCalls": [],
+      "factIds": [],
+      "evidenceIds": []
+    }
+  ],
+  "facts": {
+    "F-001": {
+      "id": "F-001",
+      "key": "vol.annualized|portfolio:robert|before|full",
+      "kind": "computed",
+      "metric": "vol.annualized",
+      "label": {
+        "en": "vol.annualized: robert, before",
+        "fr": "vol.annualized: robert, before"
+      },
+      "value": 6.092091393112635,
+      "unit": "pct",
+      "currency": "CAD",
+      "display": {
+        "en": "6.09%",
+        "fr": "6.09%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "before"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_VOL_STDEV_252",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-002": {
+      "id": "F-002",
+      "key": "drawdown.max|portfolio:robert|before|full",
+      "kind": "computed",
+      "metric": "drawdown.max",
+      "label": {
+        "en": "drawdown.max: robert, before",
+        "fr": "drawdown.max: robert, before"
+      },
+      "value": 9.59522442170634,
+      "unit": "pct",
+      "currency": "CAD",
+      "display": {
+        "en": "9.60%",
+        "fr": "9.60%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "before"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_MDD_PEAK_TROUGH",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-003": {
+      "id": "F-003",
+      "key": "stress.replay_2022|portfolio:robert|before|full",
+      "kind": "scenario",
+      "metric": "stress.replay_2022",
+      "label": {
+        "en": "stress.replay_2022: robert, before",
+        "fr": "stress.replay_2022: robert, before"
+      },
+      "value": -4.700577172016784,
+      "unit": "pct",
+      "currency": "CAD",
+      "display": {
+        "en": "-4.70%",
+        "fr": "-4.70%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "before"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_STRESS_REPLAY",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-004": {
+      "id": "F-004",
+      "key": "vol.annualized|portfolio:robert|after|full",
+      "kind": "computed",
+      "metric": "vol.annualized",
+      "label": {
+        "en": "vol.annualized: robert, after",
+        "fr": "vol.annualized: robert, after"
+      },
+      "value": 16.964915201736055,
+      "unit": "pct",
+      "currency": "CAD",
+      "display": {
+        "en": "16.96%",
+        "fr": "16.96%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_VOL_STDEV_252",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-005": {
+      "id": "F-005",
+      "key": "drawdown.max|portfolio:robert|after|full",
+      "kind": "computed",
+      "metric": "drawdown.max",
+      "label": {
+        "en": "drawdown.max: robert, after",
+        "fr": "drawdown.max: robert, after"
+      },
+      "value": 25.312075868699992,
+      "unit": "pct",
+      "currency": "CAD",
+      "display": {
+        "en": "25.31%",
+        "fr": "25.31%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_MDD_PEAK_TROUGH",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-006": {
+      "id": "F-006",
+      "key": "stress.replay_2022|portfolio:robert|after|full",
+      "kind": "scenario",
+      "metric": "stress.replay_2022",
+      "label": {
+        "en": "stress.replay_2022: robert, after",
+        "fr": "stress.replay_2022: robert, after"
+      },
+      "value": -21.879138818505805,
+      "unit": "pct",
+      "currency": "CAD",
+      "display": {
+        "en": "-21.88%",
+        "fr": "-21.88%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_STRESS_REPLAY",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-007": {
+      "id": "F-007",
+      "key": "weight.position.max_single|portfolio:robert|after|full",
+      "kind": "computed",
+      "metric": "weight.position.max_single",
+      "label": {
+        "en": "weight.position.max_single: robert, after",
+        "fr": "weight.position.max_single: robert, after"
+      },
+      "value": 25,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "25.00%",
+        "fr": "25.00%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_WEIGHTS_AFTER_MOVE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-008": {
+      "id": "F-008",
+      "key": "threshold.rule|rule:cap.position|na|full",
+      "kind": "assumption",
+      "metric": "threshold.rule",
+      "label": {
+        "en": "threshold.rule: cap.position, na",
+        "fr": "threshold.rule: cap.position, na"
+      },
+      "value": 10,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "10.00%",
+        "fr": "10.00%"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "cap.position",
+        "variant": "na"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_PROFILE_ASSUMPTION",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "profile",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-009": {
+      "id": "F-009",
+      "key": "weight.sector.max|portfolio:robert|after|full",
+      "kind": "computed",
+      "metric": "weight.sector.max",
+      "label": {
+        "en": "weight.sector.max: robert, after",
+        "fr": "weight.sector.max: robert, after"
+      },
+      "value": 25,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "25.00%",
+        "fr": "25.00%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_WEIGHTS_AFTER_MOVE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-010": {
+      "id": "F-010",
+      "key": "threshold.rule|rule:cap.sector|na|full",
+      "kind": "assumption",
+      "metric": "threshold.rule",
+      "label": {
+        "en": "threshold.rule: cap.sector, na",
+        "fr": "threshold.rule: cap.sector, na"
+      },
+      "value": 20,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "20.00%",
+        "fr": "20.00%"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "cap.sector",
+        "variant": "na"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_PROFILE_ASSUMPTION",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "profile",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-011": {
+      "id": "F-011",
+      "key": "weight.growth_assets|portfolio:robert|after|full",
+      "kind": "computed",
+      "metric": "weight.growth_assets",
+      "label": {
+        "en": "weight.growth_assets: robert, after",
+        "fr": "weight.growth_assets: robert, after"
+      },
+      "value": 60.25,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "60.25%",
+        "fr": "60.25%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_WEIGHTS_AFTER_MOVE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-012": {
+      "id": "F-012",
+      "key": "threshold.rule|rule:cap.growth_assets|na|full",
+      "kind": "assumption",
+      "metric": "threshold.rule",
+      "label": {
+        "en": "threshold.rule: cap.growth_assets, na",
+        "fr": "threshold.rule: cap.growth_assets, na"
+      },
+      "value": 55,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "55.00%",
+        "fr": "55.00%"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "cap.growth_assets",
+        "variant": "na"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_PROFILE_ASSUMPTION",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "profile",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-013": {
+      "id": "F-013",
+      "key": "weight.fixed_income|portfolio:robert|after|full",
+      "kind": "computed",
+      "metric": "weight.fixed_income",
+      "label": {
+        "en": "weight.fixed_income: robert, after",
+        "fr": "weight.fixed_income: robert, after"
+      },
+      "value": 37.5,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "37.50%",
+        "fr": "37.50%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_WEIGHTS_AFTER_MOVE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-014": {
+      "id": "F-014",
+      "key": "threshold.rule|rule:floor.fixed_income|na|full",
+      "kind": "assumption",
+      "metric": "threshold.rule",
+      "label": {
+        "en": "threshold.rule: floor.fixed_income, na",
+        "fr": "threshold.rule: floor.fixed_income, na"
+      },
+      "value": 35,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "35.00%",
+        "fr": "35.00%"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "floor.fixed_income",
+        "variant": "na"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_PROFILE_ASSUMPTION",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "profile",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-015": {
+      "id": "F-015",
+      "key": "threshold.rule|rule:limit.volatility|na|full",
+      "kind": "assumption",
+      "metric": "threshold.rule",
+      "label": {
+        "en": "threshold.rule: limit.volatility, na",
+        "fr": "threshold.rule: limit.volatility, na"
+      },
+      "value": 9,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "9.00%",
+        "fr": "9.00%"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "limit.volatility",
+        "variant": "na"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_PROFILE_ASSUMPTION",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "profile",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-016": {
+      "id": "F-016",
+      "key": "stress.replay_2022|portfolio:robert|after:loss|full",
+      "kind": "scenario",
+      "metric": "stress.replay_2022",
+      "label": {
+        "en": "stress.replay_2022: robert, after:loss",
+        "fr": "stress.replay_2022: robert, after:loss"
+      },
+      "value": 21.879138818505805,
+      "unit": "pct",
+      "currency": "CAD",
+      "display": {
+        "en": "21.88%",
+        "fr": "21.88%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after:loss"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_STRESS_REPLAY",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [
+        "F-006"
+      ],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-017": {
+      "id": "F-017",
+      "key": "threshold.rule|rule:limit.stress_2022|na|full",
+      "kind": "assumption",
+      "metric": "threshold.rule",
+      "label": {
+        "en": "threshold.rule: limit.stress_2022, na",
+        "fr": "threshold.rule: limit.stress_2022, na"
+      },
+      "value": 9,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "9.00%",
+        "fr": "9.00%"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "limit.stress_2022",
+        "variant": "na"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_PROFILE_ASSUMPTION",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "profile",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-018": {
+      "id": "F-018",
+      "key": "threshold.rule|rule:limit.drawdown|na|full",
+      "kind": "assumption",
+      "metric": "threshold.rule",
+      "label": {
+        "en": "threshold.rule: limit.drawdown, na",
+        "fr": "threshold.rule: limit.drawdown, na"
+      },
+      "value": 18,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "18.00%",
+        "fr": "18.00%"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "limit.drawdown",
+        "variant": "na"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_PROFILE_ASSUMPTION",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "profile",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-019": {
+      "id": "F-019",
+      "key": "weight.asset_group|portfolio:robert|after|full",
+      "kind": "computed",
+      "metric": "weight.asset_group",
+      "label": {
+        "en": "weight.asset_group: robert, after",
+        "fr": "weight.asset_group: robert, after"
+      },
+      "value": 0,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "0.00%",
+        "fr": "0.00%"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_WEIGHTS_AFTER_MOVE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-020": {
+      "id": "F-020",
+      "key": "threshold.rule|rule:exclude.asset_class.crypto|na|full",
+      "kind": "assumption",
+      "metric": "threshold.rule",
+      "label": {
+        "en": "threshold.rule: exclude.asset_class.crypto, na",
+        "fr": "threshold.rule: exclude.asset_class.crypto, na"
+      },
+      "value": 0,
+      "unit": "pct",
+      "currency": null,
+      "display": {
+        "en": "0.00%",
+        "fr": "0.00%"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "exclude.asset_class.crypto",
+        "variant": "na"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_PROFILE_ASSUMPTION",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "profile",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-021": {
+      "id": "F-021",
+      "key": "count.rules|rule:cap.position|after:status:conflict|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: cap.position, after:status:conflict",
+        "fr": "count.rules: cap.position, after:status:conflict"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "cap.position",
+        "variant": "after:status:conflict"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [
+        "F-007",
+        "F-008"
+      ],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-022": {
+      "id": "F-022",
+      "key": "count.rules|rule:cap.sector|after:status:conflict|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: cap.sector, after:status:conflict",
+        "fr": "count.rules: cap.sector, after:status:conflict"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "cap.sector",
+        "variant": "after:status:conflict"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [
+        "F-009",
+        "F-010"
+      ],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-023": {
+      "id": "F-023",
+      "key": "count.rules|rule:cap.growth_assets|after:status:conflict|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: cap.growth_assets, after:status:conflict",
+        "fr": "count.rules: cap.growth_assets, after:status:conflict"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "cap.growth_assets",
+        "variant": "after:status:conflict"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [
+        "F-011",
+        "F-012"
+      ],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-024": {
+      "id": "F-024",
+      "key": "count.rules|rule:floor.fixed_income|after:status:tension|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: floor.fixed_income, after:status:tension",
+        "fr": "count.rules: floor.fixed_income, after:status:tension"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "floor.fixed_income",
+        "variant": "after:status:tension"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [
+        "F-013",
+        "F-014"
+      ],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-025": {
+      "id": "F-025",
+      "key": "count.rules|rule:limit.volatility|after:status:conflict|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: limit.volatility, after:status:conflict",
+        "fr": "count.rules: limit.volatility, after:status:conflict"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "limit.volatility",
+        "variant": "after:status:conflict"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [
+        "F-004",
+        "F-015"
+      ],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-026": {
+      "id": "F-026",
+      "key": "count.rules|rule:limit.stress_2022|after:status:conflict|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: limit.stress_2022, after:status:conflict",
+        "fr": "count.rules: limit.stress_2022, after:status:conflict"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "limit.stress_2022",
+        "variant": "after:status:conflict"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [
+        "F-016",
+        "F-017"
+      ],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-027": {
+      "id": "F-027",
+      "key": "count.rules|rule:limit.drawdown|after:status:conflict|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: limit.drawdown, after:status:conflict",
+        "fr": "count.rules: limit.drawdown, after:status:conflict"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "limit.drawdown",
+        "variant": "after:status:conflict"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [
+        "F-005",
+        "F-018"
+      ],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-028": {
+      "id": "F-028",
+      "key": "count.rules|rule:exclude.asset_class.crypto|after:status:pass|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: exclude.asset_class.crypto, after:status:pass",
+        "fr": "count.rules: exclude.asset_class.crypto, after:status:pass"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "exclude.asset_class.crypto",
+        "variant": "after:status:pass"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [
+        "F-019",
+        "F-020"
+      ],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-029": {
+      "id": "F-029",
+      "key": "count.rules|rule:flag.attention|after:status:info|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: flag.attention, after:status:info",
+        "fr": "count.rules: flag.attention, after:status:info"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "flag.attention",
+        "variant": "after:status:info"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-030": {
+      "id": "F-030",
+      "key": "count.rules|rule:flag.rate_cycle|after:status:info|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: flag.rate_cycle, after:status:info",
+        "fr": "count.rules: flag.rate_cycle, after:status:info"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "flag.rate_cycle",
+        "variant": "after:status:info"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-031": {
+      "id": "F-031",
+      "key": "count.rules|rule:sim.only|after:status:info|full",
+      "kind": "rule_check",
+      "metric": "count.rules",
+      "label": {
+        "en": "count.rules: sim.only, after:status:info",
+        "fr": "count.rules: sim.only, after:status:info"
+      },
+      "value": 1,
+      "unit": "count",
+      "currency": null,
+      "display": {
+        "en": "1",
+        "fr": "1"
+      },
+      "subject": {
+        "type": "rule",
+        "id": "sim.only",
+        "variant": "after:status:info"
+      },
+      "period": null,
+      "window": null,
+      "asOf": "2026-11-12",
+      "availableAt": null,
+      "method": {
+        "id": "M_RULE_COMPARE",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": null,
+      "sources": [],
+      "limitations": [
+        "LIM_THRESHOLDS_ASSUMED"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "rules",
+      "createdAt": "2026-11-14T21:30:00Z"
+    },
+    "F-032": {
+      "id": "F-032",
+      "key": "size.max_compatible|portfolio:robert|after|full",
+      "kind": "scenario",
+      "metric": "size.max_compatible",
+      "label": {
+        "en": "size.max_compatible: robert, after",
+        "fr": "size.max_compatible: robert, after"
+      },
+      "value": 6.0,
+      "unit": "pts",
+      "currency": null,
+      "display": {
+        "en": "6.0",
+        "fr": "6.0"
+      },
+      "subject": {
+        "type": "portfolio",
+        "id": "robert",
+        "variant": "after"
+      },
+      "period": {
+        "start": "2021-11-12",
+        "end": "2026-11-12"
+      },
+      "window": {
+        "code": "full"
+      },
+      "asOf": "2026-11-12",
+      "availableAt": "2026-11-12T23:59:59Z",
+      "method": {
+        "id": "M_MAXSIZE_GRID",
+        "description": {
+          "en": "Data-derived reference calculation; fixture is not a recorded agent execution.",
+          "fr": "Data-derived reference calculation; fixture is not a recorded agent execution."
+        },
+        "params": {}
+      },
+      "inputs": [],
+      "nObs": 1228,
+      "sources": [
+        {
+          "datasetId": "prices_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Yahoo Finance via yfinance",
+          "sourceUrl": "https://finance.yahoo.com",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        },
+        {
+          "datasetId": "fx_usdcad_daily",
+          "dataVersion": "snap-20261113-starter",
+          "sourceName": "Bank of Canada",
+          "sourceUrl": "https://www.bankofcanada.ca/valet/docs",
+          "retrievedOn": "2026-11-13",
+          "licence": "see passport",
+          "rowsRead": null
+        }
+      ],
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL"
+      ],
+      "verification": {
+        "status": "verified",
+        "checks": [
+          {
+            "code": "reference_calculation",
+            "ok": true,
+            "detail": "Computed locally from immutable starter CSVs; no agent or AWS execution asserted."
+          }
+        ]
+      },
+      "createdBy": "quant",
+      "createdAt": "2026-11-14T21:30:00Z"
+    }
+  },
+  "evidence": {},
+  "question": null,
+  "result": {
+    "kind": "decision",
+    "decision": {
+      "request": {
+        "type": "move",
+        "move": {
+          "ticker": "TSLA",
+          "sizePct": 25,
+          "funding": {
+            "mode": "pro_rata"
+          }
+        }
+      },
+      "verdict": "conflict",
+      "counts": {
+        "pass": 1,
+        "tension": 1,
+        "conflict": 6,
+        "nee": 0,
+        "info": 3
+      },
+      "selectedScenarioId": "sc_requested",
+      "scenarios": [
+        {
+          "scenarioId": "sc_requested",
+          "kind": "requested",
+          "label": {
+            "en": "Robert +25 points TSLA, pro-rata",
+            "fr": "Robert +25 points TSLA, pro-rata"
+          },
+          "moves": [
+            {
+              "ticker": "TSLA",
+              "sizePct": 25,
+              "funding": {
+                "mode": "pro_rata"
+              }
+            }
+          ],
+          "verdict": "conflict",
+          "counts": {
+            "pass": 1,
+            "tension": 1,
+            "conflict": 6,
+            "nee": 0,
+            "info": 3
+          },
+          "ruleChecks": [
+            {
+              "ruleId": "cap.position",
+              "code": "R1",
+              "status": "conflict",
+              "value": 25,
+              "threshold": 10,
+              "unit": "pct",
+              "comparator": "<=",
+              "headroom": -15,
+              "worst": {
+                "type": "asset",
+                "id": "TSLA"
+              },
+              "valueFactId": "F-007",
+              "thresholdFactId": "F-008",
+              "detail": {
+                "en": "cap.position: conflict. Development fixture, not a recorded check.",
+                "fr": "cap.position: conflict. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "cap.sector",
+              "code": "R2",
+              "status": "conflict",
+              "value": 25,
+              "threshold": 20,
+              "unit": "pct",
+              "comparator": "<=",
+              "headroom": -5,
+              "worst": {
+                "type": "sector",
+                "id": "Consumer Discretionary"
+              },
+              "valueFactId": "F-009",
+              "thresholdFactId": "F-010",
+              "detail": {
+                "en": "cap.sector: conflict. Development fixture, not a recorded check.",
+                "fr": "cap.sector: conflict. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "cap.growth_assets",
+              "code": "R3",
+              "status": "conflict",
+              "value": 60.25,
+              "threshold": 55,
+              "unit": "pct",
+              "comparator": "<=",
+              "headroom": -5.25,
+              "worst": null,
+              "valueFactId": "F-011",
+              "thresholdFactId": "F-012",
+              "detail": {
+                "en": "cap.growth_assets: conflict. Development fixture, not a recorded check.",
+                "fr": "cap.growth_assets: conflict. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "floor.fixed_income",
+              "code": "R4",
+              "status": "tension",
+              "value": 37.5,
+              "threshold": 35,
+              "unit": "pct",
+              "comparator": ">=",
+              "headroom": 2.5,
+              "worst": null,
+              "valueFactId": "F-013",
+              "thresholdFactId": "F-014",
+              "detail": {
+                "en": "floor.fixed_income: tension. Development fixture, not a recorded check.",
+                "fr": "floor.fixed_income: tension. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "limit.volatility",
+              "code": "R5",
+              "status": "conflict",
+              "value": 16.964915201736055,
+              "threshold": 9,
+              "unit": "pct",
+              "comparator": "<=",
+              "headroom": -7.964915201736055,
+              "worst": null,
+              "valueFactId": "F-004",
+              "thresholdFactId": "F-015",
+              "detail": {
+                "en": "limit.volatility: conflict. Development fixture, not a recorded check.",
+                "fr": "limit.volatility: conflict. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "limit.stress_2022",
+              "code": "R6",
+              "status": "conflict",
+              "value": 21.879138818505805,
+              "threshold": 9,
+              "unit": "pct",
+              "comparator": "<=",
+              "headroom": -12.879138818505805,
+              "worst": null,
+              "valueFactId": "F-016",
+              "thresholdFactId": "F-017",
+              "detail": {
+                "en": "limit.stress_2022: conflict. Development fixture, not a recorded check.",
+                "fr": "limit.stress_2022: conflict. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "limit.drawdown",
+              "code": "R7",
+              "status": "conflict",
+              "value": 25.312075868699992,
+              "threshold": 18,
+              "unit": "pct",
+              "comparator": "<=",
+              "headroom": -7.312075868699992,
+              "worst": null,
+              "valueFactId": "F-005",
+              "thresholdFactId": "F-018",
+              "detail": {
+                "en": "limit.drawdown: conflict. Development fixture, not a recorded check.",
+                "fr": "limit.drawdown: conflict. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "exclude.asset_class.crypto",
+              "code": "R8",
+              "status": "pass",
+              "value": 0,
+              "threshold": 0,
+              "unit": "pct",
+              "comparator": "==",
+              "headroom": null,
+              "worst": null,
+              "valueFactId": "F-019",
+              "thresholdFactId": "F-020",
+              "detail": {
+                "en": "exclude.asset_class.crypto: pass. Development fixture, not a recorded check.",
+                "fr": "exclude.asset_class.crypto: pass. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "flag.attention",
+              "code": "R9",
+              "status": "info",
+              "value": null,
+              "threshold": null,
+              "unit": "ratio",
+              "comparator": "none",
+              "headroom": null,
+              "worst": null,
+              "valueFactId": null,
+              "thresholdFactId": null,
+              "detail": {
+                "en": "flag.attention: info. Development fixture, not a recorded check.",
+                "fr": "flag.attention: info. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "flag.rate_cycle",
+              "code": "R10",
+              "status": "info",
+              "value": null,
+              "threshold": null,
+              "unit": "text",
+              "comparator": "none",
+              "headroom": null,
+              "worst": null,
+              "valueFactId": null,
+              "thresholdFactId": null,
+              "detail": {
+                "en": "flag.rate_cycle: info. Development fixture, not a recorded check.",
+                "fr": "flag.rate_cycle: info. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            },
+            {
+              "ruleId": "sim.only",
+              "code": "R11",
+              "status": "info",
+              "value": null,
+              "threshold": null,
+              "unit": "text",
+              "comparator": "none",
+              "headroom": null,
+              "worst": null,
+              "valueFactId": null,
+              "thresholdFactId": null,
+              "detail": {
+                "en": "sim.only: info. Development fixture, not a recorded check.",
+                "fr": "sim.only: info. Development fixture, not a recorded check."
+              },
+              "neeReason": null,
+              "evidenceIds": []
+            }
+          ],
+          "portfolioAfter": {
+            "variant": "after",
+            "totalValue": 600000,
+            "currency": "CAD",
+            "positions": [
+              {
+                "ticker": "XBB.TO",
+                "weightPct": 22.499999999999996,
+                "name": "iShares Core Canadian Universe Bond Index ETF",
+                "assetClass": "etf_bond",
+                "assetGroup": "fixed_income",
+                "sector": "Bonds (Canada aggregate)",
+                "marketValue": 135000.0
+              },
+              {
+                "ticker": "ZST.TO",
+                "weightPct": 11.249999999999998,
+                "name": "BMO Ultra Short-Term Bond ETF",
+                "assetClass": "etf_bond",
+                "assetGroup": "fixed_income",
+                "sector": "Bonds (Canada ultra short-term)",
+                "marketValue": 67500.0
+              },
+              {
+                "ticker": "AGG",
+                "weightPct": 3.7500000000000004,
+                "name": "iShares Core U.S. Aggregate Bond ETF",
+                "assetClass": "etf_bond",
+                "assetGroup": "fixed_income",
+                "sector": "Bonds (U.S. aggregate)",
+                "marketValue": 22500.000000000004
+              },
+              {
+                "ticker": "XIU.TO",
+                "weightPct": 11.249999999999998,
+                "name": "iShares S&P/TSX 60 Index ETF",
+                "assetClass": "etf_equity",
+                "assetGroup": "equity",
+                "sector": "Broad market (Canada)",
+                "marketValue": 67500.0
+              },
+              {
+                "ticker": "SPY",
+                "weightPct": 7.500000000000001,
+                "name": "SPDR S&P 500 ETF Trust",
+                "assetClass": "etf_equity",
+                "assetGroup": "equity",
+                "sector": "Broad market (U.S.)",
+                "marketValue": 45000.00000000001
+              },
+              {
+                "ticker": "RY.TO",
+                "weightPct": 3.7500000000000004,
+                "name": "Royal Bank of Canada",
+                "assetClass": "equity",
+                "assetGroup": "equity",
+                "sector": "Financials",
+                "marketValue": 22500.000000000004
+              },
+              {
+                "ticker": "FTS.TO",
+                "weightPct": 3.7500000000000004,
+                "name": "Fortis",
+                "assetClass": "equity",
+                "assetGroup": "equity",
+                "sector": "Utilities",
+                "marketValue": 22500.000000000004
+              },
+              {
+                "ticker": "ENB.TO",
+                "weightPct": 3.0,
+                "name": "Enbridge",
+                "assetClass": "equity",
+                "assetGroup": "equity",
+                "sector": "Energy",
+                "marketValue": 18000.0
+              },
+              {
+                "ticker": "JNJ",
+                "weightPct": 3.0,
+                "name": "Johnson & Johnson",
+                "assetClass": "equity",
+                "assetGroup": "equity",
+                "sector": "Health Care",
+                "marketValue": 18000.0
+              },
+              {
+                "ticker": "PG",
+                "weightPct": 3.0,
+                "name": "Procter & Gamble",
+                "assetClass": "equity",
+                "assetGroup": "equity",
+                "sector": "Consumer Staples",
+                "marketValue": 18000.0
+              },
+              {
+                "ticker": "GLD",
+                "weightPct": 2.25,
+                "name": "SPDR Gold Shares",
+                "assetClass": "etf_commodity",
+                "assetGroup": "commodity",
+                "sector": "Gold",
+                "marketValue": 13500.0
+              },
+              {
+                "ticker": "TSLA",
+                "weightPct": 25.0,
+                "name": "Tesla",
+                "assetClass": "equity",
+                "assetGroup": "equity",
+                "sector": "Consumer Discretionary",
+                "marketValue": 150000.0
+              }
+            ],
+            "byAssetGroup": [
+              {
+                "key": "fixed_income",
+                "weightPct": 37.49999999999999
+              },
+              {
+                "key": "equity",
+                "weightPct": 60.25
+              },
+              {
+                "key": "commodity",
+                "weightPct": 2.25
+              }
+            ],
+            "bySector": [
+              {
+                "key": "Financials",
+                "weightPct": 3.7500000000000004
+              },
+              {
+                "key": "Utilities",
+                "weightPct": 3.7500000000000004
+              },
+              {
+                "key": "Energy",
+                "weightPct": 3.0
+              },
+              {
+                "key": "Health Care",
+                "weightPct": 3.0
+              },
+              {
+                "key": "Consumer Staples",
+                "weightPct": 3.0
+              },
+              {
+                "key": "Consumer Discretionary",
+                "weightPct": 25.0
+              }
+            ],
+            "byCountry": [
+              {
+                "key": "CAN",
+                "weightPct": 55.49999999999999
+              },
+              {
+                "key": "USA",
+                "weightPct": 44.5
+              }
+            ],
+            "metrics": {
+              "volatilityPct": 16.964915201736055,
+              "maxDrawdownPct": 25.312075868699992,
+              "stress2022Pct": -21.879138818505805,
+              "factIds": {
+                "volatilityPct": "F-004",
+                "maxDrawdownPct": "F-005",
+                "stress2022Pct": "F-006"
+              }
+            }
+          },
+          "exposure": [],
+          "rationale": {
+            "en": "Requested hypothetical scenario, computed from starter data.",
+            "fr": "Requested hypothetical scenario, computed from starter data."
+          },
+          "isBestFit": true,
+          "rank": 1,
+          "keyFactIds": [
+            "F-004",
+            "F-005",
+            "F-006"
+          ]
+        }
+      ],
+      "portfolioBefore": {
+        "variant": "before",
+        "totalValue": 600000,
+        "currency": "CAD",
+        "positions": [
+          {
+            "ticker": "XBB.TO",
+            "weightPct": 30.0,
+            "name": "iShares Core Canadian Universe Bond Index ETF",
+            "assetClass": "etf_bond",
+            "assetGroup": "fixed_income",
+            "sector": "Bonds (Canada aggregate)",
+            "marketValue": 180000.0
+          },
+          {
+            "ticker": "ZST.TO",
+            "weightPct": 15.0,
+            "name": "BMO Ultra Short-Term Bond ETF",
+            "assetClass": "etf_bond",
+            "assetGroup": "fixed_income",
+            "sector": "Bonds (Canada ultra short-term)",
+            "marketValue": 90000.0
+          },
+          {
+            "ticker": "AGG",
+            "weightPct": 5.0,
+            "name": "iShares Core U.S. Aggregate Bond ETF",
+            "assetClass": "etf_bond",
+            "assetGroup": "fixed_income",
+            "sector": "Bonds (U.S. aggregate)",
+            "marketValue": 30000.0
+          },
+          {
+            "ticker": "XIU.TO",
+            "weightPct": 15.0,
+            "name": "iShares S&P/TSX 60 Index ETF",
+            "assetClass": "etf_equity",
+            "assetGroup": "equity",
+            "sector": "Broad market (Canada)",
+            "marketValue": 90000.0
+          },
+          {
+            "ticker": "SPY",
+            "weightPct": 10.0,
+            "name": "SPDR S&P 500 ETF Trust",
+            "assetClass": "etf_equity",
+            "assetGroup": "equity",
+            "sector": "Broad market (U.S.)",
+            "marketValue": 60000.0
+          },
+          {
+            "ticker": "RY.TO",
+            "weightPct": 5.0,
+            "name": "Royal Bank of Canada",
+            "assetClass": "equity",
+            "assetGroup": "equity",
+            "sector": "Financials",
+            "marketValue": 30000.0
+          },
+          {
+            "ticker": "FTS.TO",
+            "weightPct": 5.0,
+            "name": "Fortis",
+            "assetClass": "equity",
+            "assetGroup": "equity",
+            "sector": "Utilities",
+            "marketValue": 30000.0
+          },
+          {
+            "ticker": "ENB.TO",
+            "weightPct": 4.0,
+            "name": "Enbridge",
+            "assetClass": "equity",
+            "assetGroup": "equity",
+            "sector": "Energy",
+            "marketValue": 24000.0
+          },
+          {
+            "ticker": "JNJ",
+            "weightPct": 4.0,
+            "name": "Johnson & Johnson",
+            "assetClass": "equity",
+            "assetGroup": "equity",
+            "sector": "Health Care",
+            "marketValue": 24000.0
+          },
+          {
+            "ticker": "PG",
+            "weightPct": 4.0,
+            "name": "Procter & Gamble",
+            "assetClass": "equity",
+            "assetGroup": "equity",
+            "sector": "Consumer Staples",
+            "marketValue": 24000.0
+          },
+          {
+            "ticker": "GLD",
+            "weightPct": 3.0,
+            "name": "SPDR Gold Shares",
+            "assetClass": "etf_commodity",
+            "assetGroup": "commodity",
+            "sector": "Gold",
+            "marketValue": 18000.0
+          }
+        ],
+        "byAssetGroup": [
+          {
+            "key": "fixed_income",
+            "weightPct": 50.0
+          },
+          {
+            "key": "equity",
+            "weightPct": 47.0
+          },
+          {
+            "key": "commodity",
+            "weightPct": 3.0
+          }
+        ],
+        "bySector": [
+          {
+            "key": "Financials",
+            "weightPct": 5.0
+          },
+          {
+            "key": "Utilities",
+            "weightPct": 5.0
+          },
+          {
+            "key": "Energy",
+            "weightPct": 4.0
+          },
+          {
+            "key": "Health Care",
+            "weightPct": 4.0
+          },
+          {
+            "key": "Consumer Staples",
+            "weightPct": 4.0
+          }
+        ],
+        "byCountry": [
+          {
+            "key": "CAN",
+            "weightPct": 74.0
+          },
+          {
+            "key": "USA",
+            "weightPct": 26.0
+          }
+        ],
+        "metrics": {
+          "volatilityPct": 6.092091393112635,
+          "maxDrawdownPct": 9.59522442170634,
+          "stress2022Pct": -4.700577172016784,
+          "factIds": {
+            "volatilityPct": "F-001",
+            "maxDrawdownPct": "F-002",
+            "stress2022Pct": "F-003"
+          }
+        }
+      },
+      "maxCompatibleSizePct": 6.0,
+      "fundingOptions": [],
+      "attention": null,
+      "macroContext": [],
+      "brief": {
+        "lang": "en",
+        "sections": [
+          {
+            "id": "facts",
+            "title": {
+              "en": "Facts",
+              "fr": "Facts"
+            },
+            "sentences": [
+              {
+                "id": "S-01",
+                "segments": [
+                  {
+                    "t": "text",
+                    "text": "Hypothetical portfolio volatility is "
+                  },
+                  {
+                    "t": "fact",
+                    "factId": "F-004",
+                    "display": "16.96%"
+                  },
+                  {
+                    "t": "text",
+                    "text": ". Historical drawdown is "
+                  },
+                  {
+                    "t": "fact",
+                    "factId": "F-005",
+                    "display": "25.31%"
+                  },
+                  {
+                    "t": "text",
+                    "text": "."
+                  }
+                ],
+                "audit": {
+                  "status": "verified",
+                  "failedChecks": [],
+                  "note": {
+                    "en": "Illustrative fixture audit only.",
+                    "fr": "Illustrative fixture audit only."
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "assumptions",
+            "title": {
+              "en": "Assumptions",
+              "fr": "Assumptions"
+            },
+            "sentences": [
+              {
+                "id": "S-02",
+                "segments": [
+                  {
+                    "t": "text",
+                    "text": "These editable plan assumptions drive the result: "
+                  },
+                  {
+                    "t": "rule",
+                    "ruleId": "cap.position",
+                    "display": "cap.position"
+                  },
+                  {
+                    "t": "rule",
+                    "ruleId": "cap.sector",
+                    "display": "cap.sector"
+                  },
+                  {
+                    "t": "rule",
+                    "ruleId": "cap.growth_assets",
+                    "display": "cap.growth_assets"
+                  },
+                  {
+                    "t": "rule",
+                    "ruleId": "floor.fixed_income",
+                    "display": "floor.fixed_income"
+                  },
+                  {
+                    "t": "rule",
+                    "ruleId": "limit.volatility",
+                    "display": "limit.volatility"
+                  },
+                  {
+                    "t": "rule",
+                    "ruleId": "limit.stress_2022",
+                    "display": "limit.stress_2022"
+                  },
+                  {
+                    "t": "rule",
+                    "ruleId": "limit.drawdown",
+                    "display": "limit.drawdown"
+                  }
+                ],
+                "audit": {
+                  "status": "verified",
+                  "failedChecks": [],
+                  "note": {
+                    "en": "Illustrative fixture audit only.",
+                    "fr": "Illustrative fixture audit only."
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "limits",
+            "title": {
+              "en": "Limits",
+              "fr": "Limits"
+            },
+            "sentences": [
+              {
+                "id": "S-03",
+                "segments": [
+                  {
+                    "t": "text",
+                    "text": "Development fixture. No agents or AWS services executed. Constant-weight history is a simulation and does not forecast future results."
+                  }
+                ],
+                "audit": {
+                  "status": "verified",
+                  "failedChecks": [],
+                  "note": {
+                    "en": "Illustrative fixture audit only.",
+                    "fr": "Illustrative fixture audit only."
+                  }
+                }
+              },
+              {
+                "id": "S-04",
+                "segments": [
+                  {
+                    "t": "text",
+                    "text": "The available sample and later-selected universe can bias comparisons. Portfolio history applies current weights rebalanced daily. Prices are vendor-adjusted rather than exchange-certified; USD/CAD carries the last available rate, and observations align on the Canadian and US market-calendar intersection."
+                  }
+                ],
+                "audit": {
+                  "status": "verified",
+                  "failedChecks": [],
+                  "note": {
+                    "en": "Illustrative fixture audit only.",
+                    "fr": "Illustrative fixture audit only."
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "disclaimer": {
+          "en": "Simulation only. Fictional profiles. Not financial advice.",
+          "fr": "Simulation uniquement. Profils fictifs. Ceci n'est pas un conseil financier."
+        },
+        "generatedAt": "2026-11-14T21:30:00Z",
+        "model": "fixture-no-model-executed",
+        "audit": {
+          "status": "passed",
+          "checks": [
+            {
+              "code": "A01",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A02",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A03",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A04",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A05",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A06",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A07",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A08",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A09",
+              "ok": true,
+              "kind": "llm",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A11",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A12",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A13",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            },
+            {
+              "code": "A14",
+              "ok": true,
+              "kind": "code",
+              "detail": "Illustrative expected check, not an executed auditor.",
+              "sentenceIds": []
+            }
+          ],
+          "sentencesChecked": 4,
+          "sentencesStruck": 0,
+          "rewrites": 0,
+          "guardrail": {
+            "applied": false,
+            "action": "none",
+            "id": null
+          },
+          "llmReview": {
+            "model": "fixture-no-model-executed",
+            "findings": []
+          },
+          "ledgerHash": "808993a031fa91b8a3b3e26e7af06aef2af6fbe16889a32d691b531790db15f9",
+          "signedAt": "2026-11-14T21:30:00Z"
+        }
+      },
+      "limitations": [
+        "LIM_SAMPLE_WINDOW",
+        "LIM_SURVIVORSHIP",
+        "LIM_CONSTANT_WEIGHTS",
+        "LIM_YAHOO_NOT_CERTIFIED",
+        "LIM_CALENDAR_INTERSECTION",
+        "LIM_FX_FFILL",
+        "LIM_THRESHOLDS_ASSUMED",
+        "LIM_SIMULATION_ONLY"
+      ]
+    }
+  },
+  "error": null,
+  "flags": {
+    "sabotage": null,
+    "fixture": true,
+    "timeMachine": false
+  },
+  "usage": {
+    "llmCalls": 0,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "toolCalls": 0,
+    "durationMs": 0
+  },
+  "createdAt": "2026-11-14T21:30:00Z",
+  "updatedAt": "2026-11-14T21:30:00Z"
+}

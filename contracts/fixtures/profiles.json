@@ -1,0 +1,1654 @@
+{
+  "items": [
+    {
+      "profileId": "robert",
+      "isDefault": true,
+      "origin": "brief",
+      "name": "Robert",
+      "initial": "R",
+      "age": 59,
+      "occupation": "Healthcare professional",
+      "riskLevel": "low_moderate",
+      "horizonYears": {
+        "min": 3,
+        "max": 5
+      },
+      "objective": "preserve",
+      "objectiveText": {
+        "en": "preserve",
+        "fr": "preserve"
+      },
+      "experience": "advanced",
+      "reportingCurrency": "CAD",
+      "preferences": {
+        "themesOfInterest": [],
+        "excludedSectors": [],
+        "excludedAssetClasses": [
+          "crypto"
+        ],
+        "esgFocus": false,
+        "avoidControversies": false,
+        "avoidSpeculative": true,
+        "cryptoInterest": "none",
+        "wantsDiversification": true,
+        "notes": "Fictional fixture profile; capital, holdings and rules are assumptions."
+      },
+      "blurb": {
+        "en": "Fictional persona for development and simulation.",
+        "fr": "Fictional persona for development and simulation."
+      },
+      "personaTest": {
+        "en": "Test the stated plan; preserve uncertainty.",
+        "fr": "Test the stated plan; preserve uncertainty."
+      },
+      "portfolio": {
+        "isFictional": true,
+        "totalValue": 600000,
+        "currency": "CAD",
+        "positions": [
+          {
+            "ticker": "XBB.TO",
+            "weightPct": 30.0
+          },
+          {
+            "ticker": "ZST.TO",
+            "weightPct": 15.0
+          },
+          {
+            "ticker": "AGG",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "XIU.TO",
+            "weightPct": 15.0
+          },
+          {
+            "ticker": "SPY",
+            "weightPct": 10.0
+          },
+          {
+            "ticker": "RY.TO",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "FTS.TO",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "ENB.TO",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "JNJ",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "PG",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "GLD",
+            "weightPct": 3.0
+          }
+        ],
+        "updatedAt": "2026-11-14T21:30:00Z"
+      },
+      "rules": [
+        {
+          "ruleId": "cap.position",
+          "code": "R1",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+            "fr": "No single stock or crypto asset above {threshold}% of the portfolio"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.position.max_single",
+          "target": {
+            "dimension": "position",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 10,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 50,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_POSITION_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 9,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "cap.sector",
+          "code": "R2",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "No direct-equity sector above {threshold}%",
+            "fr": "No direct-equity sector above {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.sector.max",
+          "target": {
+            "dimension": "sector",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 20,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 50,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_SECTOR_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 9,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "cap.growth_assets",
+          "code": "R3",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "Growth assets at most {threshold}%",
+            "fr": "Growth assets at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.growth_assets",
+          "target": {
+            "dimension": "asset_group",
+            "key": "growth"
+          },
+          "comparator": "<=",
+          "threshold": 55,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 0,
+            "max": 100,
+            "step": 5
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_GROWTH_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 9,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "floor.fixed_income",
+          "code": "R4",
+          "type": "floor",
+          "enabled": true,
+          "label": {
+            "en": "Bonds and cash at least {threshold}%",
+            "fr": "Bonds and cash at least {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.fixed_income",
+          "target": {
+            "dimension": "asset_group",
+            "key": "fixed_income"
+          },
+          "comparator": ">=",
+          "threshold": 35,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_GROWTH_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 9,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "limit.volatility",
+          "code": "R5",
+          "type": "limit",
+          "enabled": true,
+          "label": {
+            "en": "Annualized volatility at most {threshold}%",
+            "fr": "Annualized volatility at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "vol.annualized",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 9,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 40,
+            "step": 0.5
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_VOL_BUDGET",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 9,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "limit.stress_2022",
+          "code": "R6",
+          "type": "limit",
+          "enabled": true,
+          "label": {
+            "en": "Historical stress loss at most {threshold}%",
+            "fr": "Historical stress loss at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "stress.replay_2022",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 9,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 1,
+            "max": 60,
+            "step": 0.5
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_STRESS_LIMIT",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 9,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "limit.drawdown",
+          "code": "R7",
+          "type": "limit",
+          "enabled": true,
+          "label": {
+            "en": "Historical drawdown at most {threshold}%",
+            "fr": "Historical drawdown at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "drawdown.max",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 18,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 80,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 9,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "exclude.asset_class.crypto",
+          "code": "R8",
+          "type": "exclude",
+          "enabled": true,
+          "label": {
+            "en": "No crypto assets",
+            "fr": "No crypto assets"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.asset_group",
+          "target": {
+            "dimension": "asset_group",
+            "key": "crypto"
+          },
+          "comparator": "==",
+          "threshold": 0,
+          "unit": "pct",
+          "editable": true,
+          "bounds": null,
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "flag.attention",
+          "code": "R9",
+          "type": "flag",
+          "enabled": true,
+          "label": {
+            "en": "Public attention context",
+            "fr": "Public attention context"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "attention.pageviews_ratio",
+          "target": {
+            "dimension": "none",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "ratio",
+          "editable": true,
+          "bounds": null,
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": false,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "flag.rate_cycle",
+          "code": "R10",
+          "type": "flag",
+          "enabled": true,
+          "label": {
+            "en": "Historical rate-cycle context",
+            "fr": "Historical rate-cycle context"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "stress.rate_cycle",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "text",
+          "editable": true,
+          "bounds": null,
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": false,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "sim.only",
+          "code": "R11",
+          "type": "sim",
+          "enabled": true,
+          "label": {
+            "en": "Simulation only; no orders",
+            "fr": "Simulation only; no orders"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": null,
+          "target": {
+            "dimension": "none",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "text",
+          "editable": false,
+          "bounds": null,
+          "origin": "system",
+          "isAssumption": false,
+          "derivation": null,
+          "countsInVerdict": false,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        }
+      ],
+      "version": 1,
+      "createdAt": "2026-11-14T21:30:00Z",
+      "updatedAt": "2026-11-14T21:30:00Z"
+    },
+    {
+      "profileId": "amira",
+      "isDefault": true,
+      "origin": "brief",
+      "name": "Amira",
+      "initial": "A",
+      "age": 26,
+      "occupation": "Software engineer",
+      "riskLevel": "high",
+      "horizonYears": {
+        "min": 15,
+        "max": null
+      },
+      "objective": "growth",
+      "objectiveText": {
+        "en": "growth",
+        "fr": "growth"
+      },
+      "experience": "intermediate",
+      "reportingCurrency": "CAD",
+      "preferences": {
+        "themesOfInterest": [
+          "ai",
+          "semiconductors",
+          "software",
+          "crypto"
+        ],
+        "excludedSectors": [],
+        "excludedAssetClasses": [],
+        "esgFocus": false,
+        "avoidControversies": false,
+        "avoidSpeculative": false,
+        "cryptoInterest": "open",
+        "wantsDiversification": true,
+        "notes": "Fictional fixture profile; capital, holdings and rules are assumptions."
+      },
+      "blurb": {
+        "en": "Fictional persona for development and simulation.",
+        "fr": "Fictional persona for development and simulation."
+      },
+      "personaTest": {
+        "en": "Test the stated plan; preserve uncertainty.",
+        "fr": "Test the stated plan; preserve uncertainty."
+      },
+      "portfolio": {
+        "isFictional": true,
+        "totalValue": 60000,
+        "currency": "CAD",
+        "positions": [
+          {
+            "ticker": "NVDA",
+            "weightPct": 8.0
+          },
+          {
+            "ticker": "MSFT",
+            "weightPct": 8.0
+          },
+          {
+            "ticker": "GOOGL",
+            "weightPct": 6.0
+          },
+          {
+            "ticker": "SHOP.TO",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "AMZN",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "QQQ",
+            "weightPct": 12.0
+          },
+          {
+            "ticker": "SPY",
+            "weightPct": 12.0
+          },
+          {
+            "ticker": "XIU.TO",
+            "weightPct": 10.0
+          },
+          {
+            "ticker": "BTC-USD",
+            "weightPct": 6.0
+          },
+          {
+            "ticker": "ETH-USD",
+            "weightPct": 3.0
+          },
+          {
+            "ticker": "JPM",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "CNR.TO",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "ATD.TO",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "JNJ",
+            "weightPct": 3.0
+          },
+          {
+            "ticker": "XBB.TO",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "GLD",
+            "weightPct": 5.0
+          }
+        ],
+        "updatedAt": "2026-11-14T21:30:00Z"
+      },
+      "rules": [
+        {
+          "ruleId": "cap.position",
+          "code": "R1",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+            "fr": "No single stock or crypto asset above {threshold}% of the portfolio"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.position.max_single",
+          "target": {
+            "dimension": "position",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 25,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 50,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_POSITION_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 22,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "cap.sector",
+          "code": "R2",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "No direct-equity sector above {threshold}%",
+            "fr": "No direct-equity sector above {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.sector.max",
+          "target": {
+            "dimension": "sector",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 40,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 50,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_SECTOR_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 22,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "cap.asset_class.crypto",
+          "code": "R3",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "Crypto at most {threshold}%",
+            "fr": "Crypto at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.asset_group",
+          "target": {
+            "dimension": "asset_group",
+            "key": "crypto"
+          },
+          "comparator": "<=",
+          "threshold": 15,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 0,
+            "max": 50,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_CRYPTO_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 22,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "floor.diversifiers",
+          "code": "R4",
+          "type": "floor",
+          "enabled": true,
+          "label": {
+            "en": "Diversifiers at least {threshold}%",
+            "fr": "Diversifiers at least {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.diversifiers",
+          "target": {
+            "dimension": "asset_group",
+            "key": "diversifiers"
+          },
+          "comparator": ">=",
+          "threshold": 8,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "limit.volatility",
+          "code": "R5",
+          "type": "limit",
+          "enabled": true,
+          "label": {
+            "en": "Annualized volatility at most {threshold}%",
+            "fr": "Annualized volatility at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "vol.annualized",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 22,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 40,
+            "step": 0.5
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_VOL_BUDGET",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 22,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "limit.stress_2022",
+          "code": "R6",
+          "type": "limit",
+          "enabled": true,
+          "label": {
+            "en": "Historical stress loss at most {threshold}%",
+            "fr": "Historical stress loss at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "stress.replay_2022",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 33,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 1,
+            "max": 60,
+            "step": 0.5
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_STRESS_LIMIT",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 22,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "limit.drawdown",
+          "code": "R7",
+          "type": "limit",
+          "enabled": true,
+          "label": {
+            "en": "Historical drawdown at most {threshold}%",
+            "fr": "Historical drawdown at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "drawdown.max",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 44,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 80,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 22,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "flag.attention",
+          "code": "R8",
+          "type": "flag",
+          "enabled": true,
+          "label": {
+            "en": "Public attention context",
+            "fr": "Public attention context"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "attention.pageviews_ratio",
+          "target": {
+            "dimension": "none",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "ratio",
+          "editable": true,
+          "bounds": null,
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": false,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "flag.rate_cycle",
+          "code": "R9",
+          "type": "flag",
+          "enabled": true,
+          "label": {
+            "en": "Historical rate-cycle context",
+            "fr": "Historical rate-cycle context"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "stress.rate_cycle",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "text",
+          "editable": true,
+          "bounds": null,
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": false,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "sim.only",
+          "code": "R10",
+          "type": "sim",
+          "enabled": true,
+          "label": {
+            "en": "Simulation only; no orders",
+            "fr": "Simulation only; no orders"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": null,
+          "target": {
+            "dimension": "none",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "text",
+          "editable": false,
+          "bounds": null,
+          "origin": "system",
+          "isAssumption": false,
+          "derivation": null,
+          "countsInVerdict": false,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        }
+      ],
+      "version": 1,
+      "createdAt": "2026-11-14T21:30:00Z",
+      "updatedAt": "2026-11-14T21:30:00Z"
+    },
+    {
+      "profileId": "mateo",
+      "isDefault": true,
+      "origin": "brief",
+      "name": "Mateo",
+      "initial": "M",
+      "age": 41,
+      "occupation": "Operations manager",
+      "riskLevel": "moderate",
+      "horizonYears": {
+        "min": 8,
+        "max": 12
+      },
+      "objective": "balanced",
+      "objectiveText": {
+        "en": "balanced",
+        "fr": "balanced"
+      },
+      "experience": "intermediate",
+      "reportingCurrency": "CAD",
+      "preferences": {
+        "themesOfInterest": [],
+        "excludedSectors": [
+          "Energy"
+        ],
+        "excludedAssetClasses": [],
+        "esgFocus": true,
+        "avoidControversies": true,
+        "avoidSpeculative": true,
+        "cryptoInterest": "low",
+        "wantsDiversification": true,
+        "notes": "Fictional fixture profile; capital, holdings and rules are assumptions."
+      },
+      "blurb": {
+        "en": "Fictional persona for development and simulation.",
+        "fr": "Fictional persona for development and simulation."
+      },
+      "personaTest": {
+        "en": "Test the stated plan; preserve uncertainty.",
+        "fr": "Test the stated plan; preserve uncertainty."
+      },
+      "portfolio": {
+        "isFictional": true,
+        "totalValue": 250000,
+        "currency": "CAD",
+        "positions": [
+          {
+            "ticker": "ESGV",
+            "weightPct": 28.000000000000004
+          },
+          {
+            "ticker": "XBB.TO",
+            "weightPct": 25.0
+          },
+          {
+            "ticker": "AGG",
+            "weightPct": 7.000000000000001
+          },
+          {
+            "ticker": "ZST.TO",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "MSFT",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "CNR.TO",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "RY.TO",
+            "weightPct": 5.0
+          },
+          {
+            "ticker": "FTS.TO",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "ATD.TO",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "JNJ",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "PG",
+            "weightPct": 4.0
+          },
+          {
+            "ticker": "GLD",
+            "weightPct": 4.0
+          }
+        ],
+        "updatedAt": "2026-11-14T21:30:00Z"
+      },
+      "rules": [
+        {
+          "ruleId": "cap.position",
+          "code": "R1",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+            "fr": "No single stock or crypto asset above {threshold}% of the portfolio"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.position.max_single",
+          "target": {
+            "dimension": "position",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 15,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 50,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_POSITION_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 12,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "cap.sector",
+          "code": "R2",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "No direct-equity sector above {threshold}%",
+            "fr": "No direct-equity sector above {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.sector.max",
+          "target": {
+            "dimension": "sector",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 30,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 50,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_SECTOR_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 12,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "cap.growth_assets",
+          "code": "R3",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "Growth assets at most {threshold}%",
+            "fr": "Growth assets at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.growth_assets",
+          "target": {
+            "dimension": "asset_group",
+            "key": "growth"
+          },
+          "comparator": "<=",
+          "threshold": 80,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 0,
+            "max": 100,
+            "step": 5
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_GROWTH_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 12,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "floor.fixed_income",
+          "code": "R4",
+          "type": "floor",
+          "enabled": true,
+          "label": {
+            "en": "Bonds and cash at least {threshold}%",
+            "fr": "Bonds and cash at least {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.fixed_income",
+          "target": {
+            "dimension": "asset_group",
+            "key": "fixed_income"
+          },
+          "comparator": ">=",
+          "threshold": 10,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 0,
+            "max": 100,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_GROWTH_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 12,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "limit.volatility",
+          "code": "R5",
+          "type": "limit",
+          "enabled": true,
+          "label": {
+            "en": "Annualized volatility at most {threshold}%",
+            "fr": "Annualized volatility at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "vol.annualized",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 12,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 40,
+            "step": 0.5
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_VOL_BUDGET",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 12,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "limit.stress_2022",
+          "code": "R6",
+          "type": "limit",
+          "enabled": true,
+          "label": {
+            "en": "Historical stress loss at most {threshold}%",
+            "fr": "Historical stress loss at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "stress.replay_2022",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 15,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 1,
+            "max": 60,
+            "step": 0.5
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_STRESS_LIMIT",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 12,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "limit.drawdown",
+          "code": "R7",
+          "type": "limit",
+          "enabled": true,
+          "label": {
+            "en": "Historical drawdown at most {threshold}%",
+            "fr": "Historical drawdown at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "drawdown.max",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "<=",
+          "threshold": 24,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 2,
+            "max": 80,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 12,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "cap.asset_class.crypto",
+          "code": "R8",
+          "type": "cap",
+          "enabled": true,
+          "label": {
+            "en": "Crypto at most {threshold}%",
+            "fr": "Crypto at most {threshold}%"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.asset_group",
+          "target": {
+            "dimension": "asset_group",
+            "key": "crypto"
+          },
+          "comparator": "<=",
+          "threshold": 5,
+          "unit": "pct",
+          "editable": true,
+          "bounds": {
+            "min": 0,
+            "max": 50,
+            "step": 1
+          },
+          "origin": "derived",
+          "isAssumption": true,
+          "derivation": {
+            "methodId": "M_DERIVE_CRYPTO_CAP",
+            "formula": "See optimizer specification, section 3",
+            "inputs": {
+              "volBudgetPct": 12,
+              "sigmaStockQ3Pct": 31.22,
+              "sigmaCryptoMedianPct": 59.97
+            },
+            "dataVersion": "snap-20261113-starter",
+            "window": {
+              "code": "full"
+            }
+          },
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "exclude.sector.energy",
+          "code": "R9",
+          "type": "exclude",
+          "enabled": true,
+          "label": {
+            "en": "No direct Energy-sector companies",
+            "fr": "No direct Energy-sector companies"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "weight.sector",
+          "target": {
+            "dimension": "sector",
+            "key": "Energy"
+          },
+          "comparator": "==",
+          "threshold": 0,
+          "unit": "pct",
+          "editable": true,
+          "bounds": null,
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "evidence.controversy",
+          "code": "R10",
+          "type": "evidence",
+          "enabled": true,
+          "label": {
+            "en": "Controversy evidence requires review",
+            "fr": "Controversy evidence requires review"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": null,
+          "target": {
+            "dimension": "none",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "text",
+          "editable": true,
+          "bounds": null,
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": true,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "flag.attention",
+          "code": "R11",
+          "type": "flag",
+          "enabled": true,
+          "label": {
+            "en": "Public attention context",
+            "fr": "Public attention context"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "attention.pageviews_ratio",
+          "target": {
+            "dimension": "none",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "ratio",
+          "editable": true,
+          "bounds": null,
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": false,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "flag.rate_cycle",
+          "code": "R12",
+          "type": "flag",
+          "enabled": true,
+          "label": {
+            "en": "Historical rate-cycle context",
+            "fr": "Historical rate-cycle context"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": "stress.rate_cycle",
+          "target": {
+            "dimension": "portfolio",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "text",
+          "editable": true,
+          "bounds": null,
+          "origin": "profile_preference",
+          "isAssumption": true,
+          "derivation": null,
+          "countsInVerdict": false,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        },
+        {
+          "ruleId": "sim.only",
+          "code": "R13",
+          "type": "sim",
+          "enabled": true,
+          "label": {
+            "en": "Simulation only; no orders",
+            "fr": "Simulation only; no orders"
+          },
+          "rationale": {
+            "en": "Fictional plan assumption; see decision log and profile specification.",
+            "fr": "Fictional plan assumption; see decision log and profile specification."
+          },
+          "metric": null,
+          "target": {
+            "dimension": "none",
+            "key": null
+          },
+          "comparator": "none",
+          "threshold": null,
+          "unit": "text",
+          "editable": false,
+          "bounds": null,
+          "origin": "system",
+          "isAssumption": false,
+          "derivation": null,
+          "countsInVerdict": false,
+          "updatedAt": "2026-11-14T21:30:00Z"
+        }
+      ],
+      "version": 1,
+      "createdAt": "2026-11-14T21:30:00Z",
+      "updatedAt": "2026-11-14T21:30:00Z"
+    }
+  ]
+}

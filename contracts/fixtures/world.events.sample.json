@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "eventId": "evt_d0215c40fba9",
+      "title": "Bank of Canada target-rate observation in starter data",
+      "category": "monetary_policy",
+      "occurredAt": "2023-07-13",
+      "publishedAt": null,
+      "location": {
+        "lat": 45.4215,
+        "lon": -75.6972,
+        "countryIso3": "CAN",
+        "placeName": "Ottawa",
+        "precision": "city"
+      },
+      "origin": "curated",
+      "sources": [
+        {
+          "publisher": "Bank of Canada Valet (starter snapshot)",
+          "title": "V39079 target-rate observation; not an announcement-time claim",
+          "url": "https://www.bankofcanada.ca/valet/observations/V39079/json?start_date=2023-07-13&end_date=2023-07-13",
+          "publishedAt": null,
+          "sourceType": "data",
+          "lang": "en"
+        }
+      ],
+      "sourceCount": 1,
+      "importance": 0.07,
+      "relatedTickers": [],
+      "relatedThemes": [],
+      "relatedCountries": [
+        "CAN"
+      ],
+      "datasetId": "world_events",
+      "dataVersion": "snap-20261113-starter"
+    }
+  ],
+  "nextCursor": null,
+  "total": 1,
+  "coverage": {
+    "start": "2023-07-13",
+    "end": "2023-07-13"
+  },
+  "dataVersion": "snap-20261113-starter"
+}
