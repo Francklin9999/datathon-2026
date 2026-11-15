@@ -100,7 +100,9 @@ def publish_global_fx(data_root: Path, base_version: str, new_version: str, payl
     normalized, fx_meta = normalize_capture(payload, metadata, base.data_as_of)
     target_manifest = data_root / 'manifests' / f'{new_version}.json'
     targets = [data_root / 'raw' / new_version, data_root / 'normalized' / new_version, target_manifest]
-    expected = json.loads(target_manifest.read_text()) if target_manifest.exists() else None
+    # Manifests are UTF-8 (check names hold a section sign and an intersection sign); the platform
+    # default encoding (cp1252 on Windows) would garble them and the rebuilt manifest would never match.
+    expected = json.loads(target_manifest.read_text(encoding='utf-8')) if target_manifest.exists() else None
     if any(path.exists() for path in targets[:2]):
         raise SnapshotIntegrityError(f'snapshot {new_version} already exists')
     staging = data_root / '.staging' / f'{new_version}.{secrets.token_hex(6)}'
@@ -142,7 +144,8 @@ def publish_global_fx(data_root: Path, base_version: str, new_version: str, payl
         os.replace(norm_dir, targets[1])
         target_manifest.parent.mkdir(parents=True, exist_ok=True)
         tmp = target_manifest.with_name('.' + target_manifest.name + '.' + secrets.token_hex(4) + '.tmp')
-        tmp.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+        # LF on every platform: when data/ is also the reference (dev:api), this rewrites a tracked manifest.
+        tmp.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + '\n', encoding='utf-8', newline='\n')
         os.replace(tmp, target_manifest)
         LocalDataStore(data_root).open(new_version)
         return manifest
@@ -159,17 +162,17 @@ def materialize_pinned_global_fx(data_root: Path, reference_data: Path, version:
     from .ingest import ingest_starter
 
     data_root, reference_data = Path(data_root), Path(reference_data)
-    pinned = json.loads((reference_data / 'manifests' / f'{version}.json').read_text())
+    pinned = json.loads((reference_data / 'manifests' / f'{version}.json').read_text(encoding='utf-8'))
     parent = pinned['parentVersion']
     for label in (parent, version):
-        expected = json.loads((reference_data / 'manifests' / f'{label}.json').read_text())
+        expected = json.loads((reference_data / 'manifests' / f'{label}.json').read_text(encoding='utf-8'))
         path = data_root / 'manifests' / f'{label}.json'
         if path.exists():
-            if json.loads(path.read_text()) != expected:
+            if json.loads(path.read_text(encoding='utf-8')) != expected:
                 raise SnapshotIntegrityError(f'{label}: existing manifest differs from the pinned reference')
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(json.dumps(expected, indent=2) + '\n')
+            path.write_text(json.dumps(expected, indent=2) + '\n', encoding='utf-8', newline='\n')
     ingest_starter(reference_data.parent / 'Datathon2026' / 'alphaforge_starter', data_root, parent,
                    metadata_dir=reference_data / 'inputs' / parent, activate=False)
     if (data_root / 'normalized' / version).exists():
@@ -181,4 +184,4 @@ def materialize_pinned_global_fx(data_root: Path, reference_data: Path, version:
         raise SnapshotIntegrityError('invalid pinned FX capture reference')
     capture = reference_data / 'inputs' / folder
     return publish_global_fx(data_root, parent, version, read_capture(capture / f'{stem}.json.gz'),
-                             json.loads((capture / f'{stem}.metadata.json').read_text()))
+                             json.loads((capture / f'{stem}.metadata.json').read_text(encoding='utf-8')))
