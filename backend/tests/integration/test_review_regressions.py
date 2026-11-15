@@ -360,7 +360,7 @@ def test_macro_facts_are_labelled_in_both_languages_and_an_index_is_not_a_ratio(
     assert all(f["label"]["fr"] != f["label"]["en"] and f["unit"] == "pct" for f in canada)
 
 
-@pytest.mark.parametrize("role", ["writer", "auditor"])
+@pytest.mark.parametrize("role", ["auditor"])  # the false sentence is code-built: no writer call to crash
 def test_sabotage_worker_resumes_after_model_crash(role):
     gateway = CrashingGateway()
     harness = Harness(gateway)
@@ -371,26 +371,25 @@ def test_sabotage_worker_resumes_after_model_crash(role):
     child_id = harness.coordinator.sabotage(harness.session, parent, a.SabotageRequest(mode="invented_number", lang="en")).run_id
     child, crashes = harness.drive(child_id)
     assert crashes == 1 and child.status == "succeeded", child.error
-    assert child.result.sabotage.caught is False
+    assert child.result.sabotage.caught is True
     assert harness.runs.get(harness.session, parent.run_id).run.to_wire() == old_parent
 
 
-@pytest.mark.parametrize("mode,attempt", [
-    ("false_comparison", "{{fact:F-001}} is higher than {{fact:F-002}}."),
-    ("unsupported_interpretation", "Guaranteed future returns."),
-])
-def test_sabotage_modes_run_with_scripted_writer(mode, attempt):
+@pytest.mark.parametrize("mode", ["invented_number", "false_comparison", "unsupported_interpretation"])
+def test_sabotage_modes_never_ask_the_writer_to_lie(mode):
+    asked = []
+
     def writer(message):
-        result = default_draft(message)
-        if "controlled test" in message.get("instruction", ""):
-            result["sections"][0]["sentences"].append({"id": "S-INJECTED", "template": attempt})
-        return result
+        asked.append(message)
+        return default_draft(message)
 
     harness = Harness(ScriptedGateway(writer=writer))
     parent, _ = harness.drive(harness.create(decision_body()))
     assert parent.status == "succeeded"
+    before = len(asked)
     child_id = harness.coordinator.sabotage(harness.session, parent, a.SabotageRequest(mode=mode, lang="en")).run_id
     child, _ = harness.drive(child_id)
     assert child.status == "succeeded", child.error
+    assert len(asked) == before
     assert child.result.sabotage.caught
     assert child.result.sabotage.failed_checks

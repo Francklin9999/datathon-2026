@@ -601,8 +601,8 @@ def sabotage_caught(
 ) -> bool:
     """No claimed catch without an actual offending sentence and failed check.
 
-    Writer refusal must pass an empty injected_sentence_ids set. The workflow owns
-    the exact extra instruction and demonstration label and invokes a real writer.
+    The workflow inserts the labelled false sentence itself (built by code from verified
+    facts) and runs the real audit; only a failed check on that struck sentence counts.
     """
     struck = {s.id for sec in sections for s in sec.sentences if s.audit.status == "struck"}
     return any(

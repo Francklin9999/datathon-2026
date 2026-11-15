@@ -353,3 +353,12 @@ details.section-fold, details.compare-fold { background: var(--glass-card); bord
 details.section-fold > summary, details.compare-fold > summary { min-height: 56px; padding: 0 22px; font-size: 16px; font-weight: 600; color: var(--text); border-radius: var(--r-card); }
 details.section-fold > .fold-body, details.compare-fold > .fold-body { padding: 0 22px 22px; }
 .runs-table { margin-top: 14px; }
+
+/* Sabotage test result: verdict banner, the inserted sentence, and its raw form. */
+.sabotage-verdict { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--conflict-line); background: var(--conflict-bg); margin-bottom: 14px; }
+.sabotage-verdict.is-caught { border-color: var(--pass-line); background: var(--pass-bg); }
+.sabotage-verdict-mark { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; font-weight: 700; font-size: 18px; color: var(--conflict-fg); border: 2px solid currentColor; }
+.sabotage-verdict.is-caught .sabotage-verdict-mark { color: var(--pass-fg); }
+.sabotage-verdict-title { margin: 0 0 4px; font-weight: 600; font-size: 16px; color: var(--text); }
+.sabotage-sentence { padding: 10px 14px; border-radius: 12px; border-left: 3px solid var(--conflict-fg); background: var(--glass-inset); margin-bottom: 12px; }
+.sabotage-raw-injected { color: var(--conflict-fg); }

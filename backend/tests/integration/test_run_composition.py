@@ -402,22 +402,8 @@ def test_portfolio_focus_cards_are_distinct_and_evidence_linked(client, profile_
         assert bond["factIds"] and run["facts"][bond["factIds"][0]]["metric"] == "weight.asset_group"
 
 
-def test_sabotage_child_is_isolated_and_reports_actual_strike():
-    from tests.integration._scripted import default_draft
-
-    def writer(message):
-        value = default_draft(message)
-        if "controlled test" in message.get("instruction", ""):
-            value["sections"][0]["sentences"].append({"id": "S-INJECTED", "template": "This value is 999."})
-        return value
-
-    client = make(ScriptedGateway(writer=writer))
-    headers = session()
-    parent = run_to_end(client, headers, {"kind": "decision", "profileId": "robert", "lang": "en", "request": TSLA_25})
-    assert parent["status"] == "succeeded", parent["error"]
-    parent_id = parent["runId"]
-    assert client.post(f"/v1/runs/{parent_id}/sabotage", json={"mode": "invented_number", "lang": "fr"}, headers=headers).status_code == 409
-    created = client.post(f"/v1/runs/{parent_id}/sabotage", json={"mode": "invented_number", "lang": "en"}, headers=headers)
+def _sabotage(client, headers, parent_id, mode, lang):
+    created = client.post(f"/v1/runs/{parent_id}/sabotage", json={"mode": mode, "lang": lang}, headers=headers)
     assert created.status_code == 202, created.text
     child_id = created.json()["runId"]
     deadline = time.monotonic() + 60
@@ -427,27 +413,52 @@ def test_sabotage_child_is_isolated_and_reports_actual_strike():
             break
         time.sleep(.05)
     assert child["status"] == "succeeded", child.get("error")
+    return child
+
+
+def test_sabotage_child_is_isolated_and_reports_actual_strike():
+    # The scripted writer stands in for a model that would refuse: it is never asked to lie.
+    calls = []
+
+    def writer(message):
+        from tests.integration._scripted import default_draft
+        calls.append(message)
+        return default_draft(message)
+
+    client = make(ScriptedGateway(writer=writer))
+    headers = session()
+    parent = run_to_end(client, headers, {"kind": "decision", "profileId": "robert", "lang": "en", "request": TSLA_25})
+    assert parent["status"] == "succeeded", parent["error"]
+    parent_id = parent["runId"]
+    writer_calls = len(calls)
+    assert client.post(f"/v1/runs/{parent_id}/sabotage", json={"mode": "invented_number", "lang": "fr"}, headers=headers).status_code == 409
+    child = _sabotage(client, headers, parent_id, "invented_number", "en")
+    assert len(calls) == writer_calls  # the false sentence is written by code, not by the writer model
     result = child["result"]["sabotage"]
     assert result["briefBeforeAudit"]["status"] == "unaudited"
     ids = [s["id"] for section in result["briefBeforeAudit"]["sections"] for s in section["sentences"]]
     assert ids.count("S-INJECTED") == 1 and all(i == "S-INJECTED" or i.startswith("BASE-") for i in ids)
     assert result["caught"] and any(c["code"] == "A02" for c in result["failedChecks"])
+    assert result["injectedInstruction"].startswith("Controlled test, written by code")
+    write = next(step for step in child["steps"] if step["type"] == "write")
+    assert write["actor"] == "code" and write["status"] == "done"
     assert client.get(f"/v1/runs/{parent_id}", headers=headers).json() == parent
-    assert client.get(f"/v1/runs/{child_id}", headers=session()).status_code == 404
+    assert client.get(f"/v1/runs/{child['runId']}", headers=session()).status_code == 404
 
 
-def test_sabotage_without_an_injected_sentence_is_not_caught():
+@pytest.mark.parametrize("lang", ["en", "fr"])
+@pytest.mark.parametrize("mode,code", [("invented_number", "A02"), ("false_comparison", "A03"),
+                                       ("unsupported_interpretation", "A14")])
+def test_every_sabotage_mode_is_inserted_and_caught_by_the_real_audit(mode, code, lang):
     client = make(ScriptedGateway())
     headers = session()
-    parent = run_to_end(client, headers, {"kind": "decision", "profileId": "robert", "lang": "en", "request": TSLA_25})
-    response = client.post(f"/v1/runs/{parent['runId']}/sabotage", json={"mode": "false_comparison", "lang": "en"}, headers=headers)
-    assert response.status_code == 202
-    child_id = response.json()["runId"]
-    deadline = time.monotonic() + 60
-    while time.monotonic() < deadline:
-        child = client.get(f"/v1/runs/{child_id}", headers=headers).json()
-        if child["status"] in TERMINAL:
-            break
-        time.sleep(.05)
-    assert child["status"] == "succeeded", child.get("error")
-    assert child["result"]["sabotage"]["caught"] is False
+    parent = run_to_end(client, headers, {"kind": "decision", "profileId": "robert", "lang": lang, "request": TSLA_25})
+    assert parent["status"] == "succeeded", parent["error"]
+    result = _sabotage(client, headers, parent["runId"], mode, lang)["result"]["sabotage"]
+    injected = [s for section in result["briefBeforeAudit"]["sections"] for s in section["sentences"] if s["id"] == "S-INJECTED"]
+    assert len(injected) == 1
+    after = next(s for section in result["briefAfterAudit"]["sections"] for s in section["sentences"] if s["id"] == "S-INJECTED")
+    assert after["audit"]["status"] == "struck" and code in after["audit"]["failedChecks"]
+    assert result["caught"] is True and any(c["code"] == code and not c["ok"] for c in result["failedChecks"])
+    # Only the inserted sentence is new: every other sentence is the parent's preserved, audited text.
+    assert result["briefAfterAudit"]["audit"]["status"] != "failed"

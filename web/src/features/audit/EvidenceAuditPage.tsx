@@ -17,11 +17,11 @@ import { Card, PageHeader } from '../../components/common/Page';
 import { Empty, ErrorState, Loading } from '../../components/common/States';
 import { FactScopeProvider, LimitationList, useFactDrawer, type FactScope } from '../../components/common/FactDrawer';
 import { RunStatusBadge, VerdictBadge } from '../../components/common/Badges';
-import { BriefView } from '../../components/run/BriefView';
+import { BriefView, SentenceView } from '../../components/run/BriefView';
 import { RuleTable } from '../../components/run/RuleTable';
 import { RunTimeline } from '../../components/run/RunTimeline';
 import { AuditPanel } from '../../components/run/AuditPanel';
-import { FACT_KIND, RUN_KIND, RUN_STATUS, SABOTAGE_MODE, VERIFICATION, labelOf } from '../../lib/labels';
+import { AUDIT_CHECK, FACT_KIND, RUN_KIND, RUN_STATUS, SABOTAGE_MODE, VERIFICATION, labelOf } from '../../lib/labels';
 import { fmtDate, fmtDateTime } from '../../lib/format';
 import { RunsTable } from '../../components/run/RunsTable';
 import { briefsOf, danglingReferences } from '../../lib/brief';
@@ -301,6 +301,14 @@ function SabotageControls({ run }: { run: Run }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiRequestError | null>(null);
   if (!feature('sabotage_demo') || run.kind !== 'decision' || run.status !== 'succeeded') return null;
+  const title = tr({ en: 'Sabotage test: try to slip a lie past the auditor', fr: 'Test de sabotage : glisser un mensonge à l’auditeur' });
+  if (run.lang !== lang) {
+    return (
+      <Card id="sabotage" section={tr({ en: 'Sabotage test', fr: 'Test de sabotage' })} tour="sabotage" title={title}>
+        <p className="small muted">{tr({ en: 'This analysis was written in French. Switch the language to French to run the test on it.', fr: 'Cette analyse a été rédigée en anglais. Passez en anglais pour lancer le test sur elle.' })}</p>
+      </Card>
+    );
+  }
   const start = async () => {
     setBusy(true); setError(null);
     try {
@@ -309,17 +317,17 @@ function SabotageControls({ run }: { run: Run }) {
     } catch (e) { setError(asApiError(e)); } finally { setBusy(false); }
   };
   return (
-    <Card id="sabotage" section={tr({ en: 'Sabotage test', fr: 'Test de sabotage' })} tour="sabotage" title={tr({ en: 'Sabotage demonstration (labelled test)', fr: 'Démonstration de sabotage (test identifié)' })}>
-      <p className="small">{tr({ en: 'Starts a separate copy in which the writer is told to lie; this analysis stays unchanged. The auditor may or may not catch it, and the outcome is shown as it is.', fr: 'Lance une copie distincte où le rédacteur reçoit l’ordre de mentir ; cette analyse reste inchangée. L’auditeur peut le détecter ou non, et le résultat est montré tel quel.' })}</p>
+    <Card id="sabotage" section={tr({ en: 'Sabotage test', fr: 'Test de sabotage' })} tour="sabotage" title={title}>
+      <p className="small">{tr({ en: 'Aplomb copies this signed brief, inserts one false sentence built from its own figures, then runs the full audit again (code checks, model review, guardrail). This analysis stays unchanged; the outcome is shown as it is.', fr: 'Aplomb copie cette note signée, y insère une phrase fausse construite à partir de ses propres chiffres, puis relance l’audit complet (contrôles par le code, relecture par le modèle, garde-fou). Cette analyse reste inchangée ; le résultat est montré tel quel.' })}</p>
       <fieldset>
-        <legend>{tr({ en: 'Injected instruction type', fr: 'Type d’instruction injectée' })}</legend>
+        <legend>{tr({ en: 'Kind of lie', fr: 'Type de mensonge' })}</legend>
         <div className="checks">
           {SABOTAGE_MODES.map(m => (
             <label key={m}><input type="radio" name="sabotage-mode" value={m} checked={mode === m} onChange={() => setMode(m)} /> {labelOf(SABOTAGE_MODE, m, lang)}</label>
           ))}
         </div>
       </fieldset>
-      <div className="row-actions"><button type="button" className="btn danger" disabled={busy} onClick={() => void start()}>{tr({ en: 'Start demonstration', fr: 'Lancer la démonstration' })}</button></div>
+      <div className="row-actions"><button type="button" className="btn danger" disabled={busy} onClick={() => void start()}>{busy ? tr({ en: 'Starting…', fr: 'Lancement…' }) : tr({ en: 'Run the sabotage test', fr: 'Lancer le test de sabotage' })}</button></div>
       {error && <ErrorState error={error} />}
     </Card>
   );
@@ -331,35 +339,56 @@ function SabotageResultView({ run }: { run: Run }) {
   const s = run.result.sabotage;
   const failed = s.failedChecks.filter(c => !c.ok);
   const caught = s.caught && failed.length > 0;
+  const injected = s.briefAfterAudit.sections.flatMap(section => section.sentences).find(sentence => sentence.id === 'S-INJECTED');
   const attempted = s.briefBeforeAudit.sections.some(section => section.sentences.some(sentence => sentence.id === 'S-INJECTED'));
+  const codes = [...new Set(failed.map(c => c.code))];
   return (
-    <Card id="sabotage-result" title={tr({ en: 'Sabotage demonstration result', fr: 'Résultat de la démonstration de sabotage' })}>
-      <p className="small"><span className="tag tag-strong">{labelOf(SABOTAGE_MODE, s.mode, lang)}</span></p>
-      <h3 className="h4">{tr({ en: 'Exact injected instruction', fr: 'Instruction injectée exacte' })}</h3>
-      <blockquote className="quote mono small">{s.injectedInstruction}</blockquote>
-      <p className="stale-note" role="status">
-        {caught
-          ? tr({ en: `The audit flagged the injected content: ${failed.map(c => c.code).join(', ')} failed.`, fr: `L’audit a signalé le contenu injecté : ${failed.map(c => c.code).join(', ')} en échec.` })
-          : attempted ? tr({ en: 'An attempted assertion was not caught by the implemented checks.', fr: 'Une affirmation tentée n’a pas été détectée par les contrôles en place.' }) : tr({ en: 'The writer returned no designated attempted assertion; there was nothing to catch.', fr: 'Le rédacteur n’a fourni aucune affirmation désignée ; il n’y avait rien à détecter.' })}
-      </p>
-      <div className="grid-2">
+    <Card id="sabotage-result" title={tr({ en: 'Sabotage test result', fr: 'Résultat du test de sabotage' })}>
+      <div className={`sabotage-verdict ${caught ? 'is-caught' : 'is-missed'}`} role="status">
+        <span className="sabotage-verdict-mark" aria-hidden="true">{caught ? '✓' : '!'}</span>
         <div>
-          <h3 className="h4">{tr({ en: 'Draft before audit (audit view)', fr: 'Brouillon avant audit (vue d’audit)' })}</h3>
-          <p className="small">{tr({ en: 'Unaudited test draft: preserved parent content plus any designated assertion produced by the writer. Test content may be false.', fr: 'Brouillon de test non audité : contenu initial conservé et éventuelle affirmation désignée du rédacteur. Le test peut contenir des faussetés.' })}</p>
-          {s.briefBeforeAudit.sections.map(section => <section key={section.id}>
-            <h4>{section.id}</h4>{section.sentences.map(sentence => <p key={sentence.id}>{sentence.template}</p>)}
-          </section>)}
-        </div>
-        <div>
-          <h3 className="h4">{tr({ en: 'After audit', fr: 'Après audit' })}</h3>
-          <BriefView brief={s.briefAfterAudit} mode="audit" />
+          <p className="sabotage-verdict-title">
+            {caught
+              ? tr({ en: 'Caught: the auditor struck the false sentence', fr: 'Détecté : l’auditeur a rayé la phrase fausse' })
+              : attempted
+                ? tr({ en: 'Not caught: the false sentence passed the checks', fr: 'Non détecté : la phrase fausse a passé les contrôles' })
+                : tr({ en: 'No false sentence was inserted; there was nothing to catch', fr: 'Aucune phrase fausse insérée ; il n’y avait rien à détecter' })}
+          </p>
+          <p className="small"><span className="tag tag-strong">{labelOf(SABOTAGE_MODE, s.mode, lang)}</span>{' '}
+            {tr({ en: 'The original analysis and its signature are unchanged.', fr: 'L’analyse d’origine et sa signature sont inchangées.' })}</p>
         </div>
       </div>
-      {s.failedChecks.length > 0 && (
-        <ul className="list-plain small">
-          {s.failedChecks.map((c, i) => <li key={i}><span className="mono">{c.code}</span> {c.ok ? '✓' : '✕'} {c.detail} <span className="mono muted">{c.sentenceIds.join(', ')}</span></li>)}
-        </ul>
+      <h3 className="h4">{tr({ en: 'What was inserted', fr: 'Ce qui a été inséré' })}</h3>
+      <p className="small">{s.injectedInstruction}</p>
+      {injected && (
+        <>
+          <h3 className="h4">{tr({ en: 'The false sentence, as the auditor marked it', fr: 'La phrase fausse, telle que l’auditeur l’a marquée' })}</h3>
+          <div className="sabotage-sentence"><SentenceView sentence={injected} mode="audit" /></div>
+        </>
       )}
+      {codes.length > 0 && (
+        <>
+          <h3 className="h4">{tr({ en: 'Checks that caught it', fr: 'Contrôles qui l’ont détectée' })}</h3>
+          <ul className="list-plain small">
+            {codes.map(code => {
+              const details = [...new Set(failed.filter(c => c.code === code).map(c => c.detail))];
+              return <li key={code}><span className="mono">{code}</span> {labelOf(AUDIT_CHECK, code, lang)}{details.length > 0 && <span className="muted"> · {details.join(' · ')}</span>}</li>;
+            })}
+          </ul>
+        </>
+      )}
+      <details className="fold">
+        <summary>{tr({ en: 'Full brief after audit', fr: 'Note complète après audit' })}</summary>
+        <div className="fold-body"><BriefView brief={s.briefAfterAudit} mode="audit" /></div>
+      </details>
+      <details className="fold">
+        <summary>{tr({ en: 'Raw draft before audit (unaudited, may contain falsehoods)', fr: 'Brouillon brut avant audit (non audité, peut contenir des faussetés)' })}</summary>
+        <div className="fold-body">
+          {s.briefBeforeAudit.sections.map(section => <section key={section.id}>
+            <h4>{section.id}</h4>{section.sentences.map(sentence => <p key={sentence.id} className={`mono small${sentence.id === 'S-INJECTED' ? ' sabotage-raw-injected' : ''}`}>{sentence.template}</p>)}
+          </section>)}
+        </div>
+      </details>
     </Card>
   );
 }

@@ -257,7 +257,7 @@ export const SCENARIO_KIND: Labels<ScenarioKind> = {
 };
 
 export const SABOTAGE_MODE: Labels<SabotageMode> = {
-  invented_number: l('Injected number', 'Chiffre inventé'),
+  invented_number: l('Invented number', 'Chiffre inventé'),
   false_comparison: l('False comparison', 'Fausse comparaison'),
   unsupported_interpretation: l('Unsupported interpretation', 'Interprétation non étayée'),
 };

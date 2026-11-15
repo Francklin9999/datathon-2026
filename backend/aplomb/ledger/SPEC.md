@@ -55,7 +55,7 @@ Canonical signing: UTF-8 JSON of `{facts,evidence}` only, sorted object keys rec
 
 ## 6. Sabotage
 
-Only a succeeded decision can be parent. New child references pinned parent facts, but uses distinct run identity. Modes: invented_number, false_comparison, unsupported_interpretation. Store exact injected instruction and visibly label “demonstration.” Attempt real writer sabotage; if writer refuses to lie, report no injected lie/no catch, not a fabricated success. `caught` requires an actually offending sentence and actual failed check. Display unsafe draft only in the clearly marked audit demonstration, struck where appropriate; never reuse it as ordinary brief.
+Only a succeeded decision can be parent. New child references pinned parent facts, but uses distinct run identity. Modes: invented_number, false_comparison, unsupported_interpretation. Store exact injected instruction and visibly label “demonstration.” The false sentence is built by code from the parent's own verified facts (a real writer model declines to lie, which left nothing to audit): invented_number restates a cited figure with a wrong value, false_comparison reverses two comparable figures, unsupported_interpretation claims a positive impact no measured price move supports. The stored instruction says it is code-written. The audit that follows is the real one (code checks, model review, guardrail). `caught` requires an actually offending sentence and actual failed check. Display unsafe draft only in the clearly marked audit demonstration, struck where appropriate; never reuse it as ordinary brief.
 
 ## 7. Verification
 
