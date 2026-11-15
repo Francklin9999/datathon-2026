@@ -1,0 +1,9 @@
+{
+  "provider": "massive",
+  "status": "working",
+  "operation": "company",
+  "rows": 0,
+  "source_sha256": "52a09d535de747228cb59191fc81769fc76e141dac3867baa85d2e2b82b76c7d",
+  "source_url": "https://api.massive.com/v3/reference/tickers/AAPL",
+  "retrieved_at": "2026-11-15T18:49:37.693011+00:00"
+}

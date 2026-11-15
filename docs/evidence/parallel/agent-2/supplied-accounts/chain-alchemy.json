@@ -1,0 +1,29 @@
+{
+  "status": "available",
+  "provider": "alchemy",
+  "observation": {
+    "chain": "ethereum-mainnet",
+    "chain_id": 1,
+    "block_number": "26422336",
+    "method": "eth_blockNumber",
+    "classification": "Provider-reported latest chain head; subject to reorganization."
+  },
+  "source_url": "https://eth-mainnet.g.alchemy.com/v2",
+  "source_sha256": "e394251250fca15cd44b0fafd62af8369fd2780e4f00315caec96ef6933587f7",
+  "source_request": {
+    "method": "POST",
+    "url": "https://eth-mainnet.g.alchemy.com/v2",
+    "body": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_blockNumber\",\"params\":[]}"
+  },
+  "dataset_version": "chain-alchemy-e394251250fca15c",
+  "retrieved_at": "2026-11-15T18:55:56.682282+00:00",
+  "available_at": "2026-11-15T18:55:56.682282+00:00",
+  "published_at": null,
+  "documentation_url": "https://www.alchemy.com/docs/how-to-use-api-keys-in-http-headers",
+  "licence": "Configured account terms; no blanket redistribution licence asserted",
+  "limitations": [
+    "Source data is provider-reported and current as captured.",
+    "Original publication and revision availability before capture are unknown.",
+    "Account entitlements and allowed reuse must be respected."
+  ]
+}

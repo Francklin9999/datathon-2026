@@ -1,0 +1,9 @@
+{
+  "provider": "eodhd",
+  "status": "working",
+  "operation": "bars",
+  "rows": 32,
+  "source_sha256": "ffe96446f3631f2b098319769f93aca815ca45a67135cd199c50b15d542e264b",
+  "source_url": "https://eodhd.com/api/eod/AAPL.US?from=2026-10-01&to=2026-11-15&fmt=json",
+  "retrieved_at": "2026-11-15T18:49:37.370578+00:00"
+}

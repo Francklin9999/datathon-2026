@@ -32,3 +32,6 @@ GET `/v1/intelligence/source-capabilities` supplies demonstrated available workf
 - Shared datastore code unchanged; one historical gate regression added in shared tests.
 
 Regenerate shared mirrors after merging all three branches. Preserve active manifest pointer, parent captures, production release settings and source-owner namespaces. Resolve the documented Agent 1 same-day explicit-asOf `/check` issue before combined historical acceptance. Final deployment and production A–G verification remain the returning integrator's responsibility.
+
+
+Selected-account extension: existing `GET /v1/research/market-provider/{provider}?symbol=...` now dispatches fmp/eodhd/massive/marketstack and coinmarketcap/blockscout/alchemy/goldrush in addition to existing providers. Symbol is max120 and is interpreted as a provider symbol or exact numeric ID/address; chain identifiers retain case. Added providers support only the default quote operation and reject MIC/kind parameters unsupported by their source. Stock and chain modules export connection_status() and capture(store,sid,provider,identifier). chain capture includes sanitized HTTP method/body for RPC reproducibility. FRED is a rights-gated status/parser only; no fetch is exposed. J-Quants regional route exhausts bounded cursors. Runtime source catalogue records unselected providers removed, not awaiting signup.

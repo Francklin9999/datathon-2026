@@ -1,0 +1,70 @@
+{
+  "region": "JP",
+  "identifier": "86970",
+  "retrievedAt": "2026-11-15T18:49:23Z",
+  "availableAt": "2026-11-15T18:49:23Z",
+  "publicationAt": null,
+  "sourceUrl": "https://api.jquants.com/v2/equities/master",
+  "availabilityBasis": "capture; original provider availability unknown",
+  "historicalReplayEligibleBeforeCapture": false,
+  "provider": "J-Quants",
+  "identifierType": "J-Quants five-character issue code",
+  "mic": "XTKS",
+  "currency": "JPY",
+  "kind": "company",
+  "prices": [],
+  "filings": [],
+  "company": {
+    "asOf": "2026-06-30",
+    "name": "日本取引所グループ",
+    "englishName": "Japan Exchange Group,Inc.",
+    "stockCode": "86970",
+    "sector17Code": "16",
+    "sector17Name": "金融（除く銀行）",
+    "sector33Code": "7200",
+    "sector33Name": "その他金融業",
+    "scaleCategory": "TOPIX Large70",
+    "marketCode": "0111",
+    "marketName": "プライム",
+    "marginCode": "2",
+    "marginName": "貸借",
+    "productCategory": "011"
+  },
+  "financials": [],
+  "ownership": [],
+  "requestedStart": "2026-01-01",
+  "requestedEnd": "2026-06-30",
+  "status": "ok",
+  "sourceSha256": "529f53db2c3271ce3b9a94bd398b36b46d69bd8fa5ba59f7d9a7e4bdf20dd440",
+  "listings": [
+    {
+      "asOf": "2026-06-30",
+      "name": "日本取引所グループ",
+      "englishName": "Japan Exchange Group,Inc.",
+      "stockCode": "86970",
+      "sector17Code": "16",
+      "sector17Name": "金融（除く銀行）",
+      "sector33Code": "7200",
+      "sector33Name": "その他金融業",
+      "scaleCategory": "TOPIX Large70",
+      "marketCode": "0111",
+      "marketName": "プライム",
+      "marginCode": "2",
+      "marginName": "貸借",
+      "productCategory": "011"
+    }
+  ],
+  "partial": false,
+  "pagesInspected": 1,
+  "sourceHashes": {
+    "company": "529f53db2c3271ce3b9a94bd398b36b46d69bd8fa5ba59f7d9a7e4bdf20dd440"
+  },
+  "limitations": [
+    "Issue information as of the requested end date; the provider returns the next business day for non-business dates.",
+    "An empty result can mean the issue was not listed on that date; listing and delisting dates are not provided.",
+    "Company, sector and market names are provider-reported (sector and market names in Japanese); not an issuer identity proof."
+  ],
+  "captureId": "86de67bedb1ffe9705eb8e777652633fb474b66cc9c4b20aabc4988a82a53113",
+  "datasetVersion": "regional-86de67bedb1ffe9705eb8e777652633fb474b66cc9c4b20aabc4988a82a53113",
+  "storage": "session-owned immutable capture"
+}

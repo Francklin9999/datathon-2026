@@ -61,8 +61,9 @@ export function RegionalResearch({ allowedRegions = ['JP', 'KR'] }: { allowedReg
   const [reportCode, setReportCode] = useState('11011');
   const [statementType, setStatementType] = useState('CFS');
   const [identifier, setIdentifier] = useState('');
-  const [start, setStart] = useState(new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10));
-  const [end, setEnd] = useState(new Date().toISOString().slice(0, 10));
+  const initialJapan=allowedRegions[0]==='JP';
+  const [start, setStart] = useState(new Date(Date.now() - (initialJapan?319:30) * 86400000).toISOString().slice(0, 10));
+  const [end, setEnd] = useState(new Date(Date.now() - (initialJapan?138:0) * 86400000).toISOString().slice(0, 10));
   const [result, setResult] = useState<RegionalResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -127,6 +128,7 @@ export function RegionalResearch({ allowedRegions = ['JP', 'KR'] }: { allowedReg
       </select></div>
     <div className="field"><label htmlFor="regional-id">{region === 'JP' ? tr({ en: 'Five-character J-Quants issue code', fr: 'Code J-Quants à cinq caractères' }) : tr({ en: 'Eight-digit OpenDART corporate code', fr: 'Code d’entreprise OpenDART à huit chiffres' })}</label>
       <input disabled={loading} id="regional-id" value={identifier} maxLength={region === 'JP' ? 5 : 8} onChange={e => { setIdentifier(e.target.value.toUpperCase().trim()); reset(); }} /></div>
+    {region==='JP'&&<p className="small muted">{tr({en:'J-Quants coverage depends on your plan. The default uses a past interval because free access may be delayed.',fr:'La couverture J-Quants dépend de votre forfait. La période initiale est passée car l’accès gratuit peut être différé.'})}</p>}
     <div className="field"><label htmlFor="regional-start">{kind === 'company' ? tr({ en: 'From (range check only)', fr: 'Du (contrôle de plage)' }) : tr({ en: 'From', fr: 'Du' })}</label><input disabled={loading} type="date" id="regional-start" value={start} onChange={e => { setStart(e.target.value); reset(); }} /></div>
     <div className="field"><label htmlFor="regional-end">{kind === 'company' ? tr({ en: 'As of', fr: 'À la date du' }) : tr({ en: 'To', fr: 'Au' })}</label><input disabled={loading} type="date" id="regional-end" value={end} onChange={e => { setEnd(e.target.value); reset(); }} /></div>
     {region === 'KR' && kind === 'financials' && <>

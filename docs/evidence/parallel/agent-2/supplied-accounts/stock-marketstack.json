@@ -1,0 +1,9 @@
+{
+  "provider": "marketstack",
+  "status": "working",
+  "operation": "bars",
+  "rows": 30,
+  "source_sha256": "8447d03e3a72786eb1a2e8b0ccbe201ca0d7da7f9a47e424463637dd3522e059",
+  "source_url": "https://api.marketstack.com/v2/eod?symbols=AAPL&limit=30&sort=DESC",
+  "retrieved_at": "2026-11-15T18:49:37.833242+00:00"
+}

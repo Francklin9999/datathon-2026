@@ -348,17 +348,48 @@ class RegionalResearch:
 
     # --- Japan -----------------------------------------------------------------------
 
+    def _japan_pages(self, endpoint, params, key, name, *, max_rows=50000):
+        """Follow provider cursors to exhaustion or fail without publishing partial results.
+
+        J-Quants sets no total count and splits at about 5 MB. All pages are
+        retained with hashes in one immutable capture; looped cursors, excessive
+        pages or responses and secret echoes fail before any capture is saved.
+        """
+        rows, payloads, seen = [], {}, set()
+        cursor = None
+        total_bytes = 0
+        for page in range(1, 21):
+            query = dict(params)
+            if cursor is not None:
+                query['pagination_key'] = cursor
+            raw = self.fetch(endpoint + '?' + urlencode(query), {'x-api-key': key})
+            if not isinstance(raw, bytes) or key.encode() in raw:
+                raise RegionalError('provider_response_contains_credential')
+            total_bytes += len(raw)
+            if total_bytes > 20_000_000:
+                raise RegionalError('provider_result_limit_requires_shorter_window')
+            data = _json(raw)
+            page_rows = _rows(data, limit=max_rows)
+            rows.extend(page_rows)
+            if len(rows) > max_rows:
+                raise RegionalError('provider_result_limit_requires_shorter_window')
+            payloads[name if page == 1 else f'{name}_page_{page}'] = raw
+            if 'pagination_key' not in data:
+                return rows, payloads
+            cursor = data['pagination_key']
+            if (not isinstance(cursor, str) or not cursor or len(cursor) > 2048
+                    or key in cursor or cursor in seen):
+                raise RegionalError('provider_invalid_pagination')
+            seen.add(cursor)
+        raise RegionalError('provider_result_limit_requires_shorter_window')
+
     def _japan(self, identifier, start, end, stamp):
         base = self._frame('JP', 'prices', identifier, start, end, stamp, JQ_URL)
         key = self._configured('JQUANTS')
         if not key:
             return self._unavailable(base)
-        query = urlencode({'code': identifier, 'from': start, 'to': end})
-        raw = self.fetch(JQ_URL + '?' + query, {'x-api-key': key})
-        data = _json(raw)
-        rows = data.get('data')
-        if not isinstance(rows, list) or len(rows) > 50000:
-            raise RegionalError('provider_invalid_response')
+        rows, payloads = self._japan_pages(JQ_URL, {'code': identifier, 'from': start, 'to': end}, key, 'prices')
+        raw = payloads['prices']
         seen = set()
         for row in rows:
             if not isinstance(row, dict) or row.get('Code') != identifier:
@@ -371,20 +402,20 @@ class RegionalResearch:
                                    'adjustedClose': _number(row.get('AdjC')), 'currency': 'JPY'})
         base['prices'].sort(key=lambda item: item['date'])
         result = {**base, 'status': 'ok', 'sourceSha256': hashlib.sha256(raw).hexdigest(),
-                  'partial': bool(data.get('pagination_key')),
+                  'partial': False, 'pagesInspected': len(payloads),
+                  'sourceHashes': {name: hashlib.sha256(raw).hexdigest() for name, raw in payloads.items()},
                   'limitations': ['Tokyo Stock Exchange only; issue code is not an ISIN or issuer identity.',
                                   'Current capture; original availability and correction history unknown.',
                                   'Adjusted prices are recalculated retroactively and omit cash dividends.']}
-        return self._capture(result, {'prices': raw}, key)
+        return self._capture(result, payloads, key)
 
     def _japan_company(self, identifier, start, end, stamp):
         base = self._frame('JP', 'company', identifier, start, end, stamp, JQ_MASTER)
         key = self._configured('JQUANTS')
         if not key:
             return self._unavailable(base)
-        raw = self.fetch(JQ_MASTER + '?' + urlencode({'code': identifier, 'date': end}), {'x-api-key': key})
-        data = _json(raw)
-        rows = _rows(data, limit=50)
+        rows, payloads = self._japan_pages(JQ_MASTER, {'code': identifier, 'date': end}, key, 'company', max_rows=50)
+        raw = payloads['company']
         listings = []
         for row in rows:
             if row.get('Code') != identifier:
@@ -401,21 +432,21 @@ class RegionalResearch:
         listings.sort(key=lambda item: item['asOf'], reverse=True)
         result = {**base, 'status': 'ok', 'sourceSha256': hashlib.sha256(raw).hexdigest(),
                   'company': listings[0] if listings else None, 'listings': listings,
-                  'partial': bool(data.get('pagination_key')),
+                  'partial': False, 'pagesInspected': len(payloads),
+                  'sourceHashes': {name: hashlib.sha256(raw).hexdigest() for name, raw in payloads.items()},
                   'limitations': [
                       'Issue information as of the requested end date; the provider returns the next business day for non-business dates.',
                       'An empty result can mean the issue was not listed on that date; listing and delisting dates are not provided.',
                       'Company, sector and market names are provider-reported (sector and market names in Japanese); not an issuer identity proof.']}
-        return self._capture(result, {'company': raw}, key)
+        return self._capture(result, payloads, key)
 
     def _japan_financials(self, identifier, start, end, stamp):
         base = self._frame('JP', 'financials', identifier, start, end, stamp, JQ_FINANCIALS)
         key = self._configured('JQUANTS')
         if not key:
             return self._unavailable(base)
-        raw = self.fetch(JQ_FINANCIALS + '?' + urlencode({'code': identifier}), {'x-api-key': key})
-        data = _json(raw)
-        rows = _rows(data)
+        rows, payloads = self._japan_pages(JQ_FINANCIALS, {'code': identifier}, key, 'financials')
+        raw = payloads['financials']
         seen = set()
         unparsed = []
         for row in rows:
@@ -455,8 +486,10 @@ class RegionalResearch:
         if unparsed:
             limitations.append('Some provider values were malformed and omitted: ' + ', '.join(sorted(set(unparsed))[:20]))
         result = {**base, 'status': 'ok', 'sourceSha256': hashlib.sha256(raw).hexdigest(),
-                  'partial': bool(data.get('pagination_key')), 'limitations': limitations}
-        return self._capture(result, {'financials': raw}, key)
+                  'partial': False, 'pagesInspected': len(payloads),
+                  'sourceHashes': {name: hashlib.sha256(raw).hexdigest() for name, raw in payloads.items()},
+                  'limitations': limitations}
+        return self._capture(result, payloads, key)
 
     # --- Korea -----------------------------------------------------------------------
 

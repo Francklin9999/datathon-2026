@@ -43,8 +43,9 @@ def capabilities(settings):
     add('sec', 'SEC live company, filings and funds', 'removed',
         'Removed by owner after HTTP403; no SEC credentials requested.',
         source_ids=('SRC-034', 'SRC-035', 'SRC-036', 'SRC-037', 'SRC-038', 'SRC-039', 'SRC-041', 'SRC-042'))
-    add('regional', 'Japan J-Quants', 'aside',
-        'A J-Quants account/key is still required; Korea is a separate working OpenDART adapter.', source_ids=('SRC-020',))
+    japan = bool(os.getenv('APLOMB_JQUANTS_KEY')) and os.getenv('APLOMB_JQUANTS_RIGHTS_CONFIRMED') == 'true'
+    add('regional', 'Japan J-Quants', 'available' if japan else 'aside',
+        'Daily prices, listing and financial summary captures verified; dates depend on account entitlement. Complete bounded pagination.', source_ids=('SRC-020',))
     dart = bool(os.getenv('APLOMB_OPENDART_KEY')) and os.getenv('APLOMB_OPENDART_RIGHTS_CONFIRMED') == 'true'
     add('opendart', 'Korea OpenDART', 'available' if dart else 'aside',
         'Verified corporate filings, complete paginated interval, financial statements and ownership; account key required.')
@@ -73,27 +74,25 @@ def capabilities(settings):
         'Checksum-verified daily archive; personal noncommercial research only.' if vision else
         'Enable permitted personal noncommercial use; commercial storage/display requires separate rights.',
         source_ids=('SRC-069', 'MASTER-008'))
-    add('binance_rest', 'Binance live market API', 'aside',
-        'Published permission for this application’s live data storage/display has not been established.', source_ids=('SRC-068',))
-    add('bitstamp', 'Bitstamp live market API', 'aside',
-        'Source-specific storage/display permission is required; commercial use requires a data licence.', source_ids=('SRC-072',))
-    llama = os.getenv('APLOMB_DEFILLAMA_WRITTEN_DATA_RIGHTS') == 'true'
-    add('defillama', 'DefiLlama', 'aside',
-        'Operator confirmed written data rights; current source availability must be verified.' if llama else
-        'Written permission for copying, retention and display is required.', source_ids=('SRC-065', 'MASTER-007'))
-    mempool = os.getenv('APLOMB_MEMPOOL_REUSE_CONFIRMED') == '1'
-    add('mempool', 'Mempool.space hosted API', 'aside',
-        'Operator confirmed hosted data reuse; current source availability must be verified.' if mempool else
-        'Confirm hosted-data reuse rights and configure APLOMB_MEMPOOL_REUSE_CONFIRMED=1.', source_ids=('SRC-075',))
-    add('issuers', 'iShares, Vanguard and SPDR daily holdings', 'aside',
-        'Provider permission is needed for automated retrieval, storage and display.', source_ids=('SRC-054', 'SRC-055', 'SRC-056'))
-    add('stooq', 'Stooq', 'aside',
-        'Automated access is blocked; approved access and reuse rights must be established.', source_ids=('SRC-018',))
-    add('paid', 'Paid provider feeds', 'removed',
-        'Databento, Intrinio, Financial Datasets and Glassnode were removed under the owner instruction excluding paid APIs.',
-        source_ids=('SRC-011', 'SRC-015', 'SRC-017', 'SRC-085'))
+    from aplomb.research import chain_accounts, stock_accounts
+    source_ids = {'fmp':('SRC-004',),'eodhd':('SRC-005',),'massive':('SRC-006',),
+                  'marketstack':('SRC-009',),'coinmarketcap':('SRC-060',),
+                  'blockscout':('SRC-074',),'alchemy':('SRC-080',),'goldrush':('SRC-083',)}
+    for item in stock_accounts.connection_status()+chain_accounts.connection_status():
+        configured = item['credential_present'] and item['rights_confirmed']
+        add(item['id'], item['id'], 'available' if configured else 'aside',
+            item['supported_operation'] + '; source/account limitations remain attached to each response.',
+            source_ids=source_ids[item['id']])
+    add('fred', 'FRED / ALFRED', 'aside',
+        'Supplied key stored. This app’s AI/capture workflow still requires compatible provider permission; no data fetched.',
+        source_ids=('SRC-086','SRC-087','MASTER-028','MASTER-029'))
     path = Path(__file__).resolve().parent / 'data' / 'source_dispositions.json'
     with path.open(encoding='utf-8') as stream:
         catalog = json.load(stream)
+    for entry in entries:
+        if entry['source_ids'] and all(any(row['id']==source_id and row['status'].startswith('removed') for row in catalog['rows']) for source_id in entry['source_ids']):
+            entry['state']='removed'
+        elif entry['source_ids'] and any(any(row['id']==source_id and row['status'].startswith('aside') for row in catalog['rows']) for source_id in entry['source_ids']):
+            entry['state']='aside'
     return {'families': entries, 'catalogue': catalog,
             'note': 'Available means a demonstrated workflow within its stated scope; it does not guarantee current provider uptime. Evidence-only captures are not live adapters.'}

@@ -1,0 +1,20 @@
+{
+  "company": {
+    "status": "ok",
+    "count": 1,
+    "pages": 1,
+    "partial": false
+  },
+  "financials": {
+    "status": "ok",
+    "count": 42,
+    "pages": 1,
+    "partial": false
+  },
+  "prices": {
+    "status": "ok",
+    "count": 119,
+    "pages": 1,
+    "partial": false
+  }
+}

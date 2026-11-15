@@ -1,0 +1,52 @@
+[
+  {
+    "provider": "coinmarketcap",
+    "input": "numeric asset ID 1",
+    "status": "available",
+    "note": "Authenticated V3 USD quote; success status error_code was string 0. Initial failure exposed a parser defect, corrected and successfully retested."
+  },
+  {
+    "provider": "blockscout",
+    "input": "default",
+    "status": "available",
+    "fields": [
+      "chain",
+      "chain_id",
+      "address",
+      "native_balance_wei",
+      "is_contract",
+      "classification"
+    ],
+    "entries": 0
+  },
+  {
+    "provider": "alchemy",
+    "input": "default",
+    "status": "available",
+    "fields": [
+      "chain",
+      "chain_id",
+      "block_number",
+      "method",
+      "classification"
+    ],
+    "entries": 0
+  },
+  {
+    "provider": "goldrush",
+    "input": "default",
+    "status": "failed",
+    "reason": "source_too_large",
+    "note": "High-activity address response exceeded 2 MB. Bounded failure; no data returned."
+  },
+  {
+    "provider": "goldrush",
+    "input": "chains",
+    "status": "available",
+    "fields": [
+      "chains",
+      "classification"
+    ],
+    "entries": 44
+  }
+]
