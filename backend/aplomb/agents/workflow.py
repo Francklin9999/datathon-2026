@@ -445,6 +445,15 @@ def _execute(e):
     run, services = e.run, e.services
     if services.runtime_signature and e.record.private.get("runtimeSignature") != services.runtime_signature:
         raise ServiceError("upstream_unavailable", "Pinned runtime configuration does not match this worker release")
+    if run.kind == "sabotage":
+        if services.runtime_signature and e.record.private.get("runtimeSignature") != services.runtime_signature:
+            raise ServiceError("upstream_unavailable", "Pinned runtime configuration does not match this worker release")
+        if services.signer is None:
+            raise ServiceError("upstream_unavailable", "Ledger/audit provider unavailable")
+        from .sabotage import execute
+
+        execute(e)
+        return
     if run.kind == "profile_draft":
         draft = e.step(
             "plan",

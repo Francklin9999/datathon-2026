@@ -274,7 +274,12 @@ class ResearchService:
             deadline = time.monotonic() + 18
             for hop in range(4):
                 validate_url(url, self.resolver)
-                response = self.transport.get(url, timeout=max(.01, deadline - time.monotonic()))
+                try:
+                    response = self.transport.get(url, timeout=max(.01, deadline - time.monotonic()))
+                except (TimeoutError, socket.timeout) as exc:
+                    raise ResearchError("request_timeout") from exc
+                except OSError as exc:
+                    raise ResearchError("source_unavailable") from exc
                 if response.status in (429, 503):
                     wait = response.headers.get("retry-after", "0")
                     delay = float(wait) if wait.isdecimal() else 0

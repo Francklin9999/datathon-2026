@@ -1,4 +1,4 @@
-"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.0.0.
+"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.1.0.
 
 Boundary types only: numerical calculations, temporal gates, workflow transitions,
 and cross-resource checks remain with their owning services.
@@ -892,10 +892,26 @@ class ProfileDraftResult(WireModel):
     unresolved: list[MissingField]
 
 
+class UnsignedDraftSentence(WireModel):
+    id: String
+    template: String
+
+
+class UnsignedDraftSection(WireModel):
+    id: BriefSectionId
+    sentences: list[UnsignedDraftSentence]
+
+
+class UnsignedDraft(WireModel):
+    status: Literal["unaudited"]
+    model: String
+    sections: list[UnsignedDraftSection]
+
+
 class SabotageResult(WireModel):
     mode: SabotageMode
     injected_instruction: String
-    brief_before_audit: Brief
+    brief_before_audit: UnsignedDraft
     brief_after_audit: Brief
     caught: Boolean
     failed_checks: list[AuditCheckResult]

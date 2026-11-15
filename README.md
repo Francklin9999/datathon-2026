@@ -1,5 +1,7 @@
 # Aplomb — evidence before conviction
 
+Latest gap closure: [implemented fixes, real-model tests and recorded demonstration](docs/17-GAP-CLOSURE.md). Deployment remains with the team AWS operator; SEC/GDELT source access is still an external blocker.
+
 Current hardening audit (2026-11-15): [release report](docs/12-RELEASE-HARDENING.md) records the latest pull, local changes, live AWS smoke, connector failures and remaining release gates. It supersedes older deployment/status claims below where they differ. Hardening changes are not yet deployed.
 
 Aplomb tests hypothetical investment changes against a fictional investor's plan. Code calculates the figures and verdicts; agents investigate the request and explain the evidence. Every number in an explanation links to its calculation or source. Simulation only. Fictional profiles. Not financial advice.

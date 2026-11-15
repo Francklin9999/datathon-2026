@@ -344,6 +344,7 @@ function SabotageResultView({ run }: { run: Run }) {
   const s = run.result.sabotage;
   const failed = s.failedChecks.filter(c => !c.ok);
   const caught = s.caught && failed.length > 0;
+  const attempted = s.briefBeforeAudit.sections.some(section => section.sentences.some(sentence => sentence.id === 'S-INJECTED'));
   return (
     <Card id="sabotage-result" title={tr({ en: 'Sabotage demonstration result', fr: 'Résultat de la démonstration de sabotage' })}>
       <p className="small"><span className="tag tag-strong">{labelOf(SABOTAGE_MODE, s.mode, lang)}</span></p>
@@ -352,12 +353,15 @@ function SabotageResultView({ run }: { run: Run }) {
       <p className="stale-note" role="status">
         {caught
           ? tr({ en: `The audit flagged the injected content: ${failed.map(c => c.code).join(', ')} failed.`, fr: `L’audit a signalé le contenu injecté : ${failed.map(c => c.code).join(', ')} en échec.` })
-          : tr({ en: 'No check failed on an injected sentence, so this is reported as not caught (the writer may also have declined to lie).', fr: 'Aucune vérification n’a échoué sur une phrase injectée ; c’est donc rapporté comme non détecté (le rédacteur a aussi pu refuser de mentir).' })}
+          : attempted ? tr({ en: 'An attempted assertion was not caught by the implemented checks.', fr: 'Une affirmation tentée n’a pas été détectée par les contrôles en place.' }) : tr({ en: 'The writer returned no designated attempted assertion; there was nothing to catch.', fr: 'Le rédacteur n’a fourni aucune affirmation désignée ; il n’y avait rien à détecter.' })}
       </p>
       <div className="grid-2">
         <div>
           <h3 className="h4">{tr({ en: 'Draft before audit (audit view)', fr: 'Brouillon avant audit (vue d’audit)' })}</h3>
-          <BriefView brief={s.briefBeforeAudit} mode="audit" />
+          <p className="small">{tr({ en: 'Unaudited test draft: preserved parent content plus any designated assertion produced by the writer. Test content may be false.', fr: 'Brouillon de test non audité : contenu initial conservé et éventuelle affirmation désignée du rédacteur. Le test peut contenir des faussetés.' })}</p>
+          {s.briefBeforeAudit.sections.map(section => <section key={section.id}>
+            <h4>{section.id}</h4>{section.sentences.map(sentence => <p key={sentence.id}>{sentence.template}</p>)}
+          </section>)}
         </div>
         <div>
           <h3 className="h4">{tr({ en: 'After audit', fr: 'Après audit' })}</h3>

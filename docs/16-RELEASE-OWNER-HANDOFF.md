@@ -38,10 +38,19 @@ After release, validate `/meta`, `X-Aplomb-Build`, frontend deployment SHA, the 
 
 Rollback restores the previous API invocation target and its worker pin plus configuration, then republishes the previous complete frontend artifact and invalidates CloudFront. Keep DynamoDB/S3 state and prior immutable runs. No rollback drill was performed here; the release owner must confirm the stored artifacts and exact change set before publication.
 
-## Test-only and incomplete features
+## Contract 1.1 release and sabotage validation
 
-Sabotage has real auditor tests but no honest runnable child workflow. Its current `briefBeforeAudit: Brief` schema requires a signed audit and cannot represent an unsigned attempt. A reviewed contract revision is necessary; do not fake a signature or advertise a controlled test as a live writer attempt.
+The subsequent gap-closure batch implements a runnable isolated sabotage child. Contract **1.1.0** now gives `briefBeforeAudit` an explicit unsigned draft shape; generated Python/JSON/TypeScript and Evidence UI must deploy together. The worker forks the authorized frozen parent, preserves audited baseline content, accepts only the designated model-produced attempted assertion, and runs the independent auditor again. It never invents an attempt if the model declines.
+
+The real local Bedrock smoke completed, with immutable parent and cross-session 404. The writer returned no attempt and the result correctly reported `caught=false`. This validates execution, not an actual successful lie/catch or deployed Guardrail application. Scripted tests cover actual attacks and resume boundaries. Keep `sabotage_demo` disabled until the paired release and configured AWS checks complete. Do not claim a refused attempt was caught.
+
+Home/event brief signing now allows one bounded quality repair for strikes. Repaired content is fully re-audited; remaining unsupported content stays struck. Current local real Home smoke finished with zero final strikes after one rewrite. Production model latency/call usage may increase; budgets remain bounded.
 
 Event handoff IDs are persisted through originalText as **untrusted context**; the backend does not attest the event/holding/source-run relationship. A future typed lineage contract is preferable. No causal stock-return impact is inferred.
 
 The full connector inventory, local/live tests, known limits and demonstration status are in [the release report](12-RELEASE-HARDENING.md), [connector inventory](13-EXTERNAL-DATA-INVENTORY.md), [trust audit](14-TRUST-AUDIT.md) and [World handoff](15-WORLD-DECISION-HANDOFF.md).
+
+
+## Latest proof and recording
+
+[Gap closure](17-GAP-CLOSURE.md) contains actual source acquisition blockers, current-code real-model evidence and [the 5:36 subtitled live demonstration](deliverables/demo/aplomb-live-subtitled.webm). It is silent and shows the deployed release at recording time, including a real replay reveal; it explicitly excludes live sabotage. SEC access is 403 and GDELT is 429/timeout; deployment does not by itself resolve provider access.

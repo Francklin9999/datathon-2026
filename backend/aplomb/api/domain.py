@@ -143,6 +143,8 @@ def default_services(settings: Settings, store=None, gateway=None, price_provide
         capabilities.add("on_demand_tickers")
     if settings.model_strong and settings.model_fast and settings.guardrail_id and settings.guardrail_version:
         capabilities.add("guardrails")
-    return Services(profiles=profiles, checks=checks, runs=runs, parser=parser, world=world,
+    if runs is not None and (gateway is not None or (settings.model_strong and settings.model_fast)):
+        capabilities.add("sabotage_demo")
+    return Services(profiles=profiles, checks=checks, runs=runs, parser=parser, world=world, sabotage=runs.sabotage if runs else None,
                     replay=ReplayServiceImpl(snapshot), datastore=WorldDatastoreService(snapshot, BundleProvider(), on_demand),
                     capabilities=capabilities)

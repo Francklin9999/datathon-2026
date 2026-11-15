@@ -341,3 +341,23 @@ def test_gdelt_rejects_local_addresses_ports_invalid_timestamps_and_tracking_dup
             {**base, "url": "https://example.org/c", "seendate": "20260101"}]
     result = GdeltAdapter({key: {"articles": rows}}).search("issuer", CTX, "2026-01-01", "2026-02-01")
     assert len(result.items) == 1 and result.items[0]["url"] == base["url"]
+
+
+def test_gdelt_live_search_caches_source_and_never_implies_event_geography():
+    row = {"title": "A source report", "url": "https://example.org/article", "domain": "example.org", "seendate": "20261101T120000Z"}
+    svc = service(Recorded(response(json.dumps({"articles": [row]}), **{"content-type": "application/json"})))
+    adapter = GdeltAdapter(service=svc)
+    one = adapter.search("rates", CTX, "2026-11-01", "2026-11-14")
+    two = adapter.search("rates", CTX, "2026-11-01", "2026-11-14")
+    assert one.document_ref == two.document_ref and len(svc.transport.calls) == 1
+    assert one.items[0]["published_at"] is None and one.items[0]["claim_verified"] is False
+    assert adapter.search("rates", CTX, "2026-11-01", "2026-11-14", country="USA").reason == "event_country_filter_unavailable"
+    assert len(svc.transport.calls) == 1
+
+
+def test_research_transport_timeout_is_explicit():
+    class Timeout:
+        def get(self, url, **kwargs):
+            raise TimeoutError("external timeout")
+    with pytest.raises(ResearchError, match="request_timeout"):
+        service(Timeout()).fetch(URL, CTX)

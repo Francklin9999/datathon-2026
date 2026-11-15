@@ -6,7 +6,7 @@ import math
 import re
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from urllib.parse import quote, urlsplit
+from urllib.parse import quote, urlencode, urlsplit
 
 from .core import ResearchError
 
@@ -69,23 +69,37 @@ class EdgarAdapter:
 
 
 class GdeltAdapter:
-    """Cached batch only: no unverified live search quota or article claims."""
-    def __init__(self, batches=None):
+    """Bounded DOC search. Results are discovery, not verification or event locations."""
+    def __init__(self, batches=None, *, service=None):
         self.batches = batches if batches is not None else {}
+        self.service = service
 
     def search(self, query, context, start, end, country=None, limit=20):
         context.allow()
-        batch = self.batches.get((query.strip().casefold(), str(start), str(end), country))
-        if batch is None:
-            return SearchResult((), "cached_index_unavailable")
         # Cached indices are untrusted too: never expose future or undated rows, unsafe
         # links, or duplicates, even if the batch was stored under an incorrect key.
         try:
             first, last = date.fromisoformat(str(start)), date.fromisoformat(str(end))
         except ValueError as exc:
             raise ResearchError("invalid_search_window") from exc
-        if first > last or last > context.as_of:
+        if first > last or last > context.as_of or (last - first).days > 90:
             raise ResearchError("invalid_search_window")
+        if country:
+            return SearchResult((), "event_country_filter_unavailable")
+        key = (query.strip().casefold(), str(start), str(end), country)
+        batch = self.batches.get(key)
+        if batch is None:
+            if self.service is None:
+                return SearchResult((), "cached_index_unavailable")
+            # DOC's sourcecountry means publisher country, not event location. Do not use it.
+            params = urlencode({"query": query.strip(), "mode": "artlist", "format": "json",
+                                "maxrecords": min(limit, 20),
+                                "startdatetime": first.strftime("%Y%m%d000000"),
+                                "enddatetime": last.strftime("%Y%m%d235959")})
+            data, doc = self.service.json("https://api.gdeltproject.org/api/v2/doc/doc?" + params, context)
+            if not isinstance(data, dict) or not isinstance(data.get("articles", []), list):
+                raise ResearchError("invalid_source_json")
+            batch = {"articles": data.get("articles", []), "document_ref": doc.document_id}
         articles, seen = [], set()
         for row in batch.get("articles", []):
             if not isinstance(row, dict):

@@ -459,3 +459,16 @@ def test_idempotent_registration_ignores_only_ledger_outputs():
         == computed_id
     )
     assert book.get_fact(computed_id).verification.status == "unverified"
+
+
+def test_sabotage_document_checkpoint_restores_under_child_identity():
+    parent = ledger()
+    parent.add_fact(fact())
+    parent.add_evidence(evidence(), DocumentRef("doc-abc", "Revenue was 12 percent.",
+                                                 "https://example.com/source", parent.run_id))
+    sign(parent)
+    run = SimpleNamespace(status="succeeded", kind="decision", result=object(), run_id=parent.run_id,
+                          facts=parent.export().facts, evidence=parent.export().evidence)
+    child = fork_for_sabotage(run, parent, "run-child")
+    restored = Ledger.restore("run-child", child.as_of, child.checkpoint())
+    assert restored.export().digest() == child.export().digest()

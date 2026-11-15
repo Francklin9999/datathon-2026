@@ -334,6 +334,7 @@ def audit_and_sign(
     rewrite: Callable | None = None,
     historical: bool = False,
     measured_impact_fact_ids: tuple[str, ...] = (),
+    repair_struck: bool = False,
 ) -> Brief:
     """review(sections, LedgerView)->ReviewResult; rewrite(draft, AuditReport)->dict.
 
@@ -559,7 +560,7 @@ def audit_and_sign(
                     )
                 ]
             raise AuditFailure("Temporal or configured safety check failed", report, sections)
-        if structural:
+        if structural or (repair_struck and struck and attempt == 0 and rewrite):
             if attempt == 0 and rewrite:
                 new_draft = rewrite(draft, report)
                 old = {

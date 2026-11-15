@@ -1,0 +1,7 @@
+# Aplomb live demonstration
+
+[Subtitled live demonstration](aplomb-live-subtitled.webm) is a silent 5 minute 36 second recording at 1280×720. It captures the deployed application and uses real AWS runs: Robert's hypothetical TSLA decision reaching a signed result, evidence inspection, the run execution timeline, a historical replay followed by an actual reveal, and a source-backed World Explorer event. The subtitles explain fictional values, the historical reconstruction, point-in-time limitations and the absence of established event impact. Sabotage is explicitly identified as unavailable in the deployed application.
+
+The recording has no spoken narration. Browser interaction timing and real model latency are retained; it is not a rehearsed voiceover or a claim that every explanation is correct. A sampled replay frame visibly shows the later outcomes revealed, and `ffmpeg` decoded the complete file without error. The event-to-Decision handoff is not demonstrated because it is not part of the deployed frontend. The recorded release may differ from the current local source.
+
+`record-live-subtitled.py` is the capture script. Re-running it creates two new real Bedrock-backed runs and may incur costs or fail if AWS access expires. It uses Chrome, Playwright and ffmpeg; it writes temporary private session state under `/tmp/aplomb-demo-private.json`, which must be deleted after recording. The session file used for this capture was deleted. The earlier 90.9-second `live-capture-draft.webm` is a silent draft without recorded replay reveal.
