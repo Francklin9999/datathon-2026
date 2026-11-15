@@ -1,0 +1,99 @@
+{
+  "release": "cd20a9bb9e6201c1ce571f70e9cf9a3164c741e1",
+  "deployedAt": "2026-11-15T07:30:44Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "previousRelease": "a85beea",
+  "purpose": "Backend of 4cd6ab2 (selected-period return fact used by Home Key figures, workflow/audit/research hardening, X-Aplomb-Build release identity). cd20a9b adds only documentation to 4cd6ab2.",
+  "method": "Same as releases 9f10301 and a85beea (AWS CLI, WSParticipantRole profile, change set reviewed before execution). The first single-request upload stalled on a slow network and was stopped before completing; the artifact was re-sent as a multipart upload and its bytes were downloaded back and compared.",
+  "artifact": {
+    "key": "deployments/cd20a9b/lambda.zip",
+    "s3VersionId": "reqIOMYnaTAOcMuqidhyhxdStk7WyKF.",
+    "bytes": 30463255,
+    "sha256": "6fbc16a1ac72f3300727ec5389fc2522eb4e46b44664533885e4274c8590853e",
+    "files": 4283,
+    "packaging": "infra/scripts/package-backend.sh at cd20a9b in a clean WSL clone; Lambda Python 3.12 image import check passed; no .env, AWS files or local state in the archive"
+  },
+  "configurationChange": {
+    "revision": "full SHA, so APLOMB_BUILD_REVISION is set on both functions",
+    "cors": "x-aplomb-build added to exposed headers",
+    "flags": "unchanged"
+  },
+  "changeSet": {
+    "name": "release-cd20a9b",
+    "changes": [
+      "Modify ApiF70053CD and Worker11F36D0F: Code, Environment (APLOMB_BUILD_REVISION; API worker version reference), Role",
+      "Modify Http36EFD62B CorsConfiguration in place (no replacement)",
+      "Add API and worker version 4; version-3 resources leave the stack (DeletionPolicy Retain)",
+      "Per-release roles, policies and worker EventInvokeConfig identical to the previous ones after hash normalization",
+      "HTTP integration and its invoke permission move to API version 4"
+    ]
+  },
+  "result": {
+    "stackStatus": "UPDATE_COMPLETE",
+    "failedEvents": 0,
+    "lambdaVersions": {
+      "api": "4",
+      "worker": "4"
+    },
+    "lambdaCodeSha256": "b7wWoaxy8zAHJ+xTifwlIutORrRGZFM4heQnTIWQhT4=",
+    "lambdaCodeSha256MatchesArtifact": true
+  },
+  "liveChecks": {
+    "buildHeader": "X-Aplomb-Build: cd20a9bb9e6201c1ce571f70e9cf9a3164c741e1, exposed through CORS",
+    "meta": "eight flags on (bilingual, frontier_chart, goal_requests, guardrails, profile_creator, time_machine, world_explorer, world_layer_hazards); en, fr",
+    "selectedReturn": {
+      "full": 50.016,
+      "custom 2024-01-02..2024-12-31": 15.117,
+      "1y": 10.595
+    },
+    "decisionRun": {
+      "runId": "run_01M7F1XFDB15PEFVWM0CYJXZZD",
+      "request": "Robert TSLA +25 pro rata",
+      "status": "succeeded",
+      "seconds": 40,
+      "counts": {
+        "pass": 1,
+        "tension": 1,
+        "conflict": 6,
+        "nee": 0,
+        "info": 3
+      },
+      "audit": "passed_with_strikes",
+      "steps": [
+        "plan",
+        "quant",
+        "risk_check",
+        "write",
+        "audit",
+        "sign"
+      ]
+    },
+    "sessionIsolation": "another session reading the run -> 404",
+    "goalRun": {
+      "runId": "run_01M7F1YQTKYGQC56H9CW0FPF3C",
+      "request": "Amira AI target 15%",
+      "status": "succeeded",
+      "seconds": 29,
+      "scenarios": [
+        "sc_goal_no_change"
+      ],
+      "audit": "passed"
+    },
+    "replayRun": {
+      "runId": "run_01M7F1ZMPQXWQDMFWMCRHX5RB1",
+      "asOf": "2025-02-19",
+      "status": "succeeded",
+      "seconds": 45,
+      "reveal": "2025-12-31",
+      "parentLedgerHashUnchanged": true
+    },
+    "browser": "Home on CloudFront (frontend 4cd6ab2 or later) shows Historical return +50.0%, no error state."
+  },
+  "notCovered": [
+    "source-backed event brief with a real model in this release",
+    "CloudWatch log read-back",
+    "load test"
+  ],
+  "rollback": "Update the stack with the a85beea template (artifact deployments/a85beea/lambda.zip version hJF3Zi0krnilLU0ciNeqp1INGRoKD68B is retained)."
+}

@@ -1,6 +1,6 @@
 # 10 — Status as built
 
-**As of:** Sunday 2026-11-15, 00:07 EST. Initial review: `7c4c457`; continuation and current CloudFront release: `f46c453`. Backend worker version and code hash are captured separately in the [verification follow-up](11-VERIFICATION-FOLLOWUP.md). Backend release `9f10301` (API and worker version 2, 2026-11-15 06:28 UTC) enabled the flags marked below; see [its evidence](../infra/evidence/release-9f10301-2026-11-15.json). Release `a85beea` (version 3, 06:56 UTC) added custom date windows; see [its evidence](../infra/evidence/release-a85beea-2026-11-15.json).
+**As of:** Sunday 2026-11-15, 00:07 EST. Initial review: `7c4c457`; continuation and current CloudFront release: `f46c453`. Backend worker version and code hash are captured separately in the [verification follow-up](11-VERIFICATION-FOLLOWUP.md). Backend release `9f10301` (API and worker version 2, 2026-11-15 06:28 UTC) enabled the flags marked below; see [its evidence](../infra/evidence/release-9f10301-2026-11-15.json). Release `a85beea` (version 3, 06:56 UTC) added custom date windows; see [its evidence](../infra/evidence/release-a85beea-2026-11-15.json). Release `cd20a9b` (version 4, 07:30 UTC) is the backend of `4cd6ab2`; see [its evidence](../infra/evidence/release-cd20a9b-2026-11-15.json).
 **Purpose:** one page that says what exists, where it runs, and what a judge can actually open. It replaces guessing from the original plan. Findings and recommendations are in the [independent review](09-INDEPENDENT-REVIEW.md).
 
 ## How to read the columns

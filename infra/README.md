@@ -8,6 +8,8 @@ Backend release (2026-11-15 06:28 UTC): `9f10301` deployed as API and worker ver
 
 Backend release (2026-11-15 06:56 UTC): `a85beea` deployed as API and worker version 3, adding custom date windows on overview, performance and frontier (`70c5eda`); flags unchanged. [Evidence](evidence/release-a85beea-2026-11-15.json).
 
+Backend release (2026-11-15 07:30 UTC): `cd20a9b` (backend of `4cd6ab2`) deployed as API and worker version 4 with `X-Aplomb-Build` release identity; flags unchanged. Live Robert decision, Amira goal, replay/reveal and session isolation passed. [Evidence](evidence/release-cd20a9b-2026-11-15.json).
+
 Deployment update (2026-11-14): `Aplomb` reached `UPDATE_COMPLETE` in us-east-1 after pulling `b0e6a15` and applying the AWS architecture changes. [Live site](https://d1r325uzu5fe7x.cloudfront.net); [API health](https://tf6efr54nd.execute-api.us-east-1.amazonaws.com/v1/health). The frontend uses the real API with fixtures disabled and snapshot `snap-20261114-sourced`. Live portfolio briefs and decisions completed planner → quant → risk → writer → audit → sign, using GPT-6 Astra, Claude Opus 5.5 and Standard-tier Guardrail version 3. Profile creation/frontier/Guardrails are enabled; other optional capabilities remain disabled.
 
 The worker has a retained encrypted SQS failure destination. `Aplomb-operations` displays actual workflow outcomes, token use, latency and platform delivery failures. Alarms have no paging target. [Architecture guide](../docs/AWS-ARCHITECTURE.md) and [sanitized live evidence](evidence/aws-architecture-2026-11-14.json) document the proof and limits; the historical handoff below describes the original T02 state.
