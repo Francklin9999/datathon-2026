@@ -8,6 +8,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { asApiError, isAbort, type ApiRequestError } from '../api/errors';
 
 const cache = new Map<string, unknown>();
+/** Reads already on their way (see prefetchQuery): a query with the same key waits for them. */
+const inflight = new Map<string, Promise<unknown>>();
+
+/** Start a read before the component that shows it mounts; its result lands in the cache. */
+export function prefetchQuery<T>(key: string | null, fetcher: (signal: AbortSignal) => Promise<T>): void {
+  if (!key || cache.has(key) || inflight.has(key)) return;
+  const promise = fetcher(new AbortController().signal)
+    .then(data => { cache.set(key, data); return data; })
+    .finally(() => inflight.delete(key));
+  promise.catch(() => { /* the component's own query reports errors */ });
+  inflight.set(key, promise);
+}
 
 /** Delays before retrying a read that failed for a transient reason. */
 const READ_RETRIES = [800, 2000] as const;
@@ -68,7 +80,15 @@ export function useQuery<T>(key: string | null, fetcher: (signal: AbortSignal) =
         },
       );
     };
-    attempt(0);
+    const pending = inflight.get(key);
+    if (pending) {
+      pending.then(
+        data => { if (!controller.signal.aborted) setState({ key, data: data as T, error: null, loading: false }); },
+        () => { if (!controller.signal.aborted) attempt(0); },
+      );
+    } else {
+      attempt(0);
+    }
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); };
   }, [key, nonce]);
 

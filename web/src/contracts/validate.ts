@@ -18,6 +18,16 @@ export class ContractValidationError extends Error {
   }
 }
 
+/**
+ * Compile the schema set ahead of the first response (the first compile costs about 0.3 s; later
+ * ones a few milliseconds). Called while the first requests are in flight, so it is off the
+ * critical path.
+ */
+export function warmContracts(): void {
+  if (validators.has('Meta')) return;
+  try { validateContract('Meta', {}); } catch { /* compiling is the point; the empty value is invalid */ }
+}
+
 export function validateContract<K extends keyof AplombContracts>(
   name: K, value: unknown,
 ): AplombContracts[K] {
