@@ -3,6 +3,7 @@ import copy
 import json
 import math
 import re
+import time
 from collections import OrderedDict
 from contextlib import nullcontext
 from datetime import date
@@ -57,9 +58,16 @@ class WebFetchArgs(Args):
 
 
 class WebBrowseArgs(Args):
-    task: str = Field(max_length=1000)
-    start_url: str | None = None
-    max_pages: int = Field(default=5, ge=1, le=5)
+    """Read pages in a real browser (JavaScript rendered), on allow-listed official sites only."""
+
+    task: str = Field(max_length=1000, description="What to look for, in a few words; links are followed only when they name these words.")
+    start_url: str | None = Field(default=None, max_length=2000, description="Required: an https page on an allow-listed official site to start from.")
+    max_pages: int = Field(default=5, ge=1, le=5, description="Pages to read at most, the start page included.")
+
+
+# web.browse runs longer than the other research tools (a browser session and up to five pages):
+# the workflow grants it 40 s (agents.workflow.BROWSE_TOOL_SECONDS) and the browse stops before.
+BROWSE_SECONDS = 36
 
 
 class PageviewsArgs(Args):
@@ -101,7 +109,8 @@ def passages(document, query=None, max_chars=6000):
             "source_warning": "Untrusted source text; claims require saved verified quotes"}
 
 
-def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
+def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, browser=None):
+    """Tool bindings. ``web.browse`` exists only with an AgentCore browser (flag ``research_open_web``)."""
     from aplomb.agents.registry import ToolResult
     edgar = EdgarAdapter(service)
     gdelt, attention, etf = gdelt or GdeltAdapter(service=service), attention or AttentionAdapter(service), etf or ETFAdapter(service)
@@ -149,9 +158,14 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
         evidence_id = service.save_evidence(kw, document.document_id, rc, ctx.ledger)
         return ToolResult(True, "Verified same-run quote saved", evidence_ids=[evidence_id], data={"evidenceId": evidence_id})
 
-    def unsupported_browser(ctx, **kw):
-        context(ctx)
-        return ToolResult(False, "Browser adapter disabled pending navigation capture", error="browser_disabled")
+    def browse_pages(ctx, task, start_url=None, max_pages=5):
+        from .browser import browse
+        budget = BROWSE_SECONDS
+        limits = getattr(ctx, "limits", None)
+        if limits is not None and hasattr(limits, "remaining"):
+            budget = min(budget, limits.remaining(reserve=2))
+        data = browse(service, browser, task, start_url, max_pages, context(ctx), time.monotonic() + budget)
+        return ToolResult(True, f"Browsed {len(data['pages'])} allow-listed page(s); save a quote before citing", data=data)
 
     def company_facts(ctx, **kw):
         rc = context(ctx)
@@ -248,9 +262,11 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
         "edgar.find_company": (FindCompanyArgs, find), "edgar.list_filings": (ListFilingsArgs, filings),
         "edgar.filing_text": (FilingTextArgs, filing), "edgar.company_facts": (CompanyFactsArgs, company_facts),
         "gdelt.search": (GdeltSearchArgs, gdelt_search), "web.fetch": (WebFetchArgs, fetch),
-        "web.browse": (WebBrowseArgs, unsupported_browser), "attention.pageviews": (PageviewsArgs, pageviews),
+        "attention.pageviews": (PageviewsArgs, pageviews),
         "etf.holdings": (HoldingsArgs, holdings), "research.save_evidence": (SaveEvidenceArgs, save),
     }
+    if browser is not None:
+        bindings["web.browse"] = (WebBrowseArgs, browse_pages)
 
     # Results per run ID: the workflow hands every tool call a copy of the run ledger, so the
     # ledger object cannot be the key. Each entry keeps the facts and evidence it registered; a

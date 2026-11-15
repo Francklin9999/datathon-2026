@@ -18,6 +18,7 @@ from typing import Callable
 
 from aplomb.contracts import api as a
 from aplomb.contracts import models as m
+from aplomb.contracts.catalog import FeatureFlag
 from aplomb.datastore import Snapshot
 
 from .dispatcher import LambdaDispatcher, LocalDispatcher
@@ -196,7 +197,13 @@ def build_registry(settings: Settings, world=None):
             log.warning("Research tools disabled: APLOMB_SOURCE_USER_AGENT needs a contact URL or email")
         else:
             service = ResearchService(transport, lambda: datetime.now(timezone.utc))
-            for name, (args, function) in research_tool_handlers(service).items():
+            browser = None
+            if settings.features[FeatureFlag.RESEARCH_OPEN_WEB]:
+                # web.browse through AgentCore Browser; without the flag the tool does not exist.
+                from aplomb.research.browser import AgentCoreBrowser
+
+                browser = AgentCoreBrowser(settings.region)
+            for name, (args, function) in research_tool_handlers(service, browser=browser).items():
                 registry.register(name, args, function)
     if world is not None:
         class SearchEventsArgs(BaseModel):

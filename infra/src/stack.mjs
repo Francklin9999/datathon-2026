@@ -117,6 +117,14 @@ export class AplombStack extends Stack {
     api.addToRolePolicy(new iam.PolicyStatement({actions:['lambda:InvokeFunction'],resources:[`${worker.functionArn}:*`]}));
     if (application.guardrail) worker.addToRolePolicy(new iam.PolicyStatement({
       actions:['bedrock:ApplyGuardrail'],resources:[application.guardrail.arn,...(application.guardrail.profileResourceArns ?? [])]}));
+    // web.browse (flag research_open_web): the worker drives the AWS-managed AgentCore browser only.
+    // Its sessions are opened, driven over the signed automation stream, and stopped; no live view,
+    // no custom browser, no other session.
+    if (application.features?.includes('research_open_web')) worker.addToRolePolicy(new iam.PolicyStatement({
+      actions:['bedrock-agentcore:StartBrowserSession','bedrock-agentcore:StopBrowserSession',
+        'bedrock-agentcore:ConnectBrowserAutomationStream'],
+      resources:[`arn:${this.partition}:bedrock-agentcore:${this.region}:aws:browser/aws.browser.v1`,
+        `arn:${this.partition}:bedrock-agentcore:${this.region}:${this.account}:browser/aws.browser.v1`]}));
     for (const fn of [api,worker]) {
       for (const table of Object.values(tables)) {
         if (fn === worker && table !== tables.Runs) continue; // frozen inputs; worker only mutates run state

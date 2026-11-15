@@ -8234,7 +8234,7 @@
   "x-contract-version": "1.1.0",
   "x-spec-sha256": {
     "schemas.md": "557f5095b285d5632b9be0921f728bb4f1d2ea855a6230fe71ffd52e7e3917c7",
-    "catalog.md": "bbb2dc5a3d14f79db60dcb72d12306501fee14f6101749d87dbce4b9a8d0c3be",
+    "catalog.md": "0f1f445b6e12a8189825c3edcf2da4100afffe38da0de6093c22a29986c70062",
     "api.md": "f2e28fa469e59cc747895e5391ca537179faa41abd800dbfae26b0e9327878e2",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"

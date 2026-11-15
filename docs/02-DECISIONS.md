@@ -110,7 +110,7 @@ These were **not** confirmed by the product owner. Each is a default so that wor
 | ID | Item | Owner | Blocks |
 |---|---|---|---|
 | O-01 | Which Claude models are enabled in Bedrock on the organizer account, in which region, with which quotas. | T02 (AWS operator) | Agents, model configuration |
-| O-02 | Whether AgentCore Runtime and the AgentCore Browser tool are available on the account. Until confirmed, open-web research is behind a feature flag and the fallback is direct fetch from known sites. | T02 | Research tool `web.browse` |
+| O-02 | Whether AgentCore Runtime and the AgentCore Browser tool are available on the account. **Browser: closed 2026-11-15.** Sessions start and stop on the account (preflight 2026-11-14), and `web.browse` now drives the managed browser `aws.browser.v1` over its signed automation stream: live navigation and capture verified on Bank of Canada and Federal Reserve pages ([evidence](../infra/evidence/agentcore-browser-2026-11-15.json)). It stays behind `research_open_web` (off until a release turns it on); the fallback remains direct fetch. AgentCore Runtime is still not used (D-07). | T02 | Research tool `web.browse` |
 | O-03 | Whether Bedrock Guardrails can be created on the account. | T02 | Guardrail step in the auditor |
 | O-04 | Product-owner approval of the default portfolios (A-13) and of the threshold formulas (A-02 to A-10). | Product owner | Nothing; defaults are usable |
 | O-05 | Real publication dates for monthly macro series (to replace A-22). Partly closed 2026-11-14: Canada CPI release dates loaded from Statistics Canada (`snap-20261114-sourced`); US CPI/unemployment still need release and vintage data (ALFRED). | T04 | Time Machine credibility |

@@ -20,6 +20,9 @@ from .limits import BudgetExceeded, Limits
 from .models import AnalysisPlan, ModelGateway, ResearchActions, WriterDraft
 from .registry import QUANT, RESEARCH, RISK, ToolContext, ToolRegistry, ToolResult
 
+# A browser session and up to five pages (aplomb.research.tools); the browse itself stops at 36 s.
+BROWSE_TOOL_SECONDS = 40
+
 
 def i18n(text):
     return m.I18nText(en=text, fr=text)
@@ -375,7 +378,7 @@ class Execution:
             result = self.context_call(
                 ctx,
                 lambda isolated: self.services.registry.execute(role, name, args, isolated),
-                20 if role == "researcher" else 5,
+                BROWSE_TOOL_SECONDS if name == "web.browse" else 20 if role == "researcher" else 5,
             )
             if isinstance(result, dict):
                 result = ToolResult(**result)

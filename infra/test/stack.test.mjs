@@ -132,3 +132,24 @@ test('release changes publish new isolated IAM and retain old version delivery c
     for(const v of Object.values(next.Resources).filter(r=>r.Type==='AWS::Lambda::Version')) assert.equal(v.DeletionPolicy,'Retain');
   } finally {fs.rmSync(dir,{recursive:true});}
 });
+
+test('AgentCore browser access exists only with research_open_web, on the worker, for the managed browser',()=>{
+  const dir=artifact();
+  const browserStatements=t=>Object.entries(t.Resources).filter(([,r])=>r.Type==='AWS::IAM::Policy')
+    .flatMap(([id,r])=>r.Properties.PolicyDocument.Statement.map(s=>({id,s})))
+    .filter(({s})=>(Array.isArray(s.Action)?s.Action:[s.Action]).some(a=>a.startsWith('bedrock-agentcore:')));
+  try {
+    const off=Template.fromStack(new AplombStack(new App(),'Off',{application:appConfig(dir)})).toJSON();
+    assert.deepEqual(browserStatements(off),[]);
+    const on=Template.fromStack(new AplombStack(new App(),'On',{application:{...appConfig(dir),features:['research_open_web']}})).toJSON();
+    const found=browserStatements(on);
+    assert.equal(found.length,1);
+    assert.match(found[0].id,/^WorkerRole/);
+    assert.deepEqual(found[0].s.Action,['bedrock-agentcore:StartBrowserSession','bedrock-agentcore:StopBrowserSession',
+      'bedrock-agentcore:ConnectBrowserAutomationStream']);
+    const resources=JSON.stringify(found[0].s.Resource);
+    assert.ok(resources.includes(':aws:browser/aws.browser.v1') && !resources.includes('*'));
+    const worker=Object.values(on.Resources).find(r=>r.Type==='AWS::Lambda::Function'&&r.Properties.Handler==='aplomb.agents.worker.handler');
+    assert.equal(worker.Properties.Environment.Variables.APLOMB_FEATURE_RESEARCH_OPEN_WEB,'true');
+  } finally {fs.rmSync(dir,{recursive:true});}
+});

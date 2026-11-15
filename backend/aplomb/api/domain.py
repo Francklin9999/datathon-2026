@@ -145,6 +145,9 @@ def default_services(settings: Settings, store=None, gateway=None, price_provide
         capabilities.add("guardrails")
     if runs is not None and (gateway is not None or (settings.model_strong and settings.model_fast)):
         capabilities.add("sabotage_demo")
+    if runs is not None and settings.source_user_agent:
+        # web.browse is registered with the research tools, which need a contact user agent.
+        capabilities.add("research_open_web")
     return Services(profiles=profiles, checks=checks, runs=runs, parser=parser, world=world, sabotage=runs.sabotage if runs else None,
                     replay=ReplayServiceImpl(snapshot), datastore=WorldDatastoreService(snapshot, BundleProvider(), on_demand),
                     capabilities=capabilities)

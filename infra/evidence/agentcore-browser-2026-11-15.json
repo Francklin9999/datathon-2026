@@ -1,0 +1,51 @@
+{
+  "checkedAt": "2026-11-15T16:45:00Z",
+  "account": "project account (same as aws-architecture-2026-11-14.json)",
+  "region": "us-east-1",
+  "browserIdentifier": "aws.browser.v1",
+  "client": "backend/aplomb/research/browser.py (stdlib WebSocket, CDP, SigV4 service bedrock-agentcore)",
+  "officialReferences": [
+    "https://docs.aws.amazon.com/bedrock-agentcore/latest/APIReference/API_StartBrowserSession.html",
+    "https://docs.aws.amazon.com/bedrock-agentcore/latest/APIReference/API_StopBrowserSession.html",
+    "https://chromedevtools.github.io/devtools-protocol/"
+  ],
+  "runs": [
+    {
+      "task": "policy interest rate announcement",
+      "startUrl": "https://www.bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/",
+      "maxPages": 2,
+      "seconds": 9.0,
+      "stopped": "max_pages",
+      "captured": [
+        "https://www.bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/",
+        "https://www.bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/blackout-guidelines/"
+      ]
+    },
+    {
+      "task": "federal funds rate FOMC meeting",
+      "startUrl": "https://www.federalreserve.gov/monetarypolicy/openmarket.htm",
+      "maxPages": 3,
+      "seconds": 10.1,
+      "stopped": "max_pages",
+      "captured": [
+        "https://www.federalreserve.gov/monetarypolicy/openmarket.htm",
+        "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+        "https://www.federalreserve.gov/aboutthefed/boardmeetings/meetingdates.htm"
+      ]
+    }
+  ],
+  "verified": {
+    "startBrowserSession": "success",
+    "automationStreamSigV4Upgrade": "success (HTTP 101)",
+    "cdpNavigation": "success",
+    "renderedTextCapture": "success",
+    "allowlistedLinkFollowing": "success",
+    "stopBrowserSession": "success (every run, in finally)"
+  },
+  "notVerified": [
+    "Deployed worker IAM: the stack grants the browser actions only with research_open_web; no release with the flag has run.",
+    "Exact resource ARN the service authorizes for the managed browser: both the aws-owned and the account form are granted.",
+    "A full agent run choosing web.browse on its own."
+  ],
+  "credentials": "local operator profile; no secret recorded"
+}

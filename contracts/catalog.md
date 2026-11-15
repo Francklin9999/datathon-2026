@@ -256,7 +256,7 @@ Returned by `GET /meta`; the web app hides what is off. Defaults are for the fir
 | `profile_creator` | true | cut 4 |
 | `goal_requests` | true | cut 4 |
 | `sabotage_demo` | true | — |
-| `research_open_web` | false until O-02 is closed | — |
+| `research_open_web` | false; a release turns it on (O-02 closed for the Browser on 2026-11-15) | — |
 | `guardrails` | false until O-03 is closed | — |
 | `on_demand_tickers` | true | — |
 | `frontier_chart` | true | — |
