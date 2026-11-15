@@ -1,0 +1,45 @@
+{
+  "release": "4f424601f5aac01e3769130abc4aa36c1d91d89c",
+  "deployedAt": "2026-11-15T20:19:02Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "version": "12",
+  "contents": "Integration of every branch: main (1a3b313), feat/liquid-glass (a5c3097), codex/parallel-base-20261115 and codex/global-platform-expansion (2604b96), codex/agent-1-investor-quant (b7ec953), codex/agent-2-research-audit (8870afb) and codex/agent-3-world-data (f3858c2). Contract 1.4.0; flags unchanged.",
+  "method": "Full gate on 4f42460 before release: check:generated, ruff, 1036 Python tests and 16 subtests, typecheck, 231 web tests, check_specs, 7 infra tests and synth, static build. Artifact packaged by infra/scripts/package-backend.sh in a clean WSL clone at 4f42460, including the Lambda Python 3.12 import check: deployments/4f42460/lambda.zip, S3 version H9zEcE0mB0ut6NCTdRhWWQc5fG982Mzr, sha256 4245e6be5b4d16a3dd41b5390fa89d9948c0cb5f7932e47477f834b253f4a1a7, Lambda CodeSha256 QkXmvltNFqPdQbU5D6idmUjAy195MuR0d/g0slP0oac= (matches on API and worker); 87.3 MB zipped, 184.8 MB unzipped. Release config derived from the deployed template (models, Guardrail 685ahdwc4uye version 3, model resource ARNs, origins, source user agent and the ten flags unchanged); CDK bootstrap parameter, rule and metadata removed and Code pointed at the artifact, as in earlier releases. Change set release-4f42460 reviewed before execution: per-release roles, policies, versions and async config added, the previous ones (all Retain) removed from the stack, both functions and the HTTP integration modified, invoke permission replaced; no table, bucket, distribution, alarm or queue change. AWS CLI credentials: Workshop Studio WSParticipantRole.",
+  "data": {
+    "dataVersion": "snap-20261115-globalfx",
+    "parentVersion": "snap-20261114-sourced",
+    "build": "materialize_pinned_global_fx from the committed inputs; the rebuilt manifest equals data/manifests/snap-20261115-globalfx.json and the parent manifest equals the one in S3",
+    "objects": 9,
+    "inheritedDatasetsByteIdenticalToProduction": 7,
+    "newDataset": "fx_boc_global",
+    "openedFromS3": "SnapshotProvider read all eight datasets from snapshots/snap-20261115-globalfx/ before the stack update"
+  },
+  "liveChecks": {
+    "meta": "contract 1.4.0, snap-20261115-globalfx (data as of 2026-11-12), nine reporting currencies, the same ten flags on, X-Aplomb-Build 4f42460",
+    "endpoints": "health, profiles, robert overview, amira risk, world observations (aviation total 733), world events (499), research market connections, datasets (70) and replay presets answered 200",
+    "decision": {
+      "runId": "run_01M7GE3ZP74B2HGCC4D16GG1AA",
+      "request": "Robert TSLA +25, pro rata, English",
+      "status": "succeeded",
+      "seconds": 47,
+      "steps": "plan, research, quant, risk_check, write, audit, sign",
+      "counts": "1 pass, 1 tension, 6 conflict, 3 info",
+      "maxCompatibleSizePct": 6.0,
+      "audit": "passed",
+      "llmCalls": 6,
+      "toolCalls": 4
+    },
+    "isolation": "another session -> 404",
+    "latency": "first robert overview after the update 17.9 s (cold start, snapshot download); warm overview and performance 0.4-3.1 s"
+  },
+  "limits": [
+    "Keyed market providers (Alpha Vantage, Twelve Data, Finnhub, Tiingo and agent 2's eight selected accounts) report no credential on AWS: the keys exist only in a local ignored .env and were not added to the functions.",
+    "Between the stack update (20:19 UTC) and the static site deploy of 4f42460, the previous site build was served against contract 1.4.0."
+  ],
+  "notVerified": [
+    "Event brief with web.browse, replay/reveal, goal and sabotage runs were not repeated on this release.",
+    "New contract 1.4.0 write routes (accounts, rebalance runs, custom rules) were not exercised on AWS."
+  ],
+  "rollback": "Update to the 4a9c98e template (artifact deployments/4a9c98e/lambda.zip version wbWA82oqDeIsh_DfX6eB6CmaBRYLpszq, data snap-20261114-sourced); its roles, policies, versions and async config were retained."
+}
