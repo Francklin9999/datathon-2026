@@ -292,6 +292,7 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `world_nyfed_sce_inflation_2024` | New York Fed SCE twelve 2024 monthly household inflation expectation observations | P2 |
 | `world_ember_monthly_generation_2026` | Ember 2026 selected monthly country electricity generation aggregates in TWh | P2 |
 | `world_geofabrik_monaco_transport` | Geofabrik Monaco extract OpenStreetMap transport points under ODbL | P2 |
+| `world_hapi_inform_risk_2025` | HDX HAPI 2025 INFORM national humanitarian risk index for 191 countries | P2 |
 | `world_geoboundaries_fra_adm1` | geoBoundaries pinned 2022 metropolitan France ADM1 polygons | P2 |
 | `world_ucdp_ged_ukraine_2025` | UCDP GED 26.1 bounded Ukraine 2025 conflict events | P2 |
 | `energy_wri_plants` | WRI power plant reference observations | P2 |
