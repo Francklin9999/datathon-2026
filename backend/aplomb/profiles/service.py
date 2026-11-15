@@ -15,7 +15,9 @@ import json
 import math
 import re
 import secrets
+import threading
 import unicodedata
+from collections import OrderedDict
 from datetime import date, datetime, timezone
 from typing import Callable
 
@@ -31,6 +33,9 @@ from aplomb.rules.engine import RuleEngine, RuleInputs, verdict_of
 
 from .defaults import load_defaults
 from .rulebuilder import renumber
+
+# Entries kept by the read cache of each process (overview and performance responses).
+READ_CACHE_SIZE = 64
 
 VOL_BUDGET = {"low": 6.0, "low_moderate": 9.0, "moderate": 12.0, "moderate_high": 16.0, "high": 22.0}  # A-02
 RISK_ORDER = ("low", "low_moderate", "moderate", "moderate_high", "high")
@@ -91,6 +96,8 @@ class ProfileServiceImpl:
         self.proposer = proposer
         self._defaults = {p.profile_id: p for p in load_defaults()}
         self._frontier_cache: dict[tuple, a.FrontierResponse] = {}
+        self._read_cache: OrderedDict[tuple, object] = OrderedDict()
+        self._read_lock = threading.Lock()
 
     # Reads ------------------------------------------------------------------------------------
 
@@ -368,8 +375,35 @@ class ProfileServiceImpl:
     def _weights(profile: m.Profile) -> dict[str, float]:
         return {p.ticker: p.weight_pct / 100.0 for p in profile.portfolio.positions if p.weight_pct > 0}
 
+    def _cached_read(self, kind: str, profile: m.Profile, query: dict | None, compute: Callable[[], object]):
+        """Deterministic reads (overview, performance) cached per process, least recently used out.
+
+        The result depends only on the data snapshot, the profile's full content (holdings, rules,
+        name, currency, capital) and the query, so the key holds all three: an edited rule, another
+        session's overlay or a new snapshot never reuses an entry, while every session reading an
+        unedited default profile shares one. Errors are not cached. Callers get a deep copy.
+        """
+        content = json.dumps(profile.to_wire(), sort_keys=True, default=str)
+        request = json.dumps({k: v for k, v in (query or {}).items() if k != "lang"}, sort_keys=True, default=str)
+        key = (kind, self.snapshot().data_version, hashlib.sha256(content.encode()).hexdigest(), request)
+        with self._read_lock:
+            hit = self._read_cache.get(key)
+            if hit is not None:
+                self._read_cache.move_to_end(key)
+        if hit is None:
+            hit = compute()
+            with self._read_lock:
+                self._read_cache[key] = hit
+                self._read_cache.move_to_end(key)
+                while len(self._read_cache) > READ_CACHE_SIZE:
+                    self._read_cache.popitem(last=False)
+        return hit.model_copy(deep=True)
+
     def overview(self, session_id: str, profile_id: str, query: dict) -> a.OverviewResponse:
         profile = self.get(session_id, profile_id)
+        return self._cached_read("overview", profile, query, lambda: self._overview(profile, query))
+
+    def _overview(self, profile: m.Profile, query: dict) -> a.OverviewResponse:
         ledger = LocalLedger()
         eng, window = self._engine(profile, query, ledger)
         weights = self._weights(profile)
@@ -462,6 +496,9 @@ class ProfileServiceImpl:
 
     def performance(self, session_id: str, profile_id: str, query: dict) -> a.PerformanceResponse:
         profile = self.get(session_id, profile_id)
+        return self._cached_read("performance", profile, query, lambda: self._performance(profile, query))
+
+    def _performance(self, profile: m.Profile, query: dict) -> a.PerformanceResponse:
         eng, window = self._engine(profile, query, LocalLedger())
         weights = self._weights(profile)
         try:
