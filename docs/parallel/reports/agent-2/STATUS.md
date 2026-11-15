@@ -9,3 +9,6 @@ Latest owner scope: retain supplied accounts and already working public sources;
 New stock/chain account adapters, generic Markets controls, Japan full pagination and delayed-date controls are implemented. Existing wider research/agent/history limitations remain in REQUIREMENTS.md; this is not a claim that every worldwide feature is complete.
 
 Latest validation and source receipts: docs/evidence/parallel/agent-2/supplied-accounts/. Full handoff: HANDOFF.md.
+
+
+Final codex-3 continuation: all local gates and static export pass (922 Python tests + 16 subtests, 205 web tests, six infra tests). Eighteen browser source workflows have passing evidence, including six freshly rerun regional cases; fresh mobile form/label checks pass. See [FINAL-VERIFICATION.md](FINAL-VERIFICATION.md) and `docs/evidence/parallel/agent-2/final-verification/`. This completes the last verification request, without claiming combined deployment or resolving the existing FRED permission blocker.

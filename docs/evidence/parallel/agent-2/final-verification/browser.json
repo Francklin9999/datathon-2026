@@ -1,0 +1,89 @@
+{
+  "scope": "Local browser to actual configured API/provider and immutable capture; no fixture provider responses. Twelve connected-account cases retained from codex-3's final run; six JP/KR cases rerun after form fixes against static export.",
+  "results": [
+    {
+      "provider": "tiingo",
+      "status": "passed"
+    },
+    {
+      "provider": "alpha-vantage",
+      "status": "passed"
+    },
+    {
+      "provider": "finnhub",
+      "status": "passed"
+    },
+    {
+      "provider": "twelve-data",
+      "status": "passed"
+    },
+    {
+      "provider": "fmp",
+      "status": "passed"
+    },
+    {
+      "provider": "eodhd",
+      "status": "passed"
+    },
+    {
+      "provider": "massive",
+      "status": "passed"
+    },
+    {
+      "provider": "marketstack",
+      "status": "passed"
+    },
+    {
+      "provider": "coinmarketcap",
+      "status": "passed"
+    },
+    {
+      "provider": "blockscout",
+      "status": "passed"
+    },
+    {
+      "provider": "alchemy",
+      "status": "passed"
+    },
+    {
+      "provider": "goldrush",
+      "status": "passed",
+      "mobile": {
+        "viewport": 390,
+        "scroll": 390,
+        "duplicates": []
+      }
+    },
+    {
+      "provider": "JP",
+      "kind": "prices",
+      "status": "passed"
+    },
+    {
+      "provider": "JP",
+      "kind": "company",
+      "status": "passed"
+    },
+    {
+      "provider": "JP",
+      "kind": "financials",
+      "status": "passed"
+    },
+    {
+      "provider": "KR",
+      "kind": "filings",
+      "status": "passed"
+    },
+    {
+      "provider": "KR",
+      "kind": "financials",
+      "status": "passed"
+    },
+    {
+      "provider": "KR",
+      "kind": "ownership",
+      "status": "passed"
+    }
+  ],
+  "runtimeErrors": []
+}

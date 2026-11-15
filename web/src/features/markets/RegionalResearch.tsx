@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { API_BASE } from '../../api/index';
 import { ExternalLink } from '../../components/common/ExternalLink';
 import { Card } from '../../components/common/Page';
@@ -32,7 +32,8 @@ type OwnershipRow = {
 type RegionalResult = {
   status: 'ok' | 'unavailable'; reason?: string; kind?: Kind; provider: string; identifier: string; identifierType: string;
   sourceUrl: string; sourceUrls?: string[]; retrievedAt: string; availableAt: string; partial?: boolean;
-  datasetVersion?: string; prices: { date: string; close: number | null; adjustedClose: number | null; currency: string }[];
+  datasetVersion?: string; sourceSha256?: string; sourceHashes?: Record<string, string>; companySourceSha256?: string;
+  prices: { date: string; close: number | null; adjustedClose: number | null; currency: string }[];
   filings: { date: string; title: string; url: string; receiptNumber: string }[];
   company: Company | null; financials?: FinancialRow[]; ownership?: OwnershipRow[]; limitations?: string[];
   fiscalYear?: string; reportCode?: string; statementType?: string;
@@ -55,6 +56,7 @@ function signed(value: string | null | undefined): string {
 
 export function RegionalResearch({ allowedRegions = ['JP', 'KR'] }: { allowedRegions?: ('JP' | 'KR')[] }) {
   const { tr, sessionId } = useApp();
+  const prefix = useId();
   const [region, setRegion] = useState<'JP' | 'KR'>(allowedRegions[0] ?? 'KR');
   const [kind, setKind] = useState<Kind>((allowedRegions[0] ?? 'KR') === 'KR' ? 'filings' : 'prices');
   const [fiscalYear, setFiscalYear] = useState(String(new Date().getUTCFullYear() - 1));
@@ -118,23 +120,23 @@ export function RegionalResearch({ allowedRegions = ['JP', 'KR'] }: { allowedReg
 
   return <Card title={tr({ en: 'Regional source research', fr: 'Recherche dans les sources régionales' })}>
     <p className="small">{tr({ en: 'Query Japanese (J-Quants) or Korean (OpenDART) official sources with an exact provider identifier. Tickers and names are never matched. Access depends on configured credentials and usage rights.', fr: 'Interrogez les sources officielles japonaises (J-Quants) ou coréennes (OpenDART) avec un identifiant exact du fournisseur. Aucun rapprochement par ticker ou par nom. L’accès dépend des identifiants et droits configurés.' })}</p>
-    <div className="field"><label htmlFor="regional-region">{tr({ en: 'Provider region', fr: 'Région du fournisseur' })}</label>
-      <select disabled={loading} id="regional-region" value={region} onChange={e => { const next = e.target.value as 'JP' | 'KR'; setRegion(next); setKind(next === 'JP' ? 'prices' : 'filings'); setIdentifier(''); reset(); }}>
+    <div className="field"><label htmlFor={prefix+'-regional-region'}>{tr({ en: 'Provider region', fr: 'Région du fournisseur' })}</label>
+      <select disabled={loading} id={prefix+'-regional-region'} value={region} onChange={e => { const next = e.target.value as 'JP' | 'KR'; setRegion(next); setKind(next === 'JP' ? 'prices' : 'filings'); setIdentifier(''); reset(); }}>
         {allowedRegions.includes('JP') && <option value="JP">Japan · J-Quants</option>}{allowedRegions.includes('KR') && <option value="KR">Korea · OpenDART</option>}
       </select></div>
-    <div className="field"><label htmlFor="regional-kind">{tr({ en: 'Research type', fr: 'Type de recherche' })}</label>
-      <select disabled={loading} id="regional-kind" value={kind} onChange={e => { setKind(e.target.value as Kind); reset(); }}>
+    <div className="field"><label htmlFor={prefix+'-regional-kind'}>{tr({ en: 'Research type', fr: 'Type de recherche' })}</label>
+      <select disabled={loading} id={prefix+'-regional-kind'} value={kind} onChange={e => { setKind(e.target.value as Kind); reset(); }}>
         {KINDS[region].map(value => <option key={value} value={value}>{kindLabel(value)}</option>)}
       </select></div>
-    <div className="field"><label htmlFor="regional-id">{region === 'JP' ? tr({ en: 'Five-character J-Quants issue code', fr: 'Code J-Quants à cinq caractères' }) : tr({ en: 'Eight-digit OpenDART corporate code', fr: 'Code d’entreprise OpenDART à huit chiffres' })}</label>
-      <input disabled={loading} id="regional-id" value={identifier} maxLength={region === 'JP' ? 5 : 8} onChange={e => { setIdentifier(e.target.value.toUpperCase().trim()); reset(); }} /></div>
+    <div className="field"><label htmlFor={prefix+'-regional-id'}>{region === 'JP' ? tr({ en: 'Five-character J-Quants issue code', fr: 'Code J-Quants à cinq caractères' }) : tr({ en: 'Eight-digit OpenDART corporate code', fr: 'Code d’entreprise OpenDART à huit chiffres' })}</label>
+      <input disabled={loading} id={prefix+'-regional-id'} value={identifier} maxLength={region === 'JP' ? 5 : 8} onChange={e => { setIdentifier(e.target.value.toUpperCase().trim()); reset(); }} /></div>
     {region==='JP'&&<p className="small muted">{tr({en:'J-Quants coverage depends on your plan. The default uses a past interval because free access may be delayed.',fr:'La couverture J-Quants dépend de votre forfait. La période initiale est passée car l’accès gratuit peut être différé.'})}</p>}
-    <div className="field"><label htmlFor="regional-start">{kind === 'company' ? tr({ en: 'From (range check only)', fr: 'Du (contrôle de plage)' }) : tr({ en: 'From', fr: 'Du' })}</label><input disabled={loading} type="date" id="regional-start" value={start} onChange={e => { setStart(e.target.value); reset(); }} /></div>
-    <div className="field"><label htmlFor="regional-end">{kind === 'company' ? tr({ en: 'As of', fr: 'À la date du' }) : tr({ en: 'To', fr: 'Au' })}</label><input disabled={loading} type="date" id="regional-end" value={end} onChange={e => { setEnd(e.target.value); reset(); }} /></div>
+    <div className="field"><label htmlFor={prefix+'-regional-start'}>{kind === 'company' ? tr({ en: 'From (range check only)', fr: 'Du (contrôle de plage)' }) : tr({ en: 'From', fr: 'Du' })}</label><input disabled={loading} type="date" id={prefix+'-regional-start'} value={start} onChange={e => { setStart(e.target.value); reset(); }} /></div>
+    <div className="field"><label htmlFor={prefix+'-regional-end'}>{kind === 'company' ? tr({ en: 'As of', fr: 'À la date du' }) : tr({ en: 'To', fr: 'Au' })}</label><input disabled={loading} type="date" id={prefix+'-regional-end'} value={end} onChange={e => { setEnd(e.target.value); reset(); }} /></div>
     {region === 'KR' && kind === 'financials' && <>
-      <div className="field"><label htmlFor="regional-fiscal-year">{tr({ en: 'Fiscal year', fr: 'Exercice financier' })}</label><input disabled={loading} id="regional-fiscal-year" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} value={fiscalYear} placeholder={end.slice(0, 4)} onChange={e => { setFiscalYear(e.target.value); reset(); }} /></div>
-      <div className="field"><label htmlFor="regional-report-code">{tr({ en: 'Report period', fr: 'Période du rapport' })}</label><select disabled={loading} id="regional-report-code" value={reportCode} onChange={e => { setReportCode(e.target.value); reset(); }}><option value="11011">{tr({ en: 'Annual', fr: 'Annuel' })}</option><option value="11013">{tr({ en: 'First quarter', fr: 'Premier trimestre' })}</option><option value="11012">{tr({ en: 'Half year', fr: 'Semestriel' })}</option><option value="11014">{tr({ en: 'Third quarter', fr: 'Troisième trimestre' })}</option></select></div>
-      <div className="field"><label htmlFor="regional-statement-type">{tr({ en: 'Statement basis', fr: 'Base des états' })}</label><select disabled={loading} id="regional-statement-type" value={statementType} onChange={e => { setStatementType(e.target.value); reset(); }}><option value="CFS">{tr({ en: 'Consolidated', fr: 'Consolidé' })}</option><option value="OFS">{tr({ en: 'Separate', fr: 'Individuel' })}</option></select></div>
+      <div className="field"><label htmlFor={prefix+'-regional-fiscal-year'}>{tr({ en: 'Fiscal year', fr: 'Exercice financier' })}</label><input disabled={loading} id={prefix+'-regional-fiscal-year'} inputMode="numeric" pattern="[0-9]{4}" maxLength={4} value={fiscalYear} placeholder={end.slice(0, 4)} onChange={e => { setFiscalYear(e.target.value); reset(); }} /></div>
+      <div className="field"><label htmlFor={prefix+'-regional-report-code'}>{tr({ en: 'Report period', fr: 'Période du rapport' })}</label><select disabled={loading} id={prefix+'-regional-report-code'} value={reportCode} onChange={e => { setReportCode(e.target.value); reset(); }}><option value="11011">{tr({ en: 'Annual', fr: 'Annuel' })}</option><option value="11013">{tr({ en: 'First quarter', fr: 'Premier trimestre' })}</option><option value="11012">{tr({ en: 'Half year', fr: 'Semestriel' })}</option><option value="11014">{tr({ en: 'Third quarter', fr: 'Troisième trimestre' })}</option></select></div>
+      <div className="field"><label htmlFor={prefix+'-regional-statement-type'}>{tr({ en: 'Statement basis', fr: 'Base des états' })}</label><select disabled={loading} id={prefix+'-regional-statement-type'} value={statementType} onChange={e => { setStatementType(e.target.value); reset(); }}><option value="CFS">{tr({ en: 'Consolidated', fr: 'Consolidé' })}</option><option value="OFS">{tr({ en: 'Separate', fr: 'Individuel' })}</option></select></div>
     </>}
     <button className="btn" type="button" disabled={loading || !sessionId || !identifier || !start || !end} onClick={() => void search()}>{tr({ en: 'Query source', fr: 'Interroger la source' })}</button>
 
@@ -151,6 +153,10 @@ export function RegionalResearch({ allowedRegions = ['JP', 'KR'] }: { allowedReg
         {' · '}{tr({ en: 'captured', fr: 'capturé' })} {result.retrievedAt}
         {result.datasetVersion && <> · <span className="mono">{result.datasetVersion.slice(0, 22)}</span></>}
       </p>
+      <div className="small break mono">
+        {Object.entries(result.sourceHashes ?? (result.sourceSha256 ? { source: result.sourceSha256 } : {})).map(([name, sha]) => <p key={name}>{name} · SHA-256 {sha}</p>)}
+        {result.companySourceSha256 && <p>{tr({ en: 'Company', fr: 'Entreprise' })} · SHA-256 {result.companySourceSha256}</p>}
+      </div>
       {result.partial
         ? <p role="status"><strong>{tr({ en: 'Partial: first page only — the provider reported more pages that were not retrieved.', fr: 'Partiel : première page uniquement — le fournisseur indique d’autres pages non récupérées.' })}</strong></p>
         : <p className="small muted">{tr({ en: 'The provider reported no further pages for this request.', fr: 'Le fournisseur n’indique pas d’autres pages pour cette requête.' })}</p>}

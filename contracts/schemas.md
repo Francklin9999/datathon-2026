@@ -510,7 +510,7 @@ type SabotageMode = "invented_number" | "false_comparison" | "unsupported_interp
 
 type RunInput =
   | { kind: "decision"; request: DecisionRequest; originalText: string | null; window: WindowSpec }
-  | { kind: "rebalance"; profileVersion: number; positions: Position[]; window: WindowSpec }   // complete target, 1–40 positions
+  | { kind: "rebalance"; profileVersion: number; positions: Position[]; window: WindowSpec }
   | { kind: "portfolio_brief"; window: WindowSpec }
   | { kind: "event_brief"; eventId: EventId }
   | { kind: "replay"; request: DecisionRequest; asOf: ISODate; window: WindowSpec }
@@ -584,7 +584,7 @@ interface PortfolioBriefResult {
 }
 
 interface FocusDetail {                  // code-owned; the score is a visible heuristic, never a forecast
-  priority: number;                      // 1–3
+  priority: number;                      // integer from 1 through 3
   topic: "risk" | "concentration" | "plan" | "fixed_income" | "objective";
   score: number;                         // 0–100, deterministic ranking input
   basis: "built_in" | "candidate_provider";   // provider findings must cite verified same-run facts
