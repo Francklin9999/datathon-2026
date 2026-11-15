@@ -20,14 +20,16 @@ def test_repeated_actual_quant_facts_keep_identity_and_honest_verification():
     assert metrics.fact_ids == again.fact_ids
     assert ledger.export().digest() == first.digest()
     assert abs(metrics.volatility_pct - 9.52506016903674) < 1e-9
-    # Lineage, not a producer's declaration, verifies a fact: series figures cite dated dataset
-    # rows; weight and concentration figures cite the stipulated portfolio composition.
+    # Real calculations now carry gated-series receipts and allocation assumptions.
+    # Ledger verification follows those dependencies; no producer flag bypasses it.
     assert first.facts
     assert all(fact.verification.status == "verified" for fact in first.facts.values())
-    by_metric = {fact.metric: fact for fact in first.facts.values()}
-    assert by_metric["vol.annualized"].sources and by_metric["vol.annualized"].available_at
-    composition = by_metric["value.portfolio"]
-    assert composition.kind == "assumption" and by_metric["concentration.hhi"].inputs == [composition.id]
+    vol = first.facts[metrics.fact_ids["vol.annualized"]]
+    assert len(vol.inputs) == 2
+    receipt = first.facts[vol.inputs[0]]
+    assert receipt.sources and len(receipt.method.params["inputSha256"]) == 64
+    assert receipt.n_obs > 1000
+    assert first.facts[vol.inputs[1]].kind == "assumption"
 
 
 def test_a_declared_verified_flag_without_lineage_is_still_unverified():
@@ -41,8 +43,9 @@ def test_a_declared_verified_flag_without_lineage_is_still_unverified():
     )
     engine.view({"SPY": 0.5, "XBB.TO": 0.5}, "before", 1000).metrics()
     template = next(f for f in ledger.export().facts.values() if f.metric == "vol.annualized").to_wire()
-    for strip in ({"sources": []}, {"availableAt": None}):
-        orphan = {**template, **strip, "subject": {**template["subject"], "variant": "orphan:" + next(iter(strip))},
+    # Without input facts, a computed figure is verified only by dated sources of its own.
+    for strip in ({"inputs": [], "sources": []}, {"inputs": [], "availableAt": None}):
+        orphan = {**template, **strip, "subject": {**template["subject"], "variant": "orphan:" + "-".join(strip)},
                   "verification": {"status": "verified", "checks": []}}
         orphan.pop("id"), orphan.pop("key")
         assert ledger.get_fact(ledger.add_fact(orphan)).verification.status == "unverified"

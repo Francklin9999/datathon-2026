@@ -1,6 +1,7 @@
 """Offline, explicitly synthetic providers; never used by runtime composition."""
 
 import json
+import time
 from pathlib import Path
 
 import pytest
@@ -8,7 +9,7 @@ from aplomb.agents import AgentServices, Generation, ToolContext, ToolRegistry, 
 from aplomb.agents.limits import BudgetExceeded, Limits
 from aplomb.agents.models import AnalysisPlan
 from aplomb.agents.worker import make_handler
-from aplomb.api.repositories import RunRepository
+from aplomb.api.repositories import RunRepository, timestamp
 from aplomb.api.storage import MemoryStore
 from aplomb.contracts import models as m
 from pydantic import BaseModel, ConfigDict
@@ -32,6 +33,8 @@ def queued(kind="profile_draft"):
     payload = json.loads((ROOT / "contracts/fixtures/run.decision.robert-tsla-25.json").read_text())
     payload.update(
         kind=kind,
+        createdAt=timestamp(time.time()),
+        updatedAt=timestamp(time.time()),
         status="queued",
         steps=[],
         facts={},
@@ -404,6 +407,7 @@ def test_stale_lease_resumes_completed_model_without_new_step():
 
     now = [1_800_000_000.0]
     run = queued("decision")
+    run = run.model_copy(update={"created_at": timestamp(now[0]), "updated_at": timestamp(now[0])})
     profile = json.loads((ROOT / "contracts/fixtures/profiles.json").read_text())["items"][0]
     repo = RunRepository(MemoryStore(), clock=lambda: now[0])
     rec, _ = repo.create(run, {"profile": profile}, None, None, {})

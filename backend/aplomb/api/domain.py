@@ -4,7 +4,7 @@ Wires the datastore (T04), profiles (T06) and deterministic checks (T05–T07) i
 Nothing is read at import or app creation: the pinned snapshot opens on the first request that
 needs it (local ``data/`` directory, or S3 objects cached under ``/tmp`` after checksum
 verification). ``create_app(settings)`` without services keeps its provider-less behaviour.
-Runs (T08 worker/preparer), parsing, world and replay providers are not wired here.
+Configured models additionally connect durable agent runs and request parsing.
 """
 
 from __future__ import annotations
@@ -36,6 +36,7 @@ class SnapshotProvider:
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
+        self._version = settings.data_version
         self._snapshot: Snapshot | None = None
         self._lock = threading.Lock()
 
@@ -61,11 +62,17 @@ class SnapshotProvider:
             return CachedObjectStore(fetch, S3_CACHE_DIR)
         return LocalDataStore(Path(s.data_dir) if s.data_dir else REPO_DATA_DIR)
 
+    def switch(self, data_version: str) -> None:
+        """Serve a newly published version (on-demand ticker) from now on."""
+        with self._lock:
+            self._version = data_version
+            self._snapshot = None
+
     def __call__(self) -> Snapshot:
         with self._lock:
             if self._snapshot is None:
                 try:
-                    snap = self._store().open(self.settings.data_version)
+                    snap = self._store().open(self._version)
                 except DatastoreError as exc:
                     raise ServiceError("upstream_unavailable", f"Pinned data snapshot unavailable: {exc}") from exc
                 except Exception as exc:
@@ -95,12 +102,13 @@ def world_provider(profile_repo, snapshot, profiles=None):
     return WorldServiceImpl(profiles, snapshot, bundle)
 
 
-def default_services(settings: Settings, store=None, gateway=None) -> Services:
+def default_services(settings: Settings, store=None, gateway=None, price_provider=None) -> Services:
     """Domain providers for a configured snapshot; empty ``Services`` when unconfigured.
 
     Wired: datastore (T04), profiles/checks (T05-T07), runs (T03 + T08 + T10, with T09 research
     tools), world (T11) and replay (T12). A capability is advertised only when its provider is
-    present; each still needs its ``APLOMB_FEATURE_*`` flag. Runs need configured model IDs.
+    present; each still needs its ``APLOMB_FEATURE_*`` flag. Runs need configured model IDs; on-demand
+    tickers need a Tiingo token and a writable local data directory; guardrails need an ID and version.
     """
     if settings.data_version == "unconfigured":
         return Services()
@@ -108,9 +116,11 @@ def default_services(settings: Settings, store=None, gateway=None) -> Services:
     from aplomb.timemachine import ReplayServiceImpl
     from aplomb.world import BundleProvider, WorldDatastoreService
 
+    from .composition import create_store
     from .runtime import build_run_services
 
     snapshot = SnapshotProvider(settings)
+    store = store if store is not None else create_store(settings)
     profile_repo, run_repo, _ = create_repositories(settings, store)
     profiles, checks = build_domain_services(profile_repo, snapshot)
     world = world_provider(profile_repo, snapshot, profiles)
@@ -121,6 +131,18 @@ def default_services(settings: Settings, store=None, gateway=None) -> Services:
         capabilities.add("world_explorer")
         if world.dataset().hazards:
             capabilities.add("world_layer_hazards")
+    on_demand = None
+    writable_local = settings.environment == "local" and not settings.data_bucket
+    token = settings.tiingo_token.get_secret_value().strip() if settings.tiingo_token is not None else ""
+    if (price_provider is not None or token) and writable_local:
+        from aplomb.datastore.providers import TiingoProvider
+        from aplomb.datastore.service import OnDemandPublisher
+
+        provider = price_provider or TiingoProvider(token)
+        on_demand = OnDemandPublisher(provider, Path(settings.data_dir) if settings.data_dir else REPO_DATA_DIR, snapshot)
+        capabilities.add("on_demand_tickers")
+    if settings.model_strong and settings.model_fast and settings.guardrail_id and settings.guardrail_version:
+        capabilities.add("guardrails")
     return Services(profiles=profiles, checks=checks, runs=runs, parser=parser, world=world,
-                    replay=ReplayServiceImpl(snapshot), datastore=WorldDatastoreService(snapshot, BundleProvider()),
+                    replay=ReplayServiceImpl(snapshot), datastore=WorldDatastoreService(snapshot, BundleProvider(), on_demand),
                     capabilities=capabilities)

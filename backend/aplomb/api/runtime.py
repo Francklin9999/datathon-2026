@@ -53,17 +53,29 @@ class RunPreparerImpl:
     """``RunPreparer``: authorizes and pins the inputs of a run. No model call, no dispatch."""
 
     def __init__(self, profiles, snapshot: Callable[[], Snapshot], *, models_configured: bool, world=None,
-                 clock: Callable[[], float] = time.time) -> None:
+                 clock: Callable[[], float] = time.time, settings: Settings | None = None) -> None:
         self.profiles, self.snapshot, self.world = profiles, snapshot, world
         self.models_configured = models_configured
         self.clock = clock
+        self.settings = settings
+
+    def _pins(self, snap: Snapshot) -> dict:
+        """What a worker must find again before it runs: the exact manifest, the runtime
+        configuration (models, guardrail, limits, flags) and, in AWS, the worker version."""
+        from aplomb.agents.runtime import manifest_hash, runtime_signature
+
+        pins = {"manifestHash": manifest_hash(snap)}
+        if self.settings is not None:
+            pins["runtimeSignature"] = runtime_signature(self.settings)
+            pins["workerFunction"] = self.settings.worker_function
+        return pins
 
     def __call__(self, session_id: str, request: a.CreateRunRequest) -> PreparedRun:
         if not self.models_configured:
             # Every run kind needs at least one model call; refuse before persisting a run that cannot start.
             raise unavailable("Model configuration (APLOMB_MODEL_STRONG and APLOMB_MODEL_FAST)")
         snap = self.snapshot()
-        base = {"dataVersion": snap.data_version, "asOf": snap.data_as_of, "mode": "current"}
+        base = {"dataVersion": snap.data_version, "asOf": snap.data_as_of, "mode": "current", **self._pins(snap)}
         if request.kind == "profile_draft":
             fields = request.fields.to_wire() if request.fields is not None else {}
             return PreparedRun({"kind": "profile_draft", "text": request.text, "fields": fields}, snap.data_as_of,
@@ -84,7 +96,7 @@ class RunPreparerImpl:
             ctx = validate_asof(request.as_of, profile, snap, request.request, _stamp(self.clock))
             self._check_move(snap, ctx.profile, request.request, ctx.as_of, "historical", window)
             payload = {"kind": "replay", "request": request.request.to_wire(), "asOf": ctx.as_of, "window": window}
-            private = {"dataVersion": snap.data_version, "asOf": ctx.as_of, "mode": "historical",
+            private = {"dataVersion": snap.data_version, "asOf": ctx.as_of, "mode": "historical", **self._pins(snap),
                        "profile": ctx.profile.to_wire(), "revealAvailableUntil": ctx.reveal_available_until}
             return PreparedRun(payload, ctx.as_of, snap.data_version, private, profile.version)
         if request.kind == "portfolio_brief":
@@ -140,11 +152,20 @@ class RunPreparerImpl:
                 raise NotFound(f"Unknown ticker {ticker}")
 
 
-def gate_factory(snapshot: Callable[[], Snapshot]):
+def gate_factory(snapshot: Callable[[], Snapshot], settings: Settings | None = None):
     def open_gate(private: dict):
+        from aplomb.agents.runtime import manifest_hash
+
         snap = snapshot()
         if private.get("dataVersion") != snap.data_version:
-            raise RuntimeError(f"Run is pinned to {private.get('dataVersion')}; loaded snapshot is {snap.data_version}")
+            if settings is None:
+                raise RuntimeError(f"Run is pinned to {private.get('dataVersion')}; loaded snapshot is {snap.data_version}")
+            from .domain import SnapshotProvider
+
+            pinned = settings.model_copy(update={"data_version": private["dataVersion"], "data_as_of": private.get("dataAsOf", snap.data_as_of)})
+            snap = SnapshotProvider(pinned)()
+        if "manifestHash" in private and manifest_hash(snap) != private["manifestHash"]:
+            raise RuntimeError("Pinned snapshot manifest changed")
         if private["mode"] == "historical":
             for rule in private["profile"]["rules"]:
                 derivation = rule.get("derivation") or {}
@@ -204,11 +225,14 @@ def build_agent_services(settings: Settings, repository: RunRepository, snapshot
                          gateway=None):
     """``AgentServices`` with every implemented provider; used by the local worker and by Lambda."""
     from aplomb.agents import AgentServices
+    from aplomb.agents.guardrails import BedrockOutputPolicy
+    from aplomb.agents.runtime import runtime_signature
     from aplomb.agents.signing import sign_decision
     from aplomb.ledger import Ledger
     from aplomb.optimizer.services import DecisionControls
     from aplomb.timemachine import replay_result
 
+    policy = BedrockOutputPolicy(settings) if settings.guardrail_id and settings.guardrail_version else None
     return AgentServices(
         repository=repository,
         gateway=gateway or model_gateway(settings) or UnconfiguredGateway(),
@@ -216,9 +240,14 @@ def build_agent_services(settings: Settings, repository: RunRepository, snapshot
         controls=DecisionControls(),
         ledger_factory=Ledger,
         signer=sign_decision,
-        gate_factory=gate_factory(snapshot),
+        gate_factory=gate_factory(snapshot, settings),
         logger=log,
         replay_result_factory=replay_result,
+        guardrail=policy,
+        runtime_signature=runtime_signature(settings),
+        max_llm_calls=settings.max_llm_calls,
+        max_research_calls=settings.max_research_calls,
+        max_revisions=settings.max_revise,
     )
 
 
@@ -230,8 +259,10 @@ class _LazyLambda:
         with self._lock:
             if self._client is None:
                 import boto3
+                from botocore.config import Config
 
-                self._client = boto3.Session(region_name=self.region).client("lambda")
+                self._client = boto3.Session(region_name=self.region).client(
+                    "lambda", config=Config(connect_timeout=3, read_timeout=5, retries={"total_max_attempts": 1}))
         return self._client.invoke(**kwargs)
 
 
@@ -265,7 +296,7 @@ def build_run_services(settings: Settings, repository: RunRepository, profiles, 
     gateway = gateway or model_gateway(settings)
     agent_services = build_agent_services(settings, repository, snapshot, world, gateway)
     if settings.environment == "aws":
-        dispatcher = LambdaDispatcher(_LazyLambda(settings.region), settings.worker_function)
+        dispatcher = LambdaDispatcher(_LazyLambda(settings.region), settings.worker_function, repository)
     else:
         dispatcher = LocalDispatcher(make_handler(agent_services))
     find_brief = brief_lookup(repository, profiles, snapshot)
@@ -277,7 +308,7 @@ def build_run_services(settings: Settings, repository: RunRepository, profiles, 
 
     coordinator = RunCoordinator(
         repository, dispatcher,
-        RunPreparerImpl(profiles, snapshot, models_configured=gateway is not None, world=world),
+        RunPreparerImpl(profiles, snapshot, models_configured=gateway is not None, world=world, settings=settings),
         cached_brief=cached_brief)
     parser = None
     if gateway is not None:

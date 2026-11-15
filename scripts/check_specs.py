@@ -9,10 +9,10 @@ import io
 import json
 import math
 import os
-from pathlib import Path
 import re
 import runpy
 import sys
+from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]

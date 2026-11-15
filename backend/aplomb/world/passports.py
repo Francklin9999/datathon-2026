@@ -97,8 +97,8 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
 class WorldDatastoreService(DatastoreService):
     """``DataService`` whose passports reflect the loaded world bundle (planned otherwise)."""
 
-    def __init__(self, snapshot, world: Callable[[], WorldDataset]) -> None:
-        super().__init__(snapshot)
+    def __init__(self, snapshot, world: Callable[[], WorldDataset], on_demand=None) -> None:
+        super().__init__(snapshot, on_demand)
         self._world = world
 
     def _overrides(self) -> dict[str, dict]:

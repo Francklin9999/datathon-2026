@@ -322,7 +322,10 @@ class DynamoStore:
                     session_id = pk.removeprefix("SESSION#").split("#PROFILE#")[0]
                     current = self.get_owned(table, item["pk"]["S"], item["sk"]["S"], session_id)
                 else:
-                    current = self.get(table, item["pk"]["S"], item["sk"]["S"])
+                    # Base-table Query is already strongly consistent. RunRepository's
+                    # before/after META revision fence handles multi-page checkpoints;
+                    # a GetItem per child adds latency and read cost without isolation.
+                    current = self._decode(item)
                 if current is not None:
                     items.append(current)
             if "LastEvaluatedKey" not in page:

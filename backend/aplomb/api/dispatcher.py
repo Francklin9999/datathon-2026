@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Callable, Protocol
 
@@ -62,12 +63,22 @@ class LocalDispatcher:
 
 
 class LambdaDispatcher:
-    def __init__(self, client, function_name: str):
+    def __init__(self, client, function_name: str, repository=None):
         self.client, self.function_name = client, function_name
+        self.repository = repository
 
     def dispatch(self, run_id: str, generation: int) -> None:
+        target = self.function_name
+        if self.repository is not None:
+            # The API, not request JSON, pins this private field at creation. Reuse it
+            # for a resumed generation even after a newer release is deployed.
+            target = self.repository._read(run_id).private.get("workerFunction") or target
+            pattern = r"arn:aws:lambda:[a-z0-9-]+:[0-9]{12}:function:[A-Za-z0-9_-]+:[1-9][0-9]*"
+            if (not re.fullmatch(pattern, target) or not re.fullmatch(pattern, self.function_name)
+                    or target.rsplit(":", 1)[0] != self.function_name.rsplit(":", 1)[0]):
+                raise unavailable("Pinned worker version")
         response = self.client.invoke(
-            FunctionName=self.function_name,
+            FunctionName=target,
             InvocationType="Event",
             Payload=json.dumps({"runId": run_id, "generation": generation}).encode(),
         )
