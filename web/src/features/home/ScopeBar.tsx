@@ -5,7 +5,7 @@
  * and minimum weight (narrow the holdings widgets) and how the history chart is drawn.
  */
 import { ChevronsUpDown, RotateCcw } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type { AssetGroup, I18NText, Lang, WindowCode } from '../../contracts/types';
 import { ASSET_GROUP, WINDOW, labelOf } from '../../lib/labels';
 import { fmtDate } from '../../lib/format';
@@ -15,6 +15,7 @@ import {
 } from '../../lib/ui/scope';
 import { Listbox, type ListboxOption } from '../../components/ui/Listbox';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
+import { InfoTip } from '../../components/ui/InfoTip';
 import { WINDOW_CODES } from '../../state/app';
 
 type PeriodChoice = WindowCode | 'range';
@@ -37,7 +38,7 @@ export function periodLabel(scope: DashboardScope, windowCode: WindowCode, lang:
     : labelOf(WINDOW, windowCode, lang);
 }
 
-export function ScopeBar({ scope, setScope, windowCode, setWindow, dataAsOf, groups, benchmarks, tr, lang }: {
+export function ScopeBar({ scope, setScope, windowCode, setWindow, dataAsOf, groups, benchmarks, tr, lang, extra }: {
   scope: DashboardScope;
   setScope: (update: (scope: DashboardScope) => DashboardScope) => void;
   windowCode: WindowCode;
@@ -47,6 +48,8 @@ export function ScopeBar({ scope, setScope, windowCode, setWindow, dataAsOf, gro
   benchmarks: readonly ListboxOption<string>[];
   tr: (text: I18NText) => string;
   lang: Lang;
+  /** Controls placed at the end of the bar (the layout editor). */
+  extra?: ReactNode;
 }) {
   const custom = scope.period.mode === 'custom' ? scope.period : null;
   const [draft, setDraft] = useState({ start: custom?.start ?? threeYearsBefore(dataAsOf), end: custom?.end ?? dataAsOf });
@@ -92,7 +95,7 @@ export function ScopeBar({ scope, setScope, windowCode, setWindow, dataAsOf, gro
 
   return (
     <>
-      <div className="scope-bar" role="group" aria-label={tr({ en: 'Dashboard scope', fr: 'Périmètre du tableau de bord' })}>
+      <div className="scope-bar" role="group" aria-label={tr({ en: 'Dashboard scope', fr: 'Périmètre du tableau de bord' })} data-tour="scope">
         <div className="scope-field">
           <span className="scope-label" aria-hidden="true">{tr({ en: 'Period', fr: 'Période' })}</span>
           <SegmentedControl<PeriodChoice> size="sm" label={tr({ en: 'Period', fr: 'Période' })}
@@ -139,15 +142,17 @@ export function ScopeBar({ scope, setScope, windowCode, setWindow, dataAsOf, gro
           <SegmentedControl<ChartMode> size="sm" label={tr({ en: 'History chart view', fr: 'Vue du graphique historique' })}
             value={scope.chartMode} onChange={mode => setScope(s => ({ ...s, chartMode: mode }))} options={chartOptions} />
         </div>
+        <span className="scope-end">
+          <InfoTip align="end" label={tr({ en: 'What the scope changes', fr: 'Ce que change le périmètre' })}
+            text={tr({ en: 'Period and benchmark change the history and risk figures; asset classes and minimum weight change Allocation and Positions. Fixed horizons (1, 3, 5 years, 2022) stay fixed.', fr: 'La période et l’indice modifient l’historique et le risque ; les classes d’actifs et le poids minimum modifient Répartition et Positions. Les horizons fixes (1, 3, 5 ans, 2022) ne bougent pas.' })} />
+          {extra}
+        </span>
         {!isScopeDefault(scope) && (
           <button type="button" className="btn ghost btn-sm scope-reset" onClick={() => setScope(() => DEFAULT_SCOPE)}>
             <RotateCcw aria-hidden="true" size={14} strokeWidth={1.5} />{tr({ en: 'Reset scope', fr: 'Réinitialiser' })}
           </button>
         )}
       </div>
-      <p className="scope-note">
-        {tr({ en: 'The period recomputes every window-based figure (volatility, drawdown, worst 12 months, rule checks, history); year-to-date, 1-, 3- and 5-year returns and the 2022 replay are fixed horizons. The benchmark applies to History. Asset classes narrow Allocation and Positions; the minimum weight narrows Positions. Risk and return figures always cover the whole portfolio.', fr: 'La période recalcule chaque chiffre lié à la fenêtre (volatilité, baisse maximale, pires 12 mois, vérifications de règles, historique) ; les rendements depuis janvier, sur 1, 3 et 5 ans et le rejeu 2022 sont à horizon fixe. L’indice s’applique à l’Historique. Les classes d’actifs filtrent Répartition et Positions ; le poids minimum filtre Positions. Les chiffres de risque et de rendement couvrent toujours tout le portefeuille.' })}
-      </p>
     </>
   );
 }

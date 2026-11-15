@@ -36,7 +36,10 @@ export function Card({ title, children, actions, id, className, section, info, t
 }) {
   const widget = useWidget();
   const { tr } = useApp();
-  const classes = `card${widget ? ' widget' : ''}${className ? ` ${className}` : ''}`;
+  const classes = `card${widget ? ' widget' : ''}${widget?.bare ? ' card-bare' : ''}${className ? ` ${className}` : ''}`;
+  // Inside a grid the widget gives the dock its id and label.
+  const sectionId = id ?? (widget?.section ? `w-${widget.id}` : undefined);
+  const sectionLabel = section ?? widget?.section;
   const widgetProps = widget ? {
     'data-widget': widget.id,
     ...(widget.dragging ? { 'data-dragging': 'true' } : {}),
@@ -44,8 +47,8 @@ export function Card({ title, children, actions, id, className, section, info, t
     style: { '--w': widget.w, '--h': widget.h } as CSSProperties,
   } : {};
   return (
-    <section className={classes} {...(id ? { id, 'aria-labelledby': `${id}-title` } : {})} {...widgetProps}
-      {...(section && id ? { 'data-section': section } : {})} {...(tour ? { 'data-tour': tour } : {})}>
+    <section className={classes} {...(sectionId ? { id: sectionId, 'aria-labelledby': `${sectionId}-title` } : {})} {...widgetProps}
+      {...(sectionLabel && sectionId ? { 'data-section': sectionLabel } : {})} {...(tour ? { 'data-tour': tour } : {})}>
       {(title || actions || widget?.editing) && (
         <div className="card-head">
           {widget?.editing && (
@@ -57,7 +60,7 @@ export function Card({ title, children, actions, id, className, section, info, t
           )}
           {title && (
             <span className="card-title-row">
-              <h2 className="card-title" {...(id ? { id: `${id}-title` } : {})}>{title}</h2>
+              <h2 className="card-title" {...(sectionId ? { id: `${sectionId}-title` } : {})}>{title}</h2>
               {info && <InfoTip text={info} align="start" />}
             </span>
           )}
