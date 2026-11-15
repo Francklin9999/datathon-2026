@@ -206,7 +206,7 @@ function DeskContent({ profile }: { profile: Profile }) {
             ) : (
               <>
                 <p className="small muted">{move
-                  ? `${describeRequest({ type: 'move', move }, lang)} · ${fundingLabel(move.funding, lang)}`
+                  ? `${describeRequest({ type: 'move', move }, lang)}, ${fundingLabel(move.funding, lang)}`
                   : tr({ en: 'Baseline: current portfolio, no move (size 0).', fr: 'Référence : portefeuille actuel, sans mouvement (taille 0).' })}</p>
                 {preview.loading && <Loading label={tr({ en: 'Checking rules…', fr: 'Vérification des règles…' })} />}
                 {preview.error && !preview.loading && <PreviewError error={preview.error} ticker={form.ticker} />}

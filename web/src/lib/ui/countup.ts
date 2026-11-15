@@ -19,10 +19,16 @@ export interface NumberParts {
 // A number with optional sign, thousands groups (comma, dot, space, no-break spaces) and decimals.
 const NUMBER = /([+\-−]?)(\d{1,3}(?:[,.   ]\d{3})+|\d+)(?:([.,])(\d+))?/;
 
-/** Parse the first number in a formatted string, using the language to tell decimals from groups. */
+/**
+ * Parse the first number in a formatted figure, using the language to tell decimals from groups.
+ * Dates and labels are not figures: the number must come first, after at most a currency code or
+ * symbol and a sign ("CAD 600,000", "+50.0%", "$1.2"), and must not start an ISO date.
+ */
 export function parseFigure(text: string, lang: Lang): NumberParts | null {
   const match = NUMBER.exec(text);
   if (!match || match.index === undefined) return null;
+  if (!/^(?:(?:[A-Z]{2,4}|[A-Z]{0,3}[$€£¥])\s*)?$/.test(text.slice(0, match.index))) return null;
+  if (/^[+\-−]?\d{4}-\d{2}/.test(text.slice(match.index))) return null;
   const [whole, sign = '', intPart = '', sep, frac] = match;
   let integer = intPart;
   let decimals = frac ?? '';
