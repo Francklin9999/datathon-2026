@@ -18,6 +18,7 @@ MINUS = "−"
 NBSP = " "  # narrow no-break space used before % and units in French
 
 METHOD_TEXT: dict[str, tuple[str, str]] = {
+    "M_GATE_COUNT": ("Receipt of the source datasets and SHA-256 of the gated dates and currency-converted price levels consumed by code.", "Reçu des sources et SHA-256 des dates filtrées et niveaux de prix convertis utilisés par le code."),
     "M_PRICE_ADJ_CLOSE": ("Adjusted close (splits and dividends) as published.", "Clôture ajustée (fractionnements et dividendes) telle que publiée."),
     "M_FX_BOC_FFILL": ("Bank of Canada USD/CAD rate of the day, or the last rate published before it.", "Taux USD/CAD de la Banque du Canada du jour, ou le dernier taux publié avant."),
     "M_RET_SIMPLE": ("Simple return: end level divided by start level, minus one.", "Rendement simple : niveau final divisé par le niveau initial, moins un."),

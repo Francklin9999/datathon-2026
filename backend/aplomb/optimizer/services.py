@@ -117,6 +117,8 @@ class DecisionControls:
         return obj.to_wire() if hasattr(obj, "to_wire") else dict(obj)
 
     def quant(self, ctx, request, window, tasks, scenarios) -> dict:
+        if request is None:
+            return {"kind": "portfolio_brief", "window": self._wire(window)}
         req = self._wire(request)
         win = self._wire(window) if window is not None else {"code": "full"}
         engine = self._engine(ctx, win)
@@ -141,6 +143,11 @@ class DecisionControls:
         win = computed["window"]
         engine = self._engine(ctx, win)
         profile = ctx.profile
+        if computed["kind"] == "portfolio_brief":
+            prepared = prepare(engine, profile, profile.rules, None, False)
+            check = assess(engine, profile, profile.rules, prepared, window=win)
+            facts = engine.ledger.export().facts
+            return ControlOutcome(check, [], "sc_current", sorted({lim for f in facts.values() for lim in f.limitations}))
         if computed["kind"] == "goal":
             found = goal_candidates(engine, profile, m.ExposureGoal.model_validate(computed["goal"]))
             if not found.scenarios:

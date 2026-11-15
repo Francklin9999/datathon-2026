@@ -9,6 +9,8 @@ a typed ``nee`` reason. Raw ``*_value`` methods compute the same numbers without
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 import re
 from dataclasses import dataclass, field
@@ -214,11 +216,39 @@ class QuantEngine:
             self.ctx, key=key, kind=kind, metric=metric, label=label, value=value, unit=unit, currency=currency,
             subject=subject, method_id=method_id, created_by="quant",
             period={"start": self.market.dates[i0], "end": self.market.dates[i1]}, window=window_spec,
-            available_at=self.market.latest_avail(tickers, i1), params=params, inputs=inputs,
+            available_at=self.market.latest_avail(tickers, i1), params=params,
+            inputs=[*self.series_inputs(tickers, i0, i1), *(inputs or [])],
             n_obs=i1 - i0 + 1, sources=self._sources(tickers, i0, i1),
             limitations=self._limitations(tickers, i0, i1, base_lims) + list(extra_lims), checks=self._checks(i0, i1),
         )
         return self.ledger.add_fact(fact)
+
+    def series_inputs(self, tickers, i0: int, i1: int) -> list[str]:
+        """Receipt for the actual gated, currency-converted inputs, not model declarations.
+
+        The immutable snapshot supplies source checksums; this receipt additionally pins
+        the exact dates/levels consumed by a calculation. It is not a return forecast.
+        """
+        tickers = sorted(tickers)
+        payload = {"dates": self.market.dates[i0:i1 + 1], "currency": self.currency,
+                   "levels": {t: self.market.series(t).levels[i0:i1 + 1] for t in tickers}}
+        digest = hashlib.sha256(json.dumps(payload, sort_keys=True, allow_nan=False).encode()).hexdigest()
+        sources = self._sources(tickers, i0, i1)
+        fact = make_fact(
+            self.ctx, key=fact_key("count.sources", "request", digest, "gated", "full"),
+            kind="observed" if sources else "assumption", metric="count.sources",
+            label={"en": "Source receipt for gated calculation inputs", "fr": "Reçu des sources des entrées filtrées"},
+            value=len(sources), unit="count", currency=None,
+            subject={"type": "request", "id": digest, "variant": "gated"},
+            method_id="M_GATE_COUNT", created_by="quant",
+            available_at=self.market.latest_avail(tickers, i1), sources=sources,
+            n_obs=i1 - i0 + 1,
+            params={"inputSha256": digest, "tickers": json.dumps(tickers), "currency": self.currency,
+                    "dataVersion": self.ctx.data_version, "gateMode": self.gate.mode,
+                    "start": self.market.dates[i0], "end": self.market.dates[i1]},
+            checks=self._checks(i0, i1), limitations=["LIM_PAST_NOT_FUTURE"],
+        )
+        return [self.ledger.add_fact(fact)]
 
     # Public views -----------------------------------------------------------------------------
 
@@ -404,9 +434,21 @@ class PortfolioView:
         key = fact_key(metric, subject["type"], subject["id"] + key_suffix, self.variant, "weights")
         fact = make_fact(self.engine.ctx, key=key, kind="computed", metric=metric, label=label, value=value, unit="pct",
                          currency=None, subject=subject, method_id=method, created_by="quant",
-                         params={"profile": self.engine.subject_id}, limitations=list(lims),
+                         params={"profile": self.engine.subject_id}, limitations=list(lims), inputs=self._weight_inputs(),
                          checks=[{"code": "weights_sum", "ok": True, "detail": "Position weights sum to 100%."}])
         return self.engine.ledger.add_fact(fact)
+
+    def _weight_inputs(self) -> list[str]:
+        digest = hashlib.sha256(json.dumps(self.weights, sort_keys=True).encode()).hexdigest()
+        return [self.engine.ledger.add_fact(make_fact(
+            self.engine.ctx, key=fact_key("weight.position", "request", digest, "allocation", "full"),
+            kind="assumption", metric="weight.position", value=100.0, unit="pct", currency=None,
+            label={"en": "Hypothetical allocation used by code", "fr": "Allocation hypothétique utilisée par le code"},
+            subject={"type": "request", "id": digest, "variant": "allocation"},
+            method_id="M_PROFILE_ASSUMPTION", created_by="profile",
+            params={"weights": json.dumps(self.weights, sort_keys=True), "weightsSha256": digest},
+            limitations=["LIM_CONSTANT_WEIGHTS", "LIM_SIMULATION_ONLY"],
+        ))]
 
     def group_weights(self) -> dict[str, float]:
         out: dict[str, float] = {}
@@ -533,7 +575,7 @@ class PortfolioView:
         fid = eng.add_series_fact(
             metric=metric, value=value, subject=self.subject, variant_key=self.variant, window_code=metric.split(".")[1],
             tickers=list(self.weights), i0=i0, i1=i1, method_id="M_STRESS_REPLAY", kind="scenario",
-            params={"windowStart": start, "windowEnd": end},
+            params={"windowStart": start, "windowEnd": end}, inputs=self._weight_inputs(),
             label={"en": f"Portfolio return with these weights, {label[0]} ({eng.market.dates[i0]} to {eng.market.dates[i1]}), {eng.currency}",
                    "fr": f"Rendement du portefeuille avec ces pondérations, {label[1]} ({eng.market.dates[i0]} au {eng.market.dates[i1]}), {eng.currency}"},
             currency=None,
@@ -559,6 +601,7 @@ class PortfolioView:
             if not self.record:
                 raise _NoRecord
             common = dict(subject=self.subject, variant_key=self.variant, window_code=wr.code, tickers=tickers,
+                          inputs=self._weight_inputs(),
                           i0=wr.i0, i1=wr.i1, window_spec=wr.spec)
             pm.fact_ids["vol.annualized"] = eng.add_series_fact(
                 metric="vol.annualized", value=pm.volatility_pct, method_id="M_VOL_STDEV_252",
@@ -587,7 +630,8 @@ class PortfolioView:
                 label={"en": f"{'Concentration (sum of squared weights)' if unit == 'ratio' else 'Effective number of positions'}, {name} ({self.variant})",
                        "fr": f"{'Concentration (somme des carrés des poids)' if unit == 'ratio' else 'Nombre effectif de positions'}, {name} ({self.variant})"},
                 subject=self.subject, method_id="M_WEIGHTS_AFTER_MOVE" if self.after_move else "M_PROFILE_ASSUMPTION",
-                created_by="quant", checks=[{"code": "weights_sum", "ok": True, "detail": "Position weights sum to 100%."}]))
+                created_by="quant", inputs=self._weight_inputs(),
+                checks=[{"code": "weights_sum", "ok": True, "detail": "Position weights sum to 100%."}]))
         self._metrics = pm
         return pm
 

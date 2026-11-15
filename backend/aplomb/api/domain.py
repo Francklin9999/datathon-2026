@@ -4,7 +4,7 @@ Wires the datastore (T04), profiles (T06) and deterministic checks (T05–T07) i
 Nothing is read at import or app creation: the pinned snapshot opens on the first request that
 needs it (local ``data/`` directory, or S3 objects cached under ``/tmp`` after checksum
 verification). ``create_app(settings)`` without services keeps its provider-less behaviour.
-Runs (T08 worker/preparer), parsing, world and replay providers are not wired here.
+Configured models additionally connect durable agent runs and request parsing.
 """
 
 from __future__ import annotations
@@ -75,7 +75,9 @@ def default_services(settings: Settings, store=None, price_provider=None) -> Ser
     from aplomb.optimizer.services import build_domain_services
 
     snapshot = SnapshotProvider(settings)
-    profile_repo, _, _ = create_repositories(settings, store)
+    from .composition import create_store
+    store = store if store is not None else create_store(settings)
+    profile_repo, run_repo, _ = create_repositories(settings, store)
     profiles, checks = build_domain_services(profile_repo, snapshot)
     capabilities = {"profile_creator", "frontier_chart"}
     on_demand = None
@@ -89,4 +91,11 @@ def default_services(settings: Settings, store=None, price_provider=None) -> Ser
         on_demand = OnDemandPublisher(provider, Path(settings.data_dir) if settings.data_dir else REPO_DATA_DIR, snapshot)
         capabilities.add("on_demand_tickers")
     # Advertise only flags whose provider is implemented and tested here.
-    return Services(profiles=profiles, checks=checks, datastore=DatastoreService(snapshot, on_demand), capabilities=capabilities)
+    runs = parser = None
+    if settings.model_strong and settings.model_fast:
+        from aplomb.agents.runtime import connect_services
+        profiles, runs, parser = connect_services(settings, profiles, snapshot, run_repo, store)
+        if settings.guardrail_id and settings.guardrail_version:
+            capabilities.add("guardrails")
+    return Services(profiles=profiles, checks=checks, runs=runs, parser=parser,
+                    datastore=DatastoreService(snapshot, on_demand), capabilities=capabilities)
