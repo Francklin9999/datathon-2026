@@ -13,14 +13,17 @@ import { Drawer } from '../common/Drawer';
 import { NavList, NavRail } from './NavRail';
 import { CommandBar, Logo, MenuButton, PersonaSwitcher, SettingsMenu, SimPill } from './TopBar';
 import { SectionDock } from './SectionDock';
+import { TourProvider } from '../../features/tour/TourProvider';
+import { HelpMenu } from '../../features/tour/HelpMenu';
 
 export { NAV } from './NavRail';
 
-export function AppShell({ children, help }: { children: ReactNode; help?: ReactNode }) {
+export function AppShell({ children }: { children: ReactNode }) {
   const { tr, phase, bootError, retryBoot, fixtures, announcement, feature } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
+    <TourProvider>
     <div className="shell">
       <div className="ambient" aria-hidden="true" />
       <a href="#main" className="skip-link">{tr({ en: 'Skip to content', fr: 'Aller au contenu' })}</a>
@@ -33,7 +36,7 @@ export function AppShell({ children, help }: { children: ReactNode; help?: React
         <CommandBar />
         <div className="topbar-end">
           <SimPill />
-          {help}
+          <HelpMenu />
           <SettingsMenu />
         </div>
       </header>
@@ -68,5 +71,6 @@ export function AppShell({ children, help }: { children: ReactNode; help?: React
 
       <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
     </div>
+    </TourProvider>
   );
 }
