@@ -1,13 +1,19 @@
 """Expansion uses synthetic USGS payloads; source capture validation happens separately."""
 import gzip
+import importlib.util
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 
 import pytest
 from aplomb.world import ingest
 from aplomb.world.dataset import load_bundle
 
-from scripts import expand_world_events
+ROOT = Path(__file__).resolve().parents[4]
+# scripts/ is not a package: load the script from its path, as the other script tests do.
+_spec = importlib.util.spec_from_file_location("aplomb_expand_world_events_script", ROOT / "scripts" / "expand_world_events.py")
+expand_world_events = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(expand_world_events)
 
 
 def test_expansion_keeps_prior_sources_and_archive_and_updates_duplicate_identity(tmp_path, monkeypatch):
