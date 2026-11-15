@@ -2,14 +2,14 @@
 
 The user requested the **entire worldwide Aplomb specification**, explicitly rejected an MVP or smallest version, and asked for three agents to work independently in parallel. Implement the full assigned scope. Priority determines order, not permission to omit later requirements. Do not stop after the first useful batch and call your whole assignment finished.
 
-The agents are prepared for the user to launch; preparing these files does not start them. No agent may deploy, merge another agent's branch, rewrite published history, or modify the root integration checkout. The user will return here for independent review and integration.
+The agents are prepared for the user to launch; preparing these files does not start them. Known baseline issues are assigned work, not permission to hide failing acceptance. No agent may deploy, merge another agent's branch, rewrite published history, or modify the root integration checkout. The user will return here for independent review and integration.
 
 ## Read order
 
 1. Your `AGENT-*` assignment below, this document, and [binding full-scope requirements](FULL-SCOPE.md).
 2. [Current remaining requirements](../20-GLOBAL-IMPLEMENTATION-BACKLOG.md), [latest investor controls](../22-INVESTIGATION-CONTROLS.md), [earlier continuation](../21-CONTINUATION-EXECUTION.md), [external owner actions](../19-OWNER-ACTIONS.md).
 3. The actual code, relevant module `SPEC.md`, page specs and shared contracts. Older sixteen-track ownership/deadline cut rules describe a previous phase; this plan governs these three branches. The user's full-scope instruction supersedes old MVP cuts and old teammate-only deployment wording. Deployment is nevertheless reserved for final integration and the owner's full-completion condition.
-4. [Source directory](../../data/catalog/worldwide-apis.md), [exact per-source ownership](SOURCE-OWNERS.csv), and [shared interfaces](INTERFACES.md).
+4. [Source directory](../../data/catalog/worldwide-apis.md), [Downloads-source ownership](SOURCE-OWNERS.csv), [all original master-source rows](MASTER-SOURCE-COVERAGE.md), and [shared interfaces](INTERFACES.md).
 
 ## Prepared isolation
 
@@ -21,7 +21,7 @@ The agents are prepared for the user to launch; preparing these files does not s
 
 All start from the immutable-by-convention branch `codex/parallel-base-20261115`. Read and record `git rev-parse codex/parallel-base-20261115` in your handoff. Do not move that branch. Work only in your assigned worktree and branch. The root branch is `codex/global-platform-expansion`. The pre-existing root `.playwright-mcp/` is unrelated and must remain untouched.
 
-The baseline is contract 1.4.0. It includes native-currency account capital/receipts and a deterministic complete-target rebalance comparison, beyond earlier 1.3.0 docs. Its final gate passed 845 Python tests + 16 subtests, 180 web tests, 6 infra tests, static export, 8 HTTP checks and two browser interactions. These are local baseline results, not proof of the entire specification or current AWS deployment. Production was last publicly observed at contract 1.0.0 / `snap-20261114-sourced`; fresh AWS credentials were unavailable. Rediscover production rather than trusting old exact Lambda revisions.
+The baseline is contract 1.4.0 and incorporates teammate `origin/main` at `a9f6055` (glass UI, hex globe and cached reads), preserving native-currency accounts and complete-target checks. The merged full gate passed **852 Python tests + 16 subtests, 205 web tests and 6 infra tests**, and static export. See [baseline, production readback and known mobile issue](BASELINE.md). The earlier controls-only checkpoint was 845/180 and remains historical. Browser finance/world/nav checks passed; Decision Desk mobile acceptance has a diagnosed tooltip overflow explicitly assigned to Agent 1, not a blanket passing claim. Fresh public production metadata is **contract 1.1.0 / snap-20261114-sourced**; the teammate's checked-in release record says API/worker version 5. This is not a fresh independent AWS configuration read. Rediscover production before eventual deployment.
 
 ## Non-overlapping primary ownership
 
@@ -55,7 +55,7 @@ npm ci
 npm --prefix infra ci
 ```
 
-Use API/web/Chrome debugging ports respectively: Agent 1 `8101/3101/9321`; Agent 2 `8102/3102/9322`; Agent 3 `8103/3103/9323`. Set `APLOMB_ALLOWED_ORIGINS`, `NEXT_PUBLIC_APLOMB_API_BASE`, `APLOMB_NEXT_DIST_DIR` and `APLOMB_LOCAL_STATE_FILE` accordingly. `scripts/dev_api.py` reconstructs the pinned local FX snapshot in a clean checkout. Do not kill processes on other ports. All generated credentials/state/cache/output must remain ignored.
+Use API/web/Chrome debugging ports respectively: Agent 1 `8101/3101/9321`; Agent 2 `8102/3102/9322`; Agent 3 `8103/3103/9323`. Set `APLOMB_ALLOWED_ORIGINS`, `NEXT_PUBLIC_APLOMB_API_BASE`, `APLOMB_NEXT_DIST_DIR` and `APLOMB_LOCAL_STATE_FILE` accordingly. `scripts/dev_api.py` reconstructs the pinned local FX snapshot in a clean checkout. The existing smoke scripts contain hardcoded ports/API URLs. Use a port-aware harness or adapt copies explicitly to your own ports, asserting the configured viewport rather than trusting a potentially widened `innerWidth`. Do not kill processes on other ports. All generated credentials/state/cache/output must remain ignored.
 
 ## Required reports and finish condition
 
@@ -63,7 +63,7 @@ Each agent owns `docs/parallel/reports/agent-N/` and `docs/evidence/parallel/age
 
 - `HANDOFF.md`: final branch/SHA, implemented behavior, all changed paths, exact shared-file changes, interfaces, data/model provenance, test commands/results, screenshots/log locations, limitations and integration steps.
 - `REQUIREMENTS.md`: every assigned requirement mapped to implementation, test/evidence, status and remaining work. Distinguish implemented/source-backed, tested offline/awaiting AWS, externally blocked and unimplemented. No blanket “done” with hidden omissions.
-- `SOURCES.csv`: each source assigned in SOURCE-OWNERS.csv, current access/rights, capture/version, meaningful feature, test/evidence and exact blocker where applicable. A catalog row or an adapter class alone is not an integration.
+- `SOURCES.csv`: each assigned Downloads SRC row and original-master MASTER row, current access/rights, capture/version, meaningful feature, test/evidence and exact blocker where applicable. A catalog row or an adapter class alone is not an integration.
 - `BLOCKERS.md`: only genuine external dependencies, owner action, evidence/status/date, and work completed independently. Unimplemented code is not an external blocker.
 - `INTERFACES.md`: exported interfaces and examples, backward-compatibility/migration notes, shared-file changes, and any dependency on another agent. Explicitly say “none” if none.
 

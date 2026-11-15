@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { OverviewResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
+import { CountUp } from '../../components/ui/CountUp';
 import { ASSET_CLASS, labelOf } from '../../lib/labels';
 import { fmtMoney, fmtPct } from '../../lib/format';
 import { filterPositions, type DashboardScope } from '../../lib/ui/scope';
@@ -14,7 +15,7 @@ export function PositionsCard({ overview, scope }: { overview: OverviewResponse;
   const shown = filterPositions(all, scope);
   const share = shown.reduce((sum, p) => sum + p.weightPct, 0);
   return (
-    <Card title={tr({ en: 'Positions', fr: 'Positions' })}
+    <Card title={tr({ en: 'Positions', fr: 'Positions' })} tour="positions"
       actions={<Link href="/portfolio/" className="btn ghost btn-sm">{tr({ en: 'All holdings', fr: 'Toutes les positions' })}</Link>}>
       {shown.length === 0
         ? <p className="small muted">{tr({ en: 'No position matches this scope', fr: 'Aucune position ne correspond à ce périmètre' })}</p>
@@ -39,8 +40,8 @@ export function PositionsCard({ overview, scope }: { overview: OverviewResponse;
                     <span className="rank-name" title={p.name}>{p.name}</span>
                   </th>
                   <td>{labelOf(ASSET_CLASS, p.assetClass, lang)}</td>
-                  <td className="num-col">{fmtPct(p.weightPct, lang)}</td>
-                  <td className="num-col">{fmtMoney(p.marketValue, overview.snapshot.currency, lang)}</td>
+                  <td className="num-col"><CountUp text={fmtPct(p.weightPct, lang)} /></td>
+                  <td className="num-col"><CountUp text={fmtMoney(p.marketValue, overview.snapshot.currency, lang)} /></td>
                 </tr>
               ))}
             </tbody>

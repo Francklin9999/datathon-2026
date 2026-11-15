@@ -36,7 +36,6 @@ export function RuleTable({ checks, rules, caption, renderEdit }: {
         <thead>
           <tr>
             <th scope="col">{tr({ en: 'Rule', fr: 'Règle' })}</th>
-            <th scope="col">{tr({ en: 'Rule assumption', fr: 'Hypothèse de règle' })}</th>
             <th scope="col" className="num-col">{tr({ en: 'Value', fr: 'Valeur' })}</th>
             <th scope="col" className="num-col">{tr({ en: 'Threshold', fr: 'Seuil' })}</th>
             <th scope="col" className="num-col">{tr({ en: 'Headroom', fr: 'Marge' })}</th>
@@ -49,30 +48,30 @@ export function RuleTable({ checks, rules, caption, renderEdit }: {
             const rule = byId.get(check.ruleId);
             return (
               <tr key={`${check.ruleId}-${check.code}`} className={`row-${check.status}`}>
-                <th scope="row" className="mono">{check.code}</th>
-                <td className="rule-cell">
-                  <span className="block">{ruleSentence(rule, check, lang)}</span>
-                  {rule?.isAssumption && <span className="tag">{tr({ en: 'rule assumption', fr: 'hypothèse de règle' })}</span>}
+                <th scope="row" className="rule-cell">
+                  <span className="block rule-sentence"><span className="rule-code">{check.code}</span>{ruleSentence(rule, check, lang)}</span>
                   {rule && !rule.enabled && <span className="tag tag-muted">{tr({ en: 'disabled in the current plan', fr: 'désactivée dans le plan actuel' })}</span>}
-                  {/* Without a profile rule the sentence above already is the check's detail. */}
-                  {rule && <span className="block small muted">{tr(check.detail)}</span>}
                   {check.neeReason && (
                     <span className="block small nee-reason">{labelOf(NEE_REASON, check.neeReason, lang)}</span>
                   )}
-                  {check.worst && (
-                    <span className="block small muted">{tr({ en: 'Driven by', fr: 'Déterminé par' })} <span className="mono">{check.worst.id}</span></span>
-                  )}
-                  {check.evidenceIds.length > 0 && (
-                    <span className="block small muted">{tr({ en: 'Evidence', fr: 'Preuves' })}: <span className="mono">{check.evidenceIds.join(', ')}</span></span>
-                  )}
-                  {rule?.derivation && (
-                    <details className="small">
-                      <summary>{tr({ en: 'How the threshold was derived', fr: 'Comment le seuil a été dérivé' })}</summary>
-                      <p className="mono break">{rule.derivation.formula}</p>
-                      <p className="muted">{tr(rule.rationale)}</p>
+                  {/* Without a profile rule the sentence above already is the check's detail. */}
+                  {(rule || check.worst || check.evidenceIds.length > 0) && (
+                    <details className="rule-more small">
+                      <summary>{tr({ en: 'Details', fr: 'Détails' })}</summary>
+                      {rule && <span className="block muted">{tr(check.detail)}</span>}
+                      {rule?.isAssumption && <span className="block muted">{tr({ en: 'An editable assumption of this plan.', fr: 'Une hypothèse modifiable de ce plan.' })}</span>}
+                      {check.worst && (
+                        <span className="block muted">{tr({ en: 'Driven by', fr: 'Déterminé par' })} <span className="mono">{check.worst.id}</span></span>
+                      )}
+                      {check.evidenceIds.length > 0 && (
+                        <span className="block muted">{tr({ en: 'Evidence', fr: 'Preuves' })}: <span className="mono">{check.evidenceIds.join(', ')}</span></span>
+                      )}
+                      {rule?.derivation && (
+                        <span className="block muted">{tr({ en: 'Derived as', fr: 'Dérivé ainsi' })}: <span className="mono break">{rule.derivation.formula}</span>. {tr(rule.rationale)}</span>
+                      )}
                     </details>
                   )}
-                </td>
+                </th>
                 <td className="num-col">
                   {check.valueFactId
                     ? <FactChip factId={check.valueFactId} display={fmtUnit(check.value, check.unit, lang)} />

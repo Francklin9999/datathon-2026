@@ -1,0 +1,102 @@
+{
+  "release": "f098339416178dce1a3f24d7fc3460f1a927a57d",
+  "deployedAt": "2026-11-15T14:18:34Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "previousRelease": "cd20a9b",
+  "purpose": "Backend of main at f098339: sabotage child-run workflow and API contract 1.1.0 (33f6fa4; sabotage_demo stays off), per-process read cache for overview and performance (f098339).",
+  "method": "Same as releases 9f10301, a85beea and cd20a9b (AWS CLI, WSParticipantRole profile, change set reviewed before execution). Full CI passed on f098339 in a clean WSL clone before packaging: 791 Python tests, 197 web tests, 6 infra tests and synth.",
+  "artifact": {
+    "key": "deployments/f098339/lambda.zip",
+    "s3VersionId": "XYd2qtxRCEsbs4LmW2yUkKSpjLFQQT3P",
+    "bytes": 30370760,
+    "sha256": "11265eca76cbc8b1ea41887ae368402a4cf472342fa650ac86d5a9e339a9a91e",
+    "files": 4284,
+    "packaging": "infra/scripts/package-backend.sh at f098339 in a clean WSL clone; Lambda Python 3.12 image import check passed; no .env, AWS files or local state in the archive; uploaded bytes downloaded back and compared"
+  },
+  "configurationChange": {
+    "revision": "full SHA f098339 (APLOMB_BUILD_REVISION on both functions)",
+    "flags": "unchanged; sabotage_demo not enabled"
+  },
+  "changeSet": {
+    "name": "release-f098339",
+    "changes": [
+      "Modify ApiF70053CD and Worker11F36D0F: Code, Environment (APLOMB_BUILD_REVISION; API worker version reference), Role, Metadata",
+      "Add API and worker version 5; version-4 resources leave the stack (DeletionPolicy Retain)",
+      "Per-release roles, policies and worker EventInvokeConfig identical to the previous ones apart from the release hash and version reference",
+      "HTTP integration and its invoke permission move to API version 5",
+      "No replacement of functions, buckets, distribution or API"
+    ]
+  },
+  "result": {
+    "stackStatus": "UPDATE_COMPLETE",
+    "failedEvents": 0,
+    "lambdaVersions": {
+      "api": "5",
+      "worker": "5"
+    },
+    "lambdaCodeSha256": "ESZeynbLyLHqQYh642hAKkz0cjQvplCshtWp4zmpqR4=",
+    "lambdaCodeSha256MatchesArtifact": true
+  },
+  "liveChecks": {
+    "buildHeader": "X-Aplomb-Build: f098339416178dce1a3f24d7fc3460f1a927a57d",
+    "meta": "contract 1.1.0; eight flags on (bilingual, frontier_chart, goal_requests, guardrails, profile_creator, time_machine, world_explorer, world_layer_hazards); en, fr",
+    "selectedReturn": {
+      "full": 50.016,
+      "custom 2024-01-02..2024-12-31": 15.117,
+      "1y": 10.595,
+      "reversed custom range": "422 validation_error"
+    },
+    "readCache": "Robert overview (full) 1.18 s first read, 0.43 s repeated read; same figures",
+    "world": "layers, events, exposure and hazards 200; facilities 501 feature_disabled (intended)",
+    "decisionRun": {
+      "runId": "run_01M7FSAAW9WXT0Q9RD1QS66VH9",
+      "request": "Robert TSLA +25 pro rata",
+      "status": "succeeded",
+      "seconds": 37,
+      "counts": {
+        "pass": 1,
+        "tension": 1,
+        "conflict": 6,
+        "nee": 0,
+        "info": 3
+      },
+      "audit": "passed_with_strikes",
+      "steps": [
+        "plan",
+        "quant",
+        "risk_check",
+        "write",
+        "audit",
+        "sign"
+      ]
+    },
+    "sessionIsolation": "another session reading the run -> 404",
+    "goalRun": {
+      "runId": "run_01M7FSBFP29GVD7487RBTAHZRS",
+      "request": "Amira AI target 15%",
+      "status": "succeeded",
+      "seconds": 30,
+      "scenarios": [
+        "sc_goal_no_change"
+      ],
+      "audit": "passed_with_strikes"
+    },
+    "replayRun": {
+      "runId": "run_01M7FSCDVNMQTBQ18XQ4AEKP1H",
+      "asOf": "2025-02-19",
+      "status": "succeeded",
+      "seconds": 44,
+      "reveal": "2025-12-31",
+      "parentLedgerHashUnchanged": true
+    },
+    "browser": "CloudFront serves frontend f098339 (deployment.json); nine pages 200; Home shows Historical return +50.0%; World Explorer globe renders with no console errors."
+  },
+  "notCovered": [
+    "sabotage child run on AWS (flag off)",
+    "source-backed event brief with a real model in this release",
+    "CloudWatch log read-back",
+    "load test"
+  ],
+  "rollback": "Update the stack with the cd20a9b template (artifact deployments/cd20a9b/lambda.zip version reqIOMYnaTAOcMuqidhyhxdStk7WyKF. is retained)."
+}

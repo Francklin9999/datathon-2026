@@ -20,3 +20,5 @@ These are candidate sources to audit and implement when authorized and useful to
 | SRC-088 | MACRO, CENTRAL BANKS, ECONOMICS | Bank of Canada Valet | A | https://www.bankofcanada.ca/valet/docs/ | Canadian FX and rates |
 | SRC-100 | MACRO, CENTRAL BANKS, ECONOMICS | US Treasury Fiscal Data | A | https://fiscaldata.treasury.gov/api-documentation/ | Fiscal and debt data |
 | SRC-101 | MACRO, CENTRAL BANKS, ECONOMICS | NY Fed Markets API | A | https://markets.newyorkfed.org/static/docs/markets-api.html | Money market reference rates |
+
+Also disposition every MASTER row owned by Agent 1 in [the original master catalogue](MASTER-SOURCE-COVERAGE.md), even when that endpoint/dataset is absent from the 243-row Downloads file.

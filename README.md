@@ -59,6 +59,8 @@ npm run dev:web     # web app on http://localhost:3000
 
 Everything deterministic works without credentials: profiles, `/check`, compare, Portfolio, Sources, World Explorer, Time Machine presets and reveal. Runs (decision, replay, Home brief, event brief, profile draft) and free-text parsing call Amazon Bedrock: set `APLOMB_MODEL_STRONG`, `APLOMB_MODEL_FAST` and AWS credentials first. Without model IDs those endpoints answer `503` and the pages say so; no fixture stands in.
 
+To try the AI features without model IDs or AWS credentials on your machine, run `npm run dev:web:aws` instead of `npm run dev:web`: the web app on http://localhost:3000 then uses the deployed AWS API (listed in `infra/deploy/site.json`, which accepts that origin), and every run it starts is a real run on the team's account.
+
 `uv run uvicorn aplomb.api.app:app --port 8000` starts the same application with whatever the environment configures (all flags off by default).
 
 ## Reference checks

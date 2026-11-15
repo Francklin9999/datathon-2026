@@ -448,3 +448,88 @@ test('reference pin cap preserves sparse regions before adding dense local point
   assert.equal(rows.length, 51);
   assert.deepEqual(spatialReferencePins(rows, 0), []);
 });
+
+test('globe: degenerate outlines are dropped before hexagons, centroids land inside the country', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { decodeCountries, hexReadyCountries, countryCentroid } = await import('../src/lib/geo');
+  const countries = decodeCountries(JSON.parse(readFileSync('public/geo/countries-110m.json', 'utf8')));
+  const ready = hexReadyCountries(countries);
+  assert.ok(ready.length >= countries.length - 2, 'only degenerate outlines go');
+  for (const feature of ready) {
+    const polygons = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+    for (const polygon of polygons) {
+      const lons = (polygon[0] ?? []).map(p => p[0] ?? 0);
+      assert.ok(Math.max(...lons) - Math.min(...lons) > 0, `${feature.iso3 ?? feature.name} has a zero-width ring`);
+    }
+  }
+  const at = (iso3: string) => countryCentroid(countries.find(c => c.iso3 === iso3)!)!;
+  const can = at('CAN'); assert.ok(can.lat > 45 && can.lat < 70 && can.lng > -120 && can.lng < -80, JSON.stringify(can));
+  const usa = at('USA'); assert.ok(usa.lat > 30 && usa.lat < 45 && usa.lng > -110 && usa.lng < -85, JSON.stringify(usa));
+  const fji = at('FJI'); assert.ok(Math.abs(fji.lat + 17.5) < 3 && Math.abs(Math.abs(fji.lng) - 179) < 3, JSON.stringify(fji));
+});
+
+test('globe: events sharing a spot are fanned out, each apart, the rest untouched', async () => {
+  const { spreadStacked } = await import('../src/features/world/globeStyle');
+  const event = (id: string, weight: number, lat = 56.1, lng = -106.3) =>
+    ({ id, kind: 'event' as const, lat, lng, label: id, countryLevel: true, weight });
+  const stacked = Array.from({ length: 12 }, (_, i) => event(`ca${i}`, i / 12));
+  const lone = event('lone', 0.5, 48.85, 2.35);
+  const quake = { id: 'hazard:1', kind: 'hazard' as const, lat: 56.1, lng: -106.3, label: 'q', countryLevel: false, weight: 0.2 };
+  const out = spreadStacked([...stacked, lone, quake]);
+  assert.equal(out.length, 14);
+  assert.deepEqual(out.map(p => p.id), [...stacked.map(p => p.id), 'lone', 'hazard:1']);
+  assert.deepEqual(out[12], lone);
+  assert.deepEqual(out[13], quake);
+  const spread = out.slice(0, 12);
+  for (let i = 0; i < spread.length; i++) {
+    for (let j = i + 1; j < spread.length; j++) {
+      const a = spread[i]!, b = spread[j]!;
+      const dLng = (a.lng - b.lng) * Math.cos((56.1 * Math.PI) / 180);
+      assert.ok(Math.hypot(a.lat - b.lat, dLng) > 2 * 0.2 + 0.05, `${a.id} and ${b.id} overlap`);
+    }
+    assert.ok(Math.abs(spread[i]!.lat - 56.1) < 6 && Math.abs(spread[i]!.lng + 106.3) < 12);
+  }
+  // The most important event stays nearest the shared spot.
+  const dist = (p: { lat: number; lng: number }) => Math.hypot(p.lat - 56.1, (p.lng + 106.3) * Math.cos((56.1 * Math.PI) / 180));
+  const heaviest = spread.find(p => p.id === 'ca11')!;
+  assert.ok(spread.every(p => dist(heaviest) <= dist(p)));
+  // Across the antimeridian longitudes stay within [-180, 180).
+  for (const p of spreadStacked([event('f1', 1, -17.7, 179.9), event('f2', 0.5, -17.7, 179.9)])) assert.ok(p.lng >= -180 && p.lng < 180);
+});
+
+test('globe: a country label moves off the event spikes and off other labels', async () => {
+  const { labelOffset } = await import('../src/features/world/globeStyle');
+  const size = { w: 100, h: 24 };
+  const anchor = { x: 200, y: 200 };
+  // Nothing around: the label sits above its anchor.
+  assert.deepEqual(labelOffset(anchor, size, [], []), { dx: 0, dy: -20 });
+  // A spike rising through the spot above: the label goes below.
+  const spike = { ax: 205, ay: 195, bx: 210, by: 160, pad: 4 };
+  assert.deepEqual(labelOffset(anchor, size, [spike], []), { dx: 0, dy: 20 });
+  // Spikes above and below: beside.
+  const below = { ax: 200, ay: 215, bx: 200, by: 240, pad: 4 };
+  const moved = labelOffset(anchor, size, [spike, below], []);
+  assert.equal(moved.dy, 0);
+  assert.equal(Math.abs(moved.dx), 58);
+  // A label already above: this one goes elsewhere.
+  const second = labelOffset(anchor, size, [], [{ x: 200, y: 180, w: 100, h: 24 }]);
+  assert.notDeepEqual(second, { dx: 0, dy: -20 });
+});
+
+test('globe: islands smaller than a hexagon get one, larger land none', async () => {
+  const { islandHexes } = await import('../src/lib/geoHex');
+  const { polygonToCells } = await import('h3-js');
+  const square = (lng: number, lat: number, d: number): [number, number][][] =>
+    [[[lng, lat], [lng + d, lat], [lng + d, lat + d], [lng, lat + d], [lng, lat]]];
+  const islands = { iso3: 'USA', name: 'Islands', geometry: { type: 'MultiPolygon' as const, coordinates: [square(-176.7, 51.8, 0.15), square(-100, 40, 8)] } };
+  const out = islandHexes([islands], 3);
+  assert.equal(out.length, 1);
+  assert.equal(out[0]!.iso3, 'USA');
+  assert.equal(out[0]!.geometry.type, 'MultiPolygon');
+  const hexagons = out[0]!.geometry.coordinates as [number, number][][][];
+  assert.equal(hexagons.length, 1);
+  // The added hexagon is itself exactly one cell for the hexagon layer, and contains the island.
+  assert.equal(polygonToCells(hexagons[0]!, 3, true).length, 1);
+  const big = { iso3: 'CAN', name: 'Land', geometry: { type: 'Polygon' as const, coordinates: square(-110, 50, 10) } };
+  assert.deepEqual(islandHexes([big], 3), []);
+});

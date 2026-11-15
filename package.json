@@ -13,6 +13,7 @@
     "check:generated": "uv run python scripts/export_contracts.py --check && node scripts/generate_contracts.mjs --check && uv run python scripts/build_source_directory.py --check",
     "dev:api": "uv run python scripts/dev_api.py",
     "dev:web": "npm run dev --workspace web",
+    "dev:web:aws": "npm run dev:aws --workspace web",
     "build:web": "npm run build --workspace web",
     "typecheck": "npm run typecheck --workspace web",
     "test:contracts": "npm run test:contracts --workspace web",

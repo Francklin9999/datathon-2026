@@ -23,7 +23,7 @@ Complete the reusable profile engine for arbitrary investor types, countries, re
 
 Every policy/input must retain origin: user, imported, system default, hypothetical assumption, or genuinely sourced implemented regulatory requirement. Defaults are never official regulation. Allow typed operations/thresholds/conditions without executing user-authored code or SQL. Preserve per-session isolation, versions, empty/missing-data behavior and conflict explanations. Do not invent tax obligations or financial liabilities; implement explicit-input models and show what remains unknown.
 
-Provide usable create/edit/duplicate/archive/compare workflows, input validation, lossless round trips, accessible forms and account selection. Extend native account valuation with explicit refresh/as-of behavior, account editing/rebalancing, and transfers only with unambiguous conservation semantics. Preserve original valuation and rate receipts. Integrate private/illiquid assets through documented user/source valuations and limitations rather than routing everything through traded-price providers.
+Provide usable create/edit/duplicate/archive/compare workflows, input validation, lossless round trips, accessible forms and account selection. Extend native account valuation with explicit refresh/as-of behavior, account editing/rebalancing, and transfers only with unambiguous conservation semantics. Preserve original valuation and rate receipts. Test stale FX refresh, historical availability, transfer/cash-flow conservation, retention of prior evidence on refresh, and unavailable-rate rollback. Integrate private/illiquid assets through documented user/source valuations and limitations rather than routing everything through traded-price providers.
 
 ### B. Portfolio intelligence and deterministic risk
 
@@ -31,7 +31,7 @@ Complete portfolio metrics/conventions: returns, sample windows, volatility, max
 
 Implement supported factor exposure/DNA, currency sensitivity, interest-rate, credit-spread and commodity shocks, liquidity considerations and optimization/scenario comparisons with actual documented models and inputs. Source factors/rates/positioning from your assigned providers where terms/access permit; do not generate unsupported precise impacts. Use interfaces from Agent 2 for actual ETF constituent snapshots/security identifiers; Agent 2 owns issuer acquisition/crosswalk evidence, you own portfolio arithmetic and factor/overlap presentation. Build the consumers against exact typed IDs and dated captured fixtures while acquisition proceeds independently.
 
-Provide detailed holdings, direct/indirect allocations, currency/country/sector exposure, portfolio comparisons and all risk UI with fact/source inspection. Listing country and quote currency must remain labeled proxies where economic exposure/hedges are unknown.
+Provide quantities where supported, otherwise clearly labeled modeled position sizes, detailed holdings, direct/indirect allocations, currency/country/sector exposure, portfolio comparisons and all risk UI with fact/source inspection. Listing country and quote currency must remain labeled proxies where economic exposure/hedges are unknown.
 
 ### C. Complete decision controls and personalization candidates
 
@@ -43,7 +43,7 @@ Support global/custom A–C demos, ESG insufficiency where relevant, and provide
 
 ## Source work
 
-Audit and disposition every row assigned to Agent 1 in SOURCE-OWNERS.csv. Complete adapters that power the assigned risk/FX/rate/factor/positioning features with validated, versioned, attributed captures and meaningful tests. Rate reports, options summaries and short-sale volume are not live option chains or short interest. Additional currency support must be driven by actual source coverage. Unknown permissions/paid keys remain external blockers, not invented free access. Other agents own general security feeds, filings and world layers.
+Audit and disposition every row assigned to Agent 1 in SOURCE-OWNERS.csv and MASTER-SOURCE-COVERAGE.csv, including organizer starter data and STLFSI4 (reuse Agent 2’s FRED adapter). Complete adapters that power the assigned risk/FX/rate/factor/positioning features with validated, versioned, attributed captures and meaningful tests. Rate reports, options summaries and short-sale volume are not live option chains or short interest. Additional currency support must be driven by actual source coverage. Unknown permissions/paid keys remain external blockers, not invented free access. Other agents own general security feeds, filings and world layers.
 
 ## Required acceptance and handoff
 
@@ -54,3 +54,7 @@ Audit and disposition every row assigned to Agent 1 in SOURCE-OWNERS.csv. Comple
 - All affected controls work through actual HTTP and UI, including at least one non-CAD/USD custom profile and mobile/keyboard interaction.
 - Run focused financial tests, the full repository gate/static build and scoped browser scenarios. Label scripted agents if used; do not claim live Bedrock execution from a fake gateway.
 - Finish the reports required by README.md, including requirement/source matrices, shared-file changes, interface examples, exact tests, evidence and blockers. Commit and push only your assigned branch; return its SHA and handoff path for independent integration.
+
+## Explicit known baseline fix
+
+Fix the shared `InfoTip` mobile overflow as part of your UI ownership. At configured screen/viewport 390 px on Decision Desk, a hidden start-aligned `.info-bubble` extends to x=482 and widens the document/innerWidth to 482. The target-allocation table is already inside its scrolling wrapper; do not misdiagnose or remove it. See [baseline QA](../evidence/parallel/baseline/browser/README.md) and the baseline mobile diagnostics. Preserve hover, keyboard focus, tap, escape/outside-close and accessible descriptions; keep visible tooltips within the viewport instead of merely hiding page-wide overflow. Assert configuredViewport=390, actual viewport and document width independently. `web/src/components/ui/InfoTip.tsx` and its focused CSS rules are shared files explicitly authorized for your minimal fix.

@@ -1,7 +1,8 @@
 'use client';
 /**
- * Shared bootstrap (web/SPEC.md §2): fetch /meta, restore or create the session capability, then
- * profiles and the selected profile. Only the session ID, UI preferences and selected IDs are kept
+ * Shared bootstrap (web/SPEC.md §2): restore or create the session capability, then fetch /meta and
+ * the profiles in parallel (profiles need only the session), compiling the contract validators
+ * while both are in flight. Only the session ID, UI preferences and selected IDs are kept
  * locally; the server stays authoritative for profile edits and runs.
  */
 import {
@@ -10,6 +11,7 @@ import {
 import type { I18NText, Lang, Meta, Profile, WindowCode, WindowSpec } from '../contracts/types';
 import { FIXTURES_ENABLED, getApiClient } from '../api/index';
 import { asApiError, type ApiRequestError } from '../api/errors';
+import { warmContracts } from '../contracts/validate';
 import { ensureSessionId, readPref, writePref } from '../lib/session';
 import { pick } from '../lib/labels';
 
@@ -87,10 +89,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const controller = new AbortController();
     setPhase('booting');
     setBootError(null);
+    setSessionId(ensureSessionId());
+    const warm = setTimeout(warmContracts, 0);
     getApiClient().meta(controller.signal).then(
       fetched => {
         setMeta(fetched);
-        setSessionId(ensureSessionId());
         setPhase('ready');
       },
       error => {
@@ -99,11 +102,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setPhase('error');
       },
     );
-    return () => controller.abort();
+    return () => { controller.abort(); clearTimeout(warm); };
   }, [bootNonce]);
 
   useEffect(() => {
-    if (phase !== 'ready' || !sessionId) return undefined;
+    if (!sessionId) return undefined;
     const controller = new AbortController();
     setProfilesError(null);
     getApiClient().profiles(controller.signal).then(
@@ -111,7 +114,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       error => { if (!controller.signal.aborted) { setProfilesError(asApiError(error)); setProfilesLoaded(true); } },
     );
     return () => controller.abort();
-  }, [phase, sessionId, profilesNonce]);
+  }, [sessionId, profilesNonce]);
 
   // Bilingual feature off: English repeats (WEB-10).
   const effectiveLang: Lang = meta && meta.features.bilingual === false ? 'en' : lang;

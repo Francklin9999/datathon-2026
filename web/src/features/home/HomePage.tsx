@@ -10,12 +10,12 @@ import Link from 'next/link';
 import { LayoutGrid, RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type {
-  AssetsResponse, CachedBriefResponse, I18NText, OverviewResponse, PerformanceResponse, Profile, RuleCheck, RuleStatus, Run,
+  AssetsResponse, CachedBriefResponse, I18NText, OverviewResponse, PerformanceResponse, Profile, RuleCheck, RuleStatus, Run, WindowCode,
 } from '../../contracts/types';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
 import { profileKey, useApp } from '../../state/app';
-import { useQuery, type QueryState } from '../../state/useQuery';
+import { prefetchQuery, useQuery, type QueryState } from '../../state/useQuery';
 import { useRun } from '../../state/useRun';
 import { Card, ProfileGate } from '../../components/common/Page';
 import { ErrorState, Loading, Unavailable } from '../../components/common/States';
@@ -32,6 +32,7 @@ import type { LayoutItem, WidgetLimits } from '../../lib/ui/layout';
 import { ASSET_GROUPS, scopeWindow, scopeWindowKey, type DashboardScope } from '../../lib/ui/scope';
 import { drawdownSeries, indexSeries, periodChangePct } from '../../lib/ui/series';
 import { Reveal } from '../../components/ui/Reveal';
+import { CountUp } from '../../components/ui/CountUp';
 import { AllocationCard } from './AllocationCard';
 import { DashboardGrid, type WidgetDef } from './DashboardGrid';
 import { KeyFigures, KeyFiguresSkeleton } from './KeyFigures';
@@ -47,18 +48,18 @@ const autoRequested = new Set<string>();
 
 /** Default arrangement (12 columns × 32 px rows) and the size limits of each widget. */
 const DEFAULT_LAYOUT: readonly LayoutItem[] = [
-  { id: 'figures', w: 12, h: 5 },
-  { id: 'performance', w: 8, h: 11 },
-  { id: 'allocation', w: 4, h: 11 },
-  { id: 'brief', w: 12, h: 14 },
-  { id: 'positions', w: 7, h: 10 },
-  { id: 'health', w: 5, h: 10 },
+  { id: 'figures', w: 12, h: 4 },
+  { id: 'performance', w: 8, h: 12 },
+  { id: 'allocation', w: 4, h: 12 },
+  { id: 'health', w: 5, h: 11 },
+  { id: 'positions', w: 7, h: 11 },
+  { id: 'brief', w: 12, h: 12 },
   { id: 'horizons', w: 4, h: 5 },
   { id: 'stress', w: 4, h: 5 },
   { id: 'diversification', w: 4, h: 5 },
 ];
 const LIMITS: Record<string, WidgetLimits> = {
-  figures: { minW: 6, maxW: 12, minH: 5, maxH: 7 },
+  figures: { minW: 6, maxW: 12, minH: 4, maxH: 7 },
   performance: { minW: 5, maxW: 12, minH: 8, maxH: 18 },
   allocation: { minW: 3, maxW: 8, minH: 8, maxH: 14 },
   positions: { minW: 4, maxW: 12, minH: 6, maxH: 18 },
@@ -71,6 +72,18 @@ const LIMITS: Record<string, WidgetLimits> = {
 
 export function HomePage() {
   return <ProfileGate>{profile => <HomeContent key={profile.profileId} profile={profile} />}</ProfileGate>;
+}
+
+function briefKey(base: string, windowCode: WindowCode, lang: string): string {
+  return `brief|${base}|${windowCode}|${lang}`;
+}
+
+/** Where the brief's figures come from: the whole portfolio and the global window, not the dashboard scope. */
+function briefScope(windowCode: WindowCode, tr: (t: I18NText) => string): string {
+  return tr({
+    en: `Whole portfolio, ${labelOf(WINDOW, windowCode, 'en').toLowerCase()} window. Dashboard filters don’t apply.`,
+    fr: `Portefeuille complet, fenêtre ${labelOf(WINDOW, windowCode, 'fr').toLowerCase()}. Les filtres du tableau ne s’appliquent pas.`,
+  });
 }
 
 export function horizonText(profile: Pick<Profile, 'horizonYears'>, tr: (t: I18NText) => string): string {
@@ -91,6 +104,10 @@ function HomeContent({ profile }: { profile: Profile }) {
     signal => client.overview(profile.profileId, windowSpec, signal));
   const performance = useQuery<PerformanceResponse>(base && `performance|${base}|${windowKey}|${scope.benchmark ?? '-'}`,
     signal => client.performance(profile.profileId, windowSpec, signal, scope.benchmark));
+  // The brief lookup starts with the overview instead of waiting for its widget to mount.
+  useEffect(() => {
+    prefetchQuery(base && briefKey(base, windowCode, lang), signal => client.brief(profile.profileId, lang, signal));
+  }, [base, windowCode, lang, client, profile.profileId]);
   const assets = useQuery<AssetsResponse>(base && `assets|${meta?.dataVersion ?? ''}`, signal => client.assets({ limit: 200 }, signal));
   const overviewScope = useMemo<FactScope | null>(() => (overview.data
     ? { kind: 'local', label: { en: 'Deterministic overview response (no model).', fr: 'Réponse d’aperçu déterministe (aucun modèle).' }, facts: overview.data.facts }
@@ -118,15 +135,15 @@ function HomeContent({ profile }: { profile: Profile }) {
     if (!data) return [];
     const t = (en: string, fr: string) => tr({ en, fr });
     return [
-      { id: 'figures', title: t('Key figures', 'Chiffres clés'), limits: LIMITS.figures!, render: () => <KeyFigures overview={data} period={period} /> },
-      { id: 'performance', title: t('Hypothetical constant-weight history', 'Historique hypothétique à pondérations constantes'), limits: LIMITS.performance!, render: () => <PerformanceCard state={performance} scope={scope} period={period} /> },
-      { id: 'allocation', title: t('Allocation', 'Répartition'), limits: LIMITS.allocation!, render: () => <AllocationCard overview={data} scope={scope} /> },
-      { id: 'positions', title: t('Positions', 'Positions'), limits: LIMITS.positions!, render: () => <PositionsCard overview={data} scope={scope} /> },
-      { id: 'health', title: t('Plan health', 'Santé du plan'), limits: LIMITS.health!, render: () => <PlanHealth overview={data} period={period} /> },
+      { id: 'figures', title: t('Key figures', 'Chiffres clés'), section: t('Figures', 'Chiffres'), bare: true, limits: LIMITS.figures!, render: () => <KeyFigures overview={data} period={period} /> },
+      { id: 'performance', title: t('Past performance', 'Performance passée'), section: t('Performance', 'Performance'), limits: LIMITS.performance!, render: () => <PerformanceCard state={performance} scope={scope} period={period} /> },
+      { id: 'allocation', title: t('Allocation', 'Répartition'), section: t('Allocation', 'Répartition'), limits: LIMITS.allocation!, render: () => <AllocationCard overview={data} scope={scope} /> },
+      { id: 'positions', title: t('Positions', 'Positions'), section: t('Positions', 'Positions'), limits: LIMITS.positions!, render: () => <PositionsCard overview={data} scope={scope} /> },
+      { id: 'health', title: t('Plan health', 'Santé du plan'), section: t('Plan', 'Plan'), limits: LIMITS.health!, render: () => <PlanHealth overview={data} period={period} /> },
       { id: 'horizons', title: t('Longer horizons', 'Horizons plus longs'), limits: LIMITS.horizons!, render: () => <HorizonsCard overview={data} /> },
       { id: 'stress', title: t('Stress test', 'Test de résistance'), limits: LIMITS.stress!, render: () => <StressCard overview={data} /> },
       { id: 'diversification', title: t('Diversification', 'Diversification'), limits: LIMITS.diversification!, render: () => <DiversificationCard overview={data} /> },
-      { id: 'brief', title: t('Your Portfolio Intelligence Brief', 'Votre note stratégique de portefeuille'), limits: LIMITS.brief!, render: () => <AnalystBrief profile={profile} scopeNote={tr({ en: `Brief requests use the full portfolio and the global ${labelOf(WINDOW, windowCode, 'en').toLowerCase()} risk window; dashboard filters and custom dates do not apply. A cached brief may use an earlier window, as noted below.`, fr: `Les demandes de note utilisent le portefeuille complet et la fenêtre de risque globale ${labelOf(WINDOW, windowCode, 'fr').toLowerCase()} ; les filtres et dates personnalisées du tableau ne s’y appliquent pas. Une note en cache peut utiliser une fenêtre antérieure, indiquée ci-dessous.` })} /> },
+      { id: 'brief', title: t('Portfolio brief', 'Note de portefeuille'), section: t('Brief', 'Note'), limits: LIMITS.brief!, render: () => <AnalystBrief profile={profile} scopeNote={briefScope(windowCode, tr)} /> },
     ];
   }, [data, performance, scope, period, profile, tr, windowCode]);
 
@@ -134,49 +151,47 @@ function HomeContent({ profile }: { profile: Profile }) {
     <>
       <Reveal as="header" index={0} className="dash-header">
         <div className="dash-heading">
-          <p className="eyebrow">{tr({ en: 'Portfolio analyst brief', fr: 'Note d’analyse du portefeuille' })}</p>
-          <h1 className="page-title">{profile.name}</h1>
+          <h1 className="page-title">{tr({ en: `${profile.name}’s portfolio`, fr: `Portefeuille de ${profile.name}` })}</h1>
           <p className="page-sub">{tr(profile.blurb)}</p>
           <p className="dash-meta">
-            {/* Capital is the first figure, currency/risk/data date sit in the header bar and the period in
-                the scope bar: only what appears nowhere else is repeated here. */}
-            <span>{tr({ en: 'Age', fr: 'Âge' })} <strong>{profile.age ?? '—'}</strong></span>
-            <span>{tr({ en: 'Risk tolerance', fr: 'Tolérance au risque' })} <strong>{labelOf(RISK_LEVEL, profile.riskLevel, lang)}</strong></span>
-            <span>{tr({ en: 'Horizon', fr: 'Horizon' })} <strong>{horizonText(profile, tr)}</strong></span>
             <span>{tr({ en: 'Objective', fr: 'Objectif' })} <strong>{labelOf(OBJECTIVE, profile.objective, lang)}</strong></span>
+            <span>{tr({ en: 'Horizon', fr: 'Horizon' })} <strong>{horizonText(profile, tr)}</strong></span>
+            {meta && <span>{tr({ en: 'Data as of', fr: 'Données au' })} <strong>{fmtDate(meta.dataAsOf, lang)}</strong></span>}
           </p>
         </div>
         <div className="dash-actions">
-          <Link className="btn" href="/decision-desk/">{tr({ en: 'Test a move', fr: 'Tester un mouvement' })}</Link>
           <Link className="btn ghost" href="/portfolio/">{tr({ en: 'Inspect plan', fr: 'Examiner le plan' })}</Link>
+          <Link className="btn ink" href="/decision-desk/" data-tour="test-move">{tr({ en: 'Test a move', fr: 'Tester un mouvement' })}</Link>
         </div>
       </Reveal>
 
       <ScopeBar scope={scope} setScope={setScope} windowCode={windowCode} setWindow={setWindow}
-        dataAsOf={meta?.dataAsOf ?? new Date().toISOString().slice(0, 10)} groups={groups} benchmarks={benchmarks} tr={tr} lang={lang} />
+        dataAsOf={meta?.dataAsOf ?? new Date().toISOString().slice(0, 10)} groups={groups} benchmarks={benchmarks} tr={tr} lang={lang}
+        extra={!stacked && (
+          <button type="button" className="icon-btn layout-btn" aria-pressed={editing} onClick={() => setEditing(v => !v)} data-tour="edit-layout"
+            aria-label={tr({ en: 'Edit layout', fr: 'Modifier la disposition' })} title={tr({ en: 'Edit layout', fr: 'Modifier la disposition' })}>
+            <LayoutGrid aria-hidden="true" size={18} strokeWidth={1.75} />
+          </button>
+        )} />
 
-      <div className="grid-tools">
-        <span className="small muted">{editing && !stacked
-          ? tr({ en: 'Drag a widget by its handle, resize it from its corner, or use the arrow keys on either', fr: 'Glissez un widget par sa poignée, redimensionnez-le par son coin, ou utilisez les flèches sur l’une ou l’autre' })
-          : ''}</span>
-        <div className="grid-tools-actions">
-          {editing && !stacked && (
+      {editing && !stacked && (
+        <div className="grid-tools">
+          <span className="small muted">{tr({ en: 'Drag a widget by its handle, resize it from its corner, or use the arrow keys on either', fr: 'Glissez un widget par sa poignée, redimensionnez-le par son coin, ou utilisez les flèches sur l’une ou l’autre' })}</span>
+          <div className="grid-tools-actions">
             <button type="button" className="btn ghost btn-sm" onClick={() => { setResetToken(n => n + 1); announce(tr({ en: 'Default layout restored', fr: 'Disposition par défaut rétablie' })); }}>
               <RotateCcw aria-hidden="true" size={14} strokeWidth={1.5} />{tr({ en: 'Reset layout', fr: 'Disposition par défaut' })}
             </button>
-          )}
-          {!stacked && <button type="button" className="btn ghost btn-sm" aria-pressed={editing} onClick={() => setEditing(v => !v)}>
-            <LayoutGrid aria-hidden="true" size={14} strokeWidth={1.5} />{tr({ en: 'Edit layout', fr: 'Modifier la disposition' })}
-          </button>}
+            <button type="button" className="btn btn-sm" onClick={() => setEditing(false)}>{tr({ en: 'Done', fr: 'Terminé' })}</button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {overview.error && <AnalystBrief profile={profile} scopeNote={tr({ en: `Brief requests use the full portfolio and the global ${labelOf(WINDOW, windowCode, 'en').toLowerCase()} risk window; dashboard filters and custom dates do not apply.`, fr: `Les demandes de note utilisent le portefeuille complet et la fenêtre de risque globale ${labelOf(WINDOW, windowCode, 'fr').toLowerCase()} ; les filtres et dates personnalisées du tableau ne s’y appliquent pas.` })} />}
+      {overview.error && <AnalystBrief profile={profile} scopeNote={briefScope(windowCode, tr)} />}
       {overview.error && (
         <ErrorState error={overview.error} onRetry={overview.reload}
           title={tr({ en: 'The portfolio overview is unavailable for this scope. No summary figures are shown.', fr: 'L’aperçu du portefeuille est indisponible pour ce périmètre. Aucun chiffre de synthèse n’est affiché.' })} />
       )}
-      {overview.loading && <KeyFiguresSkeleton label={tr({ en: 'Loading deterministic overview…', fr: 'Chargement de l’aperçu déterministe…' })} />}
+      {overview.loading && <KeyFiguresSkeleton label={tr({ en: 'Loading figures…', fr: 'Chargement des chiffres…' })} />}
       {data && overviewScope && (
         <FactScopeProvider scope={overviewScope}>
           <Reveal index={1}>
@@ -211,14 +226,14 @@ function PerformanceCard({ state, scope, period }: { state: QueryState<Performan
     const bench = data.benchmark ? periodChangePct(data.benchmark.series) : null;
     change = (
       <p className="period-change">
-        {own !== null && <span>{tr({ en: 'Over the period', fr: 'Sur la période' })} <strong>{fmtSignedPct(own, lang)}</strong></span>}
-        {data.benchmark && bench !== null && <span>{data.benchmark.ticker} <strong>{fmtSignedPct(bench, lang)}</strong></span>}
-        <span>{tr({ en: 'read from the plotted series', fr: 'lu sur la série tracée' })}</span>
+        {own !== null && <span>{tr({ en: 'Over the period', fr: 'Sur la période' })} <strong><CountUp text={fmtSignedPct(own, lang)} /></strong></span>}
+        {data.benchmark && bench !== null && <span>{data.benchmark.ticker} <strong><CountUp text={fmtSignedPct(bench, lang)} /></strong></span>}
       </p>
     );
   }
   return (
-    <Card title={tr({ en: 'Hypothetical constant-weight history', fr: 'Historique hypothétique à pondérations constantes' })}
+    <Card title={tr({ en: 'Past performance', fr: 'Performance passée' })} tour="performance"
+      info={tr({ en: 'Today’s weights applied to past prices: a hypothetical history, not account gains.', fr: 'Pondérations actuelles appliquées aux prix passés : un historique hypothétique, pas des gains réels.' })}
       actions={data && data.series.length > 1 ? (
         <button type="button" className="btn ghost btn-sm" onClick={() => setAsTable(v => !v)}>
           {asTable ? tr({ en: 'Show chart', fr: 'Afficher le graphique' }) : tr({ en: 'Show table', fr: 'Afficher le tableau' })}
@@ -229,8 +244,8 @@ function PerformanceCard({ state, scope, period }: { state: QueryState<Performan
       {data && data.series.length < 2 && <Unavailable title={tr({ en: 'Unavailable for this period', fr: 'Indisponible pour cette période' })} />}
       {change}
       {body}
-      {/* Constant weights first and always visible (HOME spec); the rest fold away (deduplicated). */}
-      {data && <LimitationList compactAfter={1} codes={['LIM_CONSTANT_WEIGHTS', ...data.limitations]} />}
+      {/* The constant-weight caveat is written under the key figures and beside this title; the rest fold away. */}
+      {data && <LimitationList compactAfter={0} codes={['LIM_CONSTANT_WEIGHTS', ...data.limitations]} />}
     </Card>
   );
 }
@@ -257,17 +272,17 @@ function PlanHealth({ overview, period }: { overview: OverviewResponse; period: 
     return factId ? <FactChip factId={factId} display={text} /> : <span className="num">{text}</span>;
   };
   return (
-    <Card title={tr({ en: 'Plan health', fr: 'Santé du plan' })}
+    <Card title={tr({ en: 'Plan health', fr: 'Santé du plan' })} tour="health"
       actions={<Link href="/portfolio/" className="btn ghost btn-sm">{tr({ en: 'Open rules', fr: 'Ouvrir les règles' })}</Link>}>
       <div className="health-head">
         <VerdictBadge verdict={overview.verdict} large />
         <span className="small muted">{tr({ en: `${total} rule checks, ${period}`, fr: `${total} vérifications de règles, ${period}` })}</span>
       </div>
       <dl className="status-counts" aria-label={tr({ en: 'Rule checks by status', fr: 'Vérifications par statut' })}>
-        {STATUS_ORDER.map(status => (
-          <div key={status} className="status-count" {...(counts[status] === 0 ? { 'data-zero': 'true' } : {})}>
+        {STATUS_ORDER.filter(status => counts[status] > 0).map(status => (
+          <div key={status} className="status-count">
             <dt><StatusBadge status={status} /></dt>
-            <dd><strong>{counts[status]}</strong></dd>
+            <dd><strong><CountUp text={String(counts[status])} /></strong></dd>
           </div>
         ))}
       </dl>
@@ -277,7 +292,7 @@ function PlanHealth({ overview, period }: { overview: OverviewResponse; period: 
           <ul className="limit-list">
             {closest.map(check => (
               <li key={check.ruleId}>
-                <p className="limit-detail"><span className="rule-code">{check.code}</span>{tr(check.detail)}</p>
+                <p className="limit-detail">{tr(check.detail)}</p>
                 <p className="limit-figs small">
                   {figure(check.value, check.valueFactId, check.unit)}
                   <span> {tr({ en: 'against a limit of', fr: 'pour une limite de' })} </span>
@@ -293,7 +308,7 @@ function PlanHealth({ overview, period }: { overview: OverviewResponse; period: 
           <p><strong>{tr({ en: 'Not enough evidence (separate from financial checks)', fr: 'Preuves insuffisantes (distinct des vérifications financières)' })}</strong></p>
           <ul className="bullets">
             {nee.map(check => (
-              <li key={check.ruleId}><span className="mono">{check.code}</span> {tr(check.detail)}{check.neeReason ? ` — ${labelOf(NEE_REASON, check.neeReason, lang)}` : ''}</li>
+              <li key={check.ruleId}>{tr(check.detail)}{check.neeReason ? ` — ${labelOf(NEE_REASON, check.neeReason, lang)}` : ''}</li>
             ))}
           </ul>
         </div>
@@ -307,7 +322,7 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
   const app = useApp();
   const { tr, lang, windowCode, announce, sessionId, meta } = app;
   const base = profileKey(app);
-  const cacheKey = base && `brief|${base}|${windowCode}|${lang}`;
+  const cacheKey = base && briefKey(base, windowCode, lang);
   const cached = useQuery<CachedBriefResponse>(cacheKey, signal => getApiClient().brief(profile.profileId, lang, signal));
   // The run started for a key outlives this component: coming back to a persona, window, language
   // or to Home shows that run (or its progress) again instead of an empty card (HOME-02).
@@ -356,19 +371,21 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
   const busy = creating || (run !== null && !isTerminal(run.status));
 
   return (
-    <Card id="analyst-brief" title={tr({ en: 'Your Portfolio Intelligence Brief', fr: 'Votre note stratégique de portefeuille' })}
+    <Card id="analyst-brief" title={tr({ en: 'Portfolio brief', fr: 'Note de portefeuille' })} tour="brief"
+      {...(scopeNote ? { info: scopeNote } : {})}
       actions={(
         <button type="button" className="btn ghost btn-sm" onClick={() => void start(true)} disabled={busy}>
           {tr({ en: 'Refresh brief', fr: 'Actualiser la note' })}
         </button>
       )}>
-      {scopeNote && <p className="scope-note">{scopeNote}</p>}
       {cached.loading && <Loading label={tr({ en: 'Looking for a cached brief…', fr: 'Recherche d’une note en cache…' })} />}
       {cached.error && <ErrorState error={cached.error} onRetry={cached.reload}
-        title={tr({ en: 'The analyst brief is unavailable. Deterministic cards remain valid.', fr: 'La note d’analyse est indisponible. Les cartes déterministes restent valables.' })} />}
+        title={tr({ en: 'The brief is unavailable. The figures above are unaffected.', fr: 'La note est indisponible. Les chiffres ci-dessus restent valables.' })} />}
       {createError && (
         <ErrorState error={createError} onRetry={() => void start(true)}
-          title={tr({ en: 'The brief could not be started. Deterministic cards remain valid.', fr: 'La note n’a pas pu être lancée. Les cartes déterministes restent valables.' })} />
+          title={createError.code === 'upstream_unavailable'
+            ? tr({ en: 'The brief is written by AI, which this server does not offer right now. The figures above are unaffected.', fr: 'La note est rédigée par l’IA, que ce serveur ne propose pas pour l’instant. Les chiffres ci-dessus restent valables.' })
+            : tr({ en: 'The brief could not be started. The figures above are unaffected.', fr: 'La note n’a pas pu être lancée. Les chiffres ci-dessus restent valables.' })} />
       )}
       {polled.error && <ErrorState error={polled.error} onRetry={polled.reload} />}
       {stale && run && (
@@ -378,7 +395,7 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
         <p className="stale-note">{tr({ en: `This brief was written for the ${labelOf(WINDOW, otherWindow, 'en')} window, not the one selected.`, fr: `Cette note a été rédigée pour la fenêtre ${labelOf(WINDOW, otherWindow, 'fr')}, pas pour celle qui est choisie.` })}</p>
       )}
       {run && <BriefRun run={run} />}
-      {runId && !run && !polled.error && <Loading label={tr({ en: 'Starting brief run…', fr: 'Démarrage de la note…' })} />}
+      {runId && !run && !polled.error && <Loading label={tr({ en: 'Writing the brief…', fr: 'Rédaction de la note…' })} />}
     </Card>
   );
 }
@@ -392,10 +409,10 @@ function BriefRun({ run }: { run: Run }) {
       <div>
         <p><RunStatusBadge status={run.status} /></p>
         {run.status === 'failed' && (
-          <p className="small">{tr({ en: 'The brief run failed; no signed brief exists. Deterministic cards remain usable.', fr: 'L’exécution de la note a échoué ; aucune note signée n’existe. Les cartes déterministes restent utilisables.' })}</p>
+          <p className="small">{tr({ en: 'The brief could not be written. The figures above are unaffected.', fr: 'La note n’a pas pu être rédigée. Les chiffres ci-dessus restent valables.' })}</p>
         )}
         <details open={run.status !== 'failed'}>
-          <summary className="small">{tr({ en: 'Execution trace', fr: 'Trace d’exécution' })}</summary>
+          <summary className="small">{tr({ en: 'Steps', fr: 'Étapes' })}</summary>
           <RunTimeline run={run} />
         </details>
       </div>
@@ -403,7 +420,6 @@ function BriefRun({ run }: { run: Run }) {
   }
   return (
     <FactScopeProvider scope={scope}>
-      {run.flags.fixture && <p className="banner banner-fixture">{tr({ en: 'Development fixture — no agents executed.', fr: 'Jeu d’essai — aucun agent exécuté.' })}</p>}
       {(() => {
         const summary = portfolioSummary(result.brief);
         return summary.length > 0 && <div className="brief-section"><h3 className="h4">{tr({ en: 'Executive summary', fr: 'Résumé exécutif' })}</h3>
@@ -413,7 +429,6 @@ function BriefRun({ run }: { run: Run }) {
       <div className="grid-3">
         {result.focusCards.map((card, i) => (
           <article key={i} className="scenario">
-            <p className="eyebrow">{tr({ en: `Focus ${i + 1}`, fr: `Priorité ${i + 1}` })}</p>
             <h3 className="h4">{tr(card.title)}</h3>
             {card.body.filter(s => s.audit.status !== 'struck').map(sentence => (
               <p key={sentence.id} className="small"><SentenceText sentence={sentence} /></p>
@@ -426,7 +441,7 @@ function BriefRun({ run }: { run: Run }) {
           </article>
         ))}
       </div>
-      <details><summary>{tr({ en: 'Methodology, assumptions and evidence gaps', fr: 'Méthode, hypothèses et preuves manquantes' })}</summary>
+      <details className="fold"><summary>{tr({ en: 'Method, assumptions and evidence gaps', fr: 'Méthode, hypothèses et preuves manquantes' })}</summary>
         <BriefView brief={{ ...result.brief, sections: result.brief.sections.map(s => ({ ...s,
           sentences: s.sentences.filter(sentence => !portfolioSummary(result.brief).some(x => x.id === sentence.id))
         })).filter(s => s.sentences.length > 0) }} />

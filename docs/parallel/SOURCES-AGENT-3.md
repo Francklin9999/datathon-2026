@@ -157,3 +157,5 @@ These are candidate sources to audit and implement when authorized and useful to
 | SRC-241 | ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE | EPO OPS | F | https://www.epo.org/en/searching-for-patents/data/web-services/ops | Global patent documents |
 | SRC-242 | ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE | Google Patents public dataset | F | https://console.cloud.google.com/marketplace/product/patents-public-data/google-patents-public-data | Patent publications BigQuery |
 | SRC-243 | ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE | GDELT TV | R | https://blog.gdeltproject.org/ | Broadcast news coverage access check |
+
+Also disposition every MASTER row owned by Agent 3 in [the original master catalogue](MASTER-SOURCE-COVERAGE.md), even when that endpoint/dataset is absent from the 243-row Downloads file.

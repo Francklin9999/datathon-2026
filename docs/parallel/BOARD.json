@@ -61,5 +61,11 @@
       ],
       "mergeGate": "Independent integration review, generated-contract reconciliation, merged full tests/build and end-to-end demonstrations; no automatic deployment"
     }
-  ]
+  ],
+  "masterCatalogueRows": 99,
+  "masterSourceCounts": {
+    "1": 11,
+    "2": 23,
+    "3": 65
+  }
 }

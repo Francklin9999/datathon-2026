@@ -30,7 +30,7 @@ export function themeToApply(pref: ThemePref | null, systemDark: boolean): Theme
 
 /** Browser UI colour (meta theme-color) for a resolved theme; matches --bg in styles/tokens.css. */
 export function themeColorFor(theme: ThemeMode): string {
-  return theme === 'dark' ? '#141415' : '#FAFAFA';
+  return theme === 'dark' ? '#0B0D12' : '#ECEFF5';
 }
 
 /**
@@ -41,7 +41,30 @@ export function themeColorFor(theme: ThemeMode): string {
 export const MOTION_BOOT_SCRIPT = `(function(){var r=document.documentElement;function s(){if(document.visibilityState==='hidden'){r.setAttribute('data-motion','off');}}
 s();document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){r.removeAttribute('data-motion');}else{s();}});})();`;
 
-/** Sidebar preference: expanded (labels) or collapsed (64 px icon rail). */
+/**
+ * Animation preference: `auto` follows the system "reduce motion" setting, `on` keeps the load
+ * animations (counting figures, drawing charts, the rail) even when the system asks to reduce them,
+ * `off` removes them. `on` is the default (product decision, 2026-11-15); a person who reduces motion
+ * picks Auto or Off in Settings. Applied before paint as html[data-anim] (absent for `auto`).
+ */
+export type AnimPref = 'auto' | 'on' | 'off';
+export const ANIM_PREF_KEY = 'anim';
+export const DEFAULT_ANIM: AnimPref = 'on';
+
+export function isAnimPref(value: unknown): value is AnimPref {
+  return value === 'auto' || value === 'on' || value === 'off';
+}
+
+export const ANIM_BOOT_SCRIPT = `(function(){var a=null;try{a=window.localStorage.getItem('aplomb.pref.anim');}catch(e){}if(a!=='auto'&&a!=='off'){a='on';}if(a!=='auto'){document.documentElement.setAttribute('data-anim',a);}})();`;
+
+/** Whether load animations should play now (preference, system setting, hidden page). */
+export function animationsAllowed(pref: string | undefined, systemReduce: boolean, pageHidden: boolean): boolean {
+  if (pageHidden || pref === 'off') return false;
+  if (pref === 'on') return true;
+  return !systemReduce;
+}
+
+/** Navigation rail preference: collapsed (floating icon rail, the default) or expanded (icons with labels). */
 export type SidebarState = 'expanded' | 'collapsed';
 export const SIDEBAR_PREF_KEY = 'sidebar';
 
@@ -49,5 +72,5 @@ export function isSidebarState(value: unknown): value is SidebarState {
   return value === 'expanded' || value === 'collapsed';
 }
 
-/** Applies the stored sidebar state to <html> before first paint, so a collapsed rail never flashes open. */
-export const SIDEBAR_BOOT_SCRIPT = `(function(){try{var s=window.localStorage.getItem('aplomb.pref.sidebar');if(s==='collapsed'){document.documentElement.setAttribute('data-sidebar','collapsed');}}catch(e){}})();`;
+/** Applies the stored rail state to <html> before first paint, so an expanded rail never flashes closed. */
+export const SIDEBAR_BOOT_SCRIPT = `(function(){try{var s=window.localStorage.getItem('aplomb.pref.sidebar');if(s==='expanded'){document.documentElement.setAttribute('data-sidebar','expanded');}}catch(e){}})();`;

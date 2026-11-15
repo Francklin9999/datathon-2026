@@ -78,3 +78,5 @@ These are candidate sources to audit and implement when authorized and useful to
 | SRC-085 | CRYPTO, BLOCKCHAIN & DEFI | Glassnode | M | https://docs.glassnode.com/ | Onchain market metrics |
 | SRC-086 | MACRO, CENTRAL BANKS, ECONOMICS | FRED API | F | https://fred.stlouisfed.org/docs/api/fred/ | Macro time series |
 | SRC-087 | MACRO, CENTRAL BANKS, ECONOMICS | ALFRED vintages | F | https://fred.stlouisfed.org/docs/api/fred/ | Point in time revisions |
+
+Also disposition every MASTER row owned by Agent 2 in [the original master catalogue](MASTER-SOURCE-COVERAGE.md), even when that endpoint/dataset is absent from the 243-row Downloads file.

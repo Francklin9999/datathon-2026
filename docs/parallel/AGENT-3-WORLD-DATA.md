@@ -13,7 +13,7 @@ Read [README.md](README.md), [FULL-SCOPE.md](FULL-SCOPE.md) and [INTERFACES.md](
 
 ## Baseline to preserve
 
-World Explorer already has a global lazy-loaded globe/2D feed, event filtering/source panels and portfolio investigation links. The bundle has actual EONET observations, USGS earthquakes and official releases; WDI country panels contain 838 annual observations across 217 countries/territories. Static OurAirports reference contains 1,154 validated large scheduled-service airports. ECCC GHGRP contains 1,863 geolocated 2024 facilities (16 rejected rows), original/projection hashes and required-field source projection. Public contact fields are intentionally omitted. The legacy `Facility.operator` wire field is labeled **Reporting company**: it is not proof of ownership/operator status. Existing event/theme/listing-country matches are proxies with no assumed financial impact. Preserve these distinctions and immutable captures.
+World Explorer already has a global lazy-loaded globe/2D feed, event filtering/source panels and portfolio investigation links. The bundle has actual EONET observations, USGS earthquakes and official releases; WDI country panels contain 838 annual observations across 217 countries/territories. Static OurAirports reference contains 1,154 validated large scheduled-service airports. ECCC GHGRP contains 1,863 geolocated 2024 facilities (16 rejected rows), original/projection hashes and required-field source projection. Public contact fields are intentionally omitted. The legacy `Facility.operator` wire field is labeled **Reporting company**: it is not proof of ownership/operator status. Existing event/theme/listing-country matches are proxies with no assumed financial impact. Preserve these distinctions and immutable captures. Also preserve the newly merged teammate glass shell/navigation, hex globe, stable hover across hex gaps, fanned stacked events, visible small islands, label offsets and thin event spikes; extend these rather than reverting to the previous point globe.
 
 ## Assigned implementation
 
@@ -27,7 +27,7 @@ Event detail needs title/location/category, observation/publication/retrieval co
 
 ### B. Worldwide source-to-feature integrations
 
-Audit every assigned provider row and complete usable adapters/pipelines, starting with actual existing connectors and then the missing layers. Include:
+Audit every assigned Downloads SRC row and original master MASTER row (including the exact PortWatch layers, GDELT Geographic Graph, separate GEM oil/gas and coal trackers, and USGS Minerals 2026 release) and complete usable adapters/pipelines, starting with actual existing connectors and then the missing layers. Include:
 
 - GDELT DOC/Event/GKG/geographic data, official central-bank/regulatory feeds, sourced news/policy/conflicts/sanctions, ReliefWeb/UCDP and other authorized sources.
 - World Bank/macro/country comparisons and regional indicators assigned to you, including IMF/OECD/BIS/Eurostat/Statistics Canada and other supported country sources. Annual observations are not real-time geopolitical signals. FRED/ALFRED vintage research is Agent 2; core FX/rate/factor sources assigned to Agent 1 are not yours to duplicate.

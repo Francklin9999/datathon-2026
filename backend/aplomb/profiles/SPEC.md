@@ -32,7 +32,7 @@ Provides to: API routers (§3 of `contracts/api.md`), tool `profile.get`, agents
 
 Table `aplomb-profiles` (`api/SPEC.md` §4): defaults are loaded from `backend/aplomb/profiles/defaults.json` at start; a session's edits to a default are stored as an **overlay** item (`pk = SESSION#<sid>`, `sk = OVERLAY#<profileId>`) containing only changed rules and positions. `get` merges default + overlay. Custom profiles are full items (`sk = PROFILE#<profileId>`).
 
-`version` starts at 1 and increases by 1 on every change to the merged profile. Any change invalidates the cached overview and marks the Home brief stale (`api.md` 3.12).
+`version` starts at 1 and increases by 1 on every change to the merged profile. Any change invalidates the cached overview and marks the Home brief stale (`api.md` 3.12). Overview and performance responses are cached per process (64 entries, least recently used out), keyed by the snapshot version, the merged profile's full content and the query, so an edit, another session's overlay or a new snapshot never reuses an entry while sessions reading the same unedited default share one.
 
 ## 3. The three default personas
 
