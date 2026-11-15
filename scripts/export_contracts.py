@@ -122,7 +122,8 @@ def main():
 
     schema = export_schema()
     schema["x-spec-sha256"] = {
-        name: hashlib.sha256((ROOT / "contracts" / name).read_bytes()).hexdigest()
+        # Line endings normalized: a Windows checkout (CRLF) hashes the same as CI (LF).
+        name: hashlib.sha256((ROOT / "contracts" / name).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
         for name in ("schemas.md", "catalog.md", "api.md", "run-events.md", "tools.md")
     }
     write_or_check(
