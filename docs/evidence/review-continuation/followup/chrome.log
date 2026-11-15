@@ -1,0 +1,63 @@
+[9:9:1115/000610.190501:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/francklin99/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)
+[9:9:1115/000610.190661:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/francklin99/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)
+
+(process:9): dconf-CRITICAL **: 00:06:10.201: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.202: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.202: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.202: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.202: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.202: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.202: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.204: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.204: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.204: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.204: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.204: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.204: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+[9:28:1115/000610.219172:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/francklin99/.config/google-chrome/Crash Reports/settings.dat: Read-only file system (30)
+
+(process:9): dconf-CRITICAL **: 00:06:10.244: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.247: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+DevTools listening on ws://127.0.0.1:9227/devtools/browser/6a074abf-aae2-4868-9e50-820ab786875f
+[9:9:1115/000610.307642:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.systemd1.Manager.StartTransientUnit: object_path= /org/freedesktop/systemd1: org.freedesktop.DBus.Error.UnixProcessIdUnknown: Failed to set unit properties: No such process
+[9:28:1115/000610.364748:ERROR:crypto/nss_util.cc:256] Error initializing NSS with a persistent database (sql:/home/francklin99/.pki/nssdb): NSS error code: -8126
+
+(process:9): dconf-CRITICAL **: 00:06:10.495: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.497: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(process:9): dconf-CRITICAL **: 00:06:10.547: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:238): dconf-CRITICAL **: 00:06:11.190: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:238): dconf-CRITICAL **: 00:06:11.191: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:238): dconf-CRITICAL **: 00:06:11.193: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:238): dconf-CRITICAL **: 00:06:11.194: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:238): dconf-CRITICAL **: 00:06:11.194: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:238): dconf-CRITICAL **: 00:06:11.194: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:239): dconf-CRITICAL **: 00:06:11.236: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:239): dconf-CRITICAL **: 00:06:11.237: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:239): dconf-CRITICAL **: 00:06:11.239: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
+
+(gnome-browser-connector-host:239): dconf-CRITICAL **: 00:06:11.239: unable to create file '/run/user/1000/dconf/user': Read-only file system.  dconf will not work properly.
