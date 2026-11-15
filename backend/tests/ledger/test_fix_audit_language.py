@@ -449,3 +449,11 @@ def test_status_segment_shows_a_localized_word(status, en, fr):
         assert (code.t, code.display) == ("rule", "R1")
         assert (shown.t, shown.rule_id, shown.display) == ("status", "cap.position", word)
         assert not has_literal(word)
+
+
+def test_identical_writer_templates_are_deduplicated_before_review():
+    d = draft(["Observation.", "Observation.", "Different observation."])
+    sections, _ = parse_draft(d, ledger().export(), "en")
+    facts = next(s for s in sections if s.id == "facts")
+    assert [s.id for s in facts.sentences] == ["S-F1", "S-F3"]
+    assert all(next(s for s in sections if s.id == name).sentences for name in ("assumptions", "limits"))

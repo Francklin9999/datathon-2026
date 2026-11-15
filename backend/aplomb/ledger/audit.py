@@ -129,6 +129,7 @@ def parse_draft(
             raise AuditFailure("Invalid or repeated section")
         section_ids.add(raw["id"])
         sentences = []
+        seen_templates = set()
         for raw_sentence in raw["sentences"]:
             if set(raw_sentence) != {"id", "template"}:
                 raise AuditFailure("Sentence requires exactly id and template")
@@ -136,6 +137,12 @@ def parse_draft(
             if not isinstance(sid, str) or not sid or sid in ids or not isinstance(template, str):
                 raise AuditFailure("Invalid/duplicate sentence ID or template")
             ids.add(sid)
+            # Identical templates within a section add no information. Keep IDs validated,
+            # then omit repeated content before review and signing; distinct sections remain intact.
+            normalized_template = " ".join(template.split())
+            if normalized_template in seen_templates:
+                continue
+            seen_templates.add(normalized_template)
             segments, cursor = [], 0
             prose = TOKEN.sub("", template)
             if any(x in prose for x in ("{{", "}}", "{", "}")):
@@ -259,6 +266,33 @@ def evaluate_relation(relation: Relation, view: LedgerView, cited: set[str]) -> 
     return bool(fn and fn(left.value, right.value))
 
 
+def relation_matches_plain_comparison(sentence: Sentence, relation: Relation) -> bool:
+    """Check simple directional prose independently of the model-extracted operator.
+
+    Complex or negated wording stays with the existing model review; this guard only applies
+    to an unambiguous two-fact pattern with one recognized direction between the facts.
+    """
+    segments = sentence.segments
+    indices = [i for i, segment in enumerate(segments) if segment.t == "fact"]
+    if len(indices) != 2:
+        return True
+    left, right = (segments[i].fact_id for i in indices)
+    if {relation.left_fact_id, relation.right_fact_id} != {left, right}:
+        return True  # another typed relation may describe a different proposition
+    between = normalized(" ".join(segment.text for segment in segments[indices[0] + 1:indices[1]]
+                                   if segment.t == "text"))
+    if re.search(r"\b(?:not|no|never|pas|non|ne)\b", between):
+        return True
+    lower = bool(re.search(r"\b(?:lower|less|below|inferieur|inferieure)\b", between))
+    higher = bool(re.search(r"\b(?:higher|greater|above|superieur|superieure)\b", between))
+    if lower == higher:
+        return True
+    expected = "<" if lower else ">"
+    if relation.left_fact_id == right:
+        expected = ">" if expected == "<" else "<"
+    return relation.operator == expected
+
+
 def render_text(sections, *, include_struck=False) -> str:
     """Plain text, never HTML. Use render_html for safe audit demonstration markup."""
     return "\n".join(
@@ -363,7 +397,7 @@ def audit_and_sign(
             cited = {s.fact_id for s in sentence.segments if s.t == "fact"}
             check(
                 "A03",
-                evaluate_relation(relation, view, cited),
+                evaluate_relation(relation, view, cited) and relation_matches_plain_comparison(sentence, relation),
                 "Code evaluated extracted relation",
                 [sentence.id],
             )

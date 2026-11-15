@@ -407,3 +407,31 @@ test('run readings come from the payload: produced IDs, budget totals, guardrail
   assert.equal(guardrailReading(true, { applied: true, action: 'masked', id: 'gr-1' }), 'applied');
   assert.equal(guardrailReading(false, { applied: true, action: 'blocked', id: 'gr-1' }), 'applied_flag_off');
 });
+
+
+test('event investigation link retains selected source and safely encodes context', async () => {
+  const { decisionInvestigationUrl } = await import('../src/lib/world');
+  const url = new URL(decisionInvestigationUrl('evt_123', 'robert', 'BRK.B', 'run_123'), 'https://example.test');
+  assert.equal(url.searchParams.get('eventId'), 'evt_123');
+  assert.equal(url.searchParams.get('profileId'), 'robert');
+  assert.equal(url.searchParams.get('ticker'), 'BRK.B');
+  assert.equal(url.searchParams.get('sourceRunId'), 'run_123');
+});
+
+
+test('persisted event context validates IDs and rejects arbitrary references', async () => {
+  const { validInvestigationContext, investigationOriginalText, readInvestigationContext } = await import('../src/lib/world');
+  const context = validInvestigationContext('evt_abcdef123456', 'BRK.B', 'run_01M7ERBNQM5DVKQ01XX4DKRJ4D');
+  assert.ok(context);
+  assert.deepEqual(readInvestigationContext(investigationOriginalText('My request', context)), context);
+  assert.equal(validInvestigationContext('https://example.com', 'BRK.B', null), null);
+  assert.equal(validInvestigationContext('evt_abcdef123456', 'BRK.B', 'bad'), null);
+});
+
+
+test('site manifest identity rejects invalid or absent release information', async () => {
+  const { siteBuildIdentity } = await import('../src/lib/system');
+  assert.deepEqual(siteBuildIdentity({ revision: 'a'.repeat(40), built_at: '2026-11-15T05:45:39Z' }), { revision: 'a'.repeat(40), builtAt: '2026-11-15T05:45:39Z' });
+  assert.equal(siteBuildIdentity({ revision: 'dev', built_at: '2026-11-15' }), null);
+  assert.equal(siteBuildIdentity(null), null);
+});

@@ -26,7 +26,9 @@ export const DEFAULT_SCOPE: DashboardScope = { period: { mode: 'window' }, bench
 const ISO = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
 export function isIsoDate(value: unknown): value is string {
-  return typeof value === 'string' && ISO.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
+  if (typeof value !== 'string' || !ISO.test(value)) return false;
+  const instant = Date.parse(`${value}T00:00:00Z`);
+  return Number.isFinite(instant) && new Date(instant).toISOString().slice(0, 10) === value;
 }
 
 /** Error code for a custom range, or null when usable. `dataAsOf` is the last date with data. */

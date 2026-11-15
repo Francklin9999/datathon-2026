@@ -384,3 +384,19 @@ def test_goal_without_a_candidate_signs_an_unchanged_portfolio(client, profile, 
     if goal["themes"]:
         [exposure] = scenario["exposure"]
         assert exposure["beforePct"] == exposure["afterPct"] >= 15
+
+
+@pytest.mark.parametrize("profile_id", ["robert", "amira", "mateo"])
+def test_portfolio_focus_cards_are_distinct_and_evidence_linked(client, profile_id):
+    run = run_to_end(client, session(), {"kind": "portfolio_brief", "profileId": profile_id, "lang": "en"})
+    assert run["status"] == "succeeded", run["error"]
+    cards = run["result"]["portfolioBrief"]["focusCards"]
+    assert len(cards) == 3
+    assert len({c["title"]["en"] for c in cards}) == 3
+    horizons = [next(s for s in c["body"] if s["id"].endswith("-HORIZON"))["segments"][0]["text"] for c in cards]
+    assert len(set(horizons)) == 3
+    assert all(fid in run["facts"] and run["facts"][fid]["verification"]["status"] == "verified"
+               for c in cards for fid in c["factIds"])
+    bond = next((c for c in cards if c["title"]["en"] == "Interest-rate evidence"), None)
+    if bond:
+        assert bond["factIds"] and run["facts"][bond["factIds"][0]]["metric"] == "weight.asset_group"

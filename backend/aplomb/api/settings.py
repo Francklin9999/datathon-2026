@@ -12,6 +12,7 @@ from aplomb.contracts.catalog import FeatureFlag
 class Settings(BaseModel):
     environment: Literal["local", "aws"] = "local"
     region: str = "us-east-1"
+    build_revision: str | None = Field(default=None, pattern=r"^[0-9a-f]{40}$")
     data_version: DataVersion | Literal["unconfigured"] = "unconfigured"
     data_as_of: ISODate = "2026-11-12"
     data_dir: str | None = None

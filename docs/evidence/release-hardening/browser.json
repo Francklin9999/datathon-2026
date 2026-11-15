@@ -1,0 +1,362 @@
+[
+  {
+    "width": 390,
+    "route": "/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nR\nFictional investor\nRobert\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nEN\nFR\n\nSimulation only. Fictional profiles. Not financial advice.\n\nPortfolio analyst brief\n\nRobert\n\n59, healthcare professional. Low-to-moderate risk over 3 to 5 years; values stability and quality, little "
+  },
+  {
+    "width": 390,
+    "route": "/portfolio/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nR\nFictional investor\nRobert\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation only. Fictional profiles. Not financial advice.\n\nFictional portfolio\n\nRobert: holdings, rules and risk\n\nAll values are in CAD \u00b7 CAD\u00a0600,000 fictional capital \u00b7 profile ver"
+  },
+  {
+    "width": 390,
+    "route": "/decision-desk/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nR\nFictional investor\nRobert\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation only. Fictional profiles. Not financial advice.\n\nDecision Desk\n\nTest a hypothetical move for Robert\n\nDescribe a move or fill the form. Rule checks are deterministic; the e"
+  },
+  {
+    "width": 390,
+    "route": "/evidence-audit/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nR\nFictional investor\nRobert\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation only. Fictional profiles. Not financial advice.\n\nEvidence & Audit\n\nRuns in this session\n\nPick a run to inspect its ledger, audit and execution trace. Runs of other session"
+  },
+  {
+    "width": 390,
+    "route": "/sources/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nR\nFictional investor\nRobert\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation only. Fictional profiles. Not financial advice.\n\nData room\n\nSources and dataset passports\n\nWhat each dataset is, where it comes from, how it is processed and what it canno"
+  },
+  {
+    "width": 390,
+    "route": "/time-machine/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nR\nFictional investor\nRobert\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation only. Fictional profiles. Not financial advice.\n\nTime Machine\n\nReplay a hypothetical move for Robert with an information cutoff\n\nChoose a past date. The rule checks and fi"
+  },
+  {
+    "width": 390,
+    "route": "/world-explorer/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nR\nFictional investor\nRobert\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation only. Fictional profiles. Not financial advice.\n\nWorld Explorer\n\nSourced events and the exposure of Robert\n\nEvents come from the loaded dataset, each with its source. A li"
+  },
+  {
+    "width": 390,
+    "route": "/agents-system/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nR\nFictional investor\nRobert\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation only. Fictional profiles. Not financial advice.\n\nAgents & System\n\nWhat actually ran\n\nCode computes every figure and verdict; models plan, research and explain. This page s"
+  },
+  {
+    "width": 390,
+    "route": "/profiles/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nR\nFictional investor\nRobert\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation only. Fictional profiles. Not financial advice.\n\nFictional profiles\n\nCreate or edit a fictional profile\n\nFor simulation only. Do not enter real personal, contact or accoun"
+  },
+  {
+    "width": 768,
+    "route": "/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nEN\nFR\n\nSimulation only. Fictional profiles. "
+  },
+  {
+    "width": 768,
+    "route": "/portfolio/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 768,
+    "route": "/decision-desk/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 768,
+    "route": "/evidence-audit/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 768,
+    "route": "/sources/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 768,
+    "route": "/time-machine/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 768,
+    "route": "/world-explorer/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 768,
+    "route": "/agents-system/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 768,
+    "route": "/profiles/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1024,
+    "route": "/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nEN\nFR\n\nSimulation only. Fictional profiles. "
+  },
+  {
+    "width": 1024,
+    "route": "/portfolio/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1024,
+    "route": "/decision-desk/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1024,
+    "route": "/evidence-audit/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1024,
+    "route": "/sources/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1024,
+    "route": "/time-machine/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1024,
+    "route": "/world-explorer/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1024,
+    "route": "/agents-system/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1024,
+    "route": "/profiles/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1280,
+    "route": "/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nEN\nFR\n\nSimulation only. Fictional profiles. "
+  },
+  {
+    "width": 1280,
+    "route": "/portfolio/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1280,
+    "route": "/decision-desk/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1280,
+    "route": "/evidence-audit/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1280,
+    "route": "/sources/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1280,
+    "route": "/time-machine/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1280,
+    "route": "/world-explorer/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1280,
+    "route": "/agents-system/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1280,
+    "route": "/profiles/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1440,
+    "route": "/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nEN\nFR\n\nSimulation only. Fictional profiles. "
+  },
+  {
+    "width": 1440,
+    "route": "/portfolio/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1440,
+    "route": "/decision-desk/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1440,
+    "route": "/evidence-audit/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1440,
+    "route": "/sources/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1440,
+    "route": "/time-machine/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1440,
+    "route": "/world-explorer/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1440,
+    "route": "/agents-system/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  },
+  {
+    "width": 1440,
+    "route": "/profiles/",
+    "status": 200,
+    "overflow": false,
+    "errors": [],
+    "body": "Skip to content\nAplomb\nR\nFictional investor\nRobert\nManage profiles\nHome\nPortfolio\nDecision Desk\nWorld Explorer\nEvidence & Audit\nTime Machine\nAgents & System\nSources & data passports\n\nsnap-20261113-starter\n\nData as of\nNov 12, 2026\nCAD, risk low to moderate\nWindow\nAll\n1Y\n3Y\n5Y\nYTD\nEN\nFR\n\nSimulation on"
+  }
+]

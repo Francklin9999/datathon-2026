@@ -2,6 +2,7 @@
 import copy
 import json
 import math
+import re
 from collections import OrderedDict
 from contextlib import nullcontext
 from datetime import date
@@ -162,10 +163,25 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
             if unit is None:
                 unavailable.append({"source_unit": source_unit, "reason": "unsupported_explicit_unit"})
                 continue
-            selected = [(index, row) for index, row in enumerate(rows)
-                        if isinstance(row, dict) and isinstance(row.get("filed"), str)
-                        and isinstance(row.get("end"), str)
-                        and row["filed"] <= str(rc.as_of) and row["end"] <= str(rc.as_of)]
+            selected = []
+            if not isinstance(rows, list):
+                unavailable.append({"source_unit": source_unit, "reason": "invalid_source_rows"})
+                continue
+            for index, row in enumerate(rows):
+                try:
+                    if not isinstance(row, dict):
+                        continue
+                    filed = date.fromisoformat(row["filed"])
+                    end = date.fromisoformat(row["end"])
+                    start = date.fromisoformat(row.get("start", row["end"]))
+                    accession, form = row["accn"], row["form"]
+                    if (not isinstance(accession, str) or not re.fullmatch(r"\d{10}-\d{2}-\d{6}", accession)
+                            or not isinstance(form, str) or not re.fullmatch(r"[A-Za-z0-9/-]{1,20}", form)
+                            or start > end or end > filed or filed > rc.as_of):
+                        continue
+                except (KeyError, TypeError, ValueError):
+                    continue
+                selected.append((index, row))
             selected.sort(key=lambda item: (item[1]["filed"], item[1]["end"]), reverse=True)
             for index, row in selected[:5]:
                 value = row.get("val")

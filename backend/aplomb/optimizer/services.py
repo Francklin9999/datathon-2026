@@ -124,7 +124,9 @@ class DecisionControls:
         if request is None:
             # Portfolio brief: the current portfolio against its rules, no move (agents SPEC §5).
             prepared = prepare(engine, profile, profile.rules, None, False)
-            engine.view(prepared["weightsBefore"], "before", profile.portfolio.total_value, window=win).snapshot()
+            view = engine.view(prepared["weightsBefore"], "before", profile.portfolio.total_value, window=win)
+            view.snapshot()
+            view.measure("weight.asset_group", "fixed_income")
             return {"kind": "baseline", "window": win, "prepared": prepared}
         req = self._wire(request)
         if req.get("type") == "goal":

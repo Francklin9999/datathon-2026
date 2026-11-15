@@ -39,6 +39,15 @@ class CustomWindow(unittest.TestCase):
         # The same spec passed as a window dict is equivalent.
         self.assertEqual(svc.overview(A, "robert", {"window": SPEC}).to_wire()["risk"], o["risk"])
 
+    def test_selected_return_matches_custom_chart(self):
+        svc = service()
+        overview = svc.overview(A, "robert", CUSTOM).to_wire()
+        series = svc.performance(A, "robert", CUSTOM).to_wire()["series"]
+        fact = overview["facts"][overview["returns"]["factIds"]["selectedPct"]]
+        self.assertAlmostEqual(fact["value"], (series[-1]["value"] / series[0]["value"] - 1) * 100)
+        self.assertEqual(fact["window"], SPEC)
+        self.assertEqual(fact["period"], {"start": series[0]["date"], "end": series[-1]["date"]})
+
     def test_performance_series_inside_custom_range(self):
         p = service().performance(A, "robert", CUSTOM).to_wire()
         self.assertEqual(p["window"], SPEC)

@@ -412,3 +412,14 @@ class Stress2022(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_portfolio_returns_refuses_misaligned_or_nonfinite_inputs():
+    import pytest
+    from aplomb.quant.metrics import portfolio_returns
+
+    assert portfolio_returns([.5, .5], [[.1, -.1], [0, .2]]) == pytest.approx([.05, .05])
+    for weights, returns in [([1, 0], [[.1]]), ([.5, .5], [[.1], [.1, .2]]),
+                             ([float("nan")], [[.1]]), ([1], [[float("inf")]])]:
+        with pytest.raises(ValueError):
+            portfolio_returns(weights, returns)

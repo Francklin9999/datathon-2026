@@ -789,7 +789,7 @@ def _draft_and_audit(e, ctx, rule_checks, extra: dict):
                     "execution_limitations": e.state.get("execution_limitations", []),
                     "language": language,
                     "lang": e.run.lang,
-                    "instruction": f"Write in {language}. Write exactly facts, assumptions and limits sections, concisely. "
+                    "instruction": f"Write in {language}. Write facts, assumptions and limits sections, concisely. "
                     "Use a short facts section with at most five factual sentences focused on material risks. "
                     "Distinguish the requested after-move portfolio from the before baseline and alternative scenarios. "
                     "Every number, percentage, numeric word, date or ticker containing digits must use an existing {{fact:F-001}} token; "
@@ -935,7 +935,12 @@ def _writer_context(e):
     if e.run.kind == "replay":
         return {"information_cutoff": e.run.as_of, "note": "Describe only what the cited facts show at the cutoff."}
     if e.run.kind == "portfolio_brief":
-        return {"purpose": "Describe the current fictional portfolio and how it sits against each plan rule."}
+        return {"purpose": "Describe the current fictional portfolio and how it sits against each plan rule.",
+                "profile_horizon": e.ctx.profile.horizon_years.to_wire(),
+                "portfolio_instruction": "Include a summary section with one or two concise executive sentences. "
+                "Keep facts, assumptions and limits separate. Do not repeat a sentence or fact across sections. "
+                "Investigation priorities are code-owned focus cards; do not invent a ranking. "
+                "Do not infer bond duration, ETF look-through, liquidity or ESG suitability without evidence."}
     return {}
 
 
@@ -993,7 +998,10 @@ def _portfolio_brief_result(e, ctx, outcome, brief):
          position.value_fact_id if position else None),
         ("Plus grand secteur" if fr else "Largest sector", sector.value_fact_id if sector else None),
     ])
-    flagged = [c for c in check.rule_checks if c.status in ("conflict", "tension", "nee")]
+    # Show the most consequential policy findings first, even when evidence gaps occur earlier.
+    status_rank = {"conflict": 0, "tension": 1, "nee": 2}
+    flagged = sorted((c for c in check.rule_checks if c.status in status_rank),
+                     key=lambda c: status_rank[str(c.status)])
     if flagged:
         body = [{
             "id": f"C-PLAN-{index}",
@@ -1013,9 +1021,65 @@ def _portfolio_brief_result(e, ctx, outcome, brief):
                 "factIds": [c.value_fact_id for c in flagged[:4] if c.value_fact_id]}
     horizon = ctx.profile.horizon_years.min
     band = "short" if horizon < 3 else ("medium" if horizon < 10 else "long")
+    # Ranking is code-owned and inspectable in the card body. No return forecast enters it.
+    # Policy severity dominates; sample risk is more relevant to a shorter horizon.
+    candidates = [
+        (70 if horizon < 10 else 45, "sample risk and horizon", risk,
+         "Investigate historical downside resilience before changing the allocation.",
+         "Examiner la résistance aux baisses historiques avant de modifier la répartition."),
+        (60, "direct concentration; ETF look-through remains unknown", concentration,
+         "Investigate issuer overlap inside ETFs; direct positions do not establish underlying diversification.",
+         "Examiner les émetteurs communs aux FNB; les positions directes ne prouvent pas la diversification sous-jacente."),
+    ]
+    if flagged:
+        severity = 100 if any(c.status == "conflict" for c in flagged) else (90 if any(c.status == "tension" for c in flagged) else 55)
+        candidates.append((severity, "policy status or missing evidence", plan_fit,
+                           "Inspect the flagged rules and their evidence before testing a move.",
+                           "Examiner les règles signalées et leurs preuves avant de tester un mouvement."))
+    bonds = [f for f in facts.values() if f.metric == "weight.asset_group" and f.subject.id == "fixed_income"
+             and f.verification.status == "verified" and f.value > 0]
+    has_bonds = any(group.key == "fixed_income" and group.weight_pct > 0 for group in check.portfolio_before.by_asset_group)
+    if has_bonds:
+        bond = card("BOND", "Interest-rate evidence", "Preuves sur les taux", [
+            ("Revenu fixe" if fr else "Fixed income", bonds[0].id if bonds else None),
+        ])
+        candidates.append((75 if horizon < 10 else 50, "fixed-income exposure and horizon; duration unavailable", bond,
+                           "Investigate bond duration and credit quality; neither is established by asset-class weight.",
+                           "Examiner la duration et la qualité du crédit; le poids de la catégorie ne les établit pas."))
+    candidates.append((10, "baseline policy assessment", plan_fit,
+                       "Review policy assumptions and missing evidence before the next investigation.",
+                       "Revoir les hypothèses du plan et les preuves manquantes avant la prochaine recherche."))
+    selected, seen = [], set()
+    for score, rationale, focus, action_en, action_fr in sorted(candidates, key=lambda x: -x[0]):
+        if focus["title"]["en"] in seen:
+            continue
+        seen.add(focus["title"]["en"])
+        priority = len(selected) + 1
+        focus["body"].append(_text_sentence(f"C-FOCUS-{priority}-ACTION", action_fr if fr else action_en))
+        topic = focus["title"]["en"]
+        if topic == "Risk in this sample":
+            en = "Consider whether the sample's drawdowns are tolerable over the investor's horizon."
+            french = "Examiner si les baisses de l'échantillon sont tolérables à l'horizon de l'investisseur."
+        elif topic == "Concentration":
+            en = "Investigate whether concentrated exposures fit the investor's horizon and capacity for losses."
+            french = "Examiner si la concentration convient à l'horizon et à la capacité de perte de l'investisseur."
+        elif topic == "Interest-rate evidence":
+            en = "Compare bond characteristics with the investor's horizon; duration is not established here."
+            french = "Comparer les caractéristiques obligataires à l'horizon de l'investisseur; la duration n'est pas établie ici."
+        else:
+            en = "Review whether the policy assumptions reflect the investor's horizon."
+            french = "Examiner si les hypothèses du plan reflètent l'horizon de l'investisseur."
+        focus["body"].append(_text_sentence(f"C-FOCUS-{priority}-HORIZON", french if fr else en))
+        # This explains ordering; it is a code-owned heuristic, not a verified market claim.
+        focus["body"].append(_text_sentence(f"C-FOCUS-{priority}-RANK",
+            f"Code heuristic score {score}: {rationale}." if not fr else
+            f"Score heuristique du système : {score}; ce classement n'est pas une mesure financière."))
+        selected.append(focus)
+        if len(selected) == 3:
+            break
     return m.PortfolioBriefResult.model_validate({
         "snapshot": check.portfolio_before.to_wire(), "ruleChecks": [c.to_wire() for c in check.rule_checks],
-        "verdict": check.verdict, "counts": check.counts.to_wire(), "focusCards": [risk, concentration, plan_fit],
+        "verdict": check.verdict, "counts": check.counts.to_wire(), "focusCards": selected,
         "brief": brief.to_wire(), "horizonBand": band,
     })
 

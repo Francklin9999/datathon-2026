@@ -140,7 +140,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         allow_origins=settings.allowed_origins,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "X-Aplomb-Session", "Idempotency-Key", "Accept-Language"],
-        expose_headers=["X-Request-Id", "X-Aplomb-Data-Version", "Retry-After"],
+        expose_headers=["X-Request-Id", "X-Aplomb-Data-Version", "X-Aplomb-Build", "Retry-After"],
     )
 
     @app.middleware("http")
@@ -179,13 +179,15 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         response.headers.setdefault(
             "X-Aplomb-Data-Version", getattr(request.state, "data_version", settings.data_version)
         )
+        if settings.build_revision:
+            response.headers["X-Aplomb-Build"] = settings.build_revision
         response.headers["Cache-Control"] = "no-store"
         # Boundary errors also need readable CORS headers for explicitly allowed callers.
         origin = request.headers.get("origin")
         if origin in settings.allowed_origins:
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Expose-Headers"] = (
-                "X-Request-Id, X-Aplomb-Data-Version, Retry-After"
+                "X-Request-Id, X-Aplomb-Data-Version, X-Aplomb-Build, Retry-After"
             )
             response.headers.append("Vary", "Origin")
         return response

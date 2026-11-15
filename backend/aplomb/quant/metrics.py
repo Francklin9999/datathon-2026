@@ -61,7 +61,15 @@ def worst_rolling_return_pct(levels: Sequence[float], window: int = ROLLING_WIND
 
 def portfolio_returns(weights: Sequence[float], asset_returns: Sequence[Sequence[float]]) -> list[float]:
     """``M_PORT_CONST_WEIGHTS``: r_p[t] = sum_i w_i r_i[t] (weights constant, daily rebalanced)."""
+    if len(weights) != len(asset_returns):
+        raise ValueError("Each weight must have exactly one return series")
     n = len(asset_returns[0]) if asset_returns else 0
+    if any(len(series) != n for series in asset_returns):
+        raise ValueError("Return series must share the same observation calendar")
+    if any(not math.isfinite(w) for w in weights) or any(
+        not math.isfinite(value) for series in asset_returns for value in series
+    ):
+        raise ValueError("Weights and returns must be finite")
     out = [0.0] * n
     for w, rets in zip(weights, asset_returns):
         if w == 0.0:

@@ -47,6 +47,10 @@ class DomainPolicy:
 
 
 POLICIES = tuple(DomainPolicy(*row) for row in [
+    ("www.bankofcanada.ca", "Bank of Canada", 1, "Official monetary policy releases", "https://www.bankofcanada.ca/terms/", "Bank of Canada website terms; attribution required; third-party exceptions apply"),
+    ("www.federalreserve.gov", "Federal Reserve Board", 1, "Official monetary policy releases", "https://www.federalreserve.gov/disclaimer.htm", "Federal Reserve Board website disclaimer; third-party rights may apply"),
+    ("www.statcan.gc.ca", "Statistics Canada", 1, "Official statistical releases", "https://www.statcan.gc.ca/en/terms-conditions/open-licence", "Statistics Canada Open Licence; required source and adaptation notices; third-party exceptions apply"),
+    ("www150.statcan.gc.ca", "Statistics Canada", 1, "Official statistical releases", "https://www.statcan.gc.ca/en/terms-conditions/open-licence", "Statistics Canada Open Licence; required source and adaptation notices; third-party exceptions apply"),
     ("www.sec.gov", "SEC", 1, "Official US securities regulator", "https://www.sec.gov/about/developer-resources"),
     ("data.sec.gov", "SEC", 1, "Official EDGAR API", "https://www.sec.gov/search-filings/edgar-application-programming-interfaces"),
     ("wikimedia.org", "Wikimedia", 1, "Official page-view counts only", "https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/documentation/access-policy.html", "CC0 1.0 (analytics data)"),

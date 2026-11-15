@@ -29,7 +29,7 @@ import {
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct } from '../../lib/format';
 import { countryLabel, isKnownIso3 } from '../../lib/geo';
 import { isTerminal } from '../../lib/runs';
-import { briefImpactStatement, briefOtherProfileId } from '../../lib/world';
+import { briefImpactStatement, briefOtherProfileId, decisionInvestigationUrl } from '../../lib/world';
 
 const LANG_TAG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 /** `lang` attribute for verbatim source text, when the source states a usable language tag. */
@@ -50,7 +50,7 @@ export function EventLine({ event }: { event: WorldEvent }) {
   );
 }
 
-function ExposureTable({ exposures, inRun }: { exposures: readonly HoldingExposure[]; inRun: boolean }) {
+function ExposureTable({ exposures, inRun, eventId, profileId, sourceRunId }: { exposures: readonly HoldingExposure[]; inRun: boolean; eventId: string; profileId: string; sourceRunId?: string }) {
   const { tr, lang } = useApp();
   return (
     <div className="table-scroll" role="region" aria-label={tr({ en: 'Holdings linked to this event', fr: 'Positions liées à cet événement' })} tabIndex={0}>
@@ -66,7 +66,7 @@ function ExposureTable({ exposures, inRun }: { exposures: readonly HoldingExposu
         <tbody>
           {exposures.map((exposure, i) => (
             <tr key={`${exposure.ticker}-${exposure.linkType}-${i}`}>
-              <th scope="row" className="mono">{exposure.ticker}</th>
+              <th scope="row" className="mono">{exposure.ticker}<br /><Link className="small" href={decisionInvestigationUrl(eventId, profileId, exposure.ticker, sourceRunId)}>{tr({ en: 'Investigate', fr: 'Examiner' })}</Link></th>
               <td className="num-col num">{fmtPct(exposure.weightPct, lang)}</td>
               <td>
                 <span className="block">{labelOf(LINK_TYPE, exposure.linkType, lang)}</span>
@@ -208,7 +208,7 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
                   ? tr({ en: 'Potential exposure identified — financial impact not established.', fr: 'Exposition potentielle repérée — impact financier non établi.' })
                   : tr({ en: 'Potential exposure identified. Where a price change was observed, it is an observation, not proof that the event caused it.', fr: 'Exposition potentielle repérée. Lorsqu’une variation de prix a été observée, c’est une observation, pas la preuve que l’événement l’a causée.' })}</strong>{' '}
                   {tr({ en: 'Each row states why the holding is listed. A link is a documented match, not an estimate of gain or loss.', fr: 'Chaque ligne indique pourquoi la position est listée. Un lien est une correspondance documentée, pas une estimation de gain ou de perte.' })}</p>
-                <ExposureTable exposures={detail.data.exposures} inRun={false} />
+                <ExposureTable exposures={detail.data.exposures} inRun={false} eventId={eventId} profileId={profile.profileId} />
               </>
             )}
 
@@ -328,7 +328,7 @@ function EventBriefBody({ run, eventId, profile, onSelectEvent }: {
           {result.exposures.length > 0 && (
             <>
               <h4 className="h4">{tr({ en: `Holdings of ${ownerName} exposed, with the basis of each link`, fr: `Positions de ${ownerName} exposées, avec le fondement de chaque lien` })}</h4>
-              <ExposureTable exposures={result.exposures} inRun />
+              <ExposureTable exposures={result.exposures} inRun eventId={runEventId ?? eventId} profileId={run.profileId ?? profile.profileId} sourceRunId={run.runId} />
             </>
           )}
           <BriefView brief={result.brief} />
