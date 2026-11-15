@@ -52,6 +52,35 @@
           "exclusiveMinimum": 0,
           "type": "number"
         },
+        "nativeValueOrigin": {
+          "anyOf": [
+            {
+              "enum": [
+                "user",
+                "imported",
+                "assumption"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "nativeValueSource": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "reportingCurrency": {
           "$ref": "#/$defs/Currency"
         },
@@ -91,6 +120,39 @@
         "quotes"
       ],
       "title": "AccountValuation",
+      "type": "object"
+    },
+    "AddConditionalRuleRequest": {
+      "properties": {
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
+        },
+        "conditional": {
+          "$ref": "#/$defs/ConditionalPolicy"
+        },
+        "origin": {
+          "default": "user",
+          "enum": [
+            "user",
+            "imported",
+            "system_default",
+            "assumption"
+          ],
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "conditional",
+        "version"
+      ],
+      "title": "AddConditionalRuleRequest",
       "type": "object"
     },
     "AddCustomRuleRequest": {
@@ -1239,6 +1301,139 @@
       "title": "Concentration",
       "type": "object"
     },
+    "ConditionGroup": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "all",
+          "enum": [
+            "all",
+            "any"
+          ],
+          "type": "string"
+        },
+        "clauses": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ConditionPredicate"
+              },
+              {
+                "$ref": "#/$defs/ConditionGroup"
+              }
+            ]
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "clauses"
+      ],
+      "title": "ConditionGroup",
+      "type": "object"
+    },
+    "ConditionPredicate": {
+      "additionalProperties": false,
+      "description": "A bounded typed comparison, with no executable user expressions.",
+      "properties": {
+        "dimension": {
+          "enum": [
+            "position",
+            "sector",
+            "asset_class",
+            "country",
+            "currency",
+            "theme",
+            "volatility",
+            "drawdown"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "operator": {
+          "enum": [
+            "lt",
+            "lte",
+            "eq",
+            "gte",
+            "gt"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "origin": {
+          "default": "user",
+          "enum": [
+            "user",
+            "imported",
+            "system_default",
+            "assumption"
+          ],
+          "type": "string"
+        },
+        "sourceReference": {
+          "default": "",
+          "maxLength": 1000,
+          "type": "string"
+        }
+      },
+      "required": [
+        "dimension",
+        "operator",
+        "threshold"
+      ],
+      "title": "ConditionPredicate",
+      "type": "object"
+    },
+    "ConditionalPolicy": {
+      "additionalProperties": false,
+      "description": "If the optional group matches, require a separate comparison.",
+      "properties": {
+        "when": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConditionGroup"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "require": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConditionPredicate"
+            },
+            {
+              "$ref": "#/$defs/ConditionGroup"
+            }
+          ]
+        }
+      },
+      "required": [
+        "require"
+      ],
+      "title": "ConditionalPolicy",
+      "type": "object"
+    },
     "Correlation": {
       "properties": {
         "tickers": {
@@ -1300,6 +1495,28 @@
     },
     "CreateAccountRequest": {
       "properties": {
+        "nativeValueOrigin": {
+          "default": "user",
+          "enum": [
+            "user",
+            "imported",
+            "assumption"
+          ],
+          "type": "string"
+        },
+        "nativeValueSource": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "currency": {
           "anyOf": [
             {
@@ -1606,6 +1823,69 @@
     "Currency": {
       "pattern": "^[A-Z]{3}$",
       "type": "string"
+    },
+    "CustomThemeClassification": {
+      "additionalProperties": false,
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "matches": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ticker",
+        "matches"
+      ],
+      "title": "CustomThemeClassification",
+      "type": "object"
+    },
+    "CustomThemeDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "pattern": "^[a-z][a-z0-9_-]{0,59}$",
+          "type": "string"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "availableAt": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "origin": {
+          "enum": [
+            "user",
+            "imported"
+          ],
+          "type": "string"
+        },
+        "sourceReference": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "classifications": {
+          "items": {
+            "$ref": "#/$defs/CustomThemeClassification"
+          },
+          "maxItems": 500,
+          "minItems": 1,
+          "tsType": "CustomThemeClassification[]",
+          "type": "array"
+        }
+      },
+      "required": [
+        "key",
+        "asOf",
+        "availableAt",
+        "origin",
+        "sourceReference",
+        "classifications"
+      ],
+      "title": "CustomThemeDefinition",
+      "type": "object"
     },
     "DataVersion": {
       "pattern": "^snap-[0-9]{8}-[a-z0-9_-]+$",
@@ -2119,6 +2399,43 @@
         }
       },
       "title": "DuplicateProfileRequest",
+      "type": "object"
+    },
+    "EditAccountRequest": {
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "portfolio": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InitialPortfolio"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "title": "EditAccountRequest",
       "type": "object"
     },
     "EmptyRequest": {
@@ -4217,11 +4534,44 @@
           },
           "type": "object"
         },
+        "permittedAssetClasses": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AssetClass"
+              },
+              "maxItems": 6,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "tsType": "AssetClass[] | null"
+        },
+        "permittedAssetClassesOrigin": {
+          "default": "user",
+          "enum": [
+            "user",
+            "imported",
+            "system_default",
+            "assumption"
+          ],
+          "type": "string"
+        },
         "customThemes": {
           "items": {
             "maxLength": 120,
             "minLength": 1,
             "type": "string"
+          },
+          "maxItems": 50,
+          "type": "array"
+        },
+        "customThemeDefinitions": {
+          "items": {
+            "$ref": "#/$defs/CustomThemeDefinition"
           },
           "maxItems": 50,
           "type": "array"
@@ -5193,6 +5543,14 @@
           ],
           "default": null
         },
+        "quantityHistory": {
+          "default": null,
+          "items": {
+            "$ref": "#/$defs/QuantityReceipt"
+          },
+          "maxItems": 10000,
+          "type": "array"
+        },
         "accounts": {
           "default": null,
           "items": {
@@ -5387,6 +5745,29 @@
         },
         "updatedAt": {
           "$ref": "#/$defs/ISODateTime"
+        },
+        "conditional": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConditionalPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "managedBy": {
+          "anyOf": [
+            {
+              "const": "permitted_asset_classes",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -5468,6 +5849,13 @@
           "items": {
             "$ref": "#/$defs/PrivateAsset"
           },
+          "type": "array"
+        },
+        "quantityHistory": {
+          "items": {
+            "$ref": "#/$defs/QuantityReceipt"
+          },
+          "maxItems": 10000,
           "type": "array"
         },
         "accountId": {
@@ -5636,6 +6024,57 @@
           "maximum": 100,
           "minimum": 0,
           "type": "number"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quantityAsOf": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quantityOrigin": {
+          "anyOf": [
+            {
+              "enum": [
+                "user",
+                "imported"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quantitySource": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -5937,6 +6376,13 @@
           ],
           "default": null
         },
+        "quantityHistory": {
+          "items": {
+            "$ref": "#/$defs/QuantityReceipt"
+          },
+          "maxItems": 10000,
+          "type": "array"
+        },
         "accounts": {
           "items": {
             "$ref": "#/$defs/PortfolioAccount"
@@ -6102,6 +6548,53 @@
         "funding"
       ],
       "title": "ProposedMove",
+      "type": "object"
+    },
+    "QuantityReceipt": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "quantity": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "origin": {
+          "enum": [
+            "user",
+            "imported"
+          ],
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "retiredAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "reason": {
+          "enum": [
+            "portfolio_edit",
+            "account_transfer"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "ticker",
+        "quantity",
+        "asOf",
+        "origin",
+        "source",
+        "retiredAt",
+        "reason"
+      ],
+      "title": "QuantityReceipt",
       "type": "object"
     },
     "QuestionOption": {
@@ -6835,7 +7328,7 @@
       "type": "object"
     },
     "RuleId": {
-      "pattern": "^(cap\\.(position|sector|asset_class\\.crypto|growth_assets|country\\.[A-Z]{3}|currency\\.[A-Z]{3}|theme\\.(ai|semiconductors|software|cloud|ecommerce|electric_vehicles|big_tech|banks|insurance|fossil_energy|pipelines|utilities|rail_transport|consumer_staples|healthcare|retail|broad_canada|broad_us|nasdaq_growth|esg_screened|bonds_canada|bonds_us|long_treasuries|cash_like|gold|crypto|dividend_payers))|floor\\.(fixed_income|diversifiers)|limit\\.(volatility|stress_2022|drawdown)|exclude\\.(sector\\.[a-z]+(_[a-z]+)*|asset_class\\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|ticker\\.[A-Z0-9][A-Z0-9.^=-]*)|evidence\\.controversy|(cap|floor)\\.(position\\.[A-Z0-9][A-Z0-9.^=-]*|sector\\.[a-z]+(_[a-z]+)*|asset_class\\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|country\\.[A-Z]{3}|currency\\.[A-Z]{3}|theme\\.(ai|semiconductors|software|cloud|ecommerce|electric_vehicles|big_tech|banks|insurance|fossil_energy|pipelines|utilities|rail_transport|consumer_staples|healthcare|retail|broad_canada|broad_us|nasdaq_growth|esg_screened|bonds_canada|bonds_us|long_treasuries|cash_like|gold|crypto|dividend_payers))|flag\\.(attention|rate_cycle|short_history)|sim\\.only)$",
+      "pattern": "^(cap\\.(position|sector|asset_class\\.crypto|growth_assets|country\\.[A-Z]{3}|currency\\.[A-Z]{3}|theme\\.(ai|semiconductors|software|cloud|ecommerce|electric_vehicles|big_tech|banks|insurance|fossil_energy|pipelines|utilities|rail_transport|consumer_staples|healthcare|retail|broad_canada|broad_us|nasdaq_growth|esg_screened|bonds_canada|bonds_us|long_treasuries|cash_like|gold|crypto|dividend_payers))|floor\\.(fixed_income|diversifiers)|limit\\.(volatility|stress_2022|drawdown)|exclude\\.(sector\\.[a-z]+(_[a-z]+)*|asset_class\\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|ticker\\.[A-Z0-9][A-Z0-9.^=-]*)|evidence\\.controversy|(cap|floor)\\.(position\\.[A-Z0-9][A-Z0-9.^=-]*|sector\\.[a-z]+(_[a-z]+)*|asset_class\\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|country\\.[A-Z]{3}|currency\\.[A-Z]{3}|theme\\.(ai|semiconductors|software|cloud|ecommerce|electric_vehicles|big_tech|banks|insurance|fossil_energy|pipelines|utilities|rail_transport|consumer_staples|healthcare|retail|broad_canada|broad_us|nasdaq_growth|esg_screened|bonds_canada|bonds_us|long_treasuries|cash_like|gold|crypto|dividend_payers))|custom\\.condition\\.[0-9a-f]{12}|flag\\.(attention|rate_cycle|short_history)|sim\\.only)$",
       "type": "string"
     },
     "RuleOrigin": {
@@ -6844,7 +7337,9 @@
         "profile_preference",
         "user",
         "system",
-        "imported"
+        "imported",
+        "assumption",
+        "system_default"
       ],
       "type": "string"
     },
@@ -7725,6 +8220,112 @@
           "maximum": 100,
           "minimum": 0,
           "type": "number"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quantityAsOf": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quantityOrigin": {
+          "anyOf": [
+            {
+              "enum": [
+                "user",
+                "imported"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quantitySource": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sourceAssetId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "market": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quoteCurrency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Currency"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "listingCountry": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "history": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssetHistory"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "name": {
           "type": "string"
@@ -9045,6 +9646,9 @@
     "AccountValuation": {
       "$ref": "#/$defs/AccountValuation"
     },
+    "AddConditionalRuleRequest": {
+      "$ref": "#/$defs/AddConditionalRuleRequest"
+    },
     "AddCustomRuleRequest": {
       "$ref": "#/$defs/AddCustomRuleRequest"
     },
@@ -9156,6 +9760,15 @@
     "Concentration": {
       "$ref": "#/$defs/Concentration"
     },
+    "ConditionGroup": {
+      "$ref": "#/$defs/ConditionGroup"
+    },
+    "ConditionPredicate": {
+      "$ref": "#/$defs/ConditionPredicate"
+    },
+    "ConditionalPolicy": {
+      "$ref": "#/$defs/ConditionalPolicy"
+    },
     "Correlation": {
       "$ref": "#/$defs/Correlation"
     },
@@ -9188,6 +9801,12 @@
     },
     "Currency": {
       "$ref": "#/$defs/Currency"
+    },
+    "CustomThemeClassification": {
+      "$ref": "#/$defs/CustomThemeClassification"
+    },
+    "CustomThemeDefinition": {
+      "$ref": "#/$defs/CustomThemeDefinition"
     },
     "DataVersion": {
       "$ref": "#/$defs/DataVersion"
@@ -9233,6 +9852,9 @@
     },
     "DuplicateProfileRequest": {
       "$ref": "#/$defs/DuplicateProfileRequest"
+    },
+    "EditAccountRequest": {
+      "$ref": "#/$defs/EditAccountRequest"
     },
     "EmptyRequest": {
       "$ref": "#/$defs/EmptyRequest"
@@ -9549,6 +10171,9 @@
     "ProposedMove": {
       "$ref": "#/$defs/ProposedMove"
     },
+    "QuantityReceipt": {
+      "$ref": "#/$defs/QuantityReceipt"
+    },
     "QuestionOption": {
       "$ref": "#/$defs/QuestionOption"
     },
@@ -9829,6 +10454,7 @@
   "required": [
     "AccountFXQuote",
     "AccountValuation",
+    "AddConditionalRuleRequest",
     "AddCustomRuleRequest",
     "AddExposureLimitRequest",
     "AgentRole",
@@ -9866,6 +10492,9 @@
     "ClarifyingQuestion",
     "Comparator",
     "Concentration",
+    "ConditionGroup",
+    "ConditionPredicate",
+    "ConditionalPolicy",
     "Correlation",
     "CountryExposure",
     "CreateAccountRequest",
@@ -9877,6 +10506,8 @@
     "CreateReplayRunRequest",
     "CreateRunRequest",
     "Currency",
+    "CustomThemeClassification",
+    "CustomThemeDefinition",
     "DataVersion",
     "DatasetCheck",
     "DatasetField",
@@ -9892,6 +10523,7 @@
     "DeriveRulesRequest",
     "DeriveRulesResponse",
     "DuplicateProfileRequest",
+    "EditAccountRequest",
     "EmptyRequest",
     "EntityCandidate",
     "EntitySearchResponse",
@@ -9997,6 +10629,7 @@
     "ProfileId",
     "ProfilesResponse",
     "ProposedMove",
+    "QuantityReceipt",
     "QuestionOption",
     "QueuedRunResponse",
     "RebalanceRequest",
@@ -10096,9 +10729,9 @@
   "$id": "https://aplomb.local/contracts/1.4.0/schema.json",
   "x-contract-version": "1.4.0",
   "x-spec-sha256": {
-    "schemas.md": "8ef77c78d2a4c1ceefc2015264a83fe93b3afcd9912cb8054ad674976d1ff14a",
+    "schemas.md": "2baca4c6c3734914b4f44b0f16cb1e7d6c250cb2d3d371694899b40fa2b903de",
     "catalog.md": "4ba031046bbf11c423bbd1f1b97e8e0604947fbb0540d7186cf25c7f42034e88",
-    "api.md": "37811c559b6c783a68753e43ef6dd9730bf6820ee7df4be5530271996beed94a",
+    "api.md": "209cca35999e653f8d36af900e25c87e7a485d1dc40721fb4740c8b4d9ece7b3",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
   }

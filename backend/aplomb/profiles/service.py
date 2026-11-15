@@ -68,6 +68,24 @@ def _retire_valuation(account: dict) -> None:
         account["nativeValuation"] = None
 
 
+def _retire_quantities(container: dict, positions: list[dict], now: str, reason: str) -> None:
+    """Retain reported quantity evidence when a later action changes or removes it."""
+    current = {position["ticker"]: position for position in positions}
+    keys = ("quantity", "quantityAsOf", "quantityOrigin", "quantitySource")
+    history = container.setdefault("quantityHistory", [])
+    for old in container["portfolio"]["positions"]:
+        if old.get("quantity") is None:
+            continue
+        new = current.get(old["ticker"], {})
+        if all(old.get(key) == new.get(key) for key in keys):
+            continue
+        if len(history) >= 10000:
+            raise validation("Quantity history is full; no evidence was removed")
+        history.append({"ticker": old["ticker"], "quantity": old["quantity"], "asOf": old["quantityAsOf"],
+                        "origin": old["quantityOrigin"], "source": old["quantitySource"],
+                        "retiredAt": now, "reason": reason})
+
+
 def _window_spec(query: dict | None) -> dict:
     """WindowSpec wire of a read query: ``window`` (default ``full``); ``custom`` also takes
     ``start`` and ``end`` (ISO days, start <= end), from the query or from a ``window`` dict."""
@@ -101,7 +119,14 @@ class ProfileServiceImpl:
         self.clock = clock or (lambda: datetime.now(timezone.utc))
         self.deriver = deriver
         self.proposer = proposer
-        self._defaults = {p.profile_id: p for p in load_defaults()}
+        self._defaults = {}
+        for seed in load_defaults():
+            data = seed.to_wire()
+            data["investorContext"] = {"riskToleranceOrigin": "system_default", "investorTypeOrigin": "system_default",
+                "riskCapacityOrigin": "system_default", "inputOrigins": {
+                **{key: "system_default" for key in ("name", "age", "riskLevel", "horizonYears", "objective", "experience", "reportingCurrency", "preferences")},
+                "portfolio": "assumption"}}
+            self._defaults[seed.profile_id] = m.Profile.model_validate(data)
         self._frontier_cache: dict[tuple, a.FrontierResponse] = {}
         self._read_cache: OrderedDict[tuple, object] = OrderedDict()
         self._read_lock = threading.Lock()
@@ -128,6 +153,8 @@ class ProfileServiceImpl:
         now = _now(self.clock)
         profile_id = "p_" + "".join(secrets.choice(_B32) for _ in range(10))
         cloned = self._custom_body(a.CreateProfileRequest.model_validate(body), profile_id, now, created_at=now)
+        cloned["quantityHistory"] = copy.deepcopy(data.get("quantityHistory", []))
+        cloned["investorContext"].setdefault("inputOrigins", {})["name"] = "user"
         if profile.accounts:
             id_map = {account.account_id: "acct_" + secrets.token_hex(6) for account in profile.accounts}
             cloned["accounts"] = [{**account.to_wire(), "accountId": id_map[account.account_id]} for account in profile.accounts]
@@ -152,7 +179,7 @@ class ProfileServiceImpl:
         rules.append(make_rule(rid, f"R{len(rules)+1}", threshold=request.threshold, origin="user", derivation=None,
             rationale={"en": "User-defined exposure limit; listing/quotation proxy only, not a regulatory rule or economic look-through.",
                        "fr": "Limite définie par l'utilisateur; approximation par cotation/devise, sans règle réglementaire ni transparence économique."}, updated_at=now))
-        self._validate_rules([m.PolicyRule.model_validate(r) for r in rules])
+        self._validate_rules([m.PolicyRule.model_validate(r) for r in rules], profile.investor_context.custom_theme_definitions if profile.investor_context else ())
         data = profile.to_wire()
         data.update(rules=renumber(rules), updatedAt=now)
         return self._save(session_id, m.Profile.model_validate(data), stored)
@@ -191,10 +218,107 @@ class ProfileServiceImpl:
             rationale={"en": "User-defined condition. Country and currency conditions use listing and quotation proxies; fund holdings are not looked through.",
                        "fr": "Condition définie par l'utilisateur. Le pays et la devise de cotation sont des approximations; les fonds ne sont pas décomposés."},
             updated_at=now))
-        self._validate_rules([m.PolicyRule.model_validate(r) for r in rules])
+        self._validate_rules([m.PolicyRule.model_validate(r) for r in rules], profile.investor_context.custom_theme_definitions if profile.investor_context else ())
         data = profile.to_wire()
         data.update(rules=renumber(rules), updatedAt=now)
         return self._save(session_id, m.Profile.model_validate(data), stored)
+
+    def _normalize_predicate(self, predicate: m.ConditionPredicate, custom_themes=()) -> m.ConditionPredicate:
+        """Validate exact supported measurements without executing or interpreting input text."""
+        data = predicate.to_wire()
+        dimension, key = predicate.dimension, predicate.key
+        if key is not None:
+            key = key.strip()
+        if dimension in ("position", "country", "currency"):
+            key = key.upper()
+        elif dimension == "sector":
+            key = slug(self._sector_labels([key])[0])
+        elif dimension in ("asset_class", "theme"):
+            key = key.lower()
+        if dimension == "position" and not re.fullmatch(r"[A-Z0-9][A-Z0-9.^=-]*", key):
+            raise validation("Invalid position ticker in conditional policy")
+        if dimension in ("country", "currency") and not re.fullmatch(r"[A-Z]{3}", key):
+            raise validation("Conditional country and currency keys need three letters")
+        if dimension == "asset_class" and key not in ("equity", "etf_equity", "etf_bond", "etf_commodity", "crypto", "cash"):
+            raise validation("Unknown asset class in conditional policy")
+        if dimension == "theme" and key not in {item.value for item in m.ThemeTag} | set(custom_themes):
+            raise validation("Unknown theme in conditional policy")
+        data["key"] = key
+        return m.ConditionPredicate.model_validate(data)
+
+    def add_conditional_rule(self, session_id: str, profile_id: str, request: a.AddConditionalRuleRequest) -> m.Profile:
+        """Persist a typed implication and evaluate it through the normal rule engine."""
+        profile, stored = self._load(session_id, profile_id)
+        if profile.is_default:
+            raise Conflict("Copy a seed profile before adding custom policy rules")
+        if profile.version != request.version:
+            raise Conflict()
+        if not request.name.strip():
+            raise validation("Conditional policy name cannot be blank")
+        if len([rule for rule in profile.rules if rule.conditional is not None]) >= 50:
+            raise validation("At most 50 conditional policies per profile")
+        def normalize(node):
+            if isinstance(node, m.ConditionPredicate):
+                return self._normalize_predicate(node, (item.key for item in profile.investor_context.custom_theme_definitions) if profile.investor_context else ()).to_wire()
+            return {"mode": node.mode, "clauses": [normalize(item) for item in node.clauses]}
+        condition = m.ConditionalPolicy.model_validate({
+            "when": normalize(request.conditional.when) if request.conditional.when else None,
+            "require": normalize(request.conditional.require)})
+        required = condition.require
+        comparator = ({"lte": "<=", "gte": ">=", "eq": "==", "lt": "none", "gt": "none"}[required.operator]
+                      if isinstance(required, m.ConditionPredicate) else "none")
+        threshold = required.threshold if isinstance(required, m.ConditionPredicate) else None
+        now = _now(self.clock)
+        rid = "custom.condition." + secrets.token_hex(6)
+        title = request.name.strip()
+        rule = {"ruleId": rid, "code": f"R{len(profile.rules)+1}", "type": "limit", "enabled": True,
+                "label": {"en": title, "fr": title}, "rationale": {"en": "User-declared typed conditional policy; no code is executed.",
+                    "fr": "Règle conditionnelle typée; aucun code n'est exécuté."},
+                "metric": None, "target": {"dimension": "none", "key": None}, "comparator": comparator,
+                "threshold": threshold, "unit": "pct", "editable": True, "bounds": None,
+                "origin": request.origin, "isAssumption": True, "derivation": None,
+                "countsInVerdict": True, "updatedAt": now, "conditional": condition.to_wire()}
+        rules = [item.to_wire() for item in profile.rules] + [rule]
+        self._validate_rules([m.PolicyRule.model_validate(item) for item in rules], profile.investor_context.custom_theme_definitions if profile.investor_context else ())
+        data = profile.to_wire()
+        data.update(rules=renumber(rules), updatedAt=now)
+        return self._save(session_id, m.Profile.model_validate(data), stored)
+
+    def remove_conditional_rule(self, session_id: str, profile_id: str, rule_id: str, version: int) -> m.Profile:
+        profile, stored = self._load(session_id, profile_id)
+        if profile.is_default or profile.version != version:
+            raise Conflict()
+        if not any(rule.rule_id == rule_id and rule.conditional is not None for rule in profile.rules):
+            raise NotFound("Unknown conditional policy in this profile")
+        data = profile.to_wire()
+        data.update(rules=renumber([rule.to_wire() for rule in profile.rules if rule.rule_id != rule_id]),
+                    updatedAt=_now(self.clock))
+        return self._save(session_id, m.Profile.model_validate(data), stored)
+
+    def _apply_context_policies(self, data: dict, now: str) -> None:
+        """Materialize explicitly permitted classes into auditable standard exclusions."""
+        from .rulebuilder import make_rule
+        rules = [rule for rule in data["rules"] if rule.get("managedBy") != "permitted_asset_classes"]
+        context = data.get("investorContext") or {}
+        permitted = context.get("permittedAssetClasses")
+        if permitted is not None:
+            for asset_class in ("equity", "etf_equity", "etf_bond", "etf_commodity", "crypto", "cash"):
+                rid = f"exclude.asset_class.{asset_class}"
+                existing = next((rule for rule in rules if rule["ruleId"] == rid), None)
+                if asset_class not in permitted and existing and not existing["enabled"]:
+                    raise validation(f"Rule {rid} cannot be disabled while its asset class is not permitted")
+                if asset_class not in permitted and not existing:
+                    rule = make_rule(rid, "R1", threshold=None,
+                        origin=context.get("permittedAssetClassesOrigin", "user"), derivation=None,
+                        rationale={"en": "Asset class not included in the explicit permitted-class list.",
+                                   "fr": "Classe d'actifs absente de la liste explicite des classes permises."}, updated_at=now)
+                    rule["managedBy"] = "permitted_asset_classes"
+                    rules.append(rule)
+        if data["preferences"].get("esgFocus") and not any(rule["ruleId"] == "evidence.controversy" for rule in rules):
+            rules.append(make_rule("evidence.controversy", "R1", threshold=None, origin="profile_preference", derivation=None,
+                rationale={"en": "ESG focus requires independently verified controversy evidence; missing evidence is insufficient.",
+                           "fr": "L'accent ESG exige des preuves de controverse vérifiées; leur absence est insuffisante."}, updated_at=now))
+        data["rules"] = renumber(rules)
 
     def goal_funding(self, session_id: str, profile_id: str):
         from .goals import assess_goals
@@ -224,7 +348,7 @@ class ProfileServiceImpl:
                 valid = key in ("equity", "etf_equity", "etf_bond", "etf_commodity", "crypto", "cash")
             elif dimension == "theme":
                 key = key.lower()
-                valid = key in {item.value for item in m.ThemeTag}
+                valid = key in {item.value for item in m.ThemeTag} | {item.key for item in profile.investor_context.custom_theme_definitions}
             measurement = view.measure(f"weight.{dimension}", key) if valid else None
             value = measurement.value if measurement else None
             drift = value - target.target_pct if value is not None else None
@@ -331,6 +455,11 @@ class ProfileServiceImpl:
                 raise validation(f"threshold must be between {b['min']:g} and {b['max']:g}", {"fields": ["threshold"]})
             rule["threshold"] = float(threshold)
             rule["derivation"] = None
+        if enabled is False and rule_id.startswith("exclude.asset_class."):
+            context = data.get("investorContext") or {}
+            permitted = context.get("permittedAssetClasses")
+            if permitted is not None and rule_id.removeprefix("exclude.asset_class.") not in permitted:
+                raise Conflict("This asset class is excluded by the permitted-class policy")
         if enabled is not None:
             rule["enabled"] = bool(enabled)
         now = _now(self.clock)
@@ -349,10 +478,14 @@ class ProfileServiceImpl:
         self._validate_portfolio(portfolio.total_value, positions)
         now = _now(self.clock)
         data = profile.to_wire()
+        previous_portfolio = data["portfolio"]
         data["portfolio"] = {"isFictional": True, "totalValue": float(portfolio.total_value), "currency": profile.reporting_currency,
                              "positions": positions, "updatedAt": now}
+        if not data.get("accounts"):
+            _retire_quantities({"portfolio": previous_portfolio, "quantityHistory": data.setdefault("quantityHistory", [])}, positions, now, "portfolio_edit")
         for account in data.get("accounts", []):
             if account["accountId"] == profile.active_account_id:
+                _retire_quantities(account, positions, now, "portfolio_edit")
                 if account["portfolio"]["totalValue"] != data["portfolio"]["totalValue"]:
                     _retire_valuation(account)
                 account["portfolio"] = copy.deepcopy(data["portfolio"])
@@ -377,16 +510,46 @@ class ProfileServiceImpl:
             raise Conflict("Select an individual account before replacing a profile")
         now = _now(self.clock)
         data = self._custom_body(request, profile_id, now, created_at=profile.created_at)
-        if "investor_context" not in request.model_fields_set and profile.investor_context is not None:
-            data["investorContext"] = profile.investor_context.to_wire()
-            origins = data["investorContext"].setdefault("inputOrigins", {})
-            old = profile.to_wire()
-            new = request.to_wire()
-            for key in ("name", "age", "riskLevel", "horizonYears", "objective", "experience", "reportingCurrency", "preferences"):
-                if new.get(key) != old.get(key):
-                    origins[key] = "user"
+        old_context = profile.investor_context.to_wire() if profile.investor_context else {}
+        incoming_context = request.investor_context.to_wire() if request.investor_context is not None else None
+        if "investor_context" not in request.model_fields_set or request.investor_context is None:
+            data["investorContext"] = copy.deepcopy(old_context)
+        context = data["investorContext"]
+        origins = context.setdefault("inputOrigins", {})
+        old_origins = old_context.get("inputOrigins", {})
+        explicit_origins = (incoming_context or {}).get("inputOrigins", {})
+        old = profile.to_wire()
+        new = request.to_wire()
+        for key in ("name", "age", "riskLevel", "horizonYears", "objective", "experience", "reportingCurrency", "preferences"):
+            explicit = explicit_origins.get(key)
+            previous = old_origins.get(key)
+            changed = new.get(key) != old.get(key)
+            if changed:
+                origins[key] = explicit if explicit is not None and explicit != previous else "user"
+            elif explicit is not None and explicit != previous:
+                origins[key] = explicit
+            elif previous is not None:
+                origins[key] = previous
+            else:
+                origins.pop(key, None)
+        old_portfolio = {"totalValue": profile.portfolio.total_value,
+                         "positions": [position.to_wire() for position in profile.portfolio.positions]}
+        if request.portfolio is None:
+            origins["portfolio"] = "assumption"
+        elif request.portfolio.to_wire() != old_portfolio:
+            explicit = explicit_origins.get("portfolio")
+            previous = old_origins.get("portfolio")
+            origins["portfolio"] = explicit if explicit is not None and explicit != previous else "user"
+        elif "portfolio" in old_origins:
+            origins["portfolio"] = old_origins["portfolio"]
+        else:
+            origins.pop("portfolio", None)
+        if request.risk_level != profile.risk_level:
+            previous = old_context.get("riskToleranceOrigin")
+            supplied = (incoming_context or {}).get("riskToleranceOrigin")
+            context["riskToleranceOrigin"] = supplied if supplied is not None and supplied != previous else "user"
         if request.rules is None:
-            overrides = {r.rule_id: r.to_wire() for r in profile.rules if r.origin in ("user", "imported")}
+            overrides = {r.rule_id: r.to_wire() for r in profile.rules if r.origin in ("user", "imported", "assumption", "system_default") and r.managed_by != "permitted_asset_classes"}
             derived_ids = {r["ruleId"] for r in data["rules"]}
             data["rules"] = renumber([overrides.get(r["ruleId"], r) for r in data["rules"]]
                 + [r for key, r in overrides.items() if key not in derived_ids])
@@ -397,9 +560,15 @@ class ProfileServiceImpl:
             data["activeAccountId"] = profile.active_account_id
             for account in data["accounts"]:
                 if account["accountId"] == profile.active_account_id:
+                    _retire_quantities(account, data["portfolio"]["positions"], now, "portfolio_edit")
                     if account["portfolio"]["totalValue"] != data["portfolio"]["totalValue"]:
                         _retire_valuation(account)
                     account["portfolio"] = copy.deepcopy(data["portfolio"])
+        else:
+            prior = profile.to_wire()
+            _retire_quantities(prior, data["portfolio"]["positions"], now, "portfolio_edit")
+            data["quantityHistory"] = prior.get("quantityHistory", [])
+        self._apply_context_policies(data, now)
         data["archived"] = profile.archived
         data["version"] = stored["revision"] + 1
         self.repo.save(session_id, profile_id, data, stored["revision"])
@@ -439,12 +608,37 @@ class ProfileServiceImpl:
         account_id = "acct_" + secrets.token_hex(6)
         from .account_fx import convert_account_value
         valuation = convert_account_value(self.snapshot(), request.currency or profile.reporting_currency,
-            portfolio.total_value, profile.reporting_currency, now)
+            portfolio.total_value, profile.reporting_currency, now, input_origin=request.native_value_origin,
+            input_source=request.native_value_source)
         saved_portfolio = {"isFictional": True, "currency": profile.reporting_currency,
                            "totalValue": valuation.reporting_value, "positions": positions, "updatedAt": now}
         accounts.append({"accountId": account_id, "name": request.name.strip(), "portfolio": saved_portfolio,
                          "nativeValuation": valuation.to_wire()})
         data.update(accounts=accounts, activeAccountId=account_id, portfolio=saved_portfolio, updatedAt=now)
+        return self._save(session_id, m.Profile.model_validate(data), stored)
+
+    def edit_account(self, session_id: str, profile_id: str, account_id: str,
+                     request: a.EditAccountRequest) -> m.Profile:
+        """Edit one account with optimistic versioning and retained valuation/quantity evidence."""
+        profile, stored = self._load(session_id, profile_id)
+        if profile.version != request.version:
+            raise Conflict()
+        data = profile.to_wire()
+        account = next((item for item in data.get("accounts", []) if item["accountId"] == account_id), None)
+        if account is None:
+            raise NotFound("Unknown account in this session-owned profile")
+        now = _now(self.clock)
+        if request.name is not None:
+            account["name"] = request.name.strip()
+        if request.portfolio is not None:
+            positions = [position.to_wire() for position in request.portfolio.positions]
+            self._validate_portfolio(request.portfolio.total_value, positions)
+            _retire_quantities(account, positions, now, "portfolio_edit")
+            if account["portfolio"]["totalValue"] != request.portfolio.total_value:
+                _retire_valuation(account)
+            account["portfolio"] = {"isFictional": True, "totalValue": float(request.portfolio.total_value),
+                                    "currency": profile.reporting_currency, "positions": positions, "updatedAt": now}
+        self._refresh_selected_portfolio(data, now)
         return self._save(session_id, m.Profile.model_validate(data), stored)
 
     def select_account(self, session_id: str, profile_id: str, account_id: str, version: int) -> m.Profile:
@@ -501,7 +695,8 @@ class ProfileServiceImpl:
             raise Conflict("Account has no current native valuation to refresh")
         now = _now(self.clock)
         receipt = convert_account_value(self.snapshot(), original["nativeCurrency"], original["nativeValue"],
-                                        profile.reporting_currency, now, as_of)
+                                        profile.reporting_currency, now, as_of, input_origin=original.get("nativeValueOrigin"),
+                                        input_source=original.get("nativeValueSource"))
         _retire_valuation(account)
         account["nativeValuation"] = receipt.to_wire()
         account["portfolio"]["totalValue"] = receipt.reporting_value
@@ -533,7 +728,8 @@ class ProfileServiceImpl:
         if not request.asset_id and len(assets) >= 100:
             raise validation("At most 100 private assets per account")
         receipt = convert_account_value(self.snapshot(), request.native_currency, request.native_value,
-                                        profile.reporting_currency, now)
+                                        profile.reporting_currency, now, input_origin=request.origin,
+                                        input_source=request.source_description.strip())
         valuation = {"valuationDate": request.valuation_date, "origin": request.origin,
                      "sourceDescription": request.source_description.strip(), "conversion": receipt.to_wire()}
         if asset is None:
@@ -603,10 +799,22 @@ class ProfileServiceImpl:
         positions = [{"ticker": ticker, "weightPct": value / new_destination * 100} for ticker, value in combined.items()]
         self._validate_portfolio(new_destination, positions)
         now = _now(self.clock)
+        moved_tickers = {position["ticker"] for position in source["portfolio"]["positions"] if position["weightPct"] > 0}
+        quantity_fields = ("quantity", "quantityAsOf", "quantityOrigin", "quantitySource")
+        source_positions = [{key: value for key, value in position.items()
+                             if position["ticker"] not in moved_tickers or key not in quantity_fields}
+                            for position in source["portfolio"]["positions"]]
+        destination_old = {position["ticker"]: position for position in destination["portfolio"]["positions"]}
+        for position in positions:
+            if position["ticker"] not in moved_tickers and position["ticker"] in destination_old:
+                position.update({key: value for key, value in destination_old[position["ticker"]].items()
+                                 if key in quantity_fields})
+        _retire_quantities(source, source_positions, now, "account_transfer")
+        _retire_quantities(destination, positions, now, "account_transfer")
         for account in (source, destination):
             _retire_valuation(account)
             account["portfolio"]["updatedAt"] = now
-        source["portfolio"]["totalValue"] = source_value - amount_reporting
+        source["portfolio"].update(totalValue=source_value - amount_reporting, positions=source_positions)
         destination["portfolio"].update(totalValue=new_destination, positions=positions)
         self._refresh_selected_portfolio(data, now)
         return self._save(session_id, m.Profile.model_validate(data), stored)
@@ -658,7 +866,7 @@ class ProfileServiceImpl:
         sectors = self._sector_labels(request.preferences.excluded_sectors)
         request = request.model_copy(update={"preferences": request.preferences.model_copy(update={"excluded_sectors": sectors})})
         if request.rules is not None:
-            self._validate_rules(request.rules)
+            self._validate_rules(request.rules, request.investor_context.custom_theme_definitions if request.investor_context else ())
         req = request.to_wire()
         if request.portfolio is not None:
             positions = [p.to_wire() for p in request.portfolio.positions]
@@ -693,6 +901,7 @@ class ProfileServiceImpl:
                 raise unavailable("Threshold derivation")
             rules, _ = self.deriver(profile=m.Profile.model_validate(body), snapshot=self.snapshot(), window=None, created_at=now)
             body["rules"] = renumber(rules)
+        self._apply_context_policies(body, now)
         return m.Profile.model_validate(body).to_wire()
 
     def _validate_portfolio(self, total_value: float, positions: list[dict]) -> None:
@@ -700,6 +909,8 @@ class ProfileServiceImpl:
             raise validation("totalValue must be positive and finite", {"fields": ["totalValue"]})
         if len(positions) > MAX_POSITIONS:
             raise validation(f"At most {MAX_POSITIONS} positions", {"fields": ["positions"]})
+        if any(position.get("quantityAsOf") and position["quantityAsOf"] > _now(self.clock)[:10] for position in positions):
+            raise validation("Quantity observations cannot be dated in the future", {"fields": ["positions.quantityAsOf"]})
         tickers = [p["ticker"] for p in positions]
         if len(set(tickers)) != len(tickers):
             raise validation("Each ticker may appear once", {"fields": ["positions"]})
@@ -742,7 +953,7 @@ class ProfileServiceImpl:
                              {"fields": ["preferences.excludedSectors"], "unknown": unknown, "valid": labels})
         return out
 
-    def _validate_rules(self, rules: list[m.PolicyRule]) -> None:
+    def _validate_rules(self, rules: list[m.PolicyRule], custom_themes=()) -> None:
         """Caller-supplied rules must agree with the rule definitions the engine measures them with."""
         def bad(message: str) -> ServiceError:
             return validation(message, {"fields": ["rules"]})
@@ -758,6 +969,31 @@ class ProfileServiceImpl:
             if rid in seen:
                 raise bad(f"Rule {rid} appears more than once")
             seen.add(rid)
+            if rid.startswith("custom.condition."):
+                if r.conditional is None:
+                    raise bad(f"Rule {rid} needs a typed condition")
+                required = r.conditional.require
+                expected = ({"lte": "<=", "gte": ">=", "eq": "==", "lt": "none", "gt": "none"}[required.operator]
+                            if isinstance(required, m.ConditionPredicate) else "none")
+                threshold = required.threshold if isinstance(required, m.ConditionPredicate) else None
+                if (r.type != "limit" or r.metric is not None or r.target.dimension != "none" or
+                    r.target.key is not None or r.unit != "pct" or r.comparator != expected or
+                    r.threshold != threshold or r.bounds is not None or not r.editable or
+                    not r.counts_in_verdict or not r.is_assumption or r.derivation is not None):
+                    raise bad(f"Rule {rid} metadata must agree with its typed condition")
+                def validate_node(node):
+                    if isinstance(node, m.ConditionPredicate):
+                        if self._normalize_predicate(node, (item.key for item in custom_themes)) != node:
+                            raise bad(f"Rule {rid} has noncanonical condition keys")
+                    else:
+                        for child in node.clauses:
+                            validate_node(child)
+                if r.conditional.when:
+                    validate_node(r.conditional.when)
+                validate_node(required)
+                continue
+            if r.conditional is not None:
+                raise bad(f"Rule {rid} does not support a conditional expression")
             if r.type != d.type:
                 raise bad(f"Rule {rid} must have type {d.type}")
             if (r.metric != d.metric or r.comparator != d.comparator or r.unit != d.unit
@@ -783,7 +1019,7 @@ class ProfileServiceImpl:
         snap = self.snapshot()
         gate = snap.gate(snap.data_as_of, "current")
         eng = QuantEngine(gate, ledger, currency=profile.reporting_currency, subject_id=profile.profile_id,
-                          created_at=_now(self.clock), window=window)
+                          created_at=_now(self.clock), window=window, custom_themes=profile.investor_context.custom_theme_definitions if profile.investor_context else ())
         if window["code"] == "custom":
             # A caller-chosen range must hold visible history; fixed codes keep their own handling.
             try:

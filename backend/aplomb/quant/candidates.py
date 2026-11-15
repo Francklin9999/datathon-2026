@@ -48,7 +48,7 @@ def strategic_brief(profile, snapshot, now: str, limit: int = 3) -> dict:
     ledger = LocalLedger()
     gate = snapshot.gate(snapshot.data_as_of, 'current')
     engine = QuantEngine(gate, ledger, currency=profile.reporting_currency,
-                         subject_id=profile.profile_id, created_at=now)
+                         subject_id=profile.profile_id, created_at=now, custom_themes=profile.investor_context.custom_theme_definitions if profile.investor_context else ())
     weights = {p.ticker: p.weight_pct / 100 for p in profile.portfolio.positions if p.weight_pct > 0}
     view = engine.view(weights, 'strategic-focus', profile.portfolio.total_value)
     rule_engine = RuleEngine(ledger, engine.ctx)

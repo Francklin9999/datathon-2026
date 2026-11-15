@@ -211,7 +211,7 @@ class CheckServiceImpl:
             profile = rederive_at(profile, snap, as_of, _now(self.clock))
         rules = apply_overrides(profile, request.rule_overrides)
         engine = QuantEngine(gate, self.ledger_factory(), currency=profile.reporting_currency, subject_id=profile.profile_id,
-                             created_at=_now(self.clock), window=window)
+                             created_at=_now(self.clock), window=window, custom_themes=profile.investor_context.custom_theme_definitions if profile.investor_context else ())
         try:
             engine.window(window)
         except Unavailable as exc:

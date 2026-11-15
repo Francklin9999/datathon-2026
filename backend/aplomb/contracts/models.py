@@ -4,6 +4,8 @@ Boundary types only: numerical calculations, temporal gates, workflow transition
 and cross-resource checks remain with their owning services.
 """
 
+from __future__ import annotations
+
 from typing import Annotated, Literal
 
 from pydantic import Field, create_model, field_validator, model_validator
@@ -62,7 +64,7 @@ Experience = TypeAliasType("Experience", Literal["beginner", "intermediate", "ad
 RuleType = TypeAliasType(
     "RuleType", Literal["cap", "floor", "limit", "exclude", "evidence", "flag", "sim"]
 )
-RuleOrigin = TypeAliasType("RuleOrigin", Literal["derived", "profile_preference", "user", "system", "imported"])
+RuleOrigin = TypeAliasType("RuleOrigin", Literal["derived", "profile_preference", "user", "system", "imported", "assumption", "system_default"])
 Comparator = TypeAliasType("Comparator", Literal["<=", ">=", "==", "none"])
 Unit = TypeAliasType(
     "Unit", Literal["pct", "pts", "ratio", "count", "days", "cad", "usd", "currency", "date", "text", "bool"]
@@ -84,7 +86,7 @@ RuleId = TypeAliasType(
                 r"|(cap|floor)\.(position\.[A-Z0-9][A-Z0-9.^=-]*|sector\.[a-z]+(_[a-z]+)*|asset_class\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|country\.[A-Z]{3}|currency\.[A-Z]{3}|theme\.("
                 + "|".join(tag.value for tag in ThemeTag)
                 + r"))"
-                r"|flag\.(attention|rate_cycle|short_history)|sim\.only)$"
+                r"|custom\.condition\.[0-9a-f]{12}|flag\.(attention|rate_cycle|short_history)|sim\.only)$"
             )
         ),
     ],
@@ -230,6 +232,17 @@ class Preferences(WireModel):
 class Position(WireModel):
     ticker: Ticker
     weight_pct: Percent
+    quantity: NonNegative | None = None
+    quantity_as_of: ISODate | None = None
+    quantity_origin: Literal["user", "imported"] | None = None
+    quantity_source: Annotated[String, Field(min_length=1, max_length=1000)] | None = None
+
+    @model_validator(mode="after")
+    def quantity_provenance(self):
+        fields = (self.quantity, self.quantity_as_of, self.quantity_origin, self.quantity_source)
+        if any(value is not None for value in fields) and (any(value is None for value in fields) or not self.quantity_source.strip()):
+            raise ValueError("quantity requires date, user/imported origin and a visible source description")
+        return self
 
 
 class Portfolio(WireModel):
@@ -330,6 +343,31 @@ class InvestmentGoal(WireModel):
         return self
 
 
+class CustomThemeClassification(WireModel):
+    model_config = {"extra": "forbid"}
+    ticker: Ticker
+    matches: Boolean
+
+
+class CustomThemeDefinition(WireModel):
+    model_config = {"extra": "forbid"}
+    key: Annotated[String, Field(pattern=r"^[a-z][a-z0-9_-]{0,59}$")]
+    as_of: ISODate
+    available_at: ISODate
+    origin: Literal["user", "imported"]
+    source_reference: Annotated[String, Field(min_length=1, max_length=1000)]
+    classifications: list[CustomThemeClassification] = Field(min_length=1, max_length=500, json_schema_extra={"tsType": "CustomThemeClassification[]"})
+
+    @model_validator(mode="after")
+    def valid_definition(self):
+        if self.available_at < self.as_of:
+            raise ValueError("availableAt cannot precede asOf")
+        tickers = [entry.ticker for entry in self.classifications]
+        if len(set(tickers)) != len(tickers):
+            raise ValueError("theme classifications must use unique exact tickers")
+        return self
+
+
 class InvestorContext(WireModel):
     """Optional global context. Jurisdiction is context, not a sourced tax policy."""
 
@@ -345,7 +383,10 @@ class InvestorContext(WireModel):
     risk_capacity_origin: InputOrigin = "user"
     risk_tolerance_origin: InputOrigin = "user"
     input_origins: dict[String, Literal["user", "imported", "system_default", "assumption"]] = Field(default_factory=dict)
+    permitted_asset_classes: list[AssetClass] | None = Field(default=None, max_length=6, json_schema_extra={"tsType": "AssetClass[] | null"})
+    permitted_asset_classes_origin: Literal["user", "imported", "system_default", "assumption"] = "user"
     custom_themes: list[Annotated[String, Field(min_length=1, max_length=120)]] = Field(default_factory=list, max_length=50)
+    custom_theme_definitions: list[CustomThemeDefinition] = Field(default_factory=list, max_length=50)
     target_allocations: list[TargetAllocation] = Field(default_factory=list, max_length=100)
     rebalancing: RebalancingPreferences | None = None
     horizons: list[InvestorHorizon] = Field(default_factory=list, max_length=50)
@@ -355,6 +396,13 @@ class InvestorContext(WireModel):
     def validate_capacity_origin(self):
         if "regulatory" in (self.risk_capacity_origin, self.risk_tolerance_origin, self.investor_type_origin):
             raise ValueError("regulatory inputs require an implemented verified source")
+        if self.permitted_asset_classes is not None and len(set(self.permitted_asset_classes)) != len(self.permitted_asset_classes):
+            raise ValueError("permitted asset classes must be unique")
+        theme_keys = [item.key for item in self.custom_theme_definitions]
+        if len(set(theme_keys)) != len(theme_keys):
+            raise ValueError("custom theme keys must be unique")
+        if set(theme_keys) & {tag.value for tag in ThemeTag}:
+            raise ValueError("custom theme keys cannot shadow sourced themes")
         seen = set()
         totals = {}
         for target in self.target_allocations:
@@ -390,6 +438,64 @@ class RuleDerivation(WireModel):
     window: WindowSpec
 
 
+class ConditionPredicate(WireModel):
+    """A bounded typed comparison, with no executable user expressions."""
+
+    model_config = {"extra": "forbid"}
+    dimension: Literal["position", "sector", "asset_class", "country", "currency", "theme", "volatility", "drawdown"]
+    key: Annotated[String, Field(max_length=120)] | None = None
+    operator: Literal["lt", "lte", "eq", "gte", "gt"]
+    threshold: Annotated[Number, Field(ge=0, le=1000)]
+    origin: Literal["user", "imported", "system_default", "assumption"] = "user"
+    source_reference: Annotated[String, Field(max_length=1000)] = ""
+
+    @model_validator(mode="after")
+    def valid_predicate(self):
+        if self.dimension in ("volatility", "drawdown"):
+            if self.key is not None:
+                raise ValueError("portfolio risk dimensions do not take a key")
+        elif not self.key or not self.key.strip():
+            raise ValueError("allocation dimensions require a key")
+        if self.dimension != "volatility" and self.threshold > 100:
+            raise ValueError("weight and drawdown thresholds cannot exceed 100 percent")
+        return self
+
+
+class ConditionGroup(WireModel):
+    model_config = {"extra": "forbid"}
+    mode: Literal["all", "any"] = "all"
+    clauses: Annotated[list[ConditionPredicate | ConditionGroup], Field(min_length=1, max_length=12)]
+
+    @model_validator(mode="after")
+    def bounded_tree(self):
+        def visit(node, depth):
+            if depth > 4:
+                raise ValueError("conditional policy group nesting cannot exceed four levels")
+            return 1 + sum(visit(child, depth + 1) if isinstance(child, ConditionGroup) else 1
+                           for child in node.clauses)
+        if visit(self, 1) > 40:
+            raise ValueError("conditional policy cannot exceed forty nodes")
+        return self
+
+
+class ConditionalPolicy(WireModel):
+    """If the optional group matches, require a separate comparison."""
+
+    model_config = {"extra": "forbid"}
+    when: ConditionGroup | None = None
+    require: ConditionPredicate | ConditionGroup
+
+    @model_validator(mode="after")
+    def bounded_policy(self):
+        def count(node):
+            if isinstance(node, ConditionPredicate):
+                return 1
+            return 1 + sum(count(child) for child in node.clauses)
+        if (count(self.when) if self.when else 0) + count(self.require) > 40:
+            raise ValueError("conditional policy cannot exceed forty nodes")
+        return self
+
+
 class PolicyRule(WireModel):
     rule_id: RuleId
     code: RuleCode
@@ -409,6 +515,8 @@ class PolicyRule(WireModel):
     derivation: RuleDerivation | None
     counts_in_verdict: Boolean
     updated_at: ISODateTime
+    conditional: ConditionalPolicy | None = None
+    managed_by: Literal["permitted_asset_classes"] | None = None
 
 
 class AccountFXQuote(WireModel):
@@ -424,6 +532,8 @@ class AccountValuation(WireModel):
     verified_checks: list[String] = Field(default_factory=list)
     native_currency: Currency
     native_value: Annotated[Number, Field(gt=0)]
+    native_value_origin: Literal["user", "imported", "assumption"] | None = None
+    native_value_source: Annotated[String, Field(min_length=1, max_length=1000)] | None = None
     reporting_currency: Currency
     reporting_value: Annotated[Number, Field(gt=0)]
     conversion_rate: Annotated[Number, Field(gt=0)]
@@ -450,10 +560,21 @@ class PrivateAsset(WireModel):
     valuation_history: list[PrivateAssetValuation] = Field(default_factory=list)
 
 
+class QuantityReceipt(WireModel):
+    ticker: Ticker
+    quantity: NonNegative
+    as_of: ISODate
+    origin: Literal["user", "imported"]
+    source: Annotated[String, Field(min_length=1, max_length=1000)]
+    retired_at: ISODateTime
+    reason: Literal["portfolio_edit", "account_transfer"]
+
+
 class PortfolioAccount(WireModel):
     native_valuation: AccountValuation | None = None
     valuation_history: list[AccountValuation] = Field(default_factory=list)
     private_assets: list[PrivateAsset] = Field(default_factory=list)
+    quantity_history: list[QuantityReceipt] = Field(default_factory=list, max_length=10000)
     account_id: Annotated[String, Field(pattern=r"^acct_[0-9a-f]{12}$")]
     name: Annotated[String, Field(min_length=1, max_length=80)]
     portfolio: Portfolio
@@ -478,6 +599,7 @@ class Profile(WireModel):
     blurb: I18nText
     persona_test: I18nText | None
     investor_context: InvestorContext | None = None
+    quantity_history: list[QuantityReceipt] = Field(default_factory=list, max_length=10000)
     accounts: list[PortfolioAccount] = Field(default_factory=list)
     active_account_id: String | None = None
     portfolio: Portfolio
@@ -719,6 +841,11 @@ class VerdictCounts(WireModel):
 
 
 class SnapshotPosition(Position):
+    source_asset_id: String | None = None
+    market: String | None = None
+    quote_currency: Currency | None = None
+    listing_country: String | None = None
+    history: AssetHistory | None = None
     name: String
     asset_class: AssetClass
     asset_group: AssetGroup

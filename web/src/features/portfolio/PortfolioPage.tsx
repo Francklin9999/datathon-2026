@@ -5,6 +5,10 @@
  * (PORT-02). Previews go through /check with overrides and are never saved implicitly.
  */
 import { useMemo, useState } from 'react';
+import { PositionQuantities } from './PositionQuantities';
+import { ConditionalPolicies } from './ConditionalPolicies';
+import { AccountEditor } from './AccountEditor';
+import { JointPlan } from '../planning/JointPlan';
 import { AllocationTargets } from './AllocationTargets';
 import { RequirementsScenario } from './RequirementsScenario';
 import { PrivateAssets } from './PrivateAssets';
@@ -55,21 +59,25 @@ function PortfolioContent({ profile }: { profile: Profile }) {
         </p>
       </PageHeader>
       <Accounts key={`accounts|${profile.profileId}|${profile.version}`} profile={profile} />
+      <PositionQuantities key={`quantities|${profile.profileId}|${profile.version}`} profile={profile} />
+      <AccountEditor key={`account-edit|${profile.profileId}|${profile.version}`} profile={profile} />
       <PrivateAssets key={`private|${profile.profileId}|${profile.version}`} profile={profile} />
       {overview.loading && <Loading />}
       {overview.error && <ErrorState error={overview.error} onRetry={overview.reload}
         title={tr({ en: 'The portfolio overview is unavailable. No figures are shown.', fr: 'L’aperçu du portefeuille est indisponible. Aucun chiffre n’est affiché.' })} />}
       {overview.data && scope && (
         <FactScopeProvider scope={scope}>
-          <Holdings overview={overview.data} />
+          <Holdings overview={overview.data} profile={profile} />
           <Allocation overview={overview.data} />
           <Risk overview={overview.data} />
         </FactScopeProvider>
       )}
       <AllocationTargets profile={profile} />
+      <JointPlan key={`joint|${profile.profileId}|${profile.version}`} profile={profile} />
       <GoalFunding profile={profile} />
       <RequirementsScenario key={`requirements|${profile.profileId}|${profile.version}`} profile={profile} />
       <ExposureLimits profile={profile} />
+      <ConditionalPolicies key={`conditions|${profile.profileId}|${profile.version}`} profile={profile} />
       <CustomPolicies key={`policies|${profile.profileId}|${profile.version}`} profile={profile} />
       <Rules profile={profile} overview={overview.data} scope={scope} />
       <Frontier profile={profile} />
@@ -78,7 +86,7 @@ function PortfolioContent({ profile }: { profile: Profile }) {
   );
 }
 
-function Holdings({ overview }: { overview: OverviewResponse }) {
+function Holdings({ overview, profile }: { overview: OverviewResponse; profile: Profile }) {
   const { tr, lang } = useApp();
   const snapshot = overview.snapshot;
   const returns = new Map(overview.concentration.topPositions.map(p => [p.ticker, p.return1yPct]));
@@ -93,7 +101,8 @@ function Holdings({ overview }: { overview: OverviewResponse }) {
               <th scope="col">{tr({ en: 'Class', fr: 'Catégorie' })}</th>
               <th scope="col">{tr({ en: 'Sector label', fr: 'Secteur' })}</th>
               <th scope="col" className="num-col">{tr({ en: 'Weight', fr: 'Poids' })}</th>
-              <th scope="col" className="num-col">{tr({ en: 'Market value', fr: 'Valeur' })} ({snapshot.currency})</th>
+              <th scope="col">{tr({ en: 'Documented quantity', fr: 'Quantité documentée' })}</th>
+              <th scope="col" className="num-col">{tr({ en: 'Modeled position value', fr: 'Valeur de position modélisée' })} ({snapshot.currency})</th>
               <th scope="col" className="num-col">{tr({ en: '1-year return (historical)', fr: 'Rendement 1 an (historique)' })}</th>
             </tr>
           </thead>
@@ -102,10 +111,11 @@ function Holdings({ overview }: { overview: OverviewResponse }) {
               const r = returns.get(p.ticker);
               return (
                 <tr key={p.ticker}>
-                  <th scope="row"><span className="ticker">{p.ticker}</span><span className="block small muted">{p.name}</span></th>
+                  <th scope="row"><span className="ticker">{p.ticker}</span><span className="block small muted">{p.name}</span><span className="block small muted">{p.market ?? '—'} · {p.quoteCurrency ?? '—'} · {p.listingCountry ?? '—'} ({tr({ en: 'listing proxy', fr: 'approximation de cotation' })})</span><details><summary className="small">{tr({ en: 'Source identity and history', fr: 'Identité source et historique' })}</summary><p className="small">{tr({ en: 'Source asset ID', fr: 'Identifiant source de l’actif' })}: {p.sourceAssetId ?? '—'}</p><p className="small">{p.history?.firstDate ?? '—'} — {p.history?.lastDate ?? '—'} · {p.history?.nObs ?? '—'} {tr({ en: 'visible price observations', fr: 'observations de prix visibles' })}</p><p className="small muted">{tr({ en: 'Source ticker/market metadata is not an independently verified cross-provider ISIN or issuer crosswalk. FX and risk sample availability are assessed separately.', fr: 'Les métadonnées de symbole/marché ne constituent pas une correspondance ISIN ou émetteur indépendante. La disponibilité du change et de l’échantillon de risque est évaluée séparément.' })}</p></details></th>
                   <td>{labelOf(ASSET_CLASS, p.assetClass, lang)}</td>
                   <td>{p.sector}</td>
                   <td className="num-col num"><CountUp text={fmtPct(p.weightPct, lang)} /></td>
+                  <td>{(() => { const q = profile.portfolio.positions.find(h => h.ticker === p.ticker); return q?.quantity === undefined || q.quantity === null ? <span className="small muted">{tr({ en: 'Unknown; modeled size only', fr: 'Inconnue; taille modélisée seulement' })}</span> : <><span>{fmtNumber(q.quantity, lang, 4)}</span><span className="block small muted">{q.quantityAsOf} · {q.quantityOrigin}</span><details><summary className="small">{tr({ en: 'Quantity source', fr: 'Source de la quantité' })}</summary><p className="small">{q.quantitySource}</p></details></>; })()}</td>
                   <td className="num-col num"><CountUp text={fmtMoney(p.marketValue, snapshot.currency, lang)} /></td>
                   <td className="num-col num">
                     {r === undefined
@@ -120,6 +130,7 @@ function Holdings({ overview }: { overview: OverviewResponse }) {
             <tr>
               <th scope="row" colSpan={3}>{tr({ en: 'Total', fr: 'Total' })} ({snapshot.positions.length})</th>
               <td className="num-col num">{fmtPct(total, lang, 2)}</td>
+              <td />
               <td className="num-col num">{fmtMoney(snapshot.totalValue, snapshot.currency, lang)}</td>
               <td />
             </tr>

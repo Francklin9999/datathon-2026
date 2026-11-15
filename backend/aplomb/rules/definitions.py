@@ -82,6 +82,9 @@ FIXED: dict[str, RuleDef] = {
 
 def rule_def(rule_id: str) -> RuleDef:
     """Definition of a rule ID, including parameterized families."""
+    if rule_id.startswith("custom.condition."):
+        return RuleDef("limit", None, None, "none", None, "none", "pct", True, None, True,
+                       _t("User-defined conditional policy", "Règle conditionnelle définie par l'utilisateur"))
     if rule_id in FIXED:
         return FIXED[rule_id]
     parts = rule_id.split(".", 2)

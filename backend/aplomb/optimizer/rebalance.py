@@ -27,7 +27,7 @@ def check_targets(profiles, snapshot, session_id, request: a.RebalanceRequest, n
     ledger = LocalLedger()
     window = request.window.to_wire() if request.window else {'code': 'full'}
     engine = QuantEngine(gate, ledger, currency=profile.reporting_currency, subject_id=profile.profile_id,
-                         created_at=now, window=window)
+                         created_at=now, window=window, custom_themes=profile.investor_context.custom_theme_definitions if profile.investor_context else ())
     try:
         engine.window(window)
     except Unavailable as exc:

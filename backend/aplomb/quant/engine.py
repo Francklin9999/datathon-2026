@@ -79,7 +79,8 @@ class PortfolioMetrics:
 
 class QuantEngine:
     def __init__(self, gate: TemporalGate, ledger: FactSink, *, currency: str, subject_id: str,
-                 created_at: str, window: dict | None = None) -> None:
+                 created_at: str, window: dict | None = None, custom_themes=()) -> None:
+        self.custom_themes = {item.key: item for item in custom_themes}
         self.gate = gate
         self.ledger = ledger
         self.currency = currency
@@ -607,6 +608,36 @@ class PortfolioView:
                                     label={"en": f"Weight of {key}, {name} ({self.variant})", "fr": f"Poids de {key}, {name} ({self.variant})"})
             return Measurement(value, fid, worst={"type": "asset", "id": key} if value > 0 else None)
         if metric == "weight.theme":
+            definition = self.engine.custom_themes.get(key or "")
+            if definition is not None:
+                as_of = self.engine.gate.as_of.isoformat()
+                if definition.as_of > as_of or definition.available_at > as_of:
+                    return Measurement(None, None, nee_reason="not_visible_at_asof", detail="custom theme classification was not available at this date")
+                mapping = {entry.ticker: entry.matches for entry in definition.classifications}
+                missing = sorted(set(self.weights) - set(mapping))
+                if missing:
+                    return Measurement(None, None, nee_reason="no_evidence_loaded", detail="unclassified holdings: " + ", ".join(missing))
+                value = math.fsum(weight * 100 for ticker, weight in self.weights.items() if mapping[ticker])
+                fid = None
+                if self.record:
+                    mapping_id = self.engine.ledger.add_fact(make_fact(
+                        self.engine.ctx, key=fact_key("weight.theme", "theme", definition.key, self.variant, "classification"),
+                        kind="assumption", metric="weight.theme", value="explicit classifications", unit="text", currency=None,
+                        label={"en": "User-declared theme classifications", "fr": "Classifications thématiques déclarées"},
+                        subject={"type": "theme", "id": definition.key, "variant": self.variant},
+                        method_id="M_PROFILE_ASSUMPTION", created_by="profile",
+                        params={"origin": definition.origin, "sourceReference": definition.source_reference,
+                                "asOf": definition.as_of, "availableAt": definition.available_at,
+                                "classifications": json.dumps(mapping, sort_keys=True)},
+                        limitations=["LIM_THEME_TAGS"]))
+                    fid = self.engine.ledger.add_fact(make_fact(
+                        self.engine.ctx, key=fact_key("weight.theme", "theme", definition.key, self.variant, "weights"),
+                        kind="computed", metric="weight.theme", value=value, unit="pct", currency=None,
+                        label={"en": f"Declared theme weight: {definition.key}", "fr": f"Poids thématique déclaré : {definition.key}"},
+                        subject={"type": "theme", "id": definition.key, "variant": self.variant},
+                        method_id="M_PROFILE_ASSUMPTION", created_by="quant", inputs=self._weight_inputs() + [mapping_id],
+                        limitations=["LIM_THEME_TAGS"]))
+                return Measurement(value, fid, worst={"type": "theme", "id": key})
             if self.engine.gate.mode == "historical" and not any(a.themes for a in self.engine.universe.all()):
                 return Measurement(None, None, nee_reason="not_visible_at_asof",
                                    detail="theme tags are not visible at this as-of date")
@@ -716,7 +747,10 @@ class PortfolioView:
             a = self.assets[t]
             w = self.weights[t] * 100
             positions.append({"ticker": t, "weightPct": min(w, 100.0), "name": a.name, "assetClass": a.asset_class,
-                              "assetGroup": a.asset_group, "sector": a.sector, "marketValue": self.weights[t] * self.total_value})
+                              "assetGroup": a.asset_group, "sector": a.sector, "marketValue": self.weights[t] * self.total_value,
+                              "sourceAssetId": a.asset_id, "market": a.market, "quoteCurrency": a.currency,
+                              "listingCountry": a.country, "history": {"firstDate": a.history.first_date,
+                              "lastDate": a.history.last_date, "nObs": a.history.n_obs, "nObsMaster": a.history.n_obs_master}})
         groups = self.group_weights()
         countries: dict[str, float] = {}
         for t, w in self.weights.items():

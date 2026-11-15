@@ -83,6 +83,11 @@ def normalize_capture(payload: bytes, metadata: dict, as_of: str) -> tuple[bytes
                         'checkedAt': retrieved}],
             'details': {'sourceUrl': url, 'retrievedAt': retrieved, 'currencies': codes,
                         'historicalVintage': 'unknown; no rows visible before capture'}}
+    for key in ('captureDirectory', 'captureStem'):
+        if key in metadata:
+            if not isinstance(metadata[key], str) or not re.fullmatch(r'[a-z0-9-]+', metadata[key]):
+                raise IngestionError('invalid capture reconstruction identifier')
+            meta['details'][key] = metadata[key]
     return out.getvalue().encode(), meta
 
 
@@ -169,7 +174,11 @@ def materialize_pinned_global_fx(data_root: Path, reference_data: Path, version:
                    metadata_dir=reference_data / 'inputs' / parent, activate=False)
     if (data_root / 'normalized' / version).exists():
         return LocalDataStore(data_root).open(version).manifest
-    capture_date = pinned['datasets']['fx_boc_global']['details']['retrievedAt'][:10].replace('-', '')
-    capture = reference_data / 'inputs' / 'global-fx'
-    return publish_global_fx(data_root, parent, version, read_capture(capture / f'boc-{capture_date}.json.gz'),
-                             json.loads((capture / f'boc-{capture_date}.metadata.json').read_text()))
+    details = pinned['datasets']['fx_boc_global']['details']
+    capture_date = details['retrievedAt'][:10].replace('-', '')
+    folder, stem = details.get('captureDirectory', 'global-fx'), details.get('captureStem', f'boc-{capture_date}')
+    if not all(isinstance(value, str) and re.fullmatch(r'[a-z0-9-]+', value) for value in (folder, stem)):
+        raise SnapshotIntegrityError('invalid pinned FX capture reference')
+    capture = reference_data / 'inputs' / folder
+    return publish_global_fx(data_root, parent, version, read_capture(capture / f'{stem}.json.gz'),
+                             json.loads((capture / f'{stem}.metadata.json').read_text()))

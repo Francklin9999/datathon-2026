@@ -9,6 +9,7 @@ import type {
   SabotageRequest, UpdatePortfolioRequest, UpdateProfileRequest, WindowCode, AnswerRequest,
   RunKind, RevealRequest, WindowSpec,
 } from '../contracts/types';
+import { expandedResult } from './expandedInvestor';
 import { focusResult, targetsResult } from './focusModels';
 import { factorFitResult, fundLookThroughResult } from './investorModels';
 import { sensitivityScenarioResult, type SensitivityScenarioRequest } from './riskModels';
@@ -169,6 +170,37 @@ export function createApiClient(config: ClientConfig) {
     fetchAsset: (ticker: string) =>
       call('FetchAssetResponse', 'POST', `/assets/${enc(ticker)}/fetch`, { body: {} }),
 
+    addConditionRule: (profileId: string, body: unknown) => call('Profile', 'POST', `/profiles/${enc(profileId)}/condition-rules`, { body }),
+    removeConditionRule: (profileId: string, ruleId: string, version: number) => call('Profile', 'DELETE', `/profiles/${enc(profileId)}/condition-rules/${enc(ruleId)}`, { query: { version } }),
+    editAccount: (profileId: string, accountId: string, body: unknown) => call('Profile', 'PUT', `/profiles/${enc(profileId)}/accounts/${enc(accountId)}`, { body }),
+    jointPlan: async (profileId: string, body: unknown) => {
+      const result = await raw('POST', `/profiles/${enc(profileId)}/joint-plan`, { body });
+      try { return expandedResult('joint', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid joint plan response' }); }
+    },
+    comparePortfolios: async (body: unknown) => {
+      const result = await raw('POST', '/portfolios/compare', { body });
+      try { return expandedResult('compare', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid comparison response' }); }
+    },
+    covariance: async (body: unknown) => {
+      const result = await raw('POST', '/risk/covariance', { body });
+      try { return expandedResult('covariance', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid covariance response' }); }
+    },
+    liquidityAnalysis: async (profileId: string, body: unknown) => {
+      const result = await raw('POST', `/profiles/${enc(profileId)}/liquidity-analysis`, { body });
+      try { return expandedResult('liquidity', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid liquidity response' }); }
+    },
+    activeFactorExposure: async (profileId: string, body: unknown) => {
+      const result = await raw('POST', `/profiles/${enc(profileId)}/factor-exposure`, { body });
+      try { return expandedResult('factor', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid active factor response' }); }
+    },
+    nestedFundExposure: async (body: unknown) => {
+      const result = await raw('POST', '/risk/nested-fund-look-through', { body });
+      try { return expandedResult('nested', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid nested fund response' }); }
+    },
+    positionDetails: async (profileId: string, body: unknown) => {
+      const result = await raw('POST', `/profiles/${enc(profileId)}/position-details`, { body });
+      try { return expandedResult('positions', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid position details response' }); }
+    },
     strategicCandidates: async (profileId: string, signal?: AbortSignal) => {
       const { body } = await raw('GET', `/profiles/${enc(profileId)}/strategic-candidates`, { signal });
       try { return focusResult(body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid strategic candidate response' }); }

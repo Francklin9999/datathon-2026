@@ -11,3 +11,7 @@ Paid CME and account/API-key OANDA/FRED/FINRA short-interest are excluded/set as
 Unimplemented engineering/quantitative coverage is recorded in REQUIREMENTS.md, not misclassified as an external blocker. Production deployment, merged acceptance and snapshot selection remain integrator-owned.
 
 Git publication: automatic approval review rejected `git push -u origin codex/agent-1-investor-quant`. Stated reason: external GitHub destination not verified as trusted/explicitly authorized and broad payload may contain private captures/logs/project data. No workaround or indirect push was attempted. The branch is committed locally. A credential-pattern scan of 22 evidence text files found no matching AWS/OpenAI/private-key patterns; captures are official public aggregate feeds and screenshots use synthetic investors, but this does not substitute for destination/publication approval. Explicit approval of publishing this branch and evidence to `https://github.com/Francklin9999/datathon-2026` is needed before retrying.
+
+## Publication authorization update — 2026-11-15
+
+The user explicitly instructed “commit and push what you have currently so a part is on remote and continue.” This authorizes the current checkpoint payload and configured origin `https://github.com/Francklin9999/datathon-2026` on `codex/agent-1-investor-quant`; the earlier automatic-review rejection is historical. Publication outcome is recorded in STATUS/HANDOFF after the push.

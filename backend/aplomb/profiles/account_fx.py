@@ -6,7 +6,8 @@ from aplomb.contracts.models import AccountValuation
 from aplomb.quant.market import MarketData
 
 
-def convert_account_value(snapshot, native_currency, native_value, reporting_currency, captured_at, as_of=None):
+def convert_account_value(snapshot, native_currency, native_value, reporting_currency, captured_at, as_of=None, *,
+                          input_origin=None, input_source=None):
     """Value at the current snapshot, or at an explicitly historical availability cutoff."""
     day = as_of or snapshot.data_as_of
     mode = 'historical' if as_of is not None else 'current'
@@ -32,6 +33,7 @@ def convert_account_value(snapshot, native_currency, native_value, reporting_cur
                                   'sourceName': passport['source'], 'sourceUrl': passport['sourceUrl'],
                                   'retrievedOn': passport['retrievedOn'], 'licence': passport['licence'], 'rowsRead': 1}})
     receipt = AccountValuation.model_validate({'nativeCurrency': native_currency, 'nativeValue': native_value,
+        'nativeValueOrigin': input_origin, 'nativeValueSource': input_source,
         'reportingCurrency': reporting_currency, 'reportingValue': value, 'conversionRate': rate,
         'valuationDate': day, 'mode': mode, 'capturedAt': captured_at, 'dataVersion': snapshot.data_version, 'quotes': quotes})
     receipt.verified_checks = verify_account_valuation(snapshot, receipt)

@@ -22,11 +22,14 @@ def snapshot_fx(tmp_path_factory):
 
 def test_refresh_preserves_receipt_and_rejects_unavailable_history(snapshot_fx):
     service = ProfileServiceImpl(make_repo(), lambda: snapshot_fx, clock=CLOCK)
-    p = service.create_account(A, 'robert', a.CreateAccountRequest(name='Yen', version=1, currency='JPY',
+    p = service.create_account(A, 'robert', a.CreateAccountRequest(name='Yen', version=1, currency='JPY', nativeValueOrigin='imported', nativeValueSource='bank statement',
         portfolio={'totalValue': 100000, 'positions': [{'ticker': 'SPY', 'weightPct': 100}]}))
     account_id = p.active_account_id
     original = p.accounts[-1].native_valuation
+    assert original.native_value_origin == 'imported' and original.native_value_source == 'bank statement'
     refreshed = service.refresh_account(A, 'robert', account_id, p.version)
+    assert refreshed.accounts[-1].native_valuation.native_value_origin == 'imported'
+    assert refreshed.accounts[-1].native_valuation.native_value_source == 'bank statement'
     assert refreshed.accounts[-1].valuation_history == [original]
     assert refreshed.accounts[-1].native_valuation.reporting_value == pytest.approx(original.reporting_value)
     with pytest.raises(Conflict):
@@ -123,6 +126,8 @@ def test_private_valuations_are_additional_preserved_and_excluded_from_traded_ri
             'nativeCurrency': 'CAD', 'nativeValue': 5000}
     p = service.value_private_asset(A, 'robert', account_id, a.PrivateAssetRequest.model_validate(body))
     asset = p.accounts[-1].private_assets[0]
+    assert asset.valuation.conversion.native_value_origin == 'imported'
+    assert asset.valuation.conversion.native_value_source == 'Owner appraisal'
     assert p.portfolio.total_value == 1000
     summary = service.account_valuation_summary(A, 'robert')
     assert summary['combinedValue'] == 606000
@@ -199,3 +204,20 @@ def test_explicit_historical_knowledge_excludes_later_fx_at_snapshot_cutoff(snap
         'asOf': snapshot_fx.data_as_of, 'mode': 'historical', 'profile': profile.to_wire()})
     assert replay_gate.mode == 'historical'
     assert replay_gate.global_fx('EUR').rows == ()
+
+
+def test_refresh_keeps_legacy_native_value_provenance_unknown(snapshot_fx):
+    from aplomb.contracts.models import Profile
+    service = ProfileServiceImpl(make_repo(), lambda: snapshot_fx, clock=CLOCK)
+    profile = service.create_account(A, 'robert', a.CreateAccountRequest(name='Old', version=1,
+        portfolio={'totalValue': 100, 'positions': [{'ticker': 'SPY', 'weightPct': 100}]}))
+    assert profile.accounts[-1].native_valuation.native_value_origin == 'user'
+    wire = profile.to_wire()
+    receipt = wire['accounts'][-1]['nativeValuation']
+    receipt.pop('nativeValueOrigin')
+    receipt.pop('nativeValueSource')
+    _, stored = service._load(A, 'robert')
+    profile = service._save(A, Profile.model_validate(wire), stored)
+    refreshed = service.refresh_account(A, 'robert', profile.active_account_id, profile.version)
+    assert refreshed.accounts[-1].native_valuation.native_value_origin is None
+    assert refreshed.accounts[-1].native_valuation.native_value_source is None

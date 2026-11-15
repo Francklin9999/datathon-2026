@@ -3,6 +3,7 @@ import type {
   AssetClass, CreateProfileRequest, Currency, Experience, Objective, PartialProfile, Position, Preferences1,
   Profile, RiskLevel, ThemeTag,
 } from '../contracts/types';
+import { ContractValidationError, validateContract } from '../contracts/validate';
 import { validateHoldings, type HoldingsIssue } from './holdings';
 
 export interface ProfileForm {
@@ -27,7 +28,7 @@ export interface ProfileForm {
   /** false → the server proposes a starting portfolio (api.md 3.3 portfolio: null). */
   ownHoldings: boolean;
   capital: string;
-  positions: { ticker: string; weightPct: string }[];
+  positions: { ticker: string; weightPct: string; sourcePosition?: Position }[];
 }
 
 export const EMPTY_PROFILE_FORM: ProfileForm = {
@@ -64,7 +65,7 @@ export function formFromProfile(profile: Profile, copySuffix = ''): ProfileForm 
     ...prefsToForm(profile.preferences),
     ownHoldings: true,
     capital: String(profile.portfolio.totalValue),
-    positions: profile.portfolio.positions.map(p => ({ ticker: p.ticker, weightPct: String(p.weightPct) })),
+    positions: profile.portfolio.positions.map(p => ({ ticker: p.ticker, weightPct: String(p.weightPct), sourcePosition: structuredClone(p) })),
   };
 }
 
@@ -95,7 +96,7 @@ export function applyDraft(form: ProfileForm, draft: PartialProfile): { form: Pr
 }
 
 export type ProfileFormIssue =
-  | { field: Exclude<keyof ProfileForm, 'positions'>; code: 'required' | 'too_long' | 'invalid' | 'range' }
+  | { field: Exclude<keyof ProfileForm, 'positions'>; code: 'required' | 'too_long' | 'invalid' | 'range'; detail?: string }
   | { field: 'positions'; code: 'holdings'; issue: HoldingsIssue };
 
 function num(value: string): number | null {
@@ -107,7 +108,7 @@ function num(value: string): number | null {
 export function formPositions(form: ProfileForm): Position[] {
   return form.positions
     .filter(p => p.ticker.trim() !== '' || p.weightPct.trim() !== '')
-    .map(p => ({ ticker: p.ticker.trim().toUpperCase(), weightPct: Number(p.weightPct) }));
+    .map(p => ({ ...(p.sourcePosition?.ticker === p.ticker.trim().toUpperCase() ? p.sourcePosition : {}), ticker: p.ticker.trim().toUpperCase(), weightPct: Number(p.weightPct) }));
 }
 
 export function validateProfileForm(form: ProfileForm): ProfileFormIssue[] {
@@ -116,6 +117,13 @@ export function validateProfileForm(form: ProfileForm): ProfileFormIssue[] {
   if (!name) issues.push({ field: 'name', code: 'required' });
   else if (name.length > 40) issues.push({ field: 'name', code: 'too_long' });
   const context = form.investorContext;
+  if (context) {
+    try { validateContract('InvestorContext', context); }
+    catch (error) {
+      const detail = error instanceof ContractValidationError ? error.issues.slice(0, 4).map(issue => `${issue.instancePath || '/'}: ${issue.message}`).join('; ') : 'Invalid investor context';
+      issues.push({ field: 'investorContext', code: 'invalid', detail });
+    }
+  }
   if (context?.country && !/^[A-Z]{2}$/.test(context.country)) issues.push({ field: 'investorContext', code: 'invalid' });
   if (context?.objectives?.some(g => !g.name.trim() || !Number.isFinite(g.horizonYears) || g.horizonYears <= 0 || g.horizonYears > 150)) issues.push({ field: 'investorContext', code: 'invalid' });
   if (context?.horizons?.some(h => !h.name.trim() || (h.startDate && ((h.endDate && h.startDate > h.endDate) || (h.deadline && h.startDate > h.deadline))))) issues.push({ field: 'investorContext', code: 'invalid' });

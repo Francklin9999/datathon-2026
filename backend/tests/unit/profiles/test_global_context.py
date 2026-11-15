@@ -21,7 +21,7 @@ def test_multiple_goals_and_fractional_horizon_are_preserved_and_isolated():
     assert svc.get(A, p.profile_id).investor_context == p.investor_context
     with pytest.raises(NotFound):
         svc.get(B, p.profile_id)
-    assert svc.get(B, 'robert').investor_context is None
+    assert svc.get(B, 'robert').investor_context.input_origins['name'] == 'system_default'
     update = a.UpdateProfileRequest.model_validate({**request.to_wire(), 'version': 1})
     assert svc.replace(A, p.profile_id, update, 1).investor_context == p.investor_context
     # Uses exactly the same deterministic overview service as the seeded profiles.

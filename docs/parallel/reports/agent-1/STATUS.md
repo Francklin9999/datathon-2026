@@ -1,12 +1,13 @@
-# Review — API-focused handoff, full-scope limitations retained
+# Running — expanded investor and quantitative follow-up
 
 Branch: `codex/agent-1-investor-quant`
 Base: `2604b9689e9f992b4e9e46c4a06ea89ec57ac155`
+Previously committed checkpoint: `6f60a36fae33afd749a6a5df009071cdf87a4aca`
 
-Completed investor/profile/accounts, private appraisals, typed policy conditions, targets/drift, deterministic funding/cashflow/factor/fund/shock interfaces and UI, source captures and provider connectors, and mobile tooltip repair. User explicitly authorized additional agents; all edits confined to this assigned worktree.
+Expanded work adds bounded conditional policies, permitted-class enforcement, dated custom themes, account/quantity provenance, covariance and financial comparison, explicit liquidity, nested funds, active portfolio factor exposure, a joint plan and an opt-in 25-currency Bank of Canada snapshot. No deployment, paid feed, login or active-manifest change. Current focused worker checks are documented in POLICY-NOTES.md and QUANT-NOTES.md; fresh repository gate, static build, HTTP and browser checks for this follow-up are pending primary-worker verification. Previous checkpoint passed 903 Python tests + 16 subtests, 208 web tests and 6 infra tests; that result predates these additional edits.
 
-Latest steering prioritized APIs over new test cases, excluded paid feeds, and set aside login/API-key feeds. Five new captured feeds plus existing BoC are consumed. Five additional anonymous acquisition/parser/storage/UI connectors are wired with explicit data-use permission gates; no successful live access is invented. CME is excluded; OANDA/FRED/FINRA short-interest are set aside.
+Automatic approval review previously rejected publishing the branch to the GitHub destination because the destination/payload was not verified as authorized and trusted. No workaround or indirect push was attempted. `BLOCKERS.md` records the reason; the primary worker must determine the correct final action when preparing handoff.
 
-Verification reauthorized: 13 focused provider tests passed and identified repaired ownership, integrity, permission and filter/error defects. The refreshed 37-request HTTP smoke, 11-interaction browser scenario, independent 390px bounds and static export passed. Final repository gate passed: 903 Python tests + 16 subtests, 208 web tests and 6 infra tests; static export passed. Exact evidence is in HANDOFF.md and check-providers-final.log. All five anonymous connectors are wired; data-use permission/live-source availability remains distinct from implementation.
+## Requested remote checkpoint
 
-Publication is pending: initial local commit `b888050920df1912ba7ce61902ba3796ce1da59d`; a verification follow-up commit contains the final fixes/evidence. Automatic approval review rejected publication to the unverified GitHub destination/payload; no push workaround, deployment or other-branch merge was attempted. See BLOCKERS.md.
+The user explicitly requested committing and pushing current work on 2026-11-15, then continuing. This supersedes the earlier publication-authorization blocker for the configured origin and this assigned branch. This is a work-in-progress checkpoint: 45 current real HTTP checks, 212 web tests, TypeScript and static export pass. The first current full gate had 923 passes and four scripted-run timing/service failures while the build ran concurrently; all 23 composition cases then passed in isolation. A fresh full gate is running. Expanded browser acceptance is still being completed; earlier browser interactions remain separately evidenced. No live model execution is claimed.

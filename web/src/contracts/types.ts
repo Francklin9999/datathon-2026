@@ -421,7 +421,8 @@ export type RuleType = "cap" | "floor" | "limit" | "exclude" | "evidence" | "fla
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "RuleOrigin".
  */
-export type RuleOrigin = "derived" | "profile_preference" | "user" | "system" | "imported";
+export type RuleOrigin =
+  "derived" | "profile_preference" | "user" | "system" | "imported" | "assumption" | "system_default";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "SabotageMode".
@@ -521,6 +522,7 @@ export type RulePatchRequest1 = {
 export interface AplombContracts {
   AccountFXQuote: AccountFXQuote;
   AccountValuation: AccountValuation;
+  AddConditionalRuleRequest: AddConditionalRuleRequest;
   AddCustomRuleRequest: AddCustomRuleRequest;
   AddExposureLimitRequest: AddExposureLimitRequest;
   AgentRole: AgentRole;
@@ -558,6 +560,9 @@ export interface AplombContracts {
   ClarifyingQuestion: ClarifyingQuestion;
   Comparator: Comparator;
   Concentration: Concentration;
+  ConditionGroup: ConditionGroup;
+  ConditionPredicate: ConditionPredicate;
+  ConditionalPolicy: ConditionalPolicy;
   Correlation: Correlation;
   CountryExposure: CountryExposure;
   CreateAccountRequest: CreateAccountRequest;
@@ -569,6 +574,8 @@ export interface AplombContracts {
   CreateReplayRunRequest: CreateReplayRunRequest;
   CreateRunRequest: CreateRunRequest;
   Currency: Currency;
+  CustomThemeClassification: CustomThemeClassification;
+  CustomThemeDefinition: CustomThemeDefinition;
   DataVersion: DataVersion;
   DatasetCheck: DatasetCheck;
   DatasetField: DatasetField;
@@ -584,6 +591,7 @@ export interface AplombContracts {
   DeriveRulesRequest: DeriveRulesRequest;
   DeriveRulesResponse: DeriveRulesResponse;
   DuplicateProfileRequest: DuplicateProfileRequest;
+  EditAccountRequest: EditAccountRequest;
   EmptyRequest: EmptyRequest;
   EntityCandidate: EntityCandidate;
   EntitySearchResponse: EntitySearchResponse;
@@ -689,6 +697,7 @@ export interface AplombContracts {
   ProfileId: ProfileId;
   ProfilesResponse: ProfilesResponse;
   ProposedMove: ProposedMove;
+  QuantityReceipt: QuantityReceipt;
   QuestionOption: QuestionOption;
   QueuedRunResponse: QueuedRunResponse;
   RebalanceRequest: RebalanceRequest;
@@ -815,6 +824,8 @@ export interface AccountValuation {
   verifiedChecks?: string[];
   nativeCurrency: Currency;
   nativeValue: number;
+  nativeValueOrigin?: ("user" | "imported" | "assumption") | null;
+  nativeValueSource?: string | null;
   reportingCurrency: Currency;
   reportingValue: number;
   conversionRate: number;
@@ -822,6 +833,145 @@ export interface AccountValuation {
   capturedAt: ISODateTime;
   dataVersion: DataVersion;
   quotes: AccountFXQuote[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AddConditionalRuleRequest".
+ */
+export interface AddConditionalRuleRequest {
+  name: string;
+  conditional: ConditionalPolicy;
+  origin?: "user" | "imported" | "system_default" | "assumption";
+  version: number;
+}
+/**
+ * If the optional group matches, require a separate comparison.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ConditionalPolicy".
+ */
+export interface ConditionalPolicy {
+  when?: ConditionGroup | null;
+  require: ConditionPredicate | ConditionGroup;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ConditionGroup".
+ */
+export interface ConditionGroup {
+  mode?: "all" | "any";
+  /**
+   * @minItems 1
+   * @maxItems 12
+   */
+  clauses:
+    | [ConditionPredicate | ConditionGroup]
+    | [ConditionPredicate | ConditionGroup, ConditionPredicate | ConditionGroup]
+    | [ConditionPredicate | ConditionGroup, ConditionPredicate | ConditionGroup, ConditionPredicate | ConditionGroup]
+    | [
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup
+      ]
+    | [
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup
+      ]
+    | [
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup
+      ]
+    | [
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup
+      ]
+    | [
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup
+      ]
+    | [
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup
+      ]
+    | [
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup
+      ]
+    | [
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup
+      ]
+    | [
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup,
+        ConditionPredicate | ConditionGroup
+      ];
+}
+/**
+ * A bounded typed comparison, with no executable user expressions.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ConditionPredicate".
+ */
+export interface ConditionPredicate {
+  dimension: "position" | "sector" | "asset_class" | "country" | "currency" | "theme" | "volatility" | "drawdown";
+  key?: string | null;
+  operator: "lt" | "lte" | "eq" | "gte" | "gt";
+  threshold: number;
+  origin?: "user" | "imported" | "system_default" | "assumption";
+  sourceReference?: string;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -1356,6 +1506,15 @@ export interface PortfolioSnapshot {
 export interface SnapshotPosition {
   ticker: Ticker;
   weightPct: number;
+  quantity?: number | null;
+  quantityAsOf?: ISODate | null;
+  quantityOrigin?: ("user" | "imported") | null;
+  quantitySource?: string | null;
+  sourceAssetId?: string | null;
+  market?: string | null;
+  quoteCurrency?: Currency | null;
+  listingCountry?: string | null;
+  history?: AssetHistory | null;
   name: string;
   assetClass: AssetClass;
   assetGroup: AssetGroup;
@@ -1635,6 +1794,10 @@ export interface PartialProfile {
   blurb?: I18NText2;
   personaTest?: I18NText | null;
   investorContext?: InvestorContext | null;
+  /**
+   * @maxItems 10000
+   */
+  quantityHistory?: QuantityReceipt[];
   accounts?: PortfolioAccount[];
   activeAccountId?: string | null;
   portfolio?: Portfolio1;
@@ -1689,10 +1852,16 @@ export interface InvestorContext {
   inputOrigins?: {
     [k: string]: "user" | "imported" | "system_default" | "assumption";
   };
+  permittedAssetClasses?: AssetClass[] | null;
+  permittedAssetClassesOrigin?: "user" | "imported" | "system_default" | "assumption";
   /**
    * @maxItems 50
    */
   customThemes?: string[];
+  /**
+   * @maxItems 50
+   */
+  customThemeDefinitions?: CustomThemeDefinition[];
   /**
    * @maxItems 100
    */
@@ -1706,6 +1875,22 @@ export interface InvestorContext {
    * @maxItems 100
    */
   requirements?: InvestorRequirement[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "CustomThemeDefinition".
+ */
+export interface CustomThemeDefinition {
+  key: string;
+  asOf: ISODate;
+  availableAt: ISODate;
+  origin: "user" | "imported";
+  sourceReference: string;
+  /**
+   * @minItems 1
+   * @maxItems 500
+   */
+  classifications: CustomThemeClassification[];
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -1756,12 +1941,29 @@ export interface InvestorRequirement {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "QuantityReceipt".
+ */
+export interface QuantityReceipt {
+  ticker: Ticker;
+  quantity: number;
+  asOf: ISODate;
+  origin: "user" | "imported";
+  source: string;
+  retiredAt: ISODateTime;
+  reason: "portfolio_edit" | "account_transfer";
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "PortfolioAccount".
  */
 export interface PortfolioAccount {
   nativeValuation?: AccountValuation | null;
   valuationHistory?: AccountValuation[];
   privateAssets?: PrivateAsset[];
+  /**
+   * @maxItems 10000
+   */
+  quantityHistory?: QuantityReceipt[];
   accountId: string;
   name: string;
   portfolio: Portfolio;
@@ -1808,6 +2010,10 @@ export interface Portfolio {
 export interface Position {
   ticker: Ticker;
   weightPct: number;
+  quantity?: number | null;
+  quantityAsOf?: ISODate | null;
+  quantityOrigin?: ("user" | "imported") | null;
+  quantitySource?: string | null;
 }
 export interface Portfolio1 {
   isFictional: true;
@@ -1839,6 +2045,8 @@ export interface PolicyRule {
   derivation: RuleDerivation | null;
   countsInVerdict: boolean;
   updatedAt: ISODateTime;
+  conditional?: ConditionalPolicy | null;
+  managedBy?: "permitted_asset_classes" | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2323,6 +2531,8 @@ export interface HoldingWeight {
  * via the `definition` "CreateAccountRequest".
  */
 export interface CreateAccountRequest {
+  nativeValueOrigin?: "user" | "imported" | "assumption";
+  nativeValueSource?: string | null;
   currency?: Currency | null;
   name: string;
   version: number;
@@ -2408,6 +2618,10 @@ export interface PartialProfile1 {
   blurb?: I18NText2;
   personaTest?: I18NText | null;
   investorContext?: InvestorContext | null;
+  /**
+   * @maxItems 10000
+   */
+  quantityHistory?: QuantityReceipt[];
   accounts?: PortfolioAccount[];
   activeAccountId?: string | null;
   portfolio?: Portfolio1;
@@ -2473,6 +2687,14 @@ export interface WindowSpec4 {
   code: WindowCode;
   start?: string;
   end?: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "CustomThemeClassification".
+ */
+export interface CustomThemeClassification {
+  ticker: Ticker;
+  matches: boolean;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2566,6 +2788,15 @@ export interface DeriveRulesResponse {
  */
 export interface DuplicateProfileRequest {
   name?: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EditAccountRequest".
+ */
+export interface EditAccountRequest {
+  name?: string | null;
+  portfolio?: InitialPortfolio | null;
+  version: number;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2978,6 +3209,10 @@ export interface Profile {
   blurb: I18NText;
   personaTest: I18NText | null;
   investorContext?: InvestorContext | null;
+  /**
+   * @maxItems 10000
+   */
+  quantityHistory?: QuantityReceipt[];
   accounts?: PortfolioAccount[];
   activeAccountId?: string | null;
   portfolio: Portfolio;

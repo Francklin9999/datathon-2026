@@ -7,6 +7,7 @@ import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
 import { Loading, ErrorState } from '../../components/common/States';
 import { FactScopeProvider, FactChip } from '../../components/common/FactDrawer';
 import { Risk } from '../portfolio/PortfolioPage';
+import { ActiveFactor, Covariance, Liquidity, NestedFunds } from './ExpandedRisk';
 import { FinancialProviders } from './FinancialProviders';
 import { FocusCandidates } from './FocusCandidates';
 import { ModelInputs } from './ModelInputs';
@@ -28,6 +29,10 @@ function RiskContent({ profile }: { profile: Profile }) {
       <p className="page-sub">{profile.reportingCurrency} · {tr({ en: 'Historical samples, deterministic calculations, inspectable evidence.', fr: 'Échantillons historiques, calculs déterministes, preuves consultables.' })}</p>
     </PageHeader>
     <FocusCandidates profile={profile} />
+    <Covariance key={`cov|${profile.profileId}|${profile.version}|${windowCode}`} profile={profile} />
+    <Liquidity key={`liquidity|${profile.profileId}|${profile.version}`} profile={profile} />
+    <ActiveFactor key={`active-factor|${profile.profileId}|${profile.version}|${windowCode}`} profile={profile} />
+    <NestedFunds />
     <FinancialInputs />
     <FinancialProviders />
     <ModelInputs />

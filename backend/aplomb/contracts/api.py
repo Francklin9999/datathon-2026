@@ -28,6 +28,7 @@ from .models import (
     AssetClass,
     AttentionSignal,
     CheckResult,
+    ConditionalPolicy,
     CountryExposure,
     Currency,
     DatasetPassport,
@@ -248,12 +249,21 @@ class AddCustomRuleRequest(WireModel):
     version: Annotated[int, Field(strict=True, ge=1)]
 
 
+class AddConditionalRuleRequest(WireModel):
+    name: Annotated[String, Field(min_length=1, max_length=120)]
+    conditional: ConditionalPolicy
+    origin: Literal["user", "imported", "system_default", "assumption"] = "user"
+    version: Annotated[int, Field(strict=True, ge=1)]
+
+
 class ArchiveProfileRequest(WireModel):
     archived: Boolean
     version: Annotated[int, Field(strict=True, ge=1)]
 
 
 class CreateAccountRequest(WireModel):
+    native_value_origin: Literal["user", "imported", "assumption"] = "user"
+    native_value_source: Annotated[String, Field(min_length=1, max_length=1000)] | None = None
     currency: Currency | None = None
     name: Annotated[String, Field(min_length=1, max_length=80)]
     version: Annotated[int, Field(strict=True, ge=1)]
@@ -262,6 +272,20 @@ class CreateAccountRequest(WireModel):
 
 class SelectAccountRequest(WireModel):
     version: Annotated[int, Field(strict=True, ge=1)]
+
+
+class EditAccountRequest(WireModel):
+    name: Annotated[String, Field(min_length=1, max_length=80)] | None = None
+    portfolio: InitialPortfolio | None = None
+    version: Annotated[int, Field(strict=True, ge=1)]
+
+    @model_validator(mode="after")
+    def has_edit(self):
+        if self.name is None and self.portfolio is None:
+            raise ValueError("supply a name or portfolio")
+        if self.name is not None and not self.name.strip():
+            raise ValueError("account name must contain a visible character")
+        return self
 
 
 class RefreshAccountRequest(WireModel):

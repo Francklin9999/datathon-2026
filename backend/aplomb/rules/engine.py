@@ -10,6 +10,7 @@ from aplomb.contracts.models import Evidence, PolicyRule, RuleCheck, VerdictCoun
 from aplomb.quant.engine import Measurement, PortfolioView
 from aplomb.quant.facts import FactContext, FactSink, display, fact_key, make_fact
 
+from .conditions import evaluate as evaluate_condition
 from .definitions import SECTOR_FR, rule_def
 from .templates import WHAT, family, render
 
@@ -153,6 +154,9 @@ class RuleEngine:
         base = {"ruleId": rule.rule_id, "code": rule.code, "unit": rule.unit, "comparator": rule.comparator,
                 "threshold": float(rule.threshold) if rule.threshold is not None else None, "evidenceIds": []}
 
+        if rule.conditional is not None:
+            return self._conditional(rule, inputs, base)
+
         if rule.type == "sim":
             fid = self._status_fact(rule, view.variant, "info", [])
             return self._result(base, "info", None, None, None, fid, render(("sim", "info"), {}), None, view, rule)
@@ -192,6 +196,51 @@ class RuleEngine:
             headroom = value - threshold
         return self._result(base, status, value, value_id, threshold_id, fid, detail, None, view, rule,
                             worst=m.worst, headroom=headroom)
+
+    def _conditional(self, rule: PolicyRule, inputs: RuleInputs, base: dict) -> RuleCheck:
+        result = evaluate_condition(rule.conditional, inputs.view)
+        dependencies = []
+        threshold_ids = []
+        for index, entry in enumerate((*result.predicates, *result.requirements)):
+            predicate = entry.predicate
+            fact = make_fact(
+                self.ctx, key=fact_key("threshold.rule", "rule", rule.rule_id,
+                                      f"{inputs.view.variant}:condition:{index}", "na"),
+                kind="input" if predicate.origin in ("user", "imported") else "assumption",
+                metric="threshold.rule",
+                label={"en": f"Condition {index + 1} threshold of {rule.code}",
+                       "fr": f"Seuil de la condition {index + 1} de {rule.code}"},
+                value=predicate.threshold, unit="pct", currency=None,
+                subject={"type": "rule", "id": rule.rule_id, "variant": f"condition:{index}"},
+                method_id="M_USER_INPUT" if predicate.origin in ("user", "imported") else "M_PROFILE_ASSUMPTION",
+                created_by="profile", params={"origin": predicate.origin, "dimension": predicate.dimension,
+                    "operator": predicate.operator, "key": predicate.key or "", "sourceReference": predicate.source_reference},
+                limitations=["LIM_THRESHOLDS_ASSUMED"],
+                checks=[{"code": "rule_definition", "ok": True, "detail": "Typed user condition; no executable code."}])
+            threshold_id = self.ledger.add_fact(fact)
+            threshold_ids.append(threshold_id)
+            dependencies.append(threshold_id)
+            if entry.measurement.fact_id:
+                dependencies.append(entry.measurement.fact_id)
+        requirement = result.requirements[0]
+        guard_text = 'not met' if result.guard is False else 'unknown' if result.guard is None else 'met'
+        required_text = 'unknown' if result.required is None else 'met' if result.required else 'not met'
+        required = requirement.predicate
+        comparison = (f"{required.dimension}{':' + required.key if required.key else ''} {required.operator} {required.threshold:g}%" if len(result.requirements) == 1 else "combined typed comparisons")
+        fr_guard = {True: "remplie", False: "non remplie", None: "inconnue"}[result.guard]
+        fr_required = {True: "respectée", False: "non respectée", None: "inconnue"}[result.required]
+        detail = {"en": f"Condition {guard_text}; required {comparison} is {required_text}. Country/quote-currency and direct-sector weights are proxies where applicable.",
+                  "fr": f"Condition {fr_guard}; comparaison requise {comparison} {fr_required}. Les poids par cotation et secteur direct sont des approximations si applicables."}
+        fid = self._status_fact(rule, inputs.view.variant, result.status, dependencies)
+        reason = None
+        if result.status == "nee":
+            missing = next((entry.measurement for entry in (*result.predicates, *result.requirements)
+                            if entry.matched is None), None)
+            reason = (missing.nee_reason if missing else None) or "no_evidence_loaded"
+        single = len(result.requirements) == 1
+        return self._result(base, result.status, requirement.measurement.value if single else None,
+                            requirement.measurement.fact_id if single else None, threshold_ids[-1] if single else None, fid, detail, reason,
+                            inputs.view, rule, worst=requirement.measurement.worst if single else None)
 
     def _evidence(self, rule: PolicyRule, inputs: RuleInputs, base: dict) -> RuleCheck:
         view = inputs.view
@@ -271,6 +320,9 @@ def quick_statuses(rules: list[PolicyRule], inputs: RuleInputs) -> dict[str, str
     out: dict[str, str] = {}
     for rule in rules:
         if not rule.enabled:
+            continue
+        if rule.conditional is not None:
+            out[rule.rule_id] = evaluate_condition(rule.conditional, view).status
             continue
         if rule.type in ("sim", "flag"):
             out[rule.rule_id] = "info"

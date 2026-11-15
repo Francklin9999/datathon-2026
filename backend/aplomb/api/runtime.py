@@ -124,7 +124,7 @@ class RunPreparerImpl:
         from aplomb.quant import LocalLedger, QuantEngine, Unavailable
 
         engine = QuantEngine(snap.gate(as_of, mode), LocalLedger(), currency=profile.reporting_currency,
-                             subject_id=profile.profile_id, created_at=_stamp(self.clock), window=window)
+                             subject_id=profile.profile_id, created_at=_stamp(self.clock), window=window, custom_themes=profile.investor_context.custom_theme_definitions if profile.investor_context else ())
         try:
             engine.window(window)
         except Unavailable as exc:

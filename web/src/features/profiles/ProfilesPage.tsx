@@ -24,6 +24,7 @@ import {
   EMPTY_PROFILE_FORM, applyDraft, formFromProfile, formPositions, toCreateRequest, validateProfileForm,
   type ProfileForm, type ProfileFormIssue,
 } from '../../lib/profileForm';
+import { CustomThemeInputs } from './CustomThemeInputs';
 import { AllocationInputs } from './AllocationInputs';
 import { InvestorInputs } from './InvestorInputs';
 import { ProfileCompare } from './ProfileCompare';
@@ -43,6 +44,7 @@ const FIELD_LABEL: Record<string, I18NText> = {
   horizonMax: { en: 'Horizon maximum', fr: 'Horizon maximum' },
   objective: { en: 'Objective', fr: 'Objectif' },
   experience: { en: 'Experience', fr: 'Expérience' },
+  investorContext: { en: 'Investor policy inputs', fr: 'Entrées du plan investisseur' },
   reportingCurrency: { en: 'Reporting currency', fr: 'Devise de présentation' },
   capital: { en: 'Fictional capital', fr: 'Capital fictif' },
   positions: { en: 'Holdings', fr: 'Positions' },
@@ -69,7 +71,7 @@ function issueText(issue: ProfileFormIssue, tr: (t: I18NText) => string): string
     invalid: { en: 'not a valid value.', fr: 'valeur non valide.' },
     range: { en: 'must be empty or at least the minimum.', fr: 'doit être vide ou au moins égal au minimum.' },
   } as const;
-  return `${label(issue.field, tr)}: ${tr(messages[issue.code])}`;
+  return `${label(issue.field, tr)}: ${tr(messages[issue.code])}${issue.detail ? ` (${issue.detail})` : ''}`;
 }
 
 export function ProfilesPage() {
@@ -282,6 +284,7 @@ function ProfilesContent() {
             <button type="button" className="btn ghost" disabled={(form.investorContext?.objectives?.length ?? 0) >= 20} onClick={() => set({ investorContext: { ...form.investorContext, objectives: [...(form.investorContext?.objectives ?? []), { name: '', horizonYears: 1, priority: (form.investorContext?.objectives?.length ?? 0) + 1, origin: 'user' }] } })}>{tr({ en: 'Add objective', fr: 'Ajouter un objectif' })}</button>
           </fieldset>
 
+          <CustomThemeInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} tickers={form.positions.map(p => p.ticker.trim().toUpperCase()).filter(Boolean)} />
           <AllocationInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} />
           <InvestorInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} />
 

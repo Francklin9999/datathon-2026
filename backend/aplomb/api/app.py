@@ -133,7 +133,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         if error.status_code == 404:
             mapped = NotFound()
         elif error.status_code in {400, 405, 413, 415, 422}:
-            mapped = ServiceError("validation_error", "Unsupported request")
+            mapped = ServiceError("validation_error", str(error.detail)[:1000] if error.status_code == 422 and isinstance(error.detail, str) else "Unsupported request")
         else:
             mapped = ServiceError("internal", "The request could not be completed")
         return error_response(request, mapped)
@@ -212,6 +212,11 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     app.include_router(financial_inputs_router, dependencies=[Depends(session)])
     from aplomb.datastore.financial_provider_api import make_router as financial_provider_router
     app.include_router(financial_provider_router(store, session))
+    app.state.financial_capture_store = store
+    from aplomb.quant.joint_plan_api import router as joint_plan_router
+    app.include_router(joint_plan_router, dependencies=[Depends(session)])
+    from aplomb.quant.expanded_api import make_router as expanded_quant_router
+    app.include_router(expanded_quant_router(session))
 
     @app.get("/v1/health", response_model=a.HealthResponse)
     def health():
@@ -343,6 +348,24 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         feature("profile_creator")
         provider = require(services.profiles, "Profile service")
         return require(getattr(provider, "add_custom_rule", None), "Custom policy conditions")(sid, profile_id, body)
+
+    @app.post("/v1/profiles/{profile_id}/condition-rules", response_model=m.Profile, response_model_exclude_unset=True)
+    def add_condition_rule(profile_id: ProfileId, body: a.AddConditionalRuleRequest, sid: Session):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "add_conditional_rule", None), "Conditional policies")(sid, profile_id, body)
+
+    @app.delete("/v1/profiles/{profile_id}/condition-rules/{rule_id}", response_model=m.Profile, response_model_exclude_unset=True)
+    def remove_condition_rule(profile_id: ProfileId, rule_id: str, sid: Session, version: Annotated[int, Query(ge=1)]):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "remove_conditional_rule", None), "Conditional policies")(sid, profile_id, rule_id, version)
+
+    @app.put("/v1/profiles/{profile_id}/accounts/{account_id}", response_model=m.Profile, response_model_exclude_unset=True)
+    def edit_account(profile_id: ProfileId, account_id: str, body: a.EditAccountRequest, sid: Session):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "edit_account", None), "Account editing")(sid, profile_id, account_id, body)
 
     @app.get("/v1/profiles/{profile_id}/strategic-candidates")
     def strategic_candidates(profile_id: ProfileId, sid: Session):

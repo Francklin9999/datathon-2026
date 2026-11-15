@@ -152,7 +152,7 @@ def rederive_at(profile: m.Profile, snapshot: Snapshot, as_of: str, created_at: 
         return profile
     gate = snapshot.gate(as_of, "historical")
     engine = QuantEngine(gate, LocalLedger(), currency=profile.reporting_currency, subject_id=profile.profile_id,
-                         created_at=created_at)
+                         created_at=created_at, custom_themes=profile.investor_context.custom_theme_definitions if profile.investor_context else ())
     try:
         derivation = derive_thresholds(profile, engine, created_at=created_at)
     except Unavailable as exc:
