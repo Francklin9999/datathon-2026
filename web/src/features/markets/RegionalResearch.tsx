@@ -53,16 +53,16 @@ function signed(value: string | null | undefined): string {
   return value.startsWith('-') || value === '0' ? grouped(value) : `+${grouped(value)}`;
 }
 
-export function RegionalResearch() {
+export function RegionalResearch({ allowedRegions = ['JP', 'KR'] }: { allowedRegions?: ('JP' | 'KR')[] }) {
   const { tr, sessionId } = useApp();
-  const [region, setRegion] = useState<'JP' | 'KR'>('JP');
-  const [kind, setKind] = useState<Kind>('prices');
-  const [fiscalYear, setFiscalYear] = useState('');
+  const [region, setRegion] = useState<'JP' | 'KR'>(allowedRegions[0] ?? 'KR');
+  const [kind, setKind] = useState<Kind>((allowedRegions[0] ?? 'KR') === 'KR' ? 'filings' : 'prices');
+  const [fiscalYear, setFiscalYear] = useState(String(new Date().getUTCFullYear() - 1));
   const [reportCode, setReportCode] = useState('11011');
   const [statementType, setStatementType] = useState('CFS');
   const [identifier, setIdentifier] = useState('');
-  const [start, setStart] = useState('');
-  const [end, setEnd] = useState('');
+  const [start, setStart] = useState(new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10));
+  const [end, setEnd] = useState(new Date().toISOString().slice(0, 10));
   const [result, setResult] = useState<RegionalResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -119,7 +119,7 @@ export function RegionalResearch() {
     <p className="small">{tr({ en: 'Query Japanese (J-Quants) or Korean (OpenDART) official sources with an exact provider identifier. Tickers and names are never matched. Access depends on configured credentials and usage rights.', fr: 'Interrogez les sources officielles japonaises (J-Quants) ou coréennes (OpenDART) avec un identifiant exact du fournisseur. Aucun rapprochement par ticker ou par nom. L’accès dépend des identifiants et droits configurés.' })}</p>
     <div className="field"><label htmlFor="regional-region">{tr({ en: 'Provider region', fr: 'Région du fournisseur' })}</label>
       <select disabled={loading} id="regional-region" value={region} onChange={e => { const next = e.target.value as 'JP' | 'KR'; setRegion(next); setKind(next === 'JP' ? 'prices' : 'filings'); setIdentifier(''); reset(); }}>
-        <option value="JP">Japan · J-Quants</option><option value="KR">Korea · OpenDART</option>
+        {allowedRegions.includes('JP') && <option value="JP">Japan · J-Quants</option>}{allowedRegions.includes('KR') && <option value="KR">Korea · OpenDART</option>}
       </select></div>
     <div className="field"><label htmlFor="regional-kind">{tr({ en: 'Research type', fr: 'Type de recherche' })}</label>
       <select disabled={loading} id="regional-kind" value={kind} onChange={e => { setKind(e.target.value as Kind); reset(); }}>

@@ -218,6 +218,8 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
 
     from aplomb.research.company_routes import company_router
     app.include_router(company_router(settings, store, session))
+    from aplomb.research.keyed_markets import keyed_market_router
+    app.include_router(keyed_market_router(store, session))
     from aplomb.intelligence.sentiment_routes import sentiment_router
     app.include_router(sentiment_router(store, session))
     from aplomb.intelligence.capability_routes import capability_router

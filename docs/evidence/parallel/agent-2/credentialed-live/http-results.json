@@ -1,0 +1,47 @@
+{
+  "alpha-vantage": {
+    "http_status": 200,
+    "status": "working",
+    "secret_echo_rejected": false
+  },
+  "twelve-data": {
+    "http_status": 200,
+    "status": "available",
+    "rows": 30,
+    "mic": "XNGS",
+    "currency": "USD"
+  },
+  "finnhub": {
+    "http_status": 200,
+    "status": "working",
+    "secret_echo_rejected": false
+  },
+  "tiingo": {
+    "http_status": 200,
+    "status": "working",
+    "secret_echo_rejected": false
+  },
+  "opendart-filings": {
+    "http_status": 200,
+    "status": "working",
+    "secret_echo_rejected": false,
+    "rows": 2823,
+    "pages": 29,
+    "partial": false
+  },
+  "opendart-financials": {
+    "http_status": 200,
+    "status": "working",
+    "secret_echo_rejected": false
+  },
+  "opendart-ownership": {
+    "http_status": 200,
+    "status": "working",
+    "rows": 2661,
+    "partial": false
+  },
+  "alpha-financial-statements": {
+    "status": "provider_plan_or_quota_limit",
+    "live_verified": false
+  }
+}

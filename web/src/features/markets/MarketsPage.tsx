@@ -16,6 +16,7 @@ import { FundHoldings } from './FundHoldings';
 import { ProviderObservations } from './ProviderObservations';
 import { InstrumentMaster } from './InstrumentMaster';
 import { OpenFigi } from './OpenFigi';
+import { KeyedMarkets } from './KeyedMarkets';
 import { RegionalResearch } from './RegionalResearch';
 import { SourceAvailability, readySource, useSourceCapabilities } from './SourceAvailability';
 import { useState } from 'react';
@@ -62,6 +63,7 @@ export function MarketsPage() {
         </tbody></table>
       </div>
     </Card>
+    <KeyedMarkets />
     <SourceAvailability value={sourceCapabilities.data} loading={sourceCapabilities.loading} error={sourceCapabilities.error} reload={sourceCapabilities.reload} />
     {ready('gleif') && <><EntityResearch /><IssuerEvidence /></>}
     {ready('golden_copy') && <GoldenCopy />}
@@ -77,7 +79,8 @@ export function MarketsPage() {
     {ready('registries') && <CompanyRegistry />}
     {ready('master') && <InstrumentMaster showCoinMetrics={ready('coinmetrics')} showWikidata={ready('wikidata')} />}
     {ready('openfigi') && <OpenFigi />}
-    {ready('regional') && <RegionalResearch />}
+    {ready('opendart') && <RegionalResearch allowedRegions={['KR']} />}
+    {ready('regional') && <RegionalResearch allowedRegions={['JP']} />}
     {ticker && <Card title={ticker}>
       {analytics.loading && <Loading />}{analytics.error && <ErrorState error={analytics.error} onRetry={analytics.reload} />}
       {analytics.data && <FactScopeProvider scope={{ kind: 'local', label: { en: 'Deterministic security analytics', fr: 'Analyse déterministe du titre' }, facts: analytics.data.facts }}>

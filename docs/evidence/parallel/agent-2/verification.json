@@ -48,6 +48,26 @@
     "docs/evidence/parallel/agent-2/public-working/cryptomkt-capture-0.json": "a0b6fd652dcad6ae184ad4f7e32d2e442baa8c44e8080135c1284e4129882bc7",
     "docs/evidence/parallel/agent-2/public-working/cryptomkt-capture-1.json": "6071f76fb1c33645fee0fab38c3169a0bda824c7962a5ee154388bc58b66cba3",
     "docs/evidence/parallel/agent-2/public-working/defi-capture-0.json": "b9a06e629c865ab324b6b1c7cf43464df43296d9e4e4590fab260f98673b2fff",
-    "docs/evidence/parallel/agent-2/public-working/http-results.json": "8e85887e7950d7dd359b820581a80ff24e3c8154b0a25c94587a29575cf2e9f8"
+    "docs/evidence/parallel/agent-2/public-working/http-results.json": "8e85887e7950d7dd359b820581a80ff24e3c8154b0a25c94587a29575cf2e9f8",
+    "docs/evidence/parallel/agent-2/credentialed-live/alpha-vantage-result.json": "721609a4949afa5f6e5dfaa38e06d9b09201c6582278acedf708285db7f285e6",
+    "docs/evidence/parallel/agent-2/credentialed-live/finnhub-result.json": "183e6d48eadf9cf8b72312131bc31e6ca3690b59f20c588c7a41db39dd7651f5",
+    "docs/evidence/parallel/agent-2/credentialed-live/tiingo-result.json": "ec72e5284a6a2668a84be2e076f4be48b40aca35b55427835173d4c56320e976",
+    "docs/evidence/parallel/agent-2/credentialed-live/opendart-filings-result.json": "d58dedcf3a70987ba642a2008f1e370480ffbac3779fc0d398600cb4601cd493",
+    "docs/evidence/parallel/agent-2/credentialed-live/opendart-financials-result.json": "7c6ed3950941f21aeed72380e92ea597ea4656b5676748c931f7a2aa286bc58b",
+    "docs/evidence/parallel/agent-2/credentialed-live/http-results.json": "42d4ad0d1888115ffb2935a0185ddff7cd6dff626158ecbcce1b1ffcd10bf775",
+    "docs/evidence/parallel/agent-2/credentialed-live/twelve-data-diagnostic.json": "47ab7f8eaf4a7b11a481ecaabe4dbe4f98d8120ea800a988a55ca303c18d5bd7",
+    "docs/evidence/parallel/agent-2/credentialed-live/twelve-data-result.json": "ae9a5502b53c82089ba482e612931f98918040854fa9fa5d3e2c3bf14a98b2bd",
+    "docs/evidence/parallel/agent-2/credentialed-live/opendart-pagination-diagnostic.json": "4643d916365681fd71c881f725789ce0afe22d9a3ce0f65adb1623e228a43907",
+    "docs/evidence/parallel/agent-2/credentialed-live/alpha-financial-status.json": "917946cef082366d7974cd40af954bc2416d99fe14be1d713341d00ac1c252ff",
+    "docs/evidence/parallel/agent-2/credentialed-live/typecheck.log": "9e2b0518bdd95936d3b3d7030bb7b24584d35298e93c592985d7dfc255c3a9e7",
+    "docs/evidence/parallel/agent-2/credentialed-live/opendart-ownership-status.json": "e2f11d6ab7794840848f8263f3e988dfee8b5dab4652821e257de6b34ecf869e",
+    "docs/evidence/parallel/agent-2/credentialed-live/opendart-ownership-result.json": "655f90ebee33350d31848b97221b77bcc521d045041aed652bcc6e9d8ab2fcb4",
+    "docs/evidence/parallel/agent-2/credentialed-live/focused-tests.log": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869",
+    "docs/evidence/parallel/agent-2/credentialed-live/static-build.log": "512f12833897f2c9ab4975c6a2ea75aa449414902e5f9e7a990eda69d4ca14ce",
+    "docs/evidence/parallel/agent-2/credentialed-live/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "docs/evidence/parallel/agent-2/credentialed-live/esma-complete-result.json": "7677f1478ce5c990da91fd0ff364b6d5144ed9f74ab51283b502c75e374a439b",
+    "docs/evidence/parallel/agent-2/tiingo-live-status.json": "0f6a29d0ecfa1f19d48e720bd2ff2ba989b71288f4cdb60990e9a4b0515a5c46",
+    "docs/evidence/parallel/agent-2/tiingo/msft-source-0.json": "59912649099b9f228bebc60d6ec65af1f8f8d2b07a8b33bb01e5ec513a8a874b",
+    "docs/evidence/parallel/agent-2/tiingo/msft-source-1.json": "ee4e9b35e55b2e03102cc3b22429d3d1de6bfede650ce4e25337086c7ae4413c"
   }
 }

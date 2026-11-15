@@ -43,8 +43,23 @@ def capabilities(settings):
     add('sec', 'SEC live company, filings and funds', 'aside',
         'A descriptive SEC contact and accepted network access are required; recent requests returned HTTP 403.',
         source_ids=('SRC-034', 'SRC-035', 'SRC-036', 'SRC-037', 'SRC-038', 'SRC-039', 'SRC-041', 'SRC-042'))
-    add('regional', 'Japan J-Quants and Korea OpenDART', 'aside',
-        'Account/API keys and confirmed permitted source use are required.', source_ids=('SRC-020',))
+    add('regional', 'Japan J-Quants', 'aside',
+        'A J-Quants account/key is still required; Korea is a separate working OpenDART adapter.', source_ids=('SRC-020',))
+    dart = bool(os.getenv('APLOMB_OPENDART_KEY')) and os.getenv('APLOMB_OPENDART_RIGHTS_CONFIRMED') == 'true'
+    add('opendart', 'Korea OpenDART', 'available' if dart else 'aside',
+        'Verified corporate filings, complete paginated interval, financial statements and ownership; account key required.')
+    tiingo = bool(settings.tiingo_token) or bool(os.getenv('APLOMB_TIINGO_TOKEN'))
+    add('tiingo', 'Tiingo US equity daily history', 'available' if tiingo else 'aside',
+        'Actual metadata/history verified with the supplied token. Internal use only; no public redistribution entitlement asserted.', source_ids=('SRC-008',))
+    for provider, label, key, ids in (
+        ('alpha_vantage', 'Alpha Vantage quote', 'APLOMB_ALPHA_VANTAGE_KEY', ('SRC-001','MASTER-002')),
+        ('twelve_data', 'Twelve Data exact-MIC daily history', 'APLOMB_TWELVEDATA_KEY', ('SRC-003','MASTER-003')),
+        ('finnhub', 'Finnhub company profile', 'APLOMB_FINNHUB_KEY', ('SRC-002',)),
+    ):
+        active = bool(os.getenv(key)) and os.getenv(key.removesuffix('_KEY')+'_RIGHTS_CONFIRMED') == 'true'
+        add(provider, label, 'available' if active else 'aside',
+            'Live workflow validated; requires the configured account key and its permitted data use.', source_ids=ids)
+
     coin = os.getenv('APLOMB_COINMETRICS_NONCOMMERCIAL') == '1'
     add('coinmetrics', 'Coin Metrics Community', 'available' if coin else 'aside',
         'Local noncommercial research has a demonstrated live API path with attribution.' if coin else

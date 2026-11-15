@@ -107,34 +107,53 @@ def eba_market_risk(store, sid, lei, period='202506', *, file_path=EBA_CSV):
     return saved['result']
 
 
-def esma_url(lei):
+def esma_url(lei, start=0):
     lei_value(lei)
     # Only a validated ISO 17442 LEI is interpolated; user-supplied Solr is not accepted.
     return ESMA_BASE + '?' + urlencode({'q': f'ae_lei:"{lei}"', 'rows': 20,
-                                       'fl': ','.join(ESMA_FIELDS), 'wt': 'json'})
+                                       'fl': ','.join(ESMA_FIELDS), 'wt': 'json', 'start': start, 'sort': 'id asc'})
 
 
 def esma_entities(store, sid, lei, *, get=fetch, now=None):
     lei_value(lei)
     url = esma_url(lei)
     try:
-        raw = get(url)
-        body = strict_load(raw)
-        response = body['response']
-        count, documents = response['numFound'], response['docs']
-        if type(count) is not int or count < 0 or not isinstance(documents, list) or len(documents) > 20:
-            raise EURegisterError('invalid_source_response')
-        rows = []
-        for row in documents:
-            if not isinstance(row, dict) or row.get('ae_lei') != lei or not isinstance(row.get('id'), str):
-                raise EURegisterError('source_identity_mismatch')
-            rows.append({key: row[key] for key in ESMA_FIELDS if key in row})
+        rows, originals, seen = [], [], set()
+        count = None
+        for offset in range(0, 2000, 20):
+            page_url = esma_url(lei, offset)
+            raw = get(page_url)
+            body = strict_load(raw)
+            response = body['response']
+            page_count, documents = response['numFound'], response['docs']
+            if (type(page_count) is not int or not 0 <= page_count <= 2000
+                    or not isinstance(documents, list) or len(documents) > 20):
+                raise EURegisterError('source_result_limit_or_invalid_schema')
+            if count is None:
+                count = page_count
+            elif page_count != count:
+                raise EURegisterError('source_pagination_changed')
+            originals.append({'url': page_url, 'sha256': hashlib.sha256(raw).hexdigest(), 'raw': raw.decode('utf-8')})
+            for row in documents:
+                if (not isinstance(row, dict) or row.get('ae_lei') != lei
+                        or not isinstance(row.get('id'), str) or row['id'] in seen):
+                    raise EURegisterError('source_identity_or_pagination_mismatch')
+                seen.add(row['id'])
+                rows.append({key: row[key] for key in ESMA_FIELDS if key in row})
+            if len(rows) >= count:
+                break
+            if not documents:
+                raise EURegisterError('source_incomplete_pagination')
+        if len(rows) != count:
+            raise EURegisterError('source_incomplete_pagination')
+        raw = originals[0]['raw'].encode('utf-8')
         digest = hashlib.sha256(raw).hexdigest()
         captured = now or datetime.now(timezone.utc)
         if captured.tzinfo is None:
             raise EURegisterError('invalid_capture_time')
         result = {'status': 'available' if rows else 'not_found', 'lei': lei, 'rows': rows,
-                  'total_reported': count, 'partial': count > len(rows), 'provider': 'ESMA Registers',
+                  'total_reported': count, 'partial': False, 'pages_inspected': len(originals),
+                  'page_sources': [{k:v for k,v in page.items() if k != 'raw'} for page in originals], 'provider': 'ESMA Registers',
                   'source_url': url, 'source_sha256': digest, 'dataset_version': 'esma-register-' + digest[:16],
                   'available_at': captured.isoformat(), 'retrieved_at': captured.isoformat(), 'published_at': None,
                   'source_licence': ESMA_TERMS, 'documentation': ESMA_DOCS,
@@ -143,7 +162,7 @@ def esma_entities(store, sid, lei, *, get=fetch, now=None):
                                   'Current source capture does not establish historical availability or issuer relationships.',
                                   'Reporting ESMA data does not imply ESMA endorsement.']}
         saved = _persist(store, sid, 'ESMA', url + digest,
-                         {'source_sha256': digest, 'raw': raw.decode('utf-8'), 'result': result})
+                         {'source_sha256': digest, 'raw': raw.decode('utf-8'), 'pages': originals, 'result': result})
         return saved['result']
     except (DefiSourceError, KeyError, TypeError, UnicodeDecodeError) as exc:
         raise EURegisterError('source_unavailable_or_invalid') from exc

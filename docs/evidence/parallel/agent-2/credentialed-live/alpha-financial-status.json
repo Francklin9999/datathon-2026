@@ -1,0 +1,14 @@
+{
+  "overview": {
+    "reason": "provider_plan_or_quota_limit"
+  },
+  "income": {
+    "reason": "provider_plan_or_quota_limit"
+  },
+  "balance": {
+    "reason": "provider_plan_or_quota_limit"
+  },
+  "cashflow": {
+    "reason": "provider_plan_or_quota_limit"
+  }
+}

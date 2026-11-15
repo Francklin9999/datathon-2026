@@ -1,0 +1,267 @@
+{
+  "status": "available",
+  "provider": "twelve-data",
+  "observation": {
+    "provider_symbol": "MSFT",
+    "mic": "XNGS",
+    "currency": "USD",
+    "bars": [
+      {
+        "date": "2026-10-05",
+        "open": "521.62000",
+        "high": "532.34998",
+        "low": "521.46997",
+        "close": "525.17999",
+        "volume": "26604800"
+      },
+      {
+        "date": "2026-10-06",
+        "open": "531.67999",
+        "high": "535.69000",
+        "low": "528.78003",
+        "close": "529.29999",
+        "volume": "21107500"
+      },
+      {
+        "date": "2026-10-07",
+        "open": "530.72998",
+        "high": "531.72998",
+        "low": "524.69000",
+        "close": "529.76001",
+        "volume": "16790200"
+      },
+      {
+        "date": "2026-10-08",
+        "open": "529.81000",
+        "high": "533.51001",
+        "low": "518.78998",
+        "close": "522.60999",
+        "volume": "20228700"
+      },
+      {
+        "date": "2026-10-09",
+        "open": "528.23999",
+        "high": "537.21997",
+        "low": "526.23999",
+        "close": "535.070007",
+        "volume": "18500600"
+      },
+      {
+        "date": "2026-10-12",
+        "open": "537.53003",
+        "high": "542.73999",
+        "low": "535.70001",
+        "close": "541.15002",
+        "volume": "18314900"
+      },
+      {
+        "date": "2026-10-13",
+        "open": "544.64001",
+        "high": "551.15002",
+        "low": "543.059998",
+        "close": "543.45001",
+        "volume": "23852000"
+      },
+      {
+        "date": "2026-10-14",
+        "open": "545.27002",
+        "high": "545.75",
+        "low": "532.53998",
+        "close": "533.69000",
+        "volume": "22324300"
+      },
+      {
+        "date": "2026-10-15",
+        "open": "533.32001",
+        "high": "541.13000",
+        "low": "531.21997",
+        "close": "539.44000",
+        "volume": "24151200"
+      },
+      {
+        "date": "2026-10-16",
+        "open": "541.31000",
+        "high": "543.82001",
+        "low": "524.42999",
+        "close": "529.049988",
+        "volume": "24845700"
+      },
+      {
+        "date": "2026-10-19",
+        "open": "528.70001",
+        "high": "535.57001",
+        "low": "528.059998",
+        "close": "533.52002",
+        "volume": "17994900"
+      },
+      {
+        "date": "2026-10-20",
+        "open": "533.90997",
+        "high": "534.21002",
+        "low": "525.84003",
+        "close": "531.87000",
+        "volume": "14576000"
+      },
+      {
+        "date": "2026-10-21",
+        "open": "529.44000",
+        "high": "533.28003",
+        "low": "525.020020",
+        "close": "532.95001",
+        "volume": "13940100"
+      },
+      {
+        "date": "2026-10-22",
+        "open": "533.14001",
+        "high": "533.59998",
+        "low": "520.29999",
+        "close": "521.080017",
+        "volume": "21266600"
+      },
+      {
+        "date": "2026-10-23",
+        "open": "517.75",
+        "high": "525.77002",
+        "low": "515.70001",
+        "close": "524.51001",
+        "volume": "13671500"
+      },
+      {
+        "date": "2026-10-26",
+        "open": "527.40002",
+        "high": "533.25",
+        "low": "521.69000",
+        "close": "532.59998",
+        "volume": "19021000"
+      },
+      {
+        "date": "2026-10-27",
+        "open": "532.34998",
+        "high": "534.70001",
+        "low": "528.33002",
+        "close": "531.33002",
+        "volume": "19532300"
+      },
+      {
+        "date": "2026-10-28",
+        "open": "531.82001",
+        "high": "535",
+        "low": "526.14001",
+        "close": "531.010010",
+        "volume": "28594200"
+      },
+      {
+        "date": "2026-10-29",
+        "open": "540.21997",
+        "high": "541.28998",
+        "low": "519.56000",
+        "close": "530.14001",
+        "volume": "39333200"
+      },
+      {
+        "date": "2026-10-30",
+        "open": "525.27002",
+        "high": "526",
+        "low": "514.34998",
+        "close": "521.90997",
+        "volume": "35652000"
+      },
+      {
+        "date": "2026-11-02",
+        "open": "524.020020",
+        "high": "529.63000",
+        "low": "504.95999",
+        "close": "507.12000",
+        "volume": "34743300"
+      },
+      {
+        "date": "2026-11-03",
+        "open": "509.010010",
+        "high": "523.44000",
+        "low": "507.82001",
+        "close": "520.98999",
+        "volume": "20010200"
+      },
+      {
+        "date": "2026-11-04",
+        "open": "543.70001",
+        "high": "559.15002",
+        "low": "542.29999",
+        "close": "555.79999",
+        "volume": "50807800"
+      },
+      {
+        "date": "2026-11-05",
+        "open": "554.94000",
+        "high": "557.62000",
+        "low": "532.67999",
+        "close": "535.92999",
+        "volume": "42507900"
+      },
+      {
+        "date": "2026-11-06",
+        "open": "525.69000",
+        "high": "538.33002",
+        "low": "524.46997",
+        "close": "530.60999",
+        "volume": "26956400"
+      },
+      {
+        "date": "2026-11-09",
+        "open": "544.48999",
+        "high": "548.28003",
+        "low": "538.70001",
+        "close": "545.17999",
+        "volume": "25337400"
+      },
+      {
+        "date": "2026-11-10",
+        "open": "542.97998",
+        "high": "544.19000",
+        "low": "526.37000",
+        "close": "533.15997",
+        "volume": "26940900"
+      },
+      {
+        "date": "2026-11-11",
+        "open": "534.23999",
+        "high": "534.76001",
+        "low": "518.45001",
+        "close": "521.13000",
+        "volume": "29076800"
+      },
+      {
+        "date": "2026-11-12",
+        "open": "521.099976",
+        "high": "529.65997",
+        "low": "520",
+        "close": "523",
+        "volume": "18644000"
+      },
+      {
+        "date": "2026-11-13",
+        "open": "519.75",
+        "high": "526.41998",
+        "low": "513.82001",
+        "close": "523.88000",
+        "volume": "26155900"
+      }
+    ],
+    "exchange_label": "NASDAQ",
+    "timezone": "America/New_York",
+    "adjustment": "provider default; no independent total-return adjustment asserted"
+  },
+  "source_url": "https://api.twelvedata.com/time_series?symbol=MSFT&mic_code=XNGS&interval=1day&outputsize=30",
+  "source_sha256": "dc62375e76b00a7fee6c0c8fb154bc41d9091a81a4d8bbbb145c63dc47a296ec",
+  "dataset_version": "market-twelve-data-dc62375e76b00a7f",
+  "retrieved_at": "2026-11-15T17:41:20.573926+00:00",
+  "available_at": "2026-11-15T17:41:20.573926+00:00",
+  "published_at": null,
+  "licence": "Configured account terms; rights confirmation required, no blanket redistribution licence",
+  "documentation_url": "https://twelvedata.com/docs/market-data/time-series",
+  "limitations": [
+    "Provider symbols/labels are not globally unique issuer identities.",
+    "Original publication and revision availability before capture is unknown.",
+    "Entitlement/latency depend on the actual account; no paid endpoint fallback."
+  ]
+}

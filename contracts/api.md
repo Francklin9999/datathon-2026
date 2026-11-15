@@ -673,3 +673,13 @@ These additive research routes require the session header. Source captures use t
 | POST `/intelligence/master/adapters/gleif-pair` | intelligence → master → adapters → gleif-pair |
 | POST `/intelligence/master/adapters/wikidata` | intelligence → master → adapters → wikidata |
 | GET `/intelligence/source-capabilities` | Source availability, signup/permission prerequisites and removed paid catalogue |
+
+### Credentialed research sources
+
+All routes require `X-Aplomb-Session`, use server-side account credentials, and retain session-owned source captures. Provider symbols alone never prove a global issuer identity. Original publication before retrieval remains unknown.
+
+- `GET /v1/research/market-connections`: credential presence, operation and official signup links; no secret values.
+- `GET /v1/research/market-provider/{provider}?symbol=...&mic=...&kind=...`: `alpha-vantage` supports `quote`, `overview`, `income`, `balance`, `cashflow`; `twelve-data` requires an exact MIC for thirty daily bars; `finnhub` returns a company profile. Other kinds are rejected for these two providers. Quota/entitlement errors are explicit and never replaced with fixtures.
+- `GET /v1/research/tiingo/{symbol}?start=YYYY-MM-DD&end=YYYY-MM-DD`: up to one year of supported US non-fund equity metadata/history. Internal account use only.
+
+The Markets connected-source form exposes these controls only for configured accounts. OpenDART regional filings now traverse up to fifty pages/5,000 records and fail explicitly if the interval cannot be completed, rather than return a partial first page. ESMA likewise completes exact-LEI queries up to 2,000 rows with stable counts and duplicate rejection.

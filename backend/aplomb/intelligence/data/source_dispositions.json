@@ -7,30 +7,30 @@
       "provider": "Alpha Vantage",
       "source_url": "https://www.alphavantage.co/documentation/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "Alpha Vantage provider quote; current capture and Markets consumption verified. Overview and financial statement operations implemented; current free quota refused these extra calls.",
+      "implementation_test_evidence": "backend/aplomb/research/keyed_markets.py; web/src/features/markets/KeyedMarkets.tsx; docs/evidence/parallel/agent-2/credentialed-live/http-results.json",
+      "remaining_work_or_external_blocker": "Supplied local account verified. Account quotas/terms apply; no public redistribution rights or original historical publication time asserted. Alpha financial statements currently quota-limited."
     },
     {
       "id": "SRC-002",
       "provider": "Finnhub",
       "source_url": "https://finnhub.io/docs/api",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "Finnhub company profile with exact returned provider ticker, capture/hash and Markets consumption.",
+      "implementation_test_evidence": "backend/aplomb/research/keyed_markets.py; web/src/features/markets/KeyedMarkets.tsx; docs/evidence/parallel/agent-2/credentialed-live/http-results.json",
+      "remaining_work_or_external_blocker": "Supplied local account verified for the stated operation. Coverage and entitlement depend on account; no universal listing identity or redistribution rights asserted."
     },
     {
       "id": "SRC-003",
       "provider": "Twelve Data",
       "source_url": "https://twelvedata.com/docs",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "Twelve Data thirty daily bars, exact returned symbol/MIC XNGS and currency USD, captured and displayed in Markets.",
+      "implementation_test_evidence": "backend/aplomb/research/keyed_markets.py; web/src/features/markets/KeyedMarkets.tsx; docs/evidence/parallel/agent-2/credentialed-live/http-results.json",
+      "remaining_work_or_external_blocker": "Supplied local account verified for the stated operation. Coverage and entitlement depend on account; no universal listing identity or redistribution rights asserted."
     },
     {
       "id": "SRC-004",
@@ -77,10 +77,10 @@
       "provider": "Tiingo",
       "source_url": "https://www.tiingo.com/documentation/general/overview",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "Tiingo EOD metadata and adjusted prices for U.S. listed non-fund equities; local immutable on-demand snapshot and analytics.",
-      "implementation_test_evidence": "backend/aplomb/datastore/providers.py:TiingoProvider; backend/aplomb/datastore/service.py:OnDemandPublisher; backend/tests/unit/datastore/test_providers.py",
-      "remaining_work_or_external_blocker": "APLOMB_TIINGO_TOKEN and writable local storage required; existing documented plan restricts internal use, owner must confirm rights for intended deployment; live credential check pending. International listings and funds unsupported."
+      "status": "working",
+      "feature_and_capture": "Tiingo real US non-fund equity metadata and daily/adjusted prices; session capture, source hashes and Markets consumption.",
+      "implementation_test_evidence": "backend/aplomb/research/keyed_markets.py; web/src/features/markets/KeyedMarkets.tsx; docs/evidence/parallel/agent-2/credentialed-live/http-results.json",
+      "remaining_work_or_external_blocker": "Supplied local account verified for the stated operation. Coverage and entitlement depend on account; no universal listing identity or redistribution rights asserted."
     },
     {
       "id": "SRC-009",
@@ -747,20 +747,20 @@
       "provider": "Alpha Vantage",
       "source_url": "https://www.alphavantage.co/documentation/",
       "catalog_access": "master catalogue",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Engineering work remains; provider access/terms not verified."
+      "status": "working",
+      "feature_and_capture": "Alpha Vantage provider quote; current capture and Markets consumption verified. Financial statement controls report provider quota explicitly.",
+      "implementation_test_evidence": "backend/aplomb/research/keyed_markets.py; web/src/features/markets/KeyedMarkets.tsx; docs/evidence/parallel/agent-2/credentialed-live/http-results.json",
+      "remaining_work_or_external_blocker": "Supplied local account verified. Account quotas/terms apply; no public redistribution rights or original historical publication time asserted. Alpha financial statements currently quota-limited."
     },
     {
       "id": "MASTER-003",
       "provider": "Twelve Data",
       "source_url": "https://twelvedata.com/pricing",
       "catalog_access": "master catalogue",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Engineering work remains; provider access/terms not verified."
+      "status": "working",
+      "feature_and_capture": "Twelve Data exact-MIC daily bars with current availability and immutable session capture.",
+      "implementation_test_evidence": "backend/aplomb/research/keyed_markets.py; web/src/features/markets/KeyedMarkets.tsx; docs/evidence/parallel/agent-2/credentialed-live/http-results.json",
+      "remaining_work_or_external_blocker": "Supplied local account verified for the stated operation. Coverage and entitlement depend on account; no universal listing identity or redistribution rights asserted."
     },
     {
       "id": "MASTER-004",

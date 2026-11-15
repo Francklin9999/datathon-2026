@@ -92,11 +92,11 @@ def _fetch(url: str, headers: dict) -> bytes:
         with build_opener(_NoRedirect).open(req, timeout=8) as response:
             if response.status != 200:
                 raise RegionalError('provider_unavailable')
-            payload = response.read(1_000_001)
+            payload = response.read(8_000_001)
     except (HTTPError, URLError, OSError, socket.timeout):
         # Exceptions can include credential-bearing URLs. Never propagate their text.
         raise RegionalError('provider_unavailable') from None
-    if len(payload) > 1_000_000:
+    if len(payload) > 8_000_000:
         raise RegionalError('provider_response_too_large')
     return payload
 
@@ -208,7 +208,7 @@ def _dart_rows(data):
     if data.get('status') not in ('000', '013'):
         raise RegionalError('provider_unavailable')
     rows = data.get('list', [])
-    if (not isinstance(rows, list) or len(rows) > 10000 or (data['status'] == '013' and rows)
+    if (not isinstance(rows, list) or len(rows) > 50000 or (data['status'] == '013' and rows)
             or not all(isinstance(row, dict) for row in rows)):
         raise RegionalError('provider_invalid_response')
     return rows
@@ -357,7 +357,7 @@ class RegionalResearch:
         raw = self.fetch(JQ_URL + '?' + query, {'x-api-key': key})
         data = _json(raw)
         rows = data.get('data')
-        if not isinstance(rows, list) or len(rows) > 10000:
+        if not isinstance(rows, list) or len(rows) > 50000:
             raise RegionalError('provider_invalid_response')
         seen = set()
         for row in rows:
@@ -470,42 +470,60 @@ class RegionalResearch:
         company = _json(company_raw)
         if company.get('status') != '000' or (company.get('corp_code') is not None and company['corp_code'] != identifier):
             raise RegionalError('provider_identifier_or_status_mismatch')
-        params.update(bgn_de=start.replace('-', ''), end_de=end.replace('-', ''), page_count='20', page_no='1')
-        raw = self.fetch(DART_LIST + '?' + urlencode(params), {})
-        data = _json(raw)
-        if data.get('status') not in ('000', '013'):
-            raise RegionalError('provider_unavailable')
-        rows = data.get('list', [])
-        if not isinstance(rows, list) or len(rows) > 20:
-            raise RegionalError('provider_invalid_response')
+        params.update(bgn_de=start.replace('-', ''), end_de=end.replace('-', ''), page_count='100')
         base['company'] = {'name': str(company.get('corp_name', ''))[:300],
                            'englishName': str(company.get('corp_name_eng', ''))[:300],
                            'stockCode': company.get('stock_code') or None}
-        seen = set()
-        for row in rows:
-            if not isinstance(row, dict) or row.get('corp_code') != identifier:
-                raise RegionalError('provider_identifier_mismatch')
-            receipt, day = row.get('rcept_no', ''), row.get('rcept_dt', '')
-            if not re.fullmatch(r'[0-9]{14}', receipt) or not re.fullmatch(r'[0-9]{8}', day):
+        payloads = {'company': company_raw}
+        page_hashes, seen = {}, set()
+        total_pages, total_reported = None, None
+        for page in range(1, 51):
+            raw = self.fetch(DART_LIST + '?' + urlencode({**params, 'page_no': str(page)}), {})
+            data = _json(raw)
+            if data.get('status') not in ('000', '013'):
+                raise RegionalError('provider_rejected_filings_request')
+            rows = data.get('list', [])
+            if not isinstance(rows, list) or len(rows) > 100:
                 raise RegionalError('provider_invalid_response')
-            filed = _day(day[:4] + '-' + day[4:6] + '-' + day[6:])
-            if not start <= filed <= end or receipt in seen:
-                raise RegionalError('provider_invalid_dates')
-            seen.add(receipt)
-            base['filings'].append({'title': str(row.get('report_nm', ''))[:500], 'date': filed,
-                                    'receiptNumber': receipt, 'url': DART_VIEWER + receipt})
-        base['filings'].sort(key=lambda item: item['date'], reverse=True)
-        try:
-            total_pages = int(data.get('total_page', 1))
-        except (TypeError, ValueError):
-            raise RegionalError('provider_invalid_response') from None
-        result = {**base, 'status': 'ok', 'sourceSha256': hashlib.sha256(raw).hexdigest(),
-                  'companySourceSha256': hashlib.sha256(company_raw).hexdigest(), 'partial': total_pages > 1,
+            try:
+                pages = int(data.get('total_page', 0 if data.get('status') == '013' else 1))
+                total = int(data.get('total_count', len(rows)))
+            except (TypeError, ValueError):
+                raise RegionalError('provider_invalid_pagination') from None
+            if pages < 0 or pages > 50 or total < 0 or total > 5000:
+                raise RegionalError('provider_result_limit_requires_shorter_window')
+            if total_pages is None:
+                total_pages, total_reported = pages, total
+            elif (pages, total) != (total_pages, total_reported):
+                raise RegionalError('provider_pagination_changed')
+            name = 'filings' if page == 1 else f'filings_page_{page}'
+            payloads[name] = raw
+            page_hashes[str(page)] = hashlib.sha256(raw).hexdigest()
+            for row in rows:
+                if not isinstance(row, dict) or row.get('corp_code') != identifier:
+                    raise RegionalError('provider_identifier_mismatch')
+                receipt, day = row.get('rcept_no', ''), row.get('rcept_dt', '')
+                if not re.fullmatch(r'[0-9]{14}', receipt) or not re.fullmatch(r'[0-9]{8}', day):
+                    raise RegionalError('provider_invalid_response')
+                filed = _day(day[:4] + '-' + day[4:6] + '-' + day[6:])
+                if not start <= filed <= end or receipt in seen:
+                    raise RegionalError('provider_invalid_dates')
+                seen.add(receipt)
+                base['filings'].append({'title': str(row.get('report_nm', ''))[:500], 'date': filed,
+                                        'receiptNumber': receipt, 'url': DART_VIEWER + receipt})
+            if page >= total_pages:
+                break
+        if len(base['filings']) != total_reported:
+            raise RegionalError('provider_incomplete_filings_result')
+        base['filings'].sort(key=lambda item: (item['date'], item['receiptNumber']), reverse=True)
+        result = {**base, 'status': 'ok', 'sourceSha256': page_hashes['1'],
+                  'companySourceSha256': hashlib.sha256(company_raw).hexdigest(), 'partial': False,
+                  'totalReported': total_reported, 'pagesInspected': len(page_hashes), 'pageSourceSha256': page_hashes,
                   'limitations': ['Company lookup is scoped by the requested corporate code; the response does not guarantee it echoes that code.',
                                   'Corporate code identifies a filer; stock code is provider-reported, not a global security mapping.',
                                   'Filing date is not a proven exact publication or availability timestamp.',
-                                  'First page only; source may revise records.']}
-        return self._capture(result, {'company': company_raw, 'filings': raw}, key)
+                                  'All pages in the requested interval are captured; source revisions remain possible.']}
+        return self._capture(result, payloads, key)
 
     def _korea_financials(self, identifier, start, end, stamp, year, report, statement):
         base = self._frame('KR', 'financials', identifier, start, end, stamp, DART_FINANCIALS)

@@ -52,14 +52,17 @@ def test_korean_corporate_code_queries_filings_and_secrets_stay_private():
         if urlparse(url).path.endswith('company.json'):
             # Official company endpoint need not echo corp_code.
             return encode({'status': '000', 'corp_name': 'Example', 'corp_name_eng': 'Example Ltd', 'stock_code': '000001'})
-        return encode({'status': '000', 'total_page': 2, 'list': [{'corp_code': '00126380', 'rcept_no': '20261003000001',
+        page = int(q['page_no'][0])
+        receipt = '2026100300000' + str(page)
+        return encode({'status': '000', 'total_page': 2, 'total_count': 2, 'list': [{'corp_code': '00126380', 'rcept_no': receipt,
             'rcept_dt': '20261003', 'report_nm': 'Annual report'}]})
     service = RegionalResearch(fetch=fetch, env={'APLOMB_OPENDART_KEY': 'private',
         'APLOMB_OPENDART_RIGHTS_CONFIRMED': 'true'}, clock=NOW)
     result = service.query('KR', '00126380', '2026-10-01', '2026-11-01')
-    assert result['company']['stockCode'] == '000001' and result['partial']
+    assert result['company']['stockCode'] == '000001' and not result['partial']
+    assert result['pagesInspected'] == 2 and len(result['filings']) == 2
     assert result['filings'][0]['date'] == '2026-10-03'
-    assert result['filings'][0]['url'].endswith('20261003000001')
+    assert {row['receiptNumber'] for row in result['filings']} == {'20261003000001', '20261003000002'}
     assert 'private' not in json.dumps(result) and 'crtfc_key' not in json.dumps(result)
 
 

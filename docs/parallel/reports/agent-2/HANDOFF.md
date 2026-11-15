@@ -4,7 +4,7 @@ Branch: `codex/agent-2-research-audit`. Base: `2604b9689e9f992b4e9e46c4a06ea89ec
 
 ## Result
 
-Preserved and continued Claude's uncommitted implementation, completed usable public source workflows, and replaced partial/offline active controls with demonstrated source capabilities or precise aside/paid dispositions. The catalogue has 97 assigned rows (duplicates across two catalogues): 16 working rows represent 12 supported source workflows, 77 are aside for signup/key/contact/permission/access and four paid rows are removed from active coverage. See ADAPTER-STATUS.md, SOURCES.csv and packaged source_dispositions.json. Working is a demonstrated bounded API path, not complete coverage of every product a provider offers.
+Preserved and continued Claude's uncommitted implementation, completed usable public source workflows, and replaced partial/offline active controls with demonstrated source capabilities or precise aside/paid dispositions. The catalogue has 97 assigned rows (duplicates across two catalogues): 22 working catalogue rows plus the additional OpenDART workflow represent 17 supported source workflows, 71 are aside for signup/key/contact/permission/access and four paid rows are removed from active coverage. See ADAPTER-STATUS.md, SOURCES.csv and packaged source_dispositions.json. Working is a demonstrated bounded API path, not complete coverage of every product a provider offers.
 
 Working workflows: GLEIF exact/Level-2 relationships, GLEIF Golden Copy intraday deltas, OpenFIGI ISIN mappings, Wikidata candidate assertions, Canada/Ireland corporate registries, ESMA authorizations, EBA 2025 market-risk observations, Alternative.me sentiment, Coin Metrics daily observations, Binance Vision daily history and DEX Screener exact-pool observations. All preserve identity/units/dates/source evidence and session-owned captures. Loopback-only noncommercial research defaults enable the three explicitly permitted research sources; explicit opt-outs prevail, no production defaults changed.
 
@@ -213,3 +213,5 @@ See INTERFACES.md for exact shared bridges: API app/domain/runtime, contract req
 - `web/src/features/timemachine/TimeMachinePage.tsx`
 - `web/src/lib/brief.ts`
 - `web/src/lib/labels.ts`
+
+Credential continuation: five supplied accounts were saved only in ignored local configuration and verified with real requests. Six previously aside catalogue rows are now working (22 working, 71 aside, 4 removed of 97); OpenDART is an additional regional workflow outside those catalogue rows. See [CREDENTIALS.md](CREDENTIALS.md) for operations, free quota limitations and signup links. Financial statement period ends are never treated as original publication times.
