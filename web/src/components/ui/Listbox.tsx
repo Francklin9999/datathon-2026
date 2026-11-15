@@ -35,7 +35,9 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
   const selectedIndex = options.findIndex(o => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
 
-  const openList = () => { setActive(Math.max(0, selectedIndex)); setOpen(true); };
+  // Opened with the keyboard, the chosen option is active; opened with the pointer, nothing is until
+  // the pointer is over an option (-1 = no active option), so only one row is ever highlighted.
+  const openList = (withKeyboard: boolean) => { setActive(withKeyboard ? Math.max(0, selectedIndex) : -1); setOpen(true); };
   const close = (refocus: boolean) => { setOpen(false); if (refocus) button.current?.focus(); };
   const choose = (index: number) => {
     const option = options[index];
@@ -59,7 +61,7 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
   }, [open, active]);
 
   const onButtonKey = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) { event.preventDefault(); openList(); }
+    if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) { event.preventDefault(); openList(true); }
   };
 
   const onListKey = (event: KeyboardEvent<HTMLUListElement>) => {
@@ -81,13 +83,14 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
     <div className={`listbox${className ? ` ${className}` : ''}`} ref={root}>
       <button ref={button} type="button" className={triggerClassName} aria-haspopup="listbox" aria-expanded={open}
         {...(open ? { 'aria-controls': `${id}-list` } : {})} aria-label={`${label}: ${selected?.label ?? value}`}
-        onClick={() => (open ? close(false) : openList())} onKeyDown={onButtonKey}>
+        onClick={() => (open ? close(false) : openList(false))} onKeyDown={onButtonKey}>
         {renderTrigger(selected, open)}
       </button>
       {open && (() => {
         const items = (
           <ul ref={list} id={`${id}-list`} role="listbox" aria-label={label} tabIndex={-1} className={footer ? 'popover-list' : 'popover'}
-            aria-activedescendant={`${id}-opt-${active}`} onKeyDown={onListKey}>
+            {...(active >= 0 ? { 'aria-activedescendant': `${id}-opt-${active}` } : {})} onKeyDown={onListKey}
+            onPointerLeave={() => setActive(-1)}>
             {options.map((option, i) => (
               <li key={option.value} id={`${id}-opt-${i}`} role="option" aria-selected={i === selectedIndex} data-index={i}
                 data-active={i === active ? 'true' : undefined} className="option"
