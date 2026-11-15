@@ -122,6 +122,7 @@ Every non-2xx response has the body `ApiError`:
 | 6.5 | GET `/world/countries/{iso3}` | P1 | Country panel |
 | 6.6 | GET `/world/facilities` | P1 | Emissions facilities |
 | 6.7 | GET `/world/hazards` | P1 | Earthquakes and wildfires |
+| 6.8 | GET `/world/observations` | P1 | Source-backed world observations; `mode`, `bbox`, `country`, `from`, `to`, `asOf`, `q`, `limit`, `cursor` |
 | 7.1 | GET `/replay/presets` | P1 | Time Machine dates on offer |
 | 8.1 | GET `/datasets` | P0 | Data room |
 | 8.2 | GET `/datasets/{datasetId}` | P0 | One passport |
