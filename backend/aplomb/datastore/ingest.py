@@ -35,6 +35,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterable
+from urllib.parse import urlparse
 
 from . import availability as av
 from .constants import (
@@ -598,6 +599,8 @@ def build_snapshot(bundle: SourceBundle) -> BuildOutput:
             "macro_release_dates", rel_rows, min(r[1] for r in rel_rows), max(r[1] for r in rel_rows),
             checks=[_Check("Every release matches a macro observation and is not before its reference date", True, f"{len(rel_rows)} rows")],
             source_files=["macro_release_dates.csv"],
+            extra={"sourceHosts": sorted({urlparse(r[4]).netloc for r in rel_rows}),
+                   "series": sorted({r[0] for r in rel_rows})},
         )
 
     # Themes -----------------------------------------------------------------------------------
@@ -1001,9 +1004,23 @@ def _remove_if_empty(path: Path) -> None:
 
 def ingest_starter(source_dir: Path, data_root: Path, data_version: str, *, metadata_dir: Path | None = None,
                    clock: Clock = system_clock, activate: bool = True) -> IngestResult:
+    """Ingest the organizer files plus team metadata.
+
+    Metadata defaults to ``<data-root>/inputs/<version>/`` when that frozen copy exists (so a
+    committed version can always be re-materialized), else ``<data-root>/metadata/``. After a new
+    version is published, its exact metadata inputs are frozen under ``inputs/<version>/``.
+    """
     data_root = Path(data_root)
-    bundle = read_starter_bundle(Path(source_dir), Path(metadata_dir) if metadata_dir else data_root / "metadata")
-    return ingest_bundle(bundle, data_root, data_version, clock=clock, activate=activate)
+    frozen = data_root / "inputs" / data_version
+    chosen = Path(metadata_dir) if metadata_dir else (frozen if frozen.is_dir() else data_root / "metadata")
+    bundle = read_starter_bundle(Path(source_dir), chosen)
+    result = ingest_bundle(bundle, data_root, data_version, clock=clock, activate=activate)
+    if not frozen.exists():
+        frozen.mkdir(parents=True)
+        for name in METADATA_REQUIRED + METADATA_OPTIONAL:
+            if name in bundle.files:
+                (frozen / name).write_bytes(bundle.files[name])
+    return result
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -1011,7 +1028,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--source", required=True, type=Path, help="directory holding the organizer CSVs")
     parser.add_argument("--data-root", required=True, type=Path, help="repository data/ directory")
     parser.add_argument("--version", required=True, help="snapshot label, e.g. snap-20261113-starter")
-    parser.add_argument("--metadata-dir", type=Path, default=None, help="defaults to <data-root>/metadata")
+    parser.add_argument("--metadata-dir", type=Path, default=None, help="defaults to <data-root>/inputs/<version> if present, else <data-root>/metadata")
     parser.add_argument("--no-activate", action="store_true", help="publish without changing manifests/active.json")
     args = parser.parse_args(list(argv) if argv is not None else None)
     try:

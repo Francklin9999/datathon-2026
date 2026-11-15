@@ -1,0 +1,45 @@
+ticker,theme,justification,sourceUrl,assignedAt,isAssumption
+RY.TO,banks,"Universe file: Royal Bank of Canada, sector Financials; team reads it as a bank",,2026-11-14,true
+TD.TO,banks,"Universe file: Toronto-Dominion Bank, sector Financials; team reads it as a bank",,2026-11-14,true
+MFC.TO,insurance,"Universe file: Manulife Financial, sector Financials; team reads it as an insurer",,2026-11-14,true
+ENB.TO,pipelines,"Universe file: Enbridge, sector Energy; team reads it as a pipeline operator",,2026-11-14,true
+ENB.TO,fossil_energy,"Universe file: Enbridge, sector Energy; transports oil and gas (team assumption)",,2026-11-14,true
+CNQ.TO,fossil_energy,"Universe file: Canadian Natural Resources, sector Energy; oil and gas producer (team assumption)",,2026-11-14,true
+CNR.TO,rail_transport,"Universe file: Canadian National Railway, sector Industrials",,2026-11-14,true
+FTS.TO,utilities,"Universe file: Fortis, sector Utilities",,2026-11-14,true
+ATD.TO,consumer_staples,"Universe file: Alimentation Couche-Tard, sector Consumer Staples",,2026-11-14,true
+ATD.TO,retail,"Universe file: Alimentation Couche-Tard; team reads it as a convenience-store retailer",,2026-11-14,true
+SHOP.TO,ecommerce,"Universe file: Shopify, sector Information Technology; team reads it as e-commerce software",,2026-11-14,true
+SHOP.TO,software,"Universe file: Shopify, sector Information Technology; team reads it as a software company",,2026-11-14,true
+CSU.TO,software,"Universe file: Constellation Software, sector Information Technology",,2026-11-14,true
+AAPL,big_tech,"Universe file: Apple, sector Information Technology; team counts it among large U.S. technology companies",,2026-11-14,true
+MSFT,big_tech,"Universe file: Microsoft, sector Information Technology; team counts it among large U.S. technology companies",,2026-11-14,true
+MSFT,software,"Universe file: Microsoft, sector Information Technology; team reads it as a software company",,2026-11-14,true
+MSFT,cloud,"Universe file: Microsoft; team assumption that cloud services are a core activity",,2026-11-14,true
+MSFT,ai,"Universe file: Microsoft; team assumption of artificial-intelligence exposure",,2026-11-14,true
+NVDA,semiconductors,"Universe file: NVIDIA, sector Information Technology; team reads it as a chip designer",,2026-11-14,true
+NVDA,ai,"Universe file: NVIDIA; team assumption of artificial-intelligence exposure through its chips",,2026-11-14,true
+GOOGL,big_tech,"Universe file: Alphabet (Class A), sector Communication Services; team counts it among large U.S. technology companies",,2026-11-14,true
+GOOGL,cloud,"Universe file: Alphabet; team assumption that cloud services are a core activity",,2026-11-14,true
+GOOGL,ai,"Universe file: Alphabet; team assumption of artificial-intelligence exposure",,2026-11-14,true
+AMZN,big_tech,"Universe file: Amazon, sector Consumer Discretionary; team counts it among large U.S. technology companies",,2026-11-14,true
+AMZN,ecommerce,"Universe file: Amazon, sector Consumer Discretionary; team reads it as an online retailer",,2026-11-14,true
+AMZN,cloud,"Universe file: Amazon; team assumption that cloud services are a core activity",,2026-11-14,true
+TSLA,electric_vehicles,"Universe file: Tesla, sector Consumer Discretionary; team reads it as an electric-vehicle maker",,2026-11-14,true
+JPM,banks,"Universe file: JPMorgan Chase, sector Financials; team reads it as a bank",,2026-11-14,true
+JNJ,healthcare,"Universe file: Johnson & Johnson, sector Health Care",,2026-11-14,true
+PG,consumer_staples,"Universe file: Procter & Gamble, sector Consumer Staples",,2026-11-14,true
+XOM,fossil_energy,"Universe file: Exxon Mobil, sector Energy; oil and gas company (team assumption)",,2026-11-14,true
+XIU.TO,broad_canada,"Universe file: iShares S&P/TSX 60 Index ETF, sector 'Broad market (Canada)'",,2026-11-14,true
+SPY,broad_us,"Universe file: SPDR S&P 500 ETF Trust, sector 'Broad market (U.S.)'",,2026-11-14,true
+QQQ,nasdaq_growth,"Universe file: Invesco QQQ Trust (Nasdaq-100), sector 'Broad market (U.S. growth/tech-heavy)'",,2026-11-14,true
+ESGV,esg_screened,"Universe file: Vanguard ESG U.S. Stock ETF, sector 'Broad market (U.S., ESG-screened)'; screening method not reviewed",,2026-11-14,true
+ESGV,broad_us,"Universe file: sector 'Broad market (U.S., ESG-screened)'",,2026-11-14,true
+XBB.TO,bonds_canada,"Universe file: iShares Core Canadian Universe Bond Index ETF, sector 'Bonds (Canada aggregate)'",,2026-11-14,true
+ZST.TO,bonds_canada,"Universe file: BMO Ultra Short-Term Bond ETF, sector 'Bonds (Canada ultra short-term)'; a bond fund, not cash",,2026-11-14,true
+AGG,bonds_us,"Universe file: iShares Core U.S. Aggregate Bond ETF, sector 'Bonds (U.S. aggregate)'",,2026-11-14,true
+TLT,long_treasuries,"Universe file: iShares 20+ Year Treasury Bond ETF, sector 'Bonds (U.S. long Treasury)'",,2026-11-14,true
+TLT,bonds_us,"Universe file: sector 'Bonds (U.S. long Treasury)'",,2026-11-14,true
+GLD,gold,"Universe file: SPDR Gold Shares, sector Gold",,2026-11-14,true
+BTC-USD,crypto,"Universe file: Bitcoin, asset class crypto",,2026-11-14,true
+ETH-USD,crypto,"Universe file: Ether, asset class crypto",,2026-11-14,true

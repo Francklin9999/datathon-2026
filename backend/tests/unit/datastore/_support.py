@@ -16,7 +16,7 @@ from aplomb.datastore.schemas import RAW_HEADERS
 
 REPO = Path(__file__).resolve().parents[4]
 STARTER_DIR = REPO / "Datathon2026" / "alphaforge_starter"
-METADATA_DIR = REPO / "data" / "metadata"
+METADATA_DIR = REPO / "data" / "inputs" / "snap-20261113-starter"  # frozen inputs of the starter version
 STARTER_VERSION = "snap-20261113-starter"
 FIXED_NOW = datetime(2026, 11, 14, 22, 0, 0, tzinfo=timezone.utc)
 

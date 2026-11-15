@@ -1,45 +1,45 @@
 ticker,theme,justification,sourceUrl,assignedAt,isAssumption
-RY.TO,banks,"Universe file: Royal Bank of Canada, sector Financials; team reads it as a bank",,2026-11-14,true
-TD.TO,banks,"Universe file: Toronto-Dominion Bank, sector Financials; team reads it as a bank",,2026-11-14,true
-MFC.TO,insurance,"Universe file: Manulife Financial, sector Financials; team reads it as an insurer",,2026-11-14,true
-ENB.TO,pipelines,"Universe file: Enbridge, sector Energy; team reads it as a pipeline operator",,2026-11-14,true
-ENB.TO,fossil_energy,"Universe file: Enbridge, sector Energy; transports oil and gas (team assumption)",,2026-11-14,true
-CNQ.TO,fossil_energy,"Universe file: Canadian Natural Resources, sector Energy; oil and gas producer (team assumption)",,2026-11-14,true
-CNR.TO,rail_transport,"Universe file: Canadian National Railway, sector Industrials",,2026-11-14,true
-FTS.TO,utilities,"Universe file: Fortis, sector Utilities",,2026-11-14,true
+RY.TO,banks,"Issuer page (checked 2026-11-14): RBC is 'one of Canada's biggest banks'",https://www.rbc.com/our-company/,2026-11-14,true
+TD.TO,banks,"Issuer page (checked 2026-11-14): TD describes itself as 'a top 10 North American bank'",https://www.td.com/ca/en/about-td,2026-11-14,true
+MFC.TO,insurance,"Issuer page (checked 2026-11-14) reports Manulife 'awarded HNW Insurance Provider of the Year'; team reads it as an insurer",https://www.manulife.com/ca/en/about-us,2026-11-14,true
+ENB.TO,pipelines,"Issuer page (checked 2026-11-14): Enbridge operates 'North America's longest and most complex liquids transportation system'",https://www.enbridge.com/about-us,2026-11-14,true
+ENB.TO,fossil_energy,"Issuer page (checked 2026-11-14) lists liquids (crude oil) pipelines and natural gas transmission as core businesses",https://www.enbridge.com/about-us,2026-11-14,true
+CNQ.TO,fossil_energy,"Issuer page (checked 2026-11-14): a 'senior crude oil and natural gas production company'",https://www.cnrl.com/,2026-11-14,true
+CNR.TO,rail_transport,"Issuer page (checked 2026-11-14): operates 'a rail network of approximately 20,000 route-miles'",https://www.cn.ca/en/about-cn/,2026-11-14,true
+FTS.TO,utilities,"Issuer page (checked 2026-11-14): Fortis owns 'nine regulated electric and gas utilities'",https://www.fortisinc.com/about-us,2026-11-14,true
 ATD.TO,consumer_staples,"Universe file: Alimentation Couche-Tard, sector Consumer Staples",,2026-11-14,true
-ATD.TO,retail,"Universe file: Alimentation Couche-Tard; team reads it as a convenience-store retailer",,2026-11-14,true
-SHOP.TO,ecommerce,"Universe file: Shopify, sector Information Technology; team reads it as e-commerce software",,2026-11-14,true
-SHOP.TO,software,"Universe file: Shopify, sector Information Technology; team reads it as a software company",,2026-11-14,true
-CSU.TO,software,"Universe file: Constellation Software, sector Information Technology",,2026-11-14,true
+ATD.TO,retail,"Issuer page (checked 2026-11-14): 'one of the world's largest convenience retailers'",https://corporate.couche-tard.com/en/,2026-11-14,true
+SHOP.TO,ecommerce,"Issuer page (checked 2026-11-14): 'Shopify is a complete commerce platform'",https://www.shopify.com/about,2026-11-14,true
+SHOP.TO,software,"Universe file: Shopify, sector Information Technology; team reads its commerce platform as software",,2026-11-14,true
+CSU.TO,software,"Issuer page (checked 2026-11-14): 'leading international provider of software and services'",https://www.csisoftware.com/,2026-11-14,true
 AAPL,big_tech,"Universe file: Apple, sector Information Technology; team counts it among large U.S. technology companies",,2026-11-14,true
 MSFT,big_tech,"Universe file: Microsoft, sector Information Technology; team counts it among large U.S. technology companies",,2026-11-14,true
 MSFT,software,"Universe file: Microsoft, sector Information Technology; team reads it as a software company",,2026-11-14,true
-MSFT,cloud,"Universe file: Microsoft; team assumption that cloud services are a core activity",,2026-11-14,true
-MSFT,ai,"Universe file: Microsoft; team assumption of artificial-intelligence exposure",,2026-11-14,true
-NVDA,semiconductors,"Universe file: NVIDIA, sector Information Technology; team reads it as a chip designer",,2026-11-14,true
-NVDA,ai,"Universe file: NVIDIA; team assumption of artificial-intelligence exposure through its chips",,2026-11-14,true
+MSFT,cloud,"Issuer page (checked 2026-11-14) titled 'Cloud Computing Services | Microsoft Azure'",https://azure.microsoft.com/en-us/,2026-11-14,true
+MSFT,ai,"Issuer page (checked 2026-11-14): 'Explore Microsoft AI products for every business need'",https://www.microsoft.com/en-us/ai,2026-11-14,true
+NVDA,semiconductors,"Issuer page (checked 2026-11-14): 'NVIDIA engineers the most advanced chips, systems, and software'",https://www.nvidia.com/en-us/about-nvidia/,2026-11-14,true
+NVDA,ai,"Issuer page (checked 2026-11-14) presents its chips and systems as the basis of 'AI factories'",https://www.nvidia.com/en-us/about-nvidia/,2026-11-14,true
 GOOGL,big_tech,"Universe file: Alphabet (Class A), sector Communication Services; team counts it among large U.S. technology companies",,2026-11-14,true
-GOOGL,cloud,"Universe file: Alphabet; team assumption that cloud services are a core activity",,2026-11-14,true
-GOOGL,ai,"Universe file: Alphabet; team assumption of artificial-intelligence exposure",,2026-11-14,true
+GOOGL,cloud,"Issuer page (checked 2026-11-14) titled 'AI and Cloud Computing Services | Google Cloud'",https://cloud.google.com/,2026-11-14,true
+GOOGL,ai,"Issuer page (checked 2026-11-14): 'We're building and deploying AI responsibly'",https://ai.google/,2026-11-14,true
 AMZN,big_tech,"Universe file: Amazon, sector Consumer Discretionary; team counts it among large U.S. technology companies",,2026-11-14,true
-AMZN,ecommerce,"Universe file: Amazon, sector Consumer Discretionary; team reads it as an online retailer",,2026-11-14,true
-AMZN,cloud,"Universe file: Amazon; team assumption that cloud services are a core activity",,2026-11-14,true
-TSLA,electric_vehicles,"Universe file: Tesla, sector Consumer Discretionary; team reads it as an electric-vehicle maker",,2026-11-14,true
-JPM,banks,"Universe file: JPMorgan Chase, sector Financials; team reads it as a bank",,2026-11-14,true
-JNJ,healthcare,"Universe file: Johnson & Johnson, sector Health Care",,2026-11-14,true
-PG,consumer_staples,"Universe file: Procter & Gamble, sector Consumer Staples",,2026-11-14,true
-XOM,fossil_energy,"Universe file: Exxon Mobil, sector Energy; oil and gas company (team assumption)",,2026-11-14,true
-XIU.TO,broad_canada,"Universe file: iShares S&P/TSX 60 Index ETF, sector 'Broad market (Canada)'",,2026-11-14,true
-SPY,broad_us,"Universe file: SPDR S&P 500 ETF Trust, sector 'Broad market (U.S.)'",,2026-11-14,true
-QQQ,nasdaq_growth,"Universe file: Invesco QQQ Trust (Nasdaq-100), sector 'Broad market (U.S. growth/tech-heavy)'",,2026-11-14,true
-ESGV,esg_screened,"Universe file: Vanguard ESG U.S. Stock ETF, sector 'Broad market (U.S., ESG-screened)'; screening method not reviewed",,2026-11-14,true
-ESGV,broad_us,"Universe file: sector 'Broad market (U.S., ESG-screened)'",,2026-11-14,true
-XBB.TO,bonds_canada,"Universe file: iShares Core Canadian Universe Bond Index ETF, sector 'Bonds (Canada aggregate)'",,2026-11-14,true
-ZST.TO,bonds_canada,"Universe file: BMO Ultra Short-Term Bond ETF, sector 'Bonds (Canada ultra short-term)'; a bond fund, not cash",,2026-11-14,true
-AGG,bonds_us,"Universe file: iShares Core U.S. Aggregate Bond ETF, sector 'Bonds (U.S. aggregate)'",,2026-11-14,true
-TLT,long_treasuries,"Universe file: iShares 20+ Year Treasury Bond ETF, sector 'Bonds (U.S. long Treasury)'",,2026-11-14,true
-TLT,bonds_us,"Universe file: sector 'Bonds (U.S. long Treasury)'",,2026-11-14,true
-GLD,gold,"Universe file: SPDR Gold Shares, sector Gold",,2026-11-14,true
-BTC-USD,crypto,"Universe file: Bitcoin, asset class crypto",,2026-11-14,true
-ETH-USD,crypto,"Universe file: Ether, asset class crypto",,2026-11-14,true
+AMZN,ecommerce,"Issuer page (checked 2026-11-14): businesses 'including online shopping, cloud computing, streaming entertainment'",https://www.aboutamazon.com/about-us,2026-11-14,true
+AMZN,cloud,"Issuer page (checked 2026-11-14): AWS is 'the world's most comprehensive and broadly adopted cloud'",https://aws.amazon.com/what-is-aws/,2026-11-14,true
+TSLA,electric_vehicles,"Issuer page (checked 2026-11-14): products 'work together with our electric vehicles'",https://www.tesla.com/about,2026-11-14,true
+JPM,banks,"Issuer page (checked 2026-11-14): helping clients 'grow and thrive through banking'",https://www.jpmorganchase.com/about,2026-11-14,true
+JNJ,healthcare,"Issuer page (checked 2026-11-14): 'As a focused healthcare company'",https://www.jnj.com/about-jnj,2026-11-14,true
+PG,consumer_staples,"Issuer page (checked 2026-11-14): brands for 'daily-use cleaning, health and hygiene needs of consumers'",https://us.pg.com/brands/,2026-11-14,true
+XOM,fossil_energy,"Issuer page (checked 2026-11-14): 'one of the largest publicly traded petroleum and petrochemical enterprises'",https://corporate.exxonmobil.com/who-we-are,2026-11-14,true
+XIU.TO,broad_canada,"Issuer page (checked 2026-11-14): 'replicating the performance of the S&P/TSX 60 Index'",https://www.blackrock.com/ca/investors/en/products/239832/ishares-sptsx-60-index-etf,2026-11-14,true
+SPY,broad_us,"Issuer page (checked 2026-11-14): seeks to 'correspond generally to the price and yield performance of the S&P 500'",https://www.ssga.com/us/en/intermediary/etfs/spdr-sp-500-etf-trust-spy,2026-11-14,true
+QQQ,nasdaq_growth,"Issuer page (checked 2026-11-14): 'a passively managed ETF that tracks the Nasdaq-100 index'; 'growth' is the team's reading",https://www.invesco.com/qqq-etf/en/home.html,2026-11-14,true
+ESGV,esg_screened,"Issuer page (checked 2026-11-14): 'Screened for certain environmental, social, and corporate governance (ESG) criteria'",https://advisors.vanguard.com/investments/products/esgv/vanguard-esg-us-stock-etf,2026-11-14,true
+ESGV,broad_us,"Issuer page (checked 2026-11-14): tracks 'large-, mid-, and small-capitalization stocks' (U.S. stock ETF)",https://advisors.vanguard.com/investments/products/esgv/vanguard-esg-us-stock-etf,2026-11-14,true
+XBB.TO,bonds_canada,"Issuer page (checked 2026-11-14): 'broad exposure to the Canadian investment grade bond market'",https://www.blackrock.com/ca/investors/en/products/239493/ishares-core-canadian-universe-bond-index-etf,2026-11-14,true
+ZST.TO,bonds_canada,"Issuer page (checked 2026-11-14): 'short-term fixed income' with maturity under one year; 'Canadian' rests on its TSX/CAD listing; a bond fund, not cash",https://bmogam.com/ca-en/products/exchange-traded-fund/bmo-ultra-short-term-bond-etf-zst/,2026-11-14,true
+AGG,bonds_us,"Issuer page (checked 2026-11-14): 'seeks to track an index that includes U.S. investment-grade bonds'",https://www.ishares.com/us/products/239458/ishares-core-total-us-bond-market-etf,2026-11-14,true
+TLT,long_treasuries,"Issuer page (checked 2026-11-14): 'U.S. Treasury bonds with remaining maturities greater than twenty years'",https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf,2026-11-14,true
+TLT,bonds_us,"Issuer page (checked 2026-11-14): holds U.S. Treasury bonds",https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf,2026-11-14,true
+GLD,gold,"Issuer page (checked 2026-11-14): SPDR Gold Shares, 'the first US-listed ETF backed by a physical asset'",https://www.spdrgoldshares.com/usa/gld/,2026-11-14,true
+BTC-USD,crypto,"Universe file: Bitcoin, asset class crypto (project site checked but does not use the word cryptocurrency)",,2026-11-14,true
+ETH-USD,crypto,"Project page (checked 2026-11-14): 'Ether (ETH) is the native cryptocurrency of Ethereum'",https://ethereum.org/en/what-is-ethereum/,2026-11-14,true

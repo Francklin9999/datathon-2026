@@ -43,12 +43,12 @@ DAT-01 all starter counts/keys. DAT-02 idempotent ingestion and source hash stab
 
 ## Current state (T04, 2026-11-14)
 
-Snapshot `snap-20261113-starter` is published and active: `data/manifests/snap-20261113-starter.json` (hashes, counts, coverage, availability policies, checks, quality flags) and `data/manifests/active.json`. `raw/` and `normalized/` are gitignored and rebuilt from the manifest. Team metadata copied into each snapshot: `data/metadata/asset_themes.csv` (44 theme assumptions) and `data/metadata/macro_series.csv` (frequency class and revision status per series, from the organizer metadata). `macro_release_dates.csv` is optional and absent until O-05 is closed.
+Snapshots `snap-20261113-starter` and `snap-20261114-sourced` (active) are published. The second keeps the organizer data unchanged (same dataset hashes) and adds 58 real Statistics Canada release dates for the Canada CPI series and an official source URL for 36 of the 44 theme assignments. Each version's exact team inputs are frozen under `data/inputs/<version>/`, so any committed version can be re-materialized. Manifests: `data/manifests/snap-20261113-starter.json` (hashes, counts, coverage, availability policies, checks, quality flags) and `data/manifests/active.json`. `raw/` and `normalized/` are gitignored and rebuilt from the manifest. Team metadata copied into each snapshot: `data/metadata/asset_themes.csv` (44 theme assumptions) and `data/metadata/macro_series.csv` (frequency class and revision status per series, from the organizer metadata). `macro_release_dates.csv` is optional and absent until O-05 is closed.
 
 Materialize or verify the snapshot (idempotent; fails without changing anything if a source or hash differs):
 
 ```bash
-cd backend && python -m aplomb.datastore.ingest --source ../Datathon2026/alphaforge_starter --data-root ../data --version snap-20261113-starter
+cd backend && python -m aplomb.datastore.ingest --source ../Datathon2026/alphaforge_starter --data-root ../data --version snap-20261114-sourced
 ```
 
-A changed source or metadata file needs a new version label. Implementation details, availability rules and limits: [datastore §7](../backend/aplomb/datastore/SPEC.md).
+A changed source or metadata file needs a new version label: edit `data/metadata/`, then ingest a new label (its inputs are frozen automatically). Implementation details, availability rules and limits: [datastore §7](../backend/aplomb/datastore/SPEC.md).

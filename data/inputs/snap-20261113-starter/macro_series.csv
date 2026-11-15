@@ -1,0 +1,10 @@
+seriesId,publisher,frequencyClass,revisedLatestVintage,basis
+V39079,Bank of Canada,daily,false,"Organizer macro_rates.csv frequency 'daily (changes on announcement dates)'; sources_metadata.csv does not describe Bank of Canada values as revised (not independently verified)"
+BD.CDN.2YR.DQ.YLD,Bank of Canada,daily,false,"Organizer macro_rates.csv frequency 'business daily'; sources_metadata.csv does not describe Bank of Canada values as revised (not independently verified)"
+BD.CDN.10YR.DQ.YLD,Bank of Canada,daily,false,"Organizer macro_rates.csv frequency 'business daily'; sources_metadata.csv does not describe Bank of Canada values as revised (not independently verified)"
+STATIC_TOTALCPICHANGE,Bank of Canada,monthly,false,"Organizer macro_rates.csv frequency 'monthly'; sources_metadata.csv: dated to the reference month and published several weeks later"
+DFF,FRED (Federal Reserve Bank of St. Louis),daily,true,"Organizer macro_rates.csv frequency 'daily'; sources_metadata.csv: FRED values are latest vintage (revised) not as first published"
+DGS2,FRED (Federal Reserve Bank of St. Louis),daily,true,"Organizer macro_rates.csv frequency 'business daily'; sources_metadata.csv: FRED values are latest vintage (revised) not as first published"
+DGS10,FRED (Federal Reserve Bank of St. Louis),daily,true,"Organizer macro_rates.csv frequency 'business daily'; sources_metadata.csv: FRED values are latest vintage (revised) not as first published"
+CPIAUCSL,FRED (Federal Reserve Bank of St. Louis),monthly,true,"Organizer macro_rates.csv frequency 'monthly'; sources_metadata.csv: dated to the reference month, released weeks later, latest vintage (revised)"
+UNRATE,FRED (Federal Reserve Bank of St. Louis),monthly,true,"Organizer macro_rates.csv frequency 'monthly'; sources_metadata.csv: dated to the reference month, released weeks later, latest vintage (revised)"

@@ -324,7 +324,14 @@ def _provenance(dataset_id: str, manifest: dict) -> tuple[str, str | None, str, 
         return ("Aplomb team assignment (assumptions) based on the organizer universe file", None,
                 "Team-authored metadata; no third-party content", None, max(dates) if dates else None)
     if dataset_id == "macro_release_dates":
-        return ("Team-supplied release calendar (see sourceUrl per row)", None, "per row source", None, None)
+        details = manifest["datasets"]["macro_release_dates"].get("details", {})
+        hosts = details.get("sourceHosts", [])
+        series = ", ".join(details.get("series", []))
+        if hosts and all(h.endswith("statcan.gc.ca") for h in hosts):
+            return (f"Statistics Canada, The Daily: official release date of each reference month ({series}); URL per row",
+                    "https://www.statcan.gc.ca/dai-quo/index-eng.htm", "Statistics Canada Open Licence",
+                    "https://www.statcan.gc.ca/en/terms-conditions/open-licence", manifest["createdAt"][:10])
+        return (f"Release calendars cited per row ({', '.join(hosts)})", None, "see the source of each row", None, manifest["createdAt"][:10])
     rows = manifest.get("sourceMetadata", {}).get(_STARTER_FILE[dataset_id], [])
     if not rows:
         return ("unknown", None, "unknown", None, None)
@@ -364,7 +371,7 @@ TRAPS: tuple[dict, ...] = (
     {"code": LIM_CNQ_FACTOR, "status": "disclosed",
      "handledBy": "Split anomaly flagged at ingestion; limitation attached to CNQ.TO reads spanning 2022-08-22; not applied twice."},
     {"code": LIM_MACRO_LAG_ASSUMED, "status": "open",
-     "handledBy": "No real release dates loaded (O-05): current runs use the A-22 lag; historical runs withhold monthly values."},
+     "handledBy": "Monthly values use real release dates when macro_release_dates covers them (Canada CPI from Statistics Canada in snap-20261114-sourced); otherwise current runs use the A-22 lag and historical runs withhold them. US monthly FRED series have no release/vintage data loaded."},
     {"code": LIM_MACRO_REVISED, "status": "disclosed",
      "handledBy": "FRED values are latest vintages; withheld from historical runs unless vintage dates are supplied."},
     {"code": LIM_SURVIVORSHIP, "status": "disclosed",

@@ -113,7 +113,7 @@ These were **not** confirmed by the product owner. Each is a default so that wor
 | O-02 | Whether AgentCore Runtime and the AgentCore Browser tool are available on the account. Until confirmed, open-web research is behind a feature flag and the fallback is direct fetch from known sites. | T02 | Research tool `web.browse` |
 | O-03 | Whether Bedrock Guardrails can be created on the account. | T02 | Guardrail step in the auditor |
 | O-04 | Product-owner approval of the default portfolios (A-13) and of the threshold formulas (A-02 to A-10). | Product owner | Nothing; defaults are usable |
-| O-05 | Real publication dates for monthly macro series (to replace A-22). | T04 | Time Machine credibility |
+| O-05 | Real publication dates for monthly macro series (to replace A-22). Partly closed 2026-11-14: Canada CPI release dates loaded from Statistics Canada (`snap-20261114-sourced`); US CPI/unemployment still need release and vintage data (ALFRED). | T04 | Time Machine credibility |
 | O-06 | Sources and licences for the extended universe (constituent lists, sector labels, theme tags). | T04 | D-23 |
 | O-07 | GDELT batch feasibility: the prototype's data room recorded ~17 s per call and an HTTP 429 on a second call. Not re-verified. | T11 | D-30 |
 | O-08 | Whether the finals on Nov 20 allow a live system. With D-38 the pitch relies on the recorded video. | Product owner | Pitch plan |
