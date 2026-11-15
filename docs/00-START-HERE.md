@@ -1,5 +1,15 @@
 # 00 — Team entry point
 
+## Where the project stands (updated 2026-11-15, 00:07 EST)
+
+The build phase is over: the P0 product is deployed and works with real models. Read these review pages before anything else.
+
+- [Verification follow-up](11-VERIFICATION-FOLLOWUP.md): completed checks, retained evidence, the goal failure and remaining release gates.
+- [Status as built](10-STATUS-AS-BUILT.md): what exists, what is deployed, what was seen working live.
+- [Independent review](09-INDEPENDENT-REVIEW.md): ranked findings, better approaches, and the suggested order of work until the deadlines.
+
+The sections below describe how the tracks were set up at the start. They remain valid for conventions and ownership; they no longer describe the current phase.
+
 ## First fifteen minutes
 
 1. Read [product scope](01-PRODUCT.md) and [decisions](02-DECISIONS.md). `[D]` means the owner decided; `[A]` means an unconfirmed usable default; `[O]` needs an owner to resolve it.

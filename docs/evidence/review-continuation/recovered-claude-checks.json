@@ -1,0 +1,484 @@
+{
+  "source": "Claude session 45f7599a, final tool results; recovered, not rerun",
+  "results": [
+    {
+      "timestamp": "2026-11-15T04:55:05.757Z",
+      "result": {
+        "portfolioHeads": [
+          "Robert: holdings, rules and risk",
+          "Holdings",
+          "By asset group",
+          "By sector (direct equities)",
+          "By listing country",
+          "Descriptive risk (historical, in this sample)",
+          "Plan rules (editable assumptions)",
+          "Risk/return frontier (historical, in this sample)"
+        ],
+        "portfolioLen": 6510,
+        "overflow": [
+          906,
+          906
+        ],
+        "disclaimer": true,
+        "refuseExec": {
+          "s": 200,
+          "ms": 17106,
+          "request": null,
+          "refused": "trade_execution",
+          "msg": "I can't buy shares or place orders. Aplomb is a simulation tool with fictional profiles. I can simulate a hypothetical TSLA position and show how it would interact with Robert's rules once you specify a size (% of portfolio) and funding source."
+        },
+        "refuseAdvice": {
+          "s": 200,
+          "request": null,
+          "refused": "advice_request",
+          "missing": 3
+        },
+        "isolation": {
+          "otherSessionStatus": 404
+        },
+        "noSession": 422,
+        "at07": {
+          "segments": 20,
+          "distinctFacts": 20,
+          "allResolved": true,
+          "allVerified": false,
+          "sample": [
+            {
+              "id": "F-017",
+              "s": 200,
+              "ok": true,
+              "metric": "weight.position.max_single",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 1
+            },
+            {
+              "id": "F-020",
+              "s": 200,
+              "ok": true,
+              "metric": "weight.sector.max",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 1
+            },
+            {
+              "id": "F-011",
+              "s": 200,
+              "ok": true,
+              "metric": "vol.annualized",
+              "period": 1,
+              "cur": null,
+              "nSrc": 2,
+              "nIn": 2
+            },
+            {
+              "id": "F-012",
+              "s": 200,
+              "ok": true,
+              "metric": "drawdown.max",
+              "period": 1,
+              "cur": null,
+              "nSrc": 2,
+              "nIn": 2
+            }
+          ],
+          "notOk": [
+            {
+              "id": "F-044",
+              "s": 200,
+              "ok": false,
+              "metric": "size.requested",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 0
+            },
+            {
+              "id": "F-018",
+              "s": 200,
+              "ok": false,
+              "metric": "threshold.rule",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 0
+            },
+            {
+              "id": "F-021",
+              "s": 200,
+              "ok": false,
+              "metric": "threshold.rule",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 0
+            },
+            {
+              "id": "F-024",
+              "s": 200,
+              "ok": false,
+              "metric": "threshold.rule",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 0
+            },
+            {
+              "id": "F-027",
+              "s": 200,
+              "ok": false,
+              "metric": "threshold.rule",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 0
+            },
+            {
+              "id": "F-029",
+              "s": 200,
+              "ok": false,
+              "metric": "threshold.rule",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 0
+            },
+            {
+              "id": "F-031",
+              "s": 200,
+              "ok": false,
+              "metric": "threshold.rule",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 0
+            },
+            {
+              "id": "F-034",
+              "s": 200,
+              "ok": false,
+              "metric": "threshold.rule",
+              "period": 0,
+              "cur": null,
+              "nSrc": 0,
+              "nIn": 0
+            }
+          ]
+        },
+        "compare10": {
+          "s": 200,
+          "ms": 1242,
+          "verdicts": [
+            [
+              "conflict",
+              2,
+              2,
+              6
+            ],
+            [
+              "tension",
+              0,
+              1,
+              11
+            ]
+          ]
+        },
+        "baselines": [
+          [
+            "robert",
+            "compatible",
+            {
+              "pass": 8,
+              "tension": 0,
+              "conflict": 0,
+              "nee": 0,
+              "info": 3
+            },
+            371
+          ],
+          [
+            "amira",
+            "compatible",
+            {
+              "pass": 7,
+              "tension": 0,
+              "conflict": 0,
+              "nee": 0,
+              "info": 3
+            },
+            415
+          ],
+          [
+            "mateo",
+            "insufficient",
+            {
+              "pass": 9,
+              "tension": 0,
+              "conflict": 0,
+              "nee": 1,
+              "info": 3
+            },
+            342
+          ]
+        ],
+        "btc": [
+          "conflict",
+          [
+            "exclude.asset_class.crypto"
+          ]
+        ],
+        "datasets": {
+          "s": 200,
+          "ms": 151,
+          "n": 15,
+          "ids": [
+            "assets_universe:in_use",
+            "prices_daily:in_use",
+            "corporate_actions:in_use",
+            "fx_usdcad_daily:in_use",
+            "macro_rates:in_use",
+            "asset_themes:in_use",
+            "default_profiles:planned",
+            "macro_release_dates:in_use",
+            "etf_holdings:planned",
+            "world_events:planned",
+            "attention_pageviews:planned",
+            "emissions_facilities:planned",
+            "natural_hazards:planned",
+            "research_documents:planned",
+            "filings_index:planned"
+          ],
+          "traps": [
+            "LIM_FX_FFILL:open",
+            "LIM_CALENDAR_INTERSECTION:handled",
+            "LIM_YAHOO_NOT_CERTIFIED:disclosed",
+            "LIM_CNQ_FACTOR:disclosed",
+            "LIM_MACRO_LAG_ASSUMED:open",
+            "LIM_MACRO_REVISED:disclosed",
+            "LIM_SURVIVORSHIP:disclosed",
+            "LIM_NO_CONTROVERSY_DATA:disclosed",
+            "LIM_ETF_NO_LOOKTHROUGH:disclosed"
+          ]
+        },
+        "overviewMs": 1097,
+        "frontier": {
+          "s": 200,
+          "ms": 1005,
+          "minVar": 11,
+          "lims": [
+            "LIM_PAST_NOT_FUTURE",
+            "LIM_MV_ILLUSTRATION",
+            "LIM_SAMPLE_WINDOW",
+            "LIM_CONSTANT_WEIGHTS"
+          ]
+        },
+        "runs": [
+          [
+            "decision",
+            "succeeded",
+            34
+          ],
+          [
+            "portfolio_brief",
+            "succeeded",
+            28
+          ]
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-11-15T04:55:28.061Z",
+      "result": {
+        "factKinds": {
+          "computed/verified": 8,
+          "scenario/verified": 4,
+          "input/verified": 1,
+          "assumption/verified": 7
+        },
+        "viewport": 360,
+        "pageW": 360,
+        "pageH": 11045,
+        "elementsPastRightEdge": [
+          "TABLE.data-table right=550",
+          "THEAD. right=550",
+          "TR. right=550",
+          "TH.num-col right=407",
+          "TH.num-col right=550",
+          "TBODY. right=550"
+        ],
+        "innerScrollAreas": 11,
+        "runPanelTopPx": 4445,
+        "loadedRun": true,
+        "disclaimer": true,
+        "minFont": 12
+      }
+    },
+    {
+      "timestamp": "2026-11-15T04:56:09.438Z",
+      "result": {
+        "len": 6934,
+        "heads": [
+          "Sources and dataset passports",
+          "Datasets",
+          "Known dataset traps and how they are treated"
+        ],
+        "head": "Data room\nSources and dataset passports\nWhat each dataset is, where it comes from, how it is processed and what it cannot tell you.\nDatasets\nDataset\tStatus\tProvider\tRetrieved\tCoverage\tFrequency\tRows\tVersion\nAsset universe\nList of assets Aplomb can analyse, with class, listing market, currency and sector.\n\tIn use\tCompiled by organizers; sector labels follow GICS sector names\nFree to use within the datathon\n\tNov 13, 2026\t\u2014\tstatic\t31\tsnap-20261114-sourced\nDaily prices\nAdjusted closes used for every return, volatility, drawdown and stress figure.\n\tIn use\tYahoo Finance via the open-source yfinance Python library\nYahoo terms: https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html (retrieved 2026-11-13)\n\tNov 13, 2026\t2021-11-12 \u2192 2026-11-12\tdaily (trading days per market; crypto 7 days/week)\t40,049\tsnap-20261114-sourced\nDividends and splits\nReference annotations explaining adjusted prices; never applied to prices again.\n\tIn use\tYahoo Finance via yfinance\nYahoo terms: https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html (retrieved 2026-11-13)\n\tNov 13, 2026\t2021-11-12 \u2192 2026-11-12\tevent\t658\tsnap-20261114-sourced\nUSD/CAD exchange rate\nConverts U.S.-dollar prices into Canadian dollars and back.\n\tIn use\tBank of Canada Valet API series FXUSDCAD\nBank of Canada terms: https://www.bankofcanada.ca/terms/\n\tNov 13, 2026\t2021-11-12 \u2192 2026-11-12\tbusiness daily (Canadian business days)\t1,245\tsnap-20261114-sourced\nMacro rates and inflation\nContext for explanations and the rate-cycle scenari",
+        "links": 0,
+        "overflow": [
+          1425,
+          1425
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-11-15T04:56:45.273Z",
+      "result": {
+        "page": "Machine \u00e0 remonter le temps\nRejouer un mouvement hypoth\u00e9tique pour Robert avec une date limite d\u2019information\nChoisissez une date pass\u00e9e. Les v\u00e9rifications et les chiffres n\u2019utilisent que les lignes de donn\u00e9es disponibles \u00e0 cette date. La suite reste masqu\u00e9e jusqu\u2019\u00e0 ce que vous demandiez de la r\u00e9v\u00e9ler.\nCe que ce rejeu peut et ne peut pas montrer\nLes connaissances du mod\u00e8le de langage ne sont pas effac\u00e9es. Les chiffres viennent de donn\u00e9es filtr\u00e9es par date, mais la formulation peut refl\u00e9ter ce qui s\u2019est pass\u00e9 ensuite.\nLes prix sont ajust\u00e9s et les s\u00e9ries macro r\u00e9vis\u00e9es : ce ne sont pas les donn\u00e9es telles que publi\u00e9es \u00e0 cette date.\nL\u2019univers d\u2019actifs a \u00e9t\u00e9 choisi plus tard, parmi des titres importants aujourd\u2019hui.\nC\u2019est une simulation historique, pas la validation d\u2019une pr\u00e9vision ni le rejeu hors ligne d\u2019une d\u00e9cision r\u00e9elle.\nDate limite d\u2019information\nDates limites prises en charge: 22 nov. 2",
+        "presets": {
+          "earliest": "2022-11-22",
+          "latest": "2026-08-18",
+          "presets": [
+            "2025-02-19 2025-02-19: before the largest later fall",
+            "2022-12-30 2022-12-30: end of 2022",
+            "2023-12-29 2023-12-29: end of 2023",
+            "2024-12-31 2024-12-31: end of 2024",
+            "2025-12-31 2025-12-31: end of 2025",
+            "2022-11-22 2022-11-22: earliest supported date"
+          ],
+          "notices": [
+            "LIM_LLM_KNOWLEDGE",
+            "LIM_SAMPLE_WINDOW",
+            "LIM_SURVIVORSHIP",
+            "LIM_YAHOO_NOT_CERTIFIED",
+            "LIM_MACRO_REVISED"
+          ]
+        },
+        "replay": {
+          "create": 202,
+          "status": "succeeded",
+          "err": null,
+          "steps": [
+            "plan:done",
+            "quant:done",
+            "risk_check:done",
+            "write:done",
+            "audit:done",
+            "sign:done"
+          ],
+          "asOf": "2025-02-19",
+          "verdict": "conflict",
+          "counts": {
+            "pass": 2,
+            "tension": 0,
+            "conflict": 6,
+            "nee": 0,
+            "info": 3
+          },
+          "gate": [
+            "prices_daily vis 26156 withheld 13893 last 2025-02-19",
+            "corporate_actions vis 431 withheld 227 last 2025-02-18",
+            "fx_usdcad_daily vis 814 withheld 431 last 2025-02-19",
+            "macro_rates vis 2471 withheld 5810 last 2025-02-18"
+          ],
+          "notices": [
+            "LIM_LLM_KNOWLEDGE",
+            "LIM_SAMPLE_WINDOW",
+            "LIM_SURVIVORSHIP",
+            "LIM_YAHOO_NOT_CERTIFIED",
+            "LIM_MACRO_REVISED"
+          ],
+          "maxFactAvail": "2025-02-19T21:30:00.000Z",
+          "factsAfterCutoff": 0,
+          "model": "scripted-test-gateway (no LLM)"
+        },
+        "reveal": {
+          "s": 200,
+          "until": "2026-11-12",
+          "outcomes": [
+            "sc_unchanged ret 21.9 dd 5.5 pts 428",
+            "sc_requested ret 24.6 dd 13.7 pts 428",
+            "sc_max_compatible ret 22.9 dd 6.7 pts 428"
+          ],
+          "statement": "These outcomes describe what the hypothetical fixed mixes did in this dataset after the information cutoff. They do not establish that a prediction was made, or that one choice is generally superior."
+        },
+        "parentUnchanged": true,
+        "tooEarly": [
+          422,
+          "asOf must be between 2022-11-22 and 2026-08-18"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-11-15T04:57:07.469Z",
+      "result": {
+        "localStorage": {
+          "aplomb.pref.profile": "robert",
+          "aplomb.session": "(session)",
+          "aplomb.pref.lang": "fr"
+        },
+        "navLang": "en-US",
+        "htmlLang": "fr",
+        "goal": {
+          "status": "failed",
+          "secs": 1,
+          "err": {
+            "code": "internal",
+            "message": "The run stopped on an internal error; the steps already executed are kept.",
+            "requestId": "run_01M7ES1TW1CZQC2JW0CGG2V1Z6"
+          },
+          "steps": [
+            "plan:0",
+            "quant:0",
+            "risk_check:0"
+          ],
+          "scenarios": null,
+          "briefLang": null,
+          "firstSentence": null
+        },
+        "world": {
+          "total": 22,
+          "returned": 22,
+          "coverage": {
+            "start": "2021-11-14",
+            "end": "2026-11-12"
+          },
+          "byOrigin": {
+            "official": 5,
+            "usgs": 17
+          },
+          "byCat": {
+            "monetary_policy": 4,
+            "natural_disaster": 17,
+            "macro_release": 1
+          }
+        },
+        "exposure": [
+          "CAN 74",
+          "USA 26"
+        ],
+        "layers": [
+          "events:true:751",
+          "exposure:true:null",
+          "facilities:false:null",
+          "hazards:true:668"
+        ],
+        "eventBrief": {
+          "event": "Federal Reserve announces revised tentative schedule of Federal Open M",
+          "status": "succeeded",
+          "err": null,
+          "impact": "Potential exposure identified. Financial impact not established.",
+          "exposures": [
+            "AGG:theme:not_established",
+            "SPY:listing_country:not_established",
+            "JNJ:listing_country:not_established",
+            "PG:listing_country:not_established",
+            "GLD:listing_country:not_established"
+          ],
+          "evidence": 0
+        }
+      }
+    }
+  ]
+}
