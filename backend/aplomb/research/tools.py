@@ -84,7 +84,7 @@ class SaveEvidenceArgs(Args):
     type: m.EvidenceType = Field(description="Kind of source document.")
     title: str = Field(max_length=300, description="Title of the source document.")
     publisher: str = Field(max_length=200, description="Publisher as named by the source; the stored publisher comes from the reviewed domain registry.")
-    url: str = Field(max_length=2000, description="The url returned by web.fetch or edgar.filing_text earlier in this run.")
+    url: str = Field(max_length=2000, description="The url returned by web.fetch, web.browse or edgar.filing_text earlier in this run.")
     published_at: date | None = Field(default=None, description="Publication date stated by the source (YYYY-MM-DD), if any.")
     quote: str = Field(min_length=1, max_length=400, description="Passage copied verbatim from that page, at most 400 characters.")
     claim: m.I18nText = Field(description="What the quote supports, in English (en) and in French (fr).")

@@ -603,6 +603,13 @@ def _execute(e):
         if run.kind == "portfolio_brief":
             update["research_questions"] = []
         plan = plan.model_copy(update=update)
+    if run.kind == "event_brief":
+        # The planner, told never to assume an effect, proposes no research for an event. The source
+        # itself is worth reading: when the browser exists and the source is an allow-listed official
+        # page, code adds that question; the researcher still chooses the tools and their arguments.
+        question = _event_source_question(e, services.registry)
+        if question is not None and all(q.id != question.id for q in plan.research_questions):
+            plan = plan.model_copy(update={"research_questions": [*plan.research_questions[:11], question]})
     if plan.clarification is not None and "answer" not in e.record.private:
         e.save(status="waiting_input", question=plan.clarification.to_wire())
         return
@@ -932,6 +939,29 @@ NO_LINKED_HOLDING = m.I18nText(
     fr="Aucun titre de ce portefeuille n'est relié à l'événement par les correspondances du code. Incidence financière non établie.",
 )
 EVENT_MOVE_DAYS = 5
+
+
+EVENT_SOURCE_QUESTION_ID = "Q-EVENT-SOURCE"
+
+
+def _event_source_question(e, registry):
+    """A research question on the event's own official source, only when ``web.browse`` exists."""
+    if not registry.schemas({"web.browse"}):
+        return None
+    from aplomb.research.browser import allowed_link
+
+    from .models import ResearchQuestion
+
+    event = m.WorldEvent.model_validate(e.record.private["event"])
+    url = next((source.url for source in event.sources if allowed_link(source.url)), None)
+    if url is None:
+        return None
+    return ResearchQuestion(
+        id=EVENT_SOURCE_QUESTION_ID, subject=event.event_id,
+        question=f"What does the official source of the event \"{event.title}\" state? Read it with web.browse "
+                 f"(start_url {url}, task: a few key words of the title, max_pages 2), then save one verbatim "
+                 "quote of what was announced with research.save_evidence (subject: the event).",
+        preferred_tools=["web.browse", "research.save_evidence"])
 
 
 def _plan_context(e):

@@ -14,9 +14,10 @@ MODEL_ID = "scripted-test-gateway (no LLM)"
 
 class ScriptedGateway:
     def __init__(self, plan: dict | None = None, parsed: dict | None = None, draft_profile: dict | None = None,
-                 writer=None, fail_role: str | None = None) -> None:
+                 writer=None, fail_role: str | None = None, researcher=None) -> None:
         self.plan = plan or {"interpretation": "Test the confirmed hypothetical request against the plan."}
         self.parsed, self.draft_profile, self.writer = parsed, draft_profile, writer
+        self.researcher = researcher
         self.fail_role = fail_role
         self.roles: list[str] = []
         self.prompts: list[tuple[str, dict]] = []
@@ -37,6 +38,8 @@ class ScriptedGateway:
             output = self.parsed
         elif role == "profile_draft":
             output = self.draft_profile
+        elif role == "researcher" and self.researcher is not None:
+            output = self.researcher(messages[0])
         else:
             raise ValueError(f"unexpected role {role}")
         return Generation(schema.model_validate(output), MODEL_ID, 11, 7, 1)

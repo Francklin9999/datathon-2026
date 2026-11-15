@@ -393,3 +393,55 @@ def test_sabotage_modes_never_ask_the_writer_to_lie(mode):
     assert len(asked) == before
     assert child.result.sabotage.caught
     assert child.result.sabotage.failed_checks
+
+
+def _with_browse(harness, calls):
+    """Registers a stand-in web.browse (the AgentCore session itself is covered in tests/research)."""
+    from aplomb.agents.registry import ToolResult
+    from aplomb.research.tools import WebBrowseArgs
+
+    def browse(ctx, **kwargs):
+        calls.append(kwargs)
+        return ToolResult(True, "Browsed 1 allow-listed page(s)", data={"pages": [{"url": kwargs["start_url"]}]})
+
+    harness.services.registry.register("web.browse", WebBrowseArgs, browse)
+
+
+def test_an_event_brief_asks_the_researcher_to_read_its_official_source_when_the_browser_exists():
+    url = "https://www.bankofcanada.ca/2026/06/fad-press-release-2026-06-01/"
+    event = official("Bank of Canada maintains its policy rate", url, "2026-06-01")
+    seen, calls = [], []
+
+    def researcher(message):
+        seen.append(message)
+        question = next(q for q in message["questions"] if q["id"] == "Q-EVENT-SOURCE")
+        if message["observations"]:
+            return {"actions": [], "done": True}
+        return {"actions": [{"tool": question["preferred_tools"][0],
+                             "args": {"task": "policy rate", "start_url": url, "max_pages": 2}}]}
+
+    harness = Harness(ScriptedGateway(researcher=researcher), synthetic_dataset(event))
+    _with_browse(harness, calls)
+    run, _ = harness.drive(harness.create({"kind": "event_brief", "profileId": "robert", "lang": "en", "eventId": event["eventId"]}))
+    assert run.status == "succeeded", run.error
+    question = next(q for q in seen[0]["questions"] if q["id"] == "Q-EVENT-SOURCE")
+    assert url in question["question"] and question["preferred_tools"] == ["web.browse", "research.save_evidence"]
+    assert calls == [{"task": "policy rate", "start_url": url, "max_pages": 2}]
+    research = next(step for step in run.steps if step.type == "research")
+    assert [c.tool for c in research.tool_calls] == ["web.browse"] and research.tool_calls[0].ok
+
+
+def test_no_source_question_without_the_browser_or_for_a_source_off_the_allowlist():
+    official_event = official("Bank of Canada maintains its policy rate",
+                              "https://www.bankofcanada.ca/2026/06/fad-press-release-2026-06-01/", "2026-06-01")
+    harness = Harness(ScriptedGateway(), synthetic_dataset(official_event))  # no web.browse registered
+    run, _ = harness.drive(harness.create({"kind": "event_brief", "profileId": "robert", "lang": "en", "eventId": official_event["eventId"]}))
+    assert run.status == "succeeded", run.error
+    assert all(step.type != "research" for step in run.steps)
+
+    other = official("Joint statement on cross-border payments", "https://example.org/joint", "2026-06-01")
+    harness, calls = Harness(ScriptedGateway(), synthetic_dataset(other)), []
+    _with_browse(harness, calls)
+    run, _ = harness.drive(harness.create({"kind": "event_brief", "profileId": "robert", "lang": "en", "eventId": other["eventId"]}))
+    assert run.status == "succeeded", run.error
+    assert all(step.type != "research" for step in run.steps) and calls == []
