@@ -1,0 +1,42 @@
+{
+ "attribution": "Source: U.S. Energy Information Administration, International Energy Statistics (publication date not supplied; captured 2026-11-15); selected and normalized by Aplomb.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_eia_crude_production_2024-2026-11-15-f540406c9043afb0",
+ "datasetId": "world_eia_crude_production_2024",
+ "frequency": "Annual; manually captured selected 2024 revision",
+ "historicalReplay": false,
+ "licence": "EIA U.S. government data public domain; attribution requested",
+ "licenceUrl": "https://www.eia.gov/about/copyrights_reuse.php",
+ "limitations": [
+  "2024 annual country crude oil including lease condensate production, thousand barrels per day; one product, year and unit only. Missing values and non-ISO 3166-1 codes excluded.",
+  "Reported national average rate is not current output, plant activity, or issuer exposure.",
+  "January 1 is an annual display anchor, not an observation instant.",
+  "Original historical availability is unproven; gate at capture time.",
+  "Source API response is credential-sanitized if needed; the request URL contains no key."
+ ],
+ "name": "EIA 2024 annual country crude oil production",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "e83b2e38c24aa4705b8117a669ab2a5fcb5d8c11edd6614353e688c9322f3450",
+   "url": "https://api.eia.gov/v2/international/data/?frequency=annual&data%5B0%5D=value&facets%5BproductId%5D%5B%5D=57&facets%5BactivityId%5D%5B%5D=1&facets%5BcountryRegionTypeId%5D%5B%5D=c&facets%5Bunit%5D%5B%5D=TBPD&start=2024&end=2024&length=5000"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "c16dcdd32bd0294eef3dbc8cdc11cd3a815502be1e938f1dfc84736358a4462c",
+   "url": "https://www.eia.gov/about/copyrights_reuse.php"
+  }
+ ],
+ "rejected": 4,
+ "retrievedAt": "2026-11-15T19:03:49Z",
+ "rowCount": 215,
+ "scope": "2024 annual country crude oil including lease condensate production, thousand barrels per day; one product, year and unit only. Missing values and non-ISO 3166-1 codes excluded.",
+ "sha256": "f540406c9043afb094a1c5e1832def550dbbcab4a7479aa673cebbd767b9aeaa",
+ "sourceIds": [
+  "SRC-190",
+  "MASTER-038"
+ ],
+ "sourceRows": 219,
+ "sourceUrl": "https://www.eia.gov/international/data/world"
+}

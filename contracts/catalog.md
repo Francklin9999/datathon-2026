@@ -275,6 +275,7 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `world_ted_published_notice_metadata` | TED five-record published procurement notice metadata sample with reported buyer countries | P2 |
 | `world_nasa_cmr_modis_granules` | NASA CMR MODIS Terra five-granule satellite coverage polygon metadata; no fire detections or imagery | P2 |
 | `world_openflights_airport_reference` | OpenFlights ODbL static airport reference for six countries; no aircraft tracking | P2 |
+| `world_openaq_defra_york_20260328` | OpenAQ DEFRA York Bootham historical one-day hourly air pollutant concentrations under UK OGL | P2 |
 | `world_bls_us_cpi_2024` | U.S. BLS monthly 2024 CPI-U all-items index; no location pins | P2 |
 | `world_wikimedia_topic_pageviews` | Wikimedia daily topic article pageview counts; no reader geography | P2 |
 | `world_wikipedia_recent_changes` | English Wikipedia bounded factual edit metadata; no editor details or event location | P2 |
@@ -289,7 +290,9 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `trade_marinecadastre_ais_2024_samples` | NOAA MarineCadastre two annual 2024 AIS raster cell counts; no vessel positions | P2 |
 | `world_copernicus_activation_centroids` | Five public Copernicus EMS mapping activation centroids; no affected boundaries or damage assessment | P2 |
 | `world_firms_modis_europe` | NASA FIRMS MODIS Europe rolling 24-hour thermal anomaly pixel centers | P2 |
+| `world_firms_modis_australia_area` | NASA FIRMS MODIS Australia-area one-day thermal anomaly pixel centers | P2 |
 | `world_nyfed_sce_inflation_2024` | New York Fed SCE twelve 2024 monthly household inflation expectation observations | P2 |
+| `world_eia_crude_production_2024` | EIA 2024 annual country crude oil production in thousand barrels per day | P2 |
 | `world_ember_monthly_generation_2026` | Ember 2026 selected monthly country electricity generation aggregates in TWh | P2 |
 | `world_geofabrik_monaco_transport` | Geofabrik Monaco extract OpenStreetMap transport points under ODbL | P2 |
 | `world_hapi_inform_risk_2025` | HDX HAPI 2025 INFORM national humanitarian risk index for 191 countries | P2 |

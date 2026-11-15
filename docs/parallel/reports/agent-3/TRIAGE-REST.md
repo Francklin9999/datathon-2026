@@ -57,9 +57,9 @@ Checked 2026-11-15. This is a read-only review of selected remaining unimplement
 
 | IDs | Evidence and blocker |
 | --- | --- |
-| MASTER-067 | [NASA FIRMS area API](https://firms.modaps.eosdis.nasa.gov/usfs/api/area/) uses a map key. Deferred. Public fire products, orbital revisit timing, spatial coverage, and per-mission terms require separate examination if another anonymous distribution path is selected. |
+| MASTER-067 | [NASA FIRMS area API](https://firms.modaps.eosdis.nasa.gov/api/area/) uses a map key. A bounded Australia-area MODIS NRT capture is now integrated; thermal detections, orbital revisit and spatial limitations are documented in `HAZARDS-REMAINING.md`. |
 | MASTER-080 | [Global Fishing Watch API](https://globalfishingwatch.org/our-apis/documentation/) asks for an API token and says its APIs are available only for non-commercial purposes. Deferred credentials and product-use restriction are separate blockers; observed fishing vessel activity is incomplete. |
-| MASTER-093 | [OpenAQ](https://docs.openaq.org/about/about) notes global station data carry applicable third-party terms and v1/v2 were retired. Verify v3 authentication; do not assume public data means anonymous API access. Dataset terms and station-specific refresh remain separate. |
+| MASTER-093 | [OpenAQ](https://docs.openaq.org/about/about) v3 key access was verified. One UK DEFRA York station with a source-specific Open Government Licence is integrated; other providers require their own rights review. See `docs/evidence/parallel/agent-3/openaq-defra/source-review.md`. |
 | SRC-235 | [OpenAlex documentation](https://docs.openalex.org/) redirects to its help site, which describes obtaining an API key. Defer the keyed API; any anonymous snapshot requires independent access and data-license verification. |
 | SRC-237 | [Semantic Scholar API](https://www.semanticscholar.org/product/api) is an academic research corpus with product-specific access and limits. Verify current anonymous access and field licenses; defer any key-dependent route and exclude paid access. |
 | SRC-214 | [Airplanes.live API guide](https://airplanes.live/api-guide/) concerns aircraft tracking; global reception is uneven and position timestamps vary. Verify anonymous usage policy and dataset rights; no applicable redistribution license was established in this check. |

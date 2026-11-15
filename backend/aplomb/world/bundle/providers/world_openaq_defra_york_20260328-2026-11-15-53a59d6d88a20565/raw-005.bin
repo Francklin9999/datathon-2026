@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#005ea5">
+
+        <!-- Page Metadata -->
+            <meta name="DC.Title" content="Data Archive- Defra, UK" lang="en" xml:lang="en" />
+    <meta name="DC.Date.created" scheme="W3CDTF" content="" />
+    <meta name="DC.Date.modified" scheme="W3CDTF" content="2025-07-10" />
+    <meta name="eGMS.Subject.Category" content="Environmental protection" scheme="GCL" lang="en" xml:lang="en" />
+    <meta name="DC.Subject.keyword" content="" lang="en" xml:lang="en" />
+    <meta name="DC.Description" content="" lang="en" xml:lang="en" />
+    <!--Generic metadata -->
+    <meta name="DC.Publisher" lang="en" content="Department for Environment, Food and Rural Affairs (Defra), Nobel House, 17 Smith Square, London SW1P 3JR helpline@defra.gsi.gov.uk" />
+    <meta name="DC.Creator" lang="en" content="Department for Environment, Food and Rural Affairs (Defra) webmaster@defra.gsi.gov.uk" />
+    <meta name="DC.Format" scheme="IMT" content="text/html" />
+    <meta name="DC.Language" scheme="ISO 639-2/B" content="eng" />
+    <meta name="DC.Coverage" lang="en" content="UK; United Kingdom" />
+    <meta name="DC.Rights.copyright" lang="en" content="Crown Copyright http://www.opsi.gov.uk/advice/index.htm" />
+    <!--End of metadata -->
+    <!-- Start of Defra PICS label -->
+    <meta http-equiv="PICS-Label" content='(pics-1.1 "http://www.icra.org/ratingsv02.html" comment "ICRAonline v2.0" l gen true for "http://www.defra.gov.uk" r (nz 1 vz 1 lz 1 oz 1 cz 1) "http://www.rsac.org/ratingsv01.html" l gen true for "http://www.defra.gov.uk" r (n 0 s 0 v 0 l 0))' />
+
+        <link rel="mask-icon" href="/images/app/safari-pinned-tab.svg" color="#0b0c0c">
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/app/apple-touch-icon-180x180.png">
+        <link rel="apple-touch-icon" sizes="167x167" href="/images/app/apple-touch-icon-167x167.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/images/app/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" href="/images/app/apple-touch-icon.png">
+
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest?c=250534223018402">
+
+        <!-- Roboto font -->
+        <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+
+                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        
+                            
+                            
+        <!-- main style -->
+        <link rel="stylesheet" href="/build/main.css?c=e786233" />
+
+            
+
+                    <title>    Data Archive
+     
+ - DEFRA UK Air - GOV.UK</title>
+        
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+            <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <!--[if IE]>
+            <link rel="stylesheet" href="/css/ie.css" />
+        <![endif]-->
+
+    
+</head>
+<body >
+    <!-- global header-->
+    <header id="global-header">
+                            <div id="global-cookie-message" class="cookie-message hidden">
+        <div class="container">
+            <div class="row p-0 m-10" style="margin-bottom:20px;">
+                <div class="column grid9">
+                    <h2 style="margin: 0;">Cookies on https://uk-air.defra.gov.uk</h2>
+                    <p>We use some essential cookies to make this website work.</p>
+                    <p>We'd like to set additional cookies to understand how you use https://uk-air.defra.gov.uk,
+                        remember your settings and improve government services.
+                        We also use cookies set by other sites to help us deliver content from their services.</p>
+                    <button type="submit" name="submit" class="button bold"
+                            onclick="window.location.href='/setcookie?option=true'">
+                        Accept additional cookies
+                    </button>
+                    <button type="submit" name="submit" class="button bold"
+                            onclick="window.location.href='/setcookie?option=false'">
+                        Reject additional cookies
+                    </button>
+                    <a href="/cookies" style="color: #1B68AC; text-decoration: underline;">View cookies</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const banner = document.getElementById('global-cookie-message');
+        if (banner) {
+            if (document.cookie.includes('has_seen_banner')) {
+                banner.remove();
+            } else {
+                banner.classList.remove('hidden')
+            }
+        }
+    </script>
+
+
+<div id="ribbon" class="navbar navbar-inverse navbar-bottom">
+    <a class="skip-to-content-link" href="#content">Skip to main content</a>
+    <div class="container">
+        <div class="navbar-header">
+            <a href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs" class="navbar-brand">
+                 <span class="navbar-brand-logo">
+                    <img alt="" class="navbar-brand-logo__img" src="/images/theme/king-crest.png">
+                 </span>
+                 <span class="navbar-brand-text">
+                      Department for Environment, Food & Rural Affairs
+                  </span>
+            </a>
+        </div>
+    </div>
+</div>
+    <div id="cover" class="hero hero-primary">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <a href="/" class="width-auto hero-link">
+                    <p class="hero-title">UK AIR</p>
+                    <p class="hero-information h3">Air Information Resource</p>
+                </a>
+            </div>
+            <div class="col-xs-12 col-md-4 col-sm-5 col-sm-offset-1 col-md-offset-2">
+                <div class="row hero-row">
+                    <div class="col-xs-12">
+                        <div style="display: flex; flex-direction: row;  justify-content: end;">
+                            <form class="navbar-form hero-navbar-form" action="/search" role="search" style="display: flex; flex-direction: column;">
+                                <label for="search-box" style="text-align: left;">Search on UK Air</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" size="18" id="search-box" onclick="this.value='';" name="q">
+                                    <input type="hidden" name="cx" value="006687105269437335135:2xgztboy04y">
+                                    <input type="hidden" name="cof" value="FORID:11">
+                                    <input type="hidden" name="ie" value="UTF-8">
+                                    <input name="siteurl" type="hidden" value="https://uk-air.defra.gov.uk/">
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-default" name="sa" type="submit" aria-label="Search"><i class="glyphicon glyphicon-search" aria-hidden="true"></i></button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    if (window.location.pathname === "/") {
+        document.querySelector(".hero-title").outerHTML = "<h1 class='hero-title'>UK AIR</h1>";
+        document.querySelector(".hero-information").outerHTML = "<h2 class='hero-information'>Air Information Resource</h2>";
+    }
+</script>    <div id="navigation">
+        <nav class="navbar navbar-inverse navbar-inverse-primary">
+            <div class="container">
+                <div class="navbar-header">
+                    <p class="navbar-text visible-xs-inline-block">Menu</p>
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar top-bar"></span>
+                        <span class="icon-bar middle-bar"></span>
+                        <span class="icon-bar bottom-bar"></span>
+                    </button>
+                </div>
+                <div id="navbar" class="collapse navbar-collapse navbar-site">
+                    <ul class="nav nav-justified navbar-site-text nav-theme">
+                                                                                    <li ><a href="/">Home</a></li>
+                                                                                                                <li ><a href="/air-pollution"><span class='hidden-sm'>Air Pollution</span> <span class='visible-sm'>Pollution</span></a></li>
+                                                                                                                <li  class="active" ><a href="/data">Data</a></li>
+                                                                                                                <li ><a href="/networks"><span class='hidden-sm'>Monitoring Networks</span> <span class='visible-sm'>Monitoring</span></a></li>
+                                                                                                                <li ><a href="/library/">Library</a></li>
+                                                                                                                <li ><a href="/research/"><span class='hidden-sm'>Science & Research</span> <span class='visible-sm'>Research</span></a></li>
+                                                                                                                <li ><a href="/laqm">LAQM</a></li>
+                                                                        </ul>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+    </div>            </header>
+
+    <!-- breadcrumbs-->
+    <section id="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+        <div class="container">
+        <ul class="breadcrumb">
+         <li><a href="https://uk-air.defra.gov.uk/">Home</a></li><li><span class="active-breadcrumb">Data Archive</span></li>
+    </ul>
+        <a name="startcontent" id="startcontent"></a>
+</div>    </section>
+
+    <!-- body container-->
+    <main id="content">
+        <div class="container">
+                <div class="row">
+        <div class="col-md-9">
+            <div class="row document-body">
+                <div class="col-md-12">
+                                        <h1>Data Archive</h1>
+                </div>
+
+                                                            <div class="col-md-12">
+                            <div class="jumbotron">
+    <h2 class="jumbotron__title h3">
+        <a href="">Data Tools</a>
+    </h2>
+    <ul>
+                    <li class="jumbotron__item">
+                <a href="data_selector">Get measured data and simple statistics</a>
+            </li>
+                    <li class="jumbotron__item">
+                <a href="exceedance">Descriptive Statistics (annual and exceedance)</a>
+            </li>
+                    <li class="jumbotron__item">
+                <a href="/networks/find-sites?action=region">Pre-Formatted files of automatic monitoring data (raw data)</a>
+            </li>
+                    <li class="jumbotron__item">
+                <a href="/data/data-availability">Data availability</a>
+            </li>
+                    <li class="jumbotron__item">
+                <a href="/compliance-data">Annual Compliance Assessment Data</a>
+            </li>
+                    <li class="jumbotron__item">
+                <a href="/pm25targets/progress">Particulate matter (PM2.5) Targets (PERT and AMCT)</a>
+            </li>
+            </ul>
+</div>
+                        </div>
+                                    
+                <div class="col-md-12">
+                                                                        <p><h3>Introduction to monitoring data</h3>
+<p>There are three types of data stored in this section and these are outlined below.</p>
+<h4>1. Monitoring data</h4>
+<p>There are over 1500 sites across the UK that monitor air quality. They are organised into networks that gather a particular kind of information, using a particular method.&nbsp;There are two major types - <a href="../networks/network-info?view=automatic">automatic</a> and <a href="../networks/network-info?view=non-automatic">non-automatic</a> networks. The <a href="../networks/">Monitoring Networks section</a> provides further network information. Download data from the networks using the Data Selector Tool or download raw automatic data using the preformatted files link.</p>
+<h4>2. Descriptive statistics</h4>
+<p>For each monitoring site you can select a range of statistics which are relevant to the particular monitoring method. Basic statistics are annual mean, maximum and minimum values, with daily means, monthly means and a range of percentile values available where these are meaningful. Data from the UK Urban NO<sub>2</sub> Network can be found <a href="exceedance?f_group_id=31/">using this option</a>.</p>
+<h4>3. Exceedance statistics</h4>
+<p>Exceedance statistics provide information about concentrations above a specific threshold value. The exact concentration and the metric used varies by pollutant and purpose. A selection of commonly used examples are the UK Air Quality Objectives, EU Limit and Target Values, Critical Loads, the health-effects based system of four bands and a 1-10 index and the Indicators of Sustainable development - the average number of days per site on which pollution levels were above National Air Quality Standards.</p>
+<p>These links will provide more information on the <a href="../air-pollution/uk-eu-limits">UK and EU Objectives and Limits</a> and the <a href="../air-pollution/daqi">Air Pollution Index and Banding System</a>.</p>
+<p>You can select any of these exceedance statistics for a range of time periods, pollutants and locations.</p>
+<h3><strong>Ammonia Data 2022-2023</strong></h3>
+<p class="lightborder">The ALPHA data on the National Ammonia Monitoring Network is being reissued for the years 2022 and 2023 due to a change in uptake rate applied. The change in uptake rate leads to an increase in reported concentration from ALPHAs of 21.9% and 40.6% for 2022 and 2023, respectively.  Please refer to the&nbsp;<span style="text-decoration: underline;"><a href="../networks/network-info?view=nh3">NAMN</a></span>&nbsp;page for further details.</p>
+<h3>Ambient ozone concentrations from 1 January 2025</h3>
+<p class="lightborder">Ambient ozone concentrations are measured by UV photometry (EN 14625:2012 'Ambient air quality - standard method for the measurement of the concentration of ozone by ultraviolet photometry' (CEN, 2005a)).<br /><br /> The method passes light at wavelength 253.65 nm (from a Hg lamp) through a reaction cell containing the sampled air and measures the drop in intensity caused by the absorption of the light by the O<sub>3</sub> molecule. The calculation of the concentration of O<sub>3</sub> in the sampled air involves a constant &ndash; the 'absorption cross section' of O<sub>3</sub> at the relevant wavelength. This constant has been updated by the <a href="https://www.bipm.org/en/-/2023-09-15-ozone-cross-section" target="_blank">BIPM</a> (the international bureau of weights and measures) and reflected within the updated CEN reference method EN14625:2024.<br /><br /> This will be applied to all data from 1 January 2025, resulting in an increase of ~1.24% and will dramatically improve measurement uncertainty.</p>
+<h3>Licencing</h3>
+<p>Information on <a href="https://uk-air.defra.gov.uk/">uk-air.defra.gov.uk</a> &nbsp;is published by Defra and the Devolved Administrations under the <a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/">Open Government Licence</a> (OGL) and subject to the terms described in the "licence" or   "constraints" of the OGL, except where otherwise noted. &nbsp;Under the OGL   you are free to:</p>
+<ul>
+<li>copy, publish, distribute and transmit the information</li>
+<li>adapt the information</li>
+<li>exploit the information   commercially and non-commercially for example, by combining it with   other information, or by including it in your own product or   application</li>
+</ul>
+<p>You must, where you do any of the above, acknowledge Defra and <a href="https://uk-air.defra.gov.uk/">uk-air.defra.gov.uk</a> as the source of the information by including the following attribution   statement in reports, web pages or derived data products and, where   possible, provide a link to the OGL licence.</p>
+<p>&copy; Crown 2026 copyright Defra via uk-air.defra.gov.uk, licenced under the <a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/">Open Government Licence</a> (OGL).</p>
+<p>The data and information made available through on this website is   subject to Crown copyright protection unless otherwise indicated. Read   the <a href="http://www.nationalarchives.gov.uk/information-management/our-services/crown-copyright.htm">Crown copyright page</a> for more information. See also <a href="https://www.gov.uk/support/terms-conditions">https://www.gov.uk/support/terms-conditions</a>.</p>
+<p>This website is maintained and hosted by <a href="http://ee.ricardo.com/">Ricardo Energy &amp; Environment</a> on behalf of Defra and the Devolved Administrations.</p></p>
+                                                            </div>
+
+                                <!-- legacy view-->
+                <div class="col-md-12">
+                                     </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-12">
+                      <ul class="list-group sidebar">
+                          <li class="list-group-item sidebar__item sidebar__heading">
+                  <h3 class="sidebar__title"><a href="https://uk-air.defra.gov.uk/data/">Data Archive</a></h3>
+              </li>
+          
+                            <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/pm25targets/progress">PM<sub>2.5</sub> Targets (PERT and AMCT)</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/pm25targets/calculation">Methodology for calculating progress towards the PM<sub>2.5</sub> targets</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/data_selector">Data Selector</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/exceedance">Annual and Exceedance Statistics</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/data-availability">Data availability</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/DAQI-regional-data">DAQI regional data</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/compliance-data">Air quality compliance data</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/data-catalogue">UK Air Quality Data Catalogue</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/particle-data">UK Particle Monitoring Programme</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/maryleboneroad">Marylebone Road, Non-Automatic Data </a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/pah-data">PAH data </a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/tomps-data">TOMPs data </a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/metals-data">Metals data </a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/comparing-data">Comparing data </a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/gis-mapping">UK Ambient Air Quality Interactive Map</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/modelling-data">Modelled air quality data </a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/openair">Openair - data analysis tool</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/laqm-background-home">Background Maps</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/ozone-data">Stratospheric Ozone Data</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/uv-data">UV Radiation Data</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/uv-index-graphs">UV Index Graphs</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/wms-services">WMS Services</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/so/about">Spatial Objects</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/atom-dls">Atom Download Services</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/about_sos">Sensor Observation Service</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/density">Population Density of UK</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/critical-load">Critical Loads</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://uk-air.defra.gov.uk/data/gis-licences">Licences of air quality mapping data</a></li>
+        </ul>
+  <ul class="list-group sidebar">
+                          <li class="list-group-item sidebar__item sidebar__heading">
+                  <h3 class="sidebar__title"><a href="#">You may also be interested in...</a></h3>
+              </li>
+          
+                            <li class="list-group-item sidebar__item"><a href="https://naei.beis.gov.uk/">National Atmospheric Emissions Inventory (NAEI)</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://davidcarslaw.github.io/openair/">The Openair Project</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://ec.europa.eu/environment/air/index_en.htm">EU air quality information</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://www.eea.europa.eu/themes/air/explore-air-pollution-data">Explore European Air Quality Data</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://macc-raq.gmes-atmosphere.eu/index.php">MACC - Monitoring Atmospheric Composition and Climate</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://www.copernicus.eu/en">Copernicus</a></li>
+                <li class="list-group-item sidebar__item"><a href="https://www.eea.europa.eu/themes/air/air-quality-index/index">European Air Quality Index</a></li>
+                <li class="list-group-item sidebar__item"><a href="/about-these-pages#licence">Data licence</a></li>
+        </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                
+        </div>
+    </main>
+
+    <!-- global footer-->
+    <footer id="global-footer">
+        <div class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="footer-navigation">
+                    <h3 class="footer-navigation__title">Main Navigation</h3>
+                    <div class="row">
+                        <div class="footer-navigation__list">
+                                                            <div class="col-md-4 col-sm-4">
+                                    <ul class="list-unstyled">
+                                                                                    <li><a href="/">Home</a></li>
+                                                                                    <li><a href="/air-pollution"><span class='hidden-sm'>Air Pollution</span> <span class='visible-sm'>Pollution</span></a></li>
+                                                                                    <li><a href="/data">Data</a></li>
+                                                                            </ul>
+                                </div>
+                                                            <div class="col-md-4 col-sm-4">
+                                    <ul class="list-unstyled">
+                                                                                    <li><a href="/networks"><span class='hidden-sm'>Monitoring Networks</span> <span class='visible-sm'>Monitoring</span></a></li>
+                                                                                    <li><a href="/library/">Library</a></li>
+                                                                                    <li><a href="/research/"><span class='hidden-sm'>Science & Research</span> <span class='visible-sm'>Research</span></a></li>
+                                                                            </ul>
+                                </div>
+                                                            <div class="col-md-4 col-sm-4">
+                                    <ul class="list-unstyled">
+                                                                                    <li><a href="/laqm">LAQM</a></li>
+                                                                            </ul>
+                                </div>
+                                                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="footer-logo">
+                    <hr/>
+                    <div class="row">
+                        <div class="col-md-2 col-sm-2 col-xs-6">
+                            <img src="/images/theme/crest-footer.png" class="img-responsive" alt="DEFRA department logo">
+                        </div>
+                        <div class="col-md-10 col-sm-10 col-xs-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="footer-navigation__list">
+                                        <ul class="list-inline">
+                                            <li><a href="/cookies">Cookies policy</a></li>
+                                            <li><a href="/accessibility">Accessibility statement</a></li>
+                                            <li><a href="/about-these-pages">Terms & conditions</a></li>
+                                            <li><a href="/news">News & Events</a></li>
+                                            <li><a href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs/about/recruitment" target="_blank">Jobs (opens in a new tab)</a></li>
+                                            <li><a href="/privacy">Privacy</a></li>
+                                            <li><a href="https://www.gov.uk/help">Help</a></li>
+                                            <li><a href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs#org-contacts" target="_blank">Contact us (opens in a new tab)</a></li>
+                                            <li><a href="mailto:aqinfo@ricardo.com?subject=User%20Feedback">Feedback</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <p class="text-muted">All content is available under the Open Government Licence v3.0, except where otherwise stated.</p>
+                                    <p class="text-muted">© Crown copyright</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </footer>
+
+    <!-- main javascript -->
+            <script src="/build/main.js?c=a1dd2390222"></script>
+        <script type="text/javascript" src="/js/javascript.js?c=250s520s1823392723sw2402"></script>
+    
+        
+
+                        <!-- Google Analytics -->
+            <script>
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+                ga('create', 'UA-6712674-5', '.defra.gov.uk');
+                ga('send', 'pageview');
+
+                ga('create', 'UA-20704586-2', 'auto', 'ricardoTracker');
+                ga('ricardoTracker.send', 'pageview');
+            </script>
+            <!-- End Google Analytics -->
+    
+            <!-- Google tag (gtag.js) -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id=G-951W5REJQS"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-951W5REJQS');
+            </script>
+    	    
+</body>
+</html>

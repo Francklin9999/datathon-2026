@@ -98,11 +98,12 @@ def copernicus(payload: bytes, stamp: str) -> tuple[list[dict], dict]:
                   "coverageComplete": False, "scope": "First five public Copernicus EMS activation metadata records; source centroids only."}
 
 
-def firms(payload: bytes, stamp: str) -> tuple[list[dict], dict]:
+def firms(payload: bytes, stamp: str, dataset_id: str = FIRMS) -> tuple[list[dict], dict]:
     reader = csv.DictReader(io.StringIO(payload.decode("utf-8")))
     required = {"latitude", "longitude", "brightness", "scan", "track", "acq_date", "acq_time",
                 "satellite", "confidence", "version", "bright_t31", "frp", "daynight"}
-    if set(reader.fieldnames or []) != required:
+    fields = set(reader.fieldnames or [])
+    if fields not in (required, required | {"instrument"}):
         raise ValueError("Unexpected MODIS CSV schema")
     items = list(reader)
     if not 1 <= len(items) <= 3000:
@@ -111,7 +112,9 @@ def firms(payload: bytes, stamp: str) -> tuple[list[dict], dict]:
     captured = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
     for item in items:
         lat, lon = float(item["latitude"]), float(item["longitude"])
-        if item["satellite"] not in {"A", "T"} or item["version"] != "6.1NRT" or item["daynight"] not in {"D", "N"}:
+        if (item["satellite"] not in {"A", "T", "Aqua", "Terra"}
+                or item.get("instrument", "MODIS") != "MODIS"
+                or item["version"] != "6.1NRT" or item["daynight"] not in {"D", "N"}):
             raise ValueError("Unexpected MODIS mission/version")
         clock = item["acq_time"].zfill(4)
         if not re.fullmatch(r"\d{4}", clock):
@@ -128,11 +131,11 @@ def firms(payload: bytes, stamp: str) -> tuple[list[dict], dict]:
         if key in seen:
             raise ValueError("Duplicate MODIS detection")
         seen.add(key)
-        row = base(FIRMS, key, "hazards", "NASA MODIS thermal anomaly / active-fire detection",
+        row = base(dataset_id, key, "hazards", "NASA MODIS thermal anomaly / active-fire detection",
                    "https://firms.modaps.eosdis.nasa.gov/active_fire/", stamp, latitude=lat, longitude=lon,
                    observedAt=observed.isoformat().replace("+00:00", "Z"), properties={
                        "event": "satellite thermal anomaly / active-fire detection",
-                       "satellite": "Aqua" if item["satellite"] == "A" else "Terra",
+                       "satellite": "Aqua" if item["satellite"] in {"A", "Aqua"} else "Terra",
                        "instrument": "MODIS", "collection": item["version"], "dayNight": item["daynight"],
                        "brightnessKelvin": numbers["brightness"], "band31BrightnessKelvin": numbers["bright_t31"],
                        "fireRadiativePowerMw": numbers["frp"], "confidencePercent": numbers["confidence"],
@@ -185,7 +188,7 @@ def collect(source: str, directory: Path = DIRECTORY, fetcher=fetch) -> dict:
                 "Coordinates are satellite pixel centers, not exact fire boundaries; scan/track dimensions are retained in kilometres.",
                 "Fire radiative power is an instantaneous source measurement, not damage, area burned or financial loss.",
                 "Near-real-time data may be revised or replaced by science-quality products; this immutable version retains the captured feed.",
-                "Anonymous current file download is usable; area API still requires MAP_KEY and historical archive authentication is set aside.",
+                "This regional file is anonymous; the separately captured area API requires MAP_KEY and historical archive authentication is set aside.",
                 "Original historical availability is unproven; replay gates at capture and issuer exposure is not established.",
             ],
         }

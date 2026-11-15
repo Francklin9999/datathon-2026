@@ -1,0 +1,53 @@
+{
+ "attribution": "NASA FIRMS / LANCE, MODIS Collection 6.1 Terra and Aqua near-real-time active-fire data; no NASA endorsement",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_firms_modis_australia_area-2026-11-15-ad0708adfa2e056d",
+ "datasetId": "world_firms_modis_australia_area",
+ "frequency": "Manual bounded current capture",
+ "historicalReplay": false,
+ "licence": "NASA-led Terra/Aqua mission data: CC0 under NASA Earthdata guidance unless marked restricted; no restriction in selected CSV",
+ "licenceUrl": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+ "limitations": [
+  "One bounded Australia-area request for the most recent one-day interval; the box includes ocean and nearby islands.",
+  "Clouds, orbital revisit and sensor resolution limit detection coverage; thermal anomalies may include industrial heat or volcanoes.",
+  "Coordinates are satellite pixel centers, not confirmed wildfire locations or fire boundaries.",
+  "Fire radiative power is instantaneous, not damage, area burned or financial loss.",
+  "Near-real-time detections can be replaced by later products; replay is gated at capture and issuer exposure is not established.",
+  "The area API requires a MAP_KEY; the credential is excluded from capture metadata and raw evidence."
+ ],
+ "name": "NASA FIRMS MODIS Australia area thermal detections",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "6a4acca046cb455e16764c0d0a595a3c45af495ea400bbeb783e4ba5548bae97",
+   "url": "https://firms.modaps.eosdis.nasa.gov/api/area/"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "252aef3dfcc41a4cf95216758a4ce8d12478f06d4bdb78b6a0cc0f6ade74bda7",
+   "url": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance"
+  }
+ ],
+ "rejected": 0,
+ "requestParameters": {
+  "boundsWestSouthEastNorth": [
+   112,
+   -44,
+   154,
+   -10
+  ],
+  "dayRange": 1,
+  "source": "MODIS_NRT"
+ },
+ "retrievedAt": "2026-11-15T19:02:32Z",
+ "rowCount": 576,
+ "scope": "FIRMS area API MODIS NRT detections for one day in the 112,-44,154,-10 bounding box; captured feed only.",
+ "sha256": "ad0708adfa2e056db7b36453bd4a63b1f281cc94542c6cbbc1a0a79f09c3f0e8",
+ "sourceIds": [
+  "SRC-174",
+  "MASTER-067"
+ ],
+ "sourceRows": 576,
+ "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/api/area/"
+}
