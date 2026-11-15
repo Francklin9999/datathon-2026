@@ -1,7 +1,8 @@
-/* Aplomb global stylesheet entry. Order matters: tokens, base, then component layers.
-   Glass design: docs/superpowers/specs/2026-11-14-glass-ui-design.md */
+/* Aplomb global stylesheet entry. Order matters: tokens, base, glass material, then component layers.
+   Liquid Glass design: docs/superpowers/specs/2026-11-15-liquid-glass-design.md */
 @import '../styles/tokens.css';
 @import '../styles/base.css';
+@import '../styles/glass.css';
 @import '../styles/components.css';
 @import '../styles/shell.css';
 @import '../styles/dashboard.css';

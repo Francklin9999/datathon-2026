@@ -16,6 +16,7 @@ import { asApiError, isAbort, type ApiRequestError } from '../../api/errors';
 import { useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
 import { useRun } from '../../state/useRun';
+import { WindowControl } from '../../components/shell/TopBar';
 import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
 import { ErrorState, Loading } from '../../components/common/States';
 import { FactScopeProvider, LimitationList, type FactScope } from '../../components/common/FactDrawer';
@@ -163,7 +164,7 @@ function DeskContent({ profile }: { profile: Profile }) {
 
   return (
     <>
-      <PageHeader eyebrow={tr({ en: 'Decision Desk', fr: 'Pupitre de décision' })}
+      <PageHeader actions={<WindowControl />} eyebrow={tr({ en: 'Decision Desk', fr: 'Pupitre de décision' })}
         title={tr({ en: `Test a hypothetical move for ${profile.name}`, fr: `Tester un mouvement hypothétique pour ${profile.name}` })}>
         <p className="page-sub">{tr({ en: 'Describe a move or fill the form. Rule checks are deterministic; the evidence analysis is an audited agent run. Nothing is ever executed.', fr: 'Décrivez un mouvement ou remplissez le formulaire. Les vérifications sont déterministes ; l’analyse des preuves est une exécution d’agents auditée. Rien n’est jamais exécuté.' })}</p>
       </PageHeader>

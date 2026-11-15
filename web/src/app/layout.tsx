@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-// Local, OFL-licensed font files (no build-time network). Variable Fraunces with optical size + SOFT axes.
-import '@fontsource-variable/fraunces/full.css';
-import '@fontsource/ibm-plex-sans/400.css';
-import '@fontsource/ibm-plex-sans/500.css';
-import '@fontsource/ibm-plex-sans/600.css';
+// Local, OFL-licensed font files (no build-time network). Instrument Sans with weight and width axes.
+import '@fontsource-variable/instrument-sans/wdth.css';
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import './globals.css';
@@ -23,8 +20,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FAFAFA' },
-    { media: '(prefers-color-scheme: dark)', color: '#141415' },
+    { media: '(prefers-color-scheme: light)', color: '#ECEFF5' },
+    { media: '(prefers-color-scheme: dark)', color: '#0B0D12' },
   ],
 };
 
