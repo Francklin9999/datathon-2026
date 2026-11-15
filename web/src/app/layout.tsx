@@ -30,6 +30,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     // data-theme / data-sidebar / data-motion are set by the boot script before hydration, hence the suppressed warning.
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Aplomb has its own dark theme: asks the Dark Reader extension not to restyle the page, which
+            would otherwise rewrite icon attributes before hydration and distort the glass colours. */}
+        <meta name="darkreader-lock" />
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT + SIDEBAR_BOOT_SCRIPT + MOTION_BOOT_SCRIPT }} />
       </head>
       <body>
