@@ -38,9 +38,10 @@ unpublished; the observed feed and terms are recorded in
 Paid or billing dependent integrations are excluded from this branch, and sources
 requiring login, an account, a key, a token or approval are set aside. The source
 ledger retains these assigned rows for audit and marks them `excluded_paid_plan`
-or `deferred_login`. Six paid or billing dependent rows and 56 login gated rows
-are affected; some rows name the same underlying provider. No enabled new
-provider capture requires a paid plan or login.
+or `deferred_login`. Six paid or billing dependent rows and 55 login gated rows
+remain; some rows name the same underlying provider. The user supplied free
+API credentials for the selected EIA, OpenAQ and FIRMS area captures. Runtime
+uses their stored snapshots and does not call those APIs.
 
 Open-Meteo SRC-179 is included in the excluded set: its free API terms restrict
 use to non-commercial purposes. The linked terms are recorded in
@@ -49,12 +50,13 @@ use to non-commercial purposes. The linked terms are recorded in
 ## Credentials and restricted plans
 
 SOURCES.csv identifies provider-specific prerequisites rather than asserting every catalog
-free tier needs a key. Required credentials/plans include FIRMS MAP_KEY, EIA, OpenAQ, WTO,
+free tier needs a key. Remaining prerequisites include WTO,
 BEA, Congress, Regulations.gov, approved ACLED access, registered ReliefWeb appname, and
 commercial/registered mapping, satellite, weather, electricity and patent APIs. Google Trends
 requires alpha authorization; NewsAPI developer terms exclude production use; Reddit/GDELT TV
 rights need explicit review. Owner action: provide permitted account access and usage rights
-when enabling those providers. No credentials were printed or copied.
+when enabling those providers. EIA, one DEFRA OpenAQ station and FIRMS area are enabled
+in bounded form; credentials are excluded from the repository.
 
 ## Transient source access and exact release evidence
 
@@ -119,4 +121,4 @@ runtime until their respective rights or endpoint blockers are resolved; see
 
 ## Final access and rights checks
 
-`REMAINING-ACCESS.md`, `MISC-OFFICIAL.md`, `HAZARDS-REMAINING.md` and the energy, transport, SDMX and geographic source reports record the final anonymous access pass. Ember monthly electricity and Geofabrik Monaco GeoPackage were integrated; the public FIRMS Europe CSV and Copernicus activation metadata were integrated. HAPI required an app identifier generated with an email address; a project identifier was obtained and the CC BY INFORM 2025 national index slice is now integrated. Other HAPI categories require dataset-specific rights review; Global Fishing Watch requires a registered personal token and limits API use to noncommercial purposes; OpenAQ requires an API key and review of each upstream provider's terms. The exact FIRMS area API needs MAP_KEY, while its regional public CSV remains usable. V-Dem's official download flow asks for personal details. UNdata's documented statistical requests returned HTTP 500. USDA PSD's bulk catalogue is anonymous but an applicable redistribution grant was not verified. Global Flood Database V1 has CC BY-NC terms. Those channels are withheld or set aside as specified in `SOURCES.csv`; none was mislabeled as a paid plan without evidence.
+`REMAINING-ACCESS.md`, `MISC-OFFICIAL.md`, `HAZARDS-REMAINING.md` and the energy, transport, SDMX and geographic source reports record the final anonymous access pass. Ember monthly electricity and Geofabrik Monaco GeoPackage were integrated; the public FIRMS Europe CSV and Copernicus activation metadata were integrated. HAPI required an app identifier generated with an email address; a project identifier was obtained and the CC BY INFORM 2025 national index slice is now integrated. Other HAPI categories require dataset-specific rights review; Global Fishing Watch requires a registered personal token and limits API use to noncommercial purposes. User-supplied credentials enabled a bounded EIA country-energy capture, one DEFRA-licensed OpenAQ station capture and a FIRMS Australia-area capture. Other OpenAQ providers retain their own rights requirements, and FIRMS archive access remains separate. V-Dem's official download flow asks for personal details. UNdata's documented statistical requests returned HTTP 500. USDA PSD's bulk catalogue is anonymous but an applicable redistribution grant was not verified. Global Flood Database V1 has CC BY-NC terms. Other channels remain withheld or set aside as specified in `SOURCES.csv`; none was mislabeled as a paid plan without evidence.

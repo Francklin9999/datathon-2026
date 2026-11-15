@@ -1,0 +1,62 @@
+{
+ "accessMethod": "Authenticated OpenAQ HTTPS batch capture; no runtime source request",
+ "attribution": "© Crown 2026 copyright Defra via uk-air.defra.gov.uk, licenced under the Open Government Licence (OGL). Data accessed via OpenAQ; adapted by Aplomb.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": true,
+ "dataVersion": "world_openaq_defra_york_20260328-2026-11-15-53a59d6d88a20565",
+ "datasetId": "world_openaq_defra_york_20260328",
+ "frequency": "Hourly; fixed historical batch",
+ "historicalReplay": false,
+ "licence": "UK Open Government Licence v3.0",
+ "licenceUrl": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+ "limitations": [
+  "One station and one historical UTC day; not current or nationally representative.",
+  "Hourly concentrations are not air-quality index values or health assessments; source values may be revised.",
+  "No claim about portfolio exposure or financial impact.",
+  "© Crown 2026 copyright Defra via uk-air.defra.gov.uk, licenced under the Open Government Licence (OGL). Data accessed via OpenAQ; adapted by Aplomb."
+ ],
+ "name": "OpenAQ / DEFRA York Bootham hourly air quality, 28 March 2026",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "53495aefa7a989fb33a69927fbd06f64872ccc5fac396258827cc7d2092dac42",
+   "url": "https://api.openaq.org/v3/locations/742"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "245e3b7225e186d703a79cb8521616867580b2d0de3c28e8b4cc8ee1eb155268",
+   "url": "https://api.openaq.org/v3/sensors/1279/hours?datetime_from=2026-03-28T00%3A00%3A00Z&datetime_to=2026-03-29T00%3A00%3A00Z&limit=1000"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "a376066e5a5014449efd33d0f4b22315810889a41bfbdd7d015419356fac25b9",
+   "url": "https://api.openaq.org/v3/sensors/5083/hours?datetime_from=2026-03-28T00%3A00%3A00Z&datetime_to=2026-03-29T00%3A00%3A00Z&limit=1000"
+  },
+  {
+   "file": "raw-003.bin",
+   "sha256": "dae00978f6717ccd7c8cdb83eb081a3b148e81aa1e42975bbb872c73becce959",
+   "url": "https://api.openaq.org/v3/sensors/7823/hours?datetime_from=2026-03-28T00%3A00%3A00Z&datetime_to=2026-03-29T00%3A00%3A00Z&limit=1000"
+  },
+  {
+   "file": "raw-004.bin",
+   "sha256": "d13faa18c45efe6e2e463dff0fa29776620027fc140a699600de70dd02e6df95",
+   "url": "https://api.openaq.org/v3/sensors/5968020/hours?datetime_from=2026-03-28T00%3A00%3A00Z&datetime_to=2026-03-29T00%3A00%3A00Z&limit=1000"
+  },
+  {
+   "file": "raw-005.bin",
+   "sha256": "9bfd27c1b892a0ef14bcdddec6de16427d568073991df87f6f2771c187b3cd1d",
+   "url": "https://uk-air.defra.gov.uk/data/"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T19:02:58Z",
+ "rowCount": 96,
+ "scope": "One DEFRA station in York; four pollutants, hourly intervals starting 28 March 2026 UTC. Not current or representative of UK air quality.",
+ "sha256": "53a59d6d88a2056590574945646b747968cda8180e7f04aa5c3e422cacd406a5",
+ "sourceIds": [
+  "SRC-189",
+  "SRC-222"
+ ],
+ "sourceRows": 96,
+ "sourceUrl": "https://api.openaq.org/v3/locations/742"
+}

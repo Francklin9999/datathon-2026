@@ -75,6 +75,7 @@ PROVIDER_MODES = {
     "world_global_carbon_budget_2026": "environment",
     "world_copernicus_activation_centroids": "hazards",
     "world_firms_modis_europe": "hazards",
+    "world_firms_modis_australia_area": "hazards",
     "world_geofabrik_monaco_transport": "infrastructure",
     "world_hapi_inform_risk_2025": "hazards",
 }
@@ -707,6 +708,11 @@ def _observation_summary(row: dict) -> str:
                 f"and global rank {props['globalRank']}. This annual composite is not a "
                 "disaster event, forecast, issuer exposure or financial risk estimate. "
                 f"{props['attribution']}")
+    if row["sourceId"] == "world_eia_crude_production_2024":
+        return (f"EIA {props['referenceYear']} {props['product']} production: "
+                f"{props['productionThousandBarrelsPerDay']:g} thousand barrels per day. "
+                "This annual country average does not establish current production or issuer exposure. "
+                f"{props['attribution']}")
     if row["sourceId"] == "world_ember_monthly_generation_2026":
         return (f"Ember {props['referenceMonth']} {props['electricitySource']}: "
                 f"{props['generationTWh']:g} TWh. Country electricity generation is "
@@ -721,7 +727,7 @@ def _observation_summary(row: dict) -> str:
         return (f"Copernicus EMS activation {props['activationCode']}: {props['event']}. "
                 "The point is the source activation-area centroid, not the disaster epicenter "
                 "or damage boundary. Products and imagery are not loaded.")
-    if row["sourceId"] == "world_firms_modis_europe":
+    if row["sourceId"] in {"world_firms_modis_europe", "world_firms_modis_australia_area"}:
         return (f"NASA FIRMS {props['satellite']} MODIS thermal anomaly: "
                 f"{props['fireRadiativePowerMw']:g} MW radiative power. "
                 "The point is a satellite pixel center, not a confirmed wildfire, "
@@ -771,6 +777,11 @@ def _observation_summary(row: dict) -> str:
                 f"{props['component']}: {props['value']:g} {props['unit']}. "
                 "Revised global carbon estimate; no country, facility or issuer attribution. "
                 f"{props['attribution']}")
+    if row["sourceId"] == "world_openaq_defra_york_20260328":
+        return (f"DEFRA York Bootham {props['parameter'].upper()}: {props['value']:g} {props['unit']} "
+                f"for {props['periodStart']} to {props['periodEnd']}. Historical single-station "
+                "concentration; not a current air-quality index or health assessment. "
+                f"Source flagged: {props['hasFlags']}. {props['attribution']}")
     if row["sourceId"] == "world_openflights_airport_reference":
         return (f"OpenFlights static airport reference {props['iata']} in "
                 f"{props['sourceCity']}, {props['sourceCountry']}. "

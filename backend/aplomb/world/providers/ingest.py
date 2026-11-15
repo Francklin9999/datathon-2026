@@ -16,6 +16,7 @@ from . import (
     climate_trace_extra,
     crossref_extra,
     earthdata_extra,
+    eia_extra,
     fda_extra,
     feeds_extra,
     geodata_extra,
@@ -138,7 +139,7 @@ def main() -> int:
     parser.add_argument("--source", choices=sorted(SOURCES) + ["ecb", "minerals", "quake", "statcan_cpi", "trade",
                                                                "uk_sanctions", "unctad", "wits", "geoboundaries", "ucdp", "climate_trace",
                                                                "fda", "crossref", "ted", "wgi", "earthdata", "openflights",
-                                                               "ecb_sdmx", "bis_sdmx", "fed_chargeoffs", "wikipedia_recent_changes", "ilo"],
+                                                               "ecb_sdmx", "bis_sdmx", "fed_chargeoffs", "wikipedia_recent_changes", "ilo", "eia"],
                         action="append", required=True)
     parser.add_argument("--directory", type=Path, default=DIRECTORY)
     args = parser.parse_args()
@@ -151,6 +152,8 @@ def main() -> int:
                 manifest = minerals.collect(args.directory, fetch=Transport(max_bytes=5_000_000))
             elif name == "quake":
                 manifest = quake_feed.collect(args.directory)
+            elif name == "eia":
+                manifest = eia_extra.collect(directory=args.directory)
             elif name == "ilo":
                 manifest = ilo_extra.collect(directory=args.directory)
             elif name == "statcan_cpi":

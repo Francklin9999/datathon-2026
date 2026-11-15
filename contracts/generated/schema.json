@@ -1626,6 +1626,7 @@
         "world_ted_published_notice_metadata",
         "world_nasa_cmr_modis_granules",
         "world_openflights_airport_reference",
+        "world_openaq_defra_york_20260328",
         "world_bls_us_cpi_2024",
         "world_wikimedia_topic_pageviews",
         "world_wikipedia_recent_changes",
@@ -1640,7 +1641,9 @@
         "trade_marinecadastre_ais_2024_samples",
         "world_copernicus_activation_centroids",
         "world_firms_modis_europe",
+        "world_firms_modis_australia_area",
         "world_nyfed_sce_inflation_2024",
+        "world_eia_crude_production_2024",
         "world_ember_monthly_generation_2026",
         "world_geofabrik_monaco_transport",
         "world_hapi_inform_risk_2025",
@@ -9880,7 +9883,7 @@
   "x-contract-version": "1.4.0",
   "x-spec-sha256": {
     "schemas.md": "8ef77c78d2a4c1ceefc2015264a83fe93b3afcd9912cb8054ad674976d1ff14a",
-    "catalog.md": "ee4926c72dbd6a7fa40af039d67a8aeba16099f2a7564926aaae2dc483c0bd5a",
+    "catalog.md": "054ba9dc0c1652540d288b3f9bb6556e2dd72a7d0badabd23c0d0006624413f6",
     "api.md": "6f13245221577f105f2940462d7dde9560a4fd815ef7a44bcc2ff711744743e9",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"

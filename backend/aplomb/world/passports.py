@@ -36,12 +36,13 @@ PROVIDER_DATASET_IDS = frozenset({
     "world_nasa_gibs_modis_tile", "world_nominatim_eiffel_lookup", "world_osm_eiffel_tower",
     "world_global_carbon_budget_2026",
     "world_adsblol_heathrow_positions", "trade_marinecadastre_ais_2024_samples",
-    "world_copernicus_activation_centroids", "world_firms_modis_europe",
+    "world_copernicus_activation_centroids", "world_firms_modis_europe", "world_firms_modis_australia_area",
     "world_nyfed_sce_inflation_2024",
-    "world_ember_monthly_generation_2026", "world_geofabrik_monaco_transport",
+    "world_ember_monthly_generation_2026", "world_geofabrik_monaco_transport", "world_eia_crude_production_2024",
     "world_hapi_inform_risk_2025",
     "world_nasa_cmr_modis_granules",
     "world_openflights_airport_reference",
+    "world_openaq_defra_york_20260328",
 })
 
 
@@ -191,7 +192,7 @@ def provider_passports() -> dict[str, dict]:
             "status": "in_use",
             "source": manifest["name"],
             "sourceUrl": manifest["sourceUrl"],
-            "accessMethod": "Bounded public HTTPS batch capture; no runtime source request",
+            "accessMethod": manifest.get("accessMethod", "Bounded public HTTPS batch capture; no runtime source request"),
             "licence": manifest["licence"],
             "licenceUrl": manifest.get("licenceUrl"),
             "retrievedOn": retrieved[:10],
