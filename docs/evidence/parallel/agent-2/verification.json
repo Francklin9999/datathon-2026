@@ -15,7 +15,7 @@
     "docs/evidence/parallel/agent-2/target-review-scripted.png": "9d0576e3f0dc17181b61601ce76ee35bc6bd0bfe4c135b68add42e2e8d815fdb",
     "docs/evidence/parallel/agent-2/target-review-success.png": "a9e0dcbeca3531e279691ac42d2c0399af27bc0eba1f812cf12d3f7e58727a58",
     "docs/evidence/parallel/agent-2/focused-regressions.log": "af08d81b01384dc30bbe6134483d6047ad6eaae552f6ee841163b132f7208a43",
-    "docs/evidence/parallel/agent-2/static-build.log": "4cf27e8c03432716d0f9cd0901ba5f6c0eca734583fa20c4c940169c3c7d90c6",
+    "docs/evidence/parallel/agent-2/static-build.log": "2c0bdf392f86eef06e43d484a611156b9ae3d50fe06519b93167dd10a076a40f",
     "docs/evidence/parallel/agent-2/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
     "docs/evidence/parallel/agent-2/sec-live-status.json": "0d76e6b4a57c16e0ba8de8a688616dee8a1ecfa17f41a9ca5b069ad8fef7aad6",
     "docs/evidence/parallel/agent-2/typecheck.log": "9e2b0518bdd95936d3b3d7030bb7b24584d35298e93c592985d7dfc255c3a9e7",

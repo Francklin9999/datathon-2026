@@ -6,4 +6,4 @@ Continued and preserved Claude's work. Latest owner direction completed: all 97 
 
 Real source HTTP paths, 24 focused regressions, Ruff, web typecheck and static export passed. Broad tests were not re-run under API-first direction. Live Bedrock and scripted browser evidence remain separately labelled. No deployment or production changes.
 
-Implementation commit: pending commit below. Full handoff: HANDOFF.md.
+Implementation commit: `1a513d9f2bc402113adbf252e5f0b10016efb238`. Full handoff: HANDOFF.md.

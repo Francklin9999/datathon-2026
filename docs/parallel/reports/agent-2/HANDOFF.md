@@ -1,6 +1,6 @@
 # Agent 2 handoff
 
-Branch: `codex/agent-2-research-audit`. Base: `2604b9689e9f992b4e9e46c4a06ea89ec57ac155` (`codex/parallel-base-20261115`). The committed implementation SHA is recorded in STATUS.md; the final report commit SHA is returned to the owner.
+Branch: `codex/agent-2-research-audit`. Base: `2604b9689e9f992b4e9e46c4a06ea89ec57ac155` (`codex/parallel-base-20261115`). Implementation SHA: `1a513d9f2bc402113adbf252e5f0b10016efb238`; the final report commit SHA is returned to the owner.
 
 ## Result
 
