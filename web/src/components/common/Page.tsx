@@ -6,19 +6,33 @@ import type { Profile } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { Empty, ErrorState, Loading } from './States';
 import { useWidget } from '../ui/WidgetContext';
+import { InfoTip } from '../ui/InfoTip';
 
-export function PageHeader({ eyebrow, title, children }: { eyebrow?: string; title: string; children?: ReactNode }) {
+/**
+ * Page title with one useful sentence (children) on the left and the page's controls on the right.
+ * `eyebrow` is accepted for compatibility but no longer shown: the rail already names the page.
+ */
+export function PageHeader({ title, children, actions, tour }: {
+  eyebrow?: string; title: string; children?: ReactNode; actions?: ReactNode; tour?: string;
+}) {
   return (
-    <header className="page-header">
-      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-      <h1 className="serif page-title">{title}</h1>
-      {children}
+    <header className="page-header" {...(tour ? { 'data-tour': tour } : {})}>
+      <div className="page-heading">
+        <h1 className="page-title">{title}</h1>
+        {children}
+      </div>
+      {actions && <div className="page-actions">{actions}</div>}
     </header>
   );
 }
 
-export function Card({ title, children, actions, id, className }: {
+/**
+ * Card. `section` names it in the page's section dock (needs an `id`); `info` folds a note behind an
+ * "i" beside the title; `tour` anchors a tutorial step.
+ */
+export function Card({ title, children, actions, id, className, section, info, tour }: {
   title?: string; children: ReactNode; actions?: ReactNode; id?: string; className?: string;
+  section?: string; info?: string; tour?: string;
 }) {
   const widget = useWidget();
   const { tr } = useApp();
@@ -30,7 +44,8 @@ export function Card({ title, children, actions, id, className }: {
     style: { '--w': widget.w, '--h': widget.h } as CSSProperties,
   } : {};
   return (
-    <section className={classes} {...(id ? { id, 'aria-labelledby': `${id}-title` } : {})} {...widgetProps}>
+    <section className={classes} {...(id ? { id, 'aria-labelledby': `${id}-title` } : {})} {...widgetProps}
+      {...(section && id ? { 'data-section': section } : {})} {...(tour ? { 'data-tour': tour } : {})}>
       {(title || actions || widget?.editing) && (
         <div className="card-head">
           {widget?.editing && (
@@ -40,7 +55,12 @@ export function Card({ title, children, actions, id, className }: {
               <GripVertical aria-hidden="true" size={16} strokeWidth={1.5} />
             </button>
           )}
-          {title && <h2 className="card-title" {...(id ? { id: `${id}-title` } : {})}>{title}</h2>}
+          {title && (
+            <span className="card-title-row">
+              <h2 className="card-title" {...(id ? { id: `${id}-title` } : {})}>{title}</h2>
+              {info && <InfoTip text={info} align="start" />}
+            </span>
+          )}
           {actions && <div className="card-actions">{actions}</div>}
         </div>
       )}

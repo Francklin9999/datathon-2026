@@ -12,6 +12,7 @@ import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
 import { profileKey, useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
+import { WindowControl } from '../../components/shell/TopBar';
 import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
 import { ErrorState, Loading, Unavailable } from '../../components/common/States';
 import { FactChip, FactScopeProvider, LimitationList, type FactScope } from '../../components/common/FactDrawer';
@@ -38,7 +39,7 @@ function PortfolioContent({ profile }: { profile: Profile }) {
 
   return (
     <>
-      <PageHeader eyebrow={tr({ en: 'Fictional portfolio', fr: 'Portefeuille fictif' })}
+      <PageHeader actions={<WindowControl />} eyebrow={tr({ en: 'Fictional portfolio', fr: 'Portefeuille fictif' })}
         title={tr({ en: `${profile.name}: holdings, rules and risk`, fr: `${profile.name} : positions, règles et risque` })}>
         <p className="page-sub">
           {tr({ en: 'All values are in', fr: 'Toutes les valeurs sont en' })} {profile.portfolio.currency} · {fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} {tr({ en: 'fictional capital', fr: 'de capital fictif' })} · {tr({ en: 'profile version', fr: 'version du profil' })} {profile.version}

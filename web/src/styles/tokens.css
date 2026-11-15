@@ -1,139 +1,193 @@
-/* Aplomb tokens. Direction (unslop pass, 2026-11-15): exact, sober, evidential; the world of survey
-   and audit instruments. Surfaces are one neutral graphite ramp on a solid background; colour lives in
-   one cobalt accent (actions, selection, the key figure) and in the charts. Light is the base,
-   html[data-theme='dark'] overrides; the boot script sets data-theme before first paint.
-   Neutral ramps and type scale adapted from unslop by Damir Sokolovsky (@heydamir), CC BY 4.0. */
+/* Aplomb tokens — Liquid Glass (2026-11-15, docs/superpowers/specs/2026-11-15-liquid-glass-design.md).
+   Frosted panels float over a fixed ambient field (fine graph paper and two light pools). The opaque
+   roles (--bg, --surface, --raised, --deep) are the composite colours of the glass and the fallback
+   when transparency is reduced or unsupported; tests/ui-contrast.test.ts checks every text role on
+   them. Glass fills live in separate --glass-* tokens. Colour lives in one cobalt accent and in the
+   charts; the floating chrome (top bar, rail, dock) is dark graphite glass.
+   Light is the base, html[data-theme='dark'] overrides; the boot script sets data-theme before paint. */
 :root {
   color-scheme: light;
 
-  /* Graphite ramp */
-  --bg: #FAFAFA;            /* page */
-  --deep: #F4F4F5;          /* sidebar */
-  --surface: #FFFFFF;       /* cards */
-  --raised: #F4F4F5;        /* active rows, inputs, nested blocks */
-  --raised-2: #EBEBED;      /* hover on raised */
+  /* Opaque roles (composites of the glass) */
+  --bg: #ECEFF5;            /* page, behind everything */
+  --deep: #E3E7EF;          /* wells: inputs groups, recessed blocks */
+  --surface: #FFFFFF;       /* cards (opaque fallback of --glass-card) */
+  --raised: #F2F4F8;        /* active rows, inputs, nested blocks */
+  --raised-2: #E7EAF0;      /* hover on raised */
   --text: #171717;
-  --text-2: #525252;
-  --text-3: #666666;        /* meta and captions only */
-  --line: rgba(23, 23, 23, .08);
-  --line-strong: rgba(23, 23, 23, .16);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .05);
-  --shadow-pop: 0 8px 24px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
-  --scrim: rgba(23, 23, 23, .28);
+  --text-2: #4B4B52;
+  --text-3: #5F5F67;        /* meta and captions only */
+  --line: rgba(20, 24, 36, .08);
+  --line-strong: rgba(20, 24, 36, .16);
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, .05);
+  --shadow-pop: 0 18px 48px -12px rgba(16, 24, 40, .28), 0 2px 8px rgba(16, 24, 40, .08);
+  --scrim: rgba(18, 22, 32, .28);
+
+  /* Glass */
+  --glass-panel: rgba(255, 255, 255, .5);
+  --glass-card: rgba(255, 255, 255, .72);
+  --glass-card-hover: rgba(255, 255, 255, .86);
+  --glass-inset: rgba(20, 24, 36, .035);   /* nested blocks inside a card */
+  --glass-pop: rgba(255, 255, 255, .82);   /* menus, drawers, tooltips */
+  --glass-edge: rgba(255, 255, 255, .95);  /* specular rim, top */
+  --glass-edge-low: rgba(255, 255, 255, .35);
+  --glass-line: rgba(20, 24, 36, .07);
+  --glass-blur: blur(28px) saturate(170%);
+  --glass-blur-sm: blur(18px) saturate(180%);
+  --glass-shadow: 0 1px 0 rgba(255, 255, 255, .7) inset, 0 24px 48px -24px rgba(16, 24, 40, .22), 0 2px 6px rgba(16, 24, 40, .04);
+  --card-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset, 0 10px 24px -16px rgba(16, 24, 40, .22), 0 1px 2px rgba(16, 24, 40, .04);
+
+  /* Floating chrome: dark graphite glass */
+  --chrome: rgba(22, 23, 28, .8);
+  --chrome-solid: #1B1C21;
+  --chrome-text: #F4F4F6;
+  --chrome-text-2: #A9AAB4;
+  --chrome-hover: rgba(255, 255, 255, .09);
+  --chrome-line: rgba(255, 255, 255, .1);
+  --chrome-active: #FFFFFF;
+  --chrome-active-text: #14151A;
+  --chrome-field: rgba(255, 255, 255, .08);
+  --chrome-edge: rgba(255, 255, 255, .22);
+  /* Ink fill: the selected segment and secondary dark buttons (the template's espresso pills) */
+  --ink-fill: #18191E;
+  --ink-fill-hover: #2A2B32;
+  --ink-fill-text: #FFFFFF;
+
+  /* Ambient field behind the glass */
+  --ambient-grid: rgba(30, 40, 70, .055);
+  --ambient-grid-major: rgba(30, 40, 70, .085);
+  --ambient-pool-1: rgba(47, 91, 255, .2);
+  --ambient-pool-2: rgba(22, 178, 160, .14);
+  --ambient-pool-3: rgba(255, 255, 255, .7);
 
   /* One accent: cobalt */
   --accent: #2F5BFF;        /* fills with white text (5.2:1) */
   --accent-hover: #2349E0;
   --accent-text: #2444D6;   /* links and sourced figures on light surfaces */
-  --accent-soft: rgba(47, 91, 255, .08);
+  --accent-soft: rgba(47, 91, 255, .1);
   --accent-line: rgba(47, 91, 255, .36);
   --accent-contrast: #FFFFFF;
   --focus: #2F5BFF;
 
-  /* Semantic, toned to the ramp: text colour only, never a filled pill */
-  --pass-fg: #15803D;      --pass-bg: rgba(21, 128, 61, .06);      --pass-line: rgba(21, 128, 61, .28);
-  --tension-fg: #A15C07;   --tension-bg: rgba(161, 92, 7, .06);    --tension-line: rgba(161, 92, 7, .28);
-  --conflict-fg: #C81E1E;  --conflict-bg: rgba(200, 30, 30, .05);  --conflict-line: rgba(200, 30, 30, .28);
-  --nee-fg: #525252;       --nee-bg: rgba(23, 23, 23, .04);        --nee-line: rgba(23, 23, 23, .16);
+  /* Semantic, toned to the ramp: text colour with its icon */
+  --pass-fg: #12703A;      --pass-bg: rgba(18, 112, 58, .08);      --pass-line: rgba(18, 112, 58, .28);
+  --tension-fg: #8E5006;   --tension-bg: rgba(142, 80, 6, .08);    --tension-line: rgba(142, 80, 6, .28);
+  --conflict-fg: #C81E1E;  --conflict-bg: rgba(200, 30, 30, .07);  --conflict-line: rgba(200, 30, 30, .28);
+  --nee-fg: #4B4B52;       --nee-bg: rgba(20, 24, 36, .05);        --nee-line: rgba(20, 24, 36, .16);
 
   /* Charts: the tracked line is the accent, comparisons sit in neutral steps */
   --chart-1: #2F5BFF;
-  --chart-4: #8A8A8F;
-  --chart-grid: rgba(23, 23, 23, .07);
-  --chart-area-top: rgba(47, 91, 255, .14);
+  --chart-4: #8A8A93;
+  --chart-grid: rgba(20, 24, 36, .07);
+  --chart-area-top: rgba(47, 91, 255, .22);
   --chart-area-bottom: rgba(47, 91, 255, 0);
-  --bar: rgba(23, 23, 23, .28);
+  --bar: rgba(20, 24, 36, .28);
   /* Categorical identity (validated with the dataviz palette script; colour follows the entity). */
-  --cat-1: #1BAF7A; --cat-2: #2A78D6; --cat-3: #EB6834; --cat-4: #6250D6; --cat-5: #E87BA4; --cat-other: #8A8A8F;
+  --cat-1: #1BAF7A; --cat-2: #2A78D6; --cat-3: #EB6834; --cat-4: #6250D6; --cat-5: #E87BA4; --cat-other: #8A8A93;
 
-  /* Type: IBM Plex Sans for the interface, Plex Mono for figures and meta, Fraunces for page titles */
-  --serif: 'Fraunces Variable', 'Fraunces', Georgia, 'Times New Roman', serif;
-  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Type: Instrument Sans for everything, Plex Mono for tickers and identifiers */
+  --sans: 'Instrument Sans Variable', 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Shape: nested radii (control 8, card 12, panel 14) */
-  --r-panel: 14px;
-  --r-card: 12px;
-  --r-ctl: 8px;
-  --r-chip: 4px;
+  /* Shape: nested radii */
+  --r-panel: 28px;
+  --r-card: 20px;
+  --r-ctl: 12px;
+  --r-chip: 8px;
+  --r-pill: 999px;
   --radius: var(--r-card);
   --radius-sm: var(--r-ctl);
+
+  /* Layout */
+  --rail-w: 60px;
+  --rail-w-open: 216px;
+  --gap-shell: 16px;
 
   /* Motion: one curve, a few durations */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 150ms;
-  --dur-menu: 180ms;
-  --dur-enter: 360ms;
+  --dur-menu: 200ms;
+  --dur-enter: 420ms;
 
   /* Scrollbars */
-  --scroll-thumb: rgba(23, 23, 23, .22);
-  --scroll-thumb-hover: rgba(23, 23, 23, .38);
+  --scroll-thumb: rgba(20, 24, 36, .22);
+  --scroll-thumb-hover: rgba(20, 24, 36, .38);
 
-  /* Legacy names still used by page code (T13–T15) */
-  --navy: #171717;
-  --navy-2: #2A2A2D;
-  --gold: var(--accent);
-  --gold-text: var(--accent-text);
-  --gold-soft: var(--accent-soft);
-  --teal: var(--accent);
-  --teal-dark: var(--accent-text);
+  /* Legacy names still used by pages.css */
   --canvas: var(--raised);
-  --tile: var(--raised);
+  --tile: var(--glass-inset);
   --tile-hover: var(--raised-2);
-  --tile-border: transparent;
   --field: var(--surface);
   --field-border: var(--line-strong);
-  --glass: var(--surface);
-  --glass-strong: var(--surface);
-  --glass-border: var(--line);
-  --ink: var(--text);
+  --teal: var(--accent);
   --muted: var(--text-2);
   --border: var(--line-strong);
-  --notice-fg: var(--text-2);
-  --notice-bg: var(--raised);
-  --notice-line: var(--line);
 }
 
 html[data-theme='dark'] {
   color-scheme: dark;
 
-  --bg: #141415;
-  --deep: #0F0F10;
-  --surface: #19191B;
-  --raised: #232325;
-  --raised-2: #2B2B2E;
-  --text: #EDEDED;
-  --text-2: #A1A1A6;
-  --text-3: #8E8E94;
-  --line: rgba(237, 237, 237, .08);
-  --line-strong: rgba(237, 237, 237, .15);
+  --bg: #0B0D12;
+  --deep: #101218;
+  --surface: #1A1C23;
+  --raised: #22252D;
+  --raised-2: #2B2E37;
+  --text: #EDEDF0;
+  --text-2: #A6A7AF;
+  --text-3: #92939B;
+  --line: rgba(237, 237, 245, .08);
+  --line-strong: rgba(237, 237, 245, .15);
   --shadow-sm: none;
-  --shadow-pop: 0 12px 32px rgba(0, 0, 0, .5);
+  --shadow-pop: 0 24px 56px -12px rgba(0, 0, 0, .7), 0 2px 8px rgba(0, 0, 0, .4);
   --scrim: rgba(0, 0, 0, .55);
+
+  --glass-panel: rgba(24, 26, 33, .55);
+  --glass-card: rgba(38, 41, 50, .55);
+  --glass-card-hover: rgba(46, 49, 60, .66);
+  --glass-inset: rgba(255, 255, 255, .04);
+  --glass-pop: rgba(30, 32, 40, .86);
+  --glass-edge: rgba(255, 255, 255, .2);
+  --glass-edge-low: rgba(255, 255, 255, .04);
+  --glass-line: rgba(255, 255, 255, .07);
+  --glass-shadow: 0 1px 0 rgba(255, 255, 255, .08) inset, 0 24px 48px -24px rgba(0, 0, 0, .6);
+  --card-shadow: 0 1px 0 rgba(255, 255, 255, .07) inset, 0 12px 28px -18px rgba(0, 0, 0, .7);
+
+  --chrome: rgba(44, 46, 56, .66);
+  --chrome-solid: #24262E;
+  --chrome-hover: rgba(255, 255, 255, .1);
+  --chrome-line: rgba(255, 255, 255, .1);
+  --chrome-field: rgba(0, 0, 0, .22);
+  --chrome-edge: rgba(255, 255, 255, .2);
+  --ink-fill: #F2F3F6;
+  --ink-fill-hover: #FFFFFF;
+  --ink-fill-text: #14151A;
+
+  --ambient-grid: rgba(180, 196, 255, .04);
+  --ambient-grid-major: rgba(180, 196, 255, .065);
+  --ambient-pool-1: rgba(47, 91, 255, .26);
+  --ambient-pool-2: rgba(22, 178, 160, .13);
+  --ambient-pool-3: rgba(120, 140, 255, .06);
 
   --accent: #2F5BFF;
   --accent-hover: #2551F0;
-  --accent-text: #93AAFF;
-  --accent-soft: rgba(110, 140, 255, .12);
+  --accent-text: #9DB2FF;
+  --accent-soft: rgba(110, 140, 255, .14);
   --accent-line: rgba(147, 170, 255, .4);
-  --focus: #93AAFF;
+  --focus: #9DB2FF;
 
-  --pass-fg: #4CC38A;      --pass-bg: rgba(76, 195, 138, .08);     --pass-line: rgba(76, 195, 138, .3);
-  --tension-fg: #E2A336;   --tension-bg: rgba(226, 163, 54, .08);  --tension-line: rgba(226, 163, 54, .3);
-  --conflict-fg: #F2555A;  --conflict-bg: rgba(242, 85, 90, .08);  --conflict-line: rgba(242, 85, 90, .3);
-  --nee-fg: #A1A1A6;       --nee-bg: rgba(237, 237, 237, .05);     --nee-line: rgba(237, 237, 237, .16);
+  --pass-fg: #4CC38A;      --pass-bg: rgba(76, 195, 138, .1);      --pass-line: rgba(76, 195, 138, .3);
+  --tension-fg: #E2A336;   --tension-bg: rgba(226, 163, 54, .1);   --tension-line: rgba(226, 163, 54, .3);
+  --conflict-fg: #F2666B;  --conflict-bg: rgba(242, 85, 90, .1);   --conflict-line: rgba(242, 85, 90, .3);
+  --nee-fg: #A6A7AF;       --nee-bg: rgba(237, 237, 245, .05);     --nee-line: rgba(237, 237, 245, .16);
 
-  --chart-1: #6E8BFF;
-  --chart-4: #8E8E94;
-  --chart-grid: rgba(237, 237, 237, .07);
-  --chart-area-top: rgba(110, 139, 255, .22);
-  --chart-area-bottom: rgba(110, 139, 255, 0);
-  --bar: rgba(237, 237, 237, .3);
-  --cat-1: #199E70; --cat-2: #3987E5; --cat-3: #D95926; --cat-4: #9085E9; --cat-5: #D55181; --cat-other: #7D7D83;
+  --chart-1: #7B95FF;
+  --chart-4: #92939B;
+  --chart-grid: rgba(237, 237, 245, .07);
+  --chart-area-top: rgba(123, 149, 255, .3);
+  --chart-area-bottom: rgba(123, 149, 255, 0);
+  --bar: rgba(237, 237, 245, .3);
+  --cat-1: #199E70; --cat-2: #3987E5; --cat-3: #D95926; --cat-4: #9085E9; --cat-5: #D55181; --cat-other: #7D7D85;
 
-  --scroll-thumb: rgba(237, 237, 237, .18);
-  --scroll-thumb-hover: rgba(237, 237, 237, .32);
-
-  --navy: #0F0F10;
-  --navy-2: #232325;
+  --scroll-thumb: rgba(237, 237, 245, .18);
+  --scroll-thumb-hover: rgba(237, 237, 245, .32);
 }

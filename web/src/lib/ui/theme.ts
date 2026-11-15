@@ -30,7 +30,7 @@ export function themeToApply(pref: ThemePref | null, systemDark: boolean): Theme
 
 /** Browser UI colour (meta theme-color) for a resolved theme; matches --bg in styles/tokens.css. */
 export function themeColorFor(theme: ThemeMode): string {
-  return theme === 'dark' ? '#141415' : '#FAFAFA';
+  return theme === 'dark' ? '#0B0D12' : '#ECEFF5';
 }
 
 /**
@@ -41,7 +41,7 @@ export function themeColorFor(theme: ThemeMode): string {
 export const MOTION_BOOT_SCRIPT = `(function(){var r=document.documentElement;function s(){if(document.visibilityState==='hidden'){r.setAttribute('data-motion','off');}}
 s();document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){r.removeAttribute('data-motion');}else{s();}});})();`;
 
-/** Sidebar preference: expanded (labels) or collapsed (64 px icon rail). */
+/** Navigation rail preference: collapsed (floating icon rail, the default) or expanded (icons with labels). */
 export type SidebarState = 'expanded' | 'collapsed';
 export const SIDEBAR_PREF_KEY = 'sidebar';
 
@@ -49,5 +49,5 @@ export function isSidebarState(value: unknown): value is SidebarState {
   return value === 'expanded' || value === 'collapsed';
 }
 
-/** Applies the stored sidebar state to <html> before first paint, so a collapsed rail never flashes open. */
-export const SIDEBAR_BOOT_SCRIPT = `(function(){try{var s=window.localStorage.getItem('aplomb.pref.sidebar');if(s==='collapsed'){document.documentElement.setAttribute('data-sidebar','collapsed');}}catch(e){}})();`;
+/** Applies the stored rail state to <html> before first paint, so an expanded rail never flashes closed. */
+export const SIDEBAR_BOOT_SCRIPT = `(function(){try{var s=window.localStorage.getItem('aplomb.pref.sidebar');if(s==='expanded'){document.documentElement.setAttribute('data-sidebar','expanded');}}catch(e){}})();`;

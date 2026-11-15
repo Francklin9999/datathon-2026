@@ -45,7 +45,10 @@ export function ErrorState({ error, onRetry, title, children }: {
       <p className="state-title">{title ?? errorTitle(error, lang)}</p>
       <p className="muted small">{error.message}</p>
       {error.requestId && (
-        <p className="muted small mono break">{tr({ en: 'Request', fr: 'Requête' })} {error.requestId}</p>
+        <details className="tech-details">
+          <summary>{tr({ en: 'Technical details', fr: 'Détails techniques' })}</summary>
+          <p className="mono break">{tr({ en: 'Request', fr: 'Requête' })} {error.requestId}</p>
+        </details>
       )}
       {children}
       {onRetry && !disabled && (
