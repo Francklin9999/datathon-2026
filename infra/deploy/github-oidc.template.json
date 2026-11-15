@@ -30,7 +30,7 @@
               "Condition": {
                 "StringEquals": {
                   "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-                  "token.actions.githubusercontent.com:sub": "repo:Francklin9999/datathon-2026:ref:refs/heads/main"
+                  "token.actions.githubusercontent.com:sub": "repo:Francklin9999@162392919/datathon-2026@1458135970:ref:refs/heads/main"
                 }
               }
             }

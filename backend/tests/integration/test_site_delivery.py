@@ -86,7 +86,7 @@ def test_oidc_role_can_only_publish_the_existing_site_from_main():
     trust = props["AssumeRolePolicyDocument"]["Statement"][0]["Condition"]["StringEquals"]
     assert trust["token.actions.githubusercontent.com:aud"] == "sts.amazonaws.com"
     assert trust["token.actions.githubusercontent.com:sub"] == (
-        "repo:Francklin9999/datathon-2026:ref:refs/heads/main")
+        "repo:Francklin9999@162392919/datathon-2026@1458135970:ref:refs/heads/main")
     grants = props["Policies"][0]["PolicyDocument"]["Statement"]
     assert {action for grant in grants for action in grant["Action"]} == {
         "s3:PutObject", "cloudfront:CreateInvalidation", "cloudfront:GetInvalidation"}
