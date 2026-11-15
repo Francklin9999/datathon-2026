@@ -32,7 +32,7 @@ export const RUN_STATUS: Labels<RunStatus> = {
   queued: l('Queued', 'En file'),
   running: l('Running', 'En cours'),
   waiting_input: l('Waiting for your answer', 'En attente de votre réponse'),
-  succeeded: l('Signed result', 'Résultat signé'),
+  succeeded: l('Done', 'Terminée'),
   failed: l('Failed', 'Échec'),
   cancelled: l('Cancelled', 'Annulé'),
 };

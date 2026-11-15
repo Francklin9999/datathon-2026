@@ -73,7 +73,7 @@ export function BriefView({ brief, mode = 'normal', headingLevel = 3 }: { brief:
             {sentences.map(sentence => <SentenceView key={sentence.id} sentence={sentence} mode={mode} />)}
             {mode === 'normal' && hidden > 0 && (
               <p className="small muted">
-                {tr({ en: `${hidden} sentence(s) removed by the auditor; see Evidence & Audit.`, fr: `${hidden} phrase(s) retirée(s) par l’auditeur ; voir Preuves et audit.` })}
+                {tr({ en: `The auditor removed ${hidden} sentence(s); see Evidence.`, fr: `L’auditeur a retiré ${hidden} phrase(s) ; voir Preuves.` })}
               </p>
             )}
           </section>

@@ -53,3 +53,12 @@ test('animations: the setting wins over the system, a hidden page never animates
   assert.equal(animationsAllowed('off', false, false), false);
   assert.equal(animationsAllowed('on', false, true), false);
 });
+
+test('count-up: dates, labels and identifiers are left alone', () => {
+  assert.equal(parseFigure('2021-11-12', 'en'), null);
+  assert.equal(parseFigure('Nov 12, 2026', 'en'), null);
+  assert.equal(parseFigure('R5', 'en'), null);
+  assert.equal(parseFigure('Fixed income 50%', 'en'), null);
+  assert.equal(parseFigure('6.09% (2021-11-12 – 2026-11-12)', 'en')?.value, 6.09);
+  assert.equal(parseFigure('$1.2', 'en')?.value, 1.2);
+});

@@ -132,10 +132,10 @@ function FactDrawerView({ target, onClose, onOpenFact }: {
 }) {
   const { tr } = useApp();
   const title = target?.type === 'evidence'
-    ? `${tr({ en: 'Evidence', fr: 'Preuve' })} ${target.id}`
+    ? tr({ en: 'Source document', fr: 'Document source' })
     : target?.scope.kind === 'reveal'
-      ? `${tr({ en: 'Reveal fact', fr: 'Fait de révélation' })} ${target.id}`
-      : `${tr({ en: 'Fact', fr: 'Fait' })} ${target?.id ?? ''}`;
+      ? tr({ en: 'Revealed outcome', fr: 'Résultat révélé' })
+      : tr({ en: 'Source of this figure', fr: 'Source de ce chiffre' });
   return (
     <Drawer open={target !== null} title={title} onClose={onClose}>
       {target?.type === 'fact' && <FactBody key={`${target.scope.kind}|${target.id}`} scope={target.scope} factId={target.id} onOpenFact={onOpenFact} />}
