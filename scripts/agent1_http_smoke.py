@@ -11,7 +11,6 @@ from pathlib import Path
 import httpx
 from aplomb.contracts.registry import adapter
 
-
 BASE = os.environ.get('APLOMB_QA_API', 'http://localhost:8101/v1')
 OUTPUT = Path(os.environ.get('APLOMB_QA_OUTPUT', 'docs/evidence/parallel/agent-1'))
 

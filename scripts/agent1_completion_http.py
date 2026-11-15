@@ -12,7 +12,7 @@ from pathlib import Path
 import httpx
 
 BASE = os.getenv('APLOMB_QA_API', 'http://127.0.0.1:8101/v1')
-OUT = Path('docs/evidence/parallel/agent-1/completion-http.json')
+OUT = Path(os.getenv('APLOMB_QA_OUTPUT', 'docs/evidence/parallel/agent-1')) / 'completion-http.json'
 SID = 's_' + str(uuid.uuid4())
 OTHER = 's_' + str(uuid.uuid4())
 client = httpx.Client(base_url=BASE, timeout=45, headers={'X-Aplomb-Session': SID})
@@ -201,6 +201,18 @@ def main():
     profile = call('transfer conserves traded capital', 'POST', f'/profiles/{pid}/accounts/{account_id}/transfer',
         {'version': version, 'destinationAccountId': destination['accountId'], 'amountReporting': 100})
     assert math.isclose(sum(a['portfolio']['totalValue'] for a in profile['accounts']), capital_before, rel_tol=1e-12)
+    version = profile['version']
+    rule_id = custom['ruleId']
+    call('reject cross-session condition deletion', 'DELETE', f'/profiles/{pid}/condition-rules/{rule_id}?version={version}', status=404, session=OTHER)
+    call('reject stale condition deletion', 'DELETE', f'/profiles/{pid}/condition-rules/{rule_id}?version={version + 1}', status=409)
+    profile = call('delete conditional policy', 'DELETE', f'/profiles/{pid}/condition-rules/{rule_id}?version={version}')
+    assert profile['version'] == version + 1 and all(r['ruleId'] != rule_id for r in profile['rules'])
+    providers = call('provider readiness for each anonymous connector', 'GET', '/risk/providers')
+    for provider in providers['providers']:
+        assert provider['status'] == 'permission_required', 'This harness requires isolated default-deny provider permissions'
+        call(f"{provider['id']} acquisition permission is enforced", 'POST', f"/risk/providers/{provider['id']}/capture", {'asOf': meta['dataAsOf']}, 503)
+        call(f"{provider['id']} stored inspection permission is enforced", 'GET', f"/risk/providers/{provider['id']}/captures/capture_" + '0' * 64, status=503)
+    call('unknown provider is rejected', 'GET', '/risk/providers/unknown/captures/capture_' + '0' * 64, status=404)
     summary = {'createdAt': datetime.now(timezone.utc).isoformat(), 'api': BASE, 'snapshot': 'snap-20261115-a1-fx-expanded',
                'syntheticInputs': True, 'checks': records, 'fxReceipt': receipt,
                'jointPlan': {'state': plan['state'], 'requiredInitialCapital': plan['requiredInitialCapital']},
