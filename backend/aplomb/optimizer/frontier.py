@@ -84,7 +84,7 @@ def _annual_return(levels: list[float]) -> float:
 
 def frontier(engine: QuantEngine, profile: m.Profile, query: dict) -> dict:
     """FrontierResponse wire dict for ``universe`` = holdings | asset_groups | holdings_plus:<ticker>."""
-    window = {"code": (query or {}).get("window") or "full"}
+    window = dict(engine.window_spec)  # the request window the caller built the engine with (custom keeps start/end)
     spec = (query or {}).get("universe") or "holdings"
     holdings = [p.ticker for p in profile.portfolio.positions if p.weight_pct > 0]
     extra = None
