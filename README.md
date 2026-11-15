@@ -47,7 +47,7 @@ npm run dev:api     # API on http://localhost:8000/v1
 npm run dev:web     # web app on http://localhost:3000
 ```
 
-`dev:api` runs [scripts/dev_api.py](scripts/dev_api.py): it pins the active snapshot, materializes it under `data/` on first use, switches on every feature that has a provider and keeps run state in `.artifacts/`. Any `APLOMB_*` variable already set wins; see [.env.example](.env.example). Protected routes require `X-Aplomb-Session` (the web app generates it).
+`dev:api` runs [scripts/dev_api.py](scripts/dev_api.py): it pins the active snapshot, materializes it under `data/` on first use, switches on every feature that has a provider and keeps run state in `.artifacts/`. Any `APLOMB_*` variable already set wins, then the `APLOMB_*` lines of the git-ignored `.env` (on-demand tickers need `APLOMB_TIINGO_TOKEN`); see [.env.example](.env.example). Protected routes require `X-Aplomb-Session` (the web app generates it).
 
 Everything deterministic works without credentials: profiles, `/check`, compare, Portfolio, Sources, World Explorer, Time Machine presets and reveal. Runs (decision, replay, Home brief, event brief, profile draft) and free-text parsing call Amazon Bedrock: set `APLOMB_MODEL_STRONG`, `APLOMB_MODEL_FAST` and AWS credentials first. Without model IDs those endpoints answer `503` and the pages say so; no fixture stands in.
 

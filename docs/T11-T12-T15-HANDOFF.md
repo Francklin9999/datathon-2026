@@ -6,7 +6,7 @@ World Explorer backend (T11), Time Machine backend (T12) and the three remaining
 
 | Command (repository root) | Purpose |
 |---|---|
-| `npm run dev:api` | Local API on `http://localhost:8000/v1` with the active snapshot and the seven implemented feature flags on ([scripts/dev_api.py](../scripts/dev_api.py)) |
+| `npm run dev:api` | Local API on `http://localhost:8000/v1` with the active snapshot and the eight implemented feature flags on (on-demand tickers only with `APLOMB_TIINGO_TOKEN`, read from the environment or the git-ignored `.env`) ([scripts/dev_api.py](../scripts/dev_api.py)) |
 | `npm run dev:web` | Web app on `http://localhost:3000` against that API |
 | `npm run check` | Generated files, lint, Python tests, TypeScript, web tests, spec links, infra tests and synth |
 | `cd backend && uv run python -m aplomb.world.ingest --start 2021-11-12 --end 2026-11-12` | Rebuild the world bundle from the public feeds (network; not needed to run) |

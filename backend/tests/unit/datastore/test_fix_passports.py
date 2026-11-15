@@ -143,8 +143,9 @@ def load_dev_api():
 class DevApiScript(unittest.TestCase):
     """The script is run with its two subprocess calls replaced; no server is started."""
 
-    def run_script(self, env: dict[str, str], ingest) -> dict:
+    def run_script(self, env: dict[str, str], ingest, env_file: Path | None = None) -> dict:
         script = load_dev_api()
+        script.ENV_FILE = env_file or temp_root() / "absent.env"  # never the developer's own .env
         seen: dict = {}
 
         def fake_run(command, cwd=None, env=None):
@@ -199,6 +200,27 @@ class DevApiScript(unittest.TestCase):
         self.assertTrue((root / "normalized" / STARTER_VERSION).is_dir())
         self.assertEqual(pointer.read_bytes(), before)
         self.assertEqual(seen["server_env"]["APLOMB_DATA_VERSION"], STARTER_VERSION)
+
+    def test_env_file_fills_missing_settings_and_never_overrides_the_environment(self):
+        root = temp_root()
+        env_file = root / ".env"
+        env_file.write_text("# local\nAPLOMB_TIINGO_TOKEN='file-token'\nAPLOMB_FEATURE_BILINGUAL=false\n"
+                            "APLOMB_EMPTY=\nOTHER_KEY=ignored\nnot a pair\n", encoding="utf-8")
+        version = json.loads((REPO / "data" / "manifests" / "active.json").read_text(encoding="utf-8"))["dataVersion"]
+        (root / "normalized" / version).mkdir(parents=True)  # nothing to materialize
+        seen = self.run_script({"APLOMB_DATA_DIR": str(root), "APLOMB_FEATURE_BILINGUAL": "true"},
+                               lambda command: 1, env_file=env_file)
+        server = seen["server_env"]
+        self.assertEqual(seen["exit"], 0)
+        self.assertNotIn("ingest", seen)
+        self.assertEqual(server["APLOMB_TIINGO_TOKEN"], "file-token")
+        self.assertEqual(server["APLOMB_FEATURE_BILINGUAL"], "true")  # the environment wins
+        self.assertEqual(server["APLOMB_FEATURE_ON_DEMAND_TICKERS"], "true")
+        self.assertNotIn("APLOMB_EMPTY", server)
+        self.assertNotIn("OTHER_KEY", server)
+
+    def test_missing_env_file_reads_nothing(self):
+        self.assertEqual(load_dev_api().read_env_file(temp_root() / "absent.env"), {})
 
 
 if __name__ == "__main__":

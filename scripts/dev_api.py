@@ -5,7 +5,8 @@
     uv run python scripts/dev_api.py --port 8001 --no-reload
 
 It only fills in settings that are not already in the environment, so an explicit
-``APLOMB_*`` variable always wins. It materializes the pinned snapshot under ``data/`` when it is
+``APLOMB_*`` variable always wins; next come ``APLOMB_*`` lines of the git-ignored ``.env``
+(on-demand tickers need ``APLOMB_TIINGO_TOKEN`` there or in the environment). It materializes the pinned snapshot under ``data/`` when it is
 missing (idempotent, verified against the committed manifest) and never changes
 ``data/manifests/active.json``. A relative ``APLOMB_DATA_DIR`` is read from the repository root.
 Run state is kept in ``.artifacts/aplomb-local-state.json`` (git-ignored).
@@ -26,10 +27,30 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# Flags with an implemented provider. Sabotage, on-demand tickers, open-web research, guardrails
-# and the facilities layer have none, so switching them on here would change nothing.
+# Flags with an implemented provider. On-demand tickers is advertised only when APLOMB_TIINGO_TOKEN
+# is set (the local data directory is writable). Sabotage, open-web research, guardrails and the
+# facilities layer have no provider here, so switching them on would change nothing.
 FEATURES = ("bilingual", "world_explorer", "world_layer_hazards", "time_machine", "profile_creator",
-            "goal_requests", "frontier_chart")
+            "goal_requests", "frontier_chart", "on_demand_tickers")
+# Git-ignored local settings (for example APLOMB_TIINGO_TOKEN). Only APLOMB_* keys are read.
+ENV_FILE = ROOT / ".env"
+
+
+def read_env_file(path: Path) -> dict[str, str]:
+    """``APLOMB_*`` assignments with a non-empty value from a ``KEY=VALUE`` file; missing file → {}."""
+    if not path.is_file():
+        return {}
+    values: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = (part.strip() for part in line.removeprefix("export ").split("=", 1))
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if key.startswith("APLOMB_") and value:
+            values[key] = value
+    return values
 
 
 def main() -> int:
@@ -45,6 +66,8 @@ def main() -> int:
     as_of = manifest["dataAsOf"]
 
     env = dict(os.environ)
+    for key, value in read_env_file(ENV_FILE).items():
+        env.setdefault(key, value)
     defaults = {
         "APLOMB_ENV": "local",
         "APLOMB_DATA_VERSION": version,
