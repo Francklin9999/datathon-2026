@@ -1,8 +1,9 @@
 'use client';
 /**
  * Context a dashboard grid gives to each widget slot. A `Card` rendered inside it becomes a grid
- * widget: it takes its span from the layout and, in edit mode, shows a move handle in its header
- * and a resize handle in its corner. Outside a grid the context is null and Card is unchanged.
+ * widget: it takes its span from the layout and, while the grid is movable, its header is a grip
+ * (drag to move), a small grabber at its top edge is the keyboard handle (arrows move) and a corner
+ * handle resizes. Outside a grid the context is null and Card is unchanged.
  */
 import { createContext, useContext, type KeyboardEvent, type PointerEvent } from 'react';
 
@@ -10,7 +11,8 @@ export interface WidgetChrome {
   id: string;
   w: number;
   h: number;
-  editing: boolean;
+  /** Move and resize available (false when the grid stacks into one column). */
+  movable: boolean;
   dragging: boolean;
   resizing: boolean;
   /** Visible title, used in handle labels ("Move Allocation"). */

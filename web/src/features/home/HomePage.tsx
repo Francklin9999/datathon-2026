@@ -2,12 +2,13 @@
 /**
  * Home — Portfolio Analyst Brief (T13, web/page-specs/home.md) as a dashboard: a scope bar (period,
  * benchmark, asset classes, minimum weight, chart view) drives every widget, and the widgets can be
- * moved and resized (stored layout). Deterministic overview and performance load in parallel; the
+ * moved by their header and resized from their corner at any time (stored layout). A widget never
+ * scrolls: it shows the essentials and opens the rest in a details sheet (⤢). Deterministic overview and performance load in parallel; the
  * cached brief is fetched separately and at most one automatic portfolio_brief run is created per
  * cache key (HOME-02). Refresh creates a real run.
  */
 import Link from 'next/link';
-import { LayoutGrid, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type {
   AssetsResponse, CachedBriefResponse, I18NText, OverviewResponse, PerformanceResponse, Profile, RuleCheck, RuleStatus, Run, WindowCode,
@@ -18,6 +19,8 @@ import { profileKey, useApp } from '../../state/app';
 import { prefetchQuery, useQuery, type QueryState } from '../../state/useQuery';
 import { useRun } from '../../state/useRun';
 import { Card, ProfileGate } from '../../components/common/Page';
+import { SheetSection } from '../../components/common/Sheet';
+import { useElementSize } from '../../components/ui/useElementSize';
 import { ErrorState, Loading, Unavailable } from '../../components/common/States';
 import { FactChip, FactScopeProvider, LimitationList, type FactScope } from '../../components/common/FactDrawer';
 import { RunStatusBadge, StatusBadge, VerdictBadge } from '../../components/common/Badges';
@@ -28,7 +31,7 @@ import { NEE_REASON, OBJECTIVE, RISK_LEVEL, RUN_STATUS, WINDOW, labelOf } from '
 import { fmtDate, fmtSignedPct, fmtUnit } from '../../lib/format';
 import { portfolioSummary } from '../../lib/brief';
 import { isTerminal } from '../../lib/runs';
-import type { LayoutItem, WidgetLimits } from '../../lib/ui/layout';
+import { fitCount, type LayoutItem, type WidgetLimits } from '../../lib/ui/layout';
 import { ASSET_GROUPS, scopeWindow, scopeWindowKey, type DashboardScope } from '../../lib/ui/scope';
 import { drawdownSeries, indexSeries, periodChangePct } from '../../lib/ui/series';
 import { Reveal } from '../../components/ui/Reveal';
@@ -46,26 +49,30 @@ const startedRuns = new Map<string, string>();
 /** Cache keys for which an automatic brief run was already requested in this page load. */
 const autoRequested = new Set<string>();
 
-/** Default arrangement (12 columns × 32 px rows) and the size limits of each widget. */
+/**
+ * Default arrangement (12 columns × 32 px rows, 16 px gaps: a widget of h rows is 48h − 16 px tall)
+ * and the size limits of each widget. Every minimum still holds the widget's essentials without
+ * scrolling; lists and the chart grow with the widget.
+ */
 const DEFAULT_LAYOUT: readonly LayoutItem[] = [
   { id: 'figures', w: 12, h: 4 },
-  { id: 'performance', w: 8, h: 12 },
-  { id: 'allocation', w: 4, h: 12 },
-  { id: 'health', w: 5, h: 11 },
-  { id: 'positions', w: 7, h: 11 },
-  { id: 'brief', w: 12, h: 12 },
+  { id: 'performance', w: 8, h: 9 },
+  { id: 'allocation', w: 4, h: 9 },
+  { id: 'health', w: 5, h: 7 },
+  { id: 'positions', w: 7, h: 7 },
+  { id: 'brief', w: 12, h: 8 },
   { id: 'horizons', w: 4, h: 5 },
   { id: 'stress', w: 4, h: 5 },
   { id: 'diversification', w: 4, h: 5 },
 ];
 const LIMITS: Record<string, WidgetLimits> = {
   figures: { minW: 6, maxW: 12, minH: 4, maxH: 7 },
-  performance: { minW: 5, maxW: 12, minH: 8, maxH: 18 },
+  performance: { minW: 5, maxW: 12, minH: 7, maxH: 18 },
   allocation: { minW: 3, maxW: 8, minH: 8, maxH: 14 },
-  positions: { minW: 4, maxW: 12, minH: 6, maxH: 18 },
-  health: { minW: 4, maxW: 12, minH: 6, maxH: 18 },
-  horizons: { minW: 3, maxW: 6, minH: 4, maxH: 8 },
-  stress: { minW: 3, maxW: 6, minH: 4, maxH: 8 },
+  positions: { minW: 4, maxW: 12, minH: 4, maxH: 18 },
+  health: { minW: 4, maxW: 12, minH: 5, maxH: 18 },
+  horizons: { minW: 3, maxW: 6, minH: 5, maxH: 8 },
+  stress: { minW: 3, maxW: 6, minH: 5, maxH: 8 },
   diversification: { minW: 3, maxW: 6, minH: 4, maxH: 8 },
   brief: { minW: 6, maxW: 12, minH: 6, maxH: 24 },
 };
@@ -112,9 +119,8 @@ function HomeContent({ profile }: { profile: Profile }) {
   const overviewScope = useMemo<FactScope | null>(() => (overview.data
     ? { kind: 'local', label: { en: 'Deterministic overview response (no model).', fr: 'Réponse d’aperçu déterministe (aucun modèle).' }, facts: overview.data.facts }
     : null), [overview.data]);
-  const [editing, setEditing] = useState(false);
   const [resetToken, setResetToken] = useState(0);
-  const [stacked, setStacked] = useState(false);
+  const [customized, setCustomized] = useState(false);
   const period = periodLabel(scope, windowCode, lang);
 
   const benchmarks = useMemo(() => (assets.data?.items ?? [])
@@ -160,31 +166,21 @@ function HomeContent({ profile }: { profile: Profile }) {
           </p>
         </div>
         <div className="dash-actions">
+          {/* Always shown so it can be found; inactive while the layout is already the default one. */}
+          <button type="button" className="btn ghost btn-sm layout-reset" disabled={!customized}
+            onClick={() => { setResetToken(n => n + 1); announce(tr({ en: 'Default layout restored', fr: 'Disposition par défaut rétablie' })); }}
+            title={customized
+              ? tr({ en: 'Put the widgets back in their original places and sizes', fr: 'Remettre les widgets à leur place et à leur taille d’origine' })
+              : tr({ en: 'The widgets are in their original layout', fr: 'Les widgets sont dans leur disposition d’origine' })}>
+            <RotateCcw aria-hidden="true" size={14} strokeWidth={1.75} />{tr({ en: 'Reset layout', fr: 'Disposition par défaut' })}
+          </button>
           <Link className="btn ghost" href="/portfolio/">{tr({ en: 'Inspect plan', fr: 'Examiner le plan' })}</Link>
           <Link className="btn ink" href="/decision-desk/" data-tour="test-move">{tr({ en: 'Test a move', fr: 'Tester un mouvement' })}</Link>
         </div>
       </Reveal>
 
       <ScopeBar scope={scope} setScope={setScope} windowCode={windowCode} setWindow={setWindow}
-        dataAsOf={meta?.dataAsOf ?? new Date().toISOString().slice(0, 10)} groups={groups} benchmarks={benchmarks} tr={tr} lang={lang}
-        extra={!stacked && (
-          <button type="button" className="icon-btn layout-btn" aria-pressed={editing} onClick={() => setEditing(v => !v)} data-tour="edit-layout"
-            aria-label={tr({ en: 'Edit layout', fr: 'Modifier la disposition' })} title={tr({ en: 'Edit layout', fr: 'Modifier la disposition' })}>
-            <LayoutGrid aria-hidden="true" size={18} strokeWidth={1.75} />
-          </button>
-        )} />
-
-      {editing && !stacked && (
-        <div className="grid-tools">
-          <span className="small muted">{tr({ en: 'Drag a widget by its handle, resize it from its corner, or use the arrow keys on either', fr: 'Glissez un widget par sa poignée, redimensionnez-le par son coin, ou utilisez les flèches sur l’une ou l’autre' })}</span>
-          <div className="grid-tools-actions">
-            <button type="button" className="btn ghost btn-sm" onClick={() => { setResetToken(n => n + 1); announce(tr({ en: 'Default layout restored', fr: 'Disposition par défaut rétablie' })); }}>
-              <RotateCcw aria-hidden="true" size={14} strokeWidth={1.5} />{tr({ en: 'Reset layout', fr: 'Disposition par défaut' })}
-            </button>
-            <button type="button" className="btn btn-sm" onClick={() => setEditing(false)}>{tr({ en: 'Done', fr: 'Terminé' })}</button>
-          </div>
-        </div>
-      )}
+        dataAsOf={meta?.dataAsOf ?? new Date().toISOString().slice(0, 10)} groups={groups} benchmarks={benchmarks} tr={tr} lang={lang} />
 
       {overview.error && <AnalystBrief profile={profile} scopeNote={briefScope(windowCode, tr)} />}
       {overview.error && (
@@ -194,9 +190,10 @@ function HomeContent({ profile }: { profile: Profile }) {
       {overview.loading && <KeyFiguresSkeleton label={tr({ en: 'Loading figures…', fr: 'Chargement des chiffres…' })} />}
       {data && overviewScope && (
         <FactScopeProvider scope={overviewScope}>
-          <Reveal index={1}>
-            <DashboardGrid widgets={widgets} defaults={DEFAULT_LAYOUT} editing={editing} resetToken={resetToken} announce={announce} labels={labels} onStackedChange={setStacked} />
-          </Reveal>
+          {/* No animated wrapper: each widget enters on its own (DashboardGrid, Web Animations), which
+              survives the DOM moves of a reorder. */}
+          <DashboardGrid widgets={widgets} defaults={DEFAULT_LAYOUT} resetToken={resetToken} announce={announce} labels={labels}
+            onCustomizedChange={setCustomized} />
         </FactScopeProvider>
       )}
     </>
@@ -205,47 +202,46 @@ function HomeContent({ profile }: { profile: Profile }) {
 
 function PerformanceCard({ state, scope, period }: { state: QueryState<PerformanceResponse>; scope: DashboardScope; period: string }) {
   const { tr, lang } = useApp();
-  const [asTable, setAsTable] = useState(false);
   const data = state.data;
-  let body: ReactNode = null;
-  let change: ReactNode = null;
-  if (data && data.series.length > 1) {
-    const view = (points: PerformanceResponse['series']) => (scope.chartMode === 'indexed' ? indexSeries(points)
-      : scope.chartMode === 'drawdown' ? drawdownSeries(points) : points);
-    const series: Series[] = [{ label: tr({ en: 'Fictional portfolio, today’s weights', fr: 'Portefeuille fictif, pondérations actuelles' }), points: view(data.series), color: 'var(--chart-1)' }];
-    if (data.benchmark) series.push({ label: data.benchmark.ticker, points: view(data.benchmark.series), color: 'var(--chart-4)', dashed: true });
-    const unit = scope.chartMode === 'indexed' ? tr({ en: 'index, start = 100', fr: 'indice, début = 100' })
-      : scope.chartMode === 'drawdown' ? tr({ en: '% below the running peak', fr: '% sous le plus haut atteint' }) : data.currency;
-    const digits = scope.chartMode === 'drawdown' ? 1 : 0;
-    // Visible caption in plain words; the method code stays in the table caption for audit.
-    const caption = `${period}, ${fmtDate(data.series[0]?.date ?? '', lang)} → ${fmtDate(data.series[data.series.length - 1]?.date ?? '', lang)}`;
-    body = asTable
-      ? <SeriesTable series={series} lang={lang} unitLabel={unit} caption={`${caption}, ${data.method}`} digits={digits} />
-      : <LineChart series={series} lang={lang} unitLabel={unit} caption={caption} digits={digits} area={scope.chartMode !== 'drawdown'} />;
-    const own = periodChangePct(data.series);
-    const bench = data.benchmark ? periodChangePct(data.benchmark.series) : null;
-    change = (
+  const title = tr({ en: 'Past performance', fr: 'Performance passée' });
+  const info = tr({ en: 'Today’s weights applied to past prices: a hypothetical history, not account gains.', fr: 'Pondérations actuelles appliquées aux prix passés : un historique hypothétique, pas des gains réels.' });
+  if (!data || data.series.length < 2) {
+    return (
+      <Card title={title} tour="performance" info={info}>
+        {state.loading && <Loading variant="skeleton" />}
+        {state.error && <ErrorState error={state.error} onRetry={state.reload} />}
+        {data && <Unavailable title={tr({ en: 'Unavailable for this period', fr: 'Indisponible pour cette période' })} />}
+      </Card>
+    );
+  }
+  const view = (points: PerformanceResponse['series']) => (scope.chartMode === 'indexed' ? indexSeries(points)
+    : scope.chartMode === 'drawdown' ? drawdownSeries(points) : points);
+  const series: Series[] = [{ label: tr({ en: 'Fictional portfolio, today’s weights', fr: 'Portefeuille fictif, pondérations actuelles' }), points: view(data.series), color: 'var(--chart-1)' }];
+  if (data.benchmark) series.push({ label: data.benchmark.ticker, points: view(data.benchmark.series), color: 'var(--chart-4)', dashed: true });
+  const unit = scope.chartMode === 'indexed' ? tr({ en: 'index, start = 100', fr: 'indice, début = 100' })
+    : scope.chartMode === 'drawdown' ? tr({ en: '% below the running peak', fr: '% sous le plus haut atteint' }) : data.currency;
+  const digits = scope.chartMode === 'drawdown' ? 1 : 0;
+  // Plain words in the sheet; the method code stays in the table caption for audit.
+  const caption = `${period}, ${fmtDate(data.series[0]?.date ?? '', lang)} → ${fmtDate(data.series[data.series.length - 1]?.date ?? '', lang)}`;
+  const own = periodChangePct(data.series);
+  const bench = data.benchmark ? periodChangePct(data.benchmark.series) : null;
+  return (
+    <Card title={title} tour="performance" info={info} details={{
+      render: () => (
+        <>
+          <SheetSection title={tr({ en: 'Series', fr: 'Séries' })}>
+            <p className="figure-note">{caption} ({unit})</p>
+          </SheetSection>
+          <SeriesTable series={series} lang={lang} unitLabel={unit} caption={`${caption}, ${data.method}`} digits={digits} />
+          <LimitationList compactAfter={1} codes={['LIM_CONSTANT_WEIGHTS', ...data.limitations]} />
+        </>
+      ),
+    }}>
       <p className="period-change">
         {own !== null && <span>{tr({ en: 'Over the period', fr: 'Sur la période' })} <strong><CountUp text={fmtSignedPct(own, lang)} /></strong></span>}
         {data.benchmark && bench !== null && <span>{data.benchmark.ticker} <strong><CountUp text={fmtSignedPct(bench, lang)} /></strong></span>}
       </p>
-    );
-  }
-  return (
-    <Card title={tr({ en: 'Past performance', fr: 'Performance passée' })} tour="performance"
-      info={tr({ en: 'Today’s weights applied to past prices: a hypothetical history, not account gains.', fr: 'Pondérations actuelles appliquées aux prix passés : un historique hypothétique, pas des gains réels.' })}
-      actions={data && data.series.length > 1 ? (
-        <button type="button" className="btn ghost btn-sm" onClick={() => setAsTable(v => !v)}>
-          {asTable ? tr({ en: 'Show chart', fr: 'Afficher le graphique' }) : tr({ en: 'Show table', fr: 'Afficher le tableau' })}
-        </button>
-      ) : undefined}>
-      {state.loading && <Loading variant="skeleton" />}
-      {state.error && <ErrorState error={state.error} onRetry={state.reload} />}
-      {data && data.series.length < 2 && <Unavailable title={tr({ en: 'Unavailable for this period', fr: 'Indisponible pour cette période' })} />}
-      {change}
-      {body}
-      {/* The constant-weight caveat is written under the key figures and beside this title; the rest fold away. */}
-      {data && <LimitationList compactAfter={0} codes={['LIM_CONSTANT_WEIGHTS', ...data.limitations]} />}
+      <LineChart series={series} lang={lang} unitLabel={unit} caption={caption} digits={digits} area={scope.chartMode !== 'drawdown'} fill compact />
     </Card>
   );
 }
@@ -261,24 +257,61 @@ function closestToLimit(checks: readonly RuleCheck[], n: number): RuleCheck[] {
     .slice(0, n);
 }
 
+/** Height of one nearest-limit line in the Plan health widget (dashboard.css .limit-lines). */
+const LIMIT_ROW_PX = 30;
+
 function PlanHealth({ overview, period }: { overview: OverviewResponse; period: string }) {
   const { tr, lang } = useApp();
   const nee = overview.ruleChecks.filter(c => c.status === 'nee');
   const counts = overview.counts;
   const total = STATUS_ORDER.reduce((sum, status) => sum + counts[status], 0);
   const closest = closestToLimit(overview.ruleChecks, 3);
+  const { ref, size } = useElementSize<HTMLDivElement>();
+  const room = size ? fitCount(size.h - 28, LIMIT_ROW_PX, closest.length, 0) : 0;
   const figure = (value: number | null, factId: string | null, unit: RuleCheck['unit']) => {
     const text = fmtUnit(value, unit, lang);
     return factId ? <FactChip factId={factId} display={text} /> : <span className="num">{text}</span>;
   };
   return (
-    <Card title={tr({ en: 'Plan health', fr: 'Santé du plan' })} tour="health"
-      actions={<Link href="/portfolio/" className="btn ghost btn-sm">{tr({ en: 'Open rules', fr: 'Ouvrir les règles' })}</Link>}>
+    <Card title={tr({ en: 'Plan health', fr: 'Santé du plan' })} tour="health" details={{
+      render: () => (
+        <>
+          <p className="figure-note">{tr({ en: `${total} rule checks, ${period}`, fr: `${total} vérifications de règles, ${period}` })}</p>
+          {closest.length > 0 && (
+            <SheetSection title={tr({ en: 'Closest to their limit', fr: 'Les plus proches de leur limite' })}>
+              <ul className="limit-list">
+                {closest.map(check => (
+                  <li key={check.ruleId}>
+                    <p className="limit-detail">{tr(check.detail)}</p>
+                    <p className="limit-figs small">
+                      {figure(check.value, check.valueFactId, check.unit)}
+                      <span> {tr({ en: 'against a limit of', fr: 'pour une limite de' })} </span>
+                      {figure(check.threshold, check.thresholdFactId, check.unit)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </SheetSection>
+          )}
+          {nee.length > 0 && (
+            <SheetSection title={tr({ en: 'Not enough evidence (separate from financial checks)', fr: 'Preuves insuffisantes (distinct des vérifications financières)' })}>
+              <ul className="bullets small nee-reason">
+                {nee.map(check => (
+                  <li key={check.ruleId}>{tr(check.detail)}{check.neeReason ? ` — ${labelOf(NEE_REASON, check.neeReason, lang)}` : ''}</li>
+                ))}
+              </ul>
+            </SheetSection>
+          )}
+          <LimitationList compactAfter={0} codes={overview.limitations} />
+          <p><Link href="/portfolio/" className="btn ghost btn-sm">{tr({ en: 'Open rules', fr: 'Ouvrir les règles' })}</Link></p>
+        </>
+      ),
+    }}>
       <div className="health-head">
         <VerdictBadge verdict={overview.verdict} large />
-        <span className="small muted">{tr({ en: `${total} rule checks, ${period}`, fr: `${total} vérifications de règles, ${period}` })}</span>
+        <span className="small muted">{tr({ en: `${total} checks`, fr: `${total} vérifications` })}</span>
       </div>
-      <dl className="status-counts" aria-label={tr({ en: 'Rule checks by status', fr: 'Vérifications par statut' })}>
+      <dl className="status-counts" aria-label={tr({ en: `Rule checks by status, ${period}`, fr: `Vérifications par statut, ${period}` })}>
         {STATUS_ORDER.filter(status => counts[status] > 0).map(status => (
           <div key={status} className="status-count">
             <dt><StatusBadge status={status} /></dt>
@@ -286,34 +319,18 @@ function PlanHealth({ overview, period }: { overview: OverviewResponse; period: 
           </div>
         ))}
       </dl>
-      {closest.length > 0 && (
-        <>
-          <h3 className="h4">{tr({ en: 'Closest to their limit', fr: 'Les plus proches de leur limite' })}</h3>
-          <ul className="limit-list">
-            {closest.map(check => (
-              <li key={check.ruleId}>
-                <p className="limit-detail">{tr(check.detail)}</p>
-                <p className="limit-figs small">
-                  {figure(check.value, check.valueFactId, check.unit)}
-                  <span> {tr({ en: 'against a limit of', fr: 'pour une limite de' })} </span>
-                  {figure(check.threshold, check.thresholdFactId, check.unit)}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      {nee.length > 0 && (
-        <div className="small nee-reason">
-          <p><strong>{tr({ en: 'Not enough evidence (separate from financial checks)', fr: 'Preuves insuffisantes (distinct des vérifications financières)' })}</strong></p>
-          <ul className="bullets">
-            {nee.map(check => (
-              <li key={check.ruleId}>{tr(check.detail)}{check.neeReason ? ` — ${labelOf(NEE_REASON, check.neeReason, lang)}` : ''}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      <LimitationList compactAfter={0} codes={overview.limitations} />
+      <div ref={ref} className="health-rest">
+        {room > 0 && (
+          <>
+            <h3 className="eyebrow health-rest-title">{tr({ en: 'Closest to their limit', fr: 'Les plus proches de leur limite' })}</h3>
+            <ul className="limit-lines">
+              {closest.slice(0, room).map(check => (
+                <li key={check.ruleId} title={tr(check.detail)}><span className="limit-line-text">{tr(check.detail)}</span></li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
     </Card>
   );
 }
@@ -373,6 +390,7 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
   return (
     <Card id="analyst-brief" title={tr({ en: 'Portfolio brief', fr: 'Note de portefeuille' })} tour="brief"
       {...(scopeNote ? { info: scopeNote } : {})}
+      {...(run ? { details: { render: () => <BriefRun run={run} full /> } } : {})}
       actions={(
         <button type="button" className="btn ghost btn-sm" onClick={() => void start(true)} disabled={busy}>
           {tr({ en: 'Refresh brief', fr: 'Actualiser la note' })}
@@ -394,61 +412,69 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
       {otherWindow && run && (
         <p className="stale-note">{tr({ en: `This brief was written for the ${labelOf(WINDOW, otherWindow, 'en')} window, not the one selected.`, fr: `Cette note a été rédigée pour la fenêtre ${labelOf(WINDOW, otherWindow, 'fr')}, pas pour celle qui est choisie.` })}</p>
       )}
-      {run && <BriefRun run={run} />}
+      {run && <BriefRun run={run} full={false} />}
       {runId && !run && !polled.error && <Loading label={tr({ en: 'Writing the brief…', fr: 'Rédaction de la note…' })} />}
     </Card>
   );
 }
 
-function BriefRun({ run }: { run: Run }) {
+/**
+ * A brief run. In the widget: its status, or the executive summary and the focus cards, clamped. In
+ * the sheet (`full`): everything, with the steps, the method and the audit link.
+ */
+function BriefRun({ run, full }: { run: Run; full: boolean }) {
   const { tr, feature } = useApp();
   const scope = useMemo<FactScope>(() => ({ kind: 'run', runId: run.runId, facts: run.facts, evidence: run.evidence }), [run]);
   const result = run.result?.kind === 'portfolio_brief' ? run.result.portfolioBrief : null;
   if (run.status !== 'succeeded' || !result) {
     return (
-      <div>
+      <div className="brief-status-block">
         <p><RunStatusBadge status={run.status} /></p>
         {run.status === 'failed' && (
           <p className="small">{tr({ en: 'The brief could not be written. The figures above are unaffected.', fr: 'La note n’a pas pu être rédigée. Les chiffres ci-dessus restent valables.' })}</p>
         )}
-        <details open={run.status !== 'failed'}>
-          <summary className="small">{tr({ en: 'Steps', fr: 'Étapes' })}</summary>
-          <RunTimeline run={run} />
-        </details>
+        {full && <RunTimeline run={run} />}
       </div>
     );
   }
+  const summary = portfolioSummary(result.brief);
   return (
     <FactScopeProvider scope={scope}>
-      {(() => {
-        const summary = portfolioSummary(result.brief);
-        return summary.length > 0 && <div className="brief-section"><h3 className="h4">{tr({ en: 'Executive summary', fr: 'Résumé exécutif' })}</h3>
+      {summary.length > 0 && (
+        <div className={full ? 'brief-section' : 'brief-summary'}>
+          {full && <h3 className="h4">{tr({ en: 'Executive summary', fr: 'Résumé exécutif' })}</h3>}
           {summary.map(s => <p key={s.id}><SentenceText sentence={s} /></p>)}
-        </div>;
-      })()}
-      <div className="grid-3">
+        </div>
+      )}
+      <div className={full ? 'grid-3' : 'focus-grid'}>
         {result.focusCards.map((card, i) => (
-          <article key={i} className="scenario">
+          <article key={i} className={full ? 'scenario' : 'focus-card'}>
             <h3 className="h4">{tr(card.title)}</h3>
             {card.body.filter(s => s.audit.status !== 'struck').map(sentence => (
               <p key={sentence.id} className="small"><SentenceText sentence={sentence} /></p>
             ))}
-            <Link className="btn ghost btn-sm" href={card.body.some(s => s.segments.some(x => x.t === 'rule'))
-              ? `/evidence-audit/?runId=${encodeURIComponent(run.runId)}`
-              : card.factIds.some(id => run.facts[id]?.metric === 'weight.asset_group') ? '/sources/'
-              : card.factIds.some(id => run.facts[id]?.metric === 'drawdown.max') && feature('time_machine') ? '/time-machine/' : '/portfolio/'}>
-              {tr({ en: 'Open investigation', fr: 'Ouvrir la recherche' })}</Link>
+            {full && (
+              <Link className="btn ghost btn-sm" href={card.body.some(s => s.segments.some(x => x.t === 'rule'))
+                ? `/evidence-audit/?runId=${encodeURIComponent(run.runId)}`
+                : card.factIds.some(id => run.facts[id]?.metric === 'weight.asset_group') ? '/sources/'
+                : card.factIds.some(id => run.facts[id]?.metric === 'drawdown.max') && feature('time_machine') ? '/time-machine/' : '/portfolio/'}>
+                {tr({ en: 'Open investigation', fr: 'Ouvrir la recherche' })}</Link>
+            )}
           </article>
         ))}
       </div>
-      <details className="fold"><summary>{tr({ en: 'Method, assumptions and evidence gaps', fr: 'Méthode, hypothèses et preuves manquantes' })}</summary>
-        <BriefView brief={{ ...result.brief, sections: result.brief.sections.map(s => ({ ...s,
-          sentences: s.sentences.filter(sentence => !portfolioSummary(result.brief).some(x => x.id === sentence.id))
-        })).filter(s => s.sentences.length > 0) }} />
-      </details>
-      <p className="row-actions small">
-        <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'Inspect evidence and audit', fr: 'Examiner les preuves et l’audit' })}</Link>
-      </p>
+      {full && (
+        <>
+          <details className="fold"><summary>{tr({ en: 'Method, assumptions and evidence gaps', fr: 'Méthode, hypothèses et preuves manquantes' })}</summary>
+            <BriefView brief={{ ...result.brief, sections: result.brief.sections.map(s => ({ ...s,
+              sentences: s.sentences.filter(sentence => !summary.some(x => x.id === sentence.id)),
+            })).filter(s => s.sentences.length > 0) }} />
+          </details>
+          <p className="row-actions small">
+            <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'Inspect evidence and audit', fr: 'Examiner les preuves et l’audit' })}</Link>
+          </p>
+        </>
+      )}
     </FactScopeProvider>
   );
 }

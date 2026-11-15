@@ -106,8 +106,8 @@ export const ADVANCED_TOURS: readonly Tour[] = [
         body: t('The rules with the least room left come first, with the value against the limit. Each figure opens its source.', 'Les règles avec le moins de marge viennent d’abord, avec la valeur face à la limite. Chaque chiffre ouvre sa source.') },
       { id: 'brief', route: '/', target: 'brief', optional: true, title: t('The portfolio brief', 'La note de portefeuille'),
         body: t('An AI-written summary, audited sentence by sentence. Every number in it links to the ledger; “Refresh brief” writes a new one.', 'Un résumé rédigé par l’IA et audité phrase par phrase. Chaque nombre renvoie au registre ; « Actualiser la note » en rédige une nouvelle.') },
-      { id: 'layout', route: '/', target: 'edit-layout', optional: true, title: t('Arrange your dashboard', 'Arrangez votre tableau de bord'),
-        body: t('Turn on layout editing, then drag widgets by their handle or resize them from the corner. Arrow keys work too.', 'Activez la modification, puis glissez les widgets par leur poignée ou redimensionnez-les par le coin. Les flèches fonctionnent aussi.') },
+      { id: 'layout', route: '/', target: 'arrange', optional: true, title: t('Arrange your dashboard', 'Arrangez votre tableau de bord'),
+        body: t('Drag any widget by its title to move it, resize it from its corner, and open ⤢ for the details. Arrow keys work on the handle at its top edge.', 'Glissez un widget par son titre pour le déplacer, redimensionnez-le par son coin et ouvrez ⤢ pour les détails. Les flèches marchent sur la poignée en haut du widget.') },
     ],
   },
   {

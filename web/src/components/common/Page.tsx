@@ -1,10 +1,11 @@
 'use client';
 /** Page header, card and the selected-profile gate shared by every page. */
-import { GripVertical } from 'lucide-react';
+import { Maximize2 } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import type { Profile } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { Empty, ErrorState, Loading } from './States';
+import { Sheet, useSheet } from './Sheet';
 import { useWidget } from '../ui/WidgetContext';
 import { InfoTip } from '../ui/InfoTip';
 
@@ -26,16 +27,28 @@ export function PageHeader({ title, children, actions, tour }: {
   );
 }
 
+/** What a card has no room for: shown in a details sheet opened from a button in its header. */
+export interface CardDetails {
+  /** Sheet title; defaults to the card title. */
+  title?: string;
+  /** Rendered only while the sheet is open. */
+  render: () => ReactNode;
+}
+
 /**
  * Card. `section` names it in the page's section dock (needs an `id`); `info` folds a note behind an
- * "i" beside the title; `tour` anchors a tutorial step.
+ * "i" beside the title; `tour` anchors a tutorial step; `details` adds a ⤢ button that opens the rest
+ * in a sheet. Inside a dashboard grid the header is the grip (drag to move), the grabber at the top
+ * edge is the keyboard handle and the corner handle resizes.
  */
-export function Card({ title, children, actions, id, className, section, info, tour }: {
+export function Card({ title, children, actions, id, className, section, info, tour, details }: {
   title?: string; children: ReactNode; actions?: ReactNode; id?: string; className?: string;
-  section?: string; info?: string; tour?: string;
+  section?: string; info?: string; tour?: string; details?: CardDetails;
 }) {
   const widget = useWidget();
   const { tr } = useApp();
+  const sheet = useSheet();
+  const movable = Boolean(widget?.movable);
   const classes = `card${widget ? ' widget' : ''}${widget?.bare ? ' card-bare' : ''}${className ? ` ${className}` : ''}`;
   // Inside a grid the widget gives the dock its id and label.
   const sectionId = id ?? (widget?.section ? `w-${widget.id}` : undefined);
@@ -49,26 +62,35 @@ export function Card({ title, children, actions, id, className, section, info, t
   return (
     <section className={classes} {...(sectionId ? { id: sectionId, 'aria-labelledby': `${sectionId}-title` } : {})} {...widgetProps}
       {...(sectionLabel && sectionId ? { 'data-section': sectionLabel } : {})} {...(tour ? { 'data-tour': tour } : {})}>
-      {(title || actions || widget?.editing) && (
-        <div className="card-head">
-          {widget?.editing && (
-            <button type="button" className="widget-handle" onPointerDown={widget.onMovePointerDown} onKeyDown={widget.onMoveKeyDown}
-              aria-label={`${tr({ en: 'Move', fr: 'Déplacer' })} ${widget.title}. ${tr({ en: 'Drag, or use the arrow keys.', fr: 'Glissez, ou utilisez les flèches.' })}`}
-              title={tr({ en: 'Drag to move', fr: 'Glisser pour déplacer' })}>
-              <GripVertical aria-hidden="true" size={16} strokeWidth={1.5} />
-            </button>
-          )}
+      {widget && movable && (
+        <button type="button" className="widget-grabber" onPointerDown={widget.onMovePointerDown} onKeyDown={widget.onMoveKeyDown}
+          aria-label={`${tr({ en: 'Move', fr: 'Déplacer' })} ${widget.title}. ${tr({ en: 'Drag, or use the arrow keys.', fr: 'Glissez, ou utilisez les flèches.' })}`}
+          title={tr({ en: 'Drag to move', fr: 'Glisser pour déplacer' })} />
+      )}
+      {(title || actions || details) && (
+        <div className="card-head" {...(widget && movable ? { onPointerDown: widget.onMovePointerDown } : {})}>
           {title && (
             <span className="card-title-row">
               <h2 className="card-title" {...(sectionId ? { id: `${sectionId}-title` } : {})}>{title}</h2>
               {info && <InfoTip text={info} align="start" />}
             </span>
           )}
-          {actions && <div className="card-actions">{actions}</div>}
+          {(actions || details) && (
+            <div className="card-actions">
+              {actions}
+              {details && (
+                <button type="button" className="icon-btn details-btn" aria-haspopup="dialog"
+                  aria-label={`${tr({ en: 'Details', fr: 'Détails' })}${title ? `, ${title}` : ''}`} title={tr({ en: 'Details', fr: 'Détails' })}
+                  onClick={event => sheet.show(event.currentTarget)}>
+                  <Maximize2 aria-hidden="true" size={13} strokeWidth={2} />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
       {widget ? <div className="widget-body">{children}</div> : children}
-      {widget?.editing && (
+      {widget && movable && (
         <button type="button" className="widget-resize" onPointerDown={widget.onResizePointerDown} onKeyDown={widget.onResizeKeyDown}
           aria-label={`${tr({ en: 'Resize', fr: 'Redimensionner' })} ${widget.title}, ${widget.w} × ${widget.h}. ${tr({ en: 'Drag, or use the arrow keys.', fr: 'Glissez, ou utilisez les flèches.' })}`}
           title={tr({ en: 'Drag to resize', fr: 'Glisser pour redimensionner' })}>
@@ -76,6 +98,11 @@ export function Card({ title, children, actions, id, className, section, info, t
             <path d="M11 4 L4 11 M11 8 L8 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" />
           </svg>
         </button>
+      )}
+      {details && (
+        <Sheet open={sheet.open} origin={sheet.origin} onClose={sheet.hide} title={details.title ?? title ?? tr({ en: 'Details', fr: 'Détails' })}>
+          {sheet.open && details.render()}
+        </Sheet>
       )}
     </section>
   );

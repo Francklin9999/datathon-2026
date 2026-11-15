@@ -2,9 +2,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  keyboardMove, keyboardResize, moveItem, normalizeLayout, resizeItem, sizeFromPointer, type LayoutItem, type WidgetLimits,
+  fitCount, isDefaultLayout, keyboardMove, keyboardResize, moveItem, normalizeLayout, reorderTarget, resizeItem, sizeFromPointer,
+  type LayoutItem, type WidgetLimits,
 } from '../src/lib/ui/layout';
 import { drawdownSeries, indexSeries, periodChangePct } from '../src/lib/ui/series';
+import * as SECTIONS from '../src/lib/ui/sections';
 import { DEFAULT_SCOPE, filterPositions, normalizeScope, scopeWindow, scopeWindowKey, validateRange } from '../src/lib/ui/scope';
 
 const LIMITS: Record<string, WidgetLimits> = {
@@ -128,4 +130,62 @@ test('custom scope rejects calendar dates that JavaScript rolls into the next mo
   assert.equal(validateRange('2026-02-30', '2026-03-10', '2026-11-12'), 'format');
   assert.equal(validateRange('2025-02-29', '2025-03-10', '2026-11-12'), 'format');
   assert.equal(validateRange('2024-02-29', '2024-03-10', '2026-11-12'), null);
+});
+test('reorderTarget drops before or after the hovered widget, null when nothing moves', () => {
+  // Dragging c over a: before a → index 0; after a → index 1.
+  assert.equal(reorderTarget(DEFAULTS, 'c', 'a', true), 0);
+  assert.equal(reorderTarget(DEFAULTS, 'c', 'a', false), 1);
+  // Dragging a over b: after b → index 1 in [b, c] → a lands between b and c.
+  assert.deepEqual(moveItem(DEFAULTS, 'a', reorderTarget(DEFAULTS, 'a', 'b', false)!).map(i => i.id), ['b', 'a', 'c']);
+  // Already there: a sits before b, so "before b" changes nothing.
+  assert.equal(reorderTarget(DEFAULTS, 'a', 'b', true), null);
+  assert.equal(reorderTarget(DEFAULTS, 'a', 'a', true), null);
+  assert.equal(reorderTarget(DEFAULTS, 'a', 'zzz', true), null);
+});
+
+test('isDefaultLayout compares order and sizes', () => {
+  assert.equal(isDefaultLayout(DEFAULTS.map(i => ({ ...i })), DEFAULTS), true);
+  assert.equal(isDefaultLayout(moveItem(DEFAULTS, 'c', 0), DEFAULTS), false);
+  assert.equal(isDefaultLayout(resizeItem(DEFAULTS, 'b', 5, 4, LIMITS), DEFAULTS), false);
+  assert.equal(isDefaultLayout(DEFAULTS.slice(0, 2), DEFAULTS), false);
+});
+
+test('fitCount: rows that fit, bounded by the minimum and the total', () => {
+  assert.equal(fitCount(220, 44, 11), 5);
+  assert.equal(fitCount(219, 44, 11), 4);
+  assert.equal(fitCount(10, 44, 11), 1);
+  assert.equal(fitCount(10, 44, 11, 0), 0);
+  assert.equal(fitCount(10_000, 44, 11), 11);
+  assert.equal(fitCount(-5, 44, 3, 0), 0);
+  assert.equal(fitCount(100, 44, 0), 0);
+});
+
+test('activeSection: a chosen section stays active while on screen; otherwise the lowest row past the line, first wins', () => {
+  const { activeSection } = SECTIONS;
+  // Row 1: figures; row 2: plan and positions side by side; row 3: brief.
+  const boxes = [
+    { id: 'figures', top: -600, bottom: -400 },
+    { id: 'plan', top: 100, bottom: 420 },
+    { id: 'positions', top: 100, bottom: 420 },
+    { id: 'brief', top: 440, bottom: 800 },
+  ];
+  const base = { line: 300, viewportHeight: 900, atBottom: false };
+  assert.equal(activeSection(boxes, { ...base, preferred: null }), 'plan');
+  assert.equal(activeSection(boxes, { ...base, preferred: 'positions' }), 'positions');
+  // A choice outside the active row does not override it.
+  assert.equal(activeSection(boxes, { ...base, preferred: 'figures' }), 'plan');
+  // Tops a few pixels apart are one row.
+  assert.equal(activeSection([{ id: 'a', top: 100, bottom: 300 }, { id: 'b', top: 104, bottom: 300 }], { ...base, preferred: 'b' }), 'b');
+  // At the bottom: the chosen section while on screen, otherwise the last.
+  assert.equal(activeSection(boxes, { ...base, atBottom: true, preferred: 'positions' }), 'positions');
+  assert.equal(activeSection(boxes, { ...base, atBottom: true, preferred: null }), 'brief');
+  assert.equal(activeSection(boxes, { ...base, atBottom: true, preferred: 'figures' }), 'brief');
+  // A short chosen section that the next one overtakes at the line keeps the highlight while visible.
+  const short = [{ id: 'figures', top: 0, bottom: 176 }, { id: 'performance', top: 192, bottom: 600 }, { id: 'allocation', top: 192, bottom: 600 }];
+  assert.equal(activeSection(short, { ...base, preferred: 'figures' }), 'figures');
+  assert.equal(activeSection(short, { ...base, preferred: null }), 'performance');
+  // Nothing past the line yet: the first section.
+  const low = boxes.map(b => ({ ...b, top: b.top + 1000, bottom: b.bottom + 1000 }));
+  assert.equal(activeSection(low, { ...base, preferred: null }), 'figures');
+  assert.equal(activeSection([], { ...base, preferred: null }), null);
 });

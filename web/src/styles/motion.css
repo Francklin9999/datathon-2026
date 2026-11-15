@@ -10,7 +10,9 @@
 .roll { display: inline-block; white-space: nowrap; }
 .roll-glyphs { display: inline-flex; align-items: baseline; }
 .roll-cell { display: inline-block; overflow: hidden; vertical-align: bottom; height: 1.15em; line-height: 1.15; }
-.roll-digit { display: inline-block; animation: roll-up var(--dur-enter) var(--ease) backwards; animation-delay: calc(80ms + var(--d, 0) * 24ms); }
+.roll-digit { display: inline-block; }
+/* Only while fresh (useFresh): a widget moved in the DOM never replays the roll. */
+.roll-glyphs[data-fresh] .roll-digit { animation: roll-up var(--dur-enter) var(--ease) backwards; animation-delay: calc(80ms + var(--d, 0) * 24ms); }
 .roll-static { display: inline-block; line-height: 1.15; }
 @keyframes roll-up { from { transform: translate3d(0, 100%, 0); opacity: 0; } }
 
@@ -23,11 +25,12 @@ html[data-motion='off'] *, html[data-motion='off'] *::before, html[data-motion='
 }
 html[data-anim='off'] :is(.enter > *, .enter > .kpis > *, .roll-digit) { animation: none; }
 
-/* Charts draw themselves once when they appear (and again when their data changes: they are re-keyed).
+/* Charts draw themselves once when they appear (and again when their data changes: they are re-keyed),
+   only while fresh (LineChart's Drawn group), so moving a widget never redraws them.
    Final states are the base styles; start states live only in the keyframes. */
-.chart-line:not(.chart-line-dashed) { stroke-dasharray: 1 1; animation: chart-draw 1.3s var(--ease) backwards; }
-.chart-line-dashed { animation: chart-fade .6s var(--ease) .55s backwards; }
-.chart-area { animation: chart-reveal 1.3s var(--ease) backwards; }
+.chart-anim[data-fresh] .chart-line:not(.chart-line-dashed) { stroke-dasharray: 1 1; animation: chart-draw 1.3s var(--ease) backwards; }
+.chart-anim[data-fresh] .chart-line-dashed { animation: chart-fade .6s var(--ease) .55s backwards; }
+.chart-anim[data-fresh] .chart-area { animation: chart-reveal 1.3s var(--ease) backwards; }
 @keyframes chart-draw { from { stroke-dashoffset: 1; } }
 @keyframes chart-fade { from { opacity: 0; } }
 @keyframes chart-reveal { from { clip-path: inset(0 100% 0 0); opacity: 0; } }

@@ -2,28 +2,44 @@
 /**
  * Dependency-free SVG line chart with legend and units outside any tooltip, plus a table
  * alternative (DESIGN.md "accessible table alternative for charts"). Values are drawn as given.
- * Glass version: gradient area under the first series, recessive grid, crosshair + tooltip on hover.
+ * Gradient area under the first series, recessive grid, crosshair + tooltip on hover. `fill` sizes the
+ * drawing to its container (a dashboard widget) instead of a fixed aspect ratio; `compact` keeps the
+ * caption for screen readers only and moves the unit into the legend line.
  */
-import { useId, useMemo, useRef, useState, type PointerEvent } from 'react';
+import { useId, useMemo, useRef, useState, type PointerEvent, type ReactNode } from 'react';
+import { useElementSize } from '../ui/useElementSize';
+import { useFresh } from '../ui/useFresh';
 import type { Lang } from '../../contracts/types';
 import { fmtDate, fmtNumber } from '../../lib/format';
 import { areaPath, chartLineProps, chartScale, linePath, nearestIndex } from '../../lib/ui/chart';
 
 export interface Series { label: string; points: readonly { date: string; value: number }[]; color: string; dashed?: boolean }
 
-const W = 720;
-const H = 260;
+const BASE = { w: 720, h: 260 };
 const PAD = { l: 60, r: 14, t: 14, b: 30 };
+
+/** Paths that draw themselves once when they appear (or when the series changes: re-keyed). */
+function Drawn({ children }: { children: ReactNode }) {
+  const fresh = useFresh(1900);
+  return <g className="chart-anim" data-fresh={fresh ? 'true' : undefined}>{children}</g>;
+}
 const time = (date: string) => Date.parse(`${date}T00:00:00Z`);
 
-export function LineChart({ series, lang, unitLabel, caption, digits = 0, area = true }: {
+export function LineChart({ series, lang, unitLabel, caption, digits = 0, area = true, fill = false, compact = false }: {
   series: readonly Series[]; lang: Lang; unitLabel: string; caption: string; digits?: number;
   /** Gradient area under the first series (off for views that live below zero, like drawdown). */
   area?: boolean;
+  /** Fill the container's height (the container must have one). */
+  fill?: boolean;
+  /** Caption for screen readers only; the unit joins the legend. */
+  compact?: boolean;
 }) {
   const id = useId();
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [hover, setHover] = useState<number | null>(null);
+  const { ref: frameRef, size } = useElementSize<HTMLDivElement>(fill);
+  const W = fill && size ? size.w : BASE.w;
+  const H = fill && size ? Math.max(120, size.h) : BASE.h;
 
   const model = useMemo(() => {
     const all = series.flatMap(s => s.points);
@@ -41,7 +57,7 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
     });
     const base = plotted[0];
     return { lo, hi, y, plotted, baseXs: base ? base.xy.map(p => p.x) : [] };
-  }, [series]);
+  }, [series, W, H]);
 
   if (!model) return null;
   const { lo, hi, y, plotted, baseXs } = model;
@@ -63,9 +79,18 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
     setHover(i < 0 ? null : i);
   };
 
+  const legend = (
+    <div className="legend">
+      {series.map(s => (
+        <span key={s.label}><span className={`swatch${s.dashed ? ' swatch-dashed' : ''}`} style={s.dashed ? { color: s.color } : { background: s.color }} aria-hidden="true" />{s.label}</span>
+      ))}
+      {compact && <span className="legend-unit" aria-hidden="true">{unitLabel}</span>}
+    </div>
+  );
+
   return (
-    <figure className="line-chart">
-      <div className="chart-frame">
+    <figure className="line-chart" {...(fill ? { 'data-fill': 'true' } : {})}>
+      <div className="chart-frame" ref={frameRef}>
         <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="chart" role="img" aria-labelledby={`${id}-cap`}>
           <defs>
             <linearGradient id={`${id}-area`} x1="0" x2="0" y1="0" y2="1">
@@ -81,13 +106,13 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
           ))}
           {first && <text x={PAD.l} y={H - 8} className="chart-axis">{fmtDate(first.date, lang)}</text>}
           {last && <text x={W - PAD.r} y={H - 8} textAnchor="end" className="chart-axis">{fmtDate(last.date, lang)}</text>}
-          <g key={animKey}>
+          <Drawn key={animKey}>
             {area && base && <path d={areaPath(base.xy, baseline)} fill={`url(#${id}-area)`} className="chart-area" />}
             {plotted.map(s => (
               <path key={s.label} d={linePath(s.xy)} fill="none" {...chartLineProps(Boolean(s.dashed))}
                 className={`chart-line${s.dashed ? ' chart-line-dashed' : ''}`} style={{ stroke: s.color }} />
             ))}
-          </g>
+          </Drawn>
           {hoverX !== undefined && (
             <g className="chart-cursor" aria-hidden="true">
               <line x1={hoverX} x2={hoverX} y1={PAD.t} y2={baseline} />
@@ -117,12 +142,8 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
           </div>
         )}
       </div>
-      <figcaption id={`${id}-cap`} className="small muted">{caption} ({unitLabel})</figcaption>
-      <div className="legend">
-        {series.map(s => (
-          <span key={s.label}><span className={`swatch${s.dashed ? ' swatch-dashed' : ''}`} style={s.dashed ? { color: s.color } : { background: s.color }} aria-hidden="true" />{s.label}</span>
-        ))}
-      </div>
+      <figcaption id={`${id}-cap`} className={compact ? 'sr-only' : 'small muted'}>{caption} ({unitLabel})</figcaption>
+      {legend}
     </figure>
   );
 }
