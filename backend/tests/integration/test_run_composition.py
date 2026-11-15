@@ -462,3 +462,18 @@ def test_every_sabotage_mode_is_inserted_and_caught_by_the_real_audit(mode, code
     assert result["caught"] is True and any(c["code"] == code and not c["ok"] for c in result["failedChecks"])
     # Only the inserted sentence is new: every other sentence is the parent's preserved, audited text.
     assert result["briefAfterAudit"]["audit"]["status"] != "failed"
+
+
+@pytest.mark.parametrize("user_agent,advertised", [
+    (None, False),
+    ("Aplomb datathon demo (github.com/example/repo)", False),   # no https:// and no email: research tools are absent
+    ("Aplomb datathon demo (+https://example.org/contact)", True),
+])
+def test_open_web_is_advertised_only_when_the_worker_registers_the_research_tools(user_agent, advertised):
+    from aplomb.api.runtime import build_registry
+
+    cfg = settings().model_copy(update={"source_user_agent": user_agent})
+    client = TestClient(create_app(cfg, default_services(cfg, gateway=ScriptedGateway())))
+    meta = client.get("/v1/meta", headers=session()).json()
+    assert meta["features"]["research_open_web"] is advertised
+    assert bool(build_registry(cfg).schemas({"web.browse"})) is advertised

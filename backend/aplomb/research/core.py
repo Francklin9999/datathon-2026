@@ -144,10 +144,15 @@ class DeadlineSocket:
         self.sock.settimeout(value)
 
 
+def contact_user_agent(user_agent: str | None) -> bool:
+    """Public sources need a descriptive user agent naming a contact (an https URL or an email)."""
+    return bool(user_agent) and len(user_agent) >= 15 and any(c in user_agent for c in ("@", "https://"))
+
+
 class PublicHTTP:
     """No proxies/cookies/auth; DNS checked once and connection pinned with TLS hostname."""
     def __init__(self, user_agent: str, timeout: float = 12, max_bytes: int = 4_000_000):
-        if len(user_agent) < 15 or not any(c in user_agent for c in ("@", "https://")):
+        if not contact_user_agent(user_agent):
             raise ValueError("descriptive contact user-agent required")
         self.user_agent, self.timeout, self.max_bytes = user_agent, min(timeout, 15), max_bytes
 
