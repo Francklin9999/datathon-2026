@@ -1,0 +1,177 @@
+{
+  "schema_version": "ecc.agent-architecture-audit.report.v1",
+  "executive_verdict": {
+    "overall_health": "verified_prototype",
+    "primary_failure_mode": "Previously disconnected workflow and incomplete input lineage; fixed and exercised on live AWS.",
+    "most_urgent_fix": "Completed: compose the real worker and enforce fact provenance before publication."
+  },
+  "scope": {
+    "target_name": "Aplomb AWS agent workflow",
+    "model_stack": [
+      "Bedrock GPT-6 Astra",
+      "Bedrock Claude Opus 5.5",
+      "Standard-tier Bedrock Guardrail version 3"
+    ],
+    "layers_to_audit": [
+      "system prompt",
+      "tool selection",
+      "tool execution",
+      "tool interpretation",
+      "answer shaping",
+      "rendering",
+      "bounded repairs",
+      "persistence"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "high",
+      "title": "AWS worker and API were disconnected",
+      "mechanism": "Default runtime exposed unavailable providers despite deployed infrastructure.",
+      "source_layer": "tool execution",
+      "root_cause": "No production AgentServices/RunPreparer composition.",
+      "evidence_refs": [
+        "backend/aplomb/agents/runtime.py:22",
+        "infra/evidence/aws-architecture-2026-11-14.json"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "Connect frozen request preparation to asynchronous dispatch, repository checkpoints and real code controls.",
+      "resolution": "implemented and verified"
+    },
+    {
+      "severity": "high",
+      "title": "Calculated facts lacked dependency lineage",
+      "mechanism": "The signing ledger correctly distrusted computed numbers without registered inputs.",
+      "source_layer": "tool interpretation",
+      "root_cause": "Quant producers registered aggregate values without source/allocation dependency facts.",
+      "evidence_refs": [
+        "backend/aplomb/quant/engine.py:226",
+        "infra/evidence/aws-architecture-2026-11-14.json"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "Register gated-series hash receipts and explicit allocation assumptions; retain code-owned verification.",
+      "resolution": "implemented and verified"
+    },
+    {
+      "severity": "high",
+      "title": "Planner could invent tool names",
+      "mechanism": "The first live brief was rejected before calculations because the proposed name was outside the catalog.",
+      "source_layer": "tool selection",
+      "root_cause": "Task.tool accepted an unrestricted string.",
+      "evidence_refs": [
+        "backend/aplomb/agents/models.py:31",
+        "infra/evidence/aws-architecture-2026-11-14.json"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "Constrain computation names in the model schema and supply the exact allowed catalog.",
+      "resolution": "implemented and verified"
+    },
+    {
+      "severity": "high",
+      "title": "Preliminary output policy blocked valid historical analysis",
+      "mechanism": "Live drafts reached audit but the Classic-tier denied-topic policy falsely intervened.",
+      "source_layer": "answer shaping",
+      "root_cause": "The preliminary policy was not evaluated against a complete real brief.",
+      "evidence_refs": [
+        "backend/aplomb/agents/guardrails.py:6",
+        "infra/evidence/aws-architecture-2026-11-14.json"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "Freeze a Standard-tier policy after testing the exact prior draft and an unsafe trading promise; scope IAM to its regional profiles.",
+      "resolution": "implemented and verified"
+    },
+    {
+      "severity": "medium",
+      "title": "Large ledger checkpoints could exceed DynamoDB transaction item limits",
+      "mechanism": "A run adding many facts in one phase could not publish a checkpoint atomically.",
+      "source_layer": "persistence",
+      "root_cause": "All fact children were required in one transaction without a large-ledger path.",
+      "evidence_refs": [
+        "backend/aplomb/api/repositories.py:128",
+        "infra/evidence/aws-architecture-2026-11-14.json"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "Publish a revision-fenced aggregate ledger document with content-addressed S3 spill and preserved fact immutability.",
+      "resolution": "implemented and verified"
+    },
+    {
+      "severity": "medium",
+      "title": "Base-table checkpoint queries reread every child",
+      "mechanism": "Each workflow checkpoint incurred unnecessary GetItem calls after a strongly consistent Query.",
+      "source_layer": "persistence",
+      "root_cause": "Query and read logic treated base rows like eventually consistent index projections.",
+      "evidence_refs": [
+        "backend/aplomb/api/storage.py:246",
+        "infra/evidence/aws-architecture-2026-11-14.json"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "Decode base Query items directly while retaining META revision fences and index ownership rereads.",
+      "resolution": "implemented and verified"
+    },
+    {
+      "severity": "medium",
+      "title": "Workflow failures were poorly observable",
+      "mechanism": "Handled model/audit failures need separate visibility from platform Lambda errors.",
+      "source_layer": "tool execution",
+      "root_cause": "No run-correlated custom outcome/token telemetry or retained failure destination.",
+      "evidence_refs": [
+        "infra/src/stack.mjs:124",
+        "infra/evidence/aws-architecture-2026-11-14.json"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "Emit low-cardinality EMF metrics, provide a dashboard and alarms, and retain exhausted asynchronous delivery failures in encrypted SQS.",
+      "resolution": "implemented and verified"
+    }
+  ],
+  "ordered_fix_plan": [
+    {
+      "order": 1,
+      "goal": "Connect frozen request preparation to asynchronous dispatch, repository checkpoints and real code controls.",
+      "why_now": "AWS worker and API were disconnected",
+      "expected_effect": "Executed path is reviewable and failures remain explicit."
+    },
+    {
+      "order": 2,
+      "goal": "Register gated-series hash receipts and explicit allocation assumptions; retain code-owned verification.",
+      "why_now": "Calculated facts lacked dependency lineage",
+      "expected_effect": "Executed path is reviewable and failures remain explicit."
+    },
+    {
+      "order": 3,
+      "goal": "Constrain computation names in the model schema and supply the exact allowed catalog.",
+      "why_now": "Planner could invent tool names",
+      "expected_effect": "Executed path is reviewable and failures remain explicit."
+    },
+    {
+      "order": 4,
+      "goal": "Freeze a Standard-tier policy after testing the exact prior draft and an unsafe trading promise; scope IAM to its regional profiles.",
+      "why_now": "Preliminary output policy blocked valid historical analysis",
+      "expected_effect": "Executed path is reviewable and failures remain explicit."
+    },
+    {
+      "order": 5,
+      "goal": "Publish a revision-fenced aggregate ledger document with content-addressed S3 spill and preserved fact immutability.",
+      "why_now": "Large ledger checkpoints could exceed DynamoDB transaction item limits",
+      "expected_effect": "Executed path is reviewable and failures remain explicit."
+    },
+    {
+      "order": 6,
+      "goal": "Decode base Query items directly while retaining META revision fences and index ownership rereads.",
+      "why_now": "Base-table checkpoint queries reread every child",
+      "expected_effect": "Executed path is reviewable and failures remain explicit."
+    },
+    {
+      "order": 7,
+      "goal": "Emit low-cardinality EMF metrics, provide a dashboard and alarms, and retain exhausted asynchronous delivery failures in encrypted SQS.",
+      "why_now": "Workflow failures were poorly observable",
+      "expected_effect": "Executed path is reviewable and failures remain explicit."
+    }
+  ],
+  "residual_limits": [
+    "At-least-once inference is not exactly-once provider billing.",
+    "No scheduled watchdog or paging target is configured.",
+    "Drain in-flight workflows before changing model/runtime configuration; immutable Lambda version routing is a future improvement.",
+    "A portfolio brief audit removed three sentences containing unresolved references; the live decision passed without strikes.",
+    "World/replay/research/sabotage remain disabled; on-demand publishing is local-only."
+  ]
+}

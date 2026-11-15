@@ -3,7 +3,7 @@
 import os
 from typing import Literal, Mapping
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, SecretStr, model_validator
 
 from aplomb.contracts.base import DataVersion, ISODate
 from aplomb.contracts.catalog import FeatureFlag
@@ -31,11 +31,12 @@ class Settings(BaseModel):
         default_factory=lambda: {flag: False for flag in FeatureFlag}
     )
     run_target_seconds: int = Field(default=90, gt=0)
-    run_hard_seconds: int = Field(default=180, gt=0)
+    run_hard_seconds: int = Field(default=180, gt=0, le=180)
     max_revise: int = Field(default=2, ge=0, le=2)
-    max_llm_calls: int = Field(default=12, ge=0)
-    max_research_calls: int = Field(default=12, ge=0)
+    max_llm_calls: int = Field(default=12, ge=0, le=12)
+    max_research_calls: int = Field(default=12, ge=0, le=12)
     local_state_file: str | None = None
+    tiingo_token: SecretStr | None = None  # on-demand prices (T04); masked in repr/logs
     max_body_bytes: int = Field(default=262144, ge=1024)
     lease_seconds: int = Field(default=30, gt=0)
 

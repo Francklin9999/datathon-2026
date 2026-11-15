@@ -83,7 +83,8 @@ class Harness:
         self.services = build_agent_services(cfg, self.runs, snapshot, self.world, gateway)
         self.services.clock = self.clock
         self.dispatcher = NoDispatch()
-        preparer = RunPreparerImpl(self.profiles, snapshot, models_configured=True, world=self.world, clock=self.clock)
+        preparer = RunPreparerImpl(self.profiles, snapshot, models_configured=True, world=self.world, clock=self.clock,
+                                   settings=cfg)
         self.coordinator = RunCoordinator(self.runs, self.dispatcher, preparer, clock=self.clock)
         self.session = "s_" + str(uuid.uuid4())
 
@@ -209,7 +210,8 @@ def test_a_measured_price_move_is_cited_without_being_struck_and_only_for_a_name
 
     def writer(message):
         draft = default_draft(message)
-        move = next(fid for fid, fact in message["facts"].items() if fact["method"]["id"] == "M_PRICE_MOVE_AFTER_EVENT")
+        move = next(fid for fid, fact in message["facts"].items()
+                    if fact["metric"] == "return.period" and str(fact["subject"]["variant"]).startswith("event:"))
         draft["sections"][0]["sentences"].append(
             {"id": "S-MOVE", "template": f"The observed price change of the named holding after the event was {{{{fact:{move}}}}}."})
         return draft

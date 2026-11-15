@@ -2,13 +2,14 @@
 
 import json
 import socket
+import time
 from datetime import UTC, date, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
 from aplomb.agents import ToolContext, ToolRegistry
 from aplomb.agents.limits import Limits
-from aplomb.api.repositories import RunRepository
+from aplomb.api.repositories import RunRepository, timestamp
 from aplomb.api.storage import FileStore
 from aplomb.contracts.models import Run
 from aplomb.ledger import Ledger
@@ -36,7 +37,7 @@ class Source:
 def test_registry_quote_is_saved_readable_and_historical_access_denied(tmp_path):
     payload = json.loads((ROOT / "contracts/fixtures/run.decision.robert-tsla-25.json").read_text())
     payload.update(status="queued", steps=[], facts={}, evidence={}, result=None, error=None,
-                   question=None)
+                   question=None, createdAt=timestamp(time.time()), updatedAt=timestamp(time.time()))
     repo = RunRepository(FileStore(tmp_path / "store.json"))
     created, _ = repo.create(Run.model_validate(payload), {}, None)
     claimed = repo.claim(created.run.run_id, created.generation)
@@ -88,7 +89,7 @@ def test_captured_complete_series_survives_real_run_checkpoint(tmp_path):
 
     payload = json.loads((ROOT / "contracts/fixtures/run.decision.robert-tsla-25.json").read_text())
     payload.update(status="queued", steps=[], facts={}, evidence={}, result=None, error=None,
-                   question=None, asOf="2026-11-14")
+                   question=None, asOf="2026-11-14", createdAt=timestamp(time.time()), updatedAt=timestamp(time.time()))
     store_path = tmp_path / "series-store.json"
     repo = RunRepository(FileStore(store_path))
     created, _ = repo.create(Run.model_validate(payload), {}, None)

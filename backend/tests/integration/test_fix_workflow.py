@@ -80,17 +80,18 @@ def test_answer_parsing():
 
 
 def test_planner_proposals_outside_the_catalog_are_dropped_and_disclosed():
-    plan = {"interpretation": "x", "quant_tasks": [{"tool": "portfolio_volatility", "args": {}}],
-            "scenario_tasks": [{"kind": "alternative", "ticker": "ZZZZ"}]}
+    # Tool names are an enumeration in the plan schema, so an unknown tool is a schema failure the
+    # gateway repairs; a ticker outside the universe is schema-valid and must be dropped here.
+    plan = {"interpretation": "x", "scenario_tasks": [{"kind": "alternative", "ticker": "ZZZZ"}]}
     gateway = ScriptedGateway(plan=plan)
     c, headers = client(gateway), session()
     run = wait(c, headers, c.post("/v1/runs", json=DECISION, headers=headers).json()["runId"], until=("succeeded", "failed"))
     assert run["status"] == "succeeded", run["error"]
     writer = next(p for role, p in gateway.prompts if role == "writer")
     notes = " ".join(writer["execution_limitations"])
-    assert "portfolio_volatility" in notes and "ZZZZ" in notes
+    assert "ZZZZ" in notes
     planner = next(p for role, p in gateway.prompts if role == "planner")
-    assert "quant.portfolio_metrics" in planner["allowed_quant_tools"] and "TSLA" in planner["universe_tickers"]
+    assert "quant.portfolio_metrics" in planner["allowed_computation_tools"] and "TSLA" in planner["universe_tickers"]
 
 
 def test_failed_runs_carry_a_catalog_code_and_a_fixed_message():

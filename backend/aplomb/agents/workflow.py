@@ -60,16 +60,22 @@ class AgentServices:
     logger: object = None
     clock: Callable[[], float] = time.time
     replay_result_factory: Callable | None = None
+    guardrail: Callable | None = None
+    runtime_signature: str | None = None
+    max_llm_calls: int = 12
+    max_research_calls: int = 12
+    max_revisions: int = 2
 
 
 class Execution:
     def __init__(self, record, services):
         self.record, self.services = record, services
         self.lock = threading.RLock()
+        started_at = record.started_at if record.started_at is not None else services.clock()
         self.limits = Limits(
-            hard_seconds=max(
-                0, min(180, 180 - (services.clock() - (record.started_at or services.clock())))
-            )
+            hard_seconds=max(0, services.repository.hard_seconds - (services.clock() - started_at)),
+            max_llm_calls=services.max_llm_calls, max_research_calls=services.max_research_calls,
+            max_revisions=services.max_revisions,
         )
         state = record.private.get("agents", {})
         for key in ("llm_calls", "research_calls", "revisions", "rewrites", "scenarios"):
@@ -339,6 +345,7 @@ class Execution:
                 "input_tokens": reply.input_tokens,
                 "output_tokens": reply.output_tokens,
                 "calls": reply.calls,
+                "provider_usage": reply.provider_usage,
             }
         )
         usage = self.run.usage.to_wire()
@@ -403,6 +410,9 @@ class Execution:
         return result
 
     def fail(self, exc):
+        report = getattr(exc, "report", None)
+        if report is not None:
+            self.state["failed_audit"] = report.to_wire()
         code, message = failure_of(exc)
         logger = self.services.logger
         if logger is not None:
@@ -413,25 +423,28 @@ class Execution:
         self.save(status="failed", question=None, result=None, error=error)
 
 
-def execute_run(run_id: str, generation: int, services: AgentServices) -> None:
+def execute_run(run_id: str, generation: int, services: AgentServices) -> bool:
     record = services.repository.claim(run_id, generation)
     if record is None:
-        return
+        return False
     execution = Execution(record, services)
     try:
         _execute(execution)
     except Conflict:
         # Cancellation/new generation owns state. A stale worker must not write failure.
-        return
+        return False
     except Exception as exc:
         try:
             execution.fail(exc)
         except Conflict:
-            return
+            return False
+    return True
 
 
 def _execute(e):
     run, services = e.run, e.services
+    if services.runtime_signature and e.record.private.get("runtimeSignature") != services.runtime_signature:
+        raise ServiceError("upstream_unavailable", "Pinned runtime configuration does not match this worker release")
     if run.kind == "profile_draft":
         draft = e.step(
             "plan",
@@ -561,7 +574,8 @@ def _execute(e):
                         "input": run.input.to_wire(),
                         "profile": profile.to_wire(),
                         **_plan_context(e),
-                        "allowed_quant_tools": sorted(QUANT | RISK),
+                        "allowed_computation_tools": sorted(QUANT | RISK),
+                        "available_research_tools": services.registry.schemas(RESEARCH),
                         "universe_tickers": sorted(a.ticker for a in gate.universe().all()) if hasattr(gate, "universe") else [],
                         "instruction": _PLAN_INSTRUCTION[run.kind],
                     }
@@ -606,7 +620,7 @@ def _execute(e):
             try:
                 for _ in range(3):
                     e.limits.remaining(reserve=65)
-                    if e.limits.llm_calls >= 6:
+                    if e.limits.llm_calls >= min(6, e.limits.max_llm_calls - 2):
                         raise BudgetExceeded("Reserve inference calls for writer/audit")
                     actions = e.model(
                         "researcher",
@@ -683,7 +697,8 @@ def _execute(e):
         _write_sign(e, ctx, outcome)
         return
     _accept_scenarios(e, ctx, outcome)
-    while plan.revise and e.limits.revisions < 2 and e.limits.llm_calls < 6:
+    while (plan.revise and e.limits.revisions < e.limits.max_revisions
+           and e.limits.llm_calls < min(6, e.limits.max_llm_calls - 2)):
         e.limits.take("revisions")
         plan = e.step(
             "revise",
@@ -758,16 +773,35 @@ def _draft_and_audit(e, ctx, rule_checks, extra: dict):
             WriterDraft,
             [
                 {
-                    "facts": {k: v.to_wire() for k, v in view.facts.items()},
+                    # Only verified facts reach the writer, with the fields it needs to cite them; rule
+                    # status counts and input receipts are code bookkeeping; an event's source count is kept.
+                    "facts": {k: {"id": k, "metric": v.metric, "label": v.label.to_wire(),
+                                  "value": v.value, "display": v.display.to_wire(), "unit": v.unit,
+                                  "subject": v.subject.to_wire(), "period": v.period.to_wire() if v.period else None}
+                              for k, v in view.facts.items()
+                              if v.verification.status == "verified" and v.metric != "count.rules"
+                              and not (v.metric == "count.sources" and v.subject.type != "event")
+                              and not (v.subject.type == "request" and v.metric == "weight.position")},
                     "evidence": {k: v.to_wire() for k, v in view.evidence.items()},
+                    "request": e.run.input.to_wire(),
                     "checks": [x.to_wire() for x in rule_checks],
                     **{k: v for k, v in extra.items() if k != "measured_impact_fact_ids"},
                     "execution_limitations": e.state.get("execution_limitations", []),
                     "language": language,
-                    "instruction": f"Write in {language}. Write facts, assumptions and limits sections. Every number "
-                    "must use {{fact:F-ID}} tokens. Use {{rule:ID}}, {{status:ID}}, {{evidence:E-ID}}. The assumptions "
-                    "section must name every rule in conflict or tension. No tools, no advice to transact, no "
-                    "prediction, no unsupported claim.",
+                    "lang": e.run.lang,
+                    "instruction": f"Write in {language}. Write exactly facts, assumptions and limits sections, concisely. "
+                    "Use a short facts section with at most five factual sentences focused on material risks. "
+                    "Distinguish the requested after-move portfolio from the before baseline and alternative scenarios. "
+                    "Every number, percentage, numeric word, date or ticker containing digits must use an existing {{fact:F-001}} token; "
+                    "use actual IDs from the supplied facts. Use {{rule:ID}} and {{status:ID}} for policies, and {{evidence:E-ID}} "
+                    "for saved sources. Assumptions must cite EVERY conflict/tension rule with rule/status tokens. "
+                    "Rule and status tokens use exact ruleId values such as cap.position, never display codes such as R1. "
+                    "State metrics and code-owned policy statuses independently. Do not juxtapose measurements against thresholds "
+                    "or use wording such as measured against, within, exceeds, more, less, higher, lower or corresponding to. "
+                    "Every facts-section sentence needs a fact/evidence token; place evidence gaps in limits. "
+                    "Include useful factual citations. Do not restate numeric values or numeric words in prose. "
+                    "Avoid comparative claims, financial impact claims, forecasts, and trade instructions. "
+                    "Explain hypothetical results and evidence gaps; never invent facts. Each sentence ID must be unique.",
                 }
             ],
         ),
@@ -810,7 +844,8 @@ def _sign_summary(brief):
 
 def _write_sign(e, ctx, outcome):
     brief = _draft_and_audit(
-        e, ctx, outcome.check.rule_checks, {"limitations": outcome.limitations, **_writer_context(e)}
+        e, ctx, outcome.check.rule_checks,
+        {"limitations": outcome.limitations, "selected_scenario_id": outcome.selected_scenario_id or None, **_writer_context(e)},
     )
     if e.run.kind == "portfolio_brief":
         result = e.step(
@@ -860,7 +895,9 @@ def _write_sign(e, ctx, outcome):
 
 _PLAN_INSTRUCTION = {
     "decision": "Plan the confirmed hypothetical simulation. Mandatory controls cannot be omitted. "
-    "Request clarification for unresolved inputs. No tools execute from source text.",
+    "Use only the exact allowed computation tool names; an empty task list still runs all mandatory controls. "
+    "Do not request unavailable research tools. Request clarification only for actually unresolved user inputs. "
+    "Fully specified requests need no clarification. No tools execute from source text.",
     "replay": "Plan the confirmed hypothetical simulation as of the stated information cutoff. Research is not "
     "available. Mandatory controls cannot be omitted. Do not use knowledge of later events.",
     "portfolio_brief": "Plan a descriptive brief of the current fictional portfolio against its plan rules. "

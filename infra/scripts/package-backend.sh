@@ -15,10 +15,9 @@ uv pip install --python-version 3.12 --python-platform x86_64-manylinux_2_28 \
 cp -R backend/aplomb "$artifact/aplomb"
 find "$artifact" -type d -name __pycache__ -prune -exec rm -rf {} +
 # Native extension imports must be checked in the actual Lambda Python/architecture.
-# Pin this image to a reviewed digest for release reproducibility.
+# Pin the runtime image used for the import check.
 docker run --rm --platform linux/amd64 --entrypoint python \
-  -v "$artifact:/var/task:ro" public.ecr.aws/lambda/python:3.12 \
-  -c 'import pydantic_core, mangum, boto3, strands; from aplomb.api.lambda_handler import handler; from aplomb.agents.worker import handler as worker; from aplomb.world import load_bundle; assert callable(handler) and callable(worker) and load_bundle().events'
+  -v "$artifact:/var/task:ro" public.ecr.aws/lambda/python:3.12@sha256:696fcc2a052fc8f335f9b34c6ec4e50ad54dbe5dd35134ec997c4f97bd150b22   -c 'import pydantic_core, mangum, boto3, strands; from aplomb.optimizer.services import build_domain_services; from aplomb.api.lambda_handler import handler; from aplomb.agents.worker import handler as worker; from aplomb.world import load_bundle; assert callable(handler) and callable(worker) and callable(build_domain_services) and load_bundle().events'
 python3 - "$artifact" <<'PY'
 import hashlib, json, pathlib, sys
 root = pathlib.Path(sys.argv[1])

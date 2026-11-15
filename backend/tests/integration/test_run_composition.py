@@ -261,7 +261,8 @@ def test_replay_uses_only_pre_cutoff_data_and_reveal_is_separate():
     assert (reveal["asOf"], reveal["until"]) == (as_of, "2023-12-29")
     assert [o["scenarioId"] for o in reveal["outcomes"]][:2] == ["sc_unchanged", "sc_requested"]
     assert all(o["series"][0]["value"] == 100.0 and o["factIds"] for o in reveal["outcomes"])
-    assert all(f["createdBy"] == "timemachine" for f in reveal["facts"].values())
+    # Outcome facts are the Time Machine's; the reveal ledger also holds their input receipts.
+    assert all(reveal["facts"][fid]["createdBy"] == "timemachine" for o in reveal["outcomes"] for fid in o["factIds"])
     after = ok(client.get(f"/v1/runs/{run['runId']}", headers=headers), "Run")
     assert after == run and after["result"]["replay"]["decision"]["brief"]["audit"]["ledgerHash"] == signed
     assert client.post(f"/v1/runs/{run['runId']}/reveal", json={"until": as_of}, headers=headers).status_code == 422
