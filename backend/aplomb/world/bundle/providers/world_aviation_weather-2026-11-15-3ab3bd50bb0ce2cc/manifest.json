@@ -1,0 +1,34 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_aviation_weather-2026-11-15-3ab3bd50bb0ce2cc",
+ "datasetId": "world_aviation_weather",
+ "frequency": "current captured station observations",
+ "historicalReplay": false,
+ "licence": "NOAA/NWS public domain; attribution, no endorsement, modified data labeled",
+ "licenceUrl": "https://www.weather.gov/disclaimer",
+ "limitations": [
+  "Six selected stations; not global weather coverage or aircraft tracking.",
+  "No historical vintages."
+ ],
+ "name": "NOAA AviationWeather international METAR stations",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "da848edee9406b42c1c7cd12fe124b9e3c021458f733716077a92ed9229ffdd2",
+   "url": "https://aviationweather.gov/api/data/metar?ids=EGLL,LFPG,RJTT,YSSY,FAOR,OMDB&format=json"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T16:21:58Z",
+ "rowCount": 6,
+ "scope": "Six requested international airport weather stations; no aircraft positions.",
+ "sha256": "3ab3bd50bb0ce2cca36368ed4f05109221c9ef9b20729b48295ee1516d36a2ce",
+ "sourceIds": [
+  "SRC-216",
+  "MASTER-070",
+  "MASTER-099"
+ ],
+ "sourceRows": 6,
+ "sourceUrl": "https://aviationweather.gov/api/data/metar?ids=EGLL,LFPG,RJTT,YSSY,FAOR,OMDB&format=json"
+}

@@ -34,6 +34,12 @@ export type DatasetId =
   | "macro_release_dates"
   | "etf_holdings"
   | "world_events"
+  | "world_aviation_weather"
+  | "world_noaa_alerts"
+  | "world_gdacs_alerts"
+  | "world_federal_register"
+  | "energy_wri_plants"
+  | "trade_portwatch_ports"
   | "attention_pageviews"
   | "emissions_facilities"
   | "natural_hazards"
@@ -762,8 +768,14 @@ export interface AplombContracts {
   WorldEventResponse: WorldEventResponse;
   WorldEventsResponse: WorldEventsResponse;
   WorldExposureResponse: WorldExposureResponse;
+  WorldGeographicRelationship: WorldGeographicRelationship;
   WorldLayer: WorldLayer;
   WorldLayersResponse: WorldLayersResponse;
+  WorldModeStatus: WorldModeStatus;
+  WorldObservation: WorldObservation;
+  WorldObservationLocation: WorldObservationLocation;
+  WorldObservationSource: WorldObservationSource;
+  WorldObservationsResponse: WorldObservationsResponse;
   WorstExposure: WorstExposure;
 }
 /**
@@ -3098,6 +3110,23 @@ export interface WorldEventResponse {
   event: WorldEvent;
   related: WorldEvent[];
   exposures: HoldingExposure[];
+  geographicRelationships?: WorldGeographicRelationship[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldGeographicRelationship".
+ */
+export interface WorldGeographicRelationship {
+  relationshipId: string;
+  relation: "EVENT_OCCURRED_AT" | "FACILITY_LOCATED_IN";
+  subjectId: string;
+  objectId: string;
+  evidenceClass: "direct" | "derived" | "candidate" | "model_inferred";
+  sourceId: string;
+  sourceUrl: string;
+  normalizedRecordSha256: string;
+  retrievedAt: ISODateTime;
+  limitations: string[];
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3142,6 +3171,67 @@ export interface WorldLayer {
  */
 export interface WorldLayersResponse {
   items: WorldLayer[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldModeStatus".
+ */
+export interface WorldModeStatus {
+  mode: string;
+  available: boolean;
+  count: number;
+  reason: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldObservation".
+ */
+export interface WorldObservation {
+  id: string;
+  mode: "news" | "macro" | "trade" | "energy" | "hazards" | "conflicts" | "aviation" | "environment" | "infrastructure";
+  title: string;
+  summary: string;
+  occurredAt: ISODateTime;
+  timeBasis: "source_observation" | "event_date" | "capture_only";
+  publishedAt: ISODateTime | null;
+  retrievedAt: ISODateTime;
+  location: WorldObservationLocation | null;
+  source: WorldObservationSource;
+  datasetId: string;
+  limitations: string[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldObservationLocation".
+ */
+export interface WorldObservationLocation {
+  lat: number;
+  lon: number;
+  countryIso3: string | null;
+  precision: "point" | "city" | "country" | "polygon_anchor";
+  geometry?: {
+    [k: string]: unknown;
+  } | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldObservationSource".
+ */
+export interface WorldObservationSource {
+  name: string;
+  url: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldObservationsResponse".
+ */
+export interface WorldObservationsResponse {
+  items: WorldObservation[];
+  total: number;
+  nextCursor: string | null;
+  dataVersion: string | null;
+  capturedAt: ISODateTime | null;
+  modes: WorldModeStatus[];
 }
 
 export type I18nText = AplombContracts["I18nText"];

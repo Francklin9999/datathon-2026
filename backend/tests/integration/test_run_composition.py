@@ -107,6 +107,28 @@ def test_world_endpoints_validate_against_the_contract(client):
     event_id = multi["items"][0]["eventId"]
     detail = ok(client.get(f"/v1/world/events/{event_id}", params={"profileId": "robert"}, headers=headers), "WorldEventResponse")
     assert detail["exposures"] and all(x["impact"] == "not_established" for x in detail["exposures"])
+    assert detail["geographicRelationships"][0]["relation"] == "EVENT_OCCURRED_AT"
+    observation_page = ok(client.get("/v1/world/observations", params={"mode": "hazards", "limit": 2},
+                                     headers=headers), "WorldObservationsResponse")
+    assert observation_page["total"] > 2 and len(observation_page["items"]) == 2
+    assert observation_page["nextCursor"]
+    assert all(item["source"]["url"].startswith("https://") for item in observation_page["items"])
+    assert all(item["timeBasis"] == "event_date" for item in observation_page["items"] if item["datasetId"] == "world_events")
+    historical_observations = ok(client.get("/v1/world/observations", params={"mode": "hazards", "asOf": "2026-11-14"},
+                                             headers=headers), "WorldObservationsResponse")
+    assert historical_observations["total"] == 0
+    aviation = ok(client.get("/v1/world/observations", params={"mode": "aviation", "limit": 20},
+                             headers=headers), "WorldObservationsResponse")
+    assert aviation["total"] == 6
+    assert any(row["location"]["countryIso3"] == "JPN" for row in aviation["items"])
+    policy = ok(client.get("/v1/world/observations", params={"mode": "news", "q": "Federal Register"},
+                           headers=headers), "WorldObservationsResponse")
+    assert policy["total"] == 20
+    assert all(row["location"] is None and row["timeBasis"] == "event_date"
+               for row in policy["items"])
+    energy = ok(client.get("/v1/world/observations", params={"mode": "energy", "limit": 1},
+                           headers=headers), "WorldObservationsResponse")
+    assert energy["total"] == 34936 and energy["items"][0]["datasetId"] == "energy_wri_plants"
     exposure = ok(client.get("/v1/world/exposure", params={"profileId": "amira"}, headers=headers), "WorldExposureResponse")
     assert sum(i["weightPct"] for i in exposure["items"]) == pytest.approx(100)
     country = ok(client.get("/v1/world/countries/CAN", params={"profileId": "robert"}, headers=headers), "WorldCountryResponse")
@@ -125,6 +147,11 @@ def test_world_endpoints_validate_against_the_contract(client):
     passports = ok(client.get("/v1/datasets", headers=headers), "DatasetsResponse")
     status = {p["datasetId"]: p["status"] for p in passports["items"]}
     assert (status["world_events"], status["natural_hazards"], status["emissions_facilities"]) == ("in_use", "in_use", "in_use")
+    for dataset_id, count in (("world_aviation_weather", 6), ("world_federal_register", 20),
+                              ("world_noaa_alerts", 3), ("energy_wri_plants", 34936)):
+        assert status[dataset_id] == "in_use"
+        assert ok(client.get(f"/v1/datasets/{dataset_id}", headers=headers),
+                  "DatasetPassport")["rowCount"] == count
     assert ok(client.get("/v1/datasets/world_events", headers=headers), "DatasetPassport")["rowCount"] == next(layer["count"] for layer in layers["items"] if layer["layerId"] == "events")
 
 

@@ -7,6 +7,7 @@ import type {
   CountryExposure, EventBriefResult, EventCategory, Fact, I18NText, Period, WorldEvent, WorldEventItem, WorldLayer,
 } from '../contracts/types';
 import type { WorldEventsQuery } from '../api/client';
+import { countryLabel, iso3FromNumeric } from './geo';
 
 export const EVENT_CATEGORIES: readonly EventCategory[] = [
   'monetary_policy', 'macro_release', 'geopolitical', 'trade_regulation', 'corporate',
@@ -38,6 +39,70 @@ export function daysBetween(from: string, to: string): number {
 }
 
 export interface DateRange { from: string; to: string }
+
+export type WorldMode = 'news' | 'portfolio' | 'macro' | 'trade' | 'energy' | 'hazards' | 'conflicts' | 'aviation' | 'environment' | 'infrastructure';
+export const WORLD_MODES: readonly { id: WorldMode; title: I18NText; categories: readonly EventCategory[]; layers: readonly string[]; note: I18NText }[] = [
+  { id: 'news', title: { en: 'News', fr: 'Actualités' }, categories: [], layers: ['events'], note: { en: 'Loaded source observations and releases. This sample does not cover all worldwide news.', fr: 'Observations et publications chargées. Cet échantillon ne couvre pas toutes les actualités mondiales.' } },
+  { id: 'portfolio', title: { en: 'Portfolio exposure', fr: 'Exposition du portefeuille' }, categories: [], layers: ['events', 'exposure'], note: { en: 'Listing-country and theme matches are proxies. Inspect event evidence before drawing a financial conclusion.', fr: 'Les correspondances de pays de cotation et de thème sont des approximations. Consultez les preuves avant toute conclusion financière.' } },
+  { id: 'macro', title: { en: 'Macro & markets', fr: 'Macro et marchés' }, categories: ['macro_release', 'monetary_policy', 'markets'], layers: ['events'], note: { en: 'Select any country to inspect supported annual indicators and releases. Annual observations are not live market signals.', fr: 'Sélectionnez un pays pour consulter les indicateurs annuels et publications disponibles. Les observations annuelles ne sont pas des signaux de marché en direct.' } },
+  { id: 'trade', title: { en: 'Trade & shipping', fr: 'Commerce et transport maritime' }, categories: ['trade_regulation'], layers: ['events'], note: { en: 'Loaded trade releases only. Shipping activity and vessel tracking require a separately loaded, authorized dataset.', fr: 'Publications commerciales chargées seulement. L’activité maritime et le suivi des navires nécessitent un jeu de données autorisé distinct.' } },
+  { id: 'energy', title: { en: 'Energy', fr: 'Énergie' }, categories: ['energy_commodities'], layers: ['events'], note: { en: 'Loaded energy releases and power-plant references. Capture dates for static references do not establish current operating status.', fr: 'Publications énergétiques et références de centrales chargées. Les dates de collecte des références statiques n’établissent pas leur état opérationnel actuel.' } },
+  { id: 'hazards', title: { en: 'Hazards', fr: 'Aléas' }, categories: ['natural_disaster'], layers: ['events', 'hazards'], note: { en: 'Reported hazards and their original geometry. Proximity does not establish a company relationship or loss.', fr: 'Aléas signalés et géométrie originale. La proximité ne prouve ni lien d’entreprise ni perte.' } },
+  { id: 'conflicts', title: { en: 'Conflicts & geopolitics', fr: 'Conflits et géopolitique' }, categories: ['geopolitical'], layers: ['events'], note: { en: 'Only sourced geopolitical records in the loaded sample. Missing records are not evidence of peace or absence of sanctions.', fr: 'Seulement les enregistrements géopolitiques sourcés de l’échantillon chargé. L’absence de données ne prouve ni paix ni absence de sanctions.' } },
+  { id: 'aviation', title: { en: 'Aviation', fr: 'Aviation' }, categories: [], layers: ['airports'], note: { en: 'Static airport reference with source coordinates. No aircraft movements or current operating status is established.', fr: 'Référence aéroportuaire statique avec coordonnées sourcées. Aucun mouvement aérien ni état opérationnel actuel établi.' } },
+  { id: 'environment', title: { en: 'ESG & environment', fr: 'ESG et environnement' }, categories: ['natural_disaster'], layers: ['events', 'facilities'], note: { en: 'Registry emissions and environmental observations. These are not a comprehensive ESG rating or proof of controversy.', fr: 'Émissions des registres et observations environnementales. Ce n’est ni une note ESG complète ni une preuve de controverse.' } },
+  { id: 'infrastructure', title: { en: 'Economic infrastructure', fr: 'Infrastructure économique' }, categories: [], layers: ['airports', 'facilities'], note: { en: 'Loaded airport and reporting-facility references. Ownership, supply chains and financial exposure require separate documented evidence.', fr: 'Références chargées d’aéroports et d’installations déclarantes. Propriété, chaînes d’approvisionnement et exposition financière nécessitent des preuves distinctes.' } },
+];
+
+export interface GeographicArea { id: string; title: I18NText; bbox: string; lat: number; lng: number; altitude: number }
+/** Navigation boxes, not political membership or financial coverage classifications. */
+export const GEOGRAPHIC_AREAS: readonly GeographicArea[] = [
+  { id: 'north-america', title: { en: 'North America', fr: 'Amérique du Nord' }, bbox: '-170,5,-50,83', lat: 43, lng: -105, altitude: 1.8 },
+  { id: 'south-america', title: { en: 'South America', fr: 'Amérique du Sud' }, bbox: '-90,-60,-30,15', lat: -23, lng: -60, altitude: 1.6 },
+  { id: 'europe', title: { en: 'Europe', fr: 'Europe' }, bbox: '-25,34,45,72', lat: 53, lng: 10, altitude: 1.3 },
+  { id: 'africa', title: { en: 'Africa', fr: 'Afrique' }, bbox: '-25,-40,60,38', lat: 0, lng: 20, altitude: 1.6 },
+  { id: 'asia', title: { en: 'Asia', fr: 'Asie' }, bbox: '25,-10,180,80', lat: 35, lng: 100, altitude: 1.9 },
+  { id: 'oceania', title: { en: 'Oceania & Pacific', fr: 'Océanie et Pacifique' }, bbox: '110,-55,-120,25', lat: -15, lng: 170, altitude: 1.8 },
+];
+
+export function validBbox(value: string): boolean {
+  const parts = value.split(',').map(Number);
+  return parts.length === 4 && value.split(',').every(part => part.trim() !== '') && parts.every(Number.isFinite)
+    && Math.abs(parts[0]!) <= 180 && Math.abs(parts[2]!) <= 180
+    && Math.abs(parts[1]!) <= 90 && Math.abs(parts[3]!) <= 90 && parts[1]! <= parts[3]!;
+}
+
+export function insideBbox(lat: number, lng: number, bbox: string): boolean {
+  if (!validBbox(bbox) || !Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  const [west, south, east, north] = bbox.split(',').map(Number) as [number, number, number, number];
+  return lat >= south && lat <= north && (west <= east ? lng >= west && lng <= east : lng >= west || lng <= east);
+}
+
+/** Smallest date-line-aware box enclosing sampled visible globe surface points. */
+export function viewportBounds(points: readonly { lat: number; lng: number }[]): string | null {
+  const valid = points.filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng) && Math.abs(point.lat) <= 90 && Math.abs(point.lng) <= 180);
+  if (!valid.length) return null;
+  const longitudes = valid.map(point => (point.lng + 360) % 360).sort((a, b) => a - b);
+  let largestGap = -1;
+  let start = 0;
+  for (let index = 0; index < longitudes.length; index++) {
+    const gap = (longitudes[(index + 1) % longitudes.length]! + (index === longitudes.length - 1 ? 360 : 0)) - longitudes[index]!;
+    if (gap > largestGap) { largestGap = gap; start = (index + 1) % longitudes.length; }
+  }
+  const normalized = (longitude: number) => longitude > 180 ? longitude - 360 : longitude;
+  const west = normalized(longitudes[start]!);
+  const east = normalized(longitudes[(start + longitudes.length - 1) % longitudes.length]!);
+  const lower = (value: number) => Math.floor(value * 1000) / 1000;
+  const upper = (value: number) => Math.ceil(value * 1000) / 1000;
+  return [lower(west), lower(Math.min(...valid.map(point => point.lat))), upper(east), upper(Math.max(...valid.map(point => point.lat)))].map(value => value.toFixed(3)).join(',');
+}
+
+/** Local ISO/CLDR search; it makes no geocoder requests and includes countries without loaded records. */
+export function geographicCountries(lang: 'en' | 'fr'): { iso3: string; label: string }[] {
+  const codes = new Set<string>();
+  for (let code = 0; code < 1000; code++) { const iso3 = iso3FromNumeric(code); if (iso3) codes.add(iso3); }
+  return [...codes].map(iso3 => ({ iso3, label: countryLabel(iso3, lang) })).sort((a, b) => a.label.localeCompare(b.label, lang));
+}
 
 /** Default interval: the dataset coverage, shortened from its start when it is longer than the limit. */
 export function defaultRange(coverage: Period): DateRange {
@@ -85,6 +150,7 @@ export interface WorldFilters {
   theme: string;
   q: string;
   sort: 'importance' | 'date';
+  bbox?: string;
 }
 
 export const EMPTY_FILTERS: WorldFilters = {
@@ -99,6 +165,7 @@ export function buildEventsQuery(
   if (filters.from && filters.to) { query.from = filters.from; query.to = filters.to; }
   if (filters.categories.length) query.category = [...filters.categories];
   if (filters.origins.length) query.origin = [...filters.origins];
+  if (filters.bbox && validBbox(filters.bbox)) query.bbox = filters.bbox;
   const country = filters.country.trim().toUpperCase();
   if (country) query.country = [country];
   const ticker = filters.ticker.trim().toUpperCase();
@@ -297,13 +364,16 @@ export function readInvestigationContext(text: string | null): InvestigationCont
 /** Sample static reference points across geographic cells before taking another from a dense cell. */
 export function spatialReferencePins<T extends { lat: number; lon: number }>(rows: T[], limit: number): T[] {
   const cells = new Map<string, T[]>();
+  const cap = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : 0;
   for (const row of rows) {
+    if (!Number.isFinite(row.lat) || !Number.isFinite(row.lon) || Math.abs(row.lat) > 90 || Math.abs(row.lon) > 180) continue;
     const key = `${Math.floor((row.lat + 90) / 15)}:${Math.floor((row.lon + 180) / 15)}`;
     const cell = cells.get(key) ?? []; cell.push(row); cells.set(key, cell);
   }
   const result: T[] = [];
-  for (let depth = 0; result.length < Math.min(limit, rows.length); depth++) {
-    for (const cell of cells.values()) { const row = cell[depth]; if (row && result.length < limit) result.push(row); }
+  const validCount = [...cells.values()].reduce((sum, cell) => sum + cell.length, 0);
+  for (let depth = 0; result.length < Math.min(cap, validCount); depth++) {
+    for (const cell of cells.values()) { const row = cell[depth]; if (row && result.length < cap) result.push(row); }
   }
   return result;
 }

@@ -6,18 +6,20 @@ packaged bundle, built from the real feeds, is checked for integrity and contrac
 from __future__ import annotations
 
 import json
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 import pytest
 from aplomb.api.errors import NotFound, ServiceError
 from aplomb.api.repositories import ProfileRepository
 from aplomb.api.storage import MemoryStore
 from aplomb.contracts import models as m
+from aplomb.intelligence.entities import RelationshipStore
 from aplomb.optimizer.services import build_domain_services
 from aplomb.world import WorldDataError, WorldServiceImpl, load_bundle, world_passports
 from aplomb.world import ingest as ing
 from aplomb.world.dataset import WorldDataset
 from aplomb.world.geo import UNKNOWN_COUNTRY, country_name, in_bbox, resolve_place_country
+from aplomb.world.relationships import facility_geography
 
 from tests.unit.datastore._support import starter_snapshot
 
@@ -250,6 +252,88 @@ def test_default_feed_is_the_last_thirty_days_of_the_dataset(world):
     assert all(e.portfolio_relevant is None for e in page.items)                           # only with a profile
 
 
+def test_explicit_historical_queries_exclude_current_only_world_capture(world):
+    ds = world.dataset()
+    before = (date.fromisoformat(ds.built_at[:10]) - timedelta(days=1)).isoformat()
+    event = ds.events[0]
+    query = {"from": event["occurredAt"], "to": event["occurredAt"], "asOf": before}
+    assert world.events(SID, query).total == 0
+    assert world.hazards(SID, {"asOf": before}).total == 0
+    if event["location"]["countryIso3"]:
+        assert world.country(SID, event["location"]["countryIso3"], query).events == []
+    with pytest.raises(NotFound):
+        world.event(SID, event["eventId"], {"asOf": before})
+    assert world.events(SID, {"from": event["occurredAt"], "to": event["occurredAt"]}).total > 0
+
+
+def test_observations_are_geolocated_paginated_and_capture_gated(world):
+    service = WorldServiceImpl(world.profiles, world.snapshot, world.dataset, clock=lambda: BUILT)
+    service._provider_capture = (({
+        "id": "world_test:station", "sourceId": "world_test", "category": "aviation",
+        "title": "Sydney station report", "sourceUrl": "https://example.org/station",
+        "retrievedAt": "2026-11-15T01:00:00Z", "availableAt": "2026-11-15T01:00:00Z",
+        "observedAt": "2026-11-14T23:00:00Z", "publishedAt": None,
+        "latitude": -33.9, "longitude": 151.2, "countryIso3": "AUS",
+        "properties": {"stationId": "YSSY", "metar": "YSSY sample", "geographicRole": "weather_station"},
+    },), ({"dataVersion": "world-test-1", "retrievedAt": "2026-11-15T01:00:00Z"},))
+    current = service.observations(SID, {"mode": "aviation", "country": ["AUS"]})
+    assert current.total == 1 and current.items[0].location.lat < 0
+    assert current.items[0].source.url == "https://example.org/station"
+    assert next(m for m in current.modes if m.mode == "aviation").available
+    assert service.observations(SID, {"mode": "aviation", "asOf": "2026-11-14"}).total == 0
+    assert service.observations(SID, {"mode": "aviation", "bbox": "100,-40,160,-20"}).total == 1
+    assert service.observations(SID, {"mode": "aviation", "bbox": "-100,-40,-80,-20"}).total == 0
+    page = service.observations(SID, {"mode": "hazards", "limit": 1})
+    assert page.total > 1 and page.next_cursor
+    second = service.observations(SID, {"mode": "hazards", "limit": 1, "cursor": page.next_cursor})
+    assert page.items[0].id != second.items[0].id
+    with pytest.raises(ServiceError):
+        service.observations(SID, {"mode": "news", "cursor": page.next_cursor})
+
+
+def test_unlocated_policy_publication_is_in_feed_but_not_on_map(world):
+    service = WorldServiceImpl(world.profiles, world.snapshot, world.dataset, clock=lambda: BUILT)
+    service._provider_capture = (({
+        "id": "world_federal_register:notice", "sourceId": "world_federal_register",
+        "category": "policy", "title": "Federal notice",
+        "sourceUrl": "https://www.federalregister.gov/documents/notice",
+        "retrievedAt": "2026-11-15T01:00:00Z", "availableAt": "2026-11-15T01:00:00Z",
+        "observedAt": None, "publishedAt": "2026-11-13",
+        "latitude": None, "longitude": None, "countryIso3": "USA",
+        "properties": {"geographicRole": "national_jurisdiction"},
+    },), ({"dataVersion": "policy-test-1", "retrievedAt": "2026-11-15T01:00:00Z",
+             "datasetId": "world_federal_register", "name": "Federal Register"},))
+    feed = service.observations(SID, {"mode": "news", "q": "Federal notice"})
+    assert feed.total == 1
+    assert feed.items[0].location is None
+    assert feed.items[0].time_basis == "event_date"
+    assert feed.items[0].published_at == "2026-11-13T00:00:00Z"
+    assert feed.items[0].source.name == "Federal Register"
+    assert service.observations(SID, {"mode": "news", "bbox": "-130,20,-60,55",
+                                      "q": "Federal notice"}).total == 0
+    assert service.observations(SID, {"mode": "news", "q": "Federal notice",
+                                      "asOf": "2026-11-14"}).total == 0
+
+
+def test_event_and_facility_geography_are_evidenced_without_ownership(world):
+    event = next(e for e in world.dataset().events if e["location"]["precision"] == "point")
+    detail = world.event(SID, event["eventId"], {}).to_wire()
+    edge = detail["geographicRelationships"][0]
+    assert edge["relation"] == "EVENT_OCCURRED_AT"
+    assert edge["subjectId"] == event["eventId"]
+    assert edge["objectId"].startswith("point:")
+    assert edge["sourceUrl"] == event["sources"][0]["url"]
+    assert len(edge["normalizedRecordSha256"]) == 64
+    facility = world.facilities(SID, {"limit": 1}).items[0].to_wire()
+    from aplomb.world.facilities import load_facilities
+    _, manifest = load_facilities()
+    relation = facility_geography(facility, manifest)
+    assert relation.relation == "FACILITY_LOCATED_IN" and relation.object_id == "country:CAN"
+    assert relation.subject_id == facility["facilityId"]
+    assert RelationshipStore([relation]).find(relation.subject_id, date(2026, 11, 14), historical=True) == []
+    assert RelationshipStore([relation]).find(relation.subject_id, date(2026, 11, 15), historical=True) == [relation]
+
+
 def test_filters_pagination_and_cursor_binding(world):
     q = {"from": "2025-11-13", "to": "2026-11-12"}
     everything = world.events(SID, {**q, "limit": 1000})
@@ -382,6 +466,8 @@ def test_hazards_filters(world):
 def test_search_tool_respects_the_as_of_date(world):
     found = world.search_events(q="Consumer Price Index", country="CAN", as_of="2023-06-30", limit=50)
     assert found and all(e["occurredAt"] <= "2023-06-30" for e in found)
+    assert world.search_events(q="Consumer Price Index", country="CAN", as_of="2023-06-30",
+                               historical=True) == []
 
 
 def test_passports_describe_the_loaded_bundle(world):

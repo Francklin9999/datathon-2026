@@ -1,0 +1,33 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_federal_register-2026-11-15-706f836502ebb0ed",
+ "datasetId": "world_federal_register",
+ "frequency": "newest twenty-document page captured batch",
+ "historicalReplay": false,
+ "licence": "US federal government metadata; public domain",
+ "licenceUrl": "https://www.federalregister.gov/reader-aids/government-policy-and-ofr-procedures",
+ "limitations": [
+  "Bounded recent page, incomplete history. Future-dated entries rejected.",
+  "National jurisdiction only; metadata has no source point.",
+  "Linked official PDF governs legal authority. No full text redistributed."
+ ],
+ "name": "US Federal Register document metadata",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "c561f2701ea0684a11487d1a8164e334dcd07d71c36b9a33b6fca2bac00e5c8e",
+   "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=20&order=newest&conditions%5Bpublication_date%5D%5Blte%5D=2026-11-15"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T16:13:49Z",
+ "rowCount": 20,
+ "scope": "Newest bounded metadata page; no exhaustive historical policy coverage.",
+ "sha256": "706f836502ebb0ed556d7924901e28124506d2569e70f7c74fedb4d4f976fc37",
+ "sourceIds": [
+  "SRC-141"
+ ],
+ "sourceRows": 20,
+ "sourceUrl": "https://www.federalregister.gov/api/v1/documents.json?per_page=20&order=newest&conditions%5Bpublication_date%5D%5Blte%5D=2026-11-15"
+}

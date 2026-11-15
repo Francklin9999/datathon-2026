@@ -641,6 +641,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
 
     register_world("airports", "airports", a.AirportsResponse)
     register_world("layers", "layers", a.WorldLayersResponse)
+    register_world("observations", "observations", a.WorldObservationsResponse)
     register_world("events", "events", a.WorldEventsResponse)
     register_world("exposure", "exposure", a.WorldExposureResponse)
     register_world("facilities", "facilities", a.FacilitiesResponse, "world_layer_facilities")

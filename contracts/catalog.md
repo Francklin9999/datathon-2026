@@ -251,6 +251,12 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `macro_release_dates` | Publication dates of monthly series | P1 |
 | `etf_holdings` | Constituents and weights of ETFs | P1 |
 | `world_events` | Geolocated events | P1 |
+| `world_aviation_weather` | Aviation weather observations from bounded airport station captures | P2 |
+| `world_noaa_alerts` | NOAA weather alert observations with source geometry | P2 |
+| `world_gdacs_alerts` | GDACS bounded global disaster alert observations | P2 |
+| `world_federal_register` | Federal Register policy observations | P2 |
+| `energy_wri_plants` | WRI power plant reference observations | P2 |
+| `trade_portwatch_ports` | IMF PortWatch port reference observations | P2 |
 | `attention_pageviews` | Wikipedia page views per asset | P1 |
 | `emissions_facilities` | ECCC and EPA facility emissions | P1 (cut item 2) |
 | `natural_hazards` | USGS earthquakes, NASA FIRMS wildfires | P1 (cut item 2) |

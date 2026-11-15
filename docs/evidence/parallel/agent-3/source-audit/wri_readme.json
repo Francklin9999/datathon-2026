@@ -1,0 +1,7 @@
+{
+  "source": "wri_readme",
+  "documentSha256": "9d2661ad16d7abde0e2cf64aa78034824e6249357c977109eb84bf16cc65f1b9",
+  "excerpt": "s available in CSV format [here](http://datasets.wri.org/dataset/globalpowerplantdatabase) under a [Creative Commons-Attribution 4.0 (CC BY 4.0) license](https://creativecommons.org/licenses/by/4.0/). A bleeding-edge version is in the [`output_database`](https://github.com/wri/global-power-plant-database/blob/master/output_database) directory of this repo. All Python source code is available under a [MIT license](https://opensource.org/licenses/M",
+  "capturedAt": "2026-11-15T16:12:32.030293+00:00",
+  "url": "https://raw.githubusercontent.com/wri/global-power-plant-database/master/README.md"
+}

@@ -116,6 +116,29 @@ test('worldFacilities and worldHazards validate their responses', async () => {
   await invalid(clientFor(200, { items: [{ ...hazard, type: 'flood' }], total: 1 }).worldHazards());
 });
 
+test('provider observations preserve missing geography and send geographic pagination filters', async () => {
+  const captured: Captured[] = [];
+  const observation = {
+    id: 'source:energy:1', mode: 'energy', title: 'Source bulletin', summary: 'Provider description',
+    occurredAt: '2026-11-15T12:00:00Z', timeBasis: 'capture_only', publishedAt: null,
+    retrievedAt: '2026-11-15T12:00:00Z', location: null,
+    source: { name: 'Provider', url: 'https://example.org/bulletin' }, datasetId: 'provider_capture',
+    limitations: ['No source coordinates or historical vintage'],
+  };
+  const body = { items: [observation], total: 2, nextCursor: 'next', dataVersion: 'capture-1', capturedAt: '2026-11-15T12:00:00Z',
+    modes: [{ mode: 'energy', available: true, count: 2, reason: null }] };
+  const page = await clientFor(200, body, captured).worldObservations({ mode: 'energy', country: ['USA', 'CAN'], bbox: '170,-20,-170,20', cursor: 'page-1', limit: 100 });
+  assert.equal(page.items[0]?.location, null, 'a source without geometry must remain unlocated');
+  assert.equal(page.items[0]?.timeBasis, 'capture_only');
+  const url = new URL(captured[0]?.url ?? '');
+  assert.equal(url.pathname, '/v1/world/observations');
+  assert.deepEqual(url.searchParams.getAll('country'), ['USA', 'CAN']);
+  assert.equal(url.searchParams.get('bbox'), '170,-20,-170,20');
+  assert.equal(url.searchParams.get('cursor'), 'page-1');
+  await invalid(clientFor(200, { ...body, items: [{ ...observation, timeBasis: 'invented_event' }] }).worldObservations());
+  await invalid(clientFor(200, { ...body, items: [{ ...observation, location: { lat: 91, lon: 0, countryIso3: null, precision: 'point' } }] }).worldObservations());
+});
+
 test('replayPresets validates ReplayPresetsResponse', async () => {
   const captured: Captured[] = [];
   const body = { earliestAsOf: '2022-11-14', latestAsOf: '2026-08-18', presets: [{ asOf: '2024-03-28', label: text('Before a drawdown'), why: text('Computed from the data') }], notices: ['LIM_LLM_KNOWLEDGE', 'LIM_SAMPLE_WINDOW'] };
@@ -167,6 +190,7 @@ test('fixture mode invents no world or replay data: every T15 endpoint answers 5
   const calls: [string, () => Promise<unknown>][] = [
     ['worldLayers', () => client.worldLayers()],
     ['worldEvents', () => client.worldEvents({ profileId: 'robert' })],
+    ['worldObservations', () => client.worldObservations()],
     ['worldEvent', () => client.worldEvent(event.eventId, 'robert')],
     ['worldExposure', () => client.worldExposure('robert')],
     ['worldCountry', () => client.worldCountry('CAN', { profileId: 'robert' })],

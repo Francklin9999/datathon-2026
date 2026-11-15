@@ -1,0 +1,472 @@
+[
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23180",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Securities and Exchange Commission"
+   ],
+   "documentNumber": "2026-23180",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23180/self-regulatory-organizations-nasdaq-ise-llc-notice-of-filing-of-amendment-no-2-and-order-granting",
+  "title": "Self-Regulatory Organizations; Nasdaq ISE, LLC; Notice of Filing of Amendment No. 2 and Order Granting Accelerated Approval of a Proposed Rule Change, as Modified by Amendment No. 2, To Amend the Criteria for Underlying Securities"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23181",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Securities and Exchange Commission"
+   ],
+   "documentNumber": "2026-23181",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23181/self-regulatory-organizations-memx-llc-notice-of-filing-and-immediate-effectiveness-of-a-proposed",
+  "title": "Self-Regulatory Organizations; MEMX LLC; Notice of Filing and Immediate Effectiveness of a Proposed Rule Change To Amend the Exchange's Fee Schedule"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23182",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Securities and Exchange Commission"
+   ],
+   "documentNumber": "2026-23182",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23182/self-regulatory-organizations-the-nasdaq-stock-market-llc-notice-of-filing-and-immediate",
+  "title": "Self-Regulatory Organizations; The Nasdaq Stock Market LLC; Notice of Filing and Immediate Effectiveness of Proposed Rule Change To Amend Exchange Rule Equity 7 Section 115"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23183",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Securities and Exchange Commission"
+   ],
+   "documentNumber": "2026-23183",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23183/self-regulatory-organizations-texas-stock-exchange-llc-notice-of-filing-and-immediate-effectiveness",
+  "title": "Self-Regulatory Organizations; Texas Stock Exchange LLC; Notice of Filing and Immediate Effectiveness of a Proposed Rule Change To Adopt a Policy Relating to the Exchange's Treatment of Trade Reports"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23184",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Securities and Exchange Commission"
+   ],
+   "documentNumber": "2026-23184",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23184/self-regulatory-organizations-24x-national-exchange-llc-notice-of-filing-and-immediate-effectiveness",
+  "title": "Self-Regulatory Organizations; 24X National Exchange LLC; Notice of Filing and Immediate Effectiveness of Proposed Rule Change To Amend Rule 11.14 in Light of the Commission's Approval of Overnight Protected Bands for 23/5 Trading"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23185",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Securities and Exchange Commission"
+   ],
+   "documentNumber": "2026-23185",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23185/self-regulatory-organizations-financial-industry-regulatory-authority-inc-notice-of-filing-of-a",
+  "title": "Self-Regulatory Organizations; Financial Industry Regulatory Authority, Inc.; Notice of Filing of a Proposed Rule Change To Amend the FINRA By-Laws, the FINRA Regulation By-Laws, the Plan of Allocation and Delegation of Functions by FINRA to Subsidiaries, FINRA's Restated Certificate of Incorporation, and FINRA Rule 5110"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23186",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Securities and Exchange Commission"
+   ],
+   "documentNumber": "2026-23186",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23186/self-regulatory-organizations-24x-national-exchange-llc-notice-of-filing-and-immediate-effectiveness",
+  "title": "Self-Regulatory Organizations; 24X National Exchange LLC; Notice of Filing and Immediate Effectiveness of a Proposed Rule Change To Amend Rule 14.1 Regarding Information Circular Requirements"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23187",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Securities and Exchange Commission"
+   ],
+   "documentNumber": "2026-23187",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23187/self-regulatory-organizations-investors-exchange-llc-notice-of-filing-and-immediate-effectiveness-of",
+  "title": "Self-Regulatory Organizations; Investors Exchange LLC; Notice of Filing and Immediate Effectiveness of Proposed Rule Change To Extend the Implementation Timeframe of a Recent Rule Filing"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23188",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Securities and Exchange Commission"
+   ],
+   "documentNumber": "2026-23188",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23188/self-regulatory-organizations-mx2-llc-notice-of-filing-and-immediate-effectiveness-of-a-proposed",
+  "title": "Self-Regulatory Organizations; MX2 LLC; Notice of Filing and Immediate Effectiveness of a Proposed Rule Change To Amend the Exchange's Fee Schedule"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23189",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Health and Human Services Department",
+    "Centers for Medicare & Medicaid Services"
+   ],
+   "documentNumber": "2026-23189",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23189/agency-information-collection-activities-proposed-collection-comment-request",
+  "title": "Agency Information Collection Activities: Proposed Collection; Comment Request"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23190",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Defense Department",
+    "Engineers Corps"
+   ],
+   "documentNumber": "2026-23190",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23190/final-deauthorization-list-of-water-resources-projects",
+  "title": "Final Deauthorization List of Water Resources Projects"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23191",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Commerce Department",
+    "National Oceanic and Atmospheric Administration"
+   ],
+   "documentNumber": "2026-23191",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23191/agency-information-collection-activities-submission-to-the-office-of-management-and-budget-omb-for",
+  "title": "Agency Information Collection Activities; Submission to the Office of Management and Budget (OMB) for Review and Approval; Comment Request; Mandatory Shrimp Vessel and Gear Characterization Survey"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23192",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Commerce Department",
+    "National Oceanic and Atmospheric Administration"
+   ],
+   "documentNumber": "2026-23192",
+   "documentType": "Notice",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23192/agency-information-collection-activities-submission-to-the-office-of-management-and-budget-omb-for",
+  "title": "Agency Information Collection Activities; Submission to the Office of Management and Budget (OMB) for Review and Approval; Comment Request; Electronic Logbook for the Commercial Shrimp Fishery in the Gulf of America"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23193",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Treasury Department",
+    "Foreign Assets Control Office"
+   ],
+   "documentNumber": "2026-23193",
+   "documentType": "Rule",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23193/publication-of-iran-related-web-general-license-w",
+  "title": "Publication of Iran-Related Web General License W"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23194",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Transportation Department",
+    "Federal Aviation Administration"
+   ],
+   "documentNumber": "2026-23194",
+   "documentType": "Rule",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23194/amendment-of-class-c-airspace-laughlin-air-force-base-del-rio-tx",
+  "title": "Amendment of Class C Airspace; Laughlin Air Force Base, Del Rio, TX"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23195",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Treasury Department",
+    "Foreign Assets Control Office"
+   ],
+   "documentNumber": "2026-23195",
+   "documentType": "Rule",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23195/publication-of-a-cuba-sanctions-regulations-web-general-license",
+  "title": "Publication of a Cuba Sanctions Regulations Web General License"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23196",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Treasury Department",
+    "Foreign Assets Control Office"
+   ],
+   "documentNumber": "2026-23196",
+   "documentType": "Rule",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23196/publication-of-russian-harmful-foreign-activities-sanctions-regulations-web-general-licenses-55f-and",
+  "title": "Publication of Russian Harmful Foreign Activities Sanctions Regulations Web General Licenses 55F and 115D"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23197",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Treasury Department",
+    "Foreign Assets Control Office"
+   ],
+   "documentNumber": "2026-23197",
+   "documentType": "Rule",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23197/publication-of-iran-related-web-general-licenses-ee-and-ff",
+  "title": "Publication of Iran-Related Web General Licenses EE and FF"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23198",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Transportation Department",
+    "Federal Aviation Administration"
+   ],
+   "documentNumber": "2026-23198",
+   "documentType": "Proposed Rule",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23198/airworthiness-directives-the-boeing-company-airplanes",
+  "title": "Airworthiness Directives; The Boeing Company Airplanes"
+ },
+ {
+  "availableAt": "2026-11-15T16:13:49Z",
+  "category": "policy",
+  "countryIso3": "USA",
+  "id": "world_federal_register:2026-23233",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "agencies": [
+    "Executive Office of the President"
+   ],
+   "documentNumber": "2026-23233",
+   "documentType": "Presidential Document",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Metadata only; consult linked official PDF for authoritative text."
+  },
+  "publishedAt": "2026-11-13",
+  "retrievedAt": "2026-11-15T16:13:49Z",
+  "sourceId": "world_federal_register",
+  "sourceUrl": "https://www.federalregister.gov/documents/2026/11/13/2026-23233/presidential-determination-pursuant-to-section-1245d4b-and-c-of-the-national-defense-authorization",
+  "title": "Presidential Determination Pursuant to Section 1245(d)(4)(B) and (C) of the National Defense Authorization Act for Fiscal Year 2012"
+ }
+]

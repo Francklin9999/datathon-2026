@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-11-15",
+  "gdacsHome": "https://www.gdacs.org/",
+  "gdacsCopyrightLink": "https://commission.europa.eu/legal-notice_en#copyright-notice",
+  "commissionCopyright": "EU-owned website content is CC BY 4.0 unless otherwise indicated; credit and changes required; third-party material may require separate rights.",
+  "reusedContent": "GDACS API structured alert metadata only; linked reports and images not copied.",
+  "apiDocumentation": "https://www.gdacs.org/gdacsapi/swagger/v1/swagger.json",
+  "captureScope": "Latest API page, pageSize=100, six event types; incomplete when page is full."
+}

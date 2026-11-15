@@ -30,14 +30,17 @@ import {
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct } from '../../lib/format';
 import { countryLabel, isKnownIso3 } from '../../lib/geo';
 import {
-  EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, spatialReferencePins, buildEventsQuery, clampRange,
-  defaultRange, eventSelectionPatch, exposureFactId, filtersKey, isResidualExposure, layerState, mergeEventPages, mergeSelection,
+  EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, GEOGRAPHIC_AREAS, WORLD_MODES, validBbox, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, spatialReferencePins, buildEventsQuery, clampRange,
+  defaultRange, eventSelectionPatch, exposureFactId, filtersKey, insideBbox, isResidualExposure, layerState, mergeEventPages, mergeSelection,
   rangeIssue, selectionQuery, thinPins, visibleEvents, type LayerId, type LayerUnavailable, type RangeIssue, type WorldFilters,
-  type WorldSelection, type WorldSelectionPatch,
+  type WorldSelection, type WorldSelectionPatch, type WorldMode,
 } from '../../lib/world';
 import { CountryPanel, EventLine, EventPanel, sourceLang } from './WorldPanels';
 import { WorldGlobe } from './WorldGlobe';
 import type { GlobePin } from './globeStyle';
+import { WorldNavigation } from './WorldNavigation';
+import { WorldObservations } from './WorldObservations';
+import './world.css';
 
 const TITLE = { en: 'World Explorer', fr: 'Explorateur mondial' };
 const THEME_TAGS = Object.values(THEMES);
@@ -77,8 +80,9 @@ const EMPTY_FEED: FeedState = {
   loading: false, loadingMore: false, error: null, moreError: null,
 };
 
-type FormIssue = RangeIssue | 'partial' | 'country';
+type FormIssue = RangeIssue | 'partial' | 'country' | 'bbox';
 const FORM_ISSUE: Record<FormIssue, { en: string; fr: string }> = {
+  bbox: { en: 'Enter four valid coordinates: west, south, east, north. South must not exceed north.', fr: 'Entrez quatre coordonnées valides : ouest, sud, est, nord. Le sud ne doit pas dépasser le nord.' },
   format: { en: 'Both dates must be calendar dates.', fr: 'Les deux dates doivent être des dates du calendrier.' },
   order: { en: 'The start date must not be after the end date.', fr: 'La date de début ne doit pas suivre la date de fin.' },
   too_long: { en: `The interval is longer than ${MAX_RANGE_DAYS} days, the most the API accepts.`, fr: `L’intervalle dépasse ${MAX_RANGE_DAYS} jours, le maximum accepté par l’API.` },
@@ -95,7 +99,7 @@ const LAYER_REASON: Record<LayerUnavailable, { en: string; fr: string }> = {
 
 /** Filters narrowing the feed beyond the date interval and the sort order. */
 function activeFilterCount(filters: WorldFilters): number {
-  return [filters.country, filters.ticker, filters.theme, filters.q].filter(Boolean).length + filters.categories.length + filters.origins.length;
+  return [filters.country, filters.ticker, filters.theme, filters.q, filters.bbox].filter(Boolean).length + filters.categories.length + filters.origins.length;
 }
 
 function toggle<T>(list: readonly T[], value: T, on: boolean): T[] {
@@ -152,6 +156,30 @@ function WorldContent({ profile }: { profile: Profile }) {
   const [formIssue, setFormIssue] = useState<FormIssue | null>(null);
   // Default view: only events with a documented link to this portfolio (review §4.6); untick to see all.
   const [relevantOnly, setRelevantOnly] = useState(true);
+  const [mode, setMode] = useState<WorldMode>('portfolio');
+  const [area, setArea] = useState('');
+  const changeMode = (next: WorldMode) => {
+    const preset = WORLD_MODES.find(item => item.id === next)!;
+    setMode(next);
+    setRelevantOnly(next === 'portfolio');
+    setLayersOn(Object.fromEntries(LAYER_IDS.map(id => [id, preset.layers.includes(id)])) as Record<LayerId, boolean>);
+    setDraft(value => ({ ...value, categories: [...preset.categories] }));
+    setApplied(value => value && ({ ...value, categories: [...preset.categories] }));
+    setPicked(null);
+  };
+  const changeArea = (id: string) => {
+    const box = GEOGRAPHIC_AREAS.find(item => item.id === id)?.bbox ?? '';
+    setArea(id);
+    setDraft(value => ({ ...value, bbox: box, country: '' }));
+    setApplied(value => value && ({ ...value, bbox: box, country: '' }));
+    navigate({ country: null });
+  };
+  const queryViewport = useCallback((bbox: string) => {
+    setArea('');
+    setDraft(value => ({ ...value, bbox, country: '' }));
+    setApplied(value => value && ({ ...value, bbox, country: '' }));
+    navigate({ country: null });
+  }, [navigate]);
   useEffect(() => {
     if (applied !== null || layers.loading) return;
     const initial = layerCoverage ? { ...EMPTY_FILTERS, ...defaultRange(layerCoverage) } : EMPTY_FILTERS;
@@ -235,22 +263,27 @@ function WorldContent({ profile }: { profile: Profile }) {
   // The card, its table and the globe legend name what the API says is loaded ("Earthquakes (USGS)"), not a wider category.
   const hazardsTitle = layerStates.hazards.layer ? tr(layerStates.hazards.layer.title) : labelOf(WORLD_LAYER, 'hazards', lang);
   const appliedCountry = applied?.country ?? '';
-  const facilities = useQuery<FacilitiesResponse>(facilitiesOn && sessionId && meta ? `world-facilities|${sessionId}|${meta.dataVersion}|${appliedCountry}` : null,
-    signal => getApiClient().worldFacilities({ limit: EXTRA_LAYER_LIMIT, ...(appliedCountry ? { country: [appliedCountry] } : {}) }, signal));
-  const hazards = useQuery<HazardsResponse>(hazardsOn && sessionId && meta && applied ? `world-hazards|${sessionId}|${meta.dataVersion}|${applied.from}|${applied.to}` : null,
-    signal => getApiClient().worldHazards({ limit: EXTRA_LAYER_LIMIT, ...(applied?.from && applied.to ? { from: applied.from, to: applied.to } : {}) }, signal));
+  const facilities = useQuery<FacilitiesResponse>(facilitiesOn && sessionId && meta ? `world-facilities|${sessionId}|${meta.dataVersion}|${appliedCountry}|${applied?.bbox ?? ''}` : null,
+    signal => getApiClient().worldFacilities({ limit: EXTRA_LAYER_LIMIT, ...(appliedCountry ? { country: [appliedCountry] } : {}), ...(applied?.bbox ? { bbox: applied.bbox } : {}) }, signal));
+  const hazards = useQuery<HazardsResponse>(hazardsOn && sessionId && meta && applied ? `world-hazards|${sessionId}|${meta.dataVersion}|${applied.from}|${applied.to}|${applied.bbox ?? ''}` : null,
+    signal => getApiClient().worldHazards({ limit: EXTRA_LAYER_LIMIT, ...(applied?.from && applied.to ? { from: applied.from, to: applied.to } : {}), ...(applied?.bbox ? { bbox: applied.bbox } : {}) }, signal));
 
   const airportsOn = isOn('airports');
   const airports = useQuery<AirportsResponse>(airportsOn && sessionId ? `world-airports|${sessionId}|${countryIso3 ?? ''}` : null,
     signal => getApiClient().worldAirports({ limit: 2000, ...(countryIso3 ? { country: [countryIso3] } : {}) }, signal));
-  const airportPins = useMemo(() => spatialReferencePins(airports.data?.items ?? [], MAX_PINS), [airports.data]);
+  const airportRows = useMemo(() => (airports.data?.items ?? []).filter(row => !applied?.bbox || insideBbox(row.lat, row.lon, applied.bbox)), [airports.data, applied?.bbox]);
+  const airportPins = useMemo(() => spatialReferencePins(airportRows, MAX_PINS), [airportRows]);
 
   // ----- pins (capped separately from the feed) -----
   const eventsOn = isOn('events');
+  const [observationPins, setObservationPins] = useState<GlobePin[]>([]);
+  const [observationId, setObservationId] = useState<string | null>(null);
+  useEffect(() => { setObservationId(null); }, [mode, applied?.bbox, countryIso3, appliedCountry]);
   const pinSelection = useMemo(() => thinPins(visible, MAX_PINS, eventId), [visible, eventId]);
   const facilityPins = useMemo(() => (facilities.data?.items ?? []).slice(0, MAX_PINS), [facilities.data]);
   const hazardPins = useMemo(() => (hazards.data?.items ?? []).slice(0, MAX_PINS), [hazards.data]);
   const pins = useMemo<GlobePin[]>(() => [
+    ...observationPins,
     ...(eventsOn ? pinSelection.pins.map(event => ({
       id: event.eventId, kind: 'event' as const, lat: event.location.lat, lng: event.location.lon, label: event.title,
       countryLevel: event.location.precision === 'country', weight: event.importance,
@@ -267,15 +300,16 @@ function WorldContent({ profile }: { profile: Profile }) {
       id: airport.airportId, kind: 'airport' as const, lat: airport.lat, lng: airport.lon,
       label: `${airport.ident} · ${airport.name}`, countryLevel: false, weight: 0.15,
     })) : []),
-  ], [eventsOn, facilitiesOn, hazardsOn, airportsOn, pinSelection, facilityPins, hazardPins, airportPins]);
+  ], [observationPins, eventsOn, facilitiesOn, hazardsOn, airportsOn, pinSelection, facilityPins, hazardPins, airportPins]);
 
   const selectedEvent = useMemo(() => (eventId ? loaded.find(event => event.eventId === eventId) ?? null : null), [eventId, loaded]);
   const openDetails = useCallback(() => {
-    document.querySelector('.world-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelector('.world-panels')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
   }, []);
   const [picked, setPicked] = useState<GlobePin | null>(null);
   const onPin = useCallback((pin: GlobePin) => {
-    if (pin.kind === 'event') { setPicked(null); selectEvent(pin.id); } else setPicked(pin);
+    if (pin.kind === 'observation') { setObservationId(pin.id); setPicked(null); }
+    else if (pin.kind === 'event') { setPicked(null); setObservationId(null); selectEvent(pin.id); } else setPicked(pin);
   }, [selectEvent]);
 
   // ----- filter form -----
@@ -283,6 +317,7 @@ function WorldContent({ profile }: { profile: Profile }) {
   const apply = (event: FormEvent) => {
     event.preventDefault();
     const next: WorldFilters = { ...draft, country: draft.country.trim().toUpperCase(), ticker: draft.ticker.trim().toUpperCase(), q: draft.q.trim() };
+    if (next.bbox && !validBbox(next.bbox)) { setFormIssue('bbox'); return; }
     if (Boolean(next.from) !== Boolean(next.to)) { setFormIssue('partial'); return; }
     if (next.from && next.to) {
       const issue = rangeIssue({ from: next.from, to: next.to }, coverage);
@@ -301,7 +336,8 @@ function WorldContent({ profile }: { profile: Profile }) {
   };
   const reset = () => {
     const base = coverage ? { ...EMPTY_FILTERS, ...defaultRange(coverage) } : EMPTY_FILTERS;
-    setDraft(base); setApplied(base); setFormIssue(null); setRelevantOnly(true);
+    setDraft(base); setApplied(base); setFormIssue(null); setRelevantOnly(true); setArea(''); setMode('portfolio');
+    setLayersOn({ events: true, exposure: true, facilities: false, hazards: false, airports: false });
   };
   const countryOptions = useMemo(() => {
     const codes = new Set<string>();
@@ -318,14 +354,18 @@ function WorldContent({ profile }: { profile: Profile }) {
 
   return (
     <>
-      <PageHeader tour="world-header" title={tr({ en: `World events and ${profile.name}’s holdings`, fr: `Événements mondiaux et positions de ${profile.name}` })}>
-        <p className="page-sub">{tr({ en: 'Sourced events linked to the holdings. A link is a documented match, not an impact estimate.', fr: 'Événements sourcés liés aux positions. Un lien est une correspondance documentée, pas une estimation d’impact.' })}</p>
+      <PageHeader tour="world-header" title={tr({ en: `World Explorer · ${profile.name}`, fr: `Explorateur mondial · ${profile.name}` })}>
+        <p className="page-sub">{tr({ en: 'Explore source observations, geographic references and portfolio relevance. Each source and relationship retains its coverage and evidence limits.', fr: 'Explorez observations sourcées, références géographiques et pertinence pour le portefeuille. Chaque source et relation conserve ses limites de couverture et de preuve.' })}</p>
       </PageHeader>
 
-      <WorldGlobe pins={pins} selectedId={eventId} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : null}
+      <WorldNavigation mode={mode} onMode={changeMode} onCountry={selectCountry} area={area} onArea={changeArea}
+        bbox={draft.bbox ?? ''} onBbox={bbox => { setArea(''); setDraft(value => ({ ...value, bbox })); }} />
+      {!layers.loading && WORLD_MODES.find(item => item.id === mode)!.layers.filter(id => !layerStates[id as LayerId]?.enabled).map(id =>
+        <p key={id} className="small" role="status">{labelOf(WORLD_LAYER, id, lang)}: {tr(LAYER_REASON[layerStates[id as LayerId]?.reason ?? 'not_listed'])}</p>)}
+      <WorldGlobe pins={pins} selectedId={observationId ?? eventId} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : null}
         selectedEvent={selectedEvent} exposure={isOn('exposure') ? exposureByIso3 : null} exposureRows={exposure.data?.items ?? []}
         counts={{ shown: visible.length, total: feed.total, linked: relevantCount }} showHazards={hazardsOn} hazardsLabel={hazardsTitle}
-        onPin={onPin} onCountry={selectCountry} onOpenDetails={openDetails} />
+        onPin={onPin} onCountry={selectCountry} onOpenDetails={openDetails} area={GEOGRAPHIC_AREAS.find(item => item.id === area) ?? null} onViewport={queryViewport} />
 
       <div className="world-controls">
         <Card id="filters" section={tr({ en: 'Filters', fr: 'Filtres' })} tour="world-filters" title={tr({ en: 'Filters', fr: 'Filtres' })}>
@@ -470,7 +510,7 @@ function WorldContent({ profile }: { profile: Profile }) {
                       <span>{layer ? tr(layer.title) : labelOf(WORLD_LAYER, id, lang)}</span>
                     </label>
                     <p id={`layer-${id}-note`} className="small muted">
-                      {state.reason && <strong>{tr(LAYER_REASON[state.reason])} </strong>}
+                      {layers.loading ? tr({ en: 'Checking source availability…', fr: 'Vérification des sources…' }) : state.reason && <strong>{tr(LAYER_REASON[state.reason])} </strong>}
                       {layer && layer.count !== null && <>{fmtNumber(layer.count, lang, 0)} {tr({ en: 'item(s)', fr: 'élément(s)' })}. </>}
                       {layer?.coverage && <>{fmtDate(layer.coverage.start, lang)} → {fmtDate(layer.coverage.end, lang)}. </>}
                       {layer && layer.datasetIds.length > 0 && (
@@ -487,7 +527,9 @@ function WorldContent({ profile }: { profile: Profile }) {
         </div>
       </div>
 
-      <Card id="feed" className="world-feed" section={tr({ en: 'Feed', fr: 'Fil' })} tour="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
+      {mode !== 'portfolio' && <WorldObservations mode={mode} bbox={applied?.bbox ?? ''} country={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : appliedCountry}
+        q={applied?.q ?? ''} from={applied?.from ?? ''} to={applied?.to ?? ''} selectedId={observationId} onPins={setObservationPins} onSelect={setObservationId} />}
+      {mode !== 'aviation' && mode !== 'infrastructure' && <Card id="feed" className="world-feed" section={tr({ en: 'Feed', fr: 'Fil' })} tour="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
         actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={feed.loading || applied === null}>{tr({ en: 'Reload', fr: 'Recharger' })}</button>}>
         <div role="status" aria-live="polite" className="small feed-counts">
           {(current || keptAfterFailure) && feed.total !== null && (
@@ -513,7 +555,7 @@ function WorldContent({ profile }: { profile: Profile }) {
             )}
           </ErrorState>
         )}
-        {current && !feed.loading && !feed.error && loaded.length === 0 && (
+        {applied !== null && !layers.loading && current && feed.total !== null && !feed.loading && !feed.error && loaded.length === 0 && (
           <Empty>{tr({ en: 'No event matches these filters in the loaded dataset. Widen the interval or remove a filter.', fr: 'Aucun événement ne correspond à ces filtres dans le jeu de données chargé. Élargissez l’intervalle ou retirez un filtre.' })}</Empty>
         )}
         {loaded.length > 0 && visible.length === 0 && (
@@ -549,7 +591,7 @@ function WorldContent({ profile }: { profile: Profile }) {
           <ErrorState error={feed.moreError} onRetry={() => void loadMore()}
             title={tr({ en: 'The next page could not be loaded. The events already loaded stay listed.', fr: 'La page suivante n’a pas pu être chargée. Les événements déjà chargés restent listés.' })} />
         )}
-      </Card>
+      </Card>}
 
       {(eventId || countryIso3) && (
         <div className="world-panels">
@@ -689,13 +731,13 @@ function WorldContent({ profile }: { profile: Profile }) {
         {airports.error && <ErrorState error={airports.error} onRetry={airports.reload} />}
         {airports.data && <>
           <p className="small muted">{tr({
-            en: `OurAirports · ${airports.data.total} large scheduled-service airports; ${airportPins.length} spatially sampled pins. Captured ${airports.data.capturedAt}. Current static reference; independent of event dates. No aircraft movements, operating status, company relationship or financial impact is established. Select a country to narrow the reference.`,
-            fr: `OurAirports · ${airports.data.total} grands aéroports avec service régulier; ${airportPins.length} épingles réparties dans l’espace. Capture : ${airports.data.capturedAt}. Référence statique actuelle, indépendante des dates des événements. Aucun mouvement aérien, état opérationnel, lien d’entreprise ou impact financier établi. Sélectionnez un pays pour filtrer.`,
+            en: `OurAirports · ${airportRows.length} references in this area from ${airports.data.items.length} loaded of ${airports.data.total} matching country records; ${airportPins.length} spatially sampled pins. Captured ${airports.data.capturedAt}. Current static reference; independent of event dates. No aircraft movements, operating status, company relationship or financial impact is established.`,
+            fr: `OurAirports · ${airportRows.length} références dans cette zone parmi ${airports.data.items.length} chargées sur ${airports.data.total} enregistrements du pays ; ${airportPins.length} épingles réparties dans l’espace. Capture : ${airports.data.capturedAt}. Référence statique actuelle, indépendante des dates des événements. Aucun mouvement aérien, état opérationnel, lien d’entreprise ou impact financier établi.`,
           })}</p>
           <p className="small"><ExternalLink href="https://github.com/davidmegginson/ourairports-data/blob/main/LICENSE">{tr({ en: 'OurAirports public-domain dedication', fr: 'OurAirports : dédicace au domaine public' })}</ExternalLink> · <ExternalLink href="https://datacatalog.worldbank.org/public-licenses">{tr({ en: 'Country-code crosswalk: World Bank, CC BY 4.0', fr: 'Correspondance des codes pays : Banque mondiale, CC BY 4.0' })}</ExternalLink></p>
           <div className="table-scroll" role="region" aria-label={tr({ en: 'Airport references', fr: 'Références aéroportuaires' })} tabIndex={0}>
             <table><thead><tr><th>{tr({ en: 'Airport', fr: 'Aéroport' })}</th><th>{tr({ en: 'Country', fr: 'Pays' })}</th><th>{tr({ en: 'Source coordinates', fr: 'Coordonnées de la source' })}</th></tr></thead>
-            <tbody>{airports.data.items.map(row => <tr key={row.airportId}><th scope="row"><ExternalLink href={row.sourceUrl}>{row.ident} · {row.name}</ExternalLink></th><td>{row.countryIso3 ?? row.countryIso2 ?? '—'}</td><td className="num">{row.lat.toFixed(3)}, {row.lon.toFixed(3)}</td></tr>)}</tbody></table>
+            <tbody>{airportRows.map(row => <tr key={row.airportId}><th scope="row"><ExternalLink href={row.sourceUrl}>{row.ident} · {row.name}</ExternalLink></th><td>{row.countryIso3 ?? row.countryIso2 ?? '—'}</td><td className="num">{row.lat.toFixed(3)}, {row.lon.toFixed(3)}</td></tr>)}</tbody></table>
           </div>
         </>}
       </Card>}

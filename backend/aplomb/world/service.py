@@ -12,6 +12,7 @@ import base64
 import hashlib
 import json
 from datetime import date, datetime, timedelta, timezone
+from functools import cached_property
 from typing import Callable
 
 from aplomb.api.errors import NotFound, ServiceError, unavailable
@@ -24,6 +25,7 @@ from .country_macro import INDICATORS
 from .dataset import WorldDataError, WorldDataset
 from .facilities import filter_facilities, load_facilities
 from .geo import UNKNOWN_COUNTRY, country_name, in_bbox
+from .relationships import event_geography
 
 DEFAULT_FEED_DAYS = 30
 MAX_RANGE_DAYS = 366
@@ -50,6 +52,13 @@ LINK_ORDER = ("named_in_source", "theme", "listing_country")
 # Manifest source record of an event, by the publisher of its primary source.
 SOURCE_BY_PUBLISHER = {"U.S. Geological Survey": "usgs_earthquakes", "Bank of Canada": "boc_press",
                        "Federal Reserve Board": "fed_monetary", "Statistics Canada": "statcan_daily", "NASA EONET": "nasa_eonet"}
+OBSERVATION_MODES = ("news", "macro", "trade", "energy", "hazards", "conflicts",
+                     "aviation", "environment", "infrastructure")
+EVENT_MODES = {
+    "monetary_policy": "macro", "macro_release": "macro", "geopolitical": "conflicts",
+    "trade_regulation": "trade", "energy_commodities": "energy", "natural_disaster": "hazards",
+    "corporate": "news", "markets": "news", "other": "news",
+}
 
 
 def _t(en: str, fr: str) -> dict:
@@ -78,6 +87,16 @@ class WorldServiceImpl:
 
     def _now(self) -> str:
         return self.clock().astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    @staticmethod
+    def _capture_visible(ds: WorldDataset, query: dict) -> bool:
+        """The packaged bundle has no archived vintages before its build.
+
+        An old occurrence date is not evidence that this captured row was known
+        on that date. Explicit historical queries must respect the capture date.
+        """
+        as_of = query.get("asOf")
+        return as_of is None or as_of >= ds.built_at[:10]
 
     def _universe(self):
         snap = self.snapshot()
@@ -129,6 +148,126 @@ class WorldServiceImpl:
         record = next((s for s in ds.manifest["sources"] if s["id"] == wanted), {})
         return {"builtAt": ds.built_at, "retrievedAt": record.get("retrievedAt", ds.built_at),
                 "licence": record.get("terms", "unknown"), "sourceName": record.get("name", event["sources"][0]["publisher"])}
+
+    @cached_property
+    def _provider_capture(self) -> tuple[tuple[dict, ...], tuple[dict, ...]]:
+        from .providers import load_provider_snapshots
+
+        return load_provider_snapshots()
+
+    def observations(self, session_id: str, query: dict) -> a.WorldObservationsResponse:
+        """Bounded, source-backed world observations for mode and viewport exploration.
+
+        Static airport and facility references stay on their own endpoints: they
+        have no valid observation timestamp. Optional provider corruption only
+        disables those providers; it does not break the core event feed.
+        """
+        ds = self.dataset()
+        try:
+            provider_rows, provider_meta = self._provider_capture
+            provider_error = None
+        except (ValueError, OSError, KeyError, TypeError):
+            provider_rows, provider_meta = (), ()
+            provider_error = "Provider capture failed integrity validation."
+
+        mode = query.get("mode")
+        if mode is not None and mode not in OBSERVATION_MODES:
+            raise _invalid("mode must be a supported world observation mode", "mode")
+        bbox = tuple(float(v) for v in query["bbox"].split(",")) if query.get("bbox") else None
+        countries = set(query.get("country") or [])
+        needle = (query.get("q") or "").strip().casefold()
+        if len(needle) > 200:
+            raise _invalid("search must contain at most 200 characters", "q")
+        start, end = query.get("from"), query.get("to")
+        as_of = query.get("asOf")
+        rows: list[dict] = []
+        if self._capture_visible(ds, query):
+            for event in ds.events:
+                source = event["sources"][0]
+                provenance = self.provenance(event)
+                rows.append({
+                    "id": event["eventId"], "mode": EVENT_MODES[event["category"]],
+                    "title": event["title"], "summary": "Source event; financial effect is not established.",
+                    "occurredAt": event["occurredAt"] + "T00:00:00Z",
+                    "timeBasis": "event_date",
+                    "publishedAt": event["publishedAt"], "retrievedAt": provenance["retrievedAt"],
+                    "location": dict(event["location"], geometry=None), "source": {
+                        "name": source["publisher"], "url": source["url"]},
+                    "datasetId": event["datasetId"],
+                    "limitations": ["Occurrence time is known only to the calendar day in this event record.",
+                                    "Geographic overlap does not establish issuer exposure or financial effect."],
+                })
+        for item in provider_rows:
+            lat, lon = item.get("latitude"), item.get("longitude")
+            if as_of is not None and item["retrievedAt"][:10] > as_of:
+                continue
+            category = item["category"]
+            item_mode = category if category in OBSERVATION_MODES else "news"
+            props = item.get("properties") or {}
+            role = props.get("geographicRole")
+            precision = "polygon_anchor" if role == "alert_polygon_representative_anchor" else "point"
+            observed = item.get("observedAt") or item.get("publishedAt") or item["retrievedAt"]
+            published = item.get("publishedAt")
+            rows.append({
+                "id": item["id"], "mode": item_mode, "title": item["title"],
+                "summary": _observation_summary(item),
+                "occurredAt": _utc_stamp(observed), "publishedAt": _utc_stamp(published) if published else None,
+                "timeBasis": "source_observation" if item.get("observedAt") else
+                             ("event_date" if published else "capture_only"),
+                "retrievedAt": _utc_stamp(item["retrievedAt"]),
+                "location": ({"lat": lat, "lon": lon, "countryIso3": item.get("countryIso3"),
+                              "precision": precision, "geometry": props.get("geometry")}
+                             if lat is not None and lon is not None else None),
+                "source": {"name": next((m["name"] for m in provider_meta
+                                          if m.get("datasetId") == item["sourceId"]), item["sourceId"]),
+                           "url": item["sourceUrl"]},
+                "datasetId": item["sourceId"],
+                "limitations": ["Current captured source record; no verified historical vintage.",
+                                "A point or displayed polygon anchor does not establish issuer exposure or financial effect."],
+            })
+
+        counts = {key: 0 for key in OBSERVATION_MODES}
+        for row in rows:
+            counts[row["mode"]] += 1
+        statuses = [{"mode": key, "available": counts[key] > 0, "count": counts[key],
+                     "reason": None if counts[key] else (provider_error or "No geolocated authorized capture is loaded.")}
+                    for key in OBSERVATION_MODES]
+        if mode:
+            rows = [r for r in rows if r["mode"] == mode]
+        if countries:
+            rows = [r for r in rows if r["location"] and r["location"]["countryIso3"] in countries]
+        if bbox:
+            rows = [r for r in rows if r["location"] and in_bbox(r["location"]["lat"], r["location"]["lon"], bbox)]
+        if start:
+            rows = [r for r in rows if r["occurredAt"][:10] >= start]
+        if end:
+            rows = [r for r in rows if r["occurredAt"][:10] <= end]
+        if needle:
+            rows = [r for r in rows if needle in r["title"].casefold() or needle in r["source"]["name"].casefold()]
+        rows.sort(key=lambda r: (r["occurredAt"], r["id"]), reverse=True)
+        version_parts = [ds.version] + [m["dataVersion"] for m in provider_meta]
+        version = hashlib.sha256("|".join(sorted(version_parts)).encode()).hexdigest()[:16]
+        signature = hashlib.sha256(json.dumps(
+            {"version": version, "mode": mode, "bbox": bbox, "country": sorted(countries),
+             "q": needle, "from": start, "to": end, "asOf": as_of}, sort_keys=True).encode()).hexdigest()[:16]
+        offset = 0
+        if query.get("cursor"):
+            try:
+                token = json.loads(base64.urlsafe_b64decode(query["cursor"].encode()))
+                if token["key"] != signature or type(token["offset"]) is not int or token["offset"] < 0:
+                    raise ValueError
+                offset = token["offset"]
+            except Exception as exc:
+                raise _invalid("cursor is invalid for this query", "cursor") from exc
+        limit = int(query.get("limit", 250))
+        page = rows[offset:offset + limit]
+        next_cursor = (base64.urlsafe_b64encode(json.dumps({"key": signature, "offset": offset + limit}).encode()).decode()
+                       if offset + limit < len(rows) else None)
+        return a.WorldObservationsResponse.model_validate({
+            "items": page, "total": len(rows), "nextCursor": next_cursor,
+            "dataVersion": version, "capturedAt": max([ds.built_at] + [m["retrievedAt"] for m in provider_meta]),
+            "modes": statuses,
+        })
 
     # 6.1 layers -------------------------------------------------------------------------------
 
@@ -237,11 +376,11 @@ class WorldServiceImpl:
         ds = self.dataset()
         start, end = self._range(ds, query, DEFAULT_FEED_DAYS)
         sort = query.get("sort", "importance")
-        matches = self._sorted(self._filter(ds, query, start, end), sort)
+        matches = self._sorted(self._filter(ds, query, start, end), sort) if self._capture_visible(ds, query) else []
         limit = int(query.get("limit", 300))
         # The cursor is bound to the filter set, so a cursor cannot be replayed on another query.
         signature = hashlib.sha256(json.dumps(
-            {k: query.get(k) for k in ("category", "country", "origin", "q", "ticker", "theme", "bbox")}
+            {k: query.get(k) for k in ("category", "country", "origin", "q", "ticker", "theme", "bbox", "asOf")}
             | {"from": start, "to": end, "sort": sort, "v": ds.version}, sort_keys=True).encode()).hexdigest()[:16]
         offset = 0
         if query.get("cursor"):
@@ -306,6 +445,8 @@ class WorldServiceImpl:
 
     def event(self, session_id: str, event_id: str, query: dict) -> a.WorldEventResponse:
         ds = self.dataset()
+        if not self._capture_visible(ds, query):
+            raise NotFound(f"Event {event_id} is unavailable at the requested historical date")
         event = ds.event(event_id)
         if event is None:
             raise NotFound(f"Unknown event {event_id}")
@@ -319,8 +460,21 @@ class WorldServiceImpl:
         exposures = []
         if query.get("profileId"):
             exposures = self.link_candidates(event, self._holdings(session_id, query["profileId"]))
+        relation = event_geography(event, self.provenance(event))
+        geographic_relationships = []
+        if relation is not None:
+            geographic_relationships.append({
+                "relationshipId": relation.relationship_id, "relation": relation.relation,
+                "subjectId": relation.subject_id, "objectId": relation.object_id,
+                "evidenceClass": relation.evidence_class, "sourceId": relation.evidence.source_id,
+                "sourceUrl": relation.evidence.url,
+                "normalizedRecordSha256": relation.evidence.content_sha256,
+                "retrievedAt": relation.evidence.retrieved_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "limitations": list(relation.evidence.limitations),
+            })
         return a.WorldEventResponse.model_validate({
-            "event": self._wire_event(event), "related": [self._wire_event(e) for e in related], "exposures": exposures})
+            "event": self._wire_event(event), "related": [self._wire_event(e) for e in related],
+            "exposures": exposures, "geographicRelationships": geographic_relationships})
 
     # 6.4 exposure -----------------------------------------------------------------------------
 
@@ -434,7 +588,8 @@ class WorldServiceImpl:
         if query.get("profileId"):
             exposure = next((item for item in self._exposures(session_id, query["profileId"])[0]
                              if item["countryIso3"] == iso3), None)
-        events = [e for e in ds.events if start <= e["occurredAt"] <= end and iso3 in e["relatedCountries"]]
+        events = ([e for e in ds.events if start <= e["occurredAt"] <= end and iso3 in e["relatedCountries"]]
+                  if self._capture_visible(ds, query) else [])
         return a.WorldCountryResponse.model_validate({
             "countryIso3": iso3, "name": country_name(iso3), "exposure": exposure,
             "events": [self._wire_event(e) for e in self._sorted(events, "importance")[:20]],
@@ -460,6 +615,8 @@ class WorldServiceImpl:
         ds = self.dataset()
         if not ds.hazards:
             raise unavailable("Natural hazards dataset")
+        if not self._capture_visible(ds, query):
+            return a.HazardsResponse.model_validate({"items": [], "total": 0})
         kind = query.get("type")
         if kind is not None and kind not in ("earthquake", "wildfire"):
             raise _invalid("type must be earthquake or wildfire", "type")
@@ -475,9 +632,12 @@ class WorldServiceImpl:
     # Research tool (contracts/tools.md §5: world.search_events) --------------------------------
 
     def search_events(self, q: str | None = None, country: str | None = None, ticker: str | None = None,
-                      start: str | None = None, end: str | None = None, limit: int = 20, as_of: str | None = None) -> list[dict]:
+                      start: str | None = None, end: str | None = None, limit: int = 20, as_of: str | None = None,
+                      historical: bool = False) -> list[dict]:
         """Events from our own dataset; nothing after ``as_of`` is returned."""
         ds = self.dataset()
+        if historical and not self._capture_visible(ds, {"asOf": as_of}):
+            return []
         query = {"q": q, "country": [country] if country else None, "ticker": ticker}
         hi = min(x for x in (end, as_of, ds.coverage["end"]) if x)
         lo = start or ds.coverage["start"]
@@ -486,3 +646,28 @@ class WorldServiceImpl:
 
 def _neg_date(iso: str) -> int:
     return -date.fromisoformat(iso).toordinal()
+
+
+def _utc_stamp(value: str) -> str:
+    if len(value) == 10:
+        value += "T00:00:00Z"
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError("Source timestamp has no timezone")
+    return parsed.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _observation_summary(row: dict) -> str:
+    """Short code-owned description of recorded fields, never an AI summary."""
+    props = row.get("properties") or {}
+    if row["category"] == "aviation":
+        return f"Airport weather observation at {props.get('stationId', 'station')}: {props.get('metar', 'report unavailable')}."
+    if row["category"] == "energy":
+        fuel = props.get("primaryFuel")
+        capacity = props.get("capacityMw")
+        return f"Power plant reference: {capacity} MW of {fuel} generation capacity." if fuel and capacity is not None else "Power plant reference."
+    if row["category"] == "trade":
+        return "Port location reference. Port activity and issuer exposure are not established."
+    if row["category"] == "hazards":
+        return f"Official alert: {props.get('event', 'hazard')}; severity {props.get('severity', 'not stated')}."
+    return "Source record. Open the original source for details and publication context."

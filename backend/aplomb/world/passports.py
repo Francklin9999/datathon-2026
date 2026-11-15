@@ -13,6 +13,12 @@ from .airports import load_airports
 from .country_macro import SOURCE_ID
 from .dataset import WorldDataError, WorldDataset
 from .facilities import load_facilities
+from .providers import load_provider_snapshots
+
+PROVIDER_DATASET_IDS = frozenset({
+    "world_aviation_weather", "world_noaa_alerts", "world_gdacs_alerts", "world_federal_register",
+    "energy_wri_plants", "trade_portwatch_ports",
+})
 
 
 def _t(en: str, fr: str) -> dict:
@@ -133,6 +139,53 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
     return out
 
 
+def provider_passports() -> dict[str, dict]:
+    """Passports only for checksum-verified optional captures consumed by observations."""
+    rows, manifests = load_provider_snapshots()
+    counts: dict[str, int] = {}
+    for row in rows:
+        counts[row["sourceId"]] = counts.get(row["sourceId"], 0) + 1
+    out = {}
+    for manifest in manifests:
+        source_id = manifest["datasetId"]
+        retrieved = manifest["retrievedAt"]
+        version = f"snap-{retrieved[:10].replace('-', '')}-{source_id}-{manifest['sha256'][:10]}"
+        out[source_id] = {
+            "datasetId": source_id,
+            "name": _t(manifest["name"], manifest["name"]),
+            "role": _t(manifest["scope"], manifest["scope"]),
+            "status": "in_use",
+            "source": manifest["name"],
+            "sourceUrl": manifest["sourceUrl"],
+            "accessMethod": "Bounded public HTTPS batch capture; no runtime source request",
+            "licence": manifest["licence"],
+            "licenceUrl": manifest.get("licenceUrl"),
+            "retrievedOn": retrieved[:10],
+            "coverage": None,
+            "frequency": manifest["frequency"],
+            "rowCount": counts[source_id],
+            "dataVersion": version,
+            "schema": [
+                {"name": "id", "type": "string", "description": "Provider-stable source observation ID"},
+                {"name": "location", "type": "object", "description": "Validated source coordinates and geographic role"},
+                {"name": "retrievedAt", "type": "timestamp", "description": "First proven availability of this captured version"},
+            ],
+            "processing": [_t(note, note) for note in manifest["limitations"]],
+            "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"],
+            "availabilityRule": _t(manifest["availabilityRule"], manifest["availabilityRule"]),
+            "checks": [
+                {"name": "normalized_checksum", "ok": True,
+                 "detail": f"{counts[source_id]} normalized rows match {manifest['sha256']}; "
+                           "raw captures also passed SHA-256 verification.",
+                 "checkedAt": retrieved},
+                {"name": "pagination_coverage", "ok": bool(manifest.get("coverageComplete")),
+                 "detail": manifest["scope"], "checkedAt": retrieved},
+            ],
+            "rejectedReason": None,
+        }
+    return out
+
+
 class WorldDatastoreService(DatastoreService):
     """``DataService`` whose passports reflect the loaded world bundle (planned otherwise)."""
 
@@ -183,6 +236,11 @@ class WorldDatastoreService(DatastoreService):
                     "checks": [{"name": "airport_snapshot_checksum", "ok": True,
                                 "detail": "Normalized rows match SHA-256 and row count.", "checkedAt": meta["capturedAt"]}],
                 }
+            try:
+                overrides.update(provider_passports())
+            except (ValueError, OSError, KeyError, TypeError):
+                # Optional provider damage cannot hide the existing world passports.
+                pass
             return overrides
         except WorldDataError:
             return {}
@@ -197,7 +255,7 @@ class WorldDatastoreService(DatastoreService):
 
     def dataset(self, session_id: str, dataset_id: str) -> m.DatasetPassport:
         override = self._overrides().get(dataset_id)
-        if dataset_id == SOURCE_ID and override is not None:
+        if dataset_id in PROVIDER_DATASET_IDS | {SOURCE_ID} and override is not None:
             return m.DatasetPassport.model_validate(override)
         base = super().dataset(session_id, dataset_id)
         if override is None:

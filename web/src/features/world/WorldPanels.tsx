@@ -1,14 +1,14 @@
 'use client';
 /**
  * World Explorer detail panels (T15): one event (verbatim source title, publisher link, dates,
- * location precision, related events, code-only holding links with their basis) with its optional
+ * location precision, related events, holding relevance candidates with their basis) with its optional
  * audited event brief, and one country (exposure with basis, top events, macro facts).
- * A link between an event and a holding is a documented match; no impact is estimated here.
+ * Each candidate retains its returned evidence class; no impact is estimated here.
  */
 import Link from 'next/link';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type {
-  HoldingExposure, Profile, Run, WorldCountryResponse, WorldEvent, WorldEventResponse,
+  DatasetPassport, HoldingExposure, Profile, Run, WorldCountryResponse, WorldEvent, WorldEventResponse,
 } from '../../contracts/types';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
@@ -108,6 +108,9 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
   const key = profileKey(app);
   const detail = useQuery<WorldEventResponse>(key ? `world-event|${key}|${eventId}` : null,
     signal => getApiClient().worldEvent(eventId, profile.profileId, signal));
+  const datasetId = detail.data?.event.datasetId;
+  const passport = useQuery<DatasetPassport>(key && datasetId ? `world-event-passport|${key}|${datasetId}|${detail.data?.event.dataVersion}` : null,
+    signal => getApiClient().dataset(datasetId!, signal));
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => { ref.current?.focus(); }, [eventId]);
 
@@ -179,7 +182,7 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
                     ))}
                   </ul>
                 </dd></div>
-              <div className="kv"><dt className="k">{tr({ en: 'Documented matches', fr: 'Correspondances documentées' })}</dt>
+              <div className="kv"><dt className="k">{tr({ en: 'Named entities and relevance candidates', fr: 'Entités nommées et pertinence potentielle' })}</dt>
                 <dd className="v">
                   {event.relatedTickers.length + event.relatedThemes.length + event.relatedCountries.length === 0
                     ? tr({ en: 'None recorded.', fr: 'Aucune enregistrée.' })
@@ -196,16 +199,38 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
               <div className="kv"><dt className="k">{tr({ en: 'Dataset', fr: 'Jeu de données' })}</dt>
                 <dd className="v"><Link className="mono" href={`/sources/?datasetId=${encodeURIComponent(event.datasetId)}&dataVersion=${encodeURIComponent(event.dataVersion)}`}>{event.datasetId}</Link> · <span className="mono small break">{event.dataVersion}</span></dd></div>
             </dl>
+            <details>
+              <summary>{tr({ en: 'Retrieval, availability and source coverage', fr: 'Collecte, disponibilité et couverture des sources' })}</summary>
+              {passport.loading && <Loading />}
+              {passport.error && <ErrorState error={passport.error} onRetry={passport.reload} title={tr({ en: 'Source passport could not be loaded. Retrieval and availability are unverified here.', fr: 'Passeport de source indisponible. Collecte et disponibilité non vérifiées ici.' })} />}
+              {passport.data && <dl>
+                <div className="kv"><dt className="k">{tr({ en: 'Retrieved', fr: 'Collecté' })}</dt><dd className="v">{passport.data.retrievedOn ? fmtDate(passport.data.retrievedOn, lang) : tr({ en: 'Not supplied', fr: 'Non fourni' })}</dd></div>
+                <div className="kv"><dt className="k">{tr({ en: 'Availability rule', fr: 'Règle de disponibilité' })}</dt><dd className="v">{tr(passport.data.availabilityRule)}</dd></div>
+                <div className="kv"><dt className="k">{tr({ en: 'Licence', fr: 'Licence' })}</dt><dd className="v">{passport.data.licence}</dd></div>
+                <div className="kv"><dt className="k">{tr({ en: 'Passport version', fr: 'Version du passeport' })}</dt><dd className="v mono">{passport.data.dataVersion ?? '—'}</dd></div>
+              </dl>}
+              {passport.data && passport.data.dataVersion !== event.dataVersion && <p className="small muted">{tr({ en: 'This passport describes a different version from the event. Its retrieval date does not establish when this event version was available.', fr: 'Ce passeport décrit une autre version que l’événement. Sa date de collecte ne prouve pas quand cette version de l’événement était disponible.' })}</p>}
+            </details>
+            <p className="small muted">{tr({ en: 'Potential economic channels require follow-up evidence: Does the source name a held issuer? Is an operating facility or supply chain documented? What was known at the analysis date? Any measured price move also requires a separate causal assessment.', fr: 'Les canaux économiques potentiels nécessitent des preuves : la source nomme-t-elle un émetteur détenu ? Une installation ou chaîne d’approvisionnement est-elle documentée ? Que savait-on à la date d’analyse ? Toute variation de prix mesurée exige aussi une analyse causale distincte.' })}</p>
+            {(detail.data.geographicRelationships?.length ?? 0) > 0 && <details>
+              <summary>{tr({ en: 'Documented geographic records', fr: 'Enregistrements géographiques documentés' })}</summary>
+              <ul className="small">{detail.data.geographicRelationships!.map(row => <li key={row.relationshipId}>
+                <ExternalLink href={row.sourceUrl}>{row.relation}: {row.subjectId} → {row.objectId}</ExternalLink>
+                <span className="block">{row.evidenceClass} · {row.sourceId} · {fmtDateTime(row.retrievedAt, lang)}</span>
+                <span className="block mono break">{row.normalizedRecordSha256}</span>
+                {row.limitations.map((limitation, index) => <span className="block" key={index}>{limitation}</span>)}
+              </li>)}</ul>
+            </details>}
 
             <h3 className="h4">{tr({ en: `Holdings of ${profile.name} linked to this event`, fr: `Positions de ${profile.name} liées à cet événement` })}</h3>
             {detail.data.exposures.length === 0 ? (
-              <p className="small muted">{tr({ en: 'No documented link between this event and a holding was found by the code matches. This is not evidence that the portfolio is unaffected.', fr: 'Aucun lien documenté entre cet événement et une position n’a été trouvé par les correspondances du code. Cela ne prouve pas que le portefeuille n’est pas touché.' })}</p>
+              <p className="small muted">{tr({ en: 'No holding relevance candidate was returned for this event. Portfolio effects remain unverified.', fr: 'Aucune position potentiellement pertinente n’a été renvoyée pour cet événement. Les effets sur le portefeuille restent non vérifiés.' })}</p>
             ) : (
               <>
                 <p className="small"><strong>{detail.data.exposures.every(exposure => exposure.impact === 'not_established')
                   ? tr({ en: 'Potential exposure identified, financial impact not established.', fr: 'Exposition potentielle repérée, impact financier non établi.' })
                   : tr({ en: 'Potential exposure identified. Where a price change was observed, it is an observation, not proof that the event caused it.', fr: 'Exposition potentielle repérée. Lorsqu’une variation de prix a été observée, c’est une observation, pas la preuve que l’événement l’a causée.' })}</strong>{' '}
-                  {tr({ en: 'Each row states why the holding is listed. A link is a documented match, not an estimate of gain or loss.', fr: 'Chaque ligne indique pourquoi la position est listée. Un lien est une correspondance documentée, pas une estimation de gain ou de perte.' })}</p>
+                  {tr({ en: 'Each row states why the holding is listed. Theme and listing-country matches are relevance proxies; documented relationships require their source evidence.', fr: 'Chaque ligne indique pourquoi la position est listée. Les thèmes et pays de cotation sont des approximations de pertinence ; les relations documentées nécessitent leurs preuves de source.' })}</p>
                 <ExposureTable exposures={detail.data.exposures} inRun={false} eventId={eventId} profileId={profile.profileId} />
               </>
             )}

@@ -20,12 +20,19 @@ import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { Lang } from '../../contracts/types';
 import { countryCentroid, countryName, hexReadyCountries, outlineLabel, type CountryFeature } from '../../lib/geo';
 import { islandHexes } from '../../lib/geoHex';
+import { insideBbox, viewportBounds, type GeographicArea } from '../../lib/world';
 import {
   ATMOSPHERE_COLOR, CATEGORY_COLORS, LAND_HOVER_COLOR, PIN_RADIUS, SPHERE_COLOR, exposureColor, labelOffset, pinColor,
-  quakeRadius, spikeAltitude, spreadStacked, type GlobePin, type ScreenBox, type ScreenSpike,
+  quakeRadius, spikeAltitude, spreadStacked, clusterPins, sourceGeometry, type GlobePin, type ScreenBox, type ScreenSpike,
 } from './globeStyle';
 
+export interface MapCommand { action: 'zoom-in' | 'zoom-out' | 'left' | 'right' | 'up' | 'down' | 'reset' | 'query'; sequence: number }
 export interface GlobeViewProps {
+  area: GeographicArea | null;
+  command: MapCommand | null;
+  onClusters: (count: number) => void;
+  onViewport: (bbox: string) => void;
+  onReady: () => void;
   pins: readonly GlobePin[];
   selectedId: string | null;
   selectedCountry: string | null;
@@ -109,20 +116,25 @@ function layoutLabels(globe: GlobeMethods, pins: readonly GlobePin[], labels: re
 const fmtPct = (value: number, lang: Lang) => `${new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', { maximumFractionDigits: 0 }).format(value)}${lang === 'fr' ? ' %' : '%'}`;
 
 export default function GlobeView({
-  pins, selectedId, selectedCountry, countries, exposure, rotate, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract,
+  pins, selectedId, selectedCountry, countries, exposure, rotate, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract, area, command, onClusters, onViewport, onReady,
 }: GlobeViewProps) {
   const globe = useRef<GlobeMethods | undefined>(undefined);
   const holder = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(0);
   const [ready, setReady] = useState(false);
   const [hoverIso, setHoverIso] = useState<string | null>(null);
+  const [altitude, setAltitude] = useState(2.1);
   const sphere = useMemo(() => solidTexture(SPHERE_COLOR), []);
   const land = useMemo(() => hexReadyCountries(countries), [countries]);
   // Hexagons: the land, plus one hexagon for each island too small to hold one.
   const hexLand = useMemo(() => [...land, ...islandHexes(land, HEX_RESOLUTION)], [land]);
   // Events sharing a spot are fanned out; the original pin is what goes back up on click.
-  const placed = useMemo(() => spreadStacked(pins), [pins]);
+  const grouped = useMemo(() => clusterPins(pins, altitude, selectedId), [pins, altitude, selectedId]);
+  const placed = useMemo(() => spreadStacked(grouped), [grouped]);
+  useEffect(() => { onClusters(grouped.filter(pin => pin.kind === 'cluster').length); }, [grouped, onClusters]);
   const original = useMemo(() => new Map(pins.map(pin => [pin.id, pin])), [pins]);
+  const selectedGeometry = useMemo(() => sourceGeometry(pins.find(pin => pin.id === selectedId)?.geometry), [pins, selectedId]);
+  const polygonData = useMemo(() => [...land, ...(selectedGeometry.polygon ? [selectedGeometry.polygon] : [])], [land, selectedGeometry]);
 
   useEffect(() => {
     const element = holder.current;
@@ -207,7 +219,7 @@ export default function GlobeView({
     const controls = globe.current.controls();
     controls.autoRotate = rotate && !reducedMotion;
     controls.autoRotateSpeed = 0.35;
-    controls.enableDamping = true;
+    controls.enableDamping = !reducedMotion;
   }, [rotate, reducedMotion, ready]);
 
   // Stop rotating as soon as the globe is grabbed.
@@ -227,7 +239,34 @@ export default function GlobeView({
     if (target) globe.current.pointOfView({ lat: target.lat, lng: target.lng, altitude: 1.7 }, reducedMotion ? 0 : 900);
     // Only a change of selection moves the camera.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, selectedCountry, ready, reducedMotion]);
+  }, [selectedId, selectedCountry, ready, reducedMotion, centroids]);
+
+  useEffect(() => {
+    if (!ready || !globe.current || !area) return;
+    onInteract();
+    globe.current.pointOfView({ lat: area.lat, lng: area.lng, altitude: area.altitude }, reducedMotion ? 0 : 600);
+  }, [area, ready, reducedMotion, onInteract]);
+  useEffect(() => {
+    if (!ready || !globe.current || !command) return;
+    if (command.action === 'query') {
+      const points: { lat: number; lng: number }[] = [];
+      for (let x = 0; x <= 24; x++) for (let y = 0; y <= 24; y++) {
+        const point = globe.current.toGlobeCoords(width * x / 24, height * y / 24);
+        if (point) points.push(point);
+      }
+      const bbox = viewportBounds(points);
+      if (bbox) onViewport(bbox);
+      return;
+    }
+    const point = globe.current.pointOfView();
+    const step = Math.max(5, point.altitude * 12);
+    const target = command.action === 'reset' ? { lat: 15, lng: 0, altitude: 2.1 } : {
+      lat: Math.max(-85, Math.min(85, point.lat + (command.action === 'up' ? step : command.action === 'down' ? -step : 0))),
+      lng: ((point.lng + (command.action === 'right' ? step : command.action === 'left' ? -step : 0) + 540) % 360) - 180,
+      altitude: Math.max(.35, Math.min(4, point.altitude * (command.action === 'zoom-in' ? .7 : command.action === 'zoom-out' ? 1.4 : 1))),
+    };
+    globe.current.pointOfView(target, reducedMotion ? 0 : 350);
+  }, [command, ready, reducedMotion, width, height, onViewport]);
 
   // ----- hover -----
   // globe.gl reports hex -> gap -> hex as out/in pairs: the "out" waits HOVER_OUT_MS and is cancelled by
@@ -266,16 +305,23 @@ export default function GlobeView({
   }, [onCountry]);
   const clickPin = useCallback((pin: object) => {
     const p = pin as GlobePin;
+    if (p.kind === 'cluster') {
+      onInteract();
+      globe.current?.pointOfView({ lat: p.lat, lng: p.lng, altitude: .8 }, reducedMotion ? 0 : 500);
+      return;
+    }
     onPin(original.get(p.id) ?? p);
-  }, [onPin, original]);
+  }, [onPin, original, onInteract, reducedMotion]);
 
   // ----- accessors (stable, so a hover does not make globe.gl recompute every layer) -----
   const hexAltitude = useCallback((feature: object) => ((feature as CountryFeature).iso3 === selectedCountry ? 0.018 : 0.006), [selectedCountry]);
   const hexColor = useCallback((feature: object) => {
     const iso3 = (feature as CountryFeature).iso3 ?? '';
+    const center = iso3 ? centroids.get(iso3) : null;
+    if (area && center && insideBbox(center.lat, center.lng, area.bbox) && !exposure?.get(iso3)) return '#4B709C';
     if (iso3 && (iso3 === hoverIso || iso3 === selectedCountry) && !exposure?.get(iso3)) return LAND_HOVER_COLOR;
     return exposureColor(exposure?.get(iso3) ?? undefined);
-  }, [hoverIso, selectedCountry, exposure]);
+  }, [hoverIso, selectedCountry, exposure, area, centroids]);
   const pointColor = useCallback((pin: object) => pinColor(pin as GlobePin, selectedId), [selectedId]);
   const pointAltitude = useCallback((pin: object) => {
     const p = pin as GlobePin;
@@ -284,6 +330,7 @@ export default function GlobeView({
   const pointRadius = useCallback((pin: object) => {
     const p = pin as GlobePin;
     if (p.id === selectedId) return PIN_RADIUS.selected;
+    if (p.kind === 'cluster') return Math.min(1.1, .35 + Math.log2(p.members?.length ?? 1) * .12);
     return p.kind === 'event' ? PIN_RADIUS.event : p.kind === 'hazard' ? quakeRadius(p.magnitude) : PIN_RADIUS.facility;
   }, [selectedId]);
   const arcColor = useCallback((arc: object) => (arc as Arc).color, []);
@@ -330,7 +377,8 @@ export default function GlobeView({
           atmosphereColor={ATMOSPHERE_COLOR}
           atmosphereAltitude={0.2}
           animateIn={!reducedMotion}
-          onGlobeReady={() => { globe.current?.pointOfView({ lat: home.lat, lng: home.lng - 25, altitude: 2.1 }, 0); setReady(true); }}
+          onGlobeReady={() => { globe.current?.pointOfView({ lat: home.lat, lng: home.lng - 25, altitude: 2.1 }, 0); setReady(true); onReady(); }}
+          onZoom={point => setAltitude(point.altitude)}
           // Land as hexagons, coloured by exposure
           hexPolygonsData={hexLand as unknown as object[]}
           hexPolygonResolution={3}
@@ -343,16 +391,25 @@ export default function GlobeView({
           onHexPolygonClick={clickCountry}
           onHexPolygonHover={hoverCountry}
           // Invisible country shapes just under the hexagons: they catch the pointer in the gaps
-          polygonsData={land as unknown as object[]}
-          polygonCapColor={hitColor}
+          polygonsData={polygonData as unknown as object[]}
+          polygonCapColor={feature => feature === selectedGeometry.polygon ? 'rgba(106,224,207,0.15)' : hitColor()}
+          polygonStrokeColor={feature => feature === selectedGeometry.polygon ? '#6AE0CF' : 'rgba(0,0,0,0)'}
           polygonSideColor={noSide}
-          polygonAltitude={0.003}
+          polygonAltitude={feature => feature === selectedGeometry.polygon ? 0.02 : 0.003}
           // Small cap triangles: large flat ones would sag under the globe surface and miss the pointer
           polygonCapCurvatureResolution={2}
           polygonsTransitionDuration={0}
           polygonLabel={noLabel}
-          onPolygonClick={clickCountry}
-          onPolygonHover={hoverCountry}
+          onPolygonClick={feature => { if (feature !== selectedGeometry.polygon) clickCountry(feature); }}
+          onPolygonHover={feature => { if (feature !== selectedGeometry.polygon) hoverCountry(feature); }}
+          pathsData={selectedGeometry.paths}
+          pathPoints={path => path as number[][]}
+          pathPointLat={point => (point as number[])[1]!}
+          pathPointLng={point => (point as number[])[0]!}
+          pathPointAlt={0.02}
+          pathColor={() => '#6AE0CF'}
+          pathStroke={1.5}
+          pathTransitionDuration={0}
           // Events as spikes (height = importance); facilities and earthquakes as low dots
           pointsData={placed as unknown as object[]}
           pointLat="lat"
