@@ -12,7 +12,8 @@ import { useApp, WINDOW_CODES } from '../../state/app';
 import { WINDOW, labelOf } from '../../lib/labels';
 import { fmtDate } from '../../lib/format';
 import { windowShortLabel } from '../../lib/ui/segmented';
-import type { ThemePref } from '../../lib/ui/theme';
+import { ANIM_PREF_KEY, isAnimPref, type AnimPref, type ThemePref } from '../../lib/ui/theme';
+import { readPref, writePref } from '../../lib/session';
 import { Listbox } from '../ui/Listbox';
 import { SegmentedControl } from '../ui/SegmentedControl';
 import { useTheme } from '../ui/ThemeProvider';
@@ -161,9 +162,29 @@ const THEME_OPTIONS: readonly { value: ThemePref; label: I18NText }[] = [
   { value: 'system', label: { en: 'Auto', fr: 'Auto' } },
 ];
 
+const ANIM_OPTIONS: readonly { value: AnimPref; label: I18NText }[] = [
+  { value: 'auto', label: { en: 'Auto', fr: 'Auto' } },
+  { value: 'on', label: { en: 'On', fr: 'Activées' } },
+  { value: 'off', label: { en: 'Off', fr: 'Désactivées' } },
+];
+
+/** Animation preference, stored and applied to <html> (the boot script applied it before paint). */
+function useAnimPref(): [AnimPref, (pref: AnimPref) => void] {
+  const [anim, setAnimState] = useState<AnimPref>('auto');
+  useEffect(() => { const stored = readPref(ANIM_PREF_KEY); if (isAnimPref(stored)) setAnimState(stored); }, []);
+  const setAnim = (next: AnimPref) => {
+    setAnimState(next);
+    writePref(ANIM_PREF_KEY, next);
+    if (next === 'auto') delete document.documentElement.dataset.anim;
+    else document.documentElement.dataset.anim = next;
+  };
+  return [anim, setAnim];
+}
+
 export function SettingsMenu() {
   const { tr, lang, setLang, meta, feature } = useApp();
   const { pref, setPref } = useTheme();
+  const [anim, setAnim] = useAnimPref();
   const bilingual = !(meta && meta.features.bilingual === false);
   return (
     <ChromeMenu label={tr({ en: 'Settings', fr: 'Réglages' })} icon={<Settings2 aria-hidden="true" size={18} strokeWidth={1.75} />} tour="settings">
@@ -180,6 +201,11 @@ export function SettingsMenu() {
             <span className="settings-label" aria-hidden="true">{tr({ en: 'Theme', fr: 'Thème' })}</span>
             <SegmentedControl<ThemePref> label={tr({ en: 'Theme', fr: 'Thème' })} value={pref} onChange={setPref}
               options={THEME_OPTIONS.map(o => ({ value: o.value, label: tr(o.label) }))} />
+          </div>
+          <div className="settings-row">
+            <span className="settings-label" aria-hidden="true">{tr({ en: 'Animations', fr: 'Animations' })}</span>
+            <SegmentedControl<AnimPref> label={tr({ en: 'Animations', fr: 'Animations' })} value={anim} onChange={setAnim}
+              options={ANIM_OPTIONS.map(o => ({ value: o.value, label: tr(o.label) }))} />
           </div>
           {feature('profile_creator') && (
             <Link href="/profiles/" className="btn ghost btn-sm" onClick={close}>

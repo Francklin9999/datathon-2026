@@ -10,6 +10,7 @@ import type {
 import { ASSET_GROUP, FUNDING_MODE, SCENARIO_KIND, labelOf } from '../../lib/labels';
 import { factIdFor, fmtMoney, fmtPct, fmtPts, fmtSignedPct } from '../../lib/format';
 import { useApp } from '../../state/app';
+import { CountUp } from '../ui/CountUp';
 import { CountsLine, VerdictBadge } from '../common/Badges';
 import { FactChip } from '../common/FactDrawer';
 import { RuleTable } from './RuleTable';
@@ -47,7 +48,7 @@ export function BoundaryNote({ sizePct, counts, baselineConflict, countsAt = 're
   return (
     <p className="boundary">
       <span className="eyebrow block">{tr({ en: 'Largest size before the first rule conflict', fr: 'Taille maximale avant le premier conflit de règle' })}</span>
-      <strong className="boundary-value num">{fmtPts(sizePct, lang)}</strong>
+      <strong className="boundary-value num"><CountUp text={fmtPts(sizePct, lang)} /></strong>
       <span className="small muted block">
         {tr({ en: 'Tension or missing evidence can remain at this size.', fr: 'Des tensions ou preuves manquantes peuvent subsister à cette taille.' })}
         {counts && (counts.tension > 0 || counts.nee > 0) && (

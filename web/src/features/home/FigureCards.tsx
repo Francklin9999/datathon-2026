@@ -8,6 +8,7 @@ import type { OverviewResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
 import { FactChip } from '../../components/common/FactDrawer';
+import { CountUp } from '../../components/ui/CountUp';
 import { factIdFor, fmtNumber, fmtSignedPct } from '../../lib/format';
 
 function Figure({ label, children }: { label: string; children: ReactNode }) {
@@ -68,7 +69,7 @@ export function DiversificationCard({ overview }: { overview: OverviewResponse }
     <Card title={tr({ en: 'Diversification', fr: 'Diversification' })}
       info={tr({ en: `The weights behave like this many equal positions (HHI ${fmtNumber(concentration.hhi, lang, 3)}).`, fr: `Les poids se comportent comme ce nombre de positions égales (HHI ${fmtNumber(concentration.hhi, lang, 3)}).` })}>
       <dl className="figure-list">
-        <Figure label={tr({ en: 'Effective positions', fr: 'Positions effectives' })}><span className="num">{fmtNumber(concentration.effectiveN, lang, 1)}</span></Figure>
+        <Figure label={tr({ en: 'Effective positions', fr: 'Positions effectives' })}><span className="num"><CountUp text={fmtNumber(concentration.effectiveN, lang, 1)} /></span></Figure>
       </dl>
     </Card>
   );

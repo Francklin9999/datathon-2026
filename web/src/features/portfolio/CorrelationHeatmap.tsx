@@ -5,7 +5,7 @@
  * is never the only signal. Hovering a cell highlights its row and column and says in words how the
  * two holdings move. The diagonal (a holding with itself) is muted.
  */
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import type { I18NText } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { useTheme } from '../../components/ui/ThemeProvider';
@@ -55,7 +55,7 @@ export function CorrelationHeatmap({ tickers, matrix }: { tickers: readonly stri
                       data-self={self ? 'true' : undefined}
                       data-cross={cross && !(hover?.i === i && hover?.j === j) ? 'true' : undefined}
                       data-hover={hover?.i === i && hover?.j === j ? 'true' : undefined}
-                      style={bg ? { background: bg, color: corrText(bg, theme) } : undefined}
+                      style={{ '--k': i + j, ...(bg ? { background: bg, color: corrText(bg, theme) } : {}) } as CSSProperties}
                       {...(finite && !self ? { title: describe(i, j, v) } : {})}
                       onPointerEnter={() => setHover({ i, j })}>
                       {finite ? fmtNumber(v, lang, 2) : '—'}

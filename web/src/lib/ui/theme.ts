@@ -41,6 +41,27 @@ export function themeColorFor(theme: ThemeMode): string {
 export const MOTION_BOOT_SCRIPT = `(function(){var r=document.documentElement;function s(){if(document.visibilityState==='hidden'){r.setAttribute('data-motion','off');}}
 s();document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){r.removeAttribute('data-motion');}else{s();}});})();`;
 
+/**
+ * Animation preference: `auto` follows the system "reduce motion" setting, `on` keeps the load
+ * animations (counting figures, drawing charts, the rail) even when the system asks to reduce them,
+ * `off` removes them. Applied before paint as html[data-anim] (absent for `auto`).
+ */
+export type AnimPref = 'auto' | 'on' | 'off';
+export const ANIM_PREF_KEY = 'anim';
+
+export function isAnimPref(value: unknown): value is AnimPref {
+  return value === 'auto' || value === 'on' || value === 'off';
+}
+
+export const ANIM_BOOT_SCRIPT = `(function(){try{var a=window.localStorage.getItem('aplomb.pref.anim');if(a==='on'||a==='off'){document.documentElement.setAttribute('data-anim',a);}}catch(e){}})();`;
+
+/** Whether load animations should play now (preference, system setting, hidden page). */
+export function animationsAllowed(pref: string | undefined, systemReduce: boolean, pageHidden: boolean): boolean {
+  if (pageHidden || pref === 'off') return false;
+  if (pref === 'on') return true;
+  return !systemReduce;
+}
+
 /** Navigation rail preference: collapsed (floating icon rail, the default) or expanded (icons with labels). */
 export type SidebarState = 'expanded' | 'collapsed';
 export const SIDEBAR_PREF_KEY = 'sidebar';
