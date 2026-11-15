@@ -100,7 +100,8 @@ class DecisionControls:
     move, the largest size before the first conflict and, when the move conflicts, up to two
     alternatives sharing a theme tag. Goal requests: up to three goal candidates (best fit
     selected). A rebalance scenario is added when the current portfolio already conflicts
-    (D-14). At most six scenarios; a goal with no supported candidate fails explicitly.
+    (D-14). At most six scenarios. A goal with no candidate (target already met, or no eligible
+    asset) yields one no-change scenario carrying the reason, with no move.
     """
 
     MAX_SCENARIOS = 6
@@ -140,7 +141,7 @@ class DecisionControls:
         return {"kind": "move", "window": win, "prepared": prepared}
 
     def risk(self, ctx, computed: dict):
-        from .scenarios import alternatives, goal_candidates, rebalance
+        from .scenarios import alternatives, goal_candidates, no_change, rebalance
 
         ControlOutcome = _control_outcome_type()
         win = computed["window"]
@@ -156,15 +157,18 @@ class DecisionControls:
             limitations = sorted({lim for f in facts.values() for lim in f.limitations} | {"LIM_SIMULATION_ONLY"})
             return ControlOutcome(check=check, scenarios=[], selected_scenario_id="", limitations=limitations)
         if computed["kind"] == "goal":
-            found = goal_candidates(engine, profile, m.ExposureGoal.model_validate(computed["goal"]))
-            if not found.scenarios:
-                reason = "; ".join(n["en"] for n in found.notes) or "No goal candidate fits the profile's rules"
-                raise RuntimeError(f"No goal candidate: {reason}")
-            best = found.scenarios[0]
-            prepared = prepare(engine, profile, profile.rules, m.ProposedMove.model_validate(best["moves"][0]), compare=True)
+            goal = m.ExposureGoal.model_validate(computed["goal"])
+            found = goal_candidates(engine, profile, goal)
+            if found.scenarios:
+                best = found.scenarios[0]
+                prepared = prepare(engine, profile, profile.rules, m.ProposedMove.model_validate(best["moves"][0]), compare=True)
+                scenarios = list(found.scenarios)
+            else:
+                # Target already met or no eligible asset: a normal outcome, never an invented trade.
+                prepared = prepare(engine, profile, profile.rules, None, False)
+                scenarios = [no_change(engine, profile, goal, found.notes)]
             check = assess(engine, profile, profile.rules, prepared, window=win, evidence=evidence)
-            scenarios = list(found.scenarios)
-            selected = best["scenarioId"]
+            selected = scenarios[0]["scenarioId"]
         else:
             prepared = computed["prepared"]
             check = assess(engine, profile, profile.rules, prepared, window=win, evidence=evidence)

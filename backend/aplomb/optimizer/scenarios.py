@@ -185,6 +185,18 @@ def goal_candidates(engine: QuantEngine, profile: m.Profile, goal: m.ExposureGoa
     return ScenarioSet(scenarios, screened, notes)
 
 
+def no_change(engine: QuantEngine, profile: m.Profile, goal: m.ExposureGoal, notes: list[dict], evidence=()) -> dict:
+    """The current portfolio as the goal's only scenario when no candidate exists: it carries the
+    measured exposure, the current rule assessment and the reason, and proposes no move."""
+    en = " ".join(n["en"] for n in notes) or "No candidate fits the profile's rules and the goal's limits."
+    fr = " ".join(n["fr"] for n in notes) or "Aucun candidat ne respecte les règles du profil et les limites de l'objectif."
+    return build_scenario(
+        engine, profile, profile.rules, weights_of(profile), [], "sc_goal_no_change", "goal_candidate",
+        {"en": "No change: keep the current portfolio", "fr": "Aucun changement : garder le portefeuille actuel"},
+        {"en": f"{en} No trade is proposed.", "fr": f"{fr} Aucune transaction n'est proposée."},
+        themes=goal.themes, rank=1, best=True, evidence=evidence)
+
+
 # --- Alternatives --------------------------------------------------------------------------------
 
 

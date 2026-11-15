@@ -41,6 +41,8 @@ RuntimeError: No goal candidate: The portfolio already reaches the target exposu
 
 **Recommended fix before enabling goals:** represent “already meets target” and “no feasible candidate” explicitly. Return the unchanged portfolio with its measured exposure and current rule assessment, or introduce a typed no-change outcome through the contracts and UI. Do not invent a trade to satisfy the current non-empty scenario requirement. Add composed-workflow coverage for both empty-candidate reasons; the existing integration case uses no target and misses this edge case. Goal requests remain off in the live API.
 
+**Fixed after the review:** an empty candidate set now yields one no-change scenario (`sc_goal_no_change`, no move, current rule assessment, measured exposure, the reason in EN/FR) instead of an internal failure. `backend/tests/integration/test_run_composition.py` covers the already-met target in EN and FR and a goal no eligible asset can serve (Robert, `BTC-USD`). Goal requests stay off in the live API until the backend is redeployed and one real-model goal run passes there.
+
 ## What the recovered session had already checked
 
 The final tool results from Claude's interrupted session were recovered into [a sanitized evidence file](evidence/review-continuation/recovered-claude-checks.json). They are prior observations, not new executions:

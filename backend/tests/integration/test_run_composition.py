@@ -356,3 +356,31 @@ def test_goal_request_returns_at_most_three_candidates(client):
     assert result["brief"]["audit"]["status"] == "passed"
     listed = ok(client.get("/v1/runs", headers=headers), "RunsResponse")["items"]
     assert listed[0]["title"] == {"en": "Goal: ai", "fr": "Objectif : ai"}
+
+
+@pytest.mark.parametrize(("profile", "lang", "goal", "reason"), [
+    ("amira", "en", {"themes": ["ai"], "tickers": [], "targetExposurePct": 15}, "already reaches the target"),
+    ("amira", "fr", {"themes": ["ai"], "tickers": [], "targetExposurePct": 15}, "already reaches the target"),
+    # Robert excludes crypto: no screened asset can serve the goal.
+    ("robert", "en", {"themes": [], "tickers": ["BTC-USD"], "targetExposurePct": None}, "Only 0 candidate(s)"),
+])
+def test_goal_without_a_candidate_signs_an_unchanged_portfolio(client, profile, lang, goal, reason):
+    """A target the portfolio already meets, or a goal no asset can serve, is a normal outcome:
+    the run succeeds with one no-change scenario (no invented trade) carrying the reason."""
+    headers = session()
+    body = {"type": "goal", "goal": {"assetClasses": [], "maxLossPct": None, "maxVolPct": None, "notes": "", **goal}}
+    run = run_to_end(client, headers, {"kind": "decision", "profileId": profile, "lang": lang, "request": body})
+    assert run["status"] == "succeeded", run["error"]
+    result = run["result"]["decision"]
+    [scenario] = result["scenarios"]
+    assert scenario["kind"] == "goal_candidate" and scenario["moves"] == [] and scenario["isBestFit"]
+    assert result["selectedScenarioId"] == scenario["scenarioId"] == "sc_goal_no_change"
+    assert reason in scenario["rationale"]["en"] and scenario["rationale"]["fr"]
+    before, after = result["portfolioBefore"], scenario["portfolioAfter"]
+    assert after["positions"] == before["positions"] and after["totalValue"] == before["totalValue"]
+    assert scenario["verdict"] == result["verdict"] and scenario["counts"] == result["counts"]
+    assert all(fid in run["facts"] for fid in scenario["keyFactIds"])
+    assert result["brief"]["audit"]["status"] == "passed"
+    if goal["themes"]:
+        [exposure] = scenario["exposure"]
+        assert exposure["beforePct"] == exposure["afterPct"] >= 15
