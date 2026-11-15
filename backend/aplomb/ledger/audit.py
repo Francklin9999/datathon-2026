@@ -17,24 +17,49 @@ from aplomb.contracts.models import (
     Sentence,
 )
 
-from .core import Ledger, LedgerView
+from .core import Ledger, LedgerView, is_timeless
 
 DISCLAIMER = {
     "en": "Simulation with fictional profiles and portfolios. Not financial advice. No order is placed.",
     "fr": "Simulation avec des profils et portefeuilles fictifs. Aucun conseil financier. Aucun ordre transmis.",
 }
 TOKEN = re.compile(r"{{(fact|rule|status|evidence):([A-Za-z0-9_.-]+)}}")
+# French "un"/"une" are the indefinite article, so alone they are not number words;
+# UN_QUANTITY keeps them a literal when they count ("un seul") or size a fraction or magnitude.
 WORDS = set(
-    "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion half quarter double triple zero un une deux trois quatre cinq six sept huit neuf dix onze douze treize quatorze quinze seize vingt trente quarante cinquante soixante cent cents mille millions milliard milliards moitie quart".split()
+    "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion half quarter double triple zero deux trois quatre cinq six sept huit neuf dix onze douze treize quatorze quinze seize vingt trente quarante cinquante soixante cent cents mille millions milliard milliards moitie quart".split()
+)
+UN_QUANTITY = re.compile(
+    r"\bune?[\s-]+(?:seule?|tiers|demi\w*|dixieme|centieme|millieme|millier|pourcent"
+    r"|points?\s+de\s+(?:pourcentage|base))\b"
 )
 BANNED = re.compile(
-    r"\b(buy|sell|guarantee\w*|will rise|will fall|ach[eè]t\w*|vend\w*|garanti\w*|va augmenter|va baisser)\b",
+    r"\b(buy|sell|guarantee\w*|will rise|will fall|ach[eè]t\w*|vend(?!redi)\w*|garanti\w*|va augmenter|va baisser)\b",
     re.I,
 )
+# Applied to normalized() prose. French "plus"/"moins" count only in a comparative form:
+# before "que"/"de", or before a degree adjective that no superlative determiner introduces
+# ("la plus forte baisse" names a figure; "de plus" and "ne ... plus" compare nothing).
 COMPARISON = re.compile(
-    r"\b(more|less|higher|lower|greater|above|below|exceeds|equal|plus|moins|superieur|inferieur|depasse|egal)\b",
+    r"\b(?:more|less|higher|lower|greater|above|below|exceeds|equal)\b"
+    r"|\b(?:superieur|inferieur)(?:e|s|es)?\b|\b(?:depass|exced)\w+|\begal(?:e|es|aux)?\b"
+    r"|\b(?:au|en)[\s-]+dess(?:us|ous)\b"
+    r"|\b(?:plus|moins)(?:\s+\w+)?\s+qu(?:e\b|['’])"
+    r"|\b(?:plus|moins)\s+d(?:e\b|['’])"
+    r"|(?<!\ble )(?<!\bla )(?<!\bles )(?<!\bsa )(?<!\bson )(?<!\bses )(?<!\bleur )(?<!\bleurs )"
+    r"(?<!\bau )\b(?:plus|moins)\s+(?:elev|haut|bas|faible|fort|grand|petit|important|risqu"
+    r"|volatil|concentr)\w*",
     re.I,
 )
+IMPACT = re.compile(r"\b(?:impact|incidence)\w*")
+LOSS_GAIN = re.compile(r"\b(?:profits?|loss(?:es)?|gains?|pertes?|benefices?)\b")
+STATUS_WORD = {
+    "pass": {"en": "fits", "fr": "respectée"},
+    "tension": {"en": "in tension", "fr": "en tension"},
+    "conflict": {"en": "in conflict", "fr": "en conflit"},
+    "nee": {"en": "not enough evidence", "fr": "preuve insuffisante"},
+    "info": {"en": "information", "fr": "information"},
+}
 
 
 def normalized(text):
@@ -44,11 +69,17 @@ def normalized(text):
 
 
 def has_literal(text: str) -> bool:
+    plain = normalized(text)
     return (
         any(c.isnumeric() for c in text)
         or "%" in text
-        or bool(set(re.findall(r"\w+", normalized(text))) & WORDS)
+        or bool(set(re.findall(r"\w+", plain)) & WORDS)
+        or bool(UN_QUANTITY.search(plain))
     )
+
+
+def status_word(status, lang: str) -> str:
+    return STATUS_WORD.get(str(status), {}).get(lang, str(status))
 
 
 @dataclass(frozen=True)
@@ -142,7 +173,7 @@ def parse_draft(
                         {
                             "t": typ,
                             "ruleId": ref,
-                            "display": obj.code if typ == "rule" else str(obj.status),
+                            "display": obj.code if typ == "rule" else status_word(obj.status, lang),
                         }
                     )
                 cursor = match.end()
@@ -206,12 +237,14 @@ def evaluate_relation(relation: Relation, view: LedgerView, cited: set[str]) -> 
     if relation.ambiguous or relation.left_fact_id not in cited or right_id not in cited:
         return False
     left, right = view.facts.get(relation.left_fact_id), view.facts.get(right_id)
-    if (
-        not left
-        or not right
-        or (left.unit, left.currency, left.period, left.window)
-        != (right.unit, right.currency, right.period, right.window)
-    ):
+    if not left or not right or (left.unit, left.currency) != (right.unit, right.currency):
+        return False
+    # A stated threshold has no period or window of its own: it bounds the figure whatever the
+    # figure's window. Two measured figures must still share period and window.
+    stated = any(
+        f.kind == "assumption" and f.period is None and f.window is None for f in (left, right)
+    )
+    if not stated and (left.period, left.window) != (right.period, right.window):
         return False
     if type(left.value) not in (float, int) or type(right.value) not in (float, int):
         return False
@@ -291,7 +324,7 @@ def audit_and_sign(
             tzinfo=timezone.utc,
         )
         temporal_ok = all(
-            (f.available_at is not None or f.kind in ("input", "assumption") or not historical)
+            (f.available_at is not None or is_timeless(f, view.facts) or not historical)
             and (
                 not f.available_at
                 or datetime.fromisoformat(f.available_at.replace("Z", "+00:00")) < cutoff
@@ -335,18 +368,28 @@ def audit_and_sign(
                 [sentence.id],
             )
             related.add(sentence.id)
+        # An event brief's ledger says so itself: its event fact carries the "impact not
+        # established" limitation. There a loss or gain is the event's effect on a holding;
+        # elsewhere it is a figure of the simulation (the replayed stress loss).
+        event_run = bool(measured_impact_fact_ids) or any(
+            "LIM_IMPACT_NOT_ESTABLISHED" in map(str, f.limitations) for f in view.facts.values()
+        )
         for sid, sentence in by_id.items():
-            prose = " ".join(s.text for s in sentence.segments if s.t == "text")
-            if COMPARISON.search(normalized(prose)) and sid not in related:
+            prose = normalized(" ".join(s.text for s in sentence.segments if s.t == "text"))
+            if COMPARISON.search(prose) and sid not in related:
                 check("A03", False, "Comparison lacks unambiguous extracted relation", [sid])
-            if re.search(r"\b(impact|profit|loss|gain|perte|benefice)\b", normalized(prose)):
-                cited = {s.fact_id for s in sentence.segments if s.t == "fact"}
+            impact = IMPACT.search(prose)
+            if not impact and not LOSS_GAIN.search(prose):
+                continue
+            cited = {s.fact_id for s in sentence.segments if s.t == "fact"}
+            if impact or event_run:
                 valid = cited & set(measured_impact_fact_ids)
                 valid = {i for i in valid if view.facts[i].method.id == "M_PRICE_MOVE_AFTER_EVENT"}
                 # Fixed uncertainty statements are safe; arbitrary impact assertions need measurement.
-                safe = normalized(prose).strip(" .—-") in (
+                safe = prose.strip(" .—-") in (
                     "financial impact not established",
                     "impact financier non etabli",
+                    "incidence financiere non etablie",
                 )
                 check(
                     "A14",
@@ -354,6 +397,8 @@ def audit_and_sign(
                     "Financial impact requires measured price-move provenance",
                     [sid],
                 )
+            else:
+                check("A14", bool(cited), "Loss or gain statement cites a fact", [sid])
         guard = {"applied": False, "action": "none", "id": None}
         if guardrail:
             try:

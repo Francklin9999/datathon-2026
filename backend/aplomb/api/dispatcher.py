@@ -20,16 +20,24 @@ class LocalDispatcher:
     Not tied to a request, asyncio loop or FastAPI BackgroundTasks. FileStore
     allows reload/restart polling. Persist/enqueue crash recovery is the queued
     watchdog; active stale leases are recovered by explicit redispatch/claim.
+
+    `max_pending` counts runs in flight (executing or waiting for a thread). By
+    default it equals `max_workers`, so a run is accepted only when a worker can
+    start it at once and is refused otherwise: a run left waiting behind busy
+    workers would be failed by the 60-second queued watchdog.
     """
 
     def __init__(
-        self, worker: Callable[[dict], object], max_workers: int = 2, max_pending: int = 32
+        self,
+        worker: Callable[[dict], object],
+        max_workers: int = 8,
+        max_pending: int | None = None,
     ):
         import threading
 
         self.worker = worker
         self.executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="aplomb")
-        self.slots = threading.BoundedSemaphore(max_pending)
+        self.slots = threading.BoundedSemaphore(max_workers if max_pending is None else max_pending)
 
     def dispatch(self, run_id: str, generation: int) -> None:
         if not self.slots.acquire(blocking=False):

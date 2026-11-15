@@ -27,7 +27,9 @@ class ResearchContext:
     run_id: str
     as_of: date
     mode: str = "decision"
-    data_version: str = "snap-20261114-research-v1"
+    # Callers pass the run's pinned snapshot. This fallback only satisfies the DataVersion wire
+    # pattern for a context built without one; it names no snapshot.
+    data_version: str = "snap-00000000-unpinned"
 
     def allow(self):
         if self.mode == "replay":

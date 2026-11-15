@@ -1,6 +1,7 @@
 """Query normalization; repeated world filters remain lists for providers."""
 
 import math
+import re
 from datetime import date
 
 from pydantic import TypeAdapter, ValidationError
@@ -10,6 +11,8 @@ from aplomb.contracts.base import ProfileId
 from aplomb.contracts.catalog import ThemeTag
 
 from .errors import ServiceError
+
+ISO_DAY = re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
 def parameters(request, kind: str) -> dict:
@@ -42,8 +45,8 @@ def parameters(request, kind: str) -> dict:
             query["limit"] = limit
         for key in ("from", "to", "asOf", "start", "end"):
             if key in query:
-                if len(query[key]) != 10:
-                    raise ValueError(f"{key} must be an ISO date")
+                if not ISO_DAY.fullmatch(query[key]):
+                    raise ValueError(f"{key} must be an ISO date (YYYY-MM-DD)")
                 date.fromisoformat(query[key])
         if "from" in query and "to" in query:
             days = (date.fromisoformat(query["to"]) - date.fromisoformat(query["from"])).days
@@ -54,7 +57,8 @@ def parameters(request, kind: str) -> dict:
             if (
                 len(bbox) != 4
                 or not all(math.isfinite(v) for v in bbox)
-                or not -180 <= bbox[0] <= bbox[2] <= 180
+                # minLon may exceed maxLon: the box then crosses the dateline (world SPEC §2).
+                or not (-180 <= bbox[0] <= 180 and -180 <= bbox[2] <= 180)
                 or not -90 <= bbox[1] <= bbox[3] <= 90
             ):
                 raise ValueError("bbox must be minLon,minLat,maxLon,maxLat")

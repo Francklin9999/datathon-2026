@@ -20,7 +20,12 @@ import { ExternalLink } from './ExternalLink';
 
 export type FactScope =
   | { kind: 'run'; runId: string; facts: Record<string, Fact>; evidence: Record<string, Evidence> }
-  | { kind: 'local'; label: I18NText; facts: Record<string, Fact> };
+  | { kind: 'local'; label: I18NText; facts: Record<string, Fact> }
+  /**
+   * Time Machine reveal ledger (POST /runs/{id}/reveal). A namespace of its own: a reveal fact ID is
+   * resolved only in `RevealResult.facts`, never in the run's signed ledger (WEB-06, TMUI-03).
+   */
+  | { kind: 'reveal'; runId: string; until: string; facts: Record<string, Fact> };
 
 export interface DrawerTarget { scope: FactScope; type: 'fact' | 'evidence'; id: string }
 
@@ -112,10 +117,12 @@ function FactDrawerView({ target, onClose, onOpenFact }: {
   const { tr } = useApp();
   const title = target?.type === 'evidence'
     ? `${tr({ en: 'Evidence', fr: 'Preuve' })} ${target.id}`
-    : `${tr({ en: 'Fact', fr: 'Fait' })} ${target?.id ?? ''}`;
+    : target?.scope.kind === 'reveal'
+      ? `${tr({ en: 'Reveal fact', fr: 'Fait de révélation' })} ${target.id}`
+      : `${tr({ en: 'Fact', fr: 'Fait' })} ${target?.id ?? ''}`;
   return (
     <Drawer open={target !== null} title={title} onClose={onClose}>
-      {target?.type === 'fact' && <FactBody key={`${target.id}`} scope={target.scope} factId={target.id} onOpenFact={onOpenFact} />}
+      {target?.type === 'fact' && <FactBody key={`${target.scope.kind}|${target.id}`} scope={target.scope} factId={target.id} onOpenFact={onOpenFact} />}
       {target?.type === 'evidence' && <EvidenceBody scope={target.scope} evidenceId={target.id} />}
     </Drawer>
   );
@@ -125,9 +132,14 @@ function ScopeNote({ scope }: { scope: FactScope }) {
   const { tr } = useApp();
   return (
     <p className="scope-note small">
-      {scope.kind === 'run'
-        ? <>{tr({ en: 'Ledger of run', fr: 'Registre de l’exécution' })} <span className="mono">{scope.runId}</span></>
-        : tr(scope.label)}
+      {scope.kind === 'run' && <>{tr({ en: 'Ledger of run', fr: 'Registre de l’exécution' })} <span className="mono">{scope.runId}</span></>}
+      {scope.kind === 'reveal' && (
+        <>
+          {tr({ en: 'Reveal ledger (outcomes observed up to', fr: 'Registre de révélation (résultats observés jusqu’au' })} {scope.until}) {tr({ en: 'for run', fr: 'pour l’exécution' })}{' '}
+          <span className="mono">{scope.runId}</span>. {tr({ en: 'Separate from the run’s signed ledger: these facts were not available to the decision.', fr: 'Distinct du registre signé de l’exécution : ces faits n’étaient pas disponibles pour la décision.' })}
+        </>
+      )}
+      {scope.kind === 'local' && tr(scope.label)}
     </p>
   );
 }
@@ -166,7 +178,9 @@ function FactBody({ scope, factId, onOpenFact }: {
     return (
       <>
         <ScopeNote scope={scope} />
-        <Unavailable title={tr({ en: 'This fact is not in this response.', fr: 'Ce fait n’est pas dans cette réponse.' })} />
+        <Unavailable title={scope.kind === 'reveal'
+          ? tr({ en: 'This fact is not in the reveal ledger. It is not looked up in the run’s ledger.', fr: 'Ce fait n’est pas dans le registre de révélation. Il n’est pas recherché dans le registre de l’exécution.' })
+          : tr({ en: 'This fact is not in this response.', fr: 'Ce fait n’est pas dans cette réponse.' })} />
       </>
     );
   }

@@ -10,8 +10,11 @@ injected (optimizer, T07); without them those operations report ``upstream_unava
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 import math
 import secrets
+import unicodedata
 from datetime import datetime, timezone
 from typing import Callable
 
@@ -21,6 +24,8 @@ from aplomb.contracts import models as m
 from aplomb.datastore import Snapshot, UnknownTicker
 from aplomb.quant import LocalLedger, QuantEngine, Unavailable
 from aplomb.quant import metrics as mx
+from aplomb.quant.engine import slug
+from aplomb.rules.definitions import SECTOR_FR, rule_def
 from aplomb.rules.engine import RuleEngine, RuleInputs, verdict_of
 
 from .defaults import load_defaults
@@ -44,6 +49,11 @@ def validation(message: str, details: dict | None = None) -> ServiceError:
     return ServiceError("validation_error", message, details)
 
 
+def _fold(label: str) -> str:
+    """Slug without accents, so "Énergie", "energie" and "Energy " compare by their letters."""
+    return slug("".join(c for c in unicodedata.normalize("NFKD", label) if not unicodedata.combining(c)))
+
+
 class ProfileServiceImpl:
     def __init__(self, repository, snapshot: Callable[[], Snapshot], *, clock: Callable[[], datetime] | None = None,
                  deriver: Deriver | None = None, proposer: Proposer | None = None) -> None:
@@ -53,6 +63,7 @@ class ProfileServiceImpl:
         self.deriver = deriver
         self.proposer = proposer
         self._defaults = {p.profile_id: p for p in load_defaults()}
+        self._frontier_cache: dict[tuple, a.FrontierResponse] = {}
 
     # Reads ------------------------------------------------------------------------------------
 
@@ -193,10 +204,16 @@ class ProfileServiceImpl:
         return self._save(session_id, m.Profile.model_validate(data), stored), facts
 
     def _custom_body(self, request: a.CreateProfileRequest, profile_id: str, now: str, created_at: str) -> dict:
-        req = request.to_wire()
+        if not request.name.strip():
+            raise validation("name must contain a visible character", {"fields": ["name"]})
         hz = request.horizon_years
         if hz.max is not None and hz.max < hz.min:
             raise validation("horizonYears.max must be at least horizonYears.min", {"fields": ["horizonYears"]})
+        sectors = self._sector_labels(request.preferences.excluded_sectors)
+        request = request.model_copy(update={"preferences": request.preferences.model_copy(update={"excluded_sectors": sectors})})
+        if request.rules is not None:
+            self._validate_rules(request.rules)
+        req = request.to_wire()
         if request.portfolio is not None:
             positions = [p.to_wire() for p in request.portfolio.positions]
             self._validate_portfolio(request.portfolio.total_value, positions)
@@ -208,7 +225,7 @@ class ProfileServiceImpl:
             portfolio = self.proposer(request=request, snapshot=self.snapshot(), created_at=now)
         body = {
             "profileId": profile_id, "isDefault": False, "origin": "agent_draft" if req.get("fromDraftRunId") else "user",
-            "name": request.name, "initial": request.name.strip()[0].upper(), "age": request.age, "occupation": None,
+            "name": request.name, "initial": request.name.strip()[0].upper()[:1], "age": request.age, "occupation": None,
             "riskLevel": request.risk_level, "horizonYears": req["horizonYears"], "objective": request.objective,
             "objectiveText": _OBJECTIVE[request.objective], "experience": request.experience,
             "reportingCurrency": request.reporting_currency, "preferences": req["preferences"],
@@ -234,13 +251,69 @@ class ProfileServiceImpl:
         if len(set(tickers)) != len(tickers):
             raise validation("Each ticker may appear once", {"fields": ["positions"]})
         total = math.fsum(p["weightPct"] for p in positions)
-        if abs(total - 100.0) > 0.01:
+        if abs(total - 100.0) > 0.01 + 1e-9:  # 99.99 and 100.01 are inside the contract tolerance despite float error
             raise validation(f"Position weights sum to {total:.2f}, not 100", {"fields": ["positions"], "sum": total})
         snap = self.snapshot()
         universe = snap.gate(snap.data_as_of).universe()
         unknown = [t for t in tickers if t not in universe]
         if unknown:
-            raise NotFound(f"Unknown tickers: {', '.join(unknown)}")
+            raise validation(f"Unknown tickers: {', '.join(unknown)}", {"fields": ["positions"], "unknown": unknown})
+        if abs(total - 100.0) > 1e-9:
+            # Stored weights sum to exactly 100: quant accepts 1e-6 on the fraction, the contract 0.01 on the percent.
+            for p in positions:
+                p["weightPct"] = p["weightPct"] * 100.0 / total
+
+    def _universe_sectors(self) -> list[str]:
+        """Sector labels a sector rule can measure: those of the universe's directly held stocks."""
+        snap = self.snapshot()
+        return sorted({x.sector for x in snap.gate(snap.data_as_of).universe().all()
+                       if x.asset_class == "equity" and x.sector != "unknown"})
+
+    def _sector_labels(self, entries: list[str]) -> list[str]:
+        """Universe sector labels named by ``entries`` (English or French label, any case), each
+        once and in the order given."""
+        if not entries:
+            return []
+        labels = self._universe_sectors()
+        known = {_fold(SECTOR_FR[label]): label for label in labels if label in SECTOR_FR}
+        known.update({_fold(label): label for label in labels})
+        out, unknown = [], []
+        for entry in entries:
+            label = known.get(_fold(entry))
+            if label is None:
+                unknown.append(entry)
+            elif label not in out:
+                out.append(label)
+        if unknown:
+            raise validation(f"Unknown sector labels: {', '.join(repr(u) for u in unknown)}",
+                             {"fields": ["preferences.excludedSectors"], "unknown": unknown, "valid": labels})
+        return out
+
+    def _validate_rules(self, rules: list[m.PolicyRule]) -> None:
+        """Caller-supplied rules must agree with the rule definitions the engine measures them with."""
+        def bad(message: str) -> ServiceError:
+            return validation(message, {"fields": ["rules"]})
+
+        sectors = {slug(label) for label in self._universe_sectors()}
+        seen: set[str] = set()
+        for r in rules:
+            rid = r.rule_id
+            try:
+                d = rule_def(rid)
+            except KeyError:
+                raise bad(f"Unknown rule {rid}") from None
+            if rid in seen:
+                raise bad(f"Rule {rid} appears more than once")
+            seen.add(rid)
+            if r.type != d.type:
+                raise bad(f"Rule {rid} must have type {d.type}")
+            if rid.startswith("exclude.sector.") and rid[len("exclude.sector."):] not in sectors:
+                raise bad(f"Rule {rid} names no sector of the universe")
+            if d.type in ("cap", "floor", "limit", "exclude") and r.threshold is None:
+                raise bad(f"Rule {rid} needs a threshold")
+            # The lower edit bound is not enforced: derivation itself can emit a 0% crypto cap (A-05).
+            if d.bounds and not (-1e-9 <= r.threshold <= d.bounds["max"] + 1e-9):
+                raise bad(f"Rule {rid} threshold must be between 0 and {d.bounds['max']:g}")
 
     # Deterministic analytics ------------------------------------------------------------------
 
@@ -307,7 +380,7 @@ class ProfileServiceImpl:
                                       "worst12m": wid, "stress2022": pm.fact_ids.get("stress.replay_2022")}.items() if v}
 
         top = []
-        for p in sorted(profile.portfolio.positions, key=lambda x: -x.weight_pct)[:5]:
+        for p in sorted((x for x in profile.portfolio.positions if x.weight_pct > 0), key=lambda x: -x.weight_pct)[:5]:
             r1 = eng.asset_metrics(p.ticker, {"code": "1y"})["return.period"] if not p.ticker.startswith("CASH.") else None
             top.append({"ticker": p.ticker, "name": view.assets[p.ticker].name, "weightPct": p.weight_pct,
                         "marketValue": p.weight_pct / 100.0 * profile.portfolio.total_value,
@@ -372,11 +445,33 @@ class ProfileServiceImpl:
         from aplomb.optimizer.frontier import frontier
 
         profile = self.get(session_id, profile_id)
-        eng, _ = self._engine(profile, {"window": (query or {}).get("window") or "full"}, LocalLedger())
-        return a.FrontierResponse.model_validate(frontier(eng, profile, query or {}))
+        query = dict(query or {})
+        # Deterministic in the profile content, the snapshot and the query, and slow to solve
+        # (seconds): cached per process. The key holds the full holdings and rules, so another
+        # session's overlay or a later edit never reuses an entry.
+        content = json.dumps({"portfolio": profile.portfolio.to_wire()["positions"], "rules": [r.to_wire() for r in profile.rules],
+                              "currency": profile.reporting_currency, "risk": profile.risk_level}, sort_keys=True)
+        key = (self.snapshot().data_version, hashlib.sha256(content.encode()).hexdigest(),
+               json.dumps({k: v for k, v in query.items() if k != "lang"}, sort_keys=True, default=str))
+        cached = self._frontier_cache.get(key)
+        if cached is None:
+            eng, _ = self._engine(profile, {"window": query.get("window") or "full"}, LocalLedger())
+            cached = a.FrontierResponse.model_validate(frontier(eng, profile, query))
+            if len(self._frontier_cache) >= 64:
+                self._frontier_cache.pop(next(iter(self._frontier_cache)))
+            self._frontier_cache[key] = cached
+        return cached.model_copy(deep=True)
+
+    # Set by the application composition: ``(session_id, profile_id, lang) -> (run | None, stale)``.
+    brief_finder: Callable | None = None
 
     def brief(self, session_id: str, profile_id: str, query: dict):
-        raise unavailable("Portfolio brief lookup")
+        """Latest succeeded portfolio brief of this session/profile/language (api.md §3.12)."""
+        if self.brief_finder is None:
+            raise unavailable("Portfolio brief lookup")
+        self.get(session_id, profile_id)
+        run, stale = self.brief_finder(session_id, profile_id, (query or {}).get("lang") or "en")
+        return a.CachedBriefResponse(run=run, stale=stale)
 
 
 _OBJECTIVE = {

@@ -67,6 +67,8 @@ def mix_volatility(engine: QuantEngine, equity_pct: int, wr) -> float:
 def derive_thresholds(profile: m.Profile, engine: QuantEngine, *, created_at: str, window: dict | None = None) -> Derivation:
     """Derived ``PolicyRule``s (wire dicts, renumbered) and the facts holding their inputs."""
     wr = engine.window(window or {"code": "full"})
+    if wr.i1 - wr.i0 < 2:
+        raise Unavailable("short_history", "window holds fewer than three master-calendar days; volatility needs two returns")
     risk = profile.risk_level
     budget = VOL_BUDGET[risk]
     prefs = profile.preferences
@@ -189,8 +191,16 @@ def derive_thresholds(profile: m.Profile, engine: QuantEngine, *, created_at: st
         ordered.append(rule(rid, core[rid][0], "derived", core[rid][2], deriv(rid)))
     if crypto_rule is not None:
         ordered.append(crypto_rule)
+    for asset_class in dict.fromkeys(prefs.excluded_asset_classes):
+        if asset_class != "crypto":  # crypto has its own rule above (A-05)
+            ordered.append(rule(f"exclude.asset_class.{asset_class}", None, "profile_preference",
+                                {"en": f"The profile excludes the asset class {asset_class}.",
+                                 "fr": f"Le profil exclut la classe d'actifs {asset_class}."}, None))
+    sectors: dict[str, str] = {}
     for sector_label in prefs.excluded_sectors:
-        ordered.append(rule(f"exclude.sector.{slug(sector_label)}", None, "profile_preference",
+        sectors.setdefault(slug(sector_label), sector_label)
+    for sector_slug, sector_label in sectors.items():
+        ordered.append(rule(f"exclude.sector.{sector_slug}", None, "profile_preference",
                             {"en": f"The profile excludes the {sector_label} sector.", "fr": f"Le profil exclut le secteur {sector_label}."}, None))
     if prefs.avoid_controversies:
         ordered.append(rule("evidence.controversy", None, "profile_preference",

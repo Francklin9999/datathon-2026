@@ -17,7 +17,7 @@ The foundation contains retained, versioned, encrypted S3 buckets; HTTPS-only bu
 
 ## Package application
 
-Run `infra/scripts/package-backend.sh` after T03 API and T08 worker exist and root dependencies are frozen. It deliberately fails if either handler is absent. It exports locked runtime requirements, installs only binary Python 3.12 Linux x86_64 wheels using uv platform `x86_64-manylinux_2_28`, copies backend modules, and imports native modules plus both handlers in the Lambda Python 3.12 x86_64 container. Host-installed native wheels never enter the artifact. [AWS packaging guidance](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html) specifies manylinux_2_28 for Python 3.12+ on Amazon Linux 2023 (glibc 2.34); the installed uv help confirms this platform spelling. Docker and a reviewed image digest are required for a release; the current script uses the AWS Python 3.12 image tag and records no claim that it ran. The runtime probe currently includes NumPy/SciPy, so the eventual quant runtime dependencies must be present in the root lock. No CSV snapshot is bundled.
+Run `infra/scripts/package-backend.sh` after T03 API and T08 worker exist and root dependencies are frozen. It deliberately fails if either handler is absent. It exports locked runtime requirements, installs only binary Python 3.12 Linux x86_64 wheels using uv platform `x86_64-manylinux_2_28`, copies backend modules, and imports native modules plus both handlers in the Lambda Python 3.12 x86_64 container. Host-installed native wheels never enter the artifact. [AWS packaging guidance](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html) specifies manylinux_2_28 for Python 3.12+ on Amazon Linux 2023 (glibc 2.34); the installed uv help confirms this platform spelling. Docker and a reviewed image digest are required for a release; the current script uses the AWS Python 3.12 image tag and records no claim that it ran. The runtime probe imports the locked native and agent dependencies (pydantic-core, Mangum, boto3, Strands), both handlers and the packaged world bundle; the quant engine is standard-library only, so NumPy/SciPy are not probed. No CSV snapshot is bundled: the price snapshot is read from S3.
 
 The successful probe writes a manifest with file hashes. CDK requires that manifest, verifies hashes, and checks handler/dependency presence. Artifact integrity is a packaging safeguard; it cannot establish that unfinished handlers execute a real workflow. The human review still checks T08 implementation and end-to-end smoke.
 
@@ -47,6 +47,8 @@ Set `APLOMB_INFRA_CONFIG` to a JSON file containing `application` with:
   }
 }
 ```
+
+Optional `"features": ["bilingual", "world_explorer", "world_layer_hazards", "time_machine", "profile_creator", "goal_requests", "frontier_chart"]` sets those `APLOMB_FEATURE_*` variables to `true` on both functions; every flag not listed stays `false`, and an unknown name fails synthesis. Those seven are the flags that have a provider in the application (see the [T11/T12/T15 handoff](../docs/T11-T12-T15-HANDOFF.md)); list a flag only after its acceptance path passed in the deployed stack.
 
 Those exact profile/destination ARNs were returned by `GetInferenceProfile`; rediscover before deploying to another account. Never broaden model names or regions to `*` to bypass a denial. The stack defaults region to us-east-1. Do not set Lambda's reserved `AWS_REGION` manually; Lambda supplies it.
 

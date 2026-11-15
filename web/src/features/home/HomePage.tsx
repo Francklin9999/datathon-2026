@@ -25,6 +25,8 @@ import { NEE_REASON, OBJECTIVE, RISK_LEVEL, RUN_STATUS, WINDOW, labelOf } from '
 import { factIdFor, fmtDate, fmtMoney, fmtPct, fmtSignedPct } from '../../lib/format';
 import { isTerminal } from '../../lib/runs';
 
+/** Run started for each cache key in this page load (survives navigation between pages). */
+const startedRuns = new Map<string, string>();
 /** Cache keys for which an automatic brief run was already requested in this page load. */
 const autoRequested = new Set<string>();
 
@@ -193,12 +195,14 @@ function AnalystBrief({ profile }: { profile: Profile }) {
   const base = profileKey(app);
   const cacheKey = base && `brief|${base}|${windowCode}|${lang}`;
   const cached = useQuery<CachedBriefResponse>(cacheKey, signal => getApiClient().brief(profile.profileId, lang, signal));
-  const [runId, setRunId] = useState<string | null>(null);
+  // The run started for a key outlives this component: coming back to a persona, window, language
+  // or to Home shows that run (or its progress) again instead of an empty card (HOME-02).
+  const [runId, setRunId] = useState<string | null>(() => (cacheKey ? startedRuns.get(cacheKey) ?? null : null));
   const [createError, setCreateError] = useState<ApiRequestError | null>(null);
   const [creating, setCreating] = useState(false);
 
-  // Reset when the key (profile version, data, window, language) changes: no stale prose.
-  useEffect(() => { setRunId(null); setCreateError(null); }, [cacheKey]);
+  // A new key (profile version, data, window, language) shows that key's own run, never stale prose.
+  useEffect(() => { setRunId(cacheKey ? startedRuns.get(cacheKey) ?? null : null); setCreateError(null); }, [cacheKey]);
 
   const start = useCallback(async (force: boolean) => {
     if (!sessionId || !meta) return;
@@ -210,24 +214,31 @@ function AnalystBrief({ profile }: { profile: Profile }) {
         { kind: 'portfolio_brief', profileId: profile.profileId, lang, window: { code: windowCode }, ...(force ? { force: true } : {}) },
         idem,
       );
+      if (cacheKey) startedRuns.set(cacheKey, created.runId);
       setRunId(created.runId);
     } catch (error) {
       setCreateError(asApiError(error));
     } finally {
       setCreating(false);
     }
-  }, [sessionId, meta, profile.profileId, profile.version, windowCode, lang]);
+  }, [sessionId, meta, profile.profileId, profile.version, windowCode, lang, cacheKey]);
+
+  // The lookup returns the latest brief of this profile and language whatever its window.
+  const cachedRun = cached.data?.run ?? null;
+  const cachedWindow = cachedRun?.input.kind === 'portfolio_brief' ? cachedRun.input.window.code : null;
+  const sameWindow = cachedRun !== null && cachedWindow === windowCode;
 
   useEffect(() => {
-    if (!cacheKey || !cached.data || cached.data.run || runId) return;
+    if (!cacheKey || !cached.data || (cached.data.run && sameWindow) || runId) return;
     if (autoRequested.has(cacheKey)) return;
     autoRequested.add(cacheKey);
     void start(false);
-  }, [cacheKey, cached.data, runId, start]);
+  }, [cacheKey, cached.data, sameWindow, runId, start]);
 
   const polled = useRun(runId, finished => announce(`${tr({ en: 'Portfolio brief', fr: 'Note de portefeuille' })}: ${labelOf(RUN_STATUS, finished.status, lang)}`));
-  const run: Run | null = runId ? polled.run : cached.data?.run ?? null;
+  const run: Run | null = runId ? polled.run : cachedRun;
   const stale = !runId && Boolean(cached.data?.stale);
+  const otherWindow = !runId && cachedRun !== null && !sameWindow ? cachedWindow : null;
   const busy = creating || (run !== null && !isTerminal(run.status));
 
   return (
@@ -247,6 +258,9 @@ function AnalystBrief({ profile }: { profile: Profile }) {
       {polled.error && <ErrorState error={polled.error} onRetry={polled.reload} />}
       {stale && run && (
         <p className="stale-note">{tr({ en: 'This brief was written for an earlier profile or data version. Refresh to update it.', fr: 'Cette note a été rédigée pour une version antérieure du profil ou des données. Actualisez pour la mettre à jour.' })}</p>
+      )}
+      {otherWindow && run && (
+        <p className="stale-note">{tr({ en: `This brief was written for the ${labelOf(WINDOW, otherWindow, 'en')} window, not the one selected.`, fr: `Cette note a été rédigée pour la fenêtre ${labelOf(WINDOW, otherWindow, 'fr')}, pas pour celle qui est choisie.` })}</p>
       )}
       {run && <BriefRun run={run} />}
       {runId && !run && !polled.error && <Loading label={tr({ en: 'Starting brief run…', fr: 'Démarrage de la note…' })} />}

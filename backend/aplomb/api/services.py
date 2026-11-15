@@ -191,8 +191,7 @@ class RunCoordinator:
 
     @staticmethod
     def _accepted(run: m.Run) -> a.QueuedRunResponse | a.CachedRunResponse:
-        if run.status == "failed":
-            raise unavailable("Previously dispatched run; inspect its persisted failure")
+        # A failed or cancelled prior run replays its acceptance: the poll shows the stored outcome.
         if run.status == "succeeded":
             return a.CachedRunResponse(run_id=run.run_id, status="succeeded")
         return a.QueuedRunResponse(run_id=run.run_id, status="queued", poll_after_ms=1000)

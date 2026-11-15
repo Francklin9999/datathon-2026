@@ -30,8 +30,10 @@ export function VerdictHeader({ verdict, counts }: { verdict: Verdict; counts: V
 }
 
 /** "Largest size before the first rule conflict", followed by evidence/tension status (DESIGN.md). */
-export function BoundaryNote({ sizePct, counts, baselineConflict }: {
+export function BoundaryNote({ sizePct, counts, baselineConflict, countsAt = 'requested' }: {
   sizePct: number | null; counts?: VerdictCounts | null; baselineConflict?: boolean;
+  /** Which size `counts` describes: the requested move (a /check result) or the boundary scenario. */
+  countsAt?: 'requested' | 'boundary';
 }) {
   const { tr, lang } = useApp();
   if (baselineConflict) {
@@ -49,7 +51,9 @@ export function BoundaryNote({ sizePct, counts, baselineConflict }: {
       <span className="small muted block">
         {tr({ en: 'A grid boundary, not a certification: tension and evidence gaps can remain at this size.', fr: 'Une limite de grille, pas une certification : des tensions et des lacunes de preuves peuvent subsister à cette taille.' })}
         {counts && (counts.tension > 0 || counts.nee > 0) && (
-          <> {tr({ en: `At the size shown: ${counts.tension} tension, ${counts.nee} not enough evidence.`, fr: `À la taille affichée : ${counts.tension} tension(s), ${counts.nee} preuve(s) insuffisante(s).` })}</>
+          <> {countsAt === 'boundary'
+            ? tr({ en: `At this size: ${counts.tension} tension, ${counts.nee} not enough evidence.`, fr: `À cette taille : ${counts.tension} tension(s), ${counts.nee} preuve(s) insuffisante(s).` })
+            : tr({ en: `At the requested size: ${counts.tension} tension, ${counts.nee} not enough evidence.`, fr: `À la taille demandée : ${counts.tension} tension(s), ${counts.nee} preuve(s) insuffisante(s).` })}</>
         )}
       </span>
     </p>
