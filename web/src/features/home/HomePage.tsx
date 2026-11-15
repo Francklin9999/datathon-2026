@@ -32,6 +32,7 @@ import type { LayoutItem, WidgetLimits } from '../../lib/ui/layout';
 import { ASSET_GROUPS, scopeWindow, scopeWindowKey, type DashboardScope } from '../../lib/ui/scope';
 import { drawdownSeries, indexSeries, periodChangePct } from '../../lib/ui/series';
 import { Reveal } from '../../components/ui/Reveal';
+import { CountUp } from '../../components/ui/CountUp';
 import { AllocationCard } from './AllocationCard';
 import { DashboardGrid, type WidgetDef } from './DashboardGrid';
 import { KeyFigures, KeyFiguresSkeleton } from './KeyFigures';
@@ -217,8 +218,8 @@ function PerformanceCard({ state, scope, period }: { state: QueryState<Performan
     const bench = data.benchmark ? periodChangePct(data.benchmark.series) : null;
     change = (
       <p className="period-change">
-        {own !== null && <span>{tr({ en: 'Over the period', fr: 'Sur la période' })} <strong>{fmtSignedPct(own, lang)}</strong></span>}
-        {data.benchmark && bench !== null && <span>{data.benchmark.ticker} <strong>{fmtSignedPct(bench, lang)}</strong></span>}
+        {own !== null && <span>{tr({ en: 'Over the period', fr: 'Sur la période' })} <strong><CountUp text={fmtSignedPct(own, lang)} /></strong></span>}
+        {data.benchmark && bench !== null && <span>{data.benchmark.ticker} <strong><CountUp text={fmtSignedPct(bench, lang)} /></strong></span>}
       </p>
     );
   }
@@ -273,7 +274,7 @@ function PlanHealth({ overview, period }: { overview: OverviewResponse; period: 
         {STATUS_ORDER.filter(status => counts[status] > 0).map(status => (
           <div key={status} className="status-count">
             <dt><StatusBadge status={status} /></dt>
-            <dd><strong>{counts[status]}</strong></dd>
+            <dd><strong><CountUp text={String(counts[status])} /></strong></dd>
           </div>
         ))}
       </dl>
@@ -374,7 +375,9 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
         title={tr({ en: 'The brief is unavailable. The figures above are unaffected.', fr: 'La note est indisponible. Les chiffres ci-dessus restent valables.' })} />}
       {createError && (
         <ErrorState error={createError} onRetry={() => void start(true)}
-          title={tr({ en: 'The brief could not be started. The figures above are unaffected.', fr: 'La note n’a pas pu être lancée. Les chiffres ci-dessus restent valables.' })} />
+          title={createError.code === 'upstream_unavailable'
+            ? tr({ en: 'The brief is written by AI, which this server does not offer right now. The figures above are unaffected.', fr: 'La note est rédigée par l’IA, que ce serveur ne propose pas pour l’instant. Les chiffres ci-dessus restent valables.' })
+            : tr({ en: 'The brief could not be started. The figures above are unaffected.', fr: 'La note n’a pas pu être lancée. Les chiffres ci-dessus restent valables.' })} />
       )}
       {polled.error && <ErrorState error={polled.error} onRetry={polled.reload} />}
       {stale && run && (

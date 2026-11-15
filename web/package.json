@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:fixtures": "node scripts/dev-fixtures.mjs",
+    "dev:aws": "node scripts/dev-aws.mjs",
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "test:contracts": "tsx --test tests/*.test.ts"

@@ -339,8 +339,9 @@ function FreeText({ profile, onUse, initial, onConsumed }: {
       </form>
       {busy && <Loading label={tr({ en: 'Interpreting…', fr: 'Interprétation…' })} />}
       {error && (
-        <ErrorState error={error}>
-          <p className="small">{tr({ en: 'Use the manual form below; it works without the model.', fr: 'Utilisez le formulaire manuel ci-dessous ; il fonctionne sans modèle.' })}</p>
+        <ErrorState error={error} {...(error.code === 'upstream_unavailable'
+          ? { title: tr({ en: 'AI interpretation is not available on this server right now.', fr: 'L’interprétation par l’IA n’est pas disponible sur ce serveur pour l’instant.' }) } : {})}>
+          <p className="small">{tr({ en: 'Fill in the form below instead: it works without AI.', fr: 'Remplissez plutôt le formulaire ci-dessous : il fonctionne sans IA.' })}</p>
         </ErrorState>
       )}
       {parsed && (

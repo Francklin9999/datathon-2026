@@ -40,14 +40,17 @@ export function ErrorState({ error, onRetry, title, children }: {
 }) {
   const { tr, lang } = useApp();
   const disabled = error.code === 'feature_disabled';
+  const serviceDown = error.code === 'upstream_unavailable';
   return (
     <div className={`state ${disabled ? 'state-unavailable' : 'state-error'}`} role="alert">
       <p className="state-title">{title ?? errorTitle(error, lang)}</p>
-      <p className="muted small">{error.message}</p>
-      {error.requestId && (
+      {/* A service outage message is written for operators: it goes with the technical details. */}
+      {!serviceDown && <p className="muted small">{error.message}</p>}
+      {(error.requestId || serviceDown) && (
         <details className="tech-details">
           <summary>{tr({ en: 'Technical details', fr: 'Détails techniques' })}</summary>
-          <p className="mono break">{tr({ en: 'Request', fr: 'Requête' })} {error.requestId}</p>
+          {serviceDown && <p className="break">{error.message}</p>}
+          {error.requestId && <p className="mono break">{tr({ en: 'Request', fr: 'Requête' })} {error.requestId}</p>}
         </details>
       )}
       {children}
