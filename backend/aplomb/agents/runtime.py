@@ -18,6 +18,8 @@ def runtime_signature(settings):
                "guardrail": [settings.guardrail_id, settings.guardrail_version], "features": settings.features,
                "limits": [settings.run_hard_seconds, settings.max_llm_calls, settings.max_research_calls, settings.max_revise],
                "dataPrefix": settings.data_prefix}
+    if settings.build_revision:
+        context["buildRevision"] = settings.build_revision
     return hashlib.sha256(json.dumps(context, sort_keys=True).encode()).hexdigest()
 
 

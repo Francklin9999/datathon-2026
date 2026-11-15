@@ -127,3 +127,11 @@ export function statusWord(display: string, lang: Lang): string {
   if (!Object.hasOwn(RULE_STATUS, key)) return display;
   return pick(RULE_STATUS[key as RuleStatus], lang).toLocaleLowerCase(lang);
 }
+
+/** A rejected summary never hides surviving factual content on Home. */
+export function portfolioSummary(brief: Brief): Sentence[] {
+  const surviving = (id: BriefSectionId) => brief.sections.filter(s => s.id === id)
+    .flatMap(s => s.sentences).filter(s => s.audit.status !== 'struck');
+  const summary = surviving('summary');
+  return (summary.length ? summary : surviving('facts')).slice(0, 2);
+}

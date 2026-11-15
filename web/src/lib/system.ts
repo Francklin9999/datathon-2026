@@ -319,3 +319,12 @@ export function runBudget(run: Pick<Run, 'usage' | 'steps'>) {
     stepsRecorded: run.steps.length,
   };
 }
+
+/** Public site manifest, validated before display; it does not identify the API artifact. */
+export function siteBuildIdentity(value: unknown): { revision: string; builtAt: string } | null {
+  if (!value || typeof value !== 'object') return null;
+  const manifest = value as Record<string, unknown>;
+  if (typeof manifest.revision !== 'string' || !/^[0-9a-f]{40}$/.test(manifest.revision)
+      || typeof manifest.built_at !== 'string' || !Number.isFinite(Date.parse(manifest.built_at))) return null;
+  return { revision: manifest.revision, builtAt: manifest.built_at };
+}

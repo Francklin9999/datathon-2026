@@ -9,7 +9,7 @@ import { contiguousCompletedSeq, isTerminal, mergeRunDelta, nextPollDelay } from
 import {
   buildCheckRequest, createLatestGate, moveOf, sameDecisionRequest, validateMoveForm, type MoveForm,
 } from '../src/lib/move';
-import { danglingReferences, factUsage, visibleSentences } from '../src/lib/brief';
+import { danglingReferences, factUsage, portfolioSummary, visibleSentences } from '../src/lib/brief';
 import { AUDIT_CHECK, ERROR_CODE, LIMITATION, NEE_REASON, labelOf } from '../src/lib/labels';
 import { validateHoldings, weightSum } from '../src/lib/holdings';
 import { EMPTY_PROFILE_FORM, applyDraft, toCreateRequest, validateProfileForm } from '../src/lib/profileForm';
@@ -155,4 +155,16 @@ test('profile form: required fields block save; drafts are provisional; request 
   assert.equal(request.rules, null);
   assert.deepEqual(request.horizonYears, { min: 5, max: null });
   assert.ok(validateProfileForm({ ...complete, horizonMin: '10', horizonMax: '5' }).some(i => i.field === 'horizonMax'));
+});
+
+test('Home falls back to surviving facts when the executive summary was rejected', () => {
+  const run = validateContract('Run', JSON.parse(readFileSync(new URL('../../contracts/fixtures/run.decision.robert-tsla-25.json', import.meta.url), 'utf8')));
+  assert.equal(run.result?.kind, 'decision');
+  if (run.result?.kind !== 'decision') return;
+  const brief = run.result.decision.brief;
+  const facts = brief.sections.find(s => s.id === 'facts')!;
+  const rejected = { ...facts, id: 'summary' as const, sentences: facts.sentences.map(s => ({ ...s, audit: { ...s.audit, status: 'struck' as const } })) };
+  const result = portfolioSummary({ ...brief, sections: [rejected, ...brief.sections] });
+  assert.ok(result.length > 0 && result.length <= 2);
+  assert.ok(result.every(s => s.audit.status !== 'struck'));
 });

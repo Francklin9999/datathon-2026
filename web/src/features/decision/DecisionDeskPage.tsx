@@ -33,6 +33,7 @@ import {
   validateMoveForm, type MoveForm, type MoveFormIssue,
 } from '../../lib/move';
 import { isTerminal } from '../../lib/runs';
+import { investigationOriginalText, readInvestigationContext, validInvestigationContext } from '../../lib/world';
 
 const FUNDING_MODES: readonly FundingMode[] = ['auto', 'pro_rata', 'from_cash', 'from_holdings', 'new_money'];
 const DEBOUNCE_MS = 250;
@@ -43,7 +44,7 @@ function isApiErrorBody(value: CheckResult | ApiError): value is ApiError {
 }
 
 export function DecisionDeskPage() {
-  return <ProfileGate>{profile => <DeskContent profile={profile} />}</ProfileGate>;
+  return <ProfileGate>{profile => <DeskContent key={profile.profileId} profile={profile} />}</ProfileGate>;
 }
 
 interface PreviewState { result: CheckResult | null; error: ApiRequestError | null; loading: boolean }
@@ -53,8 +54,14 @@ function DeskContent({ profile }: { profile: Profile }) {
   const params = useSearchParams();
   const router = useRouter();
   const runId = params.get('runId');
+  const urlEvent = params.get('eventId');
+  const contextProfile = params.get('profileId');
+  const urlSourceRun = params.get('sourceRunId');
+  const ticker = params.get('ticker') ?? '';
+  const contextMatches = !contextProfile || contextProfile === profile.profileId;
 
-  const [form, setForm] = useState<MoveForm>(EMPTY_FORM);
+
+  const [form, setForm] = useState<MoveForm>(() => contextMatches && /^[A-Z0-9.-]{1,20}$/.test(ticker) ? { ...EMPTY_FORM, ticker } : EMPTY_FORM);
   const [originalText, setOriginalText] = useState<string | null>(null);
   const [goal, setGoal] = useState<DecisionRequest | null>(null);
   const touched = useRef(false);
@@ -67,9 +74,13 @@ function DeskContent({ profile }: { profile: Profile }) {
   // ----- run restored from the URL -----
   const polled = useRun(runId, finished => announce(`${tr({ en: 'Decision run', fr: 'Exécution de décision' })}: ${labelOf(RUN_STATUS, finished.status, lang)}`));
   const run = polled.run;
+  const savedContext = run?.profileId === profile.profileId && run.input.kind === 'decision' ? readInvestigationContext(run.input.originalText) : null;
+  const context = (contextMatches ? validInvestigationContext(urlEvent, ticker, urlSourceRun) : null) ?? savedContext;
+  const contextEvent = context?.eventId ?? null;
+  const sourceRun = context?.sourceRunId ?? null;
   const runInput = run?.input.kind === 'decision' ? run.input : null;
   useEffect(() => {
-    if (!runInput || touched.current) return;
+    if (!runInput || run?.profileId !== profile.profileId || touched.current) return;
     if (runInput.request.type === 'move') {
       const m = runInput.request.move;
       setForm({ ticker: m.ticker, sizePct: m.sizePct, fundingMode: m.funding.mode, fromTickers: m.funding.fromTickers ?? [] });
@@ -78,7 +89,7 @@ function DeskContent({ profile }: { profile: Profile }) {
       setGoal(runInput.request);
     }
     setOriginalText(runInput.originalText);
-  }, [runInput]);
+  }, [runInput, run?.profileId, profile.profileId]);
 
   // ----- deterministic preview (debounced, latest-wins) -----
   const currentWeight = profile.portfolio.positions.find(p => p.ticker === form.ticker.trim().toUpperCase())?.weightPct ?? 0;
@@ -124,12 +135,15 @@ function DeskContent({ profile }: { profile: Profile }) {
     if (!confirmedRequest) return;
     setCreating(true); setCreateError(null);
     try {
+      const contextualText = investigationOriginalText(originalText, context);
       const created = await getApiClient().createRun({
         kind: 'decision', profileId: profile.profileId, lang, request: confirmedRequest, window: { code: windowCode },
-        ...(originalText ? { originalText } : {}),
+        ...(contextualText ? { originalText: contextualText } : {}),
       }, `decision-${crypto.randomUUID()}`);
       touched.current = false;
-      router.replace(`/decision-desk/?runId=${encodeURIComponent(created.runId)}`);
+      const next = new URLSearchParams(params.toString());
+      next.set('runId', created.runId);
+      router.replace(`/decision-desk/?${next.toString()}`);
     } catch (error) {
       setCreateError(asApiError(error));
     } finally { setCreating(false); }
@@ -154,6 +168,12 @@ function DeskContent({ profile }: { profile: Profile }) {
         <p className="page-sub">{tr({ en: 'Describe a move or fill the form. Rule checks are deterministic; the evidence analysis is an audited agent run. Nothing is ever executed.', fr: 'Décrivez un mouvement ou remplissez le formulaire. Les vérifications sont déterministes ; l’analyse des preuves est une exécution d’agents auditée. Rien n’est jamais exécuté.' })}</p>
       </PageHeader>
 
+      {contextEvent && <Card title={tr({ en: 'Investigation context', fr: 'Contexte de recherche' })}>
+        <p className="small">{tr({ en: 'Event relevance does not establish financial impact. Review its sources before testing a hypothetical move.', fr: 'La pertinence de l’événement ne prouve pas une incidence financière. Examinez ses sources avant de tester un mouvement hypothétique.' })}</p>
+        {!contextMatches && <p className="stale-note">{tr({ en: 'This event was selected for another persona. Select that persona to restore its holding context.', fr: 'Cet événement a été sélectionné pour un autre profil. Sélectionnez ce profil pour retrouver le contexte de la position.' })}</p>}
+        <Link href={`/world-explorer/?${new URLSearchParams({ eventId: contextEvent, ...(sourceRun ? { runId: sourceRun } : {}) }).toString()}`}>{tr({ en: 'Review event and original sources', fr: 'Examiner l’événement et ses sources originales' })}</Link>
+        {sourceRun && <> · <Link href={`/evidence-audit/?runId=${encodeURIComponent(sourceRun)}`}>{tr({ en: 'Event brief evidence', fr: 'Preuves de la note d’événement' })}</Link></>}
+      </Card>}
       <div className="cols">
         <div>
           <FreeText profile={profile} onUse={(parsed, text) => {

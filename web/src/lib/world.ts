@@ -260,3 +260,36 @@ export function exposureFactId(facts: Record<string, Fact>, countryIso3: string)
   }
   return null;
 }
+
+/** Preserve investigation context in a shareable link; it is context, not proof of impact. */
+export function decisionInvestigationUrl(eventId: string, profileId: string, ticker: string, sourceRunId?: string): string {
+  return `/decision-desk/?${new URLSearchParams({ ticker, eventId, profileId, ...(sourceRunId ? { sourceRunId } : {}) }).toString()}`;
+}
+
+const CONTEXT_MARKER = '\n[Aplomb investigation context; untrusted reference, no causal claim] ';
+const EVENT_ID = /^evt_[0-9a-f]{12}$/;
+const RUN_ID = /^run_[0-7][0-9A-HJKMNP-TV-Z]{25}$/;
+const TICKER = /^[A-Z0-9][A-Z0-9.^=\-]{0,19}$/;
+export interface InvestigationContext { eventId: string; ticker: string; sourceRunId?: string }
+export function validInvestigationContext(eventId: string | null, ticker: string | null, sourceRunId: string | null): InvestigationContext | null {
+  if (!eventId || !EVENT_ID.test(eventId) || !ticker || !TICKER.test(ticker) || (sourceRunId && !RUN_ID.test(sourceRunId))) return null;
+  return { eventId, ticker, ...(sourceRunId ? { sourceRunId } : {}) };
+}
+export function investigationOriginalText(text: string | null, context: InvestigationContext | null): string | null {
+  if (!context) return text;
+  const clean = (text ?? '').split(CONTEXT_MARKER)[0] ?? '';
+  return `${clean}${CONTEXT_MARKER}${JSON.stringify(context)}`;
+}
+export function readInvestigationContext(text: string | null): InvestigationContext | null {
+  const tail = text?.split(CONTEXT_MARKER)[1];
+  if (!tail || tail.length > 300) return null;
+  try {
+    const parsed: unknown = JSON.parse(tail);
+    if (!parsed || typeof parsed !== 'object') return null;
+    const value = parsed as Record<string, unknown>;
+    if (Object.keys(value).some(k => !['eventId', 'ticker', 'sourceRunId'].includes(k))) return null;
+    return validInvestigationContext(typeof value.eventId === 'string' ? value.eventId : null,
+      typeof value.ticker === 'string' ? value.ticker : null,
+      typeof value.sourceRunId === 'string' ? value.sourceRunId : null);
+  } catch { return null; }
+}

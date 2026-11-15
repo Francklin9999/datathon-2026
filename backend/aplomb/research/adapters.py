@@ -1,11 +1,12 @@
 """Source-specific parsers. Discovery never asserts absence of controversy."""
 import csv
 import io
+import ipaddress
 import math
 import re
 from dataclasses import dataclass
-from datetime import date, timedelta
-from urllib.parse import quote
+from datetime import date, datetime, timedelta
+from urllib.parse import quote, urlsplit
 
 from .core import ResearchError
 
@@ -58,7 +59,11 @@ class EdgarAdapter:
         if not re.fullmatch(r"\d{1,10}", cik) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9]*", concept):
             raise ResearchError("invalid_cik_or_concept")
         data, doc = self.service.json(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik.zfill(10)}.json", context)
+        if not isinstance(data, dict) or type(data.get("cik")) is not int or str(data["cik"]).zfill(10) != cik.zfill(10):
+            raise ResearchError("source_cik_mismatch")
         units = data.get("facts", {}).get("us-gaap", {}).get(concept, {}).get("units", {})
+        if not isinstance(units, dict):
+            raise ResearchError("invalid_source_json")
         # Raw numbers are internal only; bindings require explicit quote.figure registration.
         return units, doc
 
@@ -73,9 +78,47 @@ class GdeltAdapter:
         batch = self.batches.get((query.strip().casefold(), str(start), str(end), country))
         if batch is None:
             return SearchResult((), "cached_index_unavailable")
-        articles = tuple({"title": row["title"], "url": row["url"], "publisher": row["domain"],
-                          "published_at": row["seendate"], "claim_verified": False} for row in batch["articles"][:limit])
-        return SearchResult(articles, "results" if articles else "no_results", batch.get("document_ref"))
+        # Cached indices are untrusted too: never expose future or undated rows, unsafe
+        # links, or duplicates, even if the batch was stored under an incorrect key.
+        try:
+            first, last = date.fromisoformat(str(start)), date.fromisoformat(str(end))
+        except ValueError as exc:
+            raise ResearchError("invalid_search_window") from exc
+        if first > last or last > context.as_of:
+            raise ResearchError("invalid_search_window")
+        articles, seen = [], set()
+        for row in batch.get("articles", []):
+            if not isinstance(row, dict):
+                continue
+            title, url, domain, stamp = (row.get(k) for k in ("title", "url", "domain", "seendate"))
+            if not all(isinstance(v, str) and v.strip() for v in (title, url, domain, stamp)):
+                continue
+            try:
+                if not re.fullmatch(r"\d{8}T\d{6}Z", stamp):
+                    continue
+                observed = datetime.strptime(stamp, "%Y%m%dT%H%M%SZ").date()
+                parsed = urlsplit(url)
+                host = (parsed.hostname or "").lower().rstrip(".")
+                if (parsed.scheme != "https" or not host or parsed.username or parsed.password
+                        or parsed.port not in (None, 443) or host == "localhost" or host.endswith(".localhost")):
+                    continue
+                try:
+                    if not ipaddress.ip_address(host).is_global:
+                        continue
+                except ValueError:
+                    pass  # DNS names are discovery links, never fetched by this adapter.
+                from aplomb.world.ingest import canonical_url
+                identity = canonical_url(url)
+            except ValueError:
+                continue
+            if not first <= observed <= last or identity in seen:
+                continue
+            seen.add(identity)
+            articles.append({"title": title, "url": url, "publisher": domain,
+                             "published_at": None, "first_seen_at": stamp, "claim_verified": False})
+            if len(articles) >= limit:
+                break
+        return SearchResult(tuple(articles), "results" if articles else "no_results", batch.get("document_ref"))
 
 
 @dataclass(frozen=True)

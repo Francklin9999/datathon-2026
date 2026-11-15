@@ -1,0 +1,10 @@
+{
+  "base_commit": "e27e0b62668752adafcdcee6b572d6d0a42a3b3c",
+  "working_tree_dirty": true,
+  "deployed": false,
+  "lambda_zip_sha256": "e589e90d333d008be0970b61a02f8b6fe0c79640d1b42ea03e014808e5395e66",
+  "patch_sha256": "26671a72234e5635e1923c72fdf2face47771dcfacfad4890323d5325376b7f4",
+  "source_files_sha256": "93d91137d028fa4c49df66c6ecefdc2dccf02f851088b07ffc251b4a6e94e91e",
+  "lambda_runtime_import_check": true,
+  "note": "Commit reviewed source before assigning APLOMB_BUILD_REVISION. Do not claim base commit alone identifies this artifact."
+}

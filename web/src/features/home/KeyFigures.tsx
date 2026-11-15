@@ -30,18 +30,16 @@ export function KeyFigures({ overview, period }: { overview: OverviewResponse; p
       ? <FactChip factId={factId} display={text}><RollingText text={text} /></FactChip>
       : <RollingText text={text} />;
   };
-  const fixed = tr({ en: 'Fixed horizon', fr: 'Horizon fixe' });
+  const selectedId = overview.returns.factIds.selectedPct;
+  const selectedValue = selectedId ? overview.facts[selectedId]?.value : null;
   return (
     <Card title={tr({ en: 'Key figures', fr: 'Chiffres clés' })}>
       <div className="kpis">
         <Figure label={tr({ en: 'Fictional value', fr: 'Valeur fictive' })} note={overview.snapshot.currency}>
           <RollingText text={fmtMoney(overview.snapshot.totalValue, overview.snapshot.currency, lang)} />
         </Figure>
-        <Figure label={tr({ en: 'Year to date', fr: 'Depuis janvier' })} note={fixed}>
-          {pct(overview.returns.ytdPct, factIdFor(overview.returns.factIds, 'ytdPct'), true)}
-        </Figure>
-        <Figure label={tr({ en: 'Trailing 1 year', fr: 'Sur 1 an' })} note={fixed}>
-          {pct(overview.returns.y1Pct, factIdFor(overview.returns.factIds, 'y1Pct'), true)}
+        <Figure label={tr({ en: 'Historical return', fr: 'Rendement historique' })} note={period}>
+          {pct(typeof selectedValue === 'number' ? selectedValue : null, selectedId, true)}
         </Figure>
         <Figure label={tr({ en: 'Annualized volatility', fr: 'Volatilité annualisée' })} note={period}>
           {pct(overview.risk.volatilityPct, factIdFor(overview.risk.factIds, 'volatilityPct'), false)}
@@ -64,7 +62,7 @@ export function KeyFiguresSkeleton({ label }: { label: string }) {
     <div className="card" role="status">
       <span className="sr-only">{label}</span>
       <div className="kpis" aria-hidden="true">
-        {[0, 1, 2, 3, 4].map(i => (
+        {[0, 1, 2, 3].map(i => (
           <div key={i} className="kpi">
             <Skeleton width="55%" height={12} />
             <Skeleton width="70%" height={26} />

@@ -200,6 +200,20 @@ class Analytics(unittest.TestCase):
         mateo = service().overview(A, "mateo", {}).to_wire()
         self.assertEqual(mateo["verdict"], "insufficient")
 
+    def test_selected_return_matches_chart_and_period(self):
+        for code in ("ytd", "1y", "3y", "5y", "full"):
+            o = service().overview(A, "robert", {"window": code}).to_wire()
+            chart = service().performance(A, "robert", {"window": code}).to_wire()["series"]
+            fid = o["returns"]["factIds"].get("selectedPct")
+            if len(chart) < 2:
+                self.assertIsNone(fid)
+                continue
+            self.assertIsNotNone(fid)
+            fact = o["facts"][fid]
+            self.assertAlmostEqual(fact["value"], (chart[-1]["value"] / chart[0]["value"] - 1) * 100)
+            self.assertEqual(fact["period"]["start"], chart[0]["date"])
+            self.assertEqual(fact["period"]["end"], chart[-1]["date"])
+
     def test_performance(self):
         p = service().performance(A, "robert", {"window": "ytd", "benchmark": "SPY"}).to_wire()
         self.assertEqual(p["series"][0], {"date": "2025-12-31", "value": 600000.0})

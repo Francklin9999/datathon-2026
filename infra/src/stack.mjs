@@ -87,6 +87,7 @@ export class AplombStack extends Stack {
       APLOMB_ALLOWED_ORIGINS:[`https://${distribution.distributionDomainName}`,
         ...(application.allowedOrigins ?? ['http://localhost:3000'])].join(','),
       APLOMB_SOURCE_USER_AGENT:application.sourceUserAgent,
+      ...(/^[0-9a-f]{40}$/.test(application.revision) ? {APLOMB_BUILD_REVISION:application.revision} : {}),
       APLOMB_RUN_TARGET_SECONDS:'90',APLOMB_RUN_HARD_SECONDS:'180',
       APLOMB_MAX_REVISE:'2',APLOMB_MAX_LLM_CALLS:'12',APLOMB_MAX_RESEARCH_CALLS:'12',
       ...Object.fromEntries(flags.map(f=>[`APLOMB_FEATURE_${f.toUpperCase()}`,String(application.features?.includes(f) ?? false)])),
@@ -178,7 +179,7 @@ export class AplombStack extends Stack {
         allowMethods:[apigw.CorsHttpMethod.GET,apigw.CorsHttpMethod.POST,apigw.CorsHttpMethod.PATCH,apigw.CorsHttpMethod.PUT,
           apigw.CorsHttpMethod.DELETE,apigw.CorsHttpMethod.OPTIONS],
         allowHeaders:['content-type','x-aplomb-session','idempotency-key','x-request-id','accept-language'],
-        exposeHeaders:['x-request-id','x-aplomb-data-version'],maxAge:Duration.minutes(5)}});
+        exposeHeaders:['x-request-id','x-aplomb-data-version','x-aplomb-build'],maxAge:Duration.minutes(5)}});
     new apigw.HttpStage(this,'HttpDefaultStage',{httpApi:http,stageName:'$default',autoDeploy:true,
       throttle:{rateLimit:100,burstLimit:200},
       accessLogSettings:{destination: new apigw.LogGroupLogDestination(accessLogs),

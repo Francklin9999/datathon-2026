@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Run, RunSummary, RunsResponse, Step, ToolCall } from '../../contracts/types';
-import { getApiClient } from '../../api/index';
+import { API_BASE, FIXTURES_ENABLED, getApiClient } from '../../api/index';
 import { asApiError, isAbort, type ApiRequestError } from '../../api/errors';
 import { useApp } from '../../state/app';
 import { useRun } from '../../state/useRun';
@@ -24,7 +24,7 @@ import { fmtDate, fmtDateTime, fmtDuration, fmtNumber } from '../../lib/format';
 import { isTerminal } from '../../lib/runs';
 import {
   ARCHITECTURE, ROLE_CARDS, RUN_LIMITS, formatArgs, guardrailReading, runBudget, runGuardrailAudit, stepDeviations,
-  stepProduced, workNature, type ArchNodeId, type GuardrailReading, type WorkNature,
+  stepProduced, workNature, siteBuildIdentity, type ArchNodeId, type GuardrailReading, type WorkNature,
 } from '../../lib/system';
 
 const PAGE_SIZE = 20;
@@ -48,12 +48,41 @@ export function AgentsSystemPage() {
       <PageHeader eyebrow={tr({ en: 'Agents & System', fr: 'Agents et système' })} title={tr({ en: 'What actually ran', fr: 'Ce qui s’est réellement exécuté' })}>
         <p className="page-sub">{tr({ en: 'Code computes every figure and verdict; models plan, research and explain. This page separates what is configured from what a run recorded.', fr: 'Le code calcule chaque chiffre et chaque verdict ; les modèles planifient, recherchent et expliquent. Cette page distingue ce qui est configuré de ce qu’une exécution a enregistré.' })}</p>
       </PageHeader>
+      <BuildIdentity />
       <RoleMap />
       <ArchitectureCard />
       <RunPicker selectedId={runId} live={live && live.runId === runId ? live : null} />
       {runId && <RunDetail key={runId} runId={runId} onRun={setLive} />}
     </>
   );
+}
+
+function BuildIdentity() {
+  const { tr, lang, meta } = useApp();
+  const [build, setBuild] = useState<{ revision: string; builtAt: string } | null>(null);
+  const [apiRevision, setApiRevision] = useState<string | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/deployment.json', { signal: controller.signal, cache: 'no-store' })
+      .then(response => response.ok ? response.json() : null)
+      .then(value => setBuild(siteBuildIdentity(value)))
+      .catch(() => { if (!controller.signal.aborted) setBuild(null); });
+    if (!FIXTURES_ENABLED) {
+      fetch(`${API_BASE}/health`, { signal: controller.signal, cache: 'no-store' })
+        .then(response => response.ok ? response.headers.get('X-Aplomb-Build') : null)
+        .then(revision => setApiRevision(revision && /^[0-9a-f]{40}$/.test(revision) ? revision : null))
+        .catch(() => { if (!controller.signal.aborted) setApiRevision(null); });
+    }
+    return () => controller.abort();
+  }, []);
+  return <Card title={tr({ en: 'Release identity', fr: 'Identité de la version' })}>
+    {build ? <p className="small">{tr({ en: 'Frontend commit', fr: 'Commit de l’interface' })}: <span className="mono break">{build.revision}</span><br />
+      {tr({ en: 'Frontend built', fr: 'Interface construite le' })}: {fmtDateTime(build.builtAt, lang)}</p>
+      : <p className="small muted">{tr({ en: 'Frontend build manifest unavailable.', fr: 'Manifeste de l’interface indisponible.' })}</p>}
+    <p className="small">{tr({ en: 'API contract version', fr: 'Version du contrat API' })}: <span className="mono">{meta?.contractVersion ?? '—'}</span> · {tr({ en: 'Dataset snapshot', fr: 'Instantané des données' })}: <span className="mono">{meta?.dataVersion ?? '—'}</span></p>
+    <p className="small">{tr({ en: 'Backend commit', fr: 'Commit du serveur' })}: {apiRevision ? <span className="mono break">{apiRevision}</span> : tr({ en: 'unavailable', fr: 'indisponible' })}</p>
+    <p className="small muted">{tr({ en: 'Backend identity comes from the API response header; feature flags are listed below.', fr: 'L’identité du serveur provient de l’en-tête de réponse API ; les fonctionnalités sont listées ci-dessous.' })}</p>
+  </Card>;
 }
 
 function NatureBadge({ nature }: { nature: WorkNature }) {

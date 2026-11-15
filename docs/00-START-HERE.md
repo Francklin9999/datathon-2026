@@ -1,5 +1,7 @@
 # 00 — Team entry point
 
+Current hardening audit (2026-11-15): [release report](12-RELEASE-HARDENING.md) records the latest pull, local changes, live AWS smoke, connector failures and remaining release gates. It supersedes older deployment/status claims below where they differ. Hardening changes are not yet deployed.
+
 ## Where the project stands (updated 2026-11-15, 00:07 EST)
 
 The build phase is over: the P0 product is deployed and works with real models. Read these review pages before anything else.

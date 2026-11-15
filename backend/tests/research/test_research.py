@@ -218,6 +218,7 @@ def test_gdelt_cached_index_never_verifies_underlying_article():
                             "domain": "example.org", "seendate": "20260101T000000Z"}]}}
     result = GdeltAdapter(cached).search("issuer", CTX, "2026-01-01", "2026-02-01")
     assert result.items[0]["claim_verified"] is False
+    assert result.items[0]["published_at"] is None and result.items[0]["first_seen_at"] == "20260101T000000Z"
     assert "cannot establish absence" in result.coverage
 
 
@@ -236,7 +237,7 @@ def tool_context(ledger):
 
 
 def test_company_facts_structured_figures_and_cutoff():
-    rows = [{"val": 123456, "end": "2026-09-30", "filed": "2026-10-30", "form": "10-K"},
+    rows = [{"val": 123456, "end": "2026-09-30", "filed": "2026-10-30", "form": "10-K", "accn": "0000320193-26-000001"},
             {"val": 999999, "end": "2026-12-31", "filed": "2027-01-31", "form": "10-K"}]
     payload = {"cik": 320193, "facts": {"us-gaap": {"Assets": {"units": {"USD": rows}}}}}
     svc = service(Recorded(response(json.dumps(payload), **{"content-type": "application/json"})))
@@ -288,3 +289,55 @@ def test_future_filings_and_issuer_date_are_not_fetched():
     with pytest.raises(ResearchError, match="after_asof"):
         adapter.holdings("IVV", CTX)
     assert transport.calls == []
+
+
+def test_gdelt_cached_batch_rejects_future_undated_unsafe_and_duplicate_rows():
+    key = ("issuer", "2026-01-01", "2026-02-01", None)
+    good = {"title": "Report", "url": "https://example.org/a", "domain": "example.org", "seendate": "20260101T000000Z"}
+    batch = {key: {"articles": [good, good, {**good, "url": "https://example.org/b", "seendate": "20260202T000000Z"},
+                                 {**good, "url": "javascript:alert(1)"}, {**good, "url": "https://example.org/c", "seendate": ""}]}}
+    result = GdeltAdapter(batch).search("issuer", CTX, "2026-01-01", "2026-02-01")
+    assert len(result.items) == 1 and result.items[0]["url"] == good["url"]
+
+
+def test_sec_companyfacts_rejects_identity_mismatch_and_invalid_dates():
+    valid = {"val": 123, "end": "2026-09-30", "filed": "2026-10-30", "form": "10-K", "accn": "0000320193-26-000001"}
+    def payload(cik, rows):
+        return json.dumps({"cik": cik, "facts": {"us-gaap": {"Assets": {"units": {"USD": rows}}}}})
+    wrong = service(Recorded(response(payload(99, [valid]), **{"content-type": "application/json"})))
+    with pytest.raises(ResearchError, match="source_cik_mismatch"):
+        EdgarAdapter(wrong).company_facts("320193", "Assets", CTX)
+    rows = [{**valid, "end": "2026-02-30"}, {**valid, "filed": "2026-01-01"},
+            {**valid, "accn": "bad"}, {**valid, "filed": "2027-01-01"}, valid]
+    svc = service(Recorded(response(payload(320193, rows), **{"content-type": "application/json"})))
+    ledger = Ledger(CTX.run_id, str(CTX.as_of), clock=lambda: NOW.isoformat().replace("+00:00", "Z"))
+    result = research_tool_handlers(svc)["edgar.company_facts"][1](tool_context(ledger), cik="320193", concept="Assets")
+    assert len(result.fact_ids) == 1 and result.data["figures"][0]["accession"] == valid["accn"]
+
+
+@pytest.mark.parametrize("host,publisher", [("www.bankofcanada.ca", "Bank of Canada"),
+    ("www.federalreserve.gov", "Federal Reserve Board"), ("www150.statcan.gc.ca", "Statistics Canada")])
+def test_official_event_source_is_captured_and_scoped_to_run(host, publisher):
+    url = f"https://{host}/release"
+    svc = service(Recorded(response("Official release text.")))
+    doc = svc.fetch(url, CTX)
+    ledger = Ledger(CTX.run_id, str(CTX.as_of), clock=lambda: NOW.isoformat().replace("+00:00", "Z"))
+    data = dict(type="news", title="Official release", publisher="incorrect", url=url, quote="Official release text.",
+                claim={"en": "Official release", "fr": "Communiqué officiel"}, subject={"type": "event", "id": "event"})
+    evidence = svc.save_evidence(data, doc.document_id, CTX, ledger)
+    assert ledger.get_evidence(evidence).publisher == publisher
+    with pytest.raises(ResearchError):
+        svc.fetch(f"https://{host}.evil.test/release", CTX)
+    with pytest.raises(ResearchError):
+        svc.save_evidence(data, doc.document_id, ResearchContext("RUN-other", NOW.date()), ledger)
+
+
+def test_gdelt_rejects_local_addresses_ports_invalid_timestamps_and_tracking_duplicates():
+    key = ("issuer", "2026-01-01", "2026-02-01", None)
+    base = {"title": "Report", "url": "https://example.org/a?utm_source=x", "domain": "example.org", "seendate": "20260101T120000Z"}
+    rows = [base, {**base, "url": "https://example.org/a?utm_source=y"},
+            *[{**base, "url": url} for url in ("https://127.0.0.1/x", "https://[::1]/x", "https://localhost/x", "https://foo.localhost/x", "https://example.org:444/x")],
+            {**base, "url": "https://example.org/b", "seendate": "20260101T256100Z"},
+            {**base, "url": "https://example.org/c", "seendate": "20260101"}]
+    result = GdeltAdapter({key: {"articles": rows}}).search("issuer", CTX, "2026-01-01", "2026-02-01")
+    assert len(result.items) == 1 and result.items[0]["url"] == base["url"]

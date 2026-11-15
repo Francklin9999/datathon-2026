@@ -123,3 +123,9 @@ test('normalizeScope snaps the minimum weight to an offered step, so the control
   assert.equal(normalizeScope({ minWeight: 50 }).minWeight, 10);
   assert.equal(normalizeScope({ minWeight: 5 }).minWeight, 5);
 });
+
+test('custom scope rejects calendar dates that JavaScript rolls into the next month', () => {
+  assert.equal(validateRange('2026-02-30', '2026-03-10', '2026-11-12'), 'format');
+  assert.equal(validateRange('2025-02-29', '2025-03-10', '2026-11-12'), 'format');
+  assert.equal(validateRange('2024-02-29', '2024-03-10', '2026-11-12'), null);
+});

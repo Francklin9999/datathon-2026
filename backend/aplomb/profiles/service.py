@@ -396,6 +396,20 @@ class ProfileServiceImpl:
                 label={"en": f"Portfolio return, {code}, {profile.name}, {profile.reporting_currency}",
                        "fr": f"Rendement du portefeuille, {code}, {profile.name}, {profile.reporting_currency}"})
 
+        # The headline return uses the same window and calendar as the history chart.
+        # Add a reference through the existing extensible factIds map (no wire-shape change).
+        try:
+            wr = eng.window(window)
+            value = mx.period_return_pct(eng.portfolio_levels(weights, wr.i0, wr.i1))
+            if value is not None:
+                rids["selectedPct"] = eng.add_series_fact(
+                    metric="return.period", value=value, subject=view.subject, variant_key="before",
+                    window_code=window["code"], tickers=list(weights), i0=wr.i0, i1=wr.i1,
+                    method_id="M_PORT_CONST_WEIGHTS", window_spec=window,
+                    label={"en": "Historical return, selected window", "fr": "Rendement historique, période choisie"})
+        except Unavailable:
+            pass
+
         worst12, wid = None, None
         try:
             wr = eng.window(window)

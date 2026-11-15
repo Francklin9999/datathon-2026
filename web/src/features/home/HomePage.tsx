@@ -24,8 +24,9 @@ import { RunStatusBadge, StatusBadge, VerdictBadge } from '../../components/comm
 import { LineChart, SeriesTable, type Series } from '../../components/common/LineChart';
 import { BriefView, SentenceText } from '../../components/run/BriefView';
 import { RunTimeline } from '../../components/run/RunTimeline';
-import { NEE_REASON, OBJECTIVE, RUN_STATUS, WINDOW, labelOf } from '../../lib/labels';
+import { NEE_REASON, OBJECTIVE, RISK_LEVEL, RUN_STATUS, WINDOW, labelOf } from '../../lib/labels';
 import { fmtDate, fmtSignedPct, fmtUnit } from '../../lib/format';
+import { portfolioSummary } from '../../lib/brief';
 import { isTerminal } from '../../lib/runs';
 import type { LayoutItem, WidgetLimits } from '../../lib/ui/layout';
 import { ASSET_GROUPS, scopeWindow, scopeWindowKey, type DashboardScope } from '../../lib/ui/scope';
@@ -49,12 +50,12 @@ const DEFAULT_LAYOUT: readonly LayoutItem[] = [
   { id: 'figures', w: 12, h: 5 },
   { id: 'performance', w: 8, h: 11 },
   { id: 'allocation', w: 4, h: 11 },
+  { id: 'brief', w: 12, h: 14 },
   { id: 'positions', w: 7, h: 10 },
   { id: 'health', w: 5, h: 10 },
   { id: 'horizons', w: 4, h: 5 },
   { id: 'stress', w: 4, h: 5 },
   { id: 'diversification', w: 4, h: 5 },
-  { id: 'brief', w: 12, h: 10 },
 ];
 const LIMITS: Record<string, WidgetLimits> = {
   figures: { minW: 6, maxW: 12, minH: 5, maxH: 7 },
@@ -125,7 +126,7 @@ function HomeContent({ profile }: { profile: Profile }) {
       { id: 'horizons', title: t('Longer horizons', 'Horizons plus longs'), limits: LIMITS.horizons!, render: () => <HorizonsCard overview={data} /> },
       { id: 'stress', title: t('Stress test', 'Test de résistance'), limits: LIMITS.stress!, render: () => <StressCard overview={data} /> },
       { id: 'diversification', title: t('Diversification', 'Diversification'), limits: LIMITS.diversification!, render: () => <DiversificationCard overview={data} /> },
-      { id: 'brief', title: t('Analyst brief', 'Note d’analyse'), limits: LIMITS.brief!, render: () => <AnalystBrief profile={profile} {...(scope.period.mode === 'custom' ? { scopeNote: tr({ en: `This brief covers the ${labelOf(WINDOW, windowCode, 'en').toLowerCase()} window, not the custom range`, fr: `Cette note couvre la fenêtre ${labelOf(WINDOW, windowCode, 'fr').toLowerCase()}, pas la plage personnalisée` }) } : {})} /> },
+      { id: 'brief', title: t('Your Portfolio Intelligence Brief', 'Votre note stratégique de portefeuille'), limits: LIMITS.brief!, render: () => <AnalystBrief profile={profile} scopeNote={tr({ en: `Brief requests use the full portfolio and the global ${labelOf(WINDOW, windowCode, 'en').toLowerCase()} risk window; dashboard filters and custom dates do not apply. A cached brief may use an earlier window, as noted below.`, fr: `Les demandes de note utilisent le portefeuille complet et la fenêtre de risque globale ${labelOf(WINDOW, windowCode, 'fr').toLowerCase()} ; les filtres et dates personnalisées du tableau ne s’y appliquent pas. Une note en cache peut utiliser une fenêtre antérieure, indiquée ci-dessous.` })} /> },
     ];
   }, [data, performance, scope, period, profile, tr, windowCode]);
 
@@ -139,6 +140,8 @@ function HomeContent({ profile }: { profile: Profile }) {
           <p className="dash-meta">
             {/* Capital is the first figure, currency/risk/data date sit in the header bar and the period in
                 the scope bar: only what appears nowhere else is repeated here. */}
+            <span>{tr({ en: 'Age', fr: 'Âge' })} <strong>{profile.age ?? '—'}</strong></span>
+            <span>{tr({ en: 'Risk tolerance', fr: 'Tolérance au risque' })} <strong>{labelOf(RISK_LEVEL, profile.riskLevel, lang)}</strong></span>
             <span>{tr({ en: 'Horizon', fr: 'Horizon' })} <strong>{horizonText(profile, tr)}</strong></span>
             <span>{tr({ en: 'Objective', fr: 'Objectif' })} <strong>{labelOf(OBJECTIVE, profile.objective, lang)}</strong></span>
           </p>
@@ -168,6 +171,7 @@ function HomeContent({ profile }: { profile: Profile }) {
         </div>
       </div>
 
+      {overview.error && <AnalystBrief profile={profile} scopeNote={tr({ en: `Brief requests use the full portfolio and the global ${labelOf(WINDOW, windowCode, 'en').toLowerCase()} risk window; dashboard filters and custom dates do not apply.`, fr: `Les demandes de note utilisent le portefeuille complet et la fenêtre de risque globale ${labelOf(WINDOW, windowCode, 'fr').toLowerCase()} ; les filtres et dates personnalisées du tableau ne s’y appliquent pas.` })} />}
       {overview.error && (
         <ErrorState error={overview.error} onRetry={overview.reload}
           title={tr({ en: 'The portfolio overview is unavailable for this scope. No summary figures are shown.', fr: 'L’aperçu du portefeuille est indisponible pour ce périmètre. Aucun chiffre de synthèse n’est affiché.' })} />
@@ -352,7 +356,7 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
   const busy = creating || (run !== null && !isTerminal(run.status));
 
   return (
-    <Card id="analyst-brief" title={tr({ en: 'Analyst brief', fr: 'Note d’analyse' })}
+    <Card id="analyst-brief" title={tr({ en: 'Your Portfolio Intelligence Brief', fr: 'Votre note stratégique de portefeuille' })}
       actions={(
         <button type="button" className="btn ghost btn-sm" onClick={() => void start(true)} disabled={busy}>
           {tr({ en: 'Refresh brief', fr: 'Actualiser la note' })}
@@ -380,7 +384,7 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
 }
 
 function BriefRun({ run }: { run: Run }) {
-  const { tr } = useApp();
+  const { tr, feature } = useApp();
   const scope = useMemo<FactScope>(() => ({ kind: 'run', runId: run.runId, facts: run.facts, evidence: run.evidence }), [run]);
   const result = run.result?.kind === 'portfolio_brief' ? run.result.portfolioBrief : null;
   if (run.status !== 'succeeded' || !result) {
@@ -400,17 +404,33 @@ function BriefRun({ run }: { run: Run }) {
   return (
     <FactScopeProvider scope={scope}>
       {run.flags.fixture && <p className="banner banner-fixture">{tr({ en: 'Development fixture — no agents executed.', fr: 'Jeu d’essai — aucun agent exécuté.' })}</p>}
+      {(() => {
+        const summary = portfolioSummary(result.brief);
+        return summary.length > 0 && <div className="brief-section"><h3 className="h4">{tr({ en: 'Executive summary', fr: 'Résumé exécutif' })}</h3>
+          {summary.map(s => <p key={s.id}><SentenceText sentence={s} /></p>)}
+        </div>;
+      })()}
       <div className="grid-3">
         {result.focusCards.map((card, i) => (
           <article key={i} className="scenario">
+            <p className="eyebrow">{tr({ en: `Focus ${i + 1}`, fr: `Priorité ${i + 1}` })}</p>
             <h3 className="h4">{tr(card.title)}</h3>
             {card.body.filter(s => s.audit.status !== 'struck').map(sentence => (
               <p key={sentence.id} className="small"><SentenceText sentence={sentence} /></p>
             ))}
+            <Link className="btn ghost btn-sm" href={card.body.some(s => s.segments.some(x => x.t === 'rule'))
+              ? `/evidence-audit/?runId=${encodeURIComponent(run.runId)}`
+              : card.factIds.some(id => run.facts[id]?.metric === 'weight.asset_group') ? '/sources/'
+              : card.factIds.some(id => run.facts[id]?.metric === 'drawdown.max') && feature('time_machine') ? '/time-machine/' : '/portfolio/'}>
+              {tr({ en: 'Open investigation', fr: 'Ouvrir la recherche' })}</Link>
           </article>
         ))}
       </div>
-      <BriefView brief={result.brief} />
+      <details><summary>{tr({ en: 'Methodology, assumptions and evidence gaps', fr: 'Méthode, hypothèses et preuves manquantes' })}</summary>
+        <BriefView brief={{ ...result.brief, sections: result.brief.sections.map(s => ({ ...s,
+          sentences: s.sentences.filter(sentence => !portfolioSummary(result.brief).some(x => x.id === sentence.id))
+        })).filter(s => s.sentences.length > 0) }} />
+      </details>
       <p className="row-actions small">
         <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'Inspect evidence and audit', fr: 'Examiner les preuves et l’audit' })}</Link>
       </p>

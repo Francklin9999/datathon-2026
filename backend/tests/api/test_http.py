@@ -267,3 +267,16 @@ def test_settings_validate_dates_snapshots_flags_and_cloud_requirements():
     )
     assert len(settings.allowed_origins) == 2
     assert not any(settings.features.values())
+
+
+def test_public_build_identity_is_validated_and_exposed_on_success_and_errors():
+    revision = "a" * 40
+    settings = Settings(data_version=SETTINGS.data_version, build_revision=revision)
+    client = TestClient(create_app(settings))
+    for route in ("/v1/health", "/v1/missing"):
+        response = client.get(route, headers={"Origin": "http://localhost:3000"})
+        assert response.headers["X-Aplomb-Build"] == revision
+        assert "X-Aplomb-Build" in response.headers["Access-Control-Expose-Headers"]
+    assert "X-Aplomb-Build" not in TestClient(create_app(SETTINGS)).get("/v1/health").headers
+    with pytest.raises(ValidationError):
+        Settings(build_revision="arbitrary-provider-text")
