@@ -248,17 +248,21 @@ function WorldContent({ profile }: { profile: Profile }) {
     ...(eventsOn ? pinSelection.pins.map(event => ({
       id: event.eventId, kind: 'event' as const, lat: event.location.lat, lng: event.location.lon, label: event.title,
       countryLevel: event.location.precision === 'country', weight: event.importance,
+      category: event.category, related: event.relatedCountries,
     })) : []),
     ...(facilitiesOn ? facilityPins.map(facility => ({
       id: `facility:${facility.facilityId}`, kind: 'facility' as const, lat: facility.lat, lng: facility.lon, label: facility.name, countryLevel: false, weight: 0.2,
     })) : []),
     ...(hazardsOn ? hazardPins.map(hazard => ({
       id: `hazard:${hazard.hazardId}`, kind: 'hazard' as const, lat: hazard.lat, lng: hazard.lon, label: hazard.title, countryLevel: false, weight: 0.2,
+      ...(typeof hazard.magnitude === 'number' ? { magnitude: hazard.magnitude } : {}),
     })) : []),
   ], [eventsOn, facilitiesOn, hazardsOn, pinSelection, facilityPins, hazardPins]);
 
-  const [showGlobe, setShowGlobe] = useState<boolean | null>(null);
-  useEffect(() => { setShowGlobe(window.matchMedia('(min-width: 1100px)').matches); }, []);
+  const selectedEvent = useMemo(() => (eventId ? loaded.find(event => event.eventId === eventId) ?? null : null), [eventId, loaded]);
+  const openDetails = useCallback(() => {
+    document.querySelector('.world-panels')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
   const [picked, setPicked] = useState<GlobePin | null>(null);
   const onPin = useCallback((pin: GlobePin) => {
     if (pin.kind === 'event') { setPicked(null); selectEvent(pin.id); } else setPicked(pin);
@@ -307,6 +311,11 @@ function WorldContent({ profile }: { profile: Profile }) {
       <PageHeader tour="world-header" title={tr({ en: `World events and ${profile.name}’s holdings`, fr: `Événements mondiaux et positions de ${profile.name}` })}>
         <p className="page-sub">{tr({ en: 'Sourced events linked to the holdings. A link is a documented match, not an impact estimate.', fr: 'Événements sourcés liés aux positions. Un lien est une correspondance documentée, pas une estimation d’impact.' })}</p>
       </PageHeader>
+
+      <WorldGlobe pins={pins} selectedId={eventId} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : null}
+        selectedEvent={selectedEvent} exposure={isOn('exposure') ? exposureByIso3 : null} exposureRows={exposure.data?.items ?? []}
+        counts={{ shown: visible.length, total: feed.total, linked: relevantCount }} showHazards={hazardsOn} hazardsLabel={hazardsTitle}
+        onPin={onPin} onCountry={selectCountry} onOpenDetails={openDetails} />
 
       <Card id="filters" section={tr({ en: 'Filters', fr: 'Filtres' })} tour="world-filters" title={tr({ en: 'Filters', fr: 'Filtres' })}>
         <div className="checks">
@@ -492,38 +501,12 @@ function WorldContent({ profile }: { profile: Profile }) {
         </Card>
 
         <div className="world-map">
-          <Card id="globe" section={tr({ en: 'Globe', fr: 'Globe' })} tour="world-globe" title={tr({ en: 'Globe', fr: 'Globe' })}
-            actions={(
-              <button type="button" className="btn ghost btn-sm" aria-expanded={showGlobe === true} aria-controls="globe-body" onClick={() => setShowGlobe(value => !value)}>
-                {showGlobe ? tr({ en: 'Hide the globe', fr: 'Masquer le globe' }) : tr({ en: 'Show the globe', fr: 'Afficher le globe' })}
-              </button>
-            )}>
-            <div id="globe-body">
-              {showGlobe && (
-                <>
-                  <WorldGlobe pins={pins} selectedId={eventId} exposure={isOn('exposure') ? exposureByIso3 : null}
-                    showFacilities={facilitiesOn} showHazards={hazardsOn} hazardsLabel={hazardsTitle} onPin={onPin} onCountry={selectCountry} />
-                  <p className="small" role="status">
-                    {eventsOn
-                      ? tr({
-                        en: `${pinSelection.pins.length} of ${pinSelection.eligible} events on the globe${pinSelection.thinned ? ', highest ranked first' : ''}.`,
-                        fr: `${pinSelection.pins.length} sur ${pinSelection.eligible} événements sur le globe${pinSelection.thinned ? ', les mieux classés d’abord' : ''}.`,
-                      })
-                      : tr({ en: 'The events layer is off: no event pin is drawn.', fr: 'La couche des événements est désactivée : aucune épingle d’événement n’est tracée.' })}
-                    {eventsOn && pinSelection.unlocated > 0 && <> {tr({ en: `${pinSelection.unlocated} event(s) have no usable location and appear in the feed only.`, fr: `${pinSelection.unlocated} événement(s) n’ont pas de localisation utilisable et n’apparaissent que dans le fil.` })}</>}
-                    {eventsOn && current && feed.nextCursor && <> {tr({ en: 'Pins cover the loaded pages only.', fr: 'Les épingles ne couvrent que les pages chargées.' })}</>}
-                  </p>
-                  {picked && (
-                    <p className="small" role="status">
-                      <strong>{picked.kind === 'facility' ? tr({ en: 'Facility', fr: 'Installation' }) : tr({ en: 'Hazard', fr: 'Aléa' })}:</strong> {picked.label}.{' '}
-                      {tr({ en: 'Its details are in the table below.', fr: 'Ses détails sont dans le tableau ci-dessous.' })}
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
-          </Card>
-
+          {picked && (
+            <p className="small" role="status">
+              <strong>{picked.kind === 'facility' ? tr({ en: 'Facility', fr: 'Installation' }) : tr({ en: 'Hazard', fr: 'Aléa' })}:</strong> {picked.label}.{' '}
+              {tr({ en: 'Its details are in the table below.', fr: 'Ses détails sont dans le tableau ci-dessous.' })}
+            </p>
+          )}
           <Card id="layers" title={tr({ en: 'Layers', fr: 'Couches' })}>
             {layers.loading && <Loading />}
             {layers.error && (

@@ -163,3 +163,56 @@ export function decodeCountries(topology: Topology, objectName = 'countries'): C
   }
   return features;
 }
+
+/**
+ * A representative point of a country for arcs and labels: the area-weighted centroid of its largest
+ * outer ring. Longitudes of a ring that crosses the antimeridian are unwrapped first (Fiji, Russia).
+ */
+export function countryCentroid(feature: Pick<CountryFeature, 'geometry'>): { lat: number; lng: number } | null {
+  const rings = feature.geometry.type === 'Polygon'
+    ? [feature.geometry.coordinates[0] ?? []]
+    : feature.geometry.coordinates.map(polygon => polygon[0] ?? []);
+  let best: { lat: number; lng: number; area: number } | null = null;
+  for (const ring of rings) {
+    if (ring.length < 3) continue;
+    const lons = ring.map(p => p[0] ?? 0);
+    const wraps = Math.max(...lons) - Math.min(...lons) > 180;
+    const pts = ring.map(p => [wraps && (p[0] ?? 0) < 0 ? (p[0] ?? 0) + 360 : (p[0] ?? 0), p[1] ?? 0] as const);
+    let area = 0; let cx = 0; let cy = 0;
+    for (let i = 0; i < pts.length; i++) {
+      const [x0, y0] = pts[i]!;
+      const [x1, y1] = pts[(i + 1) % pts.length]!;
+      const cross = x0 * y1 - x1 * y0;
+      area += cross; cx += (x0 + x1) * cross; cy += (y0 + y1) * cross;
+    }
+    if (Math.abs(area) < 1e-9) continue;
+    const lng = cx / (3 * area);
+    const point = { lat: cy / (3 * area), lng: lng > 180 ? lng - 360 : lng, area: Math.abs(area) / 2 };
+    if (!best || point.area > best.area) best = point;
+  }
+  return best ? { lat: best.lat, lng: best.lng } : null;
+}
+
+/**
+ * Outlines safe to cut into hexagons: polygons whose outer ring has no width or no height (a
+ * degenerate island in the 110 m atlas) make the hexagon library throw, so they are dropped.
+ */
+export function hexReadyCountries(countries: readonly CountryFeature[]): CountryFeature[] {
+  const usable = (polygon: Position[][]) => {
+    const ring = polygon[0] ?? [];
+    if (ring.length < 4) return false;
+    const lons = ring.map(p => p[0] ?? 0);
+    const lats = ring.map(p => p[1] ?? 0);
+    return Math.max(...lons) - Math.min(...lons) > 1e-6 && Math.max(...lats) - Math.min(...lats) > 1e-6;
+  };
+  const out: CountryFeature[] = [];
+  for (const feature of countries) {
+    if (feature.geometry.type === 'Polygon') {
+      if (usable(feature.geometry.coordinates)) out.push(feature);
+    } else {
+      const polygons = feature.geometry.coordinates.filter(usable);
+      if (polygons.length > 0) out.push({ ...feature, geometry: { type: 'MultiPolygon', coordinates: polygons } });
+    }
+  }
+  return out;
+}

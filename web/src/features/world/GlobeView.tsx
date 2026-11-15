@@ -1,32 +1,44 @@
 'use client';
 /**
  * WebGL globe (react-globe.gl, decision D-29). Imported ONLY through next/dynamic with `ssr: false`
- * from WorldGlobe.tsx: three.js needs `window`. It draws what it is given (country outlines, pins);
- * it fetches nothing. The ocean colour is a canvas-generated data URL, so no texture is downloaded.
- * Hover text is passed up and rendered by React as text, in the active language. globe.gl's own
- * tooltip (it writes HTML and defaults to a datum's `name`) is switched off for outlines and pins,
- * so no source title or outline name is ever injected as tooltip HTML.
+ * from WorldGlobe.tsx: three.js needs `window`. It draws what it is given; it fetches nothing.
+ *
+ * Land is hexagons (neutral, or cobalt by the portfolio's weight in the country); events are spikes
+ * whose height is their importance; arcs join an event to the exposed countries it names; the selected
+ * event pulses; earthquakes are dots sized by magnitude; exposed countries carry a label with their
+ * weight. Hover text is passed up and rendered by React as text: globe.gl's own HTML tooltips are off,
+ * so no source title is ever injected as HTML.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { Lang } from '../../contracts/types';
-import { outlineLabel, type CountryFeature } from '../../lib/geo';
-import { OCEAN_COLOR, PIN_COLORS, exposureColor, type GlobePin } from './globeStyle';
+import { countryCentroid, countryName, hexReadyCountries, outlineLabel, type CountryFeature } from '../../lib/geo';
+import {
+  ATMOSPHERE_COLOR, CATEGORY_COLORS, LAND_HOVER_COLOR, SPHERE_COLOR, exposureColor, pinColor, quakeRadius,
+  spikeAltitude, type GlobePin,
+} from './globeStyle';
 
 export interface GlobeViewProps {
   pins: readonly GlobePin[];
   selectedId: string | null;
+  selectedCountry: string | null;
   countries: readonly CountryFeature[];
   /** Portfolio weight (percent) by ISO3 for the exposure layer; null = layer off. */
   exposure: ReadonlyMap<string, number> | null;
   rotate: boolean;
   reducedMotion: boolean;
-  /** Language of the hover caption for country outlines. */
   lang: Lang;
+  height: number;
   onPin: (pin: GlobePin) => void;
   onCountry: (iso3: string) => void;
   onHover: (text: string | null) => void;
+  /** The person grabbed the globe: the stage stops the idle rotation. */
+  onInteract: () => void;
 }
+
+interface Arc { id: string; startLat: number; startLng: number; endLat: number; endLng: number; color: [string, string]; selected: boolean }
+interface Ring { lat: number; lng: number }
+interface CountryLabel { iso3: string; lat: number; lng: number; text: string }
 
 function solidTexture(color: string): string | null {
   try {
@@ -42,14 +54,18 @@ function solidTexture(color: string): string | null {
   }
 }
 
+const fmtPct = (value: number, lang: Lang) => `${new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', { maximumFractionDigits: 0 }).format(value)} %`;
+
 export default function GlobeView({
-  pins, selectedId, countries, exposure, rotate, reducedMotion, lang, onPin, onCountry, onHover,
+  pins, selectedId, selectedCountry, countries, exposure, rotate, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract,
 }: GlobeViewProps) {
   const globe = useRef<GlobeMethods | undefined>(undefined);
   const holder = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(0);
   const [ready, setReady] = useState(false);
-  const ocean = useMemo(() => solidTexture(OCEAN_COLOR), []);
+  const [hoverIso, setHoverIso] = useState<string | null>(null);
+  const sphere = useMemo(() => solidTexture(SPHERE_COLOR), []);
+  const land = useMemo(() => hexReadyCountries(countries), [countries]);
 
   useEffect(() => {
     const element = holder.current;
@@ -61,65 +77,170 @@ export default function GlobeView({
     return () => observer.disconnect();
   }, []);
 
-  // Auto-rotation only when asked for and never under prefers-reduced-motion.
+  const centroids = useMemo(() => {
+    const map = new Map<string, { lat: number; lng: number }>();
+    for (const feature of countries) {
+      if (!feature.iso3 || map.has(feature.iso3)) continue;
+      const point = countryCentroid(feature);
+      if (point) map.set(feature.iso3, point);
+    }
+    return map;
+  }, [countries]);
+
+  const events = useMemo(() => pins.filter(pin => pin.kind === 'event'), [pins]);
+
+  // Arcs: from an event to each country it names where the portfolio has weight (not to its own spot).
+  const arcs = useMemo<Arc[]>(() => {
+    if (!exposure) return [];
+    const out: Arc[] = [];
+    for (const pin of events) {
+      for (const iso3 of pin.related ?? []) {
+        const end = exposure.has(iso3) ? centroids.get(iso3) : undefined;
+        if (!end || (Math.abs(end.lat - pin.lat) < 2 && Math.abs(end.lng - pin.lng) < 2)) continue;
+        const color = CATEGORY_COLORS[pin.category ?? 'other'];
+        out.push({ id: `${pin.id}>${iso3}`, startLat: pin.lat, startLng: pin.lng, endLat: end.lat, endLng: end.lng, color: [color, '#8EA6FF'], selected: pin.id === selectedId });
+      }
+    }
+    return out;
+  }, [events, exposure, centroids, selectedId]);
+
+  const rings = useMemo<Ring[]>(() => {
+    const pin = pins.find(item => item.id === selectedId);
+    return pin ? [{ lat: pin.lat, lng: pin.lng }] : [];
+  }, [pins, selectedId]);
+
+  const labels = useMemo<CountryLabel[]>(() => {
+    if (!exposure) return [];
+    return [...exposure.entries()]
+      .filter(([, weight]) => weight >= 1)
+      .map(([iso3, weight]) => {
+        const point = centroids.get(iso3);
+        return point ? { iso3, ...point, text: `${countryName(iso3, lang) ?? iso3} ${fmtPct(weight, lang)}` } : null;
+      })
+      .filter((label): label is CountryLabel => label !== null);
+  }, [exposure, centroids, lang]);
+
+  // Idle rotation, slow, unless motion is reduced or the person took control.
   useEffect(() => {
     if (!ready || !globe.current) return;
     const controls = globe.current.controls();
     controls.autoRotate = rotate && !reducedMotion;
-    controls.autoRotateSpeed = 0.45;
+    controls.autoRotateSpeed = 0.35;
+    controls.enableDamping = true;
   }, [rotate, reducedMotion, ready]);
 
-  // Bring the selected pin into view (instant when motion is reduced).
+  // Stop rotating as soon as the globe is grabbed.
   useEffect(() => {
-    if (!ready || !globe.current || !selectedId) return;
-    const pin = pins.find(item => item.id === selectedId);
-    if (pin) globe.current.pointOfView({ lat: pin.lat, lng: pin.lng, altitude: 1.9 }, reducedMotion ? 0 : 700);
-    // Only a change of selection moves the camera, not every re-thinning of the pins.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, ready, reducedMotion]);
+    if (!ready || !globe.current) return undefined;
+    const controls = globe.current.controls();
+    const stop = () => onInteract();
+    controls.addEventListener('start', stop);
+    return () => controls.removeEventListener('start', stop);
+  }, [ready, onInteract]);
 
-  const height = Math.max(260, Math.min(520, Math.round(width * 0.82)));
-  const pinColor = (pin: GlobePin) => (pin.id === selectedId ? PIN_COLORS.selected
-    : pin.kind === 'facility' ? PIN_COLORS.facility
-      : pin.kind === 'hazard' ? PIN_COLORS.hazard
-        : pin.countryLevel ? PIN_COLORS.eventCountry : PIN_COLORS.event);
+  // Fly to the selected event or country.
+  useEffect(() => {
+    if (!ready || !globe.current) return;
+    const pin = pins.find(item => item.id === selectedId);
+    const target = pin ?? (selectedCountry ? centroids.get(selectedCountry) : undefined);
+    if (target) globe.current.pointOfView({ lat: target.lat, lng: target.lng, altitude: 1.7 }, reducedMotion ? 0 : 900);
+    // Only a change of selection moves the camera.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, selectedCountry, ready, reducedMotion]);
+
+  // First view: over the country holding the most of the portfolio.
+  const home = useMemo(() => {
+    const top = exposure ? [...exposure.entries()].sort((a, b) => b[1] - a[1])[0] : undefined;
+    return (top && centroids.get(top[0])) ?? { lat: 35, lng: -80 };
+  }, [exposure, centroids]);
 
   return (
-    <div ref={holder} className="globe-holder" style={{ height }}>
+    <div ref={holder} className="globe-canvas" style={{ height }}>
       {width > 0 && (
         <Globe
           ref={globe}
           width={width}
           height={height}
-          backgroundColor="#141415"
-          globeImageUrl={ocean}
+          backgroundColor="rgba(0,0,0,0)"
+          globeImageUrl={sphere}
           showAtmosphere
-          atmosphereColor="#A1A1A6"
-          atmosphereAltitude={0.12}
-          // Init-only prop: no spin-and-zoom intro under prefers-reduced-motion (resolved before this mounts).
+          atmosphereColor={ATMOSPHERE_COLOR}
+          atmosphereAltitude={0.2}
           animateIn={!reducedMotion}
-          onGlobeReady={() => { globe.current?.pointOfView({ lat: 35, lng: -75, altitude: 1.9 }, 0); setReady(true); }}
-          polygonsData={countries as unknown as object[]}
-          polygonCapColor={feature => exposureColor(exposure?.get((feature as CountryFeature).iso3 ?? '') ?? undefined)}
-          polygonSideColor={() => 'rgba(0,0,0,0)'}
-          polygonStrokeColor={() => '#141415'}
-          polygonAltitude={0.006}
-          polygonsTransitionDuration={0}
-          onPolygonClick={feature => { const iso3 = (feature as CountryFeature).iso3; if (iso3) onCountry(iso3); }}
-          polygonLabel={() => ''}
-          onPolygonHover={feature => onHover(feature ? outlineLabel(feature as CountryFeature, lang) : null)}
+          onGlobeReady={() => { globe.current?.pointOfView({ lat: home.lat, lng: home.lng - 25, altitude: 2.1 }, 0); setReady(true); }}
+          // Land as hexagons, coloured by exposure
+          hexPolygonsData={land as unknown as object[]}
+          hexPolygonResolution={3}
+          hexPolygonMargin={0.28}
+          hexPolygonUseDots={false}
+          hexPolygonAltitude={feature => ((feature as CountryFeature).iso3 === selectedCountry ? 0.018 : 0.006)}
+          hexPolygonColor={feature => {
+            const iso3 = (feature as CountryFeature).iso3 ?? '';
+            if (iso3 && (iso3 === hoverIso || iso3 === selectedCountry) && !exposure?.get(iso3)) return LAND_HOVER_COLOR;
+            return exposureColor(exposure?.get(iso3) ?? undefined);
+          }}
+          hexPolygonLabel={() => ''}
+          hexPolygonsTransitionDuration={reducedMotion ? 0 : 400}
+          onHexPolygonClick={feature => { const iso3 = (feature as CountryFeature).iso3; if (iso3) onCountry(iso3); }}
+          onHexPolygonHover={feature => {
+            const f = feature as CountryFeature | null;
+            setHoverIso(f?.iso3 ?? null);
+            if (!f) { onHover(null); return; }
+            const weight = f.iso3 ? exposure?.get(f.iso3) : undefined;
+            const name = outlineLabel(f, lang);
+            onHover(name ? (weight ? `${name}: ${fmtPct(weight, lang)}` : name) : null);
+          }}
+          // Events as spikes (height = importance); facilities and earthquakes as low dots
           pointsData={pins as unknown as object[]}
           pointLat="lat"
           pointLng="lng"
-          pointColor={pin => pinColor(pin as GlobePin)}
-          pointAltitude={0.014}
-          pointRadius={pin => ((pin as GlobePin).id === selectedId ? 0.7 : 0.28 + 0.34 * Math.max(0, Math.min(1, (pin as GlobePin).weight)))}
-          pointResolution={8}
+          pointColor={pin => pinColor(pin as GlobePin, selectedId)}
+          pointAltitude={pin => {
+            const p = pin as GlobePin;
+            return p.kind === 'event' ? spikeAltitude(p.weight) : p.kind === 'hazard' ? 0.008 : 0.02;
+          }}
+          pointRadius={pin => {
+            const p = pin as GlobePin;
+            if (p.id === selectedId) return 0.55;
+            return p.kind === 'event' ? 0.36 : p.kind === 'hazard' ? quakeRadius(p.magnitude) : 0.22;
+          }}
+          pointResolution={12}
           pointsMerge={false}
-          pointsTransitionDuration={0}
+          pointsTransitionDuration={reducedMotion ? 0 : 700}
           pointLabel={() => ''}
           onPointClick={pin => onPin(pin as GlobePin)}
           onPointHover={pin => onHover(pin ? (pin as GlobePin).label : null)}
+          // Links from events to exposed countries
+          arcsData={arcs}
+          arcStartLat="startLat"
+          arcStartLng="startLng"
+          arcEndLat="endLat"
+          arcEndLng="endLng"
+          arcColor={(arc: object) => (arc as Arc).color}
+          arcStroke={arc => ((arc as Arc).selected ? 0.9 : 0.35)}
+          arcAltitudeAutoScale={0.45}
+          arcDashLength={arc => ((arc as Arc).selected ? 0.35 : 1)}
+          arcDashGap={arc => ((arc as Arc).selected ? 0.18 : 0)}
+          arcDashAnimateTime={arc => ((arc as Arc).selected && !reducedMotion ? 1800 : 0)}
+          arcsTransitionDuration={reducedMotion ? 0 : 900}
+          arcLabel={() => ''}
+          // The selected event pulses
+          ringsData={rings}
+          ringColor={() => (t: number) => `rgba(255,255,255,${Math.max(0, 1 - t)})`}
+          ringMaxRadius={4.5}
+          ringPropagationSpeed={reducedMotion ? 0 : 2.4}
+          ringRepeatPeriod={reducedMotion ? 0 : 1100}
+          // Exposed countries carry their weight
+          labelsData={labels}
+          labelLat="lat"
+          labelLng="lng"
+          labelText="text"
+          labelSize={0.85}
+          labelDotRadius={0.35}
+          labelColor={() => 'rgba(234, 239, 255, 0.95)'}
+          labelResolution={2}
+          labelAltitude={0.02}
+          labelLabel={() => ''}
         />
       )}
     </div>

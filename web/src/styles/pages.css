@@ -71,7 +71,7 @@ pre.args { margin: 6px 0; padding: 10px 12px; border-radius: 10px; background: v
 .filters-fold > summary { min-height: 40px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; cursor: pointer; font-weight: 600; }
 .filters-fold[open] > summary { margin-bottom: 8px; }
 .filter-sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
-.world-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); grid-template-areas: 'map feed'; gap: 18px; align-items: start; }
+.world-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); grid-template-areas: 'feed map'; gap: 18px; align-items: start; }
 .world-feed { grid-area: feed; }
 .world-map { grid-area: map; min-width: 0; }
 .world-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px; align-items: start; }
@@ -107,3 +107,65 @@ pre.args { margin: 6px 0; padding: 10px 12px; border-radius: 10px; background: v
 
 .row-residual th, .row-residual td { border-top: 2px solid var(--line-strong); background: var(--glass-inset); }
 .sent .txt { overflow-wrap: anywhere; }
+
+/* World stage: the globe on a dark "space" panel (both themes), with a side column. */
+.world-stage { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 0; margin-bottom: 18px; border-radius: 26px; overflow: hidden;
+  color: #E9EEFF; isolation: isolate;
+  background:
+    radial-gradient(ellipse 60% 70% at 38% 50%, rgba(76, 110, 245, .28), transparent 65%),
+    radial-gradient(ellipse 40% 50% at 85% 10%, rgba(46, 196, 182, .12), transparent 70%),
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, .55), transparent 100%),
+    radial-gradient(1px 1px at 72% 82%, rgba(255, 255, 255, .45), transparent 100%),
+    radial-gradient(1px 1px at 46% 8%, rgba(255, 255, 255, .4), transparent 100%),
+    radial-gradient(1px 1px at 88% 44%, rgba(255, 255, 255, .35), transparent 100%),
+    radial-gradient(1px 1px at 24% 76%, rgba(255, 255, 255, .35), transparent 100%),
+    #070A12;
+  box-shadow: 0 30px 60px -30px rgba(7, 10, 18, .7), inset 0 1px 0 rgba(255, 255, 255, .08); }
+.stage-globe { position: relative; min-width: 0; }
+.globe-canvas { width: 100%; cursor: grab; }
+.globe-canvas:active { cursor: grabbing; }
+.globe-loading, .globe-fallback { display: grid; place-items: center; min-height: 340px; padding: 24px; color: rgba(233, 238, 255, .7); text-align: center; }
+.stage-overlay { position: absolute; left: 18px; right: 18px; pointer-events: none; }
+.stage-top { top: 16px; display: flex; gap: 8px; }
+.stage-chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border-radius: var(--r-pill); font-size: 12px; font-weight: 500;
+  background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.stage-hover { bottom: 14px; margin: 0; font-size: 13px; color: rgba(233, 238, 255, .82); text-shadow: 0 1px 8px rgba(0, 0, 0, .6); }
+.stage-rotate { position: absolute; top: 14px; right: 334px; z-index: 2; width: 36px; height: 36px; border: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .1); color: #E9EEFF; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .15); }
+.stage-rotate:hover { background: rgba(255, 255, 255, .18); }
+.stage-rotate:focus-visible { outline: 2px solid #9DB2FF; outline-offset: 2px; }
+
+.stage-side { display: flex; flex-direction: column; gap: 14px; padding: 18px; max-height: 540px; overflow-y: auto;
+  background: rgba(255, 255, 255, .04); border-left: 1px solid rgba(255, 255, 255, .07); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.stage-card { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px; border-radius: 16px;
+  background: rgba(255, 255, 255, .08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 0 0 1px rgba(255, 255, 255, .08); }
+.stage-kicker { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(233, 238, 255, .7); }
+.stage-title { font-size: 16px; font-weight: 650; line-height: 1.3; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.stage-text { font-size: 13px; line-height: 1.45; color: rgba(233, 238, 255, .78); }
+.stage-heading { font-size: 13px; font-weight: 600; color: #FFFFFF; margin-bottom: 8px; }
+.stage-note { margin-top: 8px; font-size: 11px; color: rgba(233, 238, 255, .55); }
+.stage-exposure { display: flex; flex-direction: column; gap: 2px; }
+.stage-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(40px, 1fr) auto; align-items: center; gap: 10px; width: 100%; min-height: 36px; padding: 0 8px;
+  border: 0; border-radius: 10px; background: transparent; color: inherit; font-size: 13px; text-align: left; }
+.stage-row:hover, .stage-row[aria-pressed='true'] { background: rgba(255, 255, 255, .08); }
+.stage-row:focus-visible { outline: 2px solid #9DB2FF; outline-offset: 0; }
+.stage-row-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stage-row-value { font-weight: 650; font-variant-numeric: tabular-nums; }
+.stage-bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.stage-bar > span { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #3D5AFE, #8EA6FF); transform-origin: left center; animation: grow-x 1s var(--ease) .2s backwards; }
+.stage-legend { display: flex; flex-direction: column; gap: 7px; font-size: 12px; color: rgba(233, 238, 255, .8); }
+.stage-legend li { display: flex; align-items: center; gap: 8px; }
+.stage-dot { width: 9px; height: 9px; flex: none; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+.stage-ramp { display: inline-flex; flex: none; border-radius: 3px; overflow: hidden; }
+.stage-ramp > span { width: 9px; height: 9px; }
+.stage-spike { width: 3px; height: 14px; flex: none; margin: 0 3px; border-radius: 2px; background: linear-gradient(#FFFFFF, #5B8CFF); }
+.stage-arc { width: 18px; height: 9px; flex: none; border: 1.5px solid #8EA6FF; border-bottom: 0; border-radius: 12px 12px 0 0; }
+
+@media (max-width: 1100px) {
+  .world-stage { grid-template-columns: minmax(0, 1fr); }
+  .stage-rotate { right: 14px; }
+  .stage-side { max-height: none; border-left: 0; border-top: 1px solid rgba(255, 255, 255, .07); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-anim='on']) .stage-bar > span { animation: none; }
+}

@@ -1,33 +1,84 @@
 /**
- * Colours and pin shape shared by the globe and its text legend. Kept apart from GlobeView.tsx so the
- * legend can be rendered without loading three.js (GlobeView is only ever imported dynamically).
+ * Colours and pin shape shared by the globe and its legend. Kept apart from GlobeView.tsx so the legend
+ * can be rendered without loading three.js (GlobeView is only ever imported dynamically).
+ *
+ * The globe sits in a dark "space" stage in both themes. Land is drawn as hexagons: neutral slate, or a
+ * cobalt ramp by the portfolio's weight in that country (where the money is). Events stand up from the
+ * ground as spikes whose height is their importance, in a colour per category; arcs run from an event
+ * to the exposed countries it names; earthquakes are small dots sized by magnitude.
  */
+import type { EventCategory } from '../../contracts/types';
+
 export interface GlobePin {
   id: string;
-  kind: 'event' | 'facility' | 'hazard';
+  kind: 'event' | 'facility' | 'hazard' | 'airport';
   lat: number;
   lng: number;
-  /** Plain text shown under the globe on hover. */
+  /** Plain text shown in the caption on hover. */
   label: string;
-  /** Event located only at country level: drawn at the returned centroid, in its own colour. */
+  /** Event located only at country level: drawn at the returned centroid. */
   countryLevel: boolean;
-  /** 0–1, used for the pin radius only. */
+  /** 0–1: spike height of an event. */
   weight: number;
+  category?: EventCategory;
+  /** ISO3 codes the event names; arcs go to the ones where the portfolio has weight. */
+  related?: readonly string[];
+  /** Earthquake magnitude, for the dot size. */
+  magnitude?: number;
 }
 
+/** Category colours: the categorical palette of the app, in a fixed order (colour follows the category). */
+export const CATEGORY_COLORS: Record<EventCategory, string> = {
+  monetary_policy: '#5B8CFF',
+  macro_release: '#2EC4B6',
+  geopolitical: '#F2667A',
+  trade_regulation: '#B28CFF',
+  corporate: '#FFB347',
+  energy_commodities: '#F28C38',
+  markets: '#7FD1FF',
+  natural_disaster: '#FF7A59',
+  other: '#C5CAD6',
+};
+
 export const PIN_COLORS = {
-  event: '#E3A53B', eventCountry: '#F6E3B4', facility: '#6FD0C5', hazard: '#F2907F', selected: '#FFFFFF',
+  selected: '#FFFFFF', facility: '#6FD0C5', hazard: '#FFC27A', airport: '#BCA9F5',
 } as const;
-// Graphite globe with one sequential cobalt ramp for exposure (app accent); events keep a warm hue of their own.
-export const LAND_COLOR = '#333338';
-export const OCEAN_COLOR = '#1C1C1F';
-export const EXPOSURE_COLORS = ['#4C6EF5', '#7F9CFF', '#B9C8FF'] as const;
-/** Upper bounds (percent of the portfolio) of the first two exposure shades. */
-export const EXPOSURE_BREAKS = [5, 20] as const;
+
+export function pinColor(pin: GlobePin, selectedId: string | null): string {
+  if (pin.id === selectedId) return PIN_COLORS.selected;
+  if (pin.kind === 'facility') return PIN_COLORS.facility;
+  if (pin.kind === 'hazard') return PIN_COLORS.hazard;
+  if (pin.kind === 'airport') return PIN_COLORS.airport;
+  return CATEGORY_COLORS[pin.category ?? 'other'] ?? CATEGORY_COLORS.other;
+}
+
+/** Stage and sphere */
+export const STAGE_BACKGROUND = '#070A12';
+export const SPHERE_COLOR = '#0B1222';
+export const ATMOSPHERE_COLOR = '#4C6EF5';
+export const LAND_COLOR = 'rgba(148, 163, 196, 0.42)';
+export const LAND_HOVER_COLOR = 'rgba(214, 222, 240, 0.75)';
+
+/** Cobalt ramp for exposure, light to strong, by the share of the portfolio in a country. */
+export const EXPOSURE_COLORS = ['#3D5AFE', '#5B7CFF', '#8EA6FF', '#C3D0FF'] as const;
+/** Upper bounds (percent) of the first three exposure shades. */
+export const EXPOSURE_BREAKS = [5, 15, 40] as const;
 
 export function exposureColor(weightPct: number | undefined): string {
   if (weightPct === undefined || !(weightPct > 0)) return LAND_COLOR;
   if (weightPct < EXPOSURE_BREAKS[0]) return EXPOSURE_COLORS[0];
   if (weightPct < EXPOSURE_BREAKS[1]) return EXPOSURE_COLORS[1];
-  return EXPOSURE_COLORS[2];
+  if (weightPct < EXPOSURE_BREAKS[2]) return EXPOSURE_COLORS[2];
+  return EXPOSURE_COLORS[3];
+}
+
+/** Spike height (globe radii) of an event from its 0–1 importance. */
+export function spikeAltitude(weight: number): number {
+  return 0.04 + 0.32 * Math.max(0, Math.min(1, weight));
+}
+
+/** Dot radius (degrees) of an earthquake from its magnitude. */
+export function quakeRadius(magnitude: number | undefined): number {
+  const m = magnitude ?? 4;
+  return Math.max(0.12, Math.min(0.9, (m - 3.5) * 0.22));
 }

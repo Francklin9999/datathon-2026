@@ -1,21 +1,25 @@
 'use client';
 /**
- * Globe container (T15). The globe is an alternate view of the feed, never the only way to select an
- * event: when WebGL is missing or the globe chunk fails to load, a text notice points to the feed and
- * tables, which stay complete. The WebGL component is loaded lazily with `ssr: false` (web/SPEC.md §4).
+ * World stage (T15): the globe, large, on a dark "space" panel, with a side column that says where the
+ * portfolio's money is, what is selected and how to read the globe. The globe is an alternate view of
+ * the feed, never the only way to select an event: the side list and the feed below are the keyboard
+ * and screen-reader path. Without WebGL, or if the globe chunk fails, the side column still works.
  * Country outlines come from the site's own origin (public/geo, Natural Earth, public domain).
  */
 import dynamic from 'next/dynamic';
-import { Component, useEffect, useState, type ReactNode } from 'react';
+import { Pause, Play } from 'lucide-react';
+import { Component, useCallback, useEffect, useState, type ReactNode } from 'react';
+import type { EventCategory, WorldEvent, WorldExposureResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
-import { Loading, Unavailable } from '../../components/common/States';
-import { decodeCountries, type CountryFeature, type Topology } from '../../lib/geo';
-import { EXPOSURE_BREAKS, EXPOSURE_COLORS, PIN_COLORS, type GlobePin } from './globeStyle';
+import { EVENT_CATEGORY, labelOf } from '../../lib/labels';
+import { fmtDate, fmtPct } from '../../lib/format';
+import { countryLabel, decodeCountries, isKnownIso3, type CountryFeature, type Topology } from '../../lib/geo';
+import { CATEGORY_COLORS, EXPOSURE_BREAKS, EXPOSURE_COLORS, PIN_COLORS, type GlobePin } from './globeStyle';
 import type { GlobeViewProps } from './GlobeView';
 
 function GlobeLoading() {
   const { tr } = useApp();
-  return <Loading label={tr({ en: 'Loading the globe…', fr: 'Chargement du globe…' })} />;
+  return <div className="globe-loading" role="status">{tr({ en: 'Loading the globe…', fr: 'Chargement du globe…' })}</div>;
 }
 
 const GlobeView = dynamic<GlobeViewProps>(() => import('./GlobeView'), { ssr: false, loading: () => <GlobeLoading /> });
@@ -32,15 +36,20 @@ export function webglAvailable(): boolean {
   }
 }
 
-/** Follows `prefers-reduced-motion`, including changes while the page is open. */
+/** Follows the animation setting first, then `prefers-reduced-motion`, including changes while open. */
 export function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(true);
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setReduced(query.matches);
+    const update = () => {
+      const anim = document.documentElement.dataset.anim;
+      setReduced(anim === 'off' || (anim !== 'on' && query.matches));
+    };
     update();
     query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
+    const observer = new MutationObserver(update);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-anim'] });
+    return () => { query.removeEventListener('change', update); observer.disconnect(); };
   }, []);
   return reduced;
 }
@@ -56,26 +65,39 @@ type Geography = { status: 'loading' } | { status: 'ready'; countries: CountryFe
 export interface WorldGlobeProps {
   pins: readonly GlobePin[];
   selectedId: string | null;
+  selectedCountry: string | null;
+  selectedEvent: WorldEvent | null;
   exposure: ReadonlyMap<string, number> | null;
-  showFacilities: boolean;
+  exposureRows: WorldExposureResponse['items'];
+  counts: { shown: number; total: number | null; linked: number };
   showHazards: boolean;
-  /** Legend text of the hazard pins: what the loaded hazards layer contains (its API title). */
+  /** What the loaded hazards layer contains (its API title). */
   hazardsLabel: string;
   onPin: (pin: GlobePin) => void;
   onCountry: (iso3: string) => void;
+  onOpenDetails: () => void;
 }
 
-export function WorldGlobe({ pins, selectedId, exposure, showFacilities, showHazards, hazardsLabel, onPin, onCountry }: WorldGlobeProps) {
+export function WorldGlobe({
+  pins, selectedId, selectedCountry, selectedEvent, exposure, exposureRows, counts, showHazards, hazardsLabel, onPin, onCountry, onOpenDetails,
+}: WorldGlobeProps) {
   const { tr, lang } = useApp();
   const [webgl, setWebgl] = useState<boolean | null>(null);
   const [geography, setGeography] = useState<Geography>({ status: 'loading' });
   const [rotate, setRotate] = useState(true);
   const [hover, setHover] = useState<string | null>(null);
+  const [height, setHeight] = useState(520);
   const reducedMotion = useReducedMotion();
+  const stopRotation = useCallback(() => setRotate(false), []);
 
   useEffect(() => { setWebgl(webglAvailable()); }, []);
-  // A caption written in the previous language is dropped when the language changes.
   useEffect(() => { setHover(null); }, [lang]);
+  useEffect(() => {
+    const update = () => setHeight(window.innerWidth < 768 ? 340 : window.innerWidth < 1100 ? 440 : 540);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   useEffect(() => {
     if (!webgl) return undefined;
@@ -90,61 +112,101 @@ export function WorldGlobe({ pins, selectedId, exposure, showFacilities, showHaz
     return () => controller.abort();
   }, [webgl]);
 
-  const fallbackText = tr({
-    en: 'Use the event feed, the country list and the tables on this page: they contain everything the globe would show.',
-    fr: 'Utilisez le fil d’événements, la liste des pays et les tableaux de cette page : ils contiennent tout ce que le globe afficherait.',
-  });
-
-  if (webgl === null) return <GlobeLoading />;
-  if (!webgl) {
-    return (
-      <Unavailable title={tr({ en: 'The globe is not available: this browser has no WebGL.', fr: 'Le globe n’est pas disponible : ce navigateur n’a pas WebGL.' })}>
-        {fallbackText}
-      </Unavailable>
-    );
-  }
-
   const countries = geography.status === 'ready' ? geography.countries : [];
-  const swatch = (color: string) => <span className="swatch swatch-dot" style={{ background: color }} aria-hidden="true" />;
+  const rows = [...exposureRows].filter(row => isKnownIso3(row.countryIso3)).sort((a, b) => b.weightPct - a.weightPct);
+  const maxWeight = Math.max(1, ...rows.map(row => row.weightPct));
+  const categories = [...new Set(pins.filter(p => p.kind === 'event' && p.category).map(p => p.category as EventCategory))];
+  const selectedRow = selectedCountry ? rows.find(row => row.countryIso3 === selectedCountry) : undefined;
+
+  const globe = webgl === null ? <GlobeLoading /> : !webgl ? (
+    <p className="globe-fallback">{tr({ en: 'This browser has no WebGL, so the globe is off. The list beside it and the feed below show the same events and countries.', fr: 'Ce navigateur n’a pas WebGL : le globe est désactivé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>
+  ) : (
+    <GlobeBoundary fallback={<p className="globe-fallback">{tr({ en: 'The globe could not be loaded. The list beside it and the feed below show the same events and countries.', fr: 'Le globe n’a pas pu être chargé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>}>
+      <GlobeView pins={pins} selectedId={selectedId} selectedCountry={selectedCountry} countries={countries} exposure={exposure}
+        rotate={rotate} reducedMotion={reducedMotion} lang={lang} height={height}
+        onPin={onPin} onCountry={onCountry} onHover={setHover} onInteract={stopRotation} />
+    </GlobeBoundary>
+  );
 
   return (
-    <div className="globe-wrap">
-      <GlobeBoundary fallback={(
-        <Unavailable title={tr({ en: 'The globe could not be loaded.', fr: 'Le globe n’a pas pu être chargé.' })}>{fallbackText}</Unavailable>
-      )}>
-        <div role="group" aria-label={tr({ en: 'Globe view of the events in the feed. The feed below it is the keyboard and screen-reader path to the same events.', fr: 'Vue en globe des événements du fil. Le fil est le chemin au clavier et au lecteur d’écran vers les mêmes événements.' })}>
-          <GlobeView pins={pins} selectedId={selectedId} countries={countries} exposure={exposure} rotate={rotate}
-            reducedMotion={reducedMotion} lang={lang} onPin={onPin} onCountry={onCountry} onHover={setHover} />
+    <section className="world-stage" aria-label={tr({ en: 'World map of the events and of the portfolio’s countries', fr: 'Carte du monde des événements et des pays du portefeuille' })}>
+      <div className="stage-globe" aria-hidden="true">
+        {globe}
+        <div className="stage-overlay stage-top">
+          <span className="stage-chip">
+            {counts.total !== null
+              ? tr({ en: `${counts.shown} events, ${counts.linked} linked to the portfolio`, fr: `${counts.shown} événements, ${counts.linked} liés au portefeuille` })
+              : tr({ en: 'Loading events…', fr: 'Chargement des événements…' })}
+          </span>
         </div>
-      </GlobeBoundary>
-      <p className="small globe-caption" aria-hidden="true">{hover ?? tr({ en: 'Point at a pin or a country to see its name; click to open it.', fr: 'Pointez une épingle ou un pays pour voir son nom ; cliquez pour l’ouvrir.' })}</p>
-      <div className="row-actions">
-        <button type="button" className="btn ghost btn-sm" aria-pressed={rotate && !reducedMotion} disabled={reducedMotion}
-          onClick={() => setRotate(value => !value)}>
-          {rotate && !reducedMotion ? tr({ en: 'Pause rotation', fr: 'Arrêter la rotation' }) : tr({ en: 'Rotate the globe', fr: 'Faire tourner le globe' })}
-        </button>
-        {reducedMotion && <span className="small muted">{tr({ en: 'Rotation is off: your system asks for reduced motion.', fr: 'Rotation désactivée : votre système demande de réduire les animations.' })}</span>}
+        <p className="stage-overlay stage-hover">{hover ?? tr({ en: 'Drag to turn, scroll to zoom, click a country or a spike', fr: 'Glissez pour tourner, molette pour zoomer, cliquez un pays ou un pic' })}</p>
       </div>
-      {geography.status === 'failed' && (
-        <p className="small muted" role="status">{tr({ en: 'Country outlines could not be loaded; pins are shown on a plain sphere.', fr: 'Les contours des pays n’ont pas pu être chargés ; les épingles sont affichées sur une sphère unie.' })}</p>
+      {webgl && !reducedMotion && (
+        <button type="button" className="stage-rotate" onClick={() => setRotate(v => !v)} aria-pressed={rotate}
+          aria-label={rotate ? tr({ en: 'Pause rotation', fr: 'Arrêter la rotation' }) : tr({ en: 'Rotate the globe', fr: 'Faire tourner le globe' })}>
+          {rotate ? <Pause aria-hidden="true" size={16} strokeWidth={2} /> : <Play aria-hidden="true" size={16} strokeWidth={2} />}
+        </button>
       )}
-      <ul className="legend globe-legend" aria-label={tr({ en: 'Globe legend', fr: 'Légende du globe' })}>
-        <li>{swatch(PIN_COLORS.event)}{tr({ en: 'Event at a point or city', fr: 'Événement localisé à un point ou une ville' })}</li>
-        <li>{swatch(PIN_COLORS.eventCountry)}{tr({ en: 'Event located only at country level (country centroid, not an exact place)', fr: 'Événement localisé seulement à l’échelle du pays (centroïde, pas un lieu exact)' })}</li>
-        <li>{swatch(PIN_COLORS.selected)}{tr({ en: 'Selected event', fr: 'Événement sélectionné' })}</li>
-        {showFacilities && <li>{swatch(PIN_COLORS.facility)}{tr({ en: 'Emissions facility (registry location)', fr: 'Installation émettrice (emplacement du registre)' })}</li>}
-        {showHazards && <li>{swatch(PIN_COLORS.hazard)}{hazardsLabel}</li>}
-        {exposure && (
-          <li>
-            {EXPOSURE_COLORS.map(color => <span key={color} className="swatch swatch-dot" style={{ background: color }} aria-hidden="true" />)}
-            {tr({
-              en: `Country shading: portfolio weight returned for that country (under ${EXPOSURE_BREAKS[0]} %, ${EXPOSURE_BREAKS[0]}–${EXPOSURE_BREAKS[1]} %, ${EXPOSURE_BREAKS[1]} % or more). Figures are in the exposure table.`,
-              fr: `Teinte des pays : poids du portefeuille renvoyé pour ce pays (moins de ${EXPOSURE_BREAKS[0]} %, ${EXPOSURE_BREAKS[0]}–${EXPOSURE_BREAKS[1]} %, ${EXPOSURE_BREAKS[1]} % ou plus). Les chiffres sont dans le tableau d’exposition.`,
-            })}
-          </li>
-        )}
-      </ul>
-      <p className="small muted">{tr({ en: 'A pin marks where a source places an event. Proximity to a holding or a facility is not proof of any impact on the portfolio.', fr: 'Une épingle indique où une source situe un événement. La proximité d’une position ou d’une installation ne prouve aucun impact sur le portefeuille.' })}</p>
-    </div>
+
+      <div className="stage-side">
+        {selectedEvent ? (
+          <div className="stage-card" aria-live="polite">
+            <p className="stage-kicker">
+              <span className="stage-dot" style={{ background: CATEGORY_COLORS[selectedEvent.category] }} aria-hidden="true" />
+              {labelOf(EVENT_CATEGORY, selectedEvent.category, lang)}, {fmtDate(selectedEvent.occurredAt.slice(0, 10), lang)}
+            </p>
+            <h2 className="stage-title">{selectedEvent.title}</h2>
+            {selectedEvent.relatedCountries.length > 0 && (
+              <p className="stage-text">{tr({ en: 'Names', fr: 'Concerne' })} {selectedEvent.relatedCountries.map(c => countryLabel(c, lang)).join(', ')}</p>
+            )}
+            <button type="button" className="btn btn-sm" onClick={onOpenDetails}>{tr({ en: 'Sources and linked holdings', fr: 'Sources et positions liées' })}</button>
+          </div>
+        ) : selectedCountry ? (
+          <div className="stage-card" aria-live="polite">
+            <p className="stage-kicker">{tr({ en: 'Country', fr: 'Pays' })}</p>
+            <h2 className="stage-title">{countryLabel(selectedCountry, lang)}</h2>
+            <p className="stage-text">
+              {selectedRow
+                ? tr({ en: `${fmtPct(selectedRow.weightPct, lang)} of the portfolio, through ${selectedRow.holdings.map(h => h.ticker).join(', ')}.`, fr: `${fmtPct(selectedRow.weightPct, lang)} du portefeuille, via ${selectedRow.holdings.map(h => h.ticker).join(', ')}.` })
+                : tr({ en: 'No holding is listed in this country.', fr: 'Aucune position n’est cotée dans ce pays.' })}
+            </p>
+            <button type="button" className="btn btn-sm" onClick={onOpenDetails}>{tr({ en: 'Country details', fr: 'Détails du pays' })}</button>
+          </div>
+        ) : null}
+
+        <div className="stage-block">
+          <h2 className="stage-heading">{tr({ en: 'Where the money is', fr: 'Où est l’argent' })}</h2>
+          {rows.length === 0 ? <p className="stage-text">{tr({ en: 'No country exposure returned.', fr: 'Aucune exposition par pays renvoyée.' })}</p> : (
+            <ul className="stage-exposure">
+              {rows.slice(0, 6).map(row => (
+                <li key={row.countryIso3}>
+                  <button type="button" className="stage-row" aria-pressed={row.countryIso3 === selectedCountry} onClick={() => onCountry(row.countryIso3)}>
+                    <span className="stage-row-name">{countryLabel(row.countryIso3, lang)}</span>
+                    <span className="stage-bar" aria-hidden="true"><span style={{ width: `${(row.weightPct / maxWeight) * 100}%` }} /></span>
+                    <span className="stage-row-value">{fmtPct(row.weightPct, lang)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="stage-note">{tr({ en: 'By listing country, not economic exposure.', fr: 'Par pays de cotation, pas l’exposition économique.' })}</p>
+        </div>
+
+        <div className="stage-block">
+          <h2 className="stage-heading">{tr({ en: 'Reading the globe', fr: 'Lire le globe' })}</h2>
+          <ul className="stage-legend">
+            <li><span className="stage-ramp" aria-hidden="true">{EXPOSURE_COLORS.map(c => <span key={c} style={{ background: c }} />)}</span>
+              {tr({ en: `Share of the portfolio (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)`, fr: `Part du portefeuille (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)` })}</li>
+            <li><span className="stage-spike" aria-hidden="true" />{tr({ en: 'Event: the taller, the more important', fr: 'Événement : plus il est haut, plus il est important' })}</li>
+            <li><span className="stage-arc" aria-hidden="true" />{tr({ en: 'Link to a country where you hold assets', fr: 'Lien vers un pays où vous détenez des actifs' })}</li>
+            {categories.map(category => (
+              <li key={category}><span className="stage-dot" style={{ background: CATEGORY_COLORS[category] }} aria-hidden="true" />{labelOf(EVENT_CATEGORY, category, lang)}</li>
+            ))}
+            {showHazards && <li><span className="stage-dot" style={{ background: PIN_COLORS.hazard }} aria-hidden="true" />{hazardsLabel}</li>}
+          </ul>
+          <p className="stage-note">{tr({ en: 'A link is a documented match, not proof of impact.', fr: 'Un lien est une correspondance documentée, pas une preuve d’impact.' })}</p>
+        </div>
+      </div>
+    </section>
   );
 }

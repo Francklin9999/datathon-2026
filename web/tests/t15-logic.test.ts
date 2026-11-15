@@ -435,3 +435,22 @@ test('site manifest identity rejects invalid or absent release information', asy
   assert.equal(siteBuildIdentity({ revision: 'dev', built_at: '2026-11-15' }), null);
   assert.equal(siteBuildIdentity(null), null);
 });
+
+test('globe: degenerate outlines are dropped before hexagons, centroids land inside the country', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { decodeCountries, hexReadyCountries, countryCentroid } = await import('../src/lib/geo');
+  const countries = decodeCountries(JSON.parse(readFileSync('public/geo/countries-110m.json', 'utf8')));
+  const ready = hexReadyCountries(countries);
+  assert.ok(ready.length >= countries.length - 2, 'only degenerate outlines go');
+  for (const feature of ready) {
+    const polygons = feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+    for (const polygon of polygons) {
+      const lons = (polygon[0] ?? []).map(p => p[0] ?? 0);
+      assert.ok(Math.max(...lons) - Math.min(...lons) > 0, `${feature.iso3 ?? feature.name} has a zero-width ring`);
+    }
+  }
+  const at = (iso3: string) => countryCentroid(countries.find(c => c.iso3 === iso3)!)!;
+  const can = at('CAN'); assert.ok(can.lat > 45 && can.lat < 70 && can.lng > -120 && can.lng < -80, JSON.stringify(can));
+  const usa = at('USA'); assert.ok(usa.lat > 30 && usa.lat < 45 && usa.lng > -110 && usa.lng < -85, JSON.stringify(usa));
+  const fji = at('FJI'); assert.ok(Math.abs(fji.lat + 17.5) < 3 && Math.abs(Math.abs(fji.lng) - 179) < 3, JSON.stringify(fji));
+});
