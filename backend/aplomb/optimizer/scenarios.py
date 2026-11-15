@@ -262,7 +262,7 @@ def rebalance(engine: QuantEngine, profile: m.Profile, evidence=()) -> ScenarioS
     if score[0] == 0:
         return ScenarioSet([], [], [{"en": "The current portfolio has no rule conflict; no rebalance is needed.",
                                      "fr": "Le portefeuille actuel n'a aucun conflit de règle; aucun rééquilibrage n'est nécessaire."}])
-    cash = "CASH.CAD" if profile.reporting_currency == "CAD" else "CASH.USD"
+    cash = f"CASH.{profile.reporting_currency}"
     targets = [t for t in ("XBB.TO", "AGG", "GLD", "XIU.TO", "SPY") if t in universe and eligible(engine, rules, t)] + [cash]
     moves: list[dict] = []
     current = dict(weights)

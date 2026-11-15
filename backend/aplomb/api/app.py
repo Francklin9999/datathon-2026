@@ -84,6 +84,8 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     )
     app.state.settings, app.state.services = settings, services
     store = services.runs.repository.store if services.runs else create_store(settings)
+    from aplomb.intelligence.discovery import EntityDiscovery
+    entity_discovery = EntityDiscovery(store)
     limiter = SessionLimiter(store)
     app.state.limiter = limiter
 
@@ -223,6 +225,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         data_version, data_as_of = served() if served else (settings.data_version, settings.data_as_of)
         return m.Meta(
             contract_version=CONTRACT_VERSION,
+            reporting_currencies=services.datastore.reporting_currencies() if services.datastore and hasattr(services.datastore, "reporting_currencies") else ["CAD", "USD"],
             data_version=data_version,
             data_as_of=data_as_of,
             environment=settings.environment,
@@ -236,6 +239,17 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
             ),
         )
 
+    @app.get("/v1/intelligence/entities", response_model=a.EntitySearchResponse, response_model_exclude_unset=True)
+    def entity_candidates(sid: Session, q: str = Query(min_length=2, max_length=120), limit: int = Query(10, ge=1, le=20)):
+        from aplomb.intelligence import GLEIFError
+        from aplomb.intelligence.discovery import DiscoveryStorageError
+        try:
+            return entity_discovery.search(sid, q, limit=limit)
+        except (GLEIFError, DiscoveryStorageError, ValidationError) as exc:
+            raise unavailable("GLEIF entity discovery") from exc
+        except ValueError as exc:
+            raise ServiceError("validation_error", str(exc)) from exc
+
     @app.get("/v1/assets", response_model=a.AssetsResponse, response_model_exclude_unset=True)
     def assets(request: Request, sid: Session, limit: int = Query(50, ge=1, le=500)):
         return require(services.datastore, "Asset datastore").assets(
@@ -245,6 +259,11 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     @app.get("/v1/assets/{ticker}", response_model=m.Asset, response_model_exclude_unset=True)
     def asset(ticker: str, sid: Session):
         return require(services.datastore, "Asset datastore").asset(sid, ticker)
+
+    @app.get("/v1/assets/{ticker}/analytics", response_model=a.AssetAnalyticsResponse, response_model_exclude_unset=True)
+    def asset_analytics(ticker: str, request: Request, sid: Session):
+        provider = require(services.datastore, "Asset datastore")
+        return require(getattr(provider, "analytics", None), "Asset analytics")(sid, ticker, parameters(request, "asset_analytics"))
 
     @app.post(
         "/v1/assets/{ticker}/fetch",
@@ -266,6 +285,51 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     @app.get("/v1/profiles", response_model=a.ProfilesResponse, response_model_exclude_unset=True)
     def profiles(sid: Session):
         return a.ProfilesResponse(items=require(services.profiles, "Profile service").list(sid))
+
+    @app.post("/v1/profiles/{profile_id}/duplicate", response_model=m.Profile, response_model_exclude_unset=True, status_code=201)
+    def duplicate_profile(profile_id: ProfileId, body: a.DuplicateProfileRequest, sid: Session):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "duplicate", None), "Profile duplication")(sid, profile_id, body.name)
+
+    @app.post("/v1/profiles/{profile_id}/exposure-limits", response_model=m.Profile, response_model_exclude_unset=True)
+    def add_exposure_limit(profile_id: ProfileId, body: a.AddExposureLimitRequest, sid: Session):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "add_exposure_limit", None), "Exposure policy")(sid, profile_id, body)
+
+    @app.get("/v1/profiles/{profile_id}/goals", response_model=a.GoalFundingResponse, response_model_exclude_unset=True)
+    def profile_goals(profile_id: ProfileId, sid: Session):
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "goal_funding", None), "Goal funding scenarios")(sid, profile_id)
+
+    @app.get("/v1/profiles/archived", response_model=a.ProfilesResponse, response_model_exclude_unset=True)
+    def archived_profiles(sid: Session):
+        provider = require(services.profiles, "Profile service")
+        return a.ProfilesResponse(items=require(getattr(provider, "archived", None), "Profile archive")(sid))
+
+    @app.patch("/v1/profiles/{profile_id}/archive", response_model=m.Profile, response_model_exclude_unset=True)
+    def archive_profile(profile_id: ProfileId, body: a.ArchiveProfileRequest, sid: Session):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "archive", None), "Profile archive")(sid, profile_id, body.archived, body.version)
+
+    @app.post("/v1/profiles/{profile_id}/accounts", response_model=m.Profile, response_model_exclude_unset=True, status_code=201)
+    def create_account(profile_id: ProfileId, body: a.CreateAccountRequest, sid: Session):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "create_account", None), "Portfolio accounts")(sid, profile_id, body)
+
+    @app.post("/v1/profiles/{profile_id}/accounts/{account_id}/select", response_model=m.Profile, response_model_exclude_unset=True)
+    def select_account(profile_id: ProfileId, account_id: str, body: a.SelectAccountRequest, sid: Session):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "select_account", None), "Portfolio accounts")(sid, profile_id, account_id, body.version)
+
+    @app.get("/v1/profiles/{profile_id}/risk", response_model=a.RiskDiagnosticsResponse, response_model_exclude_unset=True)
+    def risk_diagnostics(profile_id: ProfileId, request: Request, sid: Session):
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "risk_diagnostics", None), "Risk diagnostics")(sid, profile_id, parameters(request, "risk"))
 
     @app.get(
         "/v1/profiles/{profile_id}", response_model=m.Profile, response_model_exclude_unset=True
@@ -369,6 +433,10 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     def parse(body: a.ParseRequest, sid: Session):
         require(services.profiles, "Profile service").get(sid, body.profile_id)
         return require(services.parser, "Request parser").parse(sid, body)
+
+    @app.post("/v1/rebalance/check", response_model=a.RebalanceResponse, response_model_exclude_unset=True)
+    def rebalance_check(body: a.RebalanceRequest, sid: Session):
+        return require(services.checks, "Deterministic checks").rebalance(sid, body)
 
     @app.post("/v1/check", response_model=m.CheckResult, response_model_exclude_unset=True)
     def check(body: a.CheckRequest, sid: Session):
@@ -571,6 +639,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
             name=f"world_{method}",
         )
 
+    register_world("airports", "airports", a.AirportsResponse)
     register_world("layers", "layers", a.WorldLayersResponse)
     register_world("events", "events", a.WorldEventsResponse)
     register_world("exposure", "exposure", a.WorldExposureResponse)

@@ -671,7 +671,7 @@ def _universe_row(row: dict, where: str, tier: str, universe: dict, asset_ids: s
         problems.append(f"{where}: asset_class {fields['asset_class']!r} not in {sorted(LISTED_ASSET_CLASSES)}")
         return
     if fields["currency"] not in CURRENCIES:
-        problems.append(f"{where}: currency {fields['currency']!r} not CAD or USD")
+        problems.append(f"{where}: currency {fields['currency']!r} not supported by the configured currency catalog")
         return
     if ticker in universe:
         problems.append(f"{where}: duplicate ticker {ticker}")

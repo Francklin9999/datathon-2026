@@ -1,0 +1,2432 @@
+[
+  {
+    "sourceId": "src_037b68ff84a9ff32",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Alpha Vantage",
+    "url": "https://www.alphavantage.co/documentation/",
+    "access": "F",
+    "use": "Stocks FX crypto macro",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_cfd29b606c41ae7a",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Finnhub",
+    "url": "https://finnhub.io/docs/api",
+    "access": "F",
+    "use": "Stocks fundamentals news",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_3df00862343d4e2c",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Twelve Data",
+    "url": "https://twelvedata.com/docs",
+    "access": "F",
+    "use": "Global prices and indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_55e76382d08a84f3",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Financial Modeling Prep",
+    "url": "https://site.financialmodelingprep.com/developer/docs",
+    "access": "F",
+    "use": "Company fundamentals and prices",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_b83fb03200582f7a",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "EOD Historical Data",
+    "url": "https://eodhd.com/financial-apis/",
+    "access": "F",
+    "use": "International securities prices",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a86c27c01ac4cdcd",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Massive (Polygon)",
+    "url": "https://massive.com/docs",
+    "access": "F",
+    "use": "Stocks options indices FX crypto",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_424f81da32f3ce50",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Alpaca Market Data",
+    "url": "https://docs.alpaca.markets/docs/market-data",
+    "access": "F",
+    "use": "US equities and crypto",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_37299fd6a44e8c17",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Tiingo",
+    "url": "https://www.tiingo.com/documentation/general/overview",
+    "access": "F",
+    "use": "EOD prices and news",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f5fccd25955b2a96",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Marketstack",
+    "url": "https://marketstack.com/documentation",
+    "access": "F",
+    "use": "Global EOD stocks",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_fae8b1ee216d1ca5",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Nasdaq Data Link",
+    "url": "https://docs.data.nasdaq.com/",
+    "access": "M",
+    "use": "Open and premium datasets",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_10938f7479feceec",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Databento",
+    "url": "https://databento.com/docs",
+    "access": "T",
+    "use": "Historical tick and market depth",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1d9f84295dab3b74",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Tradier",
+    "url": "https://documentation.tradier.com/",
+    "access": "S",
+    "use": "Options and sandbox market data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_7a8921ad07b9cc2b",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "OANDA v20",
+    "url": "https://developer.oanda.com/rest-live-v20/introduction/",
+    "access": "S",
+    "use": "Forex prices and practice account",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_99ace897d5daf08d",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Interactive Brokers Client Portal",
+    "url": "https://www.interactivebrokers.com/campus/ibkr-api-page/",
+    "access": "S",
+    "use": "Worldwide brokerage market data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_55eeb36a083df562",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Intrinio",
+    "url": "https://docs.intrinio.com/",
+    "access": "T",
+    "use": "Institutional US financial data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_60f68f6398316503",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Finazon",
+    "url": "https://finazon.io/",
+    "access": "S",
+    "use": "Licensed modular market feeds",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_91e56550572ce060",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Financial Datasets",
+    "url": "https://docs.financialdatasets.ai/",
+    "access": "T",
+    "use": "Company financials and earnings",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_b06f4e1c768e849c",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Stooq",
+    "url": "https://stooq.com/dbh/",
+    "access": "D",
+    "use": "Historical daily prices files",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1c3cec3a626d74e6",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Yahoo Finance / yfinance",
+    "url": "https://github.com/ranaroussi/yfinance",
+    "access": "U",
+    "use": "Unofficial Yahoo historical series",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4e02aff6331ae0f5",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "J-Quants (Japan)",
+    "url": "https://jpx-jquants.com/en/spec/quickstart",
+    "access": "F",
+    "use": "Japan stock prices and filings",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_02cf5c48bad7d7ce",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "KOSIS Korea",
+    "url": "https://kosis.kr/openapi/",
+    "access": "F",
+    "use": "Korean economic statistics",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_02d58dea7e26dba7",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Fama French factors",
+    "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+    "access": "D",
+    "use": "Historical equity factors",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_9848392b08d4346c",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "AQR Data Sets",
+    "url": "https://www.aqr.com/Insights/Datasets",
+    "access": "D",
+    "use": "Factor datasets",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ffd04595b5eae9bb",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "Cboe indices data",
+    "url": "https://www.cboe.com/us/indices/market_statistics/",
+    "access": "R",
+    "use": "VIX and indices public reports",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_acc946ed688c6aa9",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "OCC market data",
+    "url": "https://www.theocc.com/market-data",
+    "access": "D",
+    "use": "Options volume and open interest",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_765ba0d0aea4744f",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "FINRA short sale volume",
+    "url": "https://www.finra.org/finra-data/browse-catalog/short-sale-volume-data",
+    "access": "D",
+    "use": "Off exchange short sale volume",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a041cee1c036a092",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "FINRA short interest",
+    "url": "https://www.finra.org/finra-data/browse-catalog/equity-short-interest/data",
+    "access": "D",
+    "use": "Short interest",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_b4cd2306d3681639",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "CFTC Commitments of Traders",
+    "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+    "access": "D",
+    "use": "Futures positioning",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_2910b5f5e12929a1",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "CFTC Public Reporting Environment",
+    "url": "https://publicreporting.cftc.gov/",
+    "access": "A",
+    "use": "Swaps public reporting",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_6d6e11d579131c10",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "CME Group DataMine",
+    "url": "https://www.cmegroup.com/market-data/datamine-historical-data.html",
+    "access": "P",
+    "use": "Futures historical data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f077442086f0a9fe",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "FRED ICE BofA OAS series",
+    "url": "https://fred.stlouisfed.org/categories/32297",
+    "access": "A",
+    "use": "Corporate credit spreads",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_39af56065aafc365",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "US Treasury yield curve",
+    "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
+    "access": "A",
+    "use": "Treasury curve",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_7c1dbcba914b44ef",
+    "category": "MARKET DATA & SECURITIES",
+    "name": "NY Fed Markets API",
+    "url": "https://markets.newyorkfed.org/static/docs/markets-api.html",
+    "access": "A",
+    "use": "SOFR and money market rates",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_959339a206141c26",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEC EDGAR submissions API",
+    "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+    "access": "A",
+    "use": "US issuer filings",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4191d0001c986cc8",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEC Company Facts XBRL API",
+    "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+    "access": "A",
+    "use": "Structured company facts",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_b91586d8adcaab8b",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEC company concepts XBRL",
+    "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+    "access": "A",
+    "use": "Time series company concept",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_99919ec3ac0c1849",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEC companyframes XBRL",
+    "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+    "access": "A",
+    "use": "Cross company concepts",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_00be216417940fb7",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEC filing RSS",
+    "url": "https://www.sec.gov/about/rss-feeds",
+    "access": "A",
+    "use": "Latest disclosures",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_83357f7b16bd53e4",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEC 13F data",
+    "url": "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets",
+    "access": "D",
+    "use": "Institutional holdings",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_d5afb84989aac784",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEC N-PORT data",
+    "url": "https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets",
+    "access": "D",
+    "use": "Mutual fund and ETF holdings",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1e26daa2192a15d2",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEC N-CEN data",
+    "url": "https://www.sec.gov/data-research/sec-markets-data/form-n-cen-data-sets",
+    "access": "D",
+    "use": "Fund metadata",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_6e9c6e98b45c77d2",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEC Insider Transactions",
+    "url": "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+    "access": "D",
+    "use": "Forms 3 4 5",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_123766e465c8b0af",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "GLEIF API",
+    "url": "https://www.gleif.org/en/lei-data/gleif-api/",
+    "access": "A",
+    "use": "LEI entities and relationships",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1821132fa3ad9cae",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "GLEIF Golden Copy files",
+    "url": "https://www.gleif.org/en/lei-data/gleif-golden-copy/download-the-golden-copy",
+    "access": "D",
+    "use": "Entity reference bulk",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ca4694bf5dbd1934",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "UK Companies House API",
+    "url": "https://developer.company-information.service.gov.uk/",
+    "access": "F",
+    "use": "UK incorporation officers filings",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_181502278f82d1a7",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "OpenCorporates API",
+    "url": "https://api.opencorporates.com/documentation/API-Reference",
+    "access": "M",
+    "use": "Global corporate registry",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4f2952e293433c9d",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "Corporations Canada open data",
+    "url": "https://ised-isde.canada.ca/site/corporations-canada/en/open-data",
+    "access": "D",
+    "use": "Canadian federal corporations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ab5293a06bd6165e",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEDAR+",
+    "url": "https://www.sedarplus.ca/",
+    "access": "R",
+    "use": "Canadian issuer filings portal",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f778ab3ff21bc9ff",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "SEDI",
+    "url": "https://www.sedi.ca/",
+    "access": "R",
+    "use": "Canadian insider records portal",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c4031ac161f0ac78",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "Companies Registration Office Ireland",
+    "url": "https://www.cro.ie/",
+    "access": "D",
+    "use": "Irish business data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_52d07b3a1e3e7072",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "Australian Business Register ABN Lookup",
+    "url": "https://abr.business.gov.au/Tools/AbnLookup",
+    "access": "F",
+    "use": "Australian company identifiers",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c8870f963deb9e12",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "EU ESMA registers",
+    "url": "https://registers.esma.europa.eu/publication/",
+    "access": "A",
+    "use": "EU regulated entities",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_084b6c5415ebe60c",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "EBA Transparency Exercise",
+    "url": "https://www.eba.europa.eu/risk-and-data-analysis/risk-analysis/eu-wide-transparency-exercise",
+    "access": "D",
+    "use": "EU bank risk disclosures",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_9045085df7dee686",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "iShares Holdings",
+    "url": "https://www.ishares.com/",
+    "access": "D",
+    "use": "Issuer published ETF holdings",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e1e7aa37474f3bf5",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "Vanguard Fund Holdings",
+    "url": "https://investor.vanguard.com/investment-products/etfs",
+    "access": "D",
+    "use": "Fund composition",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a09e8c5d1961fc1a",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "State Street SPDR Holdings",
+    "url": "https://www.ssga.com/",
+    "access": "D",
+    "use": "Fund holdings",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f1439221628005a0",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "Wikidata SPARQL",
+    "url": "https://query.wikidata.org/",
+    "access": "A",
+    "use": "Global entities and relations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_7e2bc29d095746bf",
+    "category": "COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",
+    "name": "OpenFIGI",
+    "url": "https://www.openfigi.com/api",
+    "access": "F",
+    "use": "Global instrument identifier matching",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c8cb51439504a03f",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "CoinGecko API",
+    "url": "https://docs.coingecko.com/",
+    "access": "F",
+    "use": "Global crypto quotes and tokens",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_9b040e67bc22162f",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "CoinMarketCap API",
+    "url": "https://coinmarketcap.com/api/documentation/v1/",
+    "access": "F",
+    "use": "Coins markets and listings",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a40da886f409acdf",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "CoinPaprika API",
+    "url": "https://api.coinpaprika.com/",
+    "access": "F",
+    "use": "Crypto prices and metadata",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_aabff220e06852a1",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "CryptoCompare API",
+    "url": "https://min-api.cryptocompare.com/documentation",
+    "access": "F",
+    "use": "Crypto pricing and volume",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_08f3b30d24068dff",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "CoinLore API",
+    "url": "https://www.coinlore.com/cryptocurrency-data-api",
+    "access": "A",
+    "use": "Coins market cap prices",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_eabf2af6da035b65",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "DexScreener API",
+    "url": "https://docs.dexscreener.com/api/reference",
+    "access": "A",
+    "use": "DEX pools liquidity and trades",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_7afda5e08e885de4",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "DefiLlama API",
+    "url": "https://api-docs.defillama.com/",
+    "access": "A",
+    "use": "DeFi TVL stablecoins protocols",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_30b226fa4934011a",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "GeckoTerminal API",
+    "url": "https://apiguide.geckoterminal.com/",
+    "access": "A",
+    "use": "Onchain DEX pool information",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f1bf982a06383bb8",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Alternative.me Fear Greed",
+    "url": "https://alternative.me/crypto/fear-and-greed-index/",
+    "access": "A",
+    "use": "Crypto fear greed indicator",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_d578b94b83d42675",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Binance public market API",
+    "url": "https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints",
+    "access": "A",
+    "use": "Exchange spot order books trades",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_2b8cf6dcc65a1c82",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Binance historical data",
+    "url": "https://data.binance.vision/",
+    "access": "D",
+    "use": "Exchange crypto historical files",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a2b2a98f80c37315",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Coinbase Exchange API",
+    "url": "https://docs.cdp.coinbase.com/exchange/reference/exchangerestapi_getproductbook",
+    "access": "A",
+    "use": "Exchange crypto orders/trades",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4f6d2337991f3f0e",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Kraken REST API",
+    "url": "https://docs.kraken.com/api/",
+    "access": "A",
+    "use": "Crypto exchange public market data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_076e119ca90785c3",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Bitstamp API",
+    "url": "https://www.bitstamp.net/api/",
+    "access": "A",
+    "use": "Spot cryptocurrency market data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_63f9a1c30f5470f3",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Etherscan API",
+    "url": "https://docs.etherscan.io/",
+    "access": "F",
+    "use": "Blockchain transactions and balances",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_91dd774fc10bb2bd",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Blockscout API",
+    "url": "https://docs.blockscout.com/devs/apis",
+    "access": "A",
+    "use": "Blockchain explorer",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c40b863c3e4ab3ce",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "mempool.space API",
+    "url": "https://mempool.space/docs/api/rest",
+    "access": "A",
+    "use": "Bitcoin mempool/fees",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ce2fb2e5a6bb6347",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Blockchain.com Data API",
+    "url": "https://www.blockchain.com/explorer/api",
+    "access": "A",
+    "use": "Bitcoin charts and on-chain",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1b0e72cece3c83b5",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Blockchair API",
+    "url": "https://blockchair.com/api/docs",
+    "access": "F",
+    "use": "Multi-chain blockchain data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_53b5f3ee902a48cf",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Dune API",
+    "url": "https://docs.dune.com/api-reference/overview/introduction",
+    "access": "F",
+    "use": "Onchain analytics queries",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_731b123ff85b9a04",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Flipside",
+    "url": "https://docs.flipsidecrypto.xyz/",
+    "access": "F",
+    "use": "Crypto analytical queries",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_31cb4c7268de005d",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Alchemy",
+    "url": "https://www.alchemy.com/docs",
+    "access": "F",
+    "use": "Blockchain RPC/data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_aaf502ac4c410f58",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Infura",
+    "url": "https://docs.metamask.io/services/",
+    "access": "F",
+    "use": "Blockchain RPC",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_5aebcf4070b66bae",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "QuickNode",
+    "url": "https://www.quicknode.com/docs",
+    "access": "F",
+    "use": "Blockchain RPC and data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_093fb2ac5f6014a1",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Covalent GoldRush API",
+    "url": "https://goldrush.dev/docs/",
+    "access": "F",
+    "use": "Token balances and historical",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e04117954ae24064",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "The Graph",
+    "url": "https://thegraph.com/docs/en/",
+    "access": "F",
+    "use": "GraphQL indexed on-chain",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e7eae33d95539841",
+    "category": "CRYPTO, BLOCKCHAIN & DEFI",
+    "name": "Glassnode",
+    "url": "https://docs.glassnode.com/",
+    "access": "M",
+    "use": "Onchain market metrics",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c57be985550bdba3",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "FRED API",
+    "url": "https://fred.stlouisfed.org/docs/api/fred/",
+    "access": "F",
+    "use": "Macro time series",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c526e3aaa754e504",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "ALFRED vintages",
+    "url": "https://fred.stlouisfed.org/docs/api/fred/",
+    "access": "F",
+    "use": "Point in time revisions",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_15eb18e7dfbac209",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "Bank of Canada Valet",
+    "url": "https://www.bankofcanada.ca/valet/docs/",
+    "access": "A",
+    "use": "Canadian FX and rates",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_07c5ee3ac946620b",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "World Bank Indicators",
+    "url": "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api",
+    "access": "A",
+    "use": "Global national indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1a322369e5074f5b",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "World Bank SDMX",
+    "url": "https://datahelpdesk.worldbank.org/knowledgebase/articles/1886701-sdmx-api-queries",
+    "access": "A",
+    "use": "Structured World Bank data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_3eee440c9e5b45b5",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "IMF SDMX API",
+    "url": "https://data.imf.org/en/Resource-Pages/IMF-API",
+    "access": "A",
+    "use": "International macro series",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4dedde327c376caf",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "OECD SDMX API",
+    "url": "https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html",
+    "access": "A",
+    "use": "Global economic indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1d84dd8e0d1521f6",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "ECB SDMX",
+    "url": "https://data.ecb.europa.eu/help/getting-data-web-services-sdmx-0",
+    "access": "A",
+    "use": "Eurozone rates/economy",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_3024b676e3462341",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "BIS SDMX",
+    "url": "https://stats.bis.org/api-doc/v2/",
+    "access": "A",
+    "use": "Banking capital cross-border loans",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c040628a036fa2bd",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "Eurostat REST",
+    "url": "https://ec.europa.eu/eurostat/web/main/data/web-services",
+    "access": "A",
+    "use": "EU economic statistics",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_7afd97d5fec5e517",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "Statistics Canada Web Data Service",
+    "url": "https://www.statcan.gc.ca/en/developers/wds",
+    "access": "A",
+    "use": "Canadian statistical tables",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_90b6f8155dbba6b0",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "US Census API",
+    "url": "https://www.census.gov/data/developers/data-sets.html",
+    "access": "F",
+    "use": "US demographics and business",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ab6158dd1773071b",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "US BLS API",
+    "url": "https://www.bls.gov/developers/",
+    "access": "F",
+    "use": "US labor and inflation",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_5585ea985547d0c1",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "US BEA API",
+    "url": "https://apps.bea.gov/api/signup/",
+    "access": "F",
+    "use": "US GDP national accounts",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_328b7bde60f2900f",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "US Treasury Fiscal Data",
+    "url": "https://fiscaldata.treasury.gov/api-documentation/",
+    "access": "A",
+    "use": "Fiscal and debt data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4673321f2486490d",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "NY Fed Markets API",
+    "url": "https://markets.newyorkfed.org/static/docs/markets-api.html",
+    "access": "A",
+    "use": "Money market reference rates",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e96f24235ac58c1c",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "NY Fed Survey Data",
+    "url": "https://www.newyorkfed.org/microeconomics/sce",
+    "access": "D",
+    "use": "Consumer expectations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_90bc88701c7dacc6",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "Federal Reserve Data Download",
+    "url": "https://www.federalreserve.gov/data.htm",
+    "access": "D",
+    "use": "US banking and financial releases",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_d15ae60fbc3a1cc5",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "Federal Reserve RSS",
+    "url": "https://www.federalreserve.gov/feeds/feeds.htm",
+    "access": "A",
+    "use": "Monetary policy publications",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_6bc6458da5b32236",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "ECB RSS",
+    "url": "https://www.ecb.europa.eu/home/html/rss.en.html",
+    "access": "A",
+    "use": "Euro central bank news",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_8e8cfb1b2310a843",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "UNdata API",
+    "url": "https://data.un.org/Host.aspx?Content=API",
+    "access": "A",
+    "use": "UN global indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_6c4e5fe1e6aa39f9",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "UNICEF SDMX API",
+    "url": "https://data.unicef.org/sdmx-api-documentation/",
+    "access": "A",
+    "use": "Global social indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_aef3884d0300c819",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "ILO SDMX",
+    "url": "https://sdmx.ilo.org/",
+    "access": "A",
+    "use": "Labor worldwide",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_45c8cd6b53413417",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "WHO GHO OData",
+    "url": "https://www.who.int/data/gho/info/gho-odata-api",
+    "access": "A",
+    "use": "Global health indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_34a083cdbf8cd897",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "FAOSTAT API/Downloads",
+    "url": "https://www.fao.org/faostat/en/#data",
+    "access": "D",
+    "use": "Global agriculture",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_12cf9db195b7d193",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "WTO Timeseries API",
+    "url": "https://apiportal.wto.org/",
+    "access": "F",
+    "use": "Trade tariffs and policy",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_42d015269c8f4368",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "UN Comtrade API",
+    "url": "https://comtradeplus.un.org/en/api-docs",
+    "access": "A",
+    "use": "Merchandise trade",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4f982ecfbcf6b890",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "WITS Trade API",
+    "url": "https://wits.worldbank.org/witsapiintro.aspx?lang=en",
+    "access": "A",
+    "use": "Tariff trade indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_0637a32b3e00dde0",
+    "category": "MACRO, CENTRAL BANKS, ECONOMICS",
+    "name": "UNCTADstat",
+    "url": "https://unctadstat.unctad.org/",
+    "access": "D",
+    "use": "Trade investment shipping",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_5530ae654e7cd115",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "GDELT DOC 2.0",
+    "url": "https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/",
+    "access": "A",
+    "use": "News search timeline",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c9fb3d4658b903e6",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "GDELT Events",
+    "url": "https://www.gdeltproject.org/data.html",
+    "access": "D",
+    "use": "Global event records",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c29a8b201e7ae592",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "GDELT GKG",
+    "url": "https://www.gdeltproject.org/data.html",
+    "access": "D",
+    "use": "Knowledge graph themes",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_5fee22f64103eec1",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "GDELT GEO",
+    "url": "https://www.gdeltproject.org/data.html",
+    "access": "A",
+    "use": "Geolocated news mentions",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_bda12c3b51a8bacc",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Guardian Open Platform",
+    "url": "https://open-platform.theguardian.com/access/",
+    "access": "F",
+    "use": "News articles search",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_76d6c3eefc7bffb4",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "NewsAPI",
+    "url": "https://newsapi.org/pricing",
+    "access": "R",
+    "use": "News aggregation dev restricted",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a4657d7089ef43ed",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Mediastack",
+    "url": "https://mediastack.com/documentation",
+    "access": "F",
+    "use": "News headlines",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_8970624053f48ebf",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Currents API",
+    "url": "https://currentsapi.services/",
+    "access": "F",
+    "use": "World news",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4f13cc4709248257",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "NewsData.io",
+    "url": "https://newsdata.io/documentation",
+    "access": "F",
+    "use": "News API",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_268be13c9ddee80d",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "The News API",
+    "url": "https://www.thenewsapi.com/documentation",
+    "access": "F",
+    "use": "News search",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_72b76c155a4e29c8",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Newscatcher API",
+    "url": "https://www.newscatcherapi.com/",
+    "access": "T",
+    "use": "News and extraction",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_57eafcad79d23ae2",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Wikimedia Pageviews",
+    "url": "https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/",
+    "access": "A",
+    "use": "Attention indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_7897afb02fec9bd7",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Wikipedia Recent Changes",
+    "url": "https://www.mediawiki.org/wiki/API:Recent_changes",
+    "access": "A",
+    "use": "Edit activity",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_26763d5d9c63dbb2",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Google Trends API",
+    "url": "https://developers.google.com/search/apis/trends",
+    "access": "R",
+    "use": "Search trends alpha",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_814a47837ce34c11",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Google News RSS",
+    "url": "https://news.google.com/rss",
+    "access": "U",
+    "use": "News feeds terms/reuse",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_8be2a81ed14f16df",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "UCDP GED",
+    "url": "https://ucdp.uu.se/downloads/",
+    "access": "D",
+    "use": "Geolocated historical conflict",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4d1b851349e37282",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "ACLED API",
+    "url": "https://acleddata.com/api-documentation/getting-started",
+    "access": "F",
+    "use": "Conflict events registration/approval",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_0342d1319cd3c904",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "ReliefWeb API",
+    "url": "https://apidoc.reliefweb.int/",
+    "access": "S",
+    "use": "Humanitarian reports disasters",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_76f13fa2220131dc",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Humanitarian Data Exchange HAPI",
+    "url": "https://hdx-hapi.readthedocs.io/en/latest/",
+    "access": "A",
+    "use": "Humanitarian subnational indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_86ecfec3b447b5a1",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "GDACS API",
+    "url": "https://www.gdacs.org/gdacsapi/swagger/index.html",
+    "access": "A",
+    "use": "Disaster alerts",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_fe1a47798ca10f5d",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "GDELT TV API",
+    "url": "https://api.gdeltproject.org/api/v2/tv/tv",
+    "access": "R",
+    "use": "Broadcast monitoring access restrictions",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f7063a3d600b1c27",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "OFAC Sanctions",
+    "url": "https://ofac.treasury.gov/sanctions-list-service",
+    "access": "D",
+    "use": "Sanctioned people/entities",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e67e2649bb9d6165",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "UN Sanctions",
+    "url": "https://main.un.org/securitycouncil/en/sanctions/un-sc-consolidated-list",
+    "access": "D",
+    "use": "UN sanctioned entities",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a4a2eb51dc79ca26",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "EU Sanctions Map",
+    "url": "https://www.sanctionsmap.eu/",
+    "access": "D",
+    "use": "EU sanctions",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_8cddee7aafd4f6e1",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "UK Sanctions List",
+    "url": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+    "access": "D",
+    "use": "UK sanctions",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f5899df4b990de8c",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "US Congress API",
+    "url": "https://api.congress.gov/",
+    "access": "F",
+    "use": "Legislation bills votes",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_18966d57b75f848a",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Federal Register API",
+    "url": "https://www.federalregister.gov/developers/documentation/api/v1",
+    "access": "A",
+    "use": "US proposed/final regulations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_dc308c1046143a2f",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Regulations.gov API",
+    "url": "https://open.gsa.gov/api/regulationsgov/",
+    "access": "F",
+    "use": "US regulation comments/documents",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ce2b53f8e8601829",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "Canada Gazette RSS",
+    "url": "https://gazette.gc.ca/rss/sc-rb-eng.html",
+    "access": "A",
+    "use": "Canadian policy publications",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_973dad1d3a410ab1",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "EU EUR-Lex API",
+    "url": "https://eur-lex.europa.eu/content/help/data-reuse/reuse-contents-eurlex-details.html",
+    "access": "A",
+    "use": "EU laws legislation and publications",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_722f094ff4ce6057",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "EU TED API",
+    "url": "https://docs.ted.europa.eu/api/latest/index.html",
+    "access": "A",
+    "use": "Public procurement notices",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_26914b01ed9e380c",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "V-Dem Dataset",
+    "url": "https://v-dem.net/data/the-v-dem-dataset/",
+    "access": "D",
+    "use": "Governance historical indices",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_fde4254a01fbff32",
+    "category": "NEWS, OSINT, GEOPOLITICS",
+    "name": "World Governance Indicators",
+    "url": "https://www.worldbank.org/en/publication/worldwide-governance-indicators",
+    "access": "D",
+    "use": "Governance metrics",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_cb7c42b218429e90",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "OpenStreetMap API",
+    "url": "https://wiki.openstreetmap.org/wiki/API_v0.6",
+    "access": "A",
+    "use": "OSM objects and edits",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1c76f812cae71070",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Overpass API",
+    "url": "https://wiki.openstreetmap.org/wiki/Overpass_API",
+    "access": "A",
+    "use": "OSM geographic queries",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_62481eb2cea86979",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Geofabrik Downloads",
+    "url": "https://download.geofabrik.de/",
+    "access": "D",
+    "use": "OSM extracts",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_bc3726fd03b294b2",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Nominatim",
+    "url": "https://nominatim.org/release-docs/latest/api/Overview/",
+    "access": "R",
+    "use": "Geocoding public policy",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_60df31d6e56eca98",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "GeoNames",
+    "url": "https://www.geonames.org/export/web-services.html",
+    "access": "F",
+    "use": "Worldwide placenames",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_95185684ef2c71e2",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Natural Earth",
+    "url": "https://www.naturalearthdata.com/downloads/",
+    "access": "D",
+    "use": "Country borders physical geography",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_0466a230e9ee3b30",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "geoBoundaries API",
+    "url": "https://www.geoboundaries.org/api.html",
+    "access": "A",
+    "use": "Admin boundaries",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1f57132459e1c271",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Overture Maps",
+    "url": "https://docs.overturemaps.org/",
+    "access": "D",
+    "use": "Open global buildings places transport",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c0b2b0c03d656383",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "OpenAddresses",
+    "url": "https://openaddresses.io/",
+    "access": "D",
+    "use": "Worldwide address files",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_2abbd0d6e9fffda4",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "NASA GIBS",
+    "url": "https://nasa-gibs.github.io/gibs-api-docs/access-basics/",
+    "access": "A",
+    "use": "Earth satellite basemaps",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_91c860a3647beefa",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "NASA Earthdata CMR",
+    "url": "https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html",
+    "access": "A",
+    "use": "NASA datasets discovery",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c9be965c5cc86a93",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "OpenTopography",
+    "url": "https://opentopography.org/developers",
+    "access": "F",
+    "use": "Elevation and terrain",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c960eff1f6afd397",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Copernicus Data Space",
+    "url": "https://documentation.dataspace.copernicus.eu/APIs.html",
+    "access": "F",
+    "use": "Sentinel satellite imagery",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f1e6b7b87acd0e11",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Sentinel Hub",
+    "url": "https://docs.sentinel-hub.com/api/latest/",
+    "access": "T",
+    "use": "Satellite imagery processing",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_5bc78552ea5742a9",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "USGS EarthExplorer M2M",
+    "url": "https://m2m.cr.usgs.gov/api/docs/json/",
+    "access": "S",
+    "use": "Landsat and remote sensing",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_32e8b9eba0bdd327",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "MapTiler",
+    "url": "https://docs.maptiler.com/cloud/api/",
+    "access": "F",
+    "use": "Maps and geocoding tiles",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_76988fc5bf306cf7",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Mapbox",
+    "url": "https://docs.mapbox.com/api/overview/",
+    "access": "F",
+    "use": "Mapping tiles/geocoding",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_b25848a123c38312",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Cesium ion",
+    "url": "https://cesium.com/learn/ion/ion-rest-api/",
+    "access": "F",
+    "use": "3D world terrain tiles",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_8f3f4c88889f3109",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "OpenRouteService",
+    "url": "https://openrouteservice.org/dev/",
+    "access": "F",
+    "use": "Routing and geocoding",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_fce79cd9fe4a42dd",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "Geoapify",
+    "url": "https://apidocs.geoapify.com/",
+    "access": "F",
+    "use": "Maps places geocoding",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_498d1567e073dadf",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "LocationIQ",
+    "url": "https://locationiq.com/docs",
+    "access": "F",
+    "use": "Geocoding map tiles",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_cb8c6f20330db6c0",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "OpenCage",
+    "url": "https://opencagedata.com/api",
+    "access": "F",
+    "use": "Geocoding worldwide",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a4c082e46e073d0d",
+    "category": "MAP, GEOSPATIAL, GLOBE",
+    "name": "HERE Geocoding",
+    "url": "https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/topics/what-is.html",
+    "access": "F",
+    "use": "Places geocoding",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_41c67bcad1b9cc3e",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "USGS Earthquake GeoJSON",
+    "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php",
+    "access": "A",
+    "use": "Live earthquake reports",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ab42650b8fabfd1d",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "USGS Earthquake ComCat",
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/",
+    "access": "A",
+    "use": "Historical earthquake catalogs",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f4627643c7e77b47",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "NASA EONET",
+    "url": "https://eonet.gsfc.nasa.gov/docs/v3",
+    "access": "A",
+    "use": "Natural event geojson",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_846fa68189d8b159",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "NASA FIRMS",
+    "url": "https://firms.modaps.eosdis.nasa.gov/api/",
+    "access": "F",
+    "use": "Satellite fire hotspots",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_cbddc6a28609609e",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "GDACS",
+    "url": "https://www.gdacs.org/gdacsapi/swagger/index.html",
+    "access": "A",
+    "use": "Disaster event alerts",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f360d79b656cf162",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "NOAA NWS API",
+    "url": "https://www.weather.gov/documentation/services-web-api",
+    "access": "A",
+    "use": "US alerts forecasts stations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_132fecdc57846fa8",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "NOAA NHC GIS",
+    "url": "https://www.nhc.noaa.gov/gis/",
+    "access": "A",
+    "use": "Tropical storms tracks",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_acda996e3e45f17e",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "NOAA Climate Data Online",
+    "url": "https://www.ncdc.noaa.gov/cdo-web/webservices/v2",
+    "access": "F",
+    "use": "Historical US weather",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_d56da1cfb9521c2a",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "Open-Meteo API",
+    "url": "https://open-meteo.com/en/docs",
+    "access": "A",
+    "use": "Global weather historical forecast",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_363ebb7703d94405",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "Meteostat API",
+    "url": "https://dev.meteostat.net/api/",
+    "access": "F",
+    "use": "Historical weather stations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_fe0a9776b94d4967",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "OpenWeather API",
+    "url": "https://openweathermap.org/api",
+    "access": "F",
+    "use": "Weather and air quality",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f22648b81636d870",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "WeatherAPI.com",
+    "url": "https://www.weatherapi.com/docs/",
+    "access": "F",
+    "use": "Global weather forecast",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c02aec997658746f",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "Visual Crossing Weather",
+    "url": "https://www.visualcrossing.com/weather-api/",
+    "access": "F",
+    "use": "Weather history/forecast",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_42b205b85054d2c9",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "Tomorrow.io",
+    "url": "https://docs.tomorrow.io/",
+    "access": "F",
+    "use": "Weather intelligence",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_505a146eab8ee8c5",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "NASA POWER",
+    "url": "https://power.larc.nasa.gov/docs/services/api/",
+    "access": "A",
+    "use": "Solar climate energy",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e844fe4ae9eaa25a",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "Copernicus Climate Data Store",
+    "url": "https://cds.climate.copernicus.eu/how-to-api",
+    "access": "F",
+    "use": "Climate reanalysis",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_92ff864245f5fcf4",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "Copernicus Emergency",
+    "url": "https://emergency.copernicus.eu/",
+    "access": "D",
+    "use": "Disaster rapid mapping",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_07d7e9fe20f538cf",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "Global Flood Database",
+    "url": "https://global-flood-database.cloudtostreet.ai/",
+    "access": "D",
+    "use": "Flood extents",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_52a0af7c9eed741d",
+    "category": "NATURAL HAZARDS, CLIMATE & WEATHER",
+    "name": "OpenAQ API",
+    "url": "https://docs.openaq.org/",
+    "access": "F",
+    "use": "Air pollution monitors",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_7c421e8f945b141e",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "EIA Energy API",
+    "url": "https://www.eia.gov/opendata/documentation.php",
+    "access": "F",
+    "use": "Global and US energy statistics",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_50cca6a50e2bee4b",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "Ember API",
+    "url": "https://ember-energy.org/data/api/",
+    "access": "F",
+    "use": "Electricity generation emissions",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_7bf6740ccc4fba5b",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "Electricity Maps API",
+    "url": "https://app.electricitymaps.com/docs",
+    "access": "T",
+    "use": "Electricity flows carbon intensity",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_7e1d7d9f6dda9164",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "ENTSO-E Transparency API",
+    "url": "https://transparency.entsoe.eu/",
+    "access": "F",
+    "use": "European electricity grid",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_b84afd7befab9a14",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "Open Power System Data",
+    "url": "https://open-power-system-data.org/",
+    "access": "D",
+    "use": "Energy time series",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_410ab8616bd7f4b2",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "Fraunhofer Energy Charts API",
+    "url": "https://api.energy-charts.info/",
+    "access": "A",
+    "use": "European grid generation pricing",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_5fa60bd033daac9f",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "WRI Global Power Plant DB",
+    "url": "https://datasets.wri.org/datasets/global-power-plant-database",
+    "access": "D",
+    "use": "World power plant locations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_f89c2d675c1a8f91",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "Global Energy Monitor",
+    "url": "https://globalenergymonitor.org/",
+    "access": "D",
+    "use": "Power oil gas mines facilities",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_b21ed01c862ac5bd",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "JODI Oil",
+    "url": "https://www.jodidata.org/oil/database/data-downloads.aspx",
+    "access": "D",
+    "use": "Global oil market",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_117082e65bb15ae0",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "USGS Mineral Commodities",
+    "url": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
+    "access": "D",
+    "use": "Critical minerals",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_af9c3280e666d7a7",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "FAOSTAT",
+    "url": "https://www.fao.org/faostat/en/",
+    "access": "D",
+    "use": "Food agriculture statistics",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_6a078f70749c2c8e",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "USDA PSD",
+    "url": "https://apps.fas.usda.gov/psdonline/",
+    "access": "D",
+    "use": "Agriculture supply-demand",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e5abb4eb71ed764a",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "USDA Quick Stats API",
+    "url": "https://quickstats.nass.usda.gov/api",
+    "access": "F",
+    "use": "US agriculture statistics",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ba2cbb29603630a8",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "IMF PortWatch",
+    "url": "https://portwatch.imf.org/",
+    "access": "A",
+    "use": "Ports maritime trade routes",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_036b639ca21b162d",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "PortWatch ArcGIS ports",
+    "url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/ArcGIS/rest/services/PortWatch_ports_database/FeatureServer",
+    "access": "A",
+    "use": "Port geographic features",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_fcd9d1951ad4702d",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "PortWatch chokepoints",
+    "url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0",
+    "access": "A",
+    "use": "Chokepoints daily activity",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a267f8d4ad8ed003",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "UN Comtrade",
+    "url": "https://comtradeplus.un.org/en/api-docs",
+    "access": "A",
+    "use": "Global trade partners",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_286009c0636344f9",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "WTO API",
+    "url": "https://apiportal.wto.org/",
+    "access": "F",
+    "use": "Global trade and tariffs",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e93f58e23ef7bd55",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "UNCTADstat",
+    "url": "https://unctadstat.unctad.org/",
+    "access": "D",
+    "use": "International shipping/trade",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_a67adde66f2c7a76",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "MarineCadastre AIS",
+    "url": "https://marinecadastre.gov/ais/",
+    "access": "D",
+    "use": "US historical AIS vessels",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_17822523dfb51ddb",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "Danish Maritime AIS",
+    "url": "https://www.dma.dk/safety-at-sea/navigational-information/ais-data",
+    "access": "D",
+    "use": "Danish AIS archives",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_635666daacf9eb7e",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "Global Fishing Watch API",
+    "url": "https://globalfishingwatch.org/our-apis/",
+    "access": "R",
+    "use": "Vessel/fishing locations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_70b83f807066ea5c",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "OpenSky Network API",
+    "url": "https://openskynetwork.github.io/opensky-api/rest.html",
+    "access": "F",
+    "use": "Aircraft state vectors",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_0b9db2fec7c8fc9c",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "ADS-B.lol",
+    "url": "https://api.adsb.lol/docs",
+    "access": "A",
+    "use": "Community aircraft observations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_94fb2cc0853225bb",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "Airplanes.live",
+    "url": "https://airplanes.live/api-guide/",
+    "access": "A",
+    "use": "Aircraft ADS-B data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_07b7f4ac68f41249",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "OurAirports",
+    "url": "https://ourairports.com/data/",
+    "access": "D",
+    "use": "Airport metadata",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_bfd515848d2e8203",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "AviationWeather",
+    "url": "https://aviationweather.gov/data/api/",
+    "access": "A",
+    "use": "Aviation weather",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_26f3537456033bed",
+    "category": "ENERGY, TRADE, MARITIME, AVIATION",
+    "name": "OpenFlights Airports",
+    "url": "https://openflights.org/data.html",
+    "access": "D",
+    "use": "Airport/route historical files",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_80a2c55f3cf7e1e5",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "ECCC Emissions",
+    "url": "https://open.canada.ca/data/en/dataset/a8ba14b7-7f23-462a-bdbb-83b0ef629823",
+    "access": "D",
+    "use": "Canadian facility GHG",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_163a3f3f412cfc35",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "EPA Envirofacts API",
+    "url": "https://www.epa.gov/enviro/envirofacts-data-service-api",
+    "access": "A",
+    "use": "Environmental facilities",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_8942800d3d420873",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "EPA ECHO",
+    "url": "https://echo.epa.gov/tools/data-downloads",
+    "access": "D",
+    "use": "Compliance and enforcement",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_71c73e15a0f409ed",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "EPA eGRID",
+    "url": "https://www.epa.gov/egrid",
+    "access": "D",
+    "use": "Power emissions plant-level",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_fed6ce599c0a0b59",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "OpenAQ",
+    "url": "https://docs.openaq.org/",
+    "access": "F",
+    "use": "Global air quality",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_178d241e6332dc9b",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Ember",
+    "url": "https://ember-energy.org/data/api/",
+    "access": "F",
+    "use": "Electricity emissions and generation",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_2f792d26d1e7ee41",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Global Carbon Project",
+    "url": "https://globalcarbonproject.org/",
+    "access": "D",
+    "use": "Carbon emissions budgets",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_45739a8d1f30c143",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "EDGAR EU Emissions",
+    "url": "https://edgar.jrc.ec.europa.eu/",
+    "access": "D",
+    "use": "Global emissions inventory",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1df68a2d4e69a4a0",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Climate TRACE",
+    "url": "https://climatetrace.org/",
+    "access": "D",
+    "use": "Asset emissions data",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_4e7c9599147fea14",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "CDP Open Data",
+    "url": "https://www.cdp.net/en/data",
+    "access": "D",
+    "use": "Corporate climate disclosures subset",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_50162b600953c496",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "World Bank Climate Portal",
+    "url": "https://climateknowledgeportal.worldbank.org/download-data",
+    "access": "D",
+    "use": "Climate risk indicators",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_c334136b65053eef",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Wikimedia Pageviews",
+    "url": "https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/",
+    "access": "A",
+    "use": "Attention measures",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_b8cde4d006a4aa4e",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Google Trends API",
+    "url": "https://developers.google.com/search/apis/trends",
+    "access": "R",
+    "use": "Search interest limited access",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ade09a58348e175a",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Reddit API",
+    "url": "https://www.reddit.com/dev/api/",
+    "access": "R",
+    "use": "Community discussion/terms",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_aa7515893e1c3c66",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Hacker News Algolia",
+    "url": "https://hn.algolia.com/api",
+    "access": "A",
+    "use": "Technology attention",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_1ce73876c5fcd633",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "GitHub REST API",
+    "url": "https://docs.github.com/en/rest",
+    "access": "F",
+    "use": "Company software activity proxy",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_54885af72a8d5ca2",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "GDELT news volume",
+    "url": "https://www.gdeltproject.org/data.html",
+    "access": "A",
+    "use": "News coverage volume",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_5186bf54c386fdf0",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "OpenAlex API",
+    "url": "https://docs.openalex.org/",
+    "access": "F",
+    "use": "Research publications and citations",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_506e3c57aac502bc",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Crossref API",
+    "url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+    "access": "A",
+    "use": "Academic article metadata",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_753a2d48c31a9d47",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Semantic Scholar API",
+    "url": "https://www.semanticscholar.org/product/api",
+    "access": "F",
+    "use": "Research paper metadata",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e89ab1d8ae605a0b",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "ClinicalTrials.gov API",
+    "url": "https://clinicaltrials.gov/data-api/api",
+    "access": "A",
+    "use": "Pharma clinical pipeline",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_6253419a33585bc5",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "FDA openFDA API",
+    "url": "https://open.fda.gov/apis/",
+    "access": "F",
+    "use": "Drug/device regulation events",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_ad3e6da397b2504f",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "USPTO PatentsView",
+    "url": "https://patentsview.org/apis/purpose",
+    "access": "F",
+    "use": "Patent technology metadata",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e876f44b99b3c66c",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "EPO OPS",
+    "url": "https://www.epo.org/en/searching-for-patents/data/web-services/ops",
+    "access": "F",
+    "use": "Global patent documents",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_e2f8a292443422dc",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "Google Patents public dataset",
+    "url": "https://console.cloud.google.com/marketplace/product/patents-public-data/google-patents-public-data",
+    "access": "F",
+    "use": "Patent publications BigQuery",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  },
+  {
+    "sourceId": "src_05449a49e89b2d5d",
+    "category": "ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",
+    "name": "GDELT TV",
+    "url": "https://blog.gdeltproject.org/",
+    "access": "R",
+    "use": "Broadcast news coverage access check",
+    "integrationStatus": "candidate",
+    "reuseStatus": "unverified"
+  }
+]

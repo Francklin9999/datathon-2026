@@ -41,7 +41,17 @@ Every non-2xx response has the body `ApiError`:
 |---|---|---|---|
 | 1.1 | GET `/health` | P0 | Liveness |
 | 1.2 | GET `/meta` | P0 | Versions, flags, disclaimer |
+| 2.6 | GET `/intelligence/entities` | P1 | Bounded official GLEIF legal-entity candidates; q 2–120 characters, limit 1–20; not a security-issuer link |
 | 2.1 | GET `/assets` | P0 | Search the universe |
+| 2.5 | GET `/assets/{ticker}/analytics` | P1 | Deterministic asset metrics and their facts; `currency`, `window`, optional `start`/`end` |
+| 3.22 | POST `/profiles/{profileId}/duplicate` | P1 | Duplicate active portfolio/context/policy into a new session-owned profile, with imported policy origin |
+| 3.21 | POST `/profiles/{profileId}/exposure-limits` | P1 | Typed user country/currency cap, expected version required |
+| 3.20 | GET `/profiles/{profileId}/goals` | P1 | Explicit-assumption goal funding scenarios; allocation overlap detected |
+| 3.18 | GET `/profiles/archived` | P1 | Session-owned archived custom profiles |
+| 3.19 | PATCH `/profiles/{profileId}/archive` | P1 | Archive/restore with archived flag and expected version |
+| 3.16 | POST `/profiles/{profileId}/accounts` | P1 | Create an explicit fictional account with name, portfolio, expected version; requires profile_creator |
+| 3.17 | POST `/profiles/{profileId}/accounts/{accountId}/select` | P1 | Select owned account or `aggregate`; expected version required |
+| 3.15 | GET `/profiles/{profileId}/risk` | P1 | Historical daily VaR/ES and signed variance shares with facts; `window`, optional `start`/`end` |
 | 2.2 | GET `/assets/{ticker}` | P0 | One asset with history summary |
 | 2.3 | POST `/assets/{ticker}/fetch` | P1 | Fetch a ticker on demand |
 | 2.4 | GET `/assets/{ticker}/attention` | P1 | Hype meter |
@@ -93,7 +103,7 @@ Every non-2xx response has the body `ApiError`:
 
 ```json
 {
-  "contractVersion": "1.1.0",
+  "contractVersion": "1.4.0",
   "dataVersion": "snap-20261113-starter",
   "dataAsOf": "2026-11-12",
   "environment": "aws",
@@ -476,6 +486,8 @@ Query: `profileId`, `from`, `to`. `200` → `{ countryIso3: string; name: I18nTe
 
 Query: `bbox`, `country`, `ticker`, `minEmissions`, `limit` (default 500, max 2,000). `200` → `{ items: Facility[]; total: number; reportingYear: number; limitations: LimitationCode[] }`.
 
+Facility captures expose optional `capturedAt` and `dataVersion` alongside `reportingYear`. Current ECCC coverage is Canada, latest completed reference year; emissions are reported tonnes CO2e excluding biomass CO2. Query `asOf` is rejected because the captured file has no original historical vintages. `ticker` filtering establishes no matches until reviewed security relationships exist. The legacy `Facility.operator` wire field carries the registry’s reporting-company legal name; it does not prove operator or owner status. The UI labels it Reporting company. Public contact fields are not retained. The data passport records attribution, rejection counts and checksums.
+
 ### 6.7 GET `/world/hazards` — flag `world_layer_hazards`
 
 Query: `from`, `to`, `type`, `bbox`, `limit`. `200` → `{ items: Hazard[]; total: number }`.
@@ -556,3 +568,39 @@ GET /world/layers → GET /world/events?from&to → click → GET /world/events/
 ```text
 GET /replay/presets → POST /runs kind=replay (asOf) → poll → POST /runs/{id}/reveal
 ```
+
+
+| GET `/world/airports` | Current static large scheduled-service airport references | `AirportsResponse` |
+
+Airport queries accept repeated ISO3 `country`, `q`, `bbox`, and `limit` (1–2000). `asOf` is rejected: this captured reference has no historical vintages. Results retain original source URL and capture time. Coordinates establish no company relationship or financial impact.
+
+### Global profile and analytics additions (1.2.0)
+
+Create/replace profile requests accept optional `investorContext`: country code (two uppercase
+letters), investorType, language, up to 20 objectives (name, horizonYears > 0, priority 1–100,
+optional targetAmount in reporting currency, optional deadline, and origin), liquidityNotes and
+riskCapacityNotes. These are user statements, not regulatory policies or verified financial
+facts. Existing profiles require no migration. Reporting coverage is advertised by `Meta.reportingCurrencies`; country context does not establish tax coverage.
+
+`GET /assets/{ticker}/analytics` accepts the same preset/custom window semantics as portfolio
+reads and a supported ISO reporting `currency`. It returns AssetAnalyticsResponse with four measurements and a
+local claims ledger. Missing history returns null values with reasons, never zero risk.
+
+`GET /profiles/{profileId}/risk` returns RiskDiagnosticsResponse with daily historical 95% VaR,
+ES, signed variance contributions and their local facts. Tail estimates require 100 returns;
+shares are undefined for zero variance. These analytics do not automatically change policy.
+
+Account creation requires explicit portfolio/value, name and expected profile version; the
+original portfolio becomes the Primary account on first creation. At most 20 accounts and 40
+positions per analyzed portfolio are supported. Selection preserves unsaved-in-account active
+holdings and increments the profile version. `accountId=aggregate` combines value-weighted
+positions in the common reporting currency, deduplicates securities and prohibits holdings
+edits. Optional creation `currency` identifies the native currency of the explicitly entered capital (default: profile reporting currency). Supported conversion uses the pinned FX snapshot at `dataAsOf`, via CAD-per-unit cross rates; missing quotes reject creation without changing state.
+
+`PortfolioAccount.nativeValuation` retains the original capital/currency, reporting value, conversion rate, snapshot and valuation date, source rows/passports and independently executed check codes. Account portfolios remain stored in reporting currency so individual and aggregate analyses share one base. These are fixed fictional capital inputs, not current asset valuations, currency trades, forecasts or transfer instructions. No spread, fees or taxes are inferred. Switching accounts does not silently revalue native capital. Editing capital explicitly in reporting currency clears the earlier native receipt. Holdings-only edits preserve it. Snapshot/version, source row identity, quote set, currency direction and multiplication are checked independently against the pinned dataset. Dates and rate inputs remain inspectable.
+All account operations require session ownership, optimistic version and profile_creator.
+
+
+| POST `/rebalance/check` | Full target allocation, including reductions and removals | `RebalanceResponse` |
+
+`RebalanceRequest` contains `profileId`, the current `profileVersion`, the complete target `positions` and optional `window`. Target weights must sum to 100%; duplicate or unsupported securities, stale profiles and empty targets are rejected. This is a read-only comparison at constant modeled capital. Omitted holdings have zero final weight. Before/after policy results, metrics, allocation changes and the calculation ledger share the pinned snapshot and reporting currency. No maximum purchase-size boundary is inferred for a multi-asset rebalance. No orders, tax lots, execution costs, spreads, liquidity, new financing, independent model review or research are implied. Missing evidence remains insufficient. The existing incremental purchase endpoint retains its existing semantics.

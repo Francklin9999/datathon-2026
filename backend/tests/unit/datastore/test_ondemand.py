@@ -96,7 +96,7 @@ class OnDemand(unittest.TestCase):
         self.assert_rejected(fetched(29), "at least 30")
 
     def test_reject_currency(self):
-        self.assert_rejected(fetched(100, currency="EUR"), "not CAD or USD")
+        self.assert_rejected(fetched(100, currency="ZZZ"), "not supported by the configured currency catalog")
 
     def test_reject_duplicate_dates(self):
         f = fetched(100)

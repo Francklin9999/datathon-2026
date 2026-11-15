@@ -11,7 +11,7 @@ import {
   WORLD_LAYER,
 } from '../src/lib/labels';
 import {
-  EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, LAYER_IDS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, addDays, buildEventsQuery, clampRange,
+  spatialReferencePins, EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, LAYER_IDS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, addDays, buildEventsQuery, clampRange,
   daysBetween, defaultRange, exposureFactId, filtersKey, isIsoDate, isResidualExposure, layerState, mergeEventPages,
   rangeIssue, thinPins, visibleEvents,
 } from '../src/lib/world';
@@ -154,7 +154,7 @@ test('layers: a toggle is enabled only with its flag on and the API reporting th
   });
   const layers = [layer('events', true), layer('exposure', true), layer('facilities', true), layer('hazards', false)];
   const flags = (on: string[]) => (flag: string) => on.includes(flag);
-  assert.deepEqual(LAYER_IDS, ['events', 'exposure', 'facilities', 'hazards']);
+  assert.deepEqual(LAYER_IDS, ['events', 'exposure', 'facilities', 'hazards', 'airports']);
   assert.equal(layerState('events', layers, flags([])).enabled, true);
   assert.equal(layerState('facilities', layers, flags([])).reason, 'flag_off');
   assert.equal(layerState('facilities', layers, flags(['world_layer_facilities'])).enabled, true);
@@ -434,6 +434,19 @@ test('site manifest identity rejects invalid or absent release information', asy
   assert.deepEqual(siteBuildIdentity({ revision: 'a'.repeat(40), built_at: '2026-11-15T05:45:39Z' }), { revision: 'a'.repeat(40), builtAt: '2026-11-15T05:45:39Z' });
   assert.equal(siteBuildIdentity({ revision: 'dev', built_at: '2026-11-15' }), null);
   assert.equal(siteBuildIdentity(null), null);
+});
+
+
+test('reference pin cap preserves sparse regions before adding dense local points', () => {
+  const dense = Array.from({ length: 50 }, (_, id) => ({ id, lat: 42, lon: -73 }));
+  const distant = { id: 99, lat: -35, lon: 150 };
+  const rows = [...dense, distant];
+  const pins = spatialReferencePins(rows, 3);
+  assert.equal(pins.length, 3);
+  assert.ok(pins.includes(distant));
+  assert.equal(new Set(pins.map(p => p.id)).size, 3);
+  assert.equal(rows.length, 51);
+  assert.deepEqual(spatialReferencePins(rows, 0), []);
 });
 
 test('globe: degenerate outlines are dropped before hexagons, centroids land inside the country', async () => {

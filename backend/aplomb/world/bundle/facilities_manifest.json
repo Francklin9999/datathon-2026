@@ -1,0 +1,31 @@
+{
+  "datasetId": "emissions_facilities",
+  "dataVersion": "snap-20261115-eccc-6c708ab589",
+  "sha256": "737aa776cdc10a07b500745a3ee193843a3d7bbf9ab4eaa4a2cc96a8cdd30ccb",
+  "projectedSourceSha256": "6c708ab58910128f7ab7fe8c713e1252c7f271bba55c8334aabc215f7c7160e9",
+  "originalSourceSha256": "f3ba90bcd0dae34dc375e05ec0b9b065f51956ad6b9ff2de1f9c6e5e1afbea41",
+  "sourceUrl": "https://data-donnees.az.ec.gc.ca/api/file?path=%2Fsubstances%2Fmonitor%2Fgreenhouse-gas-reporting-program-ghgrp-facility-greenhouse-gas-ghg-data%2FPDGES-GHGRP-GHGEmissionsGES-2004-Present.csv",
+  "licence": "Open Government Licence – Canada",
+  "licenceUrl": "https://open.canada.ca/en/open-government-licence-canada",
+  "capturedAt": "2026-11-15T13:36:26Z",
+  "publicationDate": null,
+  "reportingYear": 2024,
+  "rowCount": 1863,
+  "rejected": 16,
+  "retainedSourceColumns": [
+    "GHGRP ID No. / No d'identification du PDGES",
+    "Reference Year / Année de référence",
+    "Facility Name / Nom de l'installation",
+    "Reporting Company Legal Name / Dénomination sociale de la société déclarante",
+    "Latitude",
+    "Longitude",
+    "Total Emissions (tonnes CO2e) / Émissions totales (tonnes éq. CO2) - excl. CO2bio"
+  ],
+  "limitations": [
+    "Annual facility-reported emissions; figures may be revised. CO2 from biomass combustion excluded from total.",
+    "Canada reporting-program coverage only; not all global facilities or a comprehensive ESG score.",
+    "Reporting-company names do not establish operator/owner status, listed-security identity, parent ownership, controversy or financial impact.",
+    "Original publication/vintage unknown; current captured reference excluded from historical reconstruction.",
+    "Public-contact/personal fields are excluded from retained source projection."
+  ]
+}

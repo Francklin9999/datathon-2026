@@ -1,5 +1,9 @@
 # 00 — Team entry point
 
+Current execution plan: [three isolated agent worktrees and handoff requirements](parallel/README.md). This supersedes the historical sixteen-track ownership/cut schedule for this phase.
+
+Latest global-platform work: [implementation and evidence](18-GLOBAL-PLATFORM.md), [owner actions](19-OWNER-ACTIONS.md), [remaining full-spec engineering](20-GLOBAL-IMPLEMENTATION-BACKLOG.md). Production is unchanged; the full worldwide specification remains incomplete.
+
 Latest gap closure: [implemented fixes, real-model tests and recorded demonstration](17-GAP-CLOSURE.md). Deployment remains with the team AWS operator; SEC/GDELT source access is still an external blocker.
 
 Current hardening audit (2026-11-15): [release report](12-RELEASE-HARDENING.md) records the latest pull, local changes, live AWS smoke, connector failures and remaining release gates. It supersedes older deployment/status claims below where they differ. Hardening changes are not yet deployed.

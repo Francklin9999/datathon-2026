@@ -5,6 +5,9 @@
  * (PORT-02). Previews go through /check with overrides and are never saved implicitly.
  */
 import { useMemo, useState } from 'react';
+import { Accounts } from './Accounts';
+import { GoalFunding } from './GoalFunding';
+import { ExposureLimits } from './ExposureLimits';
 import type {
   CheckResult, DeriveRulesResponse, FrontierResponse, Lang, OverviewResponse, PolicyRule, Profile,
 } from '../../contracts/types';
@@ -47,6 +50,7 @@ function PortfolioContent({ profile }: { profile: Profile }) {
           {tr({ en: `${fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} of fictional capital for ${profile.name}.`, fr: `${fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} de capital fictif pour ${profile.name}.` })}
         </p>
       </PageHeader>
+      <Accounts key={`${profile.profileId}|${profile.version}`} profile={profile} />
       {overview.loading && <Loading />}
       {overview.error && <ErrorState error={overview.error} onRetry={overview.reload}
         title={tr({ en: 'The portfolio overview is unavailable. No figures are shown.', fr: 'L’aperçu du portefeuille est indisponible. Aucun chiffre n’est affiché.' })} />}
@@ -57,6 +61,8 @@ function PortfolioContent({ profile }: { profile: Profile }) {
           <Risk overview={overview.data} />
         </FactScopeProvider>
       )}
+      <GoalFunding profile={profile} />
+      <ExposureLimits profile={profile} />
       <Rules profile={profile} overview={overview.data} scope={scope} />
       <Frontier profile={profile} />
       {overview.data && <LimitationList compactAfter={0} codes={overview.data.limitations} />}
@@ -138,7 +144,7 @@ function Allocation({ overview }: { overview: OverviewResponse }) {
   );
 }
 
-function Risk({ overview }: { overview: OverviewResponse }) {
+export function Risk({ overview }: { overview: OverviewResponse }) {
   const { tr, lang } = useApp();
   const { risk, concentration, correlation } = overview;
   const cell = (value: number | null, key: string, signed = false) => {

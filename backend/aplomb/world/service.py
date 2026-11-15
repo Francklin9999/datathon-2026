@@ -19,7 +19,10 @@ from aplomb.contracts import api as a
 from aplomb.datastore import Snapshot
 from aplomb.quant.facts import FactContext, LocalLedger, fact_key, make_fact
 
+from .airports import filter_airports, load_airports
+from .country_macro import INDICATORS
 from .dataset import WorldDataError, WorldDataset
+from .facilities import filter_facilities, load_facilities
 from .geo import UNKNOWN_COUNTRY, country_name, in_bbox
 
 DEFAULT_FEED_DAYS = 30
@@ -46,7 +49,7 @@ COUNTRY_MACRO = {
 LINK_ORDER = ("named_in_source", "theme", "listing_country")
 # Manifest source record of an event, by the publisher of its primary source.
 SOURCE_BY_PUBLISHER = {"U.S. Geological Survey": "usgs_earthquakes", "Bank of Canada": "boc_press",
-                       "Federal Reserve Board": "fed_monetary", "Statistics Canada": "statcan_daily"}
+                       "Federal Reserve Board": "fed_monetary", "Statistics Canada": "statcan_daily", "NASA EONET": "nasa_eonet"}
 
 
 def _t(en: str, fr: str) -> dict:
@@ -137,7 +140,19 @@ class WorldServiceImpl:
         events_ok = ds is not None and bool(ds.events)
         hazards_ok = ds is not None and bool(ds.hazards)
         categories = sorted(ds.manifest["events"]["byCategory"]) if events_ok else []
+        try:
+            airport_rows, airport_meta = load_airports()
+        except (ValueError, OSError, KeyError):
+            airport_rows, airport_meta = [], None
+        try:
+            facility_rows, facility_meta = load_facilities()
+        except (ValueError, OSError, KeyError):
+            facility_rows, facility_meta = [], None
         items = [
+            {"layerId": "airports", "title": _t("Airports · static reference", "Aéroports · référence statique"),
+             "tier": "P2", "available": bool(airport_rows), "datasetIds": ["world_airports"],
+             "legend": [{"label": _t("Large scheduled-service airport", "Grand aéroport avec service régulier"), "color": "#BCA9F5"}],
+             "count": len(airport_rows) if airport_meta else None, "coverage": None},
             {"layerId": "events", "title": _t("Events", "Événements"), "tier": "P1", "available": events_ok,
              "datasetIds": ["world_events"],
              "legend": [{"label": _t(*CATEGORY_LABELS[c]), "color": CATEGORY_COLORS[c]} for c in categories],
@@ -147,8 +162,11 @@ class WorldServiceImpl:
              "legend": [{"label": _t("Share of the portfolio listed in the country", "Part du portefeuille cotée dans le pays"),
                          "color": "#1F6F8B"}],
              "count": None, "coverage": None},
-            {"layerId": "facilities", "title": _t("Emissions facilities", "Installations émettrices"), "tier": "P2",
-             "available": False, "datasetIds": ["emissions_facilities"], "legend": [], "count": None, "coverage": None},
+            {"layerId": "facilities", "title": _t("Reported emissions · Canada (ECCC)", "Émissions déclarées · Canada (ECCC)"), "tier": "P2",
+             "available": bool(facility_rows), "datasetIds": ["emissions_facilities"],
+             "legend": [{"label": _t("Reporting facility; no issuer match", "Installation déclarante; aucun émetteur associé"), "color": "#6FD0C5"}],
+             "count": len(facility_rows) if facility_meta else None,
+             "coverage": {"start": f"{facility_meta['reportingYear']}-01-01", "end": f"{facility_meta['reportingYear']}-12-31"} if facility_meta else None},
             {"layerId": "hazards", "title": _t("Earthquakes (USGS)", "Séismes (USGS)"), "tier": "P2", "available": hazards_ok,
              "datasetIds": ["natural_hazards"],
              "legend": [{"label": _t("Earthquake, magnitude 6 or more", "Séisme de magnitude 6 ou plus"), "color": "#A04000"}],
@@ -157,13 +175,31 @@ class WorldServiceImpl:
         ]
         return a.WorldLayersResponse.model_validate({"items": items})
 
+    def airports(self, session_id: str, query: dict) -> a.AirportsResponse:
+        try:
+            rows, meta = load_airports()
+        except (ValueError, OSError, KeyError) as exc:
+            raise unavailable("Airport snapshot failed integrity validation") from exc
+        if meta is None:
+            raise unavailable("Airport reference is not loaded")
+        # This capture is current reference data, never a historical reconstruction.
+        if query.get("asOf"):
+            raise _invalid("Airport reference does not support historical queries", "asOf")
+        countries = set(query.get("country") or [])
+        selected = filter_airports(rows, query=query.get("q", ""),
+            bbox=tuple(float(v) for v in query["bbox"].split(",")) if query.get("bbox") else None)
+        if countries:
+            selected = [row for row in selected if row["countryIso3"] in countries]
+        return a.AirportsResponse.model_validate({"items": selected[:query.get("limit", 2000)],
+            "total": len(selected), "dataVersion": meta["dataVersion"], "capturedAt": meta["capturedAt"]})
+
     # 6.2 events -------------------------------------------------------------------------------
 
     def _filter(self, ds: WorldDataset, query: dict, start: str, end: str) -> list[dict]:
         categories = set(query.get("category") or [])
         countries = set(query.get("country") or [])
         origins = set(query.get("origin") or [])
-        allowed = {"gdelt", "official", "curated", "usgs", "firms", "live"}
+        allowed = {"gdelt", "official", "curated", "usgs", "firms", "live", "eonet"}
         if origins - allowed:
             raise _invalid("origin must be one of " + ", ".join(sorted(allowed)), "origin")
         needle = (query.get("q") or "").strip().casefold()
@@ -332,11 +368,12 @@ class WorldServiceImpl:
 
     # 6.5 country panel ------------------------------------------------------------------------
 
-    def _macro_facts(self, iso3: str) -> list[dict]:
+    def _macro_facts(self, iso3: str, as_of: str | None = None) -> list[dict]:
         snap = self.snapshot()
-        gate = snap.gate(snap.data_as_of, "current")
+        effective = min(as_of, snap.data_as_of) if as_of else snap.data_as_of
+        gate = snap.gate(effective, "historical" if as_of else "current")
         passport = gate.describe("macro_rates")
-        ctx = FactContext(snap.data_as_of, self._now(), snap.data_version)
+        ctx = FactContext(effective, self._now(), snap.data_version)
         ledger = LocalLedger()
         for series_id, unit, decimals, label_fr in COUNTRY_MACRO.get(iso3, ()):
             sl = gate.macro(series_id, None, None)
@@ -357,6 +394,35 @@ class WorldServiceImpl:
                 checks=[{"code": "gated_inputs", "ok": True,
                          "detail": f"Latest row visible through the temporal gate (current, as of {snap.data_as_of}); "
                                    f"{sl.rows_withheld} later row(s) withheld."}]))
+        dataset = self.dataset()
+        source = dataset.country_macro_manifest
+        # Current-only: asOf date queries cannot see WDI rows before capture. These rows
+        # are unavailable to replay workflows, which use the separately gated snapshot.
+        if source and (as_of is None or source["retrievedAt"][:10] <= as_of):
+            context = FactContext(source["retrievedAt"][:10], self._now(), source["dataVersion"])
+            for row in dataset.country_macro:
+                if row["countryIso3"] != iso3:
+                    continue
+                indicator = row["indicatorId"]
+                en, fr, unit = INDICATORS[indicator]
+                year = row["observationYear"]
+                ledger.add_fact(make_fact(
+                    context, key=fact_key("macro.level", "macro", f"wdi:{iso3}:{indicator}", "na", "latest"),
+                    kind="observed", metric="macro.level", label=_t(f"{en} ({year})", f"{fr} ({year})"),
+                    value=row["value"], unit=unit, currency="USD" if unit == "usd" else None,
+                    subject={"type": "macro", "id": f"wdi:{iso3}:{indicator}", "variant": "na"},
+                    method_id="M_OBSERVED_ROW", created_by="world", available_at=row["availableAt"],
+                    period={"start": f"{year}-01-01", "end": row["observedAt"]},
+                    params={"seriesId": indicator, "countryIso3": iso3,
+                            "observationYear": year, "publicationDate": "unknown",
+                            "availabilityBasis": "first captured; original vintage unknown"}, n_obs=1,
+                    sources=[{"datasetId": "world_bank_indicators", "dataVersion": source["dataVersion"],
+                              "sourceName": "World Bank, World Development Indicators",
+                              "sourceUrl": f"https://data.worldbank.org/indicator/{indicator}?locations={iso3}",
+                              "retrievedOn": row["retrievedAt"][:10], "licence": source["licence"], "rowsRead": 1}],
+                    limitations=["LIM_MACRO_REVISED"], decimals=2 if unit == "pct" else 0,
+                    checks=[{"code": "wdi_snapshot_integrity", "ok": True,
+                             "detail": "Read from checksum-verified WDI snapshot; observation year is not publication date."}]))
         return list(ledger.wire().values())
 
     def country(self, session_id: str, iso3: str, query: dict) -> a.WorldCountryResponse:
@@ -372,13 +438,23 @@ class WorldServiceImpl:
         return a.WorldCountryResponse.model_validate({
             "countryIso3": iso3, "name": country_name(iso3), "exposure": exposure,
             "events": [self._wire_event(e) for e in self._sorted(events, "importance")[:20]],
-            "macro": self._macro_facts(iso3)})
+            "macro": self._macro_facts(iso3, query.get("asOf"))})
 
     # 6.6 / 6.7 optional layers ----------------------------------------------------------------
 
     def facilities(self, session_id: str, query: dict) -> a.FacilitiesResponse:
-        # No facility registry is loaded (cut-list item 2); the layer reports available = false.
-        raise unavailable("Emissions facilities dataset")
+        try:
+            rows, meta = load_facilities()
+        except (ValueError, OSError, KeyError) as exc:
+            raise unavailable("Emissions facilities snapshot failed integrity validation") from exc
+        if meta is None:
+            raise unavailable("Emissions facilities dataset")
+        if query.get("asOf"):
+            raise _invalid("Facility capture has no original historical vintages", "asOf")
+        selected = filter_facilities(rows, query)
+        return a.FacilitiesResponse.model_validate({"items": selected[:query.get("limit", 500)],
+            "total": len(selected), "reportingYear": meta["reportingYear"], "capturedAt": meta["capturedAt"],
+            "dataVersion": meta["dataVersion"], "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"]})
 
     def hazards(self, session_id: str, query: dict) -> a.HazardsResponse:
         ds = self.dataset()

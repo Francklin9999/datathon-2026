@@ -18,6 +18,9 @@ MINUS = "−"
 NBSP = " "  # narrow no-break space used before % and units in French
 
 METHOD_TEXT: dict[str, tuple[str, str]] = {
+    "M_GOAL_FUNDING_SCENARIO": ("Capital compounded under explicit user-assumed return, with contributions at each whole-year end. Nominal illustration, not forecast; excludes tax, fees, inflation and withdrawals.", "Capital composé selon un rendement supposé explicite, avec contributions à chaque fin d'année entière. Illustration nominale, sans prévision; hors fiscalité, frais, inflation et retraits."),
+    "M_HISTORICAL_TAIL": ("One-day historical losses: largest ceil(0.05*n) observations; VaR is tail minimum, ES its mean, floored at zero. At least 100 returns.", "Pertes historiques journalières : ceil(0,05*n) observations extrêmes; VaR = minimum de la queue, ES = moyenne, plancher zéro. Au moins 100 rendements."),
+    "M_VARIANCE_SHARE": ("Signed sample variance share: 100*w_i*Cov(r_i,r_p)/Var(r_p).", "Part signée de variance : 100*w_i*Cov(r_i,r_p)/Var(r_p)."),
     "M_GATE_COUNT": ("Receipt of the source datasets and SHA-256 of the gated dates and currency-converted price levels consumed by code.", "Reçu des sources et SHA-256 des dates filtrées et niveaux de prix convertis utilisés par le code."),
     "M_PRICE_ADJ_CLOSE": ("Adjusted close (splits and dividends) as published.", "Clôture ajustée (fractionnements et dividendes) telle que publiée."),
     "M_FX_BOC_FFILL": ("Bank of Canada USD/CAD rate of the day, or the last rate published before it.", "Taux USD/CAD de la Banque du Canada du jour, ou le dernier taux publié avant."),
@@ -70,7 +73,7 @@ def display(value, unit: str, currency: str | None = None, decimals: int | None 
     if unit == "pts":
         d = 1 if decimals is None else decimals
         return {"en": _num(value, d, "en") + " pts", "fr": _num(value, d, "fr") + " pts"}
-    if unit in ("cad", "usd"):
+    if unit in ("cad", "usd", "currency"):
         d = 0 if decimals is None else decimals
         ccy = currency or unit.upper()
         return {"en": f"{_num(value, d, 'en')} {ccy}", "fr": f"{_num(value, d, 'fr')}{NBSP}{ccy}"}

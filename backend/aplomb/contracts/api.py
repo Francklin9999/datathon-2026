@@ -14,6 +14,7 @@ from .base import (
     ISODateTime,
     NonNegative,
     Number,
+    Percent,
     ProfileId,
     RunId,
     String,
@@ -40,6 +41,7 @@ from .models import (
     HoldingExposure,
     HorizonYears,
     I18nText,
+    InvestorContext,
     Lang,
     Objective,
     PartialProfile,
@@ -75,6 +77,53 @@ class AssetsResponse(WireModel):
     total: Count
 
 
+class EntityCandidate(WireModel):
+    lei: String
+    legal_name: String
+    jurisdiction: String | None
+    entity_status: String | None
+    record_url: String
+    match_status: Literal["candidate"]
+
+
+class EntitySource(WireModel):
+    provider: String
+    url: String
+    retrieved_at: ISODateTime
+    available_at: ISODateTime
+    published_at: ISODateTime | None
+    content_sha256: String
+    licence: String
+    licence_url: String
+
+
+class EntitySearchResponse(WireModel):
+    query: String
+    items: list[EntityCandidate]
+    total: Count
+    returned: Count
+    rejected: Count
+    truncated: Boolean
+    source: EntitySource
+    limitations: list[String]
+
+
+class AssetMeasurement(WireModel):
+    value: Number | None
+    fact_id: FactId | None
+    unavailable_reason: String | None
+
+
+class AssetAnalyticsResponse(WireModel):
+    asset: Asset
+    currency: Currency
+    data_version: DataVersion
+    as_of: ISODate
+    window: WindowSpec
+    metrics: dict[str, AssetMeasurement]
+    facts: dict[str, Fact]
+
+
 class FetchAssetResponse(WireModel):
     asset: Asset
     accepted: Boolean
@@ -92,6 +141,16 @@ class AttentionResponse(WireModel):
     fact: Fact | None
     evidence: Evidence | None
     series: list[PageviewsPoint]
+
+
+class RiskDiagnosticsResponse(WireModel):
+    profile_id: ProfileId
+    currency: Currency
+    data_version: DataVersion
+    window: WindowSpec
+    metrics: dict[str, AssetMeasurement]
+    contributions: dict[str, AssetMeasurement]
+    facts: dict[str, Fact]
 
 
 class ProfilesResponse(WireModel):
@@ -115,6 +174,7 @@ class CreateProfileRequest(WireModel):
     portfolio: InitialPortfolio | None
     rules: list[PolicyRule] | None
     from_draft_run_id: RunId | None
+    investor_context: InvestorContext | None = None
 
 
 class UpdateProfileRequest(CreateProfileRequest):
@@ -149,6 +209,50 @@ class DeriveRulesResponse(WireModel):
     rules: list[PolicyRule]
     facts: dict[FactId, Fact]
     profile_version: Count
+
+
+class GoalFundingScenario(WireModel):
+    name: String
+    state: Literal["missing_assumptions", "scenario_funded", "scenario_shortfall"]
+    projected_value: NonNegative | None
+    funding_gap: NonNegative | None
+    fact_ids: dict[str, FactId]
+
+
+class GoalFundingResponse(WireModel):
+    profile_id: ProfileId
+    currency: Currency
+    overallocated: Boolean
+    unallocated_value: NonNegative
+    goals: list[GoalFundingScenario]
+    facts: dict[str, Fact]
+
+
+class DuplicateProfileRequest(WireModel):
+    name: Annotated[String, Field(min_length=1, max_length=40)] | None = None
+
+
+class AddExposureLimitRequest(WireModel):
+    dimension: Literal["country", "currency"]
+    key: Annotated[String, Field(pattern=r"^[A-Z]{3}$")]
+    threshold: Annotated[Number, Field(ge=0, le=100)]
+    version: Annotated[int, Field(strict=True, ge=1)]
+
+
+class ArchiveProfileRequest(WireModel):
+    archived: Boolean
+    version: Annotated[int, Field(strict=True, ge=1)]
+
+
+class CreateAccountRequest(WireModel):
+    currency: Currency | None = None
+    name: Annotated[String, Field(min_length=1, max_length=80)]
+    version: Annotated[int, Field(strict=True, ge=1)]
+    portfolio: InitialPortfolio
+
+
+class SelectAccountRequest(WireModel):
+    version: Annotated[int, Field(strict=True, ge=1)]
 
 
 class UpdatePortfolioRequest(InitialPortfolio):
@@ -274,6 +378,41 @@ class CheckRequest(WireModel):
     window: WindowSpec = None
     as_of: ISODate = None
     compare_funding: Boolean = None
+
+
+class RebalanceRequest(WireModel):
+    profile_id: ProfileId
+    profile_version: Annotated[int, Field(strict=True, ge=1)]
+    positions: Annotated[list[Position], Field(min_length=1, max_length=40, json_schema_extra={"tsType": "Position[]"})]
+    window: WindowSpec | None = None
+
+
+class AllocationChange(WireModel):
+    ticker: Ticker
+    before_pct: Percent
+    target_pct: Percent
+    change_pct: Number
+
+
+class RebalanceResponse(WireModel):
+    profile_id: ProfileId
+    profile_version: Annotated[int, Field(strict=True, ge=1)]
+    currency: Currency
+    total_value: NonNegative
+    as_of: ISODate
+    data_version: DataVersion
+    window: WindowSpec
+    changes: list[AllocationChange]
+    portfolio_before: PortfolioSnapshot
+    portfolio_after: PortfolioSnapshot
+    verdict_before: Verdict
+    verdict_after: Verdict
+    counts_before: VerdictCounts
+    counts_after: VerdictCounts
+    rule_checks_before: list[RuleCheck]
+    rule_checks_after: list[RuleCheck]
+    facts: dict[FactId, Fact]
+    assumptions: list[I18nText]
 
 
 class BatchCheckRequest(WireModel):
@@ -437,10 +576,31 @@ class WorldCountryResponse(WireModel):
 
 
 class FacilitiesResponse(WireModel):
+    captured_at: ISODateTime | None = None
+    data_version: DataVersion | None = None
     items: list[Facility]
     total: Count
     reporting_year: int
     limitations: list[LimitationCode]
+
+
+class AirportReference(WireModel):
+    airport_id: String
+    ident: String
+    name: String
+    lat: Annotated[float, Field(ge=-90, le=90)]
+    lon: Annotated[float, Field(ge=-180, le=180)]
+    country_iso2: String | None
+    country_iso3: String | None
+    source_url: String
+    captured_at: ISODateTime
+
+
+class AirportsResponse(WireModel):
+    items: list[AirportReference]
+    total: Count
+    data_version: DataVersion
+    captured_at: ISODateTime
 
 
 class HazardsResponse(WireModel):

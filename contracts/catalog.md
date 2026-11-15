@@ -16,6 +16,12 @@ Every code used in a payload is listed here. Adding a value is an additive contr
 | `return.trailing` | Return over a trailing window (1y, 3y, 5y) | pct | quant |
 | `return.worst_12m` | Worst rolling 252-observation return in the window | pct | quant |
 | `vol.annualized` | Annualized volatility of daily returns | pct | quant |
+| `input.goal_assumption` | Explicit user goal scenario input | currency / ratio / pct | profiles |
+| `goal.projected_value` | Hypothetical goal balance under explicit assumptions | currency | profiles |
+| `goal.funding_gap` | Target minus scenario balance, floored at zero | currency | profiles |
+| `risk.var95` | Historical daily 95% Value at Risk, loss convention | pct | quant |
+| `risk.es95` | Historical daily 95% Expected Shortfall, loss convention | pct | quant |
+| `risk.variance_share` | Signed contribution to portfolio variance | pct | quant |
 | `drawdown.max` | Maximum peak-to-trough decline in the window (reported as a positive number) | pct | quant |
 | `corr.pair` | Correlation of daily returns between two assets | ratio | quant |
 | `value.portfolio` | Total portfolio value | cad / usd | quant |
@@ -30,6 +36,7 @@ Every code used in a payload is listed here. Adding a value is an additive contr
 | `weight.fixed_income` | Fixed-income group + cash group | pct | quant |
 | `weight.diversifiers` | Fixed income + cash + commodity groups | pct | quant |
 | `weight.theme` | Weight of positions carrying a theme tag | pct | quant |
+| `weight.currency` | Quotation-currency weight, not fund look-through or hedged economic exposure | pct | quant |
 | `weight.country` | Weight by listing country | pct | quant |
 | `concentration.hhi` | Sum of squared weights | ratio | quant |
 | `concentration.effective_n` | 1 ÷ HHI | count | quant |
@@ -66,6 +73,9 @@ Each method is described once, with its formula, in the spec of the module that 
 | `M_RET_SIMPLE` | `P_end ÷ P_start − 1` on adjusted prices | quant §5 |
 | `M_RET_CALENDAR_YEAR` | Simple return from the last observation of year Y−1 to the last observation of year Y | quant §5 |
 | `M_VOL_STDEV_252` | Sample standard deviation (n−1) of daily simple returns × √252 | quant §6 |
+| `M_GOAL_FUNDING_SCENARIO` | Allocated capital compounded with explicit annual contributions/return; not a forecast | profiles/goals |
+| `M_HISTORICAL_TAIL` | Largest ceil(0.05 × n) daily losses; VaR is tail minimum, ES is tail mean, floored at zero | quant §11 |
+| `M_VARIANCE_SHARE` | 100 × w_i (Σw)_i / (wᵀΣw), sample daily-return covariance | quant §11 |
 | `M_MDD_PEAK_TROUGH` | Minimum of `value ÷ running maximum − 1` | quant §6 |
 | `M_WORST_ROLLING_252` | Minimum 252-observation simple return | quant §6 |
 | `M_CORR_PEARSON` | Pearson correlation of daily simple returns on the master calendar | quant §6 |
@@ -120,6 +130,10 @@ Each method is described once, with its formula, in the spec of the module that 
 Sector slugs: lower-case sector label with spaces replaced by `_` (`energy`, `information_technology`, `consumer_discretionary`, …).
 
 ---
+
+Parameterized policy additions: `cap.country.<ISO3>` evaluates the listing-country proxy;
+`cap.currency.<ISO4217>` evaluates quotation-currency weights. Both are typed user assumptions,
+with percent caps in [0,100], and imply neither economic look-through nor regulatory duties.
 
 ## 4. Not-enough-evidence reasons (`NeeReason`)
 
@@ -227,6 +241,9 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `assets_universe` | Asset master list | P0 |
 | `prices_daily` | Daily OHLC, close, adjusted close, volume | P0 |
 | `corporate_actions` | Dividends and splits | P0 |
+| `fx_boc_global` | Bank of Canada global exchange rates | P1 |
+| `world_airports` | OurAirports static large scheduled-service airport reference | P2 |
+| `world_bank_indicators` | Worldwide annual country indicators | P1 |
 | `fx_usdcad_daily` | USD/CAD from the Bank of Canada | P0 |
 | `macro_rates` | Policy rates, yields, CPI, unemployment | P0 |
 | `asset_themes` | Theme tags per asset with justification | P0 |

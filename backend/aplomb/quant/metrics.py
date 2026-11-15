@@ -105,3 +105,39 @@ def pearson(a: Sequence[float], b: Sequence[float]) -> float | None:
 def hhi(weights: Sequence[float]) -> float:
     """Sum of squared fractional weights."""
     return math.fsum(w * w for w in weights)
+
+
+def historical_tail_pct(returns: Sequence[float], confidence: float = .95) -> tuple[float, float] | None:
+    """One-day historical loss VaR / ES. Equal-weight discrete tail, no interpolation.
+
+    Positive means loss; gains-only samples return zero. At least 100 daily returns.
+    """
+    if not 0 < confidence < 1 or any(not math.isfinite(x) for x in returns):
+        raise ValueError("Finite returns and confidence strictly between zero and one required")
+    if len(returns) < 100:
+        return None
+    count = max(1, math.ceil(round((1 - confidence) * len(returns), 12)))
+    losses = sorted((-r * 100 for r in returns), reverse=True)[:count]
+    return max(0.0, losses[-1]), max(0.0, math.fsum(losses) / count)
+
+
+def variance_shares_pct(weights: Sequence[float], asset_returns: Sequence[Sequence[float]]) -> list[float] | None:
+    """Euler shares of variance; negative shares indicate sample diversification."""
+    if len(weights) != len(asset_returns) or not weights or any(not math.isfinite(w) for w in weights):
+        raise ValueError("One series per weight required")
+    n = len(asset_returns[0])
+    if any(len(x) != n for x in asset_returns) or any(not math.isfinite(v) for x in asset_returns for v in x):
+        raise ValueError("Aligned finite return series required")
+    if n < 2:
+        return None
+    portfolio = portfolio_returns(weights, asset_returns)
+    mean_p = math.fsum(portfolio) / n
+    variance = math.fsum((r - mean_p) ** 2 for r in portfolio) / (n - 1)
+    if variance <= 1e-24:
+        return None
+    result = []
+    for weight, series in zip(weights, asset_returns, strict=True):
+        mean = math.fsum(series) / n
+        cov = math.fsum((r - mean) * (p - mean_p) for r, p in zip(series, portfolio, strict=True)) / (n - 1)
+        result.append(100 * weight * cov / variance)
+    return result

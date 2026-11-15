@@ -98,7 +98,7 @@ NORMALIZED: dict[str, NormalizedSchema] = {
             Column("asset_class", "string", "equity | etf_equity | etf_bond | etf_commodity | crypto"),
             Column("asset_group", "string", "equity | fixed_income | commodity | crypto (schemas.md §3 mapping)"),
             Column("market", "string", "Listing market label as in the source"),
-            Column("currency", "string", "Listing currency (CAD or USD)"),
+            Column("currency", "string", "Listing ISO currency code"),
             Column("sector", "string", "Sector label from the source; 'unknown' when unsourced"),
             Column("gics_sector", "string", "Same label when it is one of the 11 GICS sector names, else empty"),
             Column("country", "string", "ISO-3166 alpha-3 of the listing market; empty for crypto or unknown"),
@@ -145,6 +145,14 @@ NORMALIZED: dict[str, NormalizedSchema] = {
             Column("date", "date", "Bank of Canada publication day"),
             Column("usdcad", "number", "CAD per 1 USD"),
             Column("cadusd", "number", "USD per 1 CAD (organizer: 1/usdcad rounded to 6 decimals)"),
+            *_AVAIL,
+        ),
+    ),
+    "fx_boc_global": NormalizedSchema(
+        "fx_boc_global", 1, "date", (
+            Column("date", "date", "Bank of Canada daily observation date"),
+            Column("currency", "string", "ISO currency quoted in CAD per one unit"),
+            Column("cad_per_unit", "number", "Indicative Canadian dollars per one unit of currency"),
             *_AVAIL,
         ),
     ),

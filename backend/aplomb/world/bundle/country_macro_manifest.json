@@ -1,0 +1,66 @@
+{
+  "apiDocUrl": "https://datahelpdesk.worldbank.org/knowledgebase/articles/898581-api-basic-call-structures",
+  "availabilityRule": "Observed year is not publication date. Original availability is unknown; retrievedAt is the earliest proven availability. No historical replay.",
+  "catalogUrl": "https://datacatalog.worldbank.org/search/dataset/0037712/world-development-indicators",
+  "countryCount": 217,
+  "coverage": {
+    "end": "2025-12-31",
+    "start": "2009-01-01"
+  },
+  "dataVersion": "snap-20261115-wdi-0ee245c6f686",
+  "datasetId": "world_bank_indicators",
+  "licence": "World Bank WDI, CC BY 4.0 with additional terms; third-party rights may apply",
+  "licenceUrl": "https://datacatalog.worldbank.org/public-licenses",
+  "retrievedAt": "2026-11-15T12:29:00Z",
+  "rowCount": 838,
+  "sha256": "0ee245c6f68698e0c10f3fa7d553e391985c9bccc49fb986a57c57e703043b88",
+  "sources": [
+    {
+      "accepted": 217,
+      "contentSha256": "99c199efc2fc2880c169eb611f5a32ba69adc0e225b83f54fe384a5d66ba2448",
+      "indicatorId": "country_catalog",
+      "retrievedAt": "2026-11-15T12:29:00Z",
+      "url": "https://api.worldbank.org/v2/country?format=json&per_page=1000"
+    },
+    {
+      "accepted": 214,
+      "contentSha256": "a6fe70d137bc6811208349fe6a81f94e17cfc3b3acae7cb606001720f80fdac0",
+      "indicatorId": "NY.GDP.MKTP.KD.ZG",
+      "lastUpdated": "2026-11-11",
+      "rejected": 0,
+      "retrievedAt": "2026-11-15T12:29:00Z",
+      "sourceRows": 524,
+      "url": "https://api.worldbank.org/v2/country/all/indicator/NY.GDP.MKTP.KD.ZG?format=json&mrnev=2&per_page=1000"
+    },
+    {
+      "accepted": 193,
+      "contentSha256": "0ef33f26286233c4343bdce905626a7799db174ebef2ab92879fcaf318a0dadd",
+      "indicatorId": "FP.CPI.TOTL.ZG",
+      "lastUpdated": "2026-11-11",
+      "rejected": 0,
+      "retrievedAt": "2026-11-15T12:29:00Z",
+      "sourceRows": 481,
+      "url": "https://api.worldbank.org/v2/country/all/indicator/FP.CPI.TOTL.ZG?format=json&mrnev=2&per_page=1000"
+    },
+    {
+      "accepted": 217,
+      "contentSha256": "a8bf5d5fca97dbc40fe64e31ce1494d4fe75d7d6363e42d3bb9d91adc9d965fb",
+      "indicatorId": "SP.POP.TOTL",
+      "lastUpdated": "2026-11-11",
+      "rejected": 0,
+      "retrievedAt": "2026-11-15T12:29:00Z",
+      "sourceRows": 530,
+      "url": "https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?format=json&mrnev=2&per_page=1000"
+    },
+    {
+      "accepted": 214,
+      "contentSha256": "5f9ca44d28e248e3cef95544efbf7f4e5b952934b5ab41d2654c28478aca0fc8",
+      "indicatorId": "NY.GDP.MKTP.CD",
+      "lastUpdated": "2026-11-11",
+      "rejected": 0,
+      "retrievedAt": "2026-11-15T12:29:00Z",
+      "sourceRows": 524,
+      "url": "https://api.worldbank.org/v2/country/all/indicator/NY.GDP.MKTP.CD?format=json&mrnev=2&per_page=1000"
+    }
+  ]
+}

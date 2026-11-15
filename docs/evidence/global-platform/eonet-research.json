@@ -1,0 +1,9 @@
+{
+  "url": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_6051",
+  "textLength": 5262,
+  "contentType": "application/rss+xml",
+  "contentHash": "ee3ed50e3d9f612f39b3feb96adb8aacd8e024cee5cd5ea9ed80a87fffcaf8d9",
+  "retrievedAt": "2026-11-15T07:41:47.357299+00:00",
+  "sourceTitlePresent": true,
+  "scope": "Current metadata retrieval only; not a verified financial exposure or real-model summary"
+}

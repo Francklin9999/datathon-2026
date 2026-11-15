@@ -20,6 +20,8 @@ export interface NavItem { href: string; label: I18NText; icon: LucideIcon; flag
 export const NAV: readonly NavItem[] = [
   { href: '/', label: { en: 'Home', fr: 'Accueil' }, icon: LayoutDashboard, tour: 'nav-home' },
   { href: '/portfolio/', label: { en: 'Portfolio', fr: 'Portefeuille' }, icon: PieChart, tour: 'nav-portfolio' },
+  { href: '/markets/', label: { en: 'Markets', fr: 'Marchés' }, icon: BookOpen, tour: 'nav-markets' },
+  { href: '/risk-intelligence/', label: { en: 'Risk', fr: 'Risques' }, icon: ShieldCheck, tour: 'nav-risk' },
   { href: '/decision-desk/', label: { en: 'Decide', fr: 'Décider' }, icon: Scale, tour: 'nav-decide' },
   { href: '/world-explorer/', label: { en: 'World', fr: 'Monde' }, icon: Earth, flag: 'world_explorer', tour: 'nav-world' },
   { href: '/evidence-audit/', label: { en: 'Evidence', fr: 'Preuves' }, icon: ShieldCheck, tour: 'nav-evidence' },

@@ -361,3 +361,16 @@ def test_research_transport_timeout_is_explicit():
             raise TimeoutError("external timeout")
     with pytest.raises(ResearchError, match="request_timeout"):
         service(Timeout()).fetch(URL, CTX)
+
+
+def test_eonet_rss_metadata_is_captureable_but_never_available_in_replay():
+    url = 'https://eonet.gsfc.nasa.gov/api/v3/events/EONET_1'
+    transport = Recorded(response('<rss><title>Synthetic storm</title></rss>', **{'content-type': 'application/rss+xml; charset=utf-8'}))
+    svc = service(transport)
+    doc = svc.fetch(url, CTX)
+    assert doc.content_type == 'application/rss+xml'
+    assert verify_quote(doc, 'Synthetic storm').ok
+    assert policy_for('eonet.gsfc.nasa.gov').publisher == 'NASA EONET'
+    with pytest.raises(ResearchError):
+        svc.fetch(url, ResearchContext('REPLAY', NOW.date(), mode='replay'))
+    assert len(transport.calls) == 1

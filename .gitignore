@@ -13,3 +13,6 @@ cdk.out/
 .env.*
 !.env.example
 !.env.*.example
+
+# Independent parallel-agent working copies
+/.worktrees/

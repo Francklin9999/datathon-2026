@@ -6,6 +6,7 @@ import type {
 import { validateHoldings, type HoldingsIssue } from './holdings';
 
 export interface ProfileForm {
+  investorContext?: Profile["investorContext"];
   name: string;
   age: string;
   riskLevel: RiskLevel | '';
@@ -51,6 +52,7 @@ function prefsToForm(p: Preferences1): PreferenceFields {
 /** Form pre-filled from an existing profile; saving a copy of a default creates a new ID (api.md 3.3). */
 export function formFromProfile(profile: Profile, copySuffix = ''): ProfileForm {
   return {
+    investorContext: profile.investorContext ? structuredClone(profile.investorContext) : profile.investorContext,
     name: `${profile.name}${copySuffix}`.slice(0, 40),
     age: profile.age === null ? '' : String(profile.age),
     riskLevel: profile.riskLevel,
@@ -81,6 +83,7 @@ export function applyDraft(form: ProfileForm, draft: PartialProfile): { form: Pr
   if (draft.objective !== undefined) { next.objective = draft.objective; filled.push('objective'); }
   if (draft.experience !== undefined) { next.experience = draft.experience; filled.push('experience'); }
   if (draft.reportingCurrency !== undefined) { next.reportingCurrency = draft.reportingCurrency; filled.push('reportingCurrency'); }
+  if (draft.investorContext !== undefined) { next.investorContext = structuredClone(draft.investorContext); filled.push('investorContext'); }
   if (draft.preferences !== undefined) { Object.assign(next, prefsToForm(draft.preferences)); filled.push('preferences'); }
   if (draft.portfolio !== undefined) {
     next.ownHoldings = true;
@@ -112,11 +115,15 @@ export function validateProfileForm(form: ProfileForm): ProfileFormIssue[] {
   const name = form.name.trim();
   if (!name) issues.push({ field: 'name', code: 'required' });
   else if (name.length > 40) issues.push({ field: 'name', code: 'too_long' });
+  const context = form.investorContext;
+  if (context?.country && !/^[A-Z]{2}$/.test(context.country)) issues.push({ field: 'investorContext', code: 'invalid' });
+  if (context?.objectives?.some(g => !g.name.trim() || !Number.isFinite(g.horizonYears) || g.horizonYears <= 0 || g.horizonYears > 150)) issues.push({ field: 'investorContext', code: 'invalid' });
   const age = num(form.age);
   if (age !== null && (Number.isNaN(age) || age < 0 || age > 120 || !Number.isInteger(age))) issues.push({ field: 'age', code: 'invalid' });
   for (const field of ['riskLevel', 'objective', 'experience', 'reportingCurrency'] as const) {
     if (!form[field]) issues.push({ field, code: 'required' });
   }
+  if (form.reportingCurrency && !/^[A-Z]{3}$/.test(form.reportingCurrency)) issues.push({ field: 'reportingCurrency', code: 'invalid' });
   const min = num(form.horizonMin);
   const max = num(form.horizonMax);
   if (min === null) issues.push({ field: 'horizonMin', code: 'required' });
@@ -153,5 +160,6 @@ export function toCreateRequest(form: ProfileForm, fromDraftRunId: string | null
     portfolio: form.ownHoldings ? { totalValue: Number(form.capital), positions: formPositions(form) } : null,
     rules: null,
     fromDraftRunId,
+    ...(form.investorContext ? { investorContext: structuredClone(form.investorContext) } : {}),
   };
 }

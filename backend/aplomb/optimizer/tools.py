@@ -58,14 +58,14 @@ class MacroArgs(Args):
 class AssetMetricsArgs(Args):
     ticker: str
     window: dict | None = None
-    currency: Literal["CAD", "USD"] | None = None
+    currency: m.Currency | None = None
 
 
 class CalendarYearArgs(Args):
     ticker: str
     year: int = Field(ge=1900, le=2100)
     variant: str = "before"
-    currency: Literal["CAD", "USD"] | None = None
+    currency: m.Currency | None = None
 
 
 class VariantArgs(Args):

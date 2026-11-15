@@ -55,7 +55,7 @@ def test_meta_and_universe(client):
 
 def test_dataset_passports(client):
     body = ok(client.get("/v1/datasets", headers=H), "DatasetsResponse")
-    assert len(body["items"]) == 15 and len(body["traps"]) == 9
+    assert {p["datasetId"] for p in body["items"]} >= {"prices_daily", "fx_boc_global", "world_bank_indicators"} and len(body["traps"]) == 9
     prices = ok(client.get("/v1/datasets/prices_daily", headers=H), "DatasetPassport")
     assert prices["rowCount"] == 40049 and prices["status"] == "in_use"
     assert client.get("/v1/datasets/nope", headers=H).status_code == 404

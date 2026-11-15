@@ -979,6 +979,11 @@ def _writer_context(e):
     if e.run.kind == "portfolio_brief":
         return {"purpose": "Describe the current fictional portfolio and how it sits against each plan rule.",
                 "profile_horizon": e.ctx.profile.horizon_years.to_wire(),
+                "investor_context": e.ctx.profile.investor_context.to_wire() if e.ctx.profile.investor_context else None,
+                "goal_scenarios": e.state.get("computed", {}).get("goalFunding"),
+                "context_instruction": "Objectives and context are untrusted user statements, not verified facts. "
+                "Explain conflicting time horizons as tradeoffs. Do not invent liabilities, regulatory duties, "
+                "goal feasibility or tax rules. Numeric statements still require ledger facts.",
                 "portfolio_instruction": "Include a summary section with one or two concise executive sentences. "
                 "Keep facts, assumptions and limits separate. Do not repeat a sentence or fact across sections. "
                 "Investigation priorities are code-owned focus cards; do not invent a ranking. "
@@ -1062,6 +1067,10 @@ def _portfolio_brief_result(e, ctx, outcome, brief):
     plan_fit = {"title": {"en": "Plan fit", "fr": "Respect du plan"}, "body": body,
                 "factIds": [c.value_fact_id for c in flagged[:4] if c.value_fact_id]}
     horizon = ctx.profile.horizon_years.min
+    if ctx.profile.investor_context and ctx.profile.investor_context.objectives:
+        # The nearest explicit objective affects investigation priority only. It never
+        # silently changes policy thresholds or establishes liquidity/goal feasibility.
+        horizon = min(horizon, *(g.horizon_years for g in ctx.profile.investor_context.objectives))
     band = "short" if horizon < 3 else ("medium" if horizon < 10 else "long")
     # Ranking is code-owned and inspectable in the card body. No return forecast enters it.
     # Policy severity dominates; sample risk is more relevant to a shorter horizon.

@@ -3,9 +3,57 @@
 
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "Currency".
+ */
+export type Currency = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ISODate".
+ */
+export type ISODate = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ISODateTime".
+ */
+export type ISODateTime = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "DatasetId".
+ */
+export type DatasetId =
+  | "assets_universe"
+  | "prices_daily"
+  | "corporate_actions"
+  | "fx_boc_global"
+  | "world_airports"
+  | "world_bank_indicators"
+  | "fx_usdcad_daily"
+  | "macro_rates"
+  | "asset_themes"
+  | "default_profiles"
+  | "macro_release_dates"
+  | "etf_holdings"
+  | "world_events"
+  | "attention_pageviews"
+  | "emissions_facilities"
+  | "natural_hazards"
+  | "research_documents"
+  | "filings_index";
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "DataVersion".
+ */
+export type DataVersion = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "AgentRole".
  */
 export type AgentRole = "planner" | "researcher" | "quant" | "risk_officer" | "writer" | "auditor";
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "Ticker".
+ */
+export type Ticker = string;
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "RunId".
@@ -27,11 +75,6 @@ export type ErrorCode =
   | "internal";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "Ticker".
- */
-export type Ticker = string;
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "AssetClass".
  */
 export type AssetClass = "equity" | "etf_equity" | "etf_bond" | "etf_commodity" | "crypto" | "cash";
@@ -40,11 +83,6 @@ export type AssetClass = "equity" | "etf_equity" | "etf_bond" | "etf_commodity" 
  * via the `definition` "AssetGroup".
  */
 export type AssetGroup = "equity" | "fixed_income" | "commodity" | "crypto" | "cash";
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "Currency".
- */
-export type Currency = "CAD" | "USD";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "ThemeTag".
@@ -79,11 +117,6 @@ export type ThemeTag =
   | "dividend_payers";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "ISODate".
- */
-export type ISODate = string;
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "AssetFlag".
  */
 export type AssetFlag =
@@ -96,39 +129,14 @@ export type AssetFlag =
   | "sector_label_unsourced";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "DataVersion".
+ * via the `definition` "WindowCode".
  */
-export type DataVersion = string;
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "DatasetId".
- */
-export type DatasetId =
-  | "assets_universe"
-  | "prices_daily"
-  | "corporate_actions"
-  | "fx_usdcad_daily"
-  | "macro_rates"
-  | "asset_themes"
-  | "default_profiles"
-  | "macro_release_dates"
-  | "etf_holdings"
-  | "world_events"
-  | "attention_pageviews"
-  | "emissions_facilities"
-  | "natural_hazards"
-  | "research_documents"
-  | "filings_index";
+export type WindowCode = "full" | "1y" | "3y" | "5y" | "ytd" | "custom";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "FactId".
  */
 export type FactId = string;
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "EvidenceId".
- */
-export type EvidenceId = string;
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "FactKey".
@@ -152,6 +160,12 @@ export type MetricCode =
   | "return.trailing"
   | "return.worst_12m"
   | "vol.annualized"
+  | "input.goal_assumption"
+  | "goal.projected_value"
+  | "goal.funding_gap"
+  | "risk.var95"
+  | "risk.es95"
+  | "risk.variance_share"
   | "drawdown.max"
   | "corr.pair"
   | "value.portfolio"
@@ -166,6 +180,7 @@ export type MetricCode =
   | "weight.fixed_income"
   | "weight.diversifiers"
   | "weight.theme"
+  | "weight.currency"
   | "weight.country"
   | "concentration.hhi"
   | "concentration.effective_n"
@@ -191,17 +206,7 @@ export type MetricCode =
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Unit".
  */
-export type Unit = "pct" | "pts" | "ratio" | "count" | "days" | "cad" | "usd" | "date" | "text" | "bool";
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "WindowCode".
- */
-export type WindowCode = "full" | "1y" | "3y" | "5y" | "ytd" | "custom";
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "ISODateTime".
- */
-export type ISODateTime = string;
+export type Unit = "pct" | "pts" | "ratio" | "count" | "days" | "cad" | "usd" | "currency" | "date" | "text" | "bool";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "MethodId".
@@ -213,6 +218,9 @@ export type MethodId =
   | "M_RET_SIMPLE"
   | "M_RET_CALENDAR_YEAR"
   | "M_VOL_STDEV_252"
+  | "M_GOAL_FUNDING_SCENARIO"
+  | "M_HISTORICAL_TAIL"
+  | "M_VARIANCE_SHARE"
   | "M_MDD_PEAK_TROUGH"
   | "M_WORST_ROLLING_252"
   | "M_CORR_PEARSON"
@@ -269,6 +277,11 @@ export type LimitationCode =
   | "LIM_ATTENTION_PROXY"
   | "LIM_REGISTRY_MATCH"
   | "LIM_MV_ILLUSTRATION";
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EvidenceId".
+ */
+export type EvidenceId = string;
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "EvidenceType".
@@ -403,7 +416,7 @@ export type RuleType = "cap" | "floor" | "limit" | "exclude" | "evidence" | "fla
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "RuleOrigin".
  */
-export type RuleOrigin = "derived" | "profile_preference" | "user" | "system";
+export type RuleOrigin = "derived" | "profile_preference" | "user" | "system" | "imported";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "SabotageMode".
@@ -501,15 +514,24 @@ export type RulePatchRequest1 = {
 };
 
 export interface AplombContracts {
+  AccountFXQuote: AccountFXQuote;
+  AccountValuation: AccountValuation;
+  AddExposureLimitRequest: AddExposureLimitRequest;
   AgentRole: AgentRole;
+  AirportReference: AirportReference;
+  AirportsResponse: AirportsResponse;
+  AllocationChange: AllocationChange;
   AnswerRequest: AnswerRequest;
   AnswerResponse: AnswerResponse;
   ApiError: ApiError;
+  ArchiveProfileRequest: ArchiveProfileRequest;
   Asset: Asset;
+  AssetAnalyticsResponse: AssetAnalyticsResponse;
   AssetClass: AssetClass;
   AssetFlag: AssetFlag;
   AssetGroup: AssetGroup;
   AssetHistory: AssetHistory;
+  AssetMeasurement: AssetMeasurement;
   AssetsResponse: AssetsResponse;
   AttentionResponse: AttentionResponse;
   AttentionSignal: AttentionSignal;
@@ -532,6 +554,7 @@ export interface AplombContracts {
   Concentration: Concentration;
   Correlation: Correlation;
   CountryExposure: CountryExposure;
+  CreateAccountRequest: CreateAccountRequest;
   CreateDecisionRunRequest: CreateDecisionRunRequest;
   CreateEventBriefRunRequest: CreateEventBriefRunRequest;
   CreatePortfolioBriefRunRequest: CreatePortfolioBriefRunRequest;
@@ -554,7 +577,11 @@ export interface AplombContracts {
   DecisionRunResult: DecisionRunResult;
   DeriveRulesRequest: DeriveRulesRequest;
   DeriveRulesResponse: DeriveRulesResponse;
+  DuplicateProfileRequest: DuplicateProfileRequest;
   EmptyRequest: EmptyRequest;
+  EntityCandidate: EntityCandidate;
+  EntitySearchResponse: EntitySearchResponse;
+  EntitySource: EntitySource;
   ErrorCode: ErrorCode;
   ErrorDetail: ErrorDetail;
   EventBriefInput: EventBriefInput;
@@ -595,6 +622,8 @@ export interface AplombContracts {
   FundingOption: FundingOption;
   GateDataset: GateDataset;
   GateReport: GateReport;
+  GoalFundingResponse: GoalFundingResponse;
+  GoalFundingScenario: GoalFundingScenario;
   GoalRequest: GoalRequest;
   GroupWeight: GroupWeight;
   GuardrailAudit: GuardrailAudit;
@@ -608,6 +637,8 @@ export interface AplombContracts {
   ISODate: ISODate;
   ISODateTime: ISODateTime;
   InitialPortfolio: InitialPortfolio;
+  InvestmentGoal: InvestmentGoal;
+  InvestorContext: InvestorContext;
   LabelWeight: LabelWeight;
   Lang: Lang;
   LegendItem: LegendItem;
@@ -631,7 +662,8 @@ export interface AplombContracts {
   PerformanceResponse: PerformanceResponse;
   Period: Period;
   PolicyRule: PolicyRule;
-  Portfolio: Portfolio1;
+  Portfolio: Portfolio;
+  PortfolioAccount: PortfolioAccount;
   PortfolioBriefInput: PortfolioBriefInput;
   PortfolioBriefResult: PortfolioBriefResult;
   PortfolioBriefRunResult: PortfolioBriefRunResult;
@@ -647,6 +679,8 @@ export interface AplombContracts {
   ProposedMove: ProposedMove;
   QuestionOption: QuestionOption;
   QueuedRunResponse: QueuedRunResponse;
+  RebalanceRequest: RebalanceRequest;
+  RebalanceResponse: RebalanceResponse;
   Refusal: Refusal;
   ReplayInput: ReplayInput;
   ReplayPreset: ReplayPreset;
@@ -657,6 +691,7 @@ export interface AplombContracts {
   RevealRequest: RevealRequest;
   RevealResult: RevealResult;
   ReviewFinding: ReviewFinding;
+  RiskDiagnosticsResponse: RiskDiagnosticsResponse;
   RiskLevel: RiskLevel;
   RuleBounds: RuleBounds;
   RuleCheck: RuleCheck;
@@ -690,6 +725,7 @@ export interface AplombContracts {
   ScenarioId: ScenarioId;
   ScenarioKind: ScenarioKind;
   Segment: Segment;
+  SelectAccountRequest: SelectAccountRequest;
   Sentence: Sentence;
   SentenceAudit: SentenceAudit;
   SeriesPoint: SeriesPoint;
@@ -732,6 +768,91 @@ export interface AplombContracts {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AccountFXQuote".
+ */
+export interface AccountFXQuote {
+  currency: Currency;
+  cadPerUnit: number;
+  observedOn: ISODate;
+  availableAt: ISODateTime;
+  source: SourceRef;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "SourceRef".
+ */
+export interface SourceRef {
+  datasetId: DatasetId;
+  dataVersion: DataVersion;
+  sourceName: string;
+  sourceUrl: string | null;
+  retrievedOn: ISODate;
+  licence: string;
+  rowsRead: number | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AccountValuation".
+ */
+export interface AccountValuation {
+  verifiedChecks?: string[];
+  nativeCurrency: Currency;
+  nativeValue: number;
+  reportingCurrency: Currency;
+  reportingValue: number;
+  conversionRate: number;
+  valuationDate: ISODate;
+  capturedAt: ISODateTime;
+  dataVersion: DataVersion;
+  quotes: AccountFXQuote[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AddExposureLimitRequest".
+ */
+export interface AddExposureLimitRequest {
+  dimension: "country" | "currency";
+  key: string;
+  threshold: number;
+  version: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AirportReference".
+ */
+export interface AirportReference {
+  airportId: string;
+  ident: string;
+  name: string;
+  lat: number;
+  lon: number;
+  countryIso2: string | null;
+  countryIso3: string | null;
+  sourceUrl: string;
+  capturedAt: ISODateTime;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AirportsResponse".
+ */
+export interface AirportsResponse {
+  items: AirportReference[];
+  total: number;
+  dataVersion: DataVersion;
+  capturedAt: ISODateTime;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AllocationChange".
+ */
+export interface AllocationChange {
+  ticker: Ticker;
+  beforePct: number;
+  targetPct: number;
+  changePct: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "AnswerRequest".
  */
 export interface AnswerRequest {
@@ -767,6 +888,14 @@ export interface ErrorDetail {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ArchiveProfileRequest".
+ */
+export interface ArchiveProfileRequest {
+  archived: boolean;
+  version: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Asset".
  */
 export interface Asset {
@@ -799,45 +928,38 @@ export interface AssetHistory {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "AssetsResponse".
+ * via the `definition` "AssetAnalyticsResponse".
  */
-export interface AssetsResponse {
-  items: Asset[];
-  nextCursor: string | null;
-  total: number;
+export interface AssetAnalyticsResponse {
+  asset: Asset;
+  currency: Currency;
+  dataVersion: DataVersion;
+  asOf: ISODate;
+  window: WindowSpec;
+  metrics: {
+    [k: string]: AssetMeasurement;
+  };
+  facts: {
+    [k: string]: Fact;
+  };
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "AttentionResponse".
+ * via the `definition` "WindowSpec".
  */
-export interface AttentionResponse {
-  signal: AttentionSignal;
-  fact: Fact | null;
-  evidence: Evidence | null;
-  series: PageviewsPoint[];
+export interface WindowSpec {
+  code: WindowCode;
+  start?: string;
+  end?: string;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "AttentionSignal".
+ * via the `definition` "AssetMeasurement".
  */
-export interface AttentionSignal {
-  ticker: Ticker;
-  article: string;
-  ratio: number | null;
-  recentPeriod: Period;
-  baselinePeriod: Period;
-  flag: "elevated" | "normal" | "unknown";
+export interface AssetMeasurement {
+  value: number | null;
   factId: FactId | null;
-  evidenceId: EvidenceId | null;
-}
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "Period".
- */
-export interface Period {
-  start: ISODate;
-  end: ISODate;
-  label?: string;
+  unavailableReason: string | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -888,6 +1010,7 @@ export interface FactSubject {
     | "asset_class"
     | "theme"
     | "country"
+    | "currency"
     | "rule"
     | "macro"
     | "event"
@@ -898,12 +1021,12 @@ export interface FactSubject {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "WindowSpec".
+ * via the `definition` "Period".
  */
-export interface WindowSpec {
-  code: WindowCode;
-  start?: string;
-  end?: string;
+export interface Period {
+  start: ISODate;
+  end: ISODate;
+  label?: string;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -915,19 +1038,6 @@ export interface FactMethod {
   params: {
     [k: string]: number | string | boolean;
   };
-}
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "SourceRef".
- */
-export interface SourceRef {
-  datasetId: DatasetId;
-  dataVersion: DataVersion;
-  sourceName: string;
-  sourceUrl: string | null;
-  retrievedOn: ISODate;
-  licence: string;
-  rowsRead: number | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -945,6 +1055,39 @@ export interface VerificationCheck {
   code: string;
   ok: boolean;
   detail: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AssetsResponse".
+ */
+export interface AssetsResponse {
+  items: Asset[];
+  nextCursor: string | null;
+  total: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AttentionResponse".
+ */
+export interface AttentionResponse {
+  signal: AttentionSignal;
+  fact: Fact | null;
+  evidence: Evidence | null;
+  series: PageviewsPoint[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AttentionSignal".
+ */
+export interface AttentionSignal {
+  ticker: Ticker;
+  article: string;
+  ratio: number | null;
+  recentPeriod: Period;
+  baselinePeriod: Period;
+  flag: "elevated" | "normal" | "unknown";
+  factId: FactId | null;
+  evidenceId: EvidenceId | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -1447,6 +1590,7 @@ export interface ProfileDraftInput {
 export interface PartialProfile {
   profileId?: string;
   isDefault?: boolean;
+  archived?: boolean;
   origin?: "brief" | "user" | "agent_draft";
   name?: string;
   initial?: string;
@@ -1457,11 +1601,14 @@ export interface PartialProfile {
   objective?: "preserve" | "balanced" | "growth";
   objectiveText?: I18NText1;
   experience?: "beginner" | "intermediate" | "advanced";
-  reportingCurrency?: "CAD" | "USD";
+  reportingCurrency?: string;
   preferences?: Preferences;
   blurb?: I18NText2;
   personaTest?: I18NText | null;
-  portfolio?: Portfolio;
+  investorContext?: InvestorContext | null;
+  accounts?: PortfolioAccount[];
+  activeAccountId?: string | null;
+  portfolio?: Portfolio1;
   rules?: PolicyRule[];
   version?: number;
   createdAt?: string;
@@ -1490,6 +1637,48 @@ export interface I18NText2 {
   en: string;
   fr: string;
 }
+/**
+ * Optional global context. Jurisdiction is context, not a sourced tax policy.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "InvestorContext".
+ */
+export interface InvestorContext {
+  country?: string | null;
+  investorType?:
+    | "individual"
+    | "retirement"
+    | "income"
+    | "crypto"
+    | "institutional"
+    | "family_office"
+    | "endowment"
+    | "pension"
+    | "wealth_manager"
+    | "advisor"
+    | "custom";
+  language?: "en" | "fr";
+  /**
+   * @maxItems 20
+   */
+  objectives?: InvestmentGoal[];
+  liquidityNotes?: string;
+  riskCapacityNotes?: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "PortfolioAccount".
+ */
+export interface PortfolioAccount {
+  nativeValuation?: AccountValuation | null;
+  accountId: string;
+  name: string;
+  portfolio: Portfolio;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "Portfolio".
+ */
 export interface Portfolio {
   isFictional: true;
   totalValue: number;
@@ -1504,6 +1693,13 @@ export interface Portfolio {
 export interface Position {
   ticker: Ticker;
   weightPct: number;
+}
+export interface Portfolio1 {
+  isFictional: true;
+  totalValue: number;
+  currency: Currency;
+  positions: Position[];
+  updatedAt: ISODateTime;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -1534,7 +1730,8 @@ export interface PolicyRule {
  * via the `definition` "RuleTarget".
  */
 export interface RuleTarget {
-  dimension: "position" | "sector" | "asset_class" | "asset_group" | "theme" | "portfolio" | "none";
+  dimension:
+    "position" | "sector" | "asset_class" | "asset_group" | "theme" | "portfolio" | "country" | "currency" | "none";
   key: string | null;
 }
 /**
@@ -1760,7 +1957,7 @@ export interface WorldEvent {
   occurredAt: ISODate;
   publishedAt: ISODateTime | null;
   location: EventLocation;
-  origin: "gdelt" | "official" | "curated" | "usgs" | "firms" | "live";
+  origin: "gdelt" | "official" | "curated" | "usgs" | "firms" | "live" | "eonet";
   /**
    * @minItems 1
    */
@@ -2008,6 +2205,24 @@ export interface HoldingWeight {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "CreateAccountRequest".
+ */
+export interface CreateAccountRequest {
+  currency?: Currency | null;
+  name: string;
+  version: number;
+  portfolio: InitialPortfolio;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "InitialPortfolio".
+ */
+export interface InitialPortfolio {
+  totalValue: number;
+  positions: Position[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "CreateDecisionRunRequest".
  */
 export interface CreateDecisionRunRequest {
@@ -2062,6 +2277,7 @@ export interface CreateProfileDraftRunRequest {
 export interface PartialProfile1 {
   profileId?: string;
   isDefault?: boolean;
+  archived?: boolean;
   origin?: "brief" | "user" | "agent_draft";
   name?: string;
   initial?: string;
@@ -2072,11 +2288,14 @@ export interface PartialProfile1 {
   objective?: "preserve" | "balanced" | "growth";
   objectiveText?: I18NText1;
   experience?: "beginner" | "intermediate" | "advanced";
-  reportingCurrency?: "CAD" | "USD";
+  reportingCurrency?: string;
   preferences?: Preferences;
   blurb?: I18NText2;
   personaTest?: I18NText | null;
-  portfolio?: Portfolio;
+  investorContext?: InvestorContext | null;
+  accounts?: PortfolioAccount[];
+  activeAccountId?: string | null;
+  portfolio?: Portfolio1;
   rules?: PolicyRule[];
   version?: number;
   createdAt?: string;
@@ -2098,6 +2317,7 @@ export interface CreateProfileRequest {
   portfolio: InitialPortfolio | null;
   rules: PolicyRule[] | null;
   fromDraftRunId: RunId | null;
+  investorContext?: InvestorContext | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2121,14 +2341,6 @@ export interface Preferences1 {
   cryptoInterest: "none" | "low" | "open";
   wantsDiversification: boolean;
   notes: string;
-}
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "InitialPortfolio".
- */
-export interface InitialPortfolio {
-  totalValue: number;
-  positions: Position[];
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2235,14 +2447,63 @@ export interface DeriveRulesResponse {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "DuplicateProfileRequest".
+ */
+export interface DuplicateProfileRequest {
+  name?: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "EmptyRequest".
  */
 export interface EmptyRequest {}
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EntityCandidate".
+ */
+export interface EntityCandidate {
+  lei: string;
+  legalName: string;
+  jurisdiction: string | null;
+  entityStatus: string | null;
+  recordUrl: string;
+  matchStatus: "candidate";
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EntitySearchResponse".
+ */
+export interface EntitySearchResponse {
+  query: string;
+  items: EntityCandidate[];
+  total: number;
+  returned: number;
+  rejected: number;
+  truncated: boolean;
+  source: EntitySource;
+  limitations: string[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EntitySource".
+ */
+export interface EntitySource {
+  provider: string;
+  url: string;
+  retrievedAt: ISODateTime;
+  availableAt: ISODateTime;
+  publishedAt: ISODateTime | null;
+  contentSha256: string;
+  licence: string;
+  licenceUrl: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "FacilitiesResponse".
  */
 export interface FacilitiesResponse {
+  capturedAt?: ISODateTime | null;
+  dataVersion?: DataVersion | null;
   items: Facility[];
   total: number;
   reportingYear: number;
@@ -2340,6 +2601,33 @@ export interface FrontierResponse {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "GoalFundingResponse".
+ */
+export interface GoalFundingResponse {
+  profileId: ProfileId;
+  currency: Currency;
+  overallocated: boolean;
+  unallocatedValue: number;
+  goals: GoalFundingScenario[];
+  facts: {
+    [k: string]: Fact;
+  };
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "GoalFundingScenario".
+ */
+export interface GoalFundingScenario {
+  name: string;
+  state: "missing_assumptions" | "scenario_funded" | "scenario_shortfall";
+  projectedValue: number | null;
+  fundingGap: number | null;
+  factIds: {
+    [k: string]: FactId;
+  };
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Hazard".
  */
 export interface Hazard {
@@ -2370,6 +2658,23 @@ export interface HealthResponse {
   time: ISODateTime;
 }
 /**
+ * User-stated objective, never a promise of an achievable return.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "InvestmentGoal".
+ */
+export interface InvestmentGoal {
+  name: string;
+  horizonYears: number;
+  priority: number;
+  targetAmount?: number | null;
+  allocatedValue?: number | null;
+  annualContribution?: number | null;
+  assumedReturnPct?: number | null;
+  deadline?: ISODate | null;
+  origin?: "user" | "imported" | "assumption";
+}
+/**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "LegendItem".
  */
@@ -2382,6 +2687,7 @@ export interface LegendItem {
  * via the `definition` "Meta".
  */
 export interface Meta {
+  reportingCurrencies?: Currency[];
   contractVersion: string;
   dataVersion: DataVersion;
   dataAsOf: ISODate;
@@ -2516,22 +2822,12 @@ export interface PerformanceResponse {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "Portfolio".
- */
-export interface Portfolio1 {
-  isFictional: true;
-  totalValue: number;
-  currency: Currency;
-  positions: Position[];
-  updatedAt: ISODateTime;
-}
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Profile".
  */
 export interface Profile {
   profileId: ProfileId;
   isDefault: boolean;
+  archived?: boolean;
   origin: "brief" | "user" | "agent_draft";
   name: string;
   initial: string;
@@ -2546,7 +2842,10 @@ export interface Profile {
   preferences: Preferences1;
   blurb: I18NText;
   personaTest: I18NText | null;
-  portfolio: Portfolio1;
+  investorContext?: InvestorContext | null;
+  accounts?: PortfolioAccount[];
+  activeAccountId?: string | null;
+  portfolio: Portfolio;
   rules: PolicyRule[];
   version: number;
   createdAt: ISODateTime;
@@ -2567,6 +2866,46 @@ export interface QueuedRunResponse {
   runId: RunId;
   status: "queued";
   pollAfterMs: 1000;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RebalanceRequest".
+ */
+export interface RebalanceRequest {
+  profileId: ProfileId;
+  profileVersion: number;
+  /**
+   * @minItems 1
+   * @maxItems 40
+   */
+  positions: Position[];
+  window?: WindowSpec | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RebalanceResponse".
+ */
+export interface RebalanceResponse {
+  profileId: ProfileId;
+  profileVersion: number;
+  currency: Currency;
+  totalValue: number;
+  asOf: ISODate;
+  dataVersion: DataVersion;
+  window: WindowSpec;
+  changes: AllocationChange[];
+  portfolioBefore: PortfolioSnapshot;
+  portfolioAfter: PortfolioSnapshot;
+  verdictBefore: Verdict;
+  verdictAfter: Verdict;
+  countsBefore: VerdictCounts;
+  countsAfter: VerdictCounts;
+  ruleChecksBefore: RuleCheck[];
+  ruleChecksAfter: RuleCheck[];
+  facts: {
+    [k: string]: Fact;
+  };
+  assumptions: I18NText[];
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2619,6 +2958,25 @@ export interface RevealResult {
   };
   statement: I18NText;
 }
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RiskDiagnosticsResponse".
+ */
+export interface RiskDiagnosticsResponse {
+  profileId: ProfileId;
+  currency: Currency;
+  dataVersion: DataVersion;
+  window: WindowSpec;
+  metrics: {
+    [k: string]: AssetMeasurement;
+  };
+  contributions: {
+    [k: string]: AssetMeasurement;
+  };
+  facts: {
+    [k: string]: Fact;
+  };
+}
 export interface RulePatchRequest2 {
   threshold?: number;
   enabled?: boolean;
@@ -2663,6 +3021,13 @@ export interface SabotageRequest {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "SelectAccountRequest".
+ */
+export interface SelectAccountRequest {
+  version: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "UpdatePortfolioRequest".
  */
 export interface UpdatePortfolioRequest {
@@ -2686,6 +3051,7 @@ export interface UpdateProfileRequest {
   portfolio: InitialPortfolio | null;
   rules: PolicyRule[] | null;
   fromDraftRunId: RunId | null;
+  investorContext?: InvestorContext | null;
   version: number;
 }
 /**
@@ -2710,7 +3076,7 @@ export interface WorldEventItem {
   occurredAt: ISODate;
   publishedAt: ISODateTime | null;
   location: EventLocation;
-  origin: "gdelt" | "official" | "curated" | "usgs" | "firms" | "live";
+  origin: "gdelt" | "official" | "curated" | "usgs" | "firms" | "live" | "eonet";
   /**
    * @minItems 1
    */
@@ -2761,7 +3127,7 @@ export interface WorldExposureResponse {
  * via the `definition` "WorldLayer".
  */
 export interface WorldLayer {
-  layerId: "events" | "exposure" | "facilities" | "hazards";
+  layerId: "events" | "exposure" | "facilities" | "hazards" | "airports";
   title: I18NText;
   tier: "P1" | "P2";
   available: boolean;

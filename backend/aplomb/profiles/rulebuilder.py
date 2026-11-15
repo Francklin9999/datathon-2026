@@ -36,7 +36,7 @@ def make_rule(rule_id: str, code: str, *, threshold: float | None, origin: str, 
 
 
 _METRICS = {
-    "weight.position.max_single", "weight.sector.max", "weight.growth_assets", "weight.fixed_income", "weight.diversifiers",
+    "weight.country", "weight.currency", "weight.position.max_single", "weight.sector.max", "weight.growth_assets", "weight.fixed_income", "weight.diversifiers",
     "weight.asset_group", "weight.asset_class", "weight.sector", "weight.position", "weight.theme", "vol.annualized",
     "stress.replay_2022", "drawdown.max", "attention.pageviews_ratio", "stress.rate_cycle",
 }

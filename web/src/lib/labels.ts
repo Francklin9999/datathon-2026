@@ -304,6 +304,7 @@ export const EVENT_ORIGIN: Labels<WorldEvent['origin']> = {
   gdelt: l('GDELT news index (cached batch)', 'Index de nouvelles GDELT (lot en cache)'),
   official: l('Official source', 'Source officielle'),
   curated: l('Curated from loaded datasets', 'Sélection tirée des jeux de données chargés'),
+  eonet: l('NASA EONET natural events', 'Événements naturels NASA EONET'),
   usgs: l('USGS earthquake feed', 'Flux sismique USGS'),
   firms: l('NASA FIRMS fire detections', 'Détections d’incendies NASA FIRMS'),
   live: l('Live lookup', 'Recherche en direct'),
@@ -350,6 +351,7 @@ export const WORLD_LAYER: Labels<WorldLayer['layerId']> = {
   // Fallback only: the page shows the API's own layer title, which says what is loaded (earthquakes
   // today). This label must not name a hazard type the dataset may not contain.
   hazards: l('Natural hazards', 'Aléas naturels'),
+  airports: l('Airports · static reference', 'Aéroports · référence statique'),
 };
 
 export const MATCH_CONFIDENCE: Labels<Facility['matchConfidence']> = {

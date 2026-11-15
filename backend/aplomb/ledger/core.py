@@ -29,7 +29,7 @@ class DocumentRef:
 
 # Methods that are arithmetic or a comparison on stipulated values only. A derived fact produced
 # by any other method must state when its data became available.
-TIMELESS_METHODS = frozenset({"M_PROFILE_ASSUMPTION", "M_WEIGHTS_AFTER_MOVE", "M_USER_INPUT", "M_RULE_COMPARE"})
+TIMELESS_METHODS = frozenset({"M_PROFILE_ASSUMPTION", "M_WEIGHTS_AFTER_MOVE", "M_USER_INPUT", "M_RULE_COMPARE", "M_GOAL_FUNDING_SCENARIO"})
 
 
 def is_timeless(fact, facts) -> bool:

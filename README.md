@@ -1,5 +1,9 @@
 # Aplomb — evidence before conviction
 
+Current three-agent execution: [parallel launch instructions and assignments](docs/parallel/README.md). The prepared baseline is contract 1.4.0; no parallel worker is started automatically.
+
+Global-platform expansion: [profiles/accounts, markets, risk and EONET implementation](docs/18-GLOBAL-PLATFORM.md), [owner actions](docs/19-OWNER-ACTIONS.md), and [remaining full-spec engineering](docs/20-GLOBAL-IMPLEMENTATION-BACKLOG.md). This local expansion is not deployed; the complete worldwide specification is not yet fulfilled.
+
 Latest gap closure: [implemented fixes, real-model tests and recorded demonstration](docs/17-GAP-CLOSURE.md). Deployment remains with the team AWS operator; SEC/GDELT source access is still an external blocker.
 
 Current hardening audit (2026-11-15): [release report](docs/12-RELEASE-HARDENING.md) records the latest pull, local changes, live AWS smoke, connector failures and remaining release gates. It supersedes older deployment/status claims below where they differ. Hardening changes are not yet deployed.

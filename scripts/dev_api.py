@@ -29,8 +29,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 # Flags with an implemented provider. On-demand tickers is advertised only when APLOMB_TIINGO_TOKEN
 # is set (the local data directory is writable). Open-web research, guardrails and the
-# facilities layer have no provider here, so switching them on would change nothing.
-FEATURES = ("bilingual", "world_explorer", "world_layer_hazards", "time_machine", "profile_creator",
+# other unconfigured optional sources have no provider here, so switching them on would change nothing.
+FEATURES = ("bilingual", "world_explorer", "world_layer_hazards", "world_layer_facilities", "time_machine", "profile_creator",
             "goal_requests", "frontier_chart", "on_demand_tickers", "sabotage_demo")
 # Git-ignored local settings (for example APLOMB_TIINGO_TOKEN). Only APLOMB_* keys are read.
 ENV_FILE = ROOT / ".env"
@@ -85,6 +85,11 @@ def main() -> int:
     if not data_dir.is_absolute():
         data_dir = (ROOT / data_dir).resolve()
         env["APLOMB_DATA_DIR"] = str(data_dir)
+    manifest_path = ROOT / "data" / "manifests" / f"{version}.json"
+    pinned = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+    if "fx_boc_global" in pinned.get("datasets", {}) and not (data_dir / "normalized" / version).exists():
+        from aplomb.datastore.global_fx import materialize_pinned_global_fx
+        materialize_pinned_global_fx(data_dir, ROOT / "data", version)
     if not (data_dir / "normalized" / version).exists():
         print(f"Materializing snapshot {version} under {data_dir} ...", flush=True)
         # --no-activate: serving another version for one session must not rewrite the tracked active.json.

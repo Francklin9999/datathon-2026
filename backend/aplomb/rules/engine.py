@@ -57,6 +57,10 @@ def _what(rule: PolicyRule) -> dict:
         return {"en": f"{d.target_key} sector", "fr": f"secteur {SECTOR_FR.get(d.target_key, d.target_key)}"}
     if rule.rule_id.startswith("exclude.asset_class."):
         return {"en": f"asset class {d.target_key}", "fr": f"classe d'actifs {d.target_key}"}
+    if rule.rule_id.startswith("cap.currency."):
+        return {"en": f"Quotation-currency weight in {d.target_key}", "fr": f"Le poids par devise de cotation en {d.target_key}"}
+    if rule.rule_id.startswith("cap.country."):
+        return {"en": f"Listing-country proxy weight in {d.target_key}", "fr": f"Le poids par pays de cotation en {d.target_key}"}
     if rule.rule_id.startswith("cap.theme."):
         return {"en": f"Positions tagged {d.target_key}", "fr": f"Les positions étiquetées {d.target_key}"}
     return {"en": rule.label.en, "fr": rule.label.fr}

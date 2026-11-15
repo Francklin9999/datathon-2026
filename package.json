@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "generate:contracts": "uv run python scripts/export_contracts.py && node scripts/generate_contracts.mjs",
-    "check:generated": "uv run python scripts/export_contracts.py --check && node scripts/generate_contracts.mjs --check",
+    "check:generated": "uv run python scripts/export_contracts.py --check && node scripts/generate_contracts.mjs --check && uv run python scripts/build_source_directory.py --check",
     "dev:api": "uv run python scripts/dev_api.py",
     "dev:web": "npm run dev --workspace web",
     "dev:web:aws": "npm run dev:aws --workspace web",
@@ -18,7 +18,7 @@
     "typecheck": "npm run typecheck --workspace web",
     "test:contracts": "npm run test:contracts --workspace web",
     "check:infra": "npm --prefix infra run check",
-    "check:python": "uv run ruff check backend/aplomb backend/tests scripts/export_contracts.py scripts/live_agents_smoke.py scripts/deploy_site.py && uv run pytest",
+    "check:python": "uv run ruff check backend/aplomb backend/tests scripts/export_contracts.py scripts/live_agents_smoke.py scripts/deploy_site.py scripts/build_source_directory.py scripts/ingest_eonet.py && uv run pytest",
     "check": "npm run check:generated && npm run check:python && npm run typecheck && npm run test:contracts && uv run python scripts/check_specs.py && npm run check:infra"
   },
   "devDependencies": {

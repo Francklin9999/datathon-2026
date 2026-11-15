@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type {
-  EventCategory, FacilitiesResponse, HazardsResponse, Period, Profile, WorldEvent, WorldEventItem,
+  AirportsResponse, EventCategory, FacilitiesResponse, HazardsResponse, Period, Profile, WorldEvent, WorldEventItem,
   WorldExposureResponse, WorldLayer, WorldLayersResponse,
 } from '../../contracts/types';
 import { ThemeTag as THEMES } from '../../contracts/catalog';
@@ -30,7 +30,7 @@ import {
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct } from '../../lib/format';
 import { countryLabel, isKnownIso3 } from '../../lib/geo';
 import {
-  EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, buildEventsQuery, clampRange,
+  EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, spatialReferencePins, buildEventsQuery, clampRange,
   defaultRange, eventSelectionPatch, exposureFactId, filtersKey, isResidualExposure, layerState, mergeEventPages, mergeSelection,
   rangeIssue, selectionQuery, thinPins, visibleEvents, type LayerId, type LayerUnavailable, type RangeIssue, type WorldFilters,
   type WorldSelection, type WorldSelectionPatch,
@@ -42,6 +42,7 @@ import type { GlobePin } from './globeStyle';
 const TITLE = { en: 'World Explorer', fr: 'Explorateur mondial' };
 const THEME_TAGS = Object.values(THEMES);
 const EXTRA_LAYER_LIMIT = 500;
+
 
 export function WorldExplorerPage() {
   const { tr, feature, meta } = useApp();
@@ -133,7 +134,7 @@ function WorldContent({ profile }: { profile: Profile }) {
     signal => getApiClient().worldLayers(signal));
   const layerItems: WorldLayer[] | null = layers.data?.items ?? null;
   const layerCoverage = layerItems?.find(layer => layer.layerId === 'events')?.coverage ?? null;
-  const [layersOn, setLayersOn] = useState<Record<LayerId, boolean>>({ events: true, exposure: true, facilities: false, hazards: false });
+  const [layersOn, setLayersOn] = useState<Record<LayerId, boolean>>({ events: true, exposure: true, facilities: false, hazards: false, airports: false });
   const layerStates = useMemo(() => Object.fromEntries(LAYER_IDS.map(id => {
     const state = layerState(id, layerItems, feature);
     // Without a layer list, the two core layers follow their own endpoints (feed, exposure).
@@ -239,6 +240,11 @@ function WorldContent({ profile }: { profile: Profile }) {
   const hazards = useQuery<HazardsResponse>(hazardsOn && sessionId && meta && applied ? `world-hazards|${sessionId}|${meta.dataVersion}|${applied.from}|${applied.to}` : null,
     signal => getApiClient().worldHazards({ limit: EXTRA_LAYER_LIMIT, ...(applied?.from && applied.to ? { from: applied.from, to: applied.to } : {}) }, signal));
 
+  const airportsOn = isOn('airports');
+  const airports = useQuery<AirportsResponse>(airportsOn && sessionId ? `world-airports|${sessionId}|${countryIso3 ?? ''}` : null,
+    signal => getApiClient().worldAirports({ limit: 2000, ...(countryIso3 ? { country: [countryIso3] } : {}) }, signal));
+  const airportPins = useMemo(() => spatialReferencePins(airports.data?.items ?? [], MAX_PINS), [airports.data]);
+
   // ----- pins (capped separately from the feed) -----
   const eventsOn = isOn('events');
   const pinSelection = useMemo(() => thinPins(visible, MAX_PINS, eventId), [visible, eventId]);
@@ -257,7 +263,11 @@ function WorldContent({ profile }: { profile: Profile }) {
       id: `hazard:${hazard.hazardId}`, kind: 'hazard' as const, lat: hazard.lat, lng: hazard.lon, label: hazard.title, countryLevel: false, weight: 0.2,
       ...(typeof hazard.magnitude === 'number' ? { magnitude: hazard.magnitude } : {}),
     })) : []),
-  ], [eventsOn, facilitiesOn, hazardsOn, pinSelection, facilityPins, hazardPins]);
+    ...(airportsOn ? airportPins.map(airport => ({
+      id: airport.airportId, kind: 'airport' as const, lat: airport.lat, lng: airport.lon,
+      label: `${airport.ident} · ${airport.name}`, countryLevel: false, weight: 0.15,
+    })) : []),
+  ], [eventsOn, facilitiesOn, hazardsOn, airportsOn, pinSelection, facilityPins, hazardPins, airportPins]);
 
   const selectedEvent = useMemo(() => (eventId ? loaded.find(event => event.eventId === eventId) ?? null : null), [eventId, loaded]);
   const openDetails = useCallback(() => {
@@ -438,7 +448,7 @@ function WorldContent({ profile }: { profile: Profile }) {
         <div className="world-layers">
           {picked && (
             <p className="small" role="status">
-              <strong>{picked.kind === 'facility' ? tr({ en: 'Facility', fr: 'Installation' }) : tr({ en: 'Hazard', fr: 'Aléa' })}:</strong> {picked.label}.{' '}
+              <strong>{picked.kind === 'airport' ? tr({ en: 'Airport reference', fr: 'Référence aéroportuaire' }) : picked.kind === 'facility' ? tr({ en: 'Facility', fr: 'Installation' }) : tr({ en: 'Hazard', fr: 'Aléa' })}:</strong> {picked.label}.{' '}
               {tr({ en: 'Its details are in the table below.', fr: 'Ses détails sont dans le tableau ci-dessous.' })}
             </p>
           )}
@@ -640,7 +650,7 @@ function WorldContent({ profile }: { profile: Profile }) {
                     <thead>
                       <tr>
                         <th scope="col">{tr({ en: 'Facility', fr: 'Installation' })}</th>
-                        <th scope="col">{tr({ en: 'Operator (as in the registry)', fr: 'Exploitant (selon le registre)' })}</th>
+                        <th scope="col">{tr({ en: 'Reporting company (registry)', fr: 'Société déclarante (registre)' })}</th>
                         <th scope="col">{tr({ en: 'Issuer match', fr: 'Émetteur associé' })}</th>
                         <th scope="col">{tr({ en: 'Year', fr: 'Année' })}</th>
                         <th scope="col" className="num-col">{tr({ en: 'Reported tonnes CO₂e', fr: 'Tonnes éq. CO₂ déclarées' })}</th>
@@ -665,12 +675,30 @@ function WorldContent({ profile }: { profile: Profile }) {
                   </table>
                 </div>
               )}
-              <p className="small muted">{tr({ en: 'Reported registry figures, not a score.', fr: 'Chiffres déclarés au registre, pas un score.' })}</p>
+              <p className="small muted">{tr({ en: 'Reported registry figures, not a score. A facility near an event, or matched to an issuer by name, is not proof of any impact on a holding.', fr: 'Chiffres déclarés au registre, pas un score. Une installation proche d’un événement, ou associée par son nom à un émetteur, ne prouve aucun impact sur une position.' })}</p>
+              <p className="small muted">{tr({ en: `ECCC annual facility-reported emissions for ${facilities.data.reportingYear}; captured ${facilities.data.capturedAt ?? '—'}. Total excludes biomass CO2. Revisions and reporting-program coverage apply. This is current reference data independent of event dates; reporting-company names establish neither security identity nor ownership.`, fr: `Émissions annuelles déclarées au PDGES pour ${facilities.data.reportingYear}; capture : ${facilities.data.capturedAt ?? '—'}. Le total exclut le CO2 de biomasse. Données révisables et couverture limitée au programme. Référence actuelle indépendante des dates des événements; le nom de la société déclarante ne prouve ni identité boursière ni propriété.` })}</p>
+              <p className="small"><ExternalLink href="https://open.canada.ca/en/open-government-licence-canada">{tr({ en: 'Source: ECCC GHGRP · Open Government Licence – Canada', fr: 'Source : PDGES ECCC · Licence du gouvernement ouvert – Canada' })}</ExternalLink></p>
               <LimitationList codes={facilities.data.limitations} />
             </>
           )}
         </Card>
       )}
+
+      {airportsOn && <Card title={tr({ en: 'Airport reference', fr: 'Référence aéroportuaire' })}>
+        {airports.loading && <Loading />}
+        {airports.error && <ErrorState error={airports.error} onRetry={airports.reload} />}
+        {airports.data && <>
+          <p className="small muted">{tr({
+            en: `OurAirports · ${airports.data.total} large scheduled-service airports; ${airportPins.length} spatially sampled pins. Captured ${airports.data.capturedAt}. Current static reference; independent of event dates. No aircraft movements, operating status, company relationship or financial impact is established. Select a country to narrow the reference.`,
+            fr: `OurAirports · ${airports.data.total} grands aéroports avec service régulier; ${airportPins.length} épingles réparties dans l’espace. Capture : ${airports.data.capturedAt}. Référence statique actuelle, indépendante des dates des événements. Aucun mouvement aérien, état opérationnel, lien d’entreprise ou impact financier établi. Sélectionnez un pays pour filtrer.`,
+          })}</p>
+          <p className="small"><ExternalLink href="https://github.com/davidmegginson/ourairports-data/blob/main/LICENSE">{tr({ en: 'OurAirports public-domain dedication', fr: 'OurAirports : dédicace au domaine public' })}</ExternalLink> · <ExternalLink href="https://datacatalog.worldbank.org/public-licenses">{tr({ en: 'Country-code crosswalk: World Bank, CC BY 4.0', fr: 'Correspondance des codes pays : Banque mondiale, CC BY 4.0' })}</ExternalLink></p>
+          <div className="table-scroll" role="region" aria-label={tr({ en: 'Airport references', fr: 'Références aéroportuaires' })} tabIndex={0}>
+            <table><thead><tr><th>{tr({ en: 'Airport', fr: 'Aéroport' })}</th><th>{tr({ en: 'Country', fr: 'Pays' })}</th><th>{tr({ en: 'Source coordinates', fr: 'Coordonnées de la source' })}</th></tr></thead>
+            <tbody>{airports.data.items.map(row => <tr key={row.airportId}><th scope="row"><ExternalLink href={row.sourceUrl}>{row.ident} · {row.name}</ExternalLink></th><td>{row.countryIso3 ?? row.countryIso2 ?? '—'}</td><td className="num">{row.lat.toFixed(3)}, {row.lon.toFixed(3)}</td></tr>)}</tbody></table>
+          </div>
+        </>}
+      </Card>}
 
       {hazardsOn && (
         <Card id="hazards" title={hazardsTitle}>

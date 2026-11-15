@@ -71,12 +71,15 @@ def proposer(*, request, snapshot: Snapshot, created_at: str) -> dict:
     }
     profile = m.Profile.model_validate(body)
     engine = _profile_engine(profile, snapshot, created_at)
-    derivation = derive_thresholds(profile, engine, created_at=created_at)
+    try:
+        derivation = derive_thresholds(profile, engine, created_at=created_at)
+    except Unavailable as exc:
+        raise ServiceError("insufficient_data", exc.detail) from exc
     rules = [m.PolicyRule.model_validate(r) for r in derivation.rules]
     growth = derivation.values["growthCapPct"]
     us_equity = "ESGV" if request.preferences.esg_focus else "SPY"
     gold = 5.0 if request.preferences.wants_diversification else 0.0
-    cash = "CASH.CAD" if request.reporting_currency == "CAD" else "CASH.USD"
+    cash = f"CASH.{request.reporting_currency}"
     start = int(growth) if growth is not None else 0
     for equity in range(start - start % 5, -1, -5):
         for cash_pct in range(0, 101 - equity - int(gold), 5):
@@ -127,7 +130,13 @@ class DecisionControls:
             view = engine.view(prepared["weightsBefore"], "before", profile.portfolio.total_value, window=win)
             view.snapshot()
             view.measure("weight.asset_group", "fixed_income")
-            return {"kind": "baseline", "window": win, "prepared": prepared}
+            funding = None
+            if profile.investor_context and profile.investor_context.objectives and not ctx.historical:
+                from aplomb.profiles.goals import register_goal_funding
+                clock = getattr(ctx.ledger, "clock", None)
+                now = clock() if callable(clock) else f"{ctx.as_of}T00:00:00Z"
+                funding = register_goal_funding(ctx, now)
+            return {"kind": "baseline", "window": win, "prepared": prepared, "goalFunding": funding}
         req = self._wire(request)
         if req.get("type") == "goal":
             goal = m.ExposureGoal.model_validate(req["goal"])

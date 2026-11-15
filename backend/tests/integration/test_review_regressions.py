@@ -357,7 +357,7 @@ def test_macro_facts_are_labelled_in_both_languages_and_an_index_is_not_a_ratio(
     assert cpi["unit"] == "text" and isinstance(cpi["value"], str) and "1982-84" in cpi["label"]["en"]
     assert all(f["label"]["fr"] != f["label"]["en"] for f in usa)
     canada = client.get("/v1/world/countries/CAN", headers=headers).json()["macro"]
-    assert all(f["label"]["fr"] != f["label"]["en"] and f["unit"] == "pct" for f in canada)
+    assert all(f["label"]["fr"] != f["label"]["en"] and f["unit"] == "pct" for f in canada if f["sources"][0]["datasetId"] == "macro_rates")
 
 
 @pytest.mark.parametrize("role", ["auditor"])  # the false sentence is code-built: no writer call to crash

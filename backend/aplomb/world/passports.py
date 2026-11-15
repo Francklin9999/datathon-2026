@@ -9,7 +9,10 @@ from aplomb.contracts import api as a
 from aplomb.contracts import models as m
 from aplomb.datastore.service import DatastoreService
 
+from .airports import load_airports
+from .country_macro import SOURCE_ID
 from .dataset import WorldDataError, WorldDataset
+from .facilities import load_facilities
 
 
 def _t(en: str, fr: str) -> dict:
@@ -30,7 +33,7 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
             "status": "in_use", "source": "; ".join(loaded), "sourceUrl": None,
             "accessMethod": "HTTPS public feeds, no key; one batch fetch at build time",
             "licence": "Per source: U.S. Government works (USGS, Federal Reserve); Bank of Canada terms; "
-                       "Statistics Canada Open Licence",
+                       "Statistics Canada Open Licence; NASA EONET metadata disclaimer (when loaded), linked content separate",
             "licenceUrl": None, "retrievedOn": built[:10], "coverage": ds.coverage, "frequency": "batch",
             "rowCount": len(ds.events), "dataVersion": ds.version,
             "schema": [{"name": "event", "type": "object", "description": "WorldEvent wire fields (contracts/schemas.md §10)"}],
@@ -43,9 +46,11 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
                    "L'identité d'un événement est une empreinte de l'URL canonique; les éléments de même URL sont fusionnés, "
                    "jamais sur le seul titre."),
                 _t("Official releases are placed at the issuing country's centroid (country precision); earthquakes use the "
-                   "catalog epicentre (point precision).",
+                   "catalog epicentre (point precision); EONET uses the first source-reported point, with no inferred country.",
                    "Les communiqués officiels sont placés au centroïde du pays émetteur (précision pays); les séismes "
                    "utilisent l'épicentre du catalogue (précision point)."),
+                _t("NASA EONET metadata is for visualization/general information. Spatial and temporal extents are approximations, not official event boundaries; original linked publishers have separate rights.",
+                   "Les métadonnées NASA EONET servent à la visualisation et à l'information générale. Les emprises spatiales et temporelles sont approximatives, sans valeur officielle; les éditeurs liés ont leurs propres droits."),
                 _t("Importance is a display priority fixed at build time; it is not a market-impact estimate.",
                    "L'importance est une priorité d'affichage fixée à la construction; ce n'est pas une estimation "
                    "d'incidence sur les marchés."),
@@ -91,6 +96,40 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
                         "detail": "hazards.json matches the manifest SHA-256 and row count.", "checkedAt": built}],
             "rejectedReason": None,
         }
+    if ds.country_macro_manifest:
+        macro = ds.country_macro_manifest
+        out[SOURCE_ID] = {
+            "datasetId": SOURCE_ID,
+            "name": _t("World Bank World Development Indicators", "Indicateurs du développement dans le monde, Banque mondiale"),
+            "role": _t("Annual country-level economic and demographic indicators", "Indicateurs annuels économiques et démographiques par pays"),
+            "status": "in_use", "source": "World Bank, World Development Indicators",
+            "sourceUrl": macro["catalogUrl"], "accessMethod": "World Bank indicators API v2; fixed bounded batch",
+            "licence": macro["licence"], "licenceUrl": macro["licenceUrl"],
+            "retrievedOn": macro["retrievedAt"][:10], "coverage": macro["coverage"],
+            "frequency": "annual; manually refreshed batch", "rowCount": macro["rowCount"],
+            "dataVersion": macro["dataVersion"],
+            "schema": [
+                {"name": "countryIso3", "type": "string", "description": "World Bank country/territory code; geographic aggregates excluded."},
+                {"name": "indicatorId", "type": "string", "description": "World Bank WDI indicator identifier."},
+                {"name": "observationYear", "type": "integer", "description": "Reference year; not publication date."},
+                {"name": "value", "type": "number", "description": "Latest captured value for the completed year."},
+                {"name": "availableAt", "type": "timestamp", "description": "Capture timestamp; earliest established application availability."},
+            ],
+            "processing": [
+                _t("Latest nonempty completed calendar year among the two most recent observations. World Bank regional and income-group aggregates are omitted.",
+                   "Dernière année civile complète non vide parmi les deux dernières observations. Les agrégats régionaux et de groupe de revenu sont omis."),
+                _t("Attribution: World Bank, World Development Indicators; indicators may incorporate data from national statistical bodies and other providers. Translations and filtered rows adapted by Aplomb. No World Bank endorsement implied.",
+                   "Attribution : Banque mondiale, Indicateurs du développement dans le monde; les indicateurs peuvent inclure des données de sources nationales et autres. Traductions et filtrage adaptés par Aplomb. Aucun appui de la Banque mondiale n'est implicite."),
+                _t("Annual observations are not real-time signals; estimates can be revised. No financial or causal impact is implied.",
+                   "Les observations annuelles ne sont pas des signaux en temps réel; les estimations peuvent être révisées. Aucune incidence financière ou causale n'est implicite."),
+            ],
+            "limitations": ["LIM_MACRO_REVISED", "LIM_IMPACT_NOT_ESTABLISHED"],
+            "availabilityRule": _t("Publication dates and original historical vintages are unknown. The earliest proven availability is the retrieval timestamp. This snapshot is not used in historical replays.",
+                                   "Les dates de publication et les versions historiques originales sont inconnues. La première disponibilité prouvée est la récupération. Cet instantané n'est pas utilisé dans les rejeux historiques."),
+            "checks": [{"name": "country_macro_checksum", "ok": True,
+                        "detail": "The saved observations match the manifest SHA-256 and row count.", "checkedAt": macro["retrievedAt"]}],
+            "rejectedReason": None,
+        }
     return out
 
 
@@ -103,7 +142,48 @@ class WorldDatastoreService(DatastoreService):
 
     def _overrides(self) -> dict[str, dict]:
         try:
-            return world_passports(self._world())
+            overrides = world_passports(self._world())
+            try:
+                rows, meta = load_airports()
+            except (ValueError, OSError, KeyError):
+                rows, meta = [], None
+            try:
+                facilities, facility = load_facilities()
+            except (ValueError, OSError, KeyError):
+                facilities, facility = [], None
+            if facility:
+                year = facility["reportingYear"]
+                overrides["emissions_facilities"] = {
+                    "status": "in_use", "source": "Environment and Climate Change Canada, GHGRP",
+                    "sourceUrl": facility["sourceUrl"], "accessMethod": "Bounded official CSV capture; required-field projection",
+                    "licence": facility["licence"], "licenceUrl": facility["licenceUrl"],
+                    "retrievedOn": facility["capturedAt"][:10], "rowCount": len(facilities),
+                    "dataVersion": facility["dataVersion"], "coverage": {"start": f"{year}-01-01", "end": f"{year}-12-31"},
+                    "frequency": "annual; captured batch",
+                    "processing": [
+                        _t("Attribution: Environment and Climate Change Canada, Greenhouse Gas Reporting Program. Latest completed reference year; total reported tonnes CO2e exclude biomass CO2. Adapted by Aplomb; no government endorsement.",
+                           "Attribution : Environnement et Changement climatique Canada, Programme de déclaration des gaz à effet de serre. Dernière année de référence complète; tonnes éq. CO2 déclarées hors CO2 de biomasse. Adaptation Aplomb; sans appui gouvernemental."),
+                        _t("Only required facility, reporting-company, coordinate and emissions fields retained; public-contact/personal fields omitted. No security matching or ESG score is inferred.",
+                           "Seuls les champs requis d'installation, société déclarante, coordonnées et émissions sont conservés; les coordonnées personnelles des contacts publics sont omises. Aucun lien avec un titre ni score ESG inféré."),
+                        _t(f"Rejected {facility['rejected']} latest-year rows with missing/invalid coordinates, identity or emissions; incomplete observations are not mapped.",
+                           f"{facility['rejected']} lignes de la dernière année rejetées pour coordonnées, identité ou émissions manquantes/invalides; les observations incomplètes ne sont pas cartographiées."),
+                    ],
+                    "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"],
+                    "availabilityRule": _t("Original publication and historical vintages unknown. Current captured reference only; not used in historical reconstruction.",
+                                           "Publication originale et millésimes historiques inconnus. Référence actuelle capturée seulement; exclue des reconstitutions historiques."),
+                    "checks": [{"name": "facility_snapshot_checksum", "ok": True,
+                                "detail": "Normalized rows match SHA-256 and count; original and retained-projection hashes preserved in manifest.", "checkedAt": facility["capturedAt"]}],
+                }
+            if meta:
+                overrides["world_airports"] = {
+                    "status": "in_use", "source": "OurAirports; World Bank country-code crosswalk",
+                    "sourceUrl": meta["sourceUrl"], "licence": meta["licence"], "licenceUrl": meta["licenceUrl"],
+                    "retrievedOn": meta["capturedAt"][:10], "rowCount": len(rows), "dataVersion": meta["dataVersion"],
+                    "processing": [_t(note, note) for note in meta["limitations"]],
+                    "checks": [{"name": "airport_snapshot_checksum", "ok": True,
+                                "detail": "Normalized rows match SHA-256 and row count.", "checkedAt": meta["capturedAt"]}],
+                }
+            return overrides
         except WorldDataError:
             return {}
 
@@ -111,11 +191,15 @@ class WorldDatastoreService(DatastoreService):
         body = self.snapshot().datasets_response()
         overrides = self._overrides()
         items = [{**p, **overrides.get(p["datasetId"], {})} for p in body["items"]]
+        existing = {p["datasetId"] for p in items}
+        items.extend(value for key, value in overrides.items() if key not in existing)
         return a.DatasetsResponse.model_validate({**body, "items": items})
 
     def dataset(self, session_id: str, dataset_id: str) -> m.DatasetPassport:
-        base = super().dataset(session_id, dataset_id)
         override = self._overrides().get(dataset_id)
+        if dataset_id == SOURCE_ID and override is not None:
+            return m.DatasetPassport.model_validate(override)
+        base = super().dataset(session_id, dataset_id)
         if override is None:
             return base
         return m.DatasetPassport.model_validate({**base.to_wire(), **override})

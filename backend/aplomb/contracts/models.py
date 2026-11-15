@@ -1,4 +1,4 @@
-"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.1.0.
+"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.4.0.
 
 Boundary types only: numerical calculations, temporal gates, workflow transitions,
 and cross-resource checks remain with their owning services.
@@ -45,7 +45,7 @@ from .catalog import (
     ThemeTag,
 )
 
-Currency = TypeAliasType("Currency", Literal["CAD", "USD"])
+Currency = TypeAliasType("Currency", Annotated[String, Field(pattern=r"^[A-Z]{3}$")])
 Lang = TypeAliasType("Lang", Literal["en", "fr"])
 WindowCode = TypeAliasType("WindowCode", Literal["full", "1y", "3y", "5y", "ytd", "custom"])
 AssetClass = TypeAliasType(
@@ -62,10 +62,10 @@ Experience = TypeAliasType("Experience", Literal["beginner", "intermediate", "ad
 RuleType = TypeAliasType(
     "RuleType", Literal["cap", "floor", "limit", "exclude", "evidence", "flag", "sim"]
 )
-RuleOrigin = TypeAliasType("RuleOrigin", Literal["derived", "profile_preference", "user", "system"])
+RuleOrigin = TypeAliasType("RuleOrigin", Literal["derived", "profile_preference", "user", "system", "imported"])
 Comparator = TypeAliasType("Comparator", Literal["<=", ">=", "==", "none"])
 Unit = TypeAliasType(
-    "Unit", Literal["pct", "pts", "ratio", "count", "days", "cad", "usd", "date", "text", "bool"]
+    "Unit", Literal["pct", "pts", "ratio", "count", "days", "cad", "usd", "currency", "date", "text", "bool"]
 )
 FundingMode = TypeAliasType(
     "FundingMode", Literal["auto", "pro_rata", "from_cash", "from_holdings", "new_money"]
@@ -76,7 +76,7 @@ RuleId = TypeAliasType(
         String,
         Field(
             pattern=(
-                r"^(cap\.(position|sector|asset_class\.crypto|growth_assets|theme\.("
+                r"^(cap\.(position|sector|asset_class\.crypto|growth_assets|country\.[A-Z]{3}|currency\.[A-Z]{3}|theme\.("
                 + "|".join(tag.value for tag in ThemeTag)
                 + r"))|floor\.(fixed_income|diversifiers)|limit\.(volatility|stress_2022|drawdown)"
                 r"|exclude\.(sector\.[a-z]+(_[a-z]+)*|asset_class\.(equity|etf_equity|etf_bond|"
@@ -249,9 +249,38 @@ class HorizonYears(WireModel):
     max: NonNegative | None
 
 
+class InvestmentGoal(WireModel):
+    """User-stated objective, never a promise of an achievable return."""
+
+    name: Annotated[String, Field(min_length=1, max_length=120)]
+    horizon_years: Annotated[Number, Field(gt=0, le=150)]
+    priority: Annotated[Integer, Field(ge=1, le=100)]
+    target_amount: NonNegative | None = None
+    allocated_value: NonNegative | None = None
+    annual_contribution: NonNegative | None = None
+    assumed_return_pct: Annotated[Number, Field(gt=-100, le=100)] | None = None
+    deadline: ISODate | None = None
+    origin: Literal["user", "imported", "assumption"] = "user"
+
+
+class InvestorContext(WireModel):
+    """Optional global context. Jurisdiction is context, not a sourced tax policy."""
+
+    country: Annotated[String, Field(pattern=r"^[A-Z]{2}$")] | None = None
+    investor_type: Literal[
+        "individual", "retirement", "income", "crypto", "institutional", "family_office",
+        "endowment", "pension", "wealth_manager", "advisor", "custom"
+    ] = "individual"
+    language: Lang = "en"
+    objectives: list[InvestmentGoal] = Field(default_factory=list, max_length=20,
+        json_schema_extra={"tsType": "InvestmentGoal[]"})
+    liquidity_notes: Annotated[String, Field(max_length=2000)] = ""
+    risk_capacity_notes: Annotated[String, Field(max_length=2000)] = ""
+
+
 class RuleTarget(WireModel):
     dimension: Literal[
-        "position", "sector", "asset_class", "asset_group", "theme", "portfolio", "none"
+        "position", "sector", "asset_class", "asset_group", "theme", "portfolio", "country", "currency", "none"
     ]
     key: String | None
 
@@ -291,9 +320,38 @@ class PolicyRule(WireModel):
     updated_at: ISODateTime
 
 
+class AccountFXQuote(WireModel):
+    currency: Currency
+    cad_per_unit: Annotated[Number, Field(gt=0)]
+    observed_on: ISODate
+    available_at: ISODateTime
+    source: "SourceRef"
+
+
+class AccountValuation(WireModel):
+    verified_checks: list[String] = Field(default_factory=list)
+    native_currency: Currency
+    native_value: Annotated[Number, Field(gt=0)]
+    reporting_currency: Currency
+    reporting_value: Annotated[Number, Field(gt=0)]
+    conversion_rate: Annotated[Number, Field(gt=0)]
+    valuation_date: ISODate
+    captured_at: ISODateTime
+    data_version: DataVersion
+    quotes: list[AccountFXQuote]
+
+
+class PortfolioAccount(WireModel):
+    native_valuation: AccountValuation | None = None
+    account_id: Annotated[String, Field(pattern=r"^acct_[0-9a-f]{12}$")]
+    name: Annotated[String, Field(min_length=1, max_length=80)]
+    portfolio: Portfolio
+
+
 class Profile(WireModel):
     profile_id: ProfileId
     is_default: Boolean
+    archived: Boolean = False
     origin: Literal["brief", "user", "agent_draft"]
     name: String
     initial: Annotated[String, Field(min_length=1, max_length=1)]
@@ -308,6 +366,9 @@ class Profile(WireModel):
     preferences: Preferences
     blurb: I18nText
     persona_test: I18nText | None
+    investor_context: InvestorContext | None = None
+    accounts: list[PortfolioAccount] = Field(default_factory=list)
+    active_account_id: String | None = None
     portfolio: Portfolio
     rules: list[PolicyRule]
     version: Annotated[Integer, Field(ge=1)]
@@ -430,6 +491,7 @@ class FactSubject(WireModel):
         "asset_class",
         "theme",
         "country",
+        "currency",
         "rule",
         "macro",
         "event",
@@ -941,7 +1003,7 @@ class WorldEvent(WireModel):
     occurred_at: ISODate
     published_at: ISODateTime | None
     location: EventLocation
-    origin: Literal["gdelt", "official", "curated", "usgs", "firms", "live"]
+    origin: Literal["gdelt", "official", "curated", "usgs", "firms", "live", "eonet"]
     sources: Annotated[list[EventSource], Field(min_length=1)]
     source_count: Annotated[Integer, Field(ge=1)]
     importance: Annotated[Number, Field(ge=0, le=1)]
@@ -1022,7 +1084,7 @@ class LegendItem(WireModel):
 
 
 class WorldLayer(WireModel):
-    layer_id: Literal["events", "exposure", "facilities", "hazards"]
+    layer_id: Literal["events", "exposure", "facilities", "hazards", "airports"]
     title: I18nText
     tier: Literal["P1", "P2"]
     available: Boolean
@@ -1199,6 +1261,7 @@ class UniverseSummary(WireModel):
 
 
 class Meta(WireModel):
+    reporting_currencies: list[Currency] = Field(default_factory=lambda: ["CAD", "USD"])
     contract_version: String
     data_version: DataVersion
     data_as_of: ISODate
