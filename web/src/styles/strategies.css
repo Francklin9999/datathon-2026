@@ -1,0 +1,119 @@
+/* Strategies page (web/page-specs/strategies.md) and the Automations widget on Home. Glass vocabulary
+   of the shell: cards are --glass-card, nested blocks --glass-inset; one accent per kind. */
+.kind-rebalance { --kind: var(--accent); --kind-soft: var(--accent-soft); }
+.kind-contribute { --kind: var(--pass-fg); --kind-soft: var(--pass-bg); }
+.kind-risk_guard, .kind-de_risk { --kind: var(--tension-fg); --kind-soft: var(--tension-bg); }
+.kind-re_risk { --kind: var(--accent); --kind-soft: var(--accent-soft); }
+
+.strategy-icon { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 34px; height: 34px; border-radius: 11px;
+  color: var(--kind); background: var(--kind-soft); }
+.strategy-icon-lg { width: 46px; height: 46px; border-radius: 15px; }
+
+/* Choosing a kind: three cards. */
+.kind-picker { margin-bottom: 18px; }
+.kind-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.kind-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-height: 210px; padding: 22px; text-align: left; border-radius: var(--r-card);
+  border: 1px solid var(--glass-line); background: var(--glass-card); box-shadow: var(--card-shadow); color: var(--text);
+  transition: transform var(--dur-menu) var(--ease), box-shadow var(--dur-menu) var(--ease), background-color var(--dur-fast) var(--ease); }
+.kind-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-pop); background: var(--glass-card-hover, var(--glass-card)); }
+.kind-card:active { transform: scale(.985); }
+.kind-name { font-size: 17px; font-weight: 650; letter-spacing: -.015em; }
+.kind-purpose { font-size: 13px; line-height: 1.5; color: var(--text-2); }
+.kind-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding: 6px 12px; border-radius: var(--r-pill); background: var(--ink-fill); color: var(--ink-fill-text); font-size: 13px; font-weight: 600; }
+.kind-cancel { margin-top: 12px; }
+
+/* Layout: the saved strategies, then the workspace. */
+.strategy-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 18px; align-items: start; }
+.strategy-list { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 6px; }
+.strategy-item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 12px; text-align: left; border-radius: 16px;
+  border: 1px solid transparent; background: transparent; color: var(--text);
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease); }
+.strategy-item:hover { background: var(--glass-inset); }
+.strategy-item[aria-pressed='true'] { background: var(--glass-card); border-color: var(--glass-line); box-shadow: var(--card-shadow); }
+.strategy-item-body { display: flex; flex-direction: column; min-width: 0; }
+.strategy-item-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.strategy-item-meta { font-size: 12px; color: var(--text-3); }
+.strategy-add { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 16px; border: 1px dashed var(--line-strong);
+  background: transparent; color: var(--text-2); font-weight: 600; font-size: 13px; transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
+.strategy-add:hover:not(:disabled) { background: var(--glass-inset); color: var(--text); }
+.strategy-add:disabled { opacity: .55; cursor: default; }
+
+.strategy-main { min-width: 0; }
+.strategy-summary { margin: -6px 0 16px; color: var(--text-2); font-size: 14px; }
+.strategy-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 18px; align-items: end; }
+.strategy-form .field { gap: 6px; }
+.field-label { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; color: var(--text-3); }
+.strategy-form input[type='text'] { width: 100%; }
+.number-input { position: relative; display: flex; align-items: center; }
+.number-input input { width: 100%; padding-right: 46px; font-variant-numeric: tabular-nums; }
+.number-suffix { position: absolute; right: 12px; font-size: 12px; color: var(--text-3); pointer-events: none; }
+.strategy-issues { margin-top: 12px; padding-left: 18px; list-style: disc; }
+
+/* Switch (Active on Home) */
+.switch { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 32px; cursor: pointer; font-size: 13px; color: var(--text-2); }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch-track { position: relative; width: 38px; height: 22px; border-radius: var(--r-pill); background: var(--line-strong); transition: background-color var(--dur-menu) var(--ease); }
+.switch-thumb { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+  transition: transform var(--dur-menu) var(--ease); }
+.switch input:checked + .switch-track { background: var(--pass-fg); }
+.switch input:checked + .switch-track .switch-thumb { transform: translateX(16px); }
+.switch input:focus-visible + .switch-track { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Results */
+.strategy-results { display: flex; flex-direction: column; transition: opacity var(--dur-menu) var(--ease); }
+.strategy-results[aria-busy='true'] { opacity: .6; }
+.strategy-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.strategy-kpi { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 16px 18px; border-radius: var(--r-card);
+  border: 1px solid var(--glass-line); background: var(--glass-card); box-shadow: var(--card-shadow); }
+.strategy-kpi-value { font-size: 26px; font-weight: 650; letter-spacing: -.025em; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.strategy-kpi[data-tone='good'] .strategy-kpi-value { color: var(--pass-fg); }
+.strategy-kpi[data-tone='bad'] .strategy-kpi-value { color: var(--conflict-fg); }
+.strategy-row { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.strategy-row > .card { margin-bottom: 18px; }
+
+.next-state { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-2); }
+.next-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); }
+.next-state[data-due] { color: var(--accent-text); }
+.next-state[data-due] .next-dot { background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.next-summary { font-size: 15px; line-height: 1.5; margin-bottom: 12px; }
+.trade-table { margin-bottom: 10px; }
+.trade-table th, .trade-table td { height: 36px; }
+.trade-buy { color: var(--pass-fg); }
+.trade-sell { color: var(--conflict-fg); }
+
+.activity-list { display: flex; flex-direction: column; }
+.activity-item { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: baseline; gap: 4px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.activity-item:first-child { border-top: 0; padding-top: 0; }
+.activity-item > .trade-table, .activity-item > .small { grid-column: 1 / -1; }
+.activity-kind { padding: 2px 9px; border-radius: var(--r-pill); background: var(--kind-soft); color: var(--kind); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.activity-date { font-size: 12px; color: var(--text-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.activity-reason { font-size: 13px; line-height: 1.5; color: var(--text-2); }
+
+.plan-rows li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; }
+.plan-rows li:first-child { border-top: 0; }
+.plan-rule { min-width: 0; }
+.plan-months { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.plan-months strong { font-size: 15px; }
+.plan-legend { margin-top: 8px; }
+
+/* Home: Automations widget */
+.auto-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.auto-item { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 2px 12px; min-width: 0; padding: 12px 14px; border-radius: 16px; background: var(--glass-inset); }
+.auto-item .strategy-icon { grid-row: span 2; }
+.auto-name { font-weight: 600; font-size: 14px; }
+.auto-next { font-size: 12px; color: var(--text-2); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.auto-next[data-due] { color: var(--accent-text); font-weight: 500; }
+.auto-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+
+@media (max-width: 1100px) {
+  .strategy-row { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 860px) {
+  .strategy-layout { grid-template-columns: minmax(0, 1fr); }
+  .strategy-list { position: static; flex-direction: row; flex-wrap: wrap; }
+  .strategy-item { width: auto; flex: 1 1 200px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-anim='on']) :is(.kind-card, .strategy-item, .switch-track, .switch-thumb, .strategy-results) { transition: none; }
+}
+html[data-anim='off'] :is(.kind-card, .strategy-item, .switch-track, .switch-thumb, .strategy-results) { transition: none; }

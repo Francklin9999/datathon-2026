@@ -15,7 +15,7 @@ import {
   daysBetween, defaultRange, exposureFactId, filtersKey, isIsoDate, isResidualExposure, layerState, mergeEventPages,
   rangeIssue, thinPins, visibleEvents,
 } from '../src/lib/world';
-import { countryLabel, countryName, decodeCountries, iso3FromNumeric, isKnownIso3, type Topology } from '../src/lib/geo';
+import { countryLabel, countryName, decodeCountries, iso3FromNumeric, isKnownIso3, regionIso3, type Topology } from '../src/lib/geo';
 import {
   asOfIssue, factForValue, replayRefusal, revealBounds, revealRequest, revealSeries, revealableReplay, signedLedgerHash, untilIssue,
 } from '../src/lib/replay';
@@ -216,7 +216,7 @@ test('geography: ISO codes, localized names and the TopoJSON decoder', () => {
 
   const atlas = JSON.parse(readFileSync(new URL('../public/geo/countries-110m.json', import.meta.url), 'utf8')) as Topology;
   const countries = decodeCountries(atlas);
-  assert.equal(countries.length, 177);
+  assert.equal(countries.length, 176, '177 outlines, the two of Palestine merged into one region');
   assert.ok(countries.some(country => country.iso3 === 'CAN'));
   assert.deepEqual(countries.filter(country => country.iso3 === null).map(country => country.name).sort(), ['Kosovo', 'N. Cyprus', 'Somaliland']);
   for (const country of countries) {
@@ -532,4 +532,20 @@ test('globe: islands smaller than a hexagon get one, larger land none', async ()
   assert.equal(polygonToCells(hexagons[0]!, 3, true).length, 1);
   const big = { iso3: 'CAN', name: 'Land', geometry: { type: 'Polygon' as const, coordinates: square(-110, 50, 10) } };
   assert.deepEqual(islandHexes([big], 3), []);
+});
+
+test('one region named Palestine: both codes, both languages, one outline on the map', () => {
+  assert.equal(regionIso3('ISR'), 'PSE');
+  assert.equal(regionIso3('CAN'), 'CAN');
+  for (const code of ['PSE', 'ISR']) {
+    assert.equal(countryName(code, 'en'), 'Palestine');
+    assert.equal(countryName(code, 'fr'), 'Palestine');
+    assert.equal(countryLabel(code, 'en'), 'Palestine (PSE)');
+  }
+  const atlas = JSON.parse(readFileSync(new URL('../public/geo/countries-110m.json', import.meta.url), 'utf8')) as Topology;
+  const features = decodeCountries(atlas);
+  const region = features.filter(f => f.iso3 === 'PSE');
+  assert.equal(region.length, 1, 'the two outlines are merged into one feature');
+  assert.equal(region[0]!.geometry.type, 'MultiPolygon');
+  assert.equal(features.some(f => f.iso3 === 'ISR' || f.name === 'Israel'), false);
 });

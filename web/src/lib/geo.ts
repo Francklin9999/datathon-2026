@@ -36,6 +36,25 @@ for (let i = 0; i + 8 <= ISO_TABLE.length; i += 8) {
   ALPHA3_BY_NUMERIC.set(ISO_TABLE.slice(i + 5, i + 8), alpha3);
 }
 
+/**
+ * Codes shown and drawn as another region: ISR is shown, keyed and drawn as Palestine (PSE). Applied to
+ * every code that reaches the map or a label, so data returned under either code meets one region.
+ */
+const REGION_OF: Record<string, string> = { ISR: 'PSE' };
+
+/** The region a code is shown and drawn as (itself for every other code). */
+export function regionIso3(code: string): string;
+export function regionIso3(code: string | null | undefined): string | null;
+export function regionIso3(code: string | null | undefined): string | null {
+  if (!code) return null;
+  return REGION_OF[code] ?? code;
+}
+
+/** Names written here rather than taken from the runtime's CLDR data. */
+const REGION_NAMES: Record<string, Record<Lang, string>> = {
+  PSE: { en: 'Palestine', fr: 'Palestine' },
+};
+
 /** ISO 3166-1 numeric ("124" or 124) → alpha-3 ("CAN"); null when the code is not in ISO 3166-1. */
 export function iso3FromNumeric(numeric: string | number | null | undefined): string | null {
   if (numeric === null || numeric === undefined || numeric === '') return null;
@@ -51,7 +70,10 @@ export function isKnownIso3(code: string): boolean {
  * (an "unknown" bucket, a region the API invented a code for) return null: the caller shows the
  * code as returned instead of guessing a country.
  */
-export function countryName(iso3: string, lang: Lang): string | null {
+export function countryName(code: string, lang: Lang): string | null {
+  const iso3 = regionIso3(code);
+  const fixed = REGION_NAMES[iso3]?.[lang];
+  if (fixed) return fixed;
   const alpha2 = ALPHA2_BY_ALPHA3.get(iso3);
   if (!alpha2 || alpha2 === 'XK') return null;
   try {
@@ -63,9 +85,10 @@ export function countryName(iso3: string, lang: Lang): string | null {
 }
 
 /** "Canada (CAN)" when the code is a known country; the bare code otherwise. */
-export function countryLabel(iso3: string, lang: Lang): string {
+export function countryLabel(code: string, lang: Lang): string {
+  const iso3 = regionIso3(code);
   const name = countryName(iso3, lang);
-  return name ? `${name} (${iso3})` : iso3;
+  return name ? `${name} (${iso3})` : code;
 }
 
 // ----- TopoJSON → GeoJSON (only what the bundled world-atlas file uses) -----
@@ -152,7 +175,7 @@ export function decodeCountries(topology: Topology, objectName = 'countries'): C
   const features: CountryFeature[] = [];
   for (const geometry of object.geometries) {
     const name = typeof geometry.properties?.name === 'string' ? geometry.properties.name : '';
-    const iso3 = iso3FromNumeric(geometry.id);
+    const iso3 = regionIso3(iso3FromNumeric(geometry.id));
     if (geometry.type === 'Polygon') {
       const rings = (geometry.arcs as TopoArcs).map(ring => decodeRing(topology, ring));
       features.push({ iso3, name, geometry: { type: 'Polygon', coordinates: rings } });
@@ -161,7 +184,25 @@ export function decodeCountries(topology: Topology, objectName = 'countries'): C
       features.push({ iso3, name, geometry: { type: 'MultiPolygon', coordinates: polygons } });
     }
   }
-  return features;
+  return mergeRegions(features);
+}
+
+/** Outlines that are drawn as one region (regionIso3) become one feature: one hover, one label. */
+function mergeRegions(features: CountryFeature[]): CountryFeature[] {
+  const out: CountryFeature[] = [];
+  const byRegion = new Map<string, number>();
+  const polygons = (f: CountryFeature) => (f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates);
+  for (const feature of features) {
+    const at = feature.iso3 && Object.values(REGION_OF).includes(feature.iso3) ? byRegion.get(feature.iso3) : undefined;
+    if (at === undefined) {
+      if (feature.iso3) byRegion.set(feature.iso3, out.length);
+      out.push(feature);
+      continue;
+    }
+    const first = out[at]!;
+    out[at] = { ...first, name: REGION_NAMES[feature.iso3!]?.en ?? first.name, geometry: { type: 'MultiPolygon', coordinates: [...polygons(first), ...polygons(feature)] } };
+  }
+  return out;
 }
 
 /**

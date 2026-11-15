@@ -68,7 +68,8 @@ _ROWS: tuple[tuple[str, str, str, float, float], ...] = (
     ("RUS", "Russia", "Russie", 61.5, 105.3),
     ("UKR", "Ukraine", "Ukraine", 48.4, 31.2),
     ("ROU", "Romania", "Roumanie", 45.9, 25.0),
-    ("ISR", "Israel", "Israël", 31.0, 34.9),
+    # One region, named Palestine in both languages; source places naming Israel resolve here too.
+    ("PSE", "Palestine", "Palestine", 31.4, 35.0),
     ("SAU", "Saudi Arabia", "Arabie saoudite", 23.9, 45.1),
     ("ARE", "United Arab Emirates", "Émirats arabes unis", 23.4, 53.8),
     ("IRN", "Iran", "Iran", 32.4, 53.7),
@@ -123,6 +124,7 @@ _ALIASES: dict[str, str] = {
     "united states of america": "USA", "u.s.": "USA", "us": "USA", "republic of korea": "KOR",
     "viet nam": "VNM", "timor leste": "TLS", "east timor": "TLS", "dr congo": "COD",
     "fiji islands": "FJI", "the philippines": "PHL", "great britain": "GBR", "england": "GBR",
+    "israel": "PSE", "west bank": "PSE", "gaza": "PSE", "gaza strip": "PSE", "state of palestine": "PSE",
 }
 # U.S. states and territories as written by USGS (full names and postal codes).
 _US_STATES: tuple[str, ...] = (

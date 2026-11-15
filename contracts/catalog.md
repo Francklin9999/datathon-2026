@@ -100,6 +100,7 @@ Each method is described once, with its formula, in the spec of the module that 
 | `M_QUOTE_VERBATIM` | Figure copied from a cited document, with the quote stored | research §3 |
 | `M_EVENT_IMPORTANCE` | Importance score of a world event | world §4 |
 | `M_PRICE_MOVE_AFTER_EVENT` | Simple return of an asset over N master days after an event date | world §6 |
+| `M_STRATEGY_SIM` | Day-by-day holdings that drift with asset returns from today's weights; a standing strategy acts at the close of the day its trigger is observed (rebalance, contribute, de-risk, re-risk). Compared with the same holdings never touched | strategies §2 |
 | `M_GATE_COUNT` | Count of rows with `availableAt` after `asOf` | timemachine §2 |
 
 ---
@@ -179,6 +180,8 @@ The web app holds the bilingual text for each code. Facts and results carry code
 | `LIM_SIMULATION_ONLY` | Simulation with fictional profiles and portfolios. Not financial advice. No order is placed. |
 | `LIM_ATTENTION_PROXY` | Page views measure public attention, not investment quality. |
 | `LIM_REGISTRY_MATCH` | Facilities are matched to companies by name; some matches may be wrong or missing. |
+| `LIM_STRATEGY_COSTS` | Trading costs are the flat rate per traded amount you set. Taxes, bid-ask spreads and whole-share limits are not modelled. |
+| `LIM_STRATEGY_EXECUTION` | Actions are applied at the closing price of the day the trigger is observed. Real orders would execute later, at other prices. |
 | `LIM_MV_ILLUSTRATION` | Mean-variance points use past average returns as inputs and are shown for illustration only. |
 
 ---

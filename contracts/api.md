@@ -103,6 +103,7 @@ Every non-2xx response has the body `ApiError`:
 | 3.10 | GET `/profiles/{profileId}/performance` | P0 | Value series for the chart |
 | 3.11 | GET `/profiles/{profileId}/frontier` | P1 | Frontier chart data |
 | 3.12 | GET `/profiles/{profileId}/brief` | P0 | Latest cached portfolio brief |
+| 3.13 | POST `/profiles/{profileId}/strategies/simulate` | P1 | Simulate a standing strategy on history |
 | 4.1 | POST `/requests/parse` | P0 | Free text → structured request |
 | 4.2 | POST `/check` | P0 | Deterministic rule check (slider, threshold edits) |
 | 4.2b | POST `/check/batch` | P0 | Up to five ordered independent checks |
@@ -141,7 +142,7 @@ Every non-2xx response has the body `ApiError`:
 
 ```json
 {
-  "contractVersion": "1.4.0",
+  "contractVersion": "1.5.0",
   "dataVersion": "snap-20261113-starter",
   "dataAsOf": "2026-11-12",
   "environment": "aws",
@@ -327,6 +328,47 @@ Query: `lang`.
 `200` → `{ run: Run | null; stale: boolean }`. `run` is null when none exists; the client then calls `POST /runs` with kind `portfolio_brief`. `stale` is true when the profile or data version changed since the run.
 
 ---
+
+### 3.13 POST `/profiles/{profileId}/strategies/simulate` — P1
+
+Simulates one standing strategy (an automation the investor configures) on the history of today's holdings. Deterministic (`M_STRATEGY_SIM`), no model, nothing stored or executed: the browser keeps the investor's saved strategies (at most three per profile) as UI preferences. Session header required.
+
+Request:
+
+```ts
+{
+  strategy:
+    | { kind: "rebalance"; trigger: "calendar" | "band"; frequency?: "monthly" | "quarterly" | "yearly"; bandPts?: number /* 1–25 */; costBps?: number /* 0–100 */ }
+    | { kind: "contribute"; amount: number /* > 0, ≤ 1,000,000, reporting currency */; frequency: "monthly" | "quarterly"; allocation: "target" | "underweight"; costBps?: number }
+    | { kind: "risk_guard"; triggerDrawdownPct: number /* 2–50 */; shiftPct: number /* 10–100 */; reentryDrawdownPct: number /* 0–50, below the trigger */; safeTicker?: Ticker | null; costBps?: number };
+  window?: WindowSpec;   // default: the session window; custom ranges allowed
+}
+```
+
+`rebalance` with `calendar` acts on the last master day of each period (`frequency`, default quarterly); with `band` it acts on a day when a position is more than `bandPts` (default 5) points from its target. Both restore today's weights. `contribute` adds `amount` on the first master day of each period: `target` splits it by today's weights, `underweight` sends it to the positions furthest below their target (never sells). `risk_guard` tracks the strategy's own peak: when the fall from that peak reaches `triggerDrawdownPct`, `shiftPct` % of each equity and crypto position moves to `safeTicker` (default: the largest bond fund held, else `CASH.<currency>`); once the fall is back under `reentryDrawdownPct`, today's weights are restored. Costs: `costBps` (default 0) × traded amount, taken from the portfolio.
+
+Response:
+
+```ts
+{
+  window: WindowSpec; currency: Currency; strategy: StrategyConfig;   // echoed with defaults filled in
+  series: { date: ISODate; value: number }[];      // strategy, starting at today's total value
+  baseline: { date: ISODate; value: number }[];    // the same holdings never touched (drift, no contributions)
+  invested: { date: ISODate; value: number }[] | null;   // contribute only: starting value plus contributions
+  metrics: StrategyMetrics; baselineMetrics: StrategyMetrics;
+  actions: { date: ISODate; kind: "rebalance" | "contribute" | "de_risk" | "re_risk"; reason: I18nText; valueBefore: number;
+             trades: { ticker: Ticker; amount: number /* signed */; weightBeforePct: number; weightAfterPct: number }[]; cost: number }[];
+  actionsTruncated: boolean;                         // at most 200 actions, the latest kept
+  plan: { monthsChecked: number; strategyMonthsInConflict: number; baselineMonthsInConflict: number;
+          byRule: { ruleId: RuleId; code: string; strategyMonths: number; baselineMonths: number }[] };
+  nextAction: { due: boolean; summary: I18nText; trades: StrategyTrade[] };
+  method: "M_STRATEGY_SIM"; limitations: LimitationCode[];   // includes LIM_STRATEGY_COSTS, LIM_STRATEGY_EXECUTION, LIM_PAST_NOT_FUTURE, LIM_SIMULATION_ONLY
+}
+StrategyMetrics = { endValue: number; invested: number; gain: number; twrPct: number; volPct: number | null; maxDrawdownPct: number | null;
+                    turnoverPct: number; costs: number; actions: number }
+```
+
+`twrPct`, `volPct` and `maxDrawdownPct` are time-weighted (contributions removed), so they compare with the baseline. `plan` checks the profile's enabled allocation rules (caps and floors on weights) on the holdings of each month end, for the strategy and the baseline; risk rules are not re-evaluated per month. `nextAction` describes what the strategy would do next from the last simulated day. Errors: `insufficient_data` (window without history), `validation_error`, `not_found`.
 
 ## 4. Request parsing and deterministic check
 

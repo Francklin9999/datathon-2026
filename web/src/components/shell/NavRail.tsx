@@ -6,7 +6,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BookOpen, ChevronsRight, Cpu, Earth, History, LayoutDashboard, PieChart, Scale, ShieldCheck, type LucideIcon,
+  BookOpen, ChevronsRight, Cpu, Earth, History, LayoutDashboard, PieChart, Scale, ShieldCheck, type LucideIcon, Workflow,
 } from 'lucide-react';
 import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import type { I18NText } from '../../contracts/types';
@@ -23,6 +23,7 @@ export const NAV: readonly NavItem[] = [
   { href: '/markets/', label: { en: 'Markets', fr: 'Marchés' }, icon: BookOpen, tour: 'nav-markets' },
   { href: '/risk-intelligence/', label: { en: 'Risk', fr: 'Risques' }, icon: ShieldCheck, tour: 'nav-risk' },
   { href: '/decision-desk/', label: { en: 'Decide', fr: 'Décider' }, icon: Scale, tour: 'nav-decide' },
+  { href: '/strategies/', label: { en: 'Strategies', fr: 'Stratégies' }, icon: Workflow, tour: 'nav-strategies' },
   { href: '/world-explorer/', label: { en: 'World', fr: 'Monde' }, icon: Earth, flag: 'world_explorer', tour: 'nav-world' },
   { href: '/evidence-audit/', label: { en: 'Evidence', fr: 'Preuves' }, icon: ShieldCheck, tour: 'nav-evidence' },
   { href: '/time-machine/', label: { en: 'Replay', fr: 'Rejouer' }, icon: History, flag: 'time_machine', tour: 'nav-replay' },

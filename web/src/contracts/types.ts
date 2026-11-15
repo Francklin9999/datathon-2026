@@ -297,6 +297,7 @@ export type MethodId =
   | "M_QUOTE_VERBATIM"
   | "M_EVENT_IMPORTANCE"
   | "M_PRICE_MOVE_AFTER_EVENT"
+  | "M_STRATEGY_SIM"
   | "M_GATE_COUNT";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -328,6 +329,8 @@ export type LimitationCode =
   | "LIM_SIMULATION_ONLY"
   | "LIM_ATTENTION_PROXY"
   | "LIM_REGISTRY_MATCH"
+  | "LIM_STRATEGY_COSTS"
+  | "LIM_STRATEGY_EXECUTION"
   | "LIM_MV_ILLUSTRATION";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -579,6 +582,16 @@ export type RulePatchRequest = RulePatchRequest1 & RulePatchRequest2;
 export type RulePatchRequest1 = {
   [k: string]: unknown;
 };
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategyConfig".
+ */
+export type StrategyConfig = RebalanceStrategy | ContributeStrategy | RiskGuardStrategy;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategyFrequency".
+ */
+export type StrategyFrequency = "monthly" | "quarterly" | "yearly";
 
 export interface AplombContracts {
   AccountFXQuote: AccountFXQuote;
@@ -624,6 +637,7 @@ export interface AplombContracts {
   ConditionGroup: ConditionGroup;
   ConditionPredicate: ConditionPredicate;
   ConditionalPolicy: ConditionalPolicy;
+  ContributeStrategy: ContributeStrategy;
   Correlation: Correlation;
   CountryExposure: CountryExposure;
   CreateAccountRequest: CreateAccountRequest;
@@ -770,6 +784,7 @@ export interface AplombContracts {
   RebalanceRequest: RebalanceRequest;
   RebalanceResponse: RebalanceResponse;
   RebalanceRunResult: RebalanceRunResult;
+  RebalanceStrategy: RebalanceStrategy;
   RebalancingPreferences: RebalancingPreferences;
   RefreshAccountRequest: RefreshAccountRequest;
   Refusal: Refusal;
@@ -784,6 +799,7 @@ export interface AplombContracts {
   ReviewFinding: ReviewFinding;
   ReviewedRebalance: ReviewedRebalance;
   RiskDiagnosticsResponse: RiskDiagnosticsResponse;
+  RiskGuardStrategy: RiskGuardStrategy;
   RiskLevel: RiskLevel;
   RuleBounds: RuleBounds;
   RuleCheck: RuleCheck;
@@ -828,6 +844,16 @@ export interface AplombContracts {
   StatusSegment: StatusSegment;
   Step: Step;
   StepType: StepType;
+  StrategyAction: StrategyAction;
+  StrategyConfig: StrategyConfig;
+  StrategyFrequency: StrategyFrequency;
+  StrategyMetrics: StrategyMetrics;
+  StrategyNextAction: StrategyNextAction;
+  StrategyPlanCheck: StrategyPlanCheck;
+  StrategyRuleDays: StrategyRuleDays;
+  StrategySimulateRequest: StrategySimulateRequest;
+  StrategySimulation: StrategySimulation;
+  StrategyTrade: StrategyTrade;
   TargetAllocation: TargetAllocation;
   TextSegment: TextSegment;
   ThemeExposure: ThemeExposure;
@@ -2678,6 +2704,19 @@ export interface TopPosition {
   assetClass: AssetClass;
 }
 /**
+ * Add a fixed amount every period, split by target weights or into the most underweight.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ContributeStrategy".
+ */
+export interface ContributeStrategy {
+  kind: "contribute";
+  amount: number;
+  frequency: "monthly" | "quarterly";
+  allocation: "target" | "underweight";
+  costBps?: number;
+}
+/**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Correlation".
  */
@@ -3476,6 +3515,19 @@ export interface RebalanceResponse {
   assumptions: I18NText[];
 }
 /**
+ * Bring weights back to today's target on a calendar or when one drifts past a band.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RebalanceStrategy".
+ */
+export interface RebalanceStrategy {
+  kind: "rebalance";
+  trigger: "calendar" | "band";
+  frequency?: "monthly" | "quarterly" | "yearly";
+  bandPts?: number;
+  costBps?: number;
+}
+/**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "RefreshAccountRequest".
  */
@@ -3553,6 +3605,20 @@ export interface RiskDiagnosticsResponse {
     [k: string]: Fact;
   };
 }
+/**
+ * Move part of the growth assets to a defensive asset after a fall; move back once it recovers.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RiskGuardStrategy".
+ */
+export interface RiskGuardStrategy {
+  kind: "risk_guard";
+  triggerDrawdownPct: number;
+  shiftPct: number;
+  reentryDrawdownPct: number;
+  safeTicker?: Ticker | null;
+  costBps?: number;
+}
 export interface RulePatchRequest2 {
   threshold?: number;
   enabled?: boolean;
@@ -3601,6 +3667,105 @@ export interface SabotageRequest {
  */
 export interface SelectAccountRequest {
   version: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategyAction".
+ */
+export interface StrategyAction {
+  date: ISODate;
+  kind: "rebalance" | "contribute" | "de_risk" | "re_risk";
+  reason: I18NText;
+  valueBefore: number;
+  trades: StrategyTrade[];
+  cost: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategyTrade".
+ */
+export interface StrategyTrade {
+  ticker: Ticker;
+  amount: number;
+  weightBeforePct: number;
+  weightAfterPct: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategyMetrics".
+ */
+export interface StrategyMetrics {
+  endValue: number;
+  invested: number;
+  gain: number;
+  twrPct: number;
+  volPct: number | null;
+  maxDrawdownPct: number | null;
+  turnoverPct: number;
+  costs: number;
+  actions: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategyNextAction".
+ */
+export interface StrategyNextAction {
+  due: boolean;
+  summary: I18NText;
+  trades: StrategyTrade[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategyPlanCheck".
+ */
+export interface StrategyPlanCheck {
+  monthsChecked: number;
+  strategyMonthsInConflict: number;
+  baselineMonthsInConflict: number;
+  byRule: StrategyRuleDays[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategyRuleDays".
+ */
+export interface StrategyRuleDays {
+  ruleId: RuleId;
+  code: string;
+  strategyMonths: number;
+  baselineMonths: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategySimulateRequest".
+ */
+export interface StrategySimulateRequest {
+  strategy: StrategyConfig;
+  window?: WindowSpec7;
+}
+export interface WindowSpec7 {
+  code: WindowCode;
+  start?: string;
+  end?: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "StrategySimulation".
+ */
+export interface StrategySimulation {
+  window: WindowSpec;
+  currency: Currency;
+  strategy: StrategyConfig;
+  series: SeriesPoint[];
+  baseline: SeriesPoint[];
+  invested: SeriesPoint[] | null;
+  metrics: StrategyMetrics;
+  baselineMetrics: StrategyMetrics;
+  actions: StrategyAction[];
+  actionsTruncated: boolean;
+  plan: StrategyPlanCheck;
+  nextAction: StrategyNextAction;
+  method: MethodId;
+  limitations: LimitationCode[];
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema

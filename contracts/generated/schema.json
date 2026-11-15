@@ -1434,6 +1434,48 @@
       "title": "ConditionalPolicy",
       "type": "object"
     },
+    "ContributeStrategy": {
+      "description": "Add a fixed amount every period, split by target weights or into the most underweight.",
+      "properties": {
+        "kind": {
+          "const": "contribute",
+          "type": "string"
+        },
+        "amount": {
+          "exclusiveMinimum": 0,
+          "maximum": 1000000,
+          "type": "number"
+        },
+        "frequency": {
+          "enum": [
+            "monthly",
+            "quarterly"
+          ],
+          "type": "string"
+        },
+        "allocation": {
+          "enum": [
+            "target",
+            "underweight"
+          ],
+          "type": "string"
+        },
+        "costBps": {
+          "default": null,
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "amount",
+        "frequency",
+        "allocation"
+      ],
+      "title": "ContributeStrategy",
+      "type": "object"
+    },
     "Correlation": {
       "properties": {
         "tickers": {
@@ -5099,6 +5141,8 @@
         "LIM_SIMULATION_ONLY",
         "LIM_ATTENTION_PROXY",
         "LIM_REGISTRY_MATCH",
+        "LIM_STRATEGY_COSTS",
+        "LIM_STRATEGY_EXECUTION",
         "LIM_MV_ILLUSTRATION"
       ],
       "title": "LimitationCode",
@@ -5280,6 +5324,7 @@
         "M_QUOTE_VERBATIM",
         "M_EVENT_IMPORTANCE",
         "M_PRICE_MOVE_AFTER_EVENT",
+        "M_STRATEGY_SIM",
         "M_GATE_COUNT"
       ],
       "title": "MethodId",
@@ -7143,6 +7188,44 @@
       "title": "RebalanceRunResult",
       "type": "object"
     },
+    "RebalanceStrategy": {
+      "description": "Bring weights back to today's target on a calendar or when one drifts past a band.",
+      "properties": {
+        "kind": {
+          "const": "rebalance",
+          "type": "string"
+        },
+        "trigger": {
+          "enum": [
+            "calendar",
+            "band"
+          ],
+          "type": "string"
+        },
+        "frequency": {
+          "$ref": "#/$defs/StrategyFrequency",
+          "default": null
+        },
+        "bandPts": {
+          "default": null,
+          "maximum": 25,
+          "minimum": 1,
+          "type": "number"
+        },
+        "costBps": {
+          "default": null,
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "trigger"
+      ],
+      "title": "RebalanceStrategy",
+      "type": "object"
+    },
     "RebalancingPreferences": {
       "properties": {
         "frequency": {
@@ -7600,6 +7683,55 @@
         "facts"
       ],
       "title": "RiskDiagnosticsResponse",
+      "type": "object"
+    },
+    "RiskGuardStrategy": {
+      "description": "Move part of the growth assets to a defensive asset after a fall; move back once it recovers.",
+      "properties": {
+        "kind": {
+          "const": "risk_guard",
+          "type": "string"
+        },
+        "triggerDrawdownPct": {
+          "maximum": 50,
+          "minimum": 2,
+          "type": "number"
+        },
+        "shiftPct": {
+          "maximum": 100,
+          "minimum": 10,
+          "type": "number"
+        },
+        "reentryDrawdownPct": {
+          "maximum": 50,
+          "minimum": 0,
+          "type": "number"
+        },
+        "safeTicker": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Ticker"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "costBps": {
+          "default": null,
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "triggerDrawdownPct",
+        "shiftPct",
+        "reentryDrawdownPct"
+      ],
+      "title": "RiskGuardStrategy",
       "type": "object"
     },
     "RiskLevel": {
@@ -9032,6 +9164,348 @@
         "sign"
       ],
       "type": "string"
+    },
+    "StrategyAction": {
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "kind": {
+          "enum": [
+            "rebalance",
+            "contribute",
+            "de_risk",
+            "re_risk"
+          ],
+          "type": "string"
+        },
+        "reason": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "valueBefore": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "trades": {
+          "items": {
+            "$ref": "#/$defs/StrategyTrade"
+          },
+          "type": "array"
+        },
+        "cost": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "date",
+        "kind",
+        "reason",
+        "valueBefore",
+        "trades",
+        "cost"
+      ],
+      "title": "StrategyAction",
+      "type": "object"
+    },
+    "StrategyConfig": {
+      "discriminator": {
+        "mapping": {
+          "contribute": "#/$defs/ContributeStrategy",
+          "rebalance": "#/$defs/RebalanceStrategy",
+          "risk_guard": "#/$defs/RiskGuardStrategy"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/RebalanceStrategy"
+        },
+        {
+          "$ref": "#/$defs/ContributeStrategy"
+        },
+        {
+          "$ref": "#/$defs/RiskGuardStrategy"
+        }
+      ]
+    },
+    "StrategyFrequency": {
+      "enum": [
+        "monthly",
+        "quarterly",
+        "yearly"
+      ],
+      "type": "string"
+    },
+    "StrategyMetrics": {
+      "properties": {
+        "endValue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "invested": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "gain": {
+          "type": "number"
+        },
+        "twrPct": {
+          "type": "number"
+        },
+        "volPct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maxDrawdownPct": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "turnoverPct": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "costs": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "actions": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "endValue",
+        "invested",
+        "gain",
+        "twrPct",
+        "volPct",
+        "maxDrawdownPct",
+        "turnoverPct",
+        "costs",
+        "actions"
+      ],
+      "title": "StrategyMetrics",
+      "type": "object"
+    },
+    "StrategyNextAction": {
+      "properties": {
+        "due": {
+          "type": "boolean"
+        },
+        "summary": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "trades": {
+          "items": {
+            "$ref": "#/$defs/StrategyTrade"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "due",
+        "summary",
+        "trades"
+      ],
+      "title": "StrategyNextAction",
+      "type": "object"
+    },
+    "StrategyPlanCheck": {
+      "properties": {
+        "monthsChecked": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "strategyMonthsInConflict": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "baselineMonthsInConflict": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "byRule": {
+          "items": {
+            "$ref": "#/$defs/StrategyRuleDays"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "monthsChecked",
+        "strategyMonthsInConflict",
+        "baselineMonthsInConflict",
+        "byRule"
+      ],
+      "title": "StrategyPlanCheck",
+      "type": "object"
+    },
+    "StrategyRuleDays": {
+      "properties": {
+        "ruleId": {
+          "$ref": "#/$defs/RuleId"
+        },
+        "code": {
+          "type": "string"
+        },
+        "strategyMonths": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "baselineMonths": {
+          "ge": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ruleId",
+        "code",
+        "strategyMonths",
+        "baselineMonths"
+      ],
+      "title": "StrategyRuleDays",
+      "type": "object"
+    },
+    "StrategySimulateRequest": {
+      "properties": {
+        "strategy": {
+          "$ref": "#/$defs/StrategyConfig"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec",
+          "default": null
+        }
+      },
+      "required": [
+        "strategy"
+      ],
+      "title": "StrategySimulateRequest",
+      "type": "object"
+    },
+    "StrategySimulation": {
+      "properties": {
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "strategy": {
+          "$ref": "#/$defs/StrategyConfig"
+        },
+        "series": {
+          "items": {
+            "$ref": "#/$defs/SeriesPoint"
+          },
+          "type": "array"
+        },
+        "baseline": {
+          "items": {
+            "$ref": "#/$defs/SeriesPoint"
+          },
+          "type": "array"
+        },
+        "invested": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/SeriesPoint"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "metrics": {
+          "$ref": "#/$defs/StrategyMetrics"
+        },
+        "baselineMetrics": {
+          "$ref": "#/$defs/StrategyMetrics"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/StrategyAction"
+          },
+          "type": "array"
+        },
+        "actionsTruncated": {
+          "type": "boolean"
+        },
+        "plan": {
+          "$ref": "#/$defs/StrategyPlanCheck"
+        },
+        "nextAction": {
+          "$ref": "#/$defs/StrategyNextAction"
+        },
+        "method": {
+          "$ref": "#/$defs/MethodId"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "window",
+        "currency",
+        "strategy",
+        "series",
+        "baseline",
+        "invested",
+        "metrics",
+        "baselineMetrics",
+        "actions",
+        "actionsTruncated",
+        "plan",
+        "nextAction",
+        "method",
+        "limitations"
+      ],
+      "title": "StrategySimulation",
+      "type": "object"
+    },
+    "StrategyTrade": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "weightBeforePct": {
+          "type": "number"
+        },
+        "weightAfterPct": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "ticker",
+        "amount",
+        "weightBeforePct",
+        "weightAfterPct"
+      ],
+      "title": "StrategyTrade",
+      "type": "object"
     },
     "TargetAllocation": {
       "properties": {
@@ -10584,6 +11058,9 @@
     "ConditionalPolicy": {
       "$ref": "#/$defs/ConditionalPolicy"
     },
+    "ContributeStrategy": {
+      "$ref": "#/$defs/ContributeStrategy"
+    },
     "Correlation": {
       "$ref": "#/$defs/Correlation"
     },
@@ -11022,6 +11499,9 @@
     "RebalanceRunResult": {
       "$ref": "#/$defs/RebalanceRunResult"
     },
+    "RebalanceStrategy": {
+      "$ref": "#/$defs/RebalanceStrategy"
+    },
     "RebalancingPreferences": {
       "$ref": "#/$defs/RebalancingPreferences"
     },
@@ -11063,6 +11543,9 @@
     },
     "RiskDiagnosticsResponse": {
       "$ref": "#/$defs/RiskDiagnosticsResponse"
+    },
+    "RiskGuardStrategy": {
+      "$ref": "#/$defs/RiskGuardStrategy"
     },
     "RiskLevel": {
       "$ref": "#/$defs/RiskLevel"
@@ -11195,6 +11678,36 @@
     },
     "StepType": {
       "$ref": "#/$defs/StepType"
+    },
+    "StrategyAction": {
+      "$ref": "#/$defs/StrategyAction"
+    },
+    "StrategyConfig": {
+      "$ref": "#/$defs/StrategyConfig"
+    },
+    "StrategyFrequency": {
+      "$ref": "#/$defs/StrategyFrequency"
+    },
+    "StrategyMetrics": {
+      "$ref": "#/$defs/StrategyMetrics"
+    },
+    "StrategyNextAction": {
+      "$ref": "#/$defs/StrategyNextAction"
+    },
+    "StrategyPlanCheck": {
+      "$ref": "#/$defs/StrategyPlanCheck"
+    },
+    "StrategyRuleDays": {
+      "$ref": "#/$defs/StrategyRuleDays"
+    },
+    "StrategySimulateRequest": {
+      "$ref": "#/$defs/StrategySimulateRequest"
+    },
+    "StrategySimulation": {
+      "$ref": "#/$defs/StrategySimulation"
+    },
+    "StrategyTrade": {
+      "$ref": "#/$defs/StrategyTrade"
     },
     "TargetAllocation": {
       "$ref": "#/$defs/TargetAllocation"
@@ -11352,6 +11865,7 @@
     "ConditionGroup",
     "ConditionPredicate",
     "ConditionalPolicy",
+    "ContributeStrategy",
     "Correlation",
     "CountryExposure",
     "CreateAccountRequest",
@@ -11498,6 +12012,7 @@
     "RebalanceRequest",
     "RebalanceResponse",
     "RebalanceRunResult",
+    "RebalanceStrategy",
     "RebalancingPreferences",
     "RefreshAccountRequest",
     "Refusal",
@@ -11512,6 +12027,7 @@
     "ReviewFinding",
     "ReviewedRebalance",
     "RiskDiagnosticsResponse",
+    "RiskGuardStrategy",
     "RiskLevel",
     "RuleBounds",
     "RuleCheck",
@@ -11556,6 +12072,16 @@
     "StatusSegment",
     "Step",
     "StepType",
+    "StrategyAction",
+    "StrategyConfig",
+    "StrategyFrequency",
+    "StrategyMetrics",
+    "StrategyNextAction",
+    "StrategyPlanCheck",
+    "StrategyRuleDays",
+    "StrategySimulateRequest",
+    "StrategySimulation",
+    "StrategyTrade",
     "TargetAllocation",
     "TextSegment",
     "ThemeExposure",
@@ -11597,12 +12123,12 @@
   "title": "AplombContracts",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aplomb.local/contracts/1.4.0/schema.json",
-  "x-contract-version": "1.4.0",
+  "$id": "https://aplomb.local/contracts/1.5.0/schema.json",
+  "x-contract-version": "1.5.0",
   "x-spec-sha256": {
     "schemas.md": "c9fe5e81df038f00f9cbb123a9350cd071a55f13ffd2969488532f0392136156",
-    "catalog.md": "71c7d1f8c34dd52657ab473e92a118472e0818dbbdb9d2ec2714daff65af00d7",
-    "api.md": "87cb2ac90471ecb825f4ff6ad8cb36347edcaab89258bbd012d31fc425323d1c",
+    "catalog.md": "c92377a3c0d36e055a3e2c441dce252dc79408cf98f8bb7892f2de89e3d262f7",
+    "api.md": "eb8f2b53bd485d2f34eca9dcd9d166c9c5771cfe972ccff81feabb880b2240ac",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
   }

@@ -133,3 +133,39 @@ def test_missing_snapshot_files_are_unavailable(tmp_path):
     response = broken.get("/v1/profiles/robert/overview", headers=H)
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "upstream_unavailable"
+
+
+def test_strategy_simulation(client):
+    """api.md §3.13: three standing strategies simulated on history, validated against the contract."""
+    url = "/v1/profiles/robert/strategies/simulate"
+    rebalance = ok(client.post(url, json={"strategy": {"kind": "rebalance", "trigger": "calendar"}}, headers=H), "StrategySimulation")
+    assert rebalance["strategy"] == {"kind": "rebalance", "trigger": "calendar", "frequency": "quarterly", "costBps": 0.0}
+    assert rebalance["method"] == "M_STRATEGY_SIM" and "LIM_STRATEGY_COSTS" in rebalance["limitations"]
+    assert len(rebalance["series"]) == len(rebalance["baseline"]) == 1228 and rebalance["invested"] is None
+    assert rebalance["series"][0]["value"] == rebalance["baseline"][0]["value"] == 600_000
+    assert rebalance["metrics"]["actions"] == len(rebalance["actions"]) > 10          # about one per quarter
+    assert rebalance["baselineMetrics"]["actions"] == 0 and rebalance["baselineMetrics"]["turnoverPct"] == 0
+    assert rebalance["plan"]["monthsChecked"] > 50
+    assert rebalance["actions"][0]["reason"]["fr"].startswith("Fin de trimestre")
+
+    contribute = ok(client.post(url, json={"strategy": {"kind": "contribute", "amount": 1000, "frequency": "monthly",
+                                                         "allocation": "underweight"}}, headers=H), "StrategySimulation")
+    months = len(contribute["actions"])
+    assert contribute["metrics"]["invested"] == 600_000 + 1000 * months
+    assert contribute["invested"][-1]["value"] == contribute["metrics"]["invested"]
+    assert all(t["amount"] >= 0 for a in contribute["actions"] for t in a["trades"])
+
+    guard = ok(client.post(url, json={"strategy": {"kind": "risk_guard", "triggerDrawdownPct": 5, "shiftPct": 50,
+                                                    "reentryDrawdownPct": 1}, "window": {"code": "custom", "start": "2022-01-01", "end": "2024-01-01"}},
+                           headers=H), "StrategySimulation")
+    assert guard["strategy"]["safeTicker"] == "XBB.TO"                                # the largest bond fund held
+    assert guard["window"] == {"code": "custom", "start": "2022-01-01", "end": "2024-01-01"}
+    assert [a["kind"] for a in guard["actions"]][:1] == ["de_risk"]
+
+    bad = client.post(url, json={"strategy": {"kind": "risk_guard", "triggerDrawdownPct": 5, "shiftPct": 50, "reentryDrawdownPct": 9}}, headers=H)
+    assert bad.status_code == 422 and bad.json()["error"]["code"] == "validation_error"
+    unknown = client.post(url, json={"strategy": {"kind": "risk_guard", "triggerDrawdownPct": 5, "shiftPct": 50,
+                                                   "reentryDrawdownPct": 1, "safeTicker": "TSLA"}}, headers=H)
+    assert unknown.status_code == 422 and unknown.json()["error"]["code"] == "validation_error"
+    assert client.post("/v1/profiles/p_0000000000/strategies/simulate", json={"strategy": {"kind": "rebalance", "trigger": "band"}},
+                       headers=H).status_code == 404
