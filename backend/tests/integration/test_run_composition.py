@@ -132,8 +132,8 @@ def test_world_endpoints_validate_against_the_contract(client):
                for row in policy["items"])
     energy = ok(client.get("/v1/world/observations", params={"mode": "energy", "limit": 1},
                            headers=headers), "WorldObservationsResponse")
-    # 34,936 WRI power plants, 74 USGS mineral sites, 384 Energy-Charts and 693 Ember generation rows.
-    assert energy["total"] == 36087 and energy["items"][0]["datasetId"] == "world_usgs_minerals"
+    # 34,936 WRI power plants, 74 USGS mineral sites, 384 Energy-Charts, 693 Ember and 215 EIA crude rows.
+    assert energy["total"] == 36302 and energy["items"][0]["datasetId"] == "world_usgs_minerals"
     exposure = ok(client.get("/v1/world/exposure", params={"profileId": "amira"}, headers=headers), "WorldExposureResponse")
     assert sum(i["weightPct"] for i in exposure["items"]) == pytest.approx(100)
     country = ok(client.get("/v1/world/countries/CAN", params={"profileId": "robert"}, headers=headers), "WorldCountryResponse")
