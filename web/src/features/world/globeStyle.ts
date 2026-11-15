@@ -72,6 +72,44 @@ export function exposureColor(weightPct: number | undefined): string {
   return EXPOSURE_COLORS[3];
 }
 
+/** Events closer than this (degrees) share a spot. */
+export const STACK_PRECISION = 0.05;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+
+/**
+ * Events that share a spot (every event known only at country level sits on that country's centre) would
+ * draw as a single spike. They are fanned out in a small sunflower around the spot instead, the most
+ * important nearest the centre, so each one can be seen, hovered and clicked. Other pins keep their place.
+ */
+export function spreadStacked(pins: readonly GlobePin[]): GlobePin[] {
+  const groups = new Map<string, GlobePin[]>();
+  for (const pin of pins) {
+    if (pin.kind !== 'event') continue;
+    const key = `${Math.round(pin.lat / STACK_PRECISION)}:${Math.round(pin.lng / STACK_PRECISION)}`;
+    const group = groups.get(key);
+    if (group) group.push(pin); else groups.set(key, [pin]);
+  }
+  const moved = new Map<string, GlobePin>();
+  for (const group of groups.values()) {
+    const n = group.length;
+    const first = group[0];
+    if (n < 2 || !first) continue;
+    const order = [...group].sort((a, b) => (b.weight - a.weight) || a.id.localeCompare(b.id));
+    const radius = Math.min(6, Math.max(0.9, 0.65 * Math.sqrt(n)));
+    const lngScale = 1 / Math.max(0.2, Math.cos((first.lat * Math.PI) / 180));
+    order.forEach((pin, i) => {
+      const r = radius * Math.sqrt((i + 0.5) / n);
+      const angle = i * GOLDEN_ANGLE;
+      moved.set(pin.id, {
+        ...pin,
+        lat: Math.max(-89.9, Math.min(89.9, first.lat + r * Math.sin(angle))),
+        lng: ((first.lng + r * Math.cos(angle) * lngScale + 540) % 360) - 180,
+      });
+    });
+  }
+  return moved.size ? pins.map(pin => moved.get(pin.id) ?? pin) : [...pins];
+}
+
 /** Spike height (globe radii) of an event from its 0–1 importance. */
 export function spikeAltitude(weight: number): number {
   return 0.04 + 0.32 * Math.max(0, Math.min(1, weight));

@@ -454,3 +454,32 @@ test('globe: degenerate outlines are dropped before hexagons, centroids land ins
   const usa = at('USA'); assert.ok(usa.lat > 30 && usa.lat < 45 && usa.lng > -110 && usa.lng < -85, JSON.stringify(usa));
   const fji = at('FJI'); assert.ok(Math.abs(fji.lat + 17.5) < 3 && Math.abs(Math.abs(fji.lng) - 179) < 3, JSON.stringify(fji));
 });
+
+test('globe: events sharing a spot are fanned out, each apart, the rest untouched', async () => {
+  const { spreadStacked } = await import('../src/features/world/globeStyle');
+  const event = (id: string, weight: number, lat = 56.1, lng = -106.3) =>
+    ({ id, kind: 'event' as const, lat, lng, label: id, countryLevel: true, weight });
+  const stacked = Array.from({ length: 12 }, (_, i) => event(`ca${i}`, i / 12));
+  const lone = event('lone', 0.5, 48.85, 2.35);
+  const quake = { id: 'hazard:1', kind: 'hazard' as const, lat: 56.1, lng: -106.3, label: 'q', countryLevel: false, weight: 0.2 };
+  const out = spreadStacked([...stacked, lone, quake]);
+  assert.equal(out.length, 14);
+  assert.deepEqual(out.map(p => p.id), [...stacked.map(p => p.id), 'lone', 'hazard:1']);
+  assert.deepEqual(out[12], lone);
+  assert.deepEqual(out[13], quake);
+  const spread = out.slice(0, 12);
+  for (let i = 0; i < spread.length; i++) {
+    for (let j = i + 1; j < spread.length; j++) {
+      const a = spread[i]!, b = spread[j]!;
+      const dLng = (a.lng - b.lng) * Math.cos((56.1 * Math.PI) / 180);
+      assert.ok(Math.hypot(a.lat - b.lat, dLng) > 0.72, `${a.id} and ${b.id} overlap`);
+    }
+    assert.ok(Math.abs(spread[i]!.lat - 56.1) < 6 && Math.abs(spread[i]!.lng + 106.3) < 12);
+  }
+  // The most important event stays nearest the shared spot.
+  const dist = (p: { lat: number; lng: number }) => Math.hypot(p.lat - 56.1, (p.lng + 106.3) * Math.cos((56.1 * Math.PI) / 180));
+  const heaviest = spread.find(p => p.id === 'ca11')!;
+  assert.ok(spread.every(p => dist(heaviest) <= dist(p)));
+  // Across the antimeridian longitudes stay within [-180, 180).
+  for (const p of spreadStacked([event('f1', 1, -17.7, 179.9), event('f2', 0.5, -17.7, 179.9)])) assert.ok(p.lng >= -180 && p.lng < 180);
+});
