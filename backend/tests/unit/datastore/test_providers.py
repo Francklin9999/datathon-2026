@@ -57,6 +57,7 @@ class Tiingo(unittest.TestCase):
             (FakeHttp(meta={**META, "exchangeCode": "TSX"}), "unsupported"),
             (FakeHttp(meta={**META, "name": "Some Bond ETF"}), "unsupported"),
             (FakeHttp(meta={**META, "description": "The Fund seeks to track an index; an exchange-traded fund."}), "unsupported"),
+            (FakeHttp(meta={**META, "name": "Some Holdings", "description": "Historical ETF prices for Some (SOME)."}), "unsupported"),
             (FakeHttp(status=404), "not_found"),
             (FakeHttp(status=429), "unavailable"),
             (FakeHttp(status=401), "unavailable"),

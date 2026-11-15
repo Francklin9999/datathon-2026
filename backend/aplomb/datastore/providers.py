@@ -19,6 +19,7 @@ Sector stays "unknown" (``sector_label_unsourced``).
 from __future__ import annotations
 
 import json
+import re
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -31,7 +32,7 @@ TIINGO_BASE = "https://api.tiingo.com/tiingo/daily"
 US_EXCHANGES = {"NASDAQ": "NASDAQ", "NYSE": "NYSE", "NYSE ARCA": "NYSE Arca", "NYSE MKT": "NYSE American",
                 "NYSE AMERICAN": "NYSE American", "BATS": "Cboe BZX", "CBOE BZX": "Cboe BZX"}
 FUND_NAME_WORDS = (" etf", " fund", "ishares", "spdr")
-FUND_DESCRIPTION_WORDS = ("exchange-traded fund", "exchange traded fund", "an etf", "the etf", "the fund ", "mutual fund")
+FUND_DESCRIPTION_RE = re.compile(r"\b(etf|etfs|exchange[- ]traded funds?|mutual funds?|the fund)\b")
 
 
 class ProviderError(Exception):
@@ -101,7 +102,7 @@ class TiingoProvider:
         name = str(meta.get("name") or ticker).strip()
         lowered_name = f" {name.lower()}"
         description = str(meta.get("description") or "").lower()
-        if any(w in lowered_name for w in FUND_NAME_WORDS) or any(w in description for w in FUND_DESCRIPTION_WORDS):
+        if any(w in lowered_name for w in FUND_NAME_WORDS) or FUND_DESCRIPTION_RE.search(description):
             raise ProviderError("unsupported", "Funds are not accepted on demand: their asset group (equity or bond) cannot be verified.",
                                 "Les fonds ne sont pas acceptés à la demande : leur groupe d'actifs (actions ou obligations) ne peut pas être vérifié.")
         rows = self._json(f"{TIINGO_BASE}/{symbol}/prices?startDate={start}&endDate={end}")
