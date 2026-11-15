@@ -24,8 +24,8 @@ def capabilities(settings):
         'Exact-pair and reference records have retained captures; the issuer graph is partial.', source_ids=('SRC-043', 'MASTER-023'))
     add('golden_copy', 'GLEIF Golden Copy delta', 'available',
         'A captured intraday delta is available; it is not the complete Golden Copy.', source_ids=('SRC-044',))
-    add('nport_example', 'SEC N-PORT partial example', 'evidence',
-        'One captured indexed filing and mapping; derivative exposure remains unknown.', source_ids=('SRC-040', 'MASTER-020'))
+    add('nport_example', 'SEC N-PORT historical example', 'removed',
+        'SEC excluded by owner; historical capture retained for audit only.', source_ids=('SRC-040', 'MASTER-020'))
     add('openfigi', 'OpenFIGI exact identifier mappings', 'available',
         'Public API has a retained ISIN lookup; source identifiers are not recommendations.', source_ids=('SRC-058',))
     add('eu', 'ESMA registers and EBA market risk', 'available',
@@ -40,8 +40,8 @@ def capabilities(settings):
     add('wikidata', 'Wikidata exact-ISIN candidates', 'available' if wikidata else 'aside',
         'Configured contact; community assertions are not verified issuer identity.' if wikidata else
         'A descriptive project contact is required before querying Wikidata.', source_ids=('SRC-057', 'MASTER-024', 'MASTER-062'))
-    add('sec', 'SEC live company, filings and funds', 'aside',
-        'A descriptive SEC contact and accepted network access are required; recent requests returned HTTP 403.',
+    add('sec', 'SEC live company, filings and funds', 'removed',
+        'Removed by owner after HTTP403; no SEC credentials requested.',
         source_ids=('SRC-034', 'SRC-035', 'SRC-036', 'SRC-037', 'SRC-038', 'SRC-039', 'SRC-041', 'SRC-042'))
     add('regional', 'Japan J-Quants', 'aside',
         'A J-Quants account/key is still required; Korea is a separate working OpenDART adapter.', source_ids=('SRC-020',))
@@ -90,8 +90,8 @@ def capabilities(settings):
     add('stooq', 'Stooq', 'aside',
         'Automated access is blocked; approved access and reuse rights must be established.', source_ids=('SRC-018',))
     add('paid', 'Paid provider feeds', 'removed',
-        'Databento, Intrinio and Financial Datasets were removed under the recorded owner instruction.',
-        source_ids=('SRC-011', 'SRC-015', 'SRC-017'))
+        'Databento, Intrinio, Financial Datasets and Glassnode were removed under the owner instruction excluding paid APIs.',
+        source_ids=('SRC-011', 'SRC-015', 'SRC-017', 'SRC-085'))
     path = Path(__file__).resolve().parent / 'data' / 'source_dispositions.json'
     with path.open(encoding='utf-8') as stream:
         catalog = json.load(stream)

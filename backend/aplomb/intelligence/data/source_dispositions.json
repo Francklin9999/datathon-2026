@@ -207,90 +207,90 @@
       "provider": "SEC EDGAR submissions API",
       "source_url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
       "catalog_access": "A",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC exact-CIK submissions/companyfacts acquisition, captured statements and filings, plus company-concept and frame adapters.",
       "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/sec_extra.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. Configured descriptive SEC contact and successful live access required; prior HTTP 403; live shapes and all securities not verified."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "SRC-035",
       "provider": "SEC Company Facts XBRL API",
       "source_url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
       "catalog_access": "A",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC exact-CIK submissions/companyfacts acquisition, captured statements and filings, plus company-concept and frame adapters.",
       "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/sec_extra.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. Configured descriptive SEC contact and successful live access required; prior HTTP 403; live shapes and all securities not verified."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "SRC-036",
       "provider": "SEC company concepts XBRL",
       "source_url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
       "catalog_access": "A",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC companyconcept exact CIK/taxonomy/concept series with revision display and immutable session capture.",
       "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and permitted live access needed; source response unverified live."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "SRC-037",
       "provider": "SEC companyframes XBRL",
       "source_url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
       "catalog_access": "A",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC XBRL frame exact taxonomy/concept/unit/calendar aggregation and immutable session capture.",
       "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and permitted live access needed; coverage limited to requested frame."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "SRC-038",
       "provider": "SEC filing RSS",
       "source_url": "https://www.sec.gov/about/rss-feeds",
       "catalog_access": "A",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC latest filings Atom discovery, captured per session with bounded requests.",
       "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and permitted live access needed; feed is not complete filing history."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "SRC-039",
       "provider": "SEC 13F data",
       "source_url": "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets",
       "catalog_access": "D",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Latest 13F-HR information table lookup and parsing from exact manager CIK/SEC filing; manager-reported positions and unknown identifier mapping.",
       "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/disclosures.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and live validation required; full quarterly bulk datasets not implemented, reported CUSIP requires licensing for crosswalk."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "SRC-040",
       "provider": "SEC N-PORT data",
       "source_url": "https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets",
       "catalog_access": "D",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Partial indexed SEC N-PORT observation with exact class/ISIN mapping; added rights-cleared SEC XML ingestion and unknown-weight look-through pipeline.",
       "implementation_test_evidence": "backend/aplomb/intelligence/fund_pipeline.py; docs/parallel/reports/agent-2/CONT-holdings.md; docs/evidence/parallel/agent-2/security/; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. Live raw SEC acquisition remains unavailable/untested; one reviewed fund identity crosswalk; parsing and AWS storage need validation."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "SRC-041",
       "provider": "SEC N-CEN data",
       "source_url": "https://www.sec.gov/data-research/sec-markets-data/form-n-cen-data-sets",
       "catalog_access": "D",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Latest N-CEN filing discovery and bounded source capture/field parsing.",
       "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and live access/validation needed; DERA quarterly bulk dataset ingestion not implemented."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "SRC-042",
       "provider": "SEC Insider Transactions",
       "source_url": "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
       "catalog_access": "D",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Up to five recent Form 4 XML filings through issuer CIK, reported transactions and immutable captures.",
       "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/disclosures.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and live access/validation needed; insider transactions bulk dataset not implemented."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "SRC-043",
@@ -350,7 +350,7 @@
       "status": "aside: portal access required",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter not implemented; access or reuse rights require review; no bypass or unofficial substitution."
+      "remaining_work_or_external_blocker": "Public searches do not require login according to official help. Automated acquisition/approved export and integration remain unresolved; do not request portal passwords. SEDAR+: https://systems.securities-administrators.ca/onlinehelp/general-help/getting-started/general-public-access/ ; SEDI: https://www.sedi.ca/sedi/new_help/english/public/PDF_en/Viewing_Public_Reports-SEDI_%28FINAL%29.pdf"
     },
     {
       "id": "SRC-049",
@@ -360,7 +360,7 @@
       "status": "aside: portal access required",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter not implemented; access or reuse rights require review; no bypass or unofficial substitution."
+      "remaining_work_or_external_blocker": "Public searches do not require login according to official help. Automated acquisition/approved export and integration remain unresolved; do not request portal passwords. SEDAR+: https://systems.securities-administrators.ca/onlinehelp/general-help/getting-started/general-public-access/ ; SEDI: https://www.sedi.ca/sedi/new_help/english/public/PDF_en/Viewing_Public_Reports-SEDI_%28FINAL%29.pdf"
     },
     {
       "id": "SRC-050",
@@ -627,20 +627,20 @@
       "provider": "Blockchain.com Data API",
       "source_url": "https://www.blockchain.com/explorer/api",
       "catalog_access": "A",
-      "status": "aside: signup/API key required",
+      "status": "aside: engineering/access review required",
       "feature_and_capture": "Blockchain.com API terms require account/key and limit caching/display; no connector or live capture.",
       "implementation_test_evidence": "https://www.blockchain.com/legal/api-terms; docs/parallel/reports/agent-2/CONT-chain-public.md",
-      "remaining_work_or_external_blocker": "Owner deferred key/account sources; source licence conditions require review."
+      "remaining_work_or_external_blocker": "Official current OpenAPI documents free /public endpoints without a key. Adapter implementation, access and applicable reuse review remain our work, not an owner signup dependency. https://api.blockchain.info/explorer-gateway-kt/openapi.json"
     },
     {
       "id": "SRC-077",
       "provider": "Blockchair API",
       "source_url": "https://blockchair.com/api/docs",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "aside: engineering/access review required",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Official Blockchair API guide allows bounded personal/testing/noncommercial calls without a key; adapter/access and reuse work remains. Commercial/high-volume access differs. https://github.com/Blockchair/Blockchair.Support/blob/master/API_DOCUMENTATION_EN.md"
     },
     {
       "id": "SRC-078",
@@ -657,10 +657,10 @@
       "provider": "Flipside",
       "source_url": "https://docs.flipsidecrypto.xyz/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: unavailable signup workflow",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "No current usable self-service API signup verified; official SDK archived July 2 2026 and former site has no readable service. Do not request an obsolete Flipside key. https://github.com/FlipsideCrypto/sdk"
     },
     {
       "id": "SRC-080",
@@ -717,10 +717,10 @@
       "provider": "Glassnode",
       "source_url": "https://docs.glassnode.com/",
       "catalog_access": "M",
-      "status": "aside: signup/API key required",
+      "status": "removed: paid API",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Official Glassnode documentation requires Professional plan plus paid API add-on. Removed under existing owner instruction to exclude paid sources. https://docs.glassnode.com/basic-api/api"
     },
     {
       "id": "SRC-086",
@@ -817,70 +817,70 @@
       "provider": "SEC EDGAR APIs",
       "source_url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
       "catalog_access": "master catalogue",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC exact-CIK submissions/companyfacts acquisition, captured statements and filings, plus company-concept and frame adapters.",
       "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/sec_extra.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. Configured descriptive SEC contact and successful live access required; prior HTTP 403; live shapes and all securities not verified."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "MASTER-017",
       "provider": "SEC Structured Disclosure RSS",
       "source_url": "https://www.sec.gov/data-research/structured-data/structured-disclosure-rss-feeds",
       "catalog_access": "master catalogue",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC structured RSS parser, bounded fetch, source capture, session isolation, and Markets UI discovery.",
       "implementation_test_evidence": "backend/aplomb/intelligence/sec_structured.py; backend/tests/unit/test_security_sources.py; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. Set APLOMB_SEC_CONTACT to an authorized descriptive organization and email; SEC access previously returned HTTP 403; live validation and deeper filing navigation remain."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "MASTER-018",
       "provider": "SEC Insider Transactions",
       "source_url": "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
       "catalog_access": "master catalogue",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Up to five recent Form 4 XML filings through issuer CIK, reported transactions and immutable captures.",
       "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/disclosures.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and live access/validation needed; insider transactions bulk dataset not implemented."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "MASTER-019",
       "provider": "SEC Form 13F",
       "source_url": "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets",
       "catalog_access": "master catalogue",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Latest 13F-HR information table lookup and parsing from exact manager CIK/SEC filing; manager-reported positions and unknown identifier mapping.",
       "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/disclosures.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and live validation required; full quarterly bulk datasets not implemented, reported CUSIP requires licensing for crosswalk."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "MASTER-020",
       "provider": "SEC Form N-PORT",
       "source_url": "https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets",
       "catalog_access": "master catalogue",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Partial indexed SEC N-PORT observation with exact class/ISIN mapping; added rights-cleared SEC XML ingestion and unknown-weight look-through pipeline.",
       "implementation_test_evidence": "backend/aplomb/intelligence/fund_pipeline.py; docs/parallel/reports/agent-2/CONT-holdings.md; docs/evidence/parallel/agent-2/security/; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. Live raw SEC acquisition remains unavailable/untested; one reviewed fund identity crosswalk; parsing and AWS storage need validation."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "MASTER-021",
       "provider": "SEC Form N-CEN",
       "source_url": "https://www.sec.gov/data-research/sec-markets-data/form-n-cen-data-sets",
       "catalog_access": "master catalogue",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Latest N-CEN filing discovery and bounded source capture/field parsing.",
       "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and live access/validation needed; DERA quarterly bulk dataset ingestion not implemented."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "MASTER-022",
       "provider": "SEC Data Library",
       "source_url": "https://www.sec.gov/data-research/sec-markets-data",
       "catalog_access": "master catalogue",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC Data Library dataset-link discovery parser, session-owned capture and Markets UI.",
       "implementation_test_evidence": "backend/aplomb/intelligence/sec_structured.py:parse_data_library; backend/tests/unit/test_security_sources.py; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. Set valid APLOMB_SEC_CONTACT; SEC previously returned HTTP 403. Individual datasets remain unimplemented unless separately stated."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "MASTER-023",
@@ -930,7 +930,7 @@
       "status": "aside: portal access required",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Engineering work remains; provider access/terms not verified."
+      "remaining_work_or_external_blocker": "Public searches do not require login according to official help. Automated acquisition/approved export and integration remain unresolved; do not request portal passwords. SEDAR+: https://systems.securities-administrators.ca/onlinehelp/general-help/getting-started/general-public-access/ ; SEDI: https://www.sedi.ca/sedi/new_help/english/public/PDF_en/Viewing_Public_Reports-SEDI_%28FINAL%29.pdf"
     },
     {
       "id": "MASTER-028",
@@ -957,10 +957,10 @@
       "provider": "SEC Latest Filings RSS",
       "source_url": "https://www.sec.gov/about/rss-feeds",
       "catalog_access": "master catalogue",
-      "status": "aside: source access refused",
+      "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC latest filings Atom discovery, captured per session with bounded requests.",
       "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
-      "remaining_work_or_external_blocker": "Actual SEC HTTP403 using the existing authorized project contact; no signup/payment requirement is asserted. Need accepted source/network access. Captured N-PORT evidence remains separately inspectable where applicable. SEC contact and permitted live access needed; feed is not complete filing history."
+      "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
       "id": "MASTER-062",

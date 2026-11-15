@@ -18,6 +18,8 @@ OpenDART filings complete the requested interval or fail explicitly above 5,000 
 
 Remaining access requirements and official sites are recorded for every assigned row in SOURCES.csv. Japan J-Quants is separate: https://jpx-jquants.com/en/spec/quickstart . SEC currently refuses the configured project contact with HTTP403; a new API key is not the remedy. FRED/ALFRED require both an API account and applicable rights under https://fred.stlouisfed.org/legal/ .
 
-Current catalogue: 22 working rows, 71 aside for the exact documented requirement, 4 paid sources removed, total 97. OpenDART is additional to those catalogue rows. The full global specification remains incomplete as mapped in REQUIREMENTS.md; this continuation does not claim otherwise.
+Current catalogue: 22 working rows, 52 aside, 23 removed, total 97. OpenDART is additional to those catalogue rows. The full global specification remains incomplete as mapped in REQUIREMENTS.md; this continuation does not claim otherwise.
 
 Evidence: docs/evidence/parallel/agent-2/credentialed-live/ .
+
+Owner access cleanup: all 17 SEC-refused catalogue rows are removed from active coverage and signup requests; historical audit data remains. Glassnode is excluded as paid, Flipside has no verified current signup, and Blockchain.com is corrected to a no-key engineering task. Current total: 22 working, 52 aside, 23 removed (97 assigned catalogue rows). See [ACCESS-REQUESTS.md](ACCESS-REQUESTS.md) for deduplicated official links and precise owner versus engineering actions.
