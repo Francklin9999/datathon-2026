@@ -375,3 +375,40 @@ details.section-fold > .fold-body, details.compare-fold > .fold-body { padding: 
 .sabotage-verdict-title { margin: 0 0 4px; font-weight: 600; font-size: 16px; color: var(--text); }
 .sabotage-sentence { padding: 10px 14px; border-radius: 12px; border-left: 3px solid var(--conflict-fg); background: var(--glass-inset); margin-bottom: 12px; }
 .sabotage-raw-injected { color: var(--conflict-fg); }
+
+/* Small round controls in a card header (details, refresh) and in sheet and drawer heads. */
+.icon-btn-sm, .details-btn { width: 30px; height: 30px; background: var(--glass-inset); color: var(--text-2); }
+.icon-btn-sm::after, .details-btn::after { inset: -7px; }
+.icon-btn-sm:hover, .details-btn:hover { background: var(--raised-2); color: var(--text); }
+.icon-btn:active { transform: scale(.94); }
+
+/* Details sheet: a centred glass panel (bottom sheet on phones) that grows from the widget's button. */
+.sheet-layer { position: fixed; inset: 0; z-index: 45; display: flex; align-items: center; justify-content: center; padding: 24px; pointer-events: none; }
+.sheet { position: relative; pointer-events: auto; width: min(760px, 100%); max-height: min(820px, calc(100vh - 48px)); display: flex; flex-direction: column;
+  border-radius: var(--r-panel); outline: none; overflow: hidden;
+  background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-line); box-shadow: var(--shadow-pop), inset 0 1px 0 var(--glass-edge); }
+.sheet-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 14px 24px; border-bottom: 1px solid var(--line); }
+.sheet-title { font-size: 19px; font-weight: 650; letter-spacing: -.02em; }
+.sheet-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+.sheet-body > * { flex: none; }
+.sheet-section > .eyebrow { margin-bottom: 8px; font-size: 12px; font-weight: 500; color: var(--text-3); }
+.figure-note { font-size: 13px; line-height: 1.55; color: var(--text-2); }
+.backdrop-drawer { z-index: 48; }
+
+/* Charts that fill a dashboard widget (LineChart fill) and keep the unit in the legend (compact). */
+.line-chart[data-fill] { display: flex; flex-direction: column; min-height: 0; }
+.line-chart[data-fill] .chart-frame { flex: 1 1 auto; min-height: 0; }
+.line-chart[data-fill] .chart { position: absolute; inset: 0; height: 100%; }
+.legend-unit { margin-left: auto; color: var(--text-3); }
+
+@media (max-width: 767px) {
+  .sheet-layer { padding: 8px; align-items: flex-end; }
+  .sheet { max-height: calc(100vh - 16px); }
+  .sheet-body { padding: 16px; }
+  /* On phones the note of an "i" is a fixed card at the bottom: it can never widen the page. */
+  .info-tip .info-bubble, .info-tip[data-align] .info-bubble { position: fixed; top: auto; bottom: 12px; left: 12px; right: 12px; width: auto; max-width: none; transform: translate3d(0, 6px, 0); }
+  .info-tip:hover .info-bubble, .info-tip:focus-within .info-bubble, .info-tip[data-open] .info-bubble,
+  .info-tip[data-align]:hover .info-bubble, .info-tip[data-align]:focus-within .info-bubble, .info-tip[data-align][data-open] .info-bubble { transform: translate3d(0, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) { html:not([data-anim='on']) .icon-btn:active { transform: none; } }

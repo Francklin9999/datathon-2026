@@ -2,12 +2,15 @@
 /**
  * Floating dock for the sections of the current page, plus the one shortcut every page shares: test a
  * move. Sections are any element in <main> with `data-section` (its label) and an `id`; the dock
- * appears when a page has at least three. The highlighted section follows the scroll.
+ * appears when a page has at least three. The highlighted section follows the scroll (activeSection):
+ * a section chosen in the dock stays highlighted while the page glides to it, and keeps priority over
+ * a neighbour that shares its row until the person scrolls by themselves.
  */
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { activeSection } from '../../lib/ui/sections';
 import { useApp } from '../../state/app';
 import { pillStyle, useSlidingPill } from '../ui/useSlidingPill';
 
@@ -33,6 +36,10 @@ export function SectionDock() {
   const { ref, box } = useSlidingPill<HTMLDivElement>(`${current}|${sections.map(s => s.id).join(',')}`);
   const [animate, setAnimate] = useState(false);
   useEffect(() => { if (box && !animate) setAnimate(true); }, [box, animate]);
+  /** Section chosen in the dock: wins its row; cleared when the person scrolls by themselves. */
+  const preferred = useRef<string | null>(null);
+  /** While the page glides to a chosen section, the highlight stays on it. */
+  const gliding = useRef(false);
 
   // Track which sections exist: pages render them as their data arrives.
   useEffect(() => {
@@ -45,33 +52,64 @@ export function SectionDock() {
     return () => observer.disconnect();
   }, [pathname]);
 
-  // Scroll spy: the last section whose top has passed the upper third of the viewport.
+  // Scroll spy (lib/ui/sections.ts): the lowest row of sections past the upper third of the viewport.
   useEffect(() => {
     if (sections.length < 3) return undefined;
-    const onScroll = () => {
-      const line = window.innerHeight * 0.33;
-      let active = sections[0]?.id ?? null;
-      let best = -Infinity;
-      // The lowest section top that has passed the line; side-by-side widgets share a top, the first wins.
-      for (const s of sections) {
-        const top = document.getElementById(s.id)?.getBoundingClientRect().top;
-        if (top !== undefined && top <= line && top > best + 1) { best = top; active = s.id; }
-      }
-      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) active = sections[sections.length - 1]?.id ?? active;
-      setCurrent(active);
+    let settle = 0;
+    const measure = () => {
+      if (gliding.current) return;
+      const boxes = sections.flatMap(s => {
+        const r = document.getElementById(s.id)?.getBoundingClientRect();
+        return r ? [{ id: s.id, top: r.top, bottom: r.bottom }] : [];
+      });
+      setCurrent(activeSection(boxes, {
+        line: window.innerHeight * 0.33,
+        viewportHeight: window.innerHeight,
+        atBottom: window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4,
+        preferred: preferred.current,
+      }));
     };
-    onScroll();
+    const onScroll = () => {
+      // A glide ends when scrolling stops (scrollend where supported, a quiet 150 ms otherwise).
+      if (gliding.current) {
+        window.clearTimeout(settle);
+        settle = window.setTimeout(() => { gliding.current = false; measure(); }, 150);
+        return;
+      }
+      measure();
+    };
+    const onScrollEnd = () => { if (gliding.current) { window.clearTimeout(settle); gliding.current = false; measure(); } };
+    // Scrolling by hand (wheel, touch, keys) ends any glide and drops the dock's choice.
+    const onUserScroll = () => { preferred.current = null; if (gliding.current) { gliding.current = false; window.clearTimeout(settle); } };
+    const onKey = (event: KeyboardEvent) => { if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) onUserScroll(); };
+    measure();
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
+    window.addEventListener('scrollend', onScrollEnd);
+    window.addEventListener('resize', measure);
+    window.addEventListener('wheel', onUserScroll, { passive: true });
+    window.addEventListener('touchmove', onUserScroll, { passive: true });
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.clearTimeout(settle);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scrollend', onScrollEnd);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('wheel', onUserScroll);
+      window.removeEventListener('touchmove', onUserScroll);
+      window.removeEventListener('keydown', onKey);
+    };
   }, [sections]);
 
   const go = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    preferred.current = id;
+    gliding.current = !reduce;
     setCurrent(id);
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    // Already in place (nothing to scroll): no scroll event will end the glide.
+    if (!reduce) window.setTimeout(() => { if (gliding.current && Math.abs(el.getBoundingClientRect().top) < 2) gliding.current = false; }, 400);
     // Move focus for keyboard and screen-reader users without scrolling twice.
     if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
     el.focus({ preventScroll: true });

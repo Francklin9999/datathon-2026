@@ -43,7 +43,9 @@ Instrument Sans (variable weight and width, local `@fontsource-variable/instrume
 - **Rail** (floating, left): the seven pages and Sources as icons with tooltips; the bottom arrow shows labels (`aplomb.pref.sidebar`, `html[data-sidebar='expanded']`). Phones use the menu drawer instead.
 - **Page panel:** title and one sentence on the left, the period control and main action on the right (`PageHeader actions`).
 - **Section dock** (floating, bottom): every element in `<main>` with `data-section` and an `id` (via `Card section=…` or a dashboard widget's `section`), shown from three sections, with scroll spy; the cobalt + tests a move. Hidden on phones.
-- **Home:** scope bar (period or custom range, benchmark, asset classes, minimum weight, chart view, layout editor) over a 12-column grid of movable, resizable widgets (`aplomb.pref.dashboard.layout.v1`); key figures are four tiles with the value tile in cobalt.
+- **Home:** scope bar (period or custom range, benchmark, asset classes, minimum weight, chart view); Reset layout sits in the page header, always shown, inactive while the layout is the default over a 12-column grid of widgets (`aplomb.pref.dashboard.layout.v1`); key figures are four tiles with the value tile in cobalt. Details: [movable widgets and details sheets](../docs/superpowers/specs/2026-11-15-movable-widgets-details-design.md).
+  - **Always arrangeable, no edit mode.** Grab a widget by its header: after 5 px of travel it lifts (scale 1.025, denser glass, deeper shadow) and follows the pointer, a recessed slot shows where it will land, the others glide out of its way, and it settles into the slot on release. A plain click on the header stays a click. The grabber at the top edge (on hover or focus) is the keyboard handle (arrows, Home/End); the corner handle resizes within the widget's limits (arrows too). Every change is announced. Below 880 px of grid width the widgets stack and do not move.
+  - **A widget never scrolls.** It shows its essentials and adapts to its size: Positions shows the rows that fit, then "+N"; Plan health adds the rules nearest their limit as room allows; the chart fills the widget. Tables, limitations, method, the full brief and its steps open from ⤢ in a details sheet. Minimum sizes still hold the essentials.
 
 ## Guided tours
 
@@ -51,11 +53,11 @@ Instrument Sans (variable weight and width, local `@fontsource-variable/instrume
 
 ## Components
 
-StatusBadge pairs icon and text. FactChip is a button whose accessible name uses `display`. `Listbox` is the APG listbox; `SegmentedControl` a radio group with a gliding ink pill; `InfoTip` an "i" whose note is also the button's description; `RunsTable` the shared list of analyses with state filter chips. `DonutChart` legends carry bars and every value; `LineChart` keeps legend and units outside the tooltip and has `SeriesTable`. Targets are 44 px (invisible `::after` where smaller); focus ring 2 px `--focus`, 2 px offset. Drawers trap focus, close on Escape and return focus.
+StatusBadge pairs icon and text. FactChip is a button whose accessible name uses `display`. `Listbox` is the APG listbox; `SegmentedControl` a radio group with a gliding ink pill; `InfoTip` an "i" whose note is also the button's description; `RunsTable` the shared list of analyses with state filter chips. `DonutChart` legends carry bars and every value; `LineChart` keeps legend and units outside the tooltip and has `SeriesTable`. Targets are 44 px (invisible `::after` where smaller); focus ring 2 px `--focus`, 2 px offset. `Card details={{ render }}` adds ⤢ and its `Sheet` (a centred glass panel, a bottom sheet on phones, growing out of the button that opened it). Dialogs (`Drawer`, `Sheet`) share `useDialogFocus`: focus moves in, Tab is trapped, Escape closes, focus returns to the opener, and the page does not scroll behind; open dialogs form a stack, so a source drawer opened from a sheet closes alone. Both render in a portal after mount (fact scopes still apply). `LineChart fill` sizes the chart to its container and `compact` puts the unit in the legend. On phones an `InfoTip` note is a fixed card at the bottom of the screen, so a hidden note can never widen the page.
 
 ## Motion
 
-One curve (`cubic-bezier(0.22, 1, 0.36, 1)`). Pills glide (rail, dock, segments), figures roll when they change, menus rise 4 px, drawers slide, the tour bubble glides between steps. One entrance on load. Nothing loops. Everything is off under `prefers-reduced-motion` and while the page is hidden (`html[data-motion="off"]`).
+One curve (`cubic-bezier(0.22, 1, 0.36, 1)`). Pills glide (rail, dock, segments), figures roll when they change, menus rise 4 px, drawers slide, sheets grow from their button, the tour bubble glides between steps. One entrance on load; dashboard widgets enter through the Web Animations API and glide FLIP-style whenever their position changes (drag, keys, resize, reset), interruptible mid-flight. Browsers restart CSS animations on a node React re-inserts, so in-widget entrances are keyed to fresh content: `data-fresh` on rolling digits and drawn charts (`useFresh`), and on the grid for donuts and bars. Moving a widget never replays them. Nothing loops. Everything is off under `prefers-reduced-motion` and while the page is hidden (`html[data-motion="off"]`).
 
 ## Wording
 
@@ -63,4 +65,4 @@ Use "hypothetical scenario", "rule assumption", "historical in this sample", "fi
 
 ## Review
 
-Check both themes, the expanded and collapsed rail, focus paths and tours by keyboard, AA contrast, 375 / 768 / 1024 / 1440 px, reduced motion and reduced transparency, long French labels, and no-data, error and feature-off states.
+Check both themes, the expanded and collapsed rail, focus paths (sheet → source drawer → back) and tours by keyboard, that no Home widget scrolls at its default and minimum sizes, header drag (a click stays a click), AA contrast, 375 / 768 / 1024 / 1440 px, reduced motion and reduced transparency, long French labels, and no-data, error and feature-off states.

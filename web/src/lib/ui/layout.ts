@@ -78,3 +78,33 @@ export function keyboardResize(layout: readonly LayoutItem[], id: string, key: s
 export function sizeFromPointer(start: { w: number; h: number }, dx: number, dy: number, colStep: number, rowStep: number): { w: number; h: number } {
   return { w: start.w + Math.round(dx / Math.max(1, colStep)), h: start.h + Math.round(dy / Math.max(1, rowStep)) };
 }
+
+/**
+ * Where a dragged widget goes when the pointer is over another one: before it or after it, from the
+ * pointer's side of its midpoint (the caller decides the axis). Returns the index to pass to
+ * moveItem, or null when the order would not change.
+ */
+export function reorderTarget(layout: readonly LayoutItem[], draggedId: string, hoveredId: string, before: boolean): number | null {
+  if (draggedId === hoveredId) return null;
+  const others = layout.filter(i => i.id !== draggedId);
+  const hovered = others.findIndex(i => i.id === hoveredId);
+  const current = layout.findIndex(i => i.id === draggedId);
+  if (hovered < 0 || current < 0) return null;
+  const at = hovered + (before ? 0 : 1);
+  return at === current ? null : at;
+}
+
+/** True when the layout is the default one (same order and sizes). */
+export function isDefaultLayout(layout: readonly LayoutItem[], defaults: readonly LayoutItem[]): boolean {
+  return layout.length === defaults.length && layout.every((item, i) => {
+    const d = defaults[i];
+    return d !== undefined && d.id === item.id && d.w === item.w && d.h === item.h;
+  });
+}
+
+/** How many items of `itemPx` fit in `availablePx` (at least `min`, at most `total`). */
+export function fitCount(availablePx: number, itemPx: number, total: number, min = 1): number {
+  if (total <= 0) return 0;
+  const n = Math.floor(Math.max(0, availablePx) / Math.max(1, itemPx));
+  return Math.min(total, Math.max(min, n));
+}

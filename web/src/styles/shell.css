@@ -1,17 +1,22 @@
 /* Shell: a floating graphite top bar (investor, Ask Aplomb, simulation note, help, settings), a
    floating icon rail, one frosted page panel, and a dock for the sections of the current page. */
-.shell { --rail-current: var(--rail-w); position: relative; min-height: 100vh; padding: 12px var(--gap-shell) 0; }
+/* The top bar is fixed (not sticky): typing in a field of a sticky bar makes Chrome scroll the page back
+   toward the bar's resting place at the top. The shell keeps its room: 12 px above, 60 px of bar. */
+.shell { --rail-current: var(--rail-w); --topbar-h: 60px; position: relative; min-height: 100vh; padding: calc(12px + var(--topbar-h)) var(--gap-shell) 0; }
 html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
 .chrome { color: var(--chrome-text); }
 
 /* Top bar */
-.topbar { position: sticky; top: 12px; z-index: 30; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 10px 8px 12px; border-radius: var(--r-pill); }
+.topbar { position: fixed; top: 12px; left: var(--gap-shell); right: var(--gap-shell); z-index: 30; display: flex; align-items: center; gap: 12px; min-height: var(--topbar-h); padding: 8px 11px; border-radius: var(--r-pill); }
 .logo { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 6px; color: var(--chrome-text); text-decoration: none; flex: none; }
 .logo:hover { color: var(--chrome-text); }
 .logo-mark { flex: none; }
 .logo-text { font-size: 17px; font-weight: 650; letter-spacing: -.02em; }
 .topbar-sep { width: 1px; height: 24px; background: var(--chrome-line); flex: none; }
-.topbar-end { display: flex; align-items: center; gap: 6px; margin-left: auto; flex: none; }
+/* Both sides start from the wider side's content width (--topbar-side, AppShell) and grow equally,
+   so the command field sits in the exact centre and is the part that shrinks. */
+.topbar-start { display: flex; align-items: center; gap: 12px; flex: 1 0 var(--topbar-side, 0px); white-space: nowrap; }
+.topbar-end { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex: 1 0 var(--topbar-side, 0px); white-space: nowrap; }
 .chrome-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none; border: 0; border-radius: 50%;
   background: var(--chrome-field); color: var(--chrome-text-2); box-shadow: inset 0 0 0 1px var(--chrome-line);
   transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
@@ -38,7 +43,7 @@ html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
 .persona-link { display: flex; align-items: center; gap: 8px; min-height: 40px; margin: 4px 0 0; padding: 0 10px; border-top: 1px solid var(--line); border-radius: 0 0 8px 8px; font-size: 13px; text-decoration: none; }
 
 /* Ask Aplomb: the command bar in the middle of the top bar */
-.command { position: relative; flex: 1 1 320px; min-width: 0; max-width: 620px; margin: 0 auto; }
+.command { position: relative; flex: 0 1 620px; min-width: 0; }
 .command-field { position: relative; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 5px 0 8px; border-radius: var(--r-pill);
   background: var(--chrome-field); box-shadow: inset 0 0 0 1px var(--chrome-line); transition: box-shadow var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
 .command-field:focus-within { background: rgba(255, 255, 255, .12); box-shadow: inset 0 0 0 1px rgba(157, 178, 255, .6), 0 0 0 4px rgba(47, 91, 255, .18); }
@@ -46,6 +51,8 @@ html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
   background: radial-gradient(circle at 32% 28%, #FFFFFF 0 8%, transparent 32%), conic-gradient(from 210deg, #2F5BFF, #16B2A0, #8E7CFF, #2F5BFF);
   box-shadow: 0 0 12px rgba(47, 91, 255, .55), inset 0 0 0 1px rgba(255, 255, 255, .3); }
 .command-field .command-input { flex: 1 1 auto; min-width: 0; height: 100%; min-height: 0; border: 0; border-radius: 0; padding: 0; background: transparent; box-shadow: none; color: var(--chrome-text); font-size: 14px; outline: none; }
+/* The capsule shows focus (:focus-within); the bare field inside draws no box of its own. */
+.command-field .command-input:focus, .command-field .command-input:focus-visible { box-shadow: none; outline: none; border: 0; }
 .command-input::placeholder { color: var(--chrome-text-2); }
 .command-kbd { flex: none; min-width: 24px; height: 24px; padding: 0 6px; margin-right: 6px; display: inline-flex; align-items: center; justify-content: center;
   border-radius: 6px; box-shadow: inset 0 0 0 1px var(--chrome-line); color: var(--chrome-text-2); font-size: 12px; font-family: var(--mono); }
@@ -173,7 +180,7 @@ html[data-sidebar='expanded'] .nav-tip { display: none; }
 }
 @media (max-width: 767px) {
   .shell { --rail-current: 0px; padding: 8px 8px 0; }
-  .topbar { position: relative; top: 0; flex-wrap: wrap; border-radius: 26px; padding: 8px; }
+  .topbar { position: relative; top: 0; left: auto; right: auto; flex-wrap: wrap; border-radius: 26px; padding: 8px; }
   .topbar .menu-btn { display: inline-flex; }
   .logo, .topbar-sep { display: none; }
   .persona { flex: 1 1 auto; }
@@ -181,7 +188,7 @@ html[data-sidebar='expanded'] .nav-tip { display: none; }
   .persona-caption { display: none; }
   /* The end group flows into the bar: help and settings stay on the first row, the simulation note
      becomes a full-width line under Ask Aplomb, with its words visible. */
-  .topbar-end { display: contents; }
+  .topbar-start, .topbar-end { display: contents; }
   .sim-pill { order: 6; flex-basis: 100%; width: auto; min-height: 24px; justify-content: center; background: transparent; box-shadow: none; }
   .sim-pill .sim-text { position: static; width: auto; height: auto; overflow: visible; clip: auto; clip-path: none; white-space: normal; }
   .command { order: 5; flex-basis: 100%; max-width: none; }
