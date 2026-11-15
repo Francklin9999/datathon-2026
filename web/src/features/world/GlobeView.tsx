@@ -38,7 +38,7 @@ export interface GlobeViewProps {
 
 interface Arc { id: string; startLat: number; startLng: number; endLat: number; endLng: number; color: [string, string]; selected: boolean }
 interface Ring { lat: number; lng: number }
-interface CountryLabel { iso3: string; lat: number; lng: number; text: string }
+interface CountryLabel { iso3: string; lat: number; lng: number; name: string; value: string }
 
 function solidTexture(color: string): string | null {
   try {
@@ -54,7 +54,7 @@ function solidTexture(color: string): string | null {
   }
 }
 
-const fmtPct = (value: number, lang: Lang) => `${new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', { maximumFractionDigits: 0 }).format(value)} %`;
+const fmtPct = (value: number, lang: Lang) => `${new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', { maximumFractionDigits: 0 }).format(value)}${lang === 'fr' ? ' %' : '%'}`;
 
 export default function GlobeView({
   pins, selectedId, selectedCountry, countries, exposure, rotate, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract,
@@ -115,7 +115,7 @@ export default function GlobeView({
       .filter(([, weight]) => weight >= 1)
       .map(([iso3, weight]) => {
         const point = centroids.get(iso3);
-        return point ? { iso3, ...point, text: `${countryName(iso3, lang) ?? iso3} ${fmtPct(weight, lang)}` } : null;
+        return point ? { iso3, ...point, name: countryName(iso3, lang) ?? iso3, value: fmtPct(weight, lang) } : null;
       })
       .filter((label): label is CountryLabel => label !== null);
   }, [exposure, centroids, lang]);
@@ -230,17 +230,23 @@ export default function GlobeView({
           ringMaxRadius={4.5}
           ringPropagationSpeed={reducedMotion ? 0 : 2.4}
           ringRepeatPeriod={reducedMotion ? 0 : 1100}
-          // Exposed countries carry their weight
-          labelsData={labels}
-          labelLat="lat"
-          labelLng="lng"
-          labelText="text"
-          labelSize={0.85}
-          labelDotRadius={0.35}
-          labelColor={() => 'rgba(234, 239, 255, 0.95)'}
-          labelResolution={2}
-          labelAltitude={0.02}
-          labelLabel={() => ''}
+          // Exposed countries carry their weight, as DOM labels built from text (no HTML is injected)
+          htmlElementsData={labels}
+          htmlLat="lat"
+          htmlLng="lng"
+          htmlAltitude={0.03}
+          htmlElement={label => {
+            const l = label as CountryLabel;
+            const el = document.createElement('div');
+            el.className = 'globe-label';
+            const name = document.createElement('span');
+            name.textContent = l.name;
+            const value = document.createElement('strong');
+            value.textContent = l.value;
+            el.append(name, value);
+            return el;
+          }}
+          htmlElementVisibilityModifier={(el, visible) => { el.style.opacity = visible ? '1' : '0'; }}
         />
       )}
     </div>
