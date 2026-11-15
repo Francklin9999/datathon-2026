@@ -11,6 +11,7 @@ import { readPref, writePref } from '../../lib/session';
 import { EMPTY_PROGRESS, markDone, parseProgress, type Tour, type TourProgress } from '../../lib/tour/engine';
 import { ALL_TOURS, BASIC_TOUR } from './tours';
 import { TourOverlay } from './TourOverlay';
+import { useDialogFocus } from '../../components/ui/useDialogFocus';
 
 const PROGRESS_PREF = 'tour.v1';
 
@@ -31,11 +32,13 @@ export function useTours(): TourContextValue {
 
 function Welcome({ onStart, onLater }: { onStart: () => void; onLater: () => void }) {
   const { tr } = useApp();
+  const panel = useRef<HTMLDivElement | null>(null);
   const primary = useRef<HTMLButtonElement | null>(null);
+  useDialogFocus(true, panel, onLater);
   useEffect(() => { primary.current?.focus(); }, []);
   return (
-    <div className="tour-welcome-layer" onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); onLater(); } }}>
-      <div className="tour-welcome glass-pop" role="dialog" aria-modal="true" aria-labelledby="tour-welcome-title" aria-describedby="tour-welcome-body">
+    <div className="tour-welcome-layer">
+      <div ref={panel} tabIndex={-1} className="tour-welcome glass-pop" role="dialog" aria-modal="true" aria-labelledby="tour-welcome-title" aria-describedby="tour-welcome-body">
         <span className="tour-welcome-orb" aria-hidden="true" />
         <h2 id="tour-welcome-title" className="tour-title">{tr({ en: 'New here? Take the one-minute tour', fr: 'Première visite ? Suivez la visite d’une minute' })}</h2>
         <p id="tour-welcome-body" className="tour-body">

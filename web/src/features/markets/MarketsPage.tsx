@@ -19,7 +19,7 @@ import { OpenFigi } from './OpenFigi';
 import { KeyedMarkets } from './KeyedMarkets';
 import { RegionalResearch } from './RegionalResearch';
 import { SourceAvailability, readySource, useSourceCapabilities } from './SourceAvailability';
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import type { AssetsResponse, AssetAnalyticsResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
@@ -30,6 +30,8 @@ import { Card, PageHeader } from '../../components/common/Page';
 import { Loading, ErrorState } from '../../components/common/States';
 import { FactScopeProvider, FactChip } from '../../components/common/FactDrawer';
 import { fmtPct } from '../../lib/format';
+import { WINDOW, labelOf } from '../../lib/labels';
+import { WindowControl } from '../../components/shell/TopBar';
 
 const metrics = {
   'return.period': { en: 'Period return', fr: 'Rendement de la période' },
@@ -44,7 +46,15 @@ export function MarketsPage() {
   const ready = (id: string) => readySource(sourceCapabilities.data, id);
   const [query, setQuery] = useState('');
   const [ticker, setTicker] = useState<string | null>(null);
+  const resultPanel = useRef<HTMLDivElement | null>(null);
   const currency = profile?.reportingCurrency ?? 'CAD';
+  useEffect(() => {
+    const panel = resultPanel.current;
+    if (!ticker || !panel) return;
+    panel.focus({ preventScroll: true });
+    const headerBottom = document.querySelector('.topbar')?.getBoundingClientRect().bottom ?? 0;
+    window.scrollBy({ top: panel.getBoundingClientRect().top - headerBottom - 16 });
+  }, [ticker]);
   // Load the supported universe once (the same read the search fields share); filtering is local and
   // never probes unsupported exchanges.
   const assets = useQuery<AssetsResponse>(sessionId && meta ? assetUniverseKey(meta.dataVersion) : null,
@@ -57,7 +67,7 @@ export function MarketsPage() {
   const needle = fold(useDeferredValue(query).trim());
   const items = useMemo(() => searchable.filter(row => !needle || row.text.includes(needle)).map(row => row.asset), [searchable, needle]);
   return <>
-    <PageHeader title={tr({ en: 'Markets & Stocks', fr: 'Marchés et titres' })}>
+    <PageHeader actions={<WindowControl />} title={tr({ en: 'Markets & Stocks', fr: 'Marchés et titres' })}>
       <p className="page-sub">{tr({ en: 'Explore the supported instrument universe and inspect reproducible historical analytics. Snapshot coverage is regional; worldwide navigation does not imply global price coverage.', fr: 'Explorez les instruments pris en charge et leurs analyses historiques reproductibles. La couverture des prix reste régionale.' })}</p>
     </PageHeader>
     <Card title={tr({ en: 'Instrument discovery', fr: 'Recherche de titres' })}>
@@ -70,6 +80,20 @@ export function MarketsPage() {
         </tbody></table>
       </div>
     </Card>
+    {ticker && <div ref={resultPanel} tabIndex={-1} role="region" aria-labelledby="market-analytics-title"><Card id="market-analytics" title={ticker}>
+      {analytics.loading && <Loading />}{analytics.error && <ErrorState error={analytics.error} onRetry={analytics.reload} />}
+      {analytics.data && <FactScopeProvider scope={{ kind: 'local', label: { en: 'Deterministic security analytics', fr: 'Analyse déterministe du titre' }, facts: analytics.data.facts }}>
+        <p>{analytics.data.asset.name} · {currency} · {analytics.data.asOf}</p>
+        <p>{tr({ en: 'Analysis period', fr: 'Période d’analyse' })}: <strong>{labelOf(WINDOW, windowCode, lang)}</strong></p>
+        <dl className="kv-list">{Object.entries(metrics).map(([key, label]) => {
+          const m = analytics.data!.metrics[key];
+          return <div key={key} className="kv"><dt className="k">{tr(label)}</dt><dd className="v">{m?.value != null && m.factId ? <FactChip factId={m.factId} display={fmtPct(m.value, lang)} /> : tr({ en: 'Unavailable', fr: 'Indisponible' })}{m?.unavailableReason && <span className="block small muted">{m.unavailableReason}</span>}</dd></div>;
+        })}</dl>
+        <p className="small muted">{tr({ en: 'Historical sample only. Adjusted price and FX conventions, availability dates, methods, and source limitations are attached to each metric. No forecast is implied.', fr: 'Échantillon historique seulement. Les méthodes, devises, dates et limites sont jointes à chaque mesure. Aucune prévision n’est impliquée.' })}</p>
+        <Link className="btn" href={`/decision-desk/?ticker=${encodeURIComponent(ticker)}`}>{tr({ en: 'Investigate in Decision Desk', fr: 'Étudier au pupitre de décision' })}</Link>{' '}
+        <Link href={`/sources/?datasetId=${analytics.data.asset.datasetId}&dataVersion=${analytics.data.dataVersion}`}>{tr({ en: 'Inspect source passport', fr: 'Consulter le passeport' })}</Link>
+      </FactScopeProvider>}
+    </Card></div>}
     <KeyedMarkets />
     <SourceAvailability value={sourceCapabilities.data} loading={sourceCapabilities.loading} error={sourceCapabilities.error} reload={sourceCapabilities.reload} />
     {ready('gleif') && <><EntityResearch /><IssuerEvidence /></>}
@@ -88,18 +112,5 @@ export function MarketsPage() {
     {ready('openfigi') && <OpenFigi />}
     {ready('opendart') && <RegionalResearch allowedRegions={['KR']} />}
     {ready('regional') && <RegionalResearch allowedRegions={['JP']} />}
-    {ticker && <Card title={ticker}>
-      {analytics.loading && <Loading />}{analytics.error && <ErrorState error={analytics.error} onRetry={analytics.reload} />}
-      {analytics.data && <FactScopeProvider scope={{ kind: 'local', label: { en: 'Deterministic security analytics', fr: 'Analyse déterministe du titre' }, facts: analytics.data.facts }}>
-        <p>{analytics.data.asset.name} · {currency} · {analytics.data.asOf}</p>
-        <dl className="kv-list">{Object.entries(metrics).map(([key, label]) => {
-          const m = analytics.data!.metrics[key];
-          return <div key={key} className="kv"><dt className="k">{tr(label)}</dt><dd className="v">{m?.value != null && m.factId ? <FactChip factId={m.factId} display={fmtPct(m.value, lang)} /> : tr({ en: 'Unavailable', fr: 'Indisponible' })}{m?.unavailableReason && <span className="block small muted">{m.unavailableReason}</span>}</dd></div>;
-        })}</dl>
-        <p className="small muted">{tr({ en: 'Historical sample only. Adjusted price and FX conventions, availability dates, methods, and source limitations are attached to each metric. No forecast is implied.', fr: 'Échantillon historique seulement. Les méthodes, devises, dates et limites sont jointes à chaque mesure. Aucune prévision n’est impliquée.' })}</p>
-        <Link className="btn" href={`/decision-desk/?ticker=${encodeURIComponent(ticker)}`}>{tr({ en: 'Investigate in Decision Desk', fr: 'Étudier au pupitre de décision' })}</Link>{' '}
-        <Link href={`/sources/?datasetId=${analytics.data.asset.datasetId}&dataVersion=${analytics.data.dataVersion}`}>{tr({ en: 'Inspect source passport', fr: 'Consulter le passeport' })}</Link>
-      </FactScopeProvider>}
-    </Card>}
   </>;
 }
