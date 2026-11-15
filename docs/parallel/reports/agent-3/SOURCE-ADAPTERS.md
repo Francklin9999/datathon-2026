@@ -62,3 +62,9 @@ images were excluded. Its newest 100-record page is intentionally incomplete, an
 representative point is not a disaster impact footprint.
 Cross-agent source/service/frontend integration and browser acceptance belong to the parent task
 and their verified status is tracked in the per-source report.
+
+NASA POWER provides 31 daily gridded 2 m temperature values for each of six
+requested locations. The October 2026 period is fixed and bounded. Its `LST`
+calendar dates are rendered as day anchors, without inventing an exact UTC
+measurement time or claiming a station observation. Its six public requests
+are captured separately with checksums.

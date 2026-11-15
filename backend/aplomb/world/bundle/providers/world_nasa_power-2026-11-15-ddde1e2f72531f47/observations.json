@@ -1,0 +1,4652 @@
+[
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261001",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-01",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-01",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 34.18,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 34.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261002",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-02",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-02",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 34.1,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 34.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261003",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-03",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-03",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 33.98,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 34.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261004",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-04",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-04",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 32.97,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 33.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261005",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-05",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-05",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 33.23,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 33.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261006",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-06",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-06",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 33.54,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 33.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261007",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-07",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-07",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 34.89,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 34.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261008",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-08",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-08",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 34.63,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 34.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261009",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-09",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-09",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 33.76,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 33.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261010",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-10",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-10",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 33.48,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 33.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261011",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-11",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-11",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 32.79,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 32.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261012",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-12",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-12",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 32.12,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 32.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261013",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-13",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-13",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 32.98,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 33.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261014",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-14",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-14",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 33.04,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 33.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261015",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-15",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-15",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 32.71,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 32.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261016",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-16",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-16",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 32.14,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 32.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261017",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-17",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-17",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 32.21,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 32.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261018",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-18",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-18",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 31.94,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261019",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-19",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-19",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 31.41,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261020",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-20",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-20",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 31.79,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261021",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-21",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-21",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 31.87,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261022",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-22",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-22",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 31.69,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261023",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-23",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-23",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 31.58,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261024",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-24",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-24",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 31.33,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261025",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-25",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-25",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 31.43,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261026",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-26",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-26",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 31.45,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261027",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-27",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-27",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 30.98,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 31.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261028",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-28",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-28",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 30.63,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 30.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261029",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-29",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-29",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 30.48,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 30.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261030",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-30",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-30",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 30.43,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 30.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ARE",
+  "id": "world_nasa_power:ARE:20261031",
+  "latitude": 25.2048,
+  "longitude": 55.2708,
+  "observedAt": "2026-10-31",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-31",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 30.12,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON",
+  "title": "Dubai daily 2 m temperature: 30.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261001",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-01",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-01",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 21.09,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 21.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261002",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-02",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-02",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.62,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 19.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261003",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-03",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-03",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.97,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 19.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261004",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-04",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-04",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.51,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 18.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261005",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-05",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-05",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.78,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 18.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261006",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-06",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-06",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.7,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 20.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261007",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-07",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-07",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.3,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 16.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261008",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-08",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-08",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.2,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 16.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261009",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-09",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-09",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.96,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 18.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261010",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-10",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-10",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 21.51,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 21.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261011",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-11",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-11",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.72,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 20.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261012",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-12",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-12",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 24.35,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 24.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261013",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-13",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-13",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.78,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 18.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261014",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-14",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-14",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.16,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 16.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261015",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-15",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-15",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.29,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 16.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261016",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-16",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-16",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.39,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 17.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261017",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-17",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-17",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.75,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 17.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261018",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-18",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-18",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.47,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 18.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261019",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-19",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-19",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.99,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 19.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261020",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-20",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-20",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.42,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 19.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261021",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-21",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-21",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.78,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 19.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261022",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-22",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-22",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.92,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 19.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261023",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-23",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-23",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.06,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 20.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261024",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-24",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-24",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.92,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 20.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261025",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-25",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-25",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.46,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 23.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261026",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-26",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-26",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.61,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 18.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261027",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-27",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-27",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.7,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 18.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261028",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-28",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-28",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.09,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 19.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261029",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-29",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-29",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.73,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 18.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261030",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-30",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-30",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.44,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 19.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "AUS",
+  "id": "world_nasa_power:AUS:20261031",
+  "latitude": -33.8688,
+  "longitude": 151.2093,
+  "observedAt": "2026-10-31",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-31",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 21.78,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON",
+  "title": "Sydney daily 2 m temperature: 21.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261001",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-01",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-01",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.61,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 20.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261002",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-02",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-02",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.76,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 16.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261003",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-03",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-03",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.01,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 19.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261004",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-04",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-04",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.62,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 20.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261005",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-05",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-05",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.38,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 18.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261006",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-06",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-06",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.28,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 19.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261007",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-07",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-07",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 21.13,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 21.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261008",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-08",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-08",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 22.34,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 22.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261009",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-09",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-09",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 24.5,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 24.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261010",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-10",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-10",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.39,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 23.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261011",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-11",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-11",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 21.11,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 21.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261012",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-12",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-12",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.45,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 20.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261013",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-13",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-13",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.97,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 21.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261014",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-14",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-14",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.15,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 20.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261015",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-15",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-15",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.68,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 20.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261016",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-16",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-16",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.6,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 20.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261017",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-17",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-17",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.55,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 18.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261018",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-18",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-18",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.16,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 18.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261019",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-19",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-19",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.54,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 16.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261020",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-20",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-20",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.52,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 16.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261021",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-21",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-21",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.39,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 17.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261022",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-22",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-22",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.71,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 18.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261023",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-23",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-23",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.4,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 19.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261024",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-24",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-24",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 22.28,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 22.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261025",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-25",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-25",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.84,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 19.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261026",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-26",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-26",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 15.52,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 15.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261027",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-27",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-27",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 15.83,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 15.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261028",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-28",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-28",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.81,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 17.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261029",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-29",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-29",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.74,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 17.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261030",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-30",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-30",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.4,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 19.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "BRA",
+  "id": "world_nasa_power:BRA:20261031",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "observedAt": "2026-10-31",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-31",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.84,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON",
+  "title": "Sao Paulo daily 2 m temperature: 19.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261001",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-01",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-01",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 15.1,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 15.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261002",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-02",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-02",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 14.92,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 14.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261003",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-03",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-03",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 15.27,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 15.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261004",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-04",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-04",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 15.68,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 15.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261005",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-05",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-05",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 15.1,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 15.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261006",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-06",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-06",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 15.28,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 15.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261007",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-07",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-07",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 12.71,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 12.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261008",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-08",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-08",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 10.01,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 10.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261009",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-09",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-09",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 14.61,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 14.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261010",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-10",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-10",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 11.04,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 11.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261011",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-11",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-11",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 10.7,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 10.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261012",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-12",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-12",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 13.98,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 14.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261013",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-13",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-13",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.16,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 16.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261014",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-14",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-14",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 13.03,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 13.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261015",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-15",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-15",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.84,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 16.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261016",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-16",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-16",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 12.13,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 12.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261017",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-17",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-17",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 9.15,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 9.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261018",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-18",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-18",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 10.34,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 10.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261019",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-19",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-19",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 11.14,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 11.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261020",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-20",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-20",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 11.37,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 11.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261021",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-21",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-21",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 9.35,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 9.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261022",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-22",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-22",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 11.41,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 11.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261023",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-23",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-23",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 10.16,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 10.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261024",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-24",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-24",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 9.91,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 9.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261025",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-25",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-25",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 9.95,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 9.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261026",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-26",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-26",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 11.75,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 11.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261027",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-27",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-27",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 13.12,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 13.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261028",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-28",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-28",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 10.41,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 10.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261029",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-29",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-29",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 11.66,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 11.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261030",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-30",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-30",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 11.34,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 11.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "GBR",
+  "id": "world_nasa_power:GBR:20261031",
+  "latitude": 51.5074,
+  "longitude": -0.1278,
+  "observedAt": "2026-10-31",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-31",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 9.6,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON",
+  "title": "London daily 2 m temperature: 9.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261001",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-01",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-01",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 21.76,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 21.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261002",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-02",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-02",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.03,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 19.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261003",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-03",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-03",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.59,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261004",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-04",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-04",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.51,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 16.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261005",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-05",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-05",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.22,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261006",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-06",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-06",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.61,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 20.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261007",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-07",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-07",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.23,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 18.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261008",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-08",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-08",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.49,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261009",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-09",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-09",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.88,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261010",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-10",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-10",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.75,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261011",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-11",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-11",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.29,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 18.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261012",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-12",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-12",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.85,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261013",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-13",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-13",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.7,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 18.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261014",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-14",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-14",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.92,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 19.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261015",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-15",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-15",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.23,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261016",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-16",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-16",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.93,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 18.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261017",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-17",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-17",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.89,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261018",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-18",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-18",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.7,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 16.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261019",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-19",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-19",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 19.22,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 19.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261020",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-20",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-20",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 21.27,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 21.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261021",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-21",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-21",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 22.86,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 22.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261022",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-22",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-22",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.78,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261023",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-23",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-23",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 14.83,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 14.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261024",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-24",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-24",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 15.92,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 15.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261025",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-25",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-25",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.71,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 20.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261026",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-26",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-26",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.58,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 16.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261027",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-27",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-27",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.48,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 17.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261028",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-28",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-28",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 13.43,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 13.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261029",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-29",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-29",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 11.86,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 11.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261030",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-30",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-30",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 14.46,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 14.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "JPN",
+  "id": "world_nasa_power:JPN:20261031",
+  "latitude": 35.6762,
+  "longitude": 139.6503,
+  "observedAt": "2026-10-31",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-31",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 16.03,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON",
+  "title": "Tokyo daily 2 m temperature: 16.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261001",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-01",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-01",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 12.04,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 12.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261002",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-02",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-02",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 14.81,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 14.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261003",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-03",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-03",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.63,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 17.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261004",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-04",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-04",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.21,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 17.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261005",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-05",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-05",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 17.95,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 17.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261006",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-06",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-06",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 18.04,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 18.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261007",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-07",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-07",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 21.55,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 21.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261008",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-08",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-08",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.95,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 20.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261009",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-09",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-09",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.77,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 23.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261010",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-10",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-10",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.78,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 23.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261011",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-11",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-11",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 22.96,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 23.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261012",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-12",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-12",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.19,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 23.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261013",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-13",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-13",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 24.09,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 24.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261014",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-14",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-14",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.49,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 23.5 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261015",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-15",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-15",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.83,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 23.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261016",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-16",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-16",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 24.82,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 24.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261017",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-17",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-17",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 24.76,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 24.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261018",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-18",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-18",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 24.74,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 24.7 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261019",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-19",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-19",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 21.99,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 22.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261020",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-20",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-20",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 20.07,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 20.1 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261021",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-21",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-21",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.01,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 23.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261022",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-22",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-22",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 22.82,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 22.8 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261023",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-23",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-23",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 22.56,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 22.6 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261024",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-24",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-24",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 22.87,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 22.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261025",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-25",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-25",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 24.26,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 24.3 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261026",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-26",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-26",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 24.97,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 25.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261027",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-27",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-27",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 24.0,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 24.0 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261028",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-28",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-28",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 22.16,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 22.2 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261029",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-29",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-29",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.4,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 23.4 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261030",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-30",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-30",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 23.92,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 23.9 °C"
+ },
+ {
+  "availableAt": "2026-11-15T17:02:04Z",
+  "category": "environment",
+  "countryIso3": "ZAF",
+  "id": "world_nasa_power:ZAF:20261031",
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "observedAt": "2026-10-31",
+  "properties": {
+   "coordinateMeaning": "Requested grid location, not a weather station",
+   "date": "2026-10-31",
+   "geographicRole": "sample_grid_point",
+   "sourceModel": [
+    "GEOSIT"
+   ],
+   "temperatureC": 25.17,
+   "temporalPrecision": "day; API date has no exact UTC observation time",
+   "timeStandard": "local solar time"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:02:04Z",
+  "sourceId": "world_nasa_power",
+  "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON",
+  "title": "Johannesburg daily 2 m temperature: 25.2 °C"
+ }
+]

@@ -233,6 +233,7 @@ class DatasetId(StrEnum):
     WORLD_AVIATION_WEATHER = "world_aviation_weather"
     WORLD_NOAA_ALERTS = "world_noaa_alerts"
     WORLD_GDACS_ALERTS = "world_gdacs_alerts"
+    WORLD_NASA_POWER = "world_nasa_power"
     WORLD_FEDERAL_REGISTER = "world_federal_register"
     ENERGY_WRI_PLANTS = "energy_wri_plants"
     TRADE_PORTWATCH_PORTS = "trade_portwatch_ports"

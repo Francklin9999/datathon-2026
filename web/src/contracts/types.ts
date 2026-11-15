@@ -37,6 +37,7 @@ export type DatasetId =
   | "world_aviation_weather"
   | "world_noaa_alerts"
   | "world_gdacs_alerts"
+  | "world_nasa_power"
   | "world_federal_register"
   | "energy_wri_plants"
   | "trade_portwatch_ports"

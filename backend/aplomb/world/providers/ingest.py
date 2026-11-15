@@ -66,6 +66,17 @@ SOURCES = {
                         "No historical vintages; capture time is first proven availability."],
         "parser": public.gdacs,
     },
+    "power": {
+        "datasetId": "world_nasa_power", "sourceIds": ["SRC-185"],
+        "name": "NASA POWER daily gridded temperature sample", "sourceUrl": public.POWER_URL,
+        "licence": "NASA United States Government data; source attribution NASA POWER",
+        "licenceUrl": "https://power.larc.nasa.gov/docs/services/api/",
+        "frequency": "fixed October 2026 daily period; manually captured",
+        "limitations": ["Six requested grid points only; not worldwide spatial coverage or station measurements.",
+                        "Daily API dates use local solar time; rendered midnight UTC is a date anchor, not an exact measurement time.",
+                        "Temperature comes from the source model; no historical publication vintage is known."],
+        "parser": public.power,
+    },
 }
 
 
@@ -75,12 +86,17 @@ def collect(name: str, fetch, stamp: str | None = None, directory: Path = DIRECT
     if name == "policy":
         day = stamp[:10] if stamp else datetime.now(timezone.utc).date().isoformat()
         url += "&" + urlencode({"conditions[publication_date][lte]": day})
-    payload = fetch(url)
+    if name == "power":
+        captures = [(public.power_url(lat, lon), fetch(public.power_url(lat, lon)))
+                    for _, lat, lon, _ in public.POWER_POINTS]
+    else:
+        payload = fetch(url)
+        captures = [(url, payload)]
     if stamp is None:
         stamp = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
-    rows, quality = source["parser"](payload, stamp)
+    rows, quality = source["parser"](captures if name == "power" else payload, stamp)
     metadata = {key: value for key, value in source.items() if key != "parser"}
-    return publish(directory, rows, {**metadata, **quality, "sourceUrl": url, "retrievedAt": stamp}, [(url, payload)])
+    return publish(directory, rows, {**metadata, **quality, "sourceUrl": url, "retrievedAt": stamp}, captures)
 
 
 def main() -> int:

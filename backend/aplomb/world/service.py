@@ -670,4 +670,7 @@ def _observation_summary(row: dict) -> str:
         return "Port location reference. Port activity and issuer exposure are not established."
     if row["category"] == "hazards":
         return f"Official alert: {props.get('event', 'hazard')}; severity {props.get('severity', 'not stated')}."
+    if row["sourceId"] == "world_nasa_power":
+        return (f"NASA POWER gridded daily 2 m temperature: {props['temperatureC']} °C "
+                f"for {props['date']} in local solar time. This is a modeled grid value, not a station measurement.")
     return "Source record. Open the original source for details and publication context."

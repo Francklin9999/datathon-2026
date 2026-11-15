@@ -16,7 +16,7 @@ from .facilities import load_facilities
 from .providers import load_provider_snapshots
 
 PROVIDER_DATASET_IDS = frozenset({
-    "world_aviation_weather", "world_noaa_alerts", "world_gdacs_alerts", "world_federal_register",
+    "world_aviation_weather", "world_noaa_alerts", "world_gdacs_alerts", "world_nasa_power", "world_federal_register",
     "energy_wri_plants", "trade_portwatch_ports",
 })
 

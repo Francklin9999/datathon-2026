@@ -292,6 +292,14 @@ DESCRIPTORS: dict[str, Descriptor] = {
         ("LIM_IMPACT_NOT_ESTABLISHED",),
         t("Capture time establishes availability.", "La capture établit la disponibilité."),
         planned_source="GDACS; separate verified world capture"),
+    "world_nasa_power": Descriptor(
+        t("NASA POWER temperature", "Température NASA POWER"),
+        t("Daily gridded temperature at six requested locations.", "Température maillée quotidienne à six lieux demandés."),
+        "batch", "versioned public API capture",
+        (t("Sample points and local solar dates are not global station coverage.", "Les points échantillons et dates solaires locales ne sont pas une couverture mondiale de stations."),),
+        ("LIM_IMPACT_NOT_ESTABLISHED",),
+        t("Capture time establishes availability.", "La capture établit la disponibilité."),
+        planned_source="NASA POWER; separate verified world capture"),
     "world_federal_register": Descriptor(
         t("Federal Register documents", "Documents du Federal Register"),
         t("United States policy publication observations.", "Observations de publications réglementaires des États-Unis."),

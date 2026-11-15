@@ -1605,6 +1605,7 @@
         "world_aviation_weather",
         "world_noaa_alerts",
         "world_gdacs_alerts",
+        "world_nasa_power",
         "world_federal_register",
         "energy_wri_plants",
         "trade_portwatch_ports",
@@ -9813,7 +9814,7 @@
   "x-contract-version": "1.4.0",
   "x-spec-sha256": {
     "schemas.md": "8ef77c78d2a4c1ceefc2015264a83fe93b3afcd9912cb8054ad674976d1ff14a",
-    "catalog.md": "d56a2b2c75907b740de1a85e4ff5565369eacc2f9a4ebd0d08aedb46cff46f46",
+    "catalog.md": "c95667bbc63210afdc0811b88493186be8bc91de3a7beed83eb2a57e4cb24e0b",
     "api.md": "6f13245221577f105f2940462d7dde9560a4fd815ef7a44bcc2ff711744743e9",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"

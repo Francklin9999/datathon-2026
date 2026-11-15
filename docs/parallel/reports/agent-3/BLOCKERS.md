@@ -27,7 +27,7 @@ unpublished; the observed feed and terms are recorded in
 Paid or billing dependent integrations are excluded from this branch, and sources
 requiring login, an account, a key, a token or approval are set aside. The source
 ledger retains these assigned rows for audit and marks them `excluded_paid_plan`
-or `deferred_login`. Five paid or billing dependent rows and 56 login gated rows
+or `deferred_login`. Five paid or billing dependent rows and 57 login gated rows
 are affected; some rows name the same underlying provider. No enabled new
 provider capture requires a paid plan or login.
 
@@ -55,13 +55,14 @@ invented from publisher location.
 
 ## Work completed without these dependencies
 
-Five real new content addressed datasets were captured and schema/coordinate validated:
+Six real new content addressed datasets were captured and schema/coordinate validated:
 WRI power plants (34,936), NOAA AviationWeather (six selected international stations), NOAA
 active weather alerts with valid polygons (three; 335 without supported geometry excluded), and
 Federal Register recent policy metadata (20; publication dates bounded at capture), and GDACS
-disaster alert metadata (100; newest page across six event types). Raw bytes,
+disaster alert metadata (100; newest page across six event types), and NASA POWER
+daily gridded temperatures (186 across six locations for October 2026). Raw bytes,
 normalized checksums, quality reports, rights, scope and conservative temporal availability are
 preserved. Baseline WDI, EONET, USGS catalog, OurAirports, ECCC and Natural Earth remain separate.
 
 All 153 assigned SRC rows and 65 assigned MASTER rows are dispositioned in SOURCES.csv.
-Most rows remain unimplemented. Five capture pipelines alone do not complete the full assignment.
+Most rows remain unimplemented. Six capture pipelines alone do not complete the full assignment.

@@ -1,0 +1,6 @@
+{
+  "checkedAt": "2026-11-15",
+  "documentationUrl": "https://power.larc.nasa.gov/docs/services/api/",
+  "endpoint": "https://power.larc.nasa.gov/api/temporal/daily/point",
+  "finding": "Public API returned HTTP 200 and JSON without a key. Response identified NASA POWER Daily API v2.10.3, source GEOSIT, temperature units C, and local solar time daily dates. Six fixed point requests for October 2026 are preserved in the capture manifest."
+}
