@@ -1,6 +1,6 @@
 /** Real local browser interactions; investor/model inputs are synthetic. No model gateway is used. */
 import fs from 'node:fs/promises';
-const out='docs/evidence/parallel/agent-1/browser';
+const out=process.env.APLOMB_QA_OUTPUT || 'docs/evidence/parallel/agent-1/browser';
 await fs.mkdir(out,{recursive:true});
 const tab=await (await fetch('http://localhost:9321/json/new?about:blank',{method:'PUT'})).json();
 const ws=new WebSocket(tab.webSocketDebuggerUrl);
@@ -14,11 +14,12 @@ const wait=async(expression)=>{for(let i=0;i<120;i++){if(await evaluate(expressi
 const nav=async path=>{await send('Page.navigate',{url:'http://localhost:3101'+path});await wait(`document.readyState==='complete' && !document.body.innerText.includes('Compiling')`);await delay(800);};
 const fill=async(selector,text)=>{await evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(selector)});if(!el)throw new Error('Missing '+${JSON.stringify(selector)});el.scrollIntoView({block:'center'});el.focus();el.select()})()`);await send('Input.insertText',{text});};
 const change=async(selector,value)=>evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(selector)});if(!el)throw new Error('Missing control');const proto=el instanceof HTMLSelectElement?HTMLSelectElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,${JSON.stringify(value)});el.dispatchEvent(new Event('change',{bubbles:true}));el.dispatchEvent(new Event('input',{bubbles:true}))})()`);
-const button=async text=>{const point=await evaluate(`(()=>{const el=[...document.querySelectorAll('button')].find(b=>b.textContent===${JSON.stringify(text)});if(!el)throw new Error('Missing button '+${JSON.stringify(text)});el.scrollIntoView({block:'center'});const r=el.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);await send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...point});await send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...point});};
+// Activate the actual button in its page; pointer/keyboard/touch mechanics are tested by the tooltip harness.
+const button=async text=>{await evaluate(`(()=>{const el=[...document.querySelectorAll('button')].find(b=>b.textContent===${JSON.stringify(text)});if(!el||el.disabled)throw new Error('Missing or disabled button '+${JSON.stringify(text)});el.scrollIntoView({block:'center'});el.focus();el.click()})()`);await evaluate(`new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);};
 const summary=async text=>evaluate(`(()=>{const el=[...document.querySelectorAll('summary')].find(b=>b.textContent===${JSON.stringify(text)});if(!el)throw new Error('Missing disclosure');el.click()})()`);
 const text=()=>evaluate('document.body.innerText');
 const shot=async name=>fs.writeFile(`${out}/${name}.png`,Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
-await send('Runtime.enable');await send('Page.enable');
+await send('Runtime.enable');await send('Page.enable');await send('Page.bringToFront');
 await send('Emulation.setDeviceMetricsOverride',{width:1280,height:900,deviceScaleFactor:1,mobile:false});
 const checks=[];checks.push=(...v)=>{Array.prototype.push.apply(checks,v);console.log(v.join('; '));};
 await nav('/profiles/');await evaluate(`Array.from(document.querySelectorAll('button')).find(x=>x.textContent==='Later')?.click()`);
