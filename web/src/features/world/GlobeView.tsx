@@ -11,15 +11,18 @@
  *
  * Hover: the hexagons have gaps between them, so an invisible country shape sits just under them and
  * catches the pointer in the gaps; leaving a country is confirmed only after a short delay, so moving
- * across one country never flickers its caption.
+ * across one country never flickers its caption. Islands too small for a hexagon get one, so events on
+ * them do not seem to stand in the sea. Country labels move aside, whenever the view changes, so they
+ * never cover an event spike.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { Lang } from '../../contracts/types';
 import { countryCentroid, countryName, hexReadyCountries, outlineLabel, type CountryFeature } from '../../lib/geo';
+import { islandHexes } from '../../lib/geoHex';
 import {
-  ATMOSPHERE_COLOR, CATEGORY_COLORS, LAND_HOVER_COLOR, SPHERE_COLOR, exposureColor, pinColor, quakeRadius,
-  spikeAltitude, spreadStacked, type GlobePin,
+  ATMOSPHERE_COLOR, CATEGORY_COLORS, LAND_HOVER_COLOR, PIN_RADIUS, SPHERE_COLOR, exposureColor, labelOffset, pinColor,
+  quakeRadius, spikeAltitude, spreadStacked, type GlobePin, type ScreenBox, type ScreenSpike,
 } from './globeStyle';
 
 export interface GlobeViewProps {
@@ -64,6 +67,45 @@ const HIT_LAYER_COLOR = 'rgba(0,0,0,0)';
 const noLabel = () => '';
 const noSide = () => '';
 
+const HEX_RESOLUTION = 3;
+const LABEL_ALTITUDE = 0.03;
+
+/**
+ * Moves each country label (its inner box, by CSS transform) to the nearest spot around its anchor that
+ * covers no event spike on the visible side of the globe and no other label.
+ */
+function layoutLabels(globe: GlobeMethods, pins: readonly GlobePin[], labels: readonly CountryLabel[],
+  elements: ReadonlyMap<string, HTMLElement>, selectedId: string | null): boolean {
+  const camera = globe.camera().position;
+  const radius = globe.getGlobeRadius();
+  const facing = (lat: number, lng: number) => {
+    const p = globe.getCoords(lat, lng, 0);
+    return p.x * camera.x + p.y * camera.y + p.z * camera.z > radius * radius;
+  };
+  const spikes: ScreenSpike[] = [];
+  for (const pin of pins) {
+    if (pin.kind !== 'event' || !facing(pin.lat, pin.lng)) continue;
+    const foot = globe.getScreenCoords(pin.lat, pin.lng, 0);
+    const top = globe.getScreenCoords(pin.lat, pin.lng, spikeAltitude(pin.weight));
+    const rim = globe.getScreenCoords(pin.lat + (pin.id === selectedId ? PIN_RADIUS.selected : PIN_RADIUS.event), pin.lng, 0);
+    spikes.push({ ax: foot.x, ay: foot.y, bx: top.x, by: top.y, pad: Math.hypot(rim.x - foot.x, rim.y - foot.y) + 3 });
+  }
+  const taken: ScreenBox[] = [];
+  let measured = true;
+  for (const label of labels) {
+    const el = elements.get(label.iso3);
+    if (!el || !el.isConnected || !facing(label.lat, label.lng)) continue;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    if (!w || !h) { measured = false; continue; }
+    const anchor = globe.getScreenCoords(label.lat, label.lng, LABEL_ALTITUDE);
+    const { dx, dy } = labelOffset(anchor, { w, h }, spikes, taken);
+    taken.push({ x: anchor.x + dx, y: anchor.y + dy, w, h });
+    el.style.transform = `translate(${Math.round(dx)}px, ${Math.round(dy)}px)`;
+  }
+  return measured;
+}
+
 const fmtPct = (value: number, lang: Lang) => `${new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', { maximumFractionDigits: 0 }).format(value)}${lang === 'fr' ? ' %' : '%'}`;
 
 export default function GlobeView({
@@ -76,6 +118,8 @@ export default function GlobeView({
   const [hoverIso, setHoverIso] = useState<string | null>(null);
   const sphere = useMemo(() => solidTexture(SPHERE_COLOR), []);
   const land = useMemo(() => hexReadyCountries(countries), [countries]);
+  // Hexagons: the land, plus one hexagon for each island too small to hold one.
+  const hexLand = useMemo(() => [...land, ...islandHexes(land, HEX_RESOLUTION)], [land]);
   // Events sharing a spot are fanned out; the original pin is what goes back up on click.
   const placed = useMemo(() => spreadStacked(pins), [pins]);
   const original = useMemo(() => new Map(pins.map(pin => [pin.id, pin])), [pins]);
@@ -132,6 +176,30 @@ export default function GlobeView({
       })
       .filter((label): label is CountryLabel => label !== null);
   }, [exposure, centroids, lang]);
+
+  // ----- labels move aside from the spikes whenever the view or the data changes -----
+  const labelEls = useRef(new Map<string, HTMLElement>());
+  const layoutInputs = useRef({ placed, labels, selectedId, version: 0 });
+  useEffect(() => {
+    layoutInputs.current = { placed, labels, selectedId, version: layoutInputs.current.version + 1 };
+  }, [placed, labels, selectedId]);
+  useEffect(() => {
+    if (!ready) return undefined;
+    let frame = 0;
+    let last = '';
+    const tick = () => {
+      frame = requestAnimationFrame(tick);
+      const g = globe.current;
+      if (!g) return;
+      const { placed: pins, labels: items, selectedId: selected, version } = layoutInputs.current;
+      const c = g.camera().position;
+      const key = `${c.x.toFixed(2)},${c.y.toFixed(2)},${c.z.toFixed(2)}|${version}|${width}x${height}`;
+      if (key === last) return;
+      if (layoutLabels(g, pins, items, labelEls.current, selected)) last = key;
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [ready, width, height]);
 
   // Idle rotation, slow, unless motion is reduced or the person took control.
   useEffect(() => {
@@ -211,12 +279,12 @@ export default function GlobeView({
   const pointColor = useCallback((pin: object) => pinColor(pin as GlobePin, selectedId), [selectedId]);
   const pointAltitude = useCallback((pin: object) => {
     const p = pin as GlobePin;
-    return p.kind === 'event' ? spikeAltitude(p.weight) : p.kind === 'hazard' ? 0.008 : 0.02;
+    return p.kind === 'event' ? spikeAltitude(p.weight) : p.kind === 'hazard' ? 0.008 : 0.012;
   }, []);
   const pointRadius = useCallback((pin: object) => {
     const p = pin as GlobePin;
-    if (p.id === selectedId) return 0.55;
-    return p.kind === 'event' ? 0.36 : p.kind === 'hazard' ? quakeRadius(p.magnitude) : 0.22;
+    if (p.id === selectedId) return PIN_RADIUS.selected;
+    return p.kind === 'event' ? PIN_RADIUS.event : p.kind === 'hazard' ? quakeRadius(p.magnitude) : PIN_RADIUS.facility;
   }, [selectedId]);
   const arcColor = useCallback((arc: object) => (arc as Arc).color, []);
   const arcStroke = useCallback((arc: object) => ((arc as Arc).selected ? 0.9 : 0.35), []);
@@ -227,6 +295,9 @@ export default function GlobeView({
   const hitColor = useCallback(() => HIT_LAYER_COLOR, []);
   const labelElement = useCallback((label: object) => {
     const l = label as CountryLabel;
+    // globe.gl positions the anchor; the label inside it is moved aside from the spikes.
+    const anchor = document.createElement('div');
+    anchor.className = 'globe-label-anchor';
     const el = document.createElement('div');
     el.className = 'globe-label';
     const name = document.createElement('span');
@@ -234,7 +305,9 @@ export default function GlobeView({
     const value = document.createElement('strong');
     value.textContent = l.value;
     el.append(name, value);
-    return el;
+    anchor.append(el);
+    labelEls.current.set(l.iso3, el);
+    return anchor;
   }, []);
   const labelVisibility = useCallback((el: HTMLElement, visible: boolean) => { el.style.opacity = visible ? '1' : '0'; }, []);
 
@@ -259,7 +332,7 @@ export default function GlobeView({
           animateIn={!reducedMotion}
           onGlobeReady={() => { globe.current?.pointOfView({ lat: home.lat, lng: home.lng - 25, altitude: 2.1 }, 0); setReady(true); }}
           // Land as hexagons, coloured by exposure
-          hexPolygonsData={land as unknown as object[]}
+          hexPolygonsData={hexLand as unknown as object[]}
           hexPolygonResolution={3}
           hexPolygonMargin={0.28}
           hexPolygonUseDots={false}
@@ -311,14 +384,14 @@ export default function GlobeView({
           ringsData={rings}
           ringAltitude={0.009}
           ringColor={ringColor}
-          ringMaxRadius={4.5}
+          ringMaxRadius={3}
           ringPropagationSpeed={reducedMotion ? 0 : 2.4}
           ringRepeatPeriod={reducedMotion ? 0 : 1100}
           // Exposed countries carry their weight, as DOM labels built from text (no HTML is injected)
           htmlElementsData={labels}
           htmlLat="lat"
           htmlLng="lng"
-          htmlAltitude={0.03}
+          htmlAltitude={LABEL_ALTITUDE}
           htmlElement={labelElement}
           htmlElementVisibilityModifier={labelVisibility}
         />

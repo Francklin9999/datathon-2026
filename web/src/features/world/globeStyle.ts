@@ -95,7 +95,7 @@ export function spreadStacked(pins: readonly GlobePin[]): GlobePin[] {
     const first = group[0];
     if (n < 2 || !first) continue;
     const order = [...group].sort((a, b) => (b.weight - a.weight) || a.id.localeCompare(b.id));
-    const radius = Math.min(6, Math.max(0.9, 0.65 * Math.sqrt(n)));
+    const radius = Math.min(4, Math.max(0.5, 0.42 * Math.sqrt(n)));
     const lngScale = 1 / Math.max(0.2, Math.cos((first.lat * Math.PI) / 180));
     order.forEach((pin, i) => {
       const r = radius * Math.sqrt((i + 0.5) / n);
@@ -110,13 +110,62 @@ export function spreadStacked(pins: readonly GlobePin[]): GlobePin[] {
   return moved.size ? pins.map(pin => moved.get(pin.id) ?? pin) : [...pins];
 }
 
+/** A spike as seen on screen: from its foot (a) to its top (b), `pad` pixels thick on each side. */
+export interface ScreenSpike { ax: number; ay: number; bx: number; by: number; pad: number }
+/** A label box on screen, by its centre. */
+export interface ScreenBox { x: number; y: number; w: number; h: number }
+
+const SPIKE_SAMPLES = 8;
+
+function overlap(box: ScreenBox, spikes: readonly ScreenSpike[], taken: readonly ScreenBox[]): number {
+  let hits = 0;
+  for (const s of spikes) {
+    const hw = box.w / 2 + s.pad;
+    const hh = box.h / 2 + s.pad;
+    for (let i = 0; i <= SPIKE_SAMPLES; i++) {
+      const t = i / SPIKE_SAMPLES;
+      if (Math.abs(s.ax + (s.bx - s.ax) * t - box.x) <= hw && Math.abs(s.ay + (s.by - s.ay) * t - box.y) <= hh) { hits++; break; }
+    }
+  }
+  for (const other of taken) {
+    if (Math.abs(other.x - box.x) < (other.w + box.w) / 2 + 4 && Math.abs(other.y - box.y) < (other.h + box.h) / 2 + 4) hits += 2;
+  }
+  return hits;
+}
+
+/**
+ * Where a country label goes, as an offset (px) from its anchor: above it by default, else the nearest
+ * spot around it (below, beside, diagonals, then one step further) that covers no event spike and no
+ * label already placed. When every spot is covered, the least covered one.
+ */
+export function labelOffset(anchor: { x: number; y: number }, size: { w: number; h: number },
+  spikes: readonly ScreenSpike[], taken: readonly ScreenBox[]): { dx: number; dy: number } {
+  const ux = size.w / 2 + 8;
+  const uy = size.h / 2 + 8;
+  const directions: [number, number][] = [[0, -1], [0, 1], [1, 0], [-1, 0], [1, -1], [-1, -1], [1, 1], [-1, 1]];
+  let best = { dx: 0, dy: -uy, score: Infinity };
+  for (const step of [1, 2]) {
+    for (const [x, y] of directions) {
+      const dx = x * ux * step;
+      const dy = y * uy * step;
+      const score = overlap({ x: anchor.x + dx, y: anchor.y + dy, w: size.w, h: size.h }, spikes, taken);
+      if (score === 0) return { dx, dy };
+      if (score < best.score) best = { dx, dy, score };
+    }
+  }
+  return { dx: best.dx, dy: best.dy };
+}
+
+/** Pin radii (degrees): thin enough to leave small islands and coasts visible. */
+export const PIN_RADIUS = { event: 0.2, selected: 0.32, facility: 0.14 } as const;
+
 /** Spike height (globe radii) of an event from its 0–1 importance. */
 export function spikeAltitude(weight: number): number {
-  return 0.04 + 0.32 * Math.max(0, Math.min(1, weight));
+  return 0.015 + 0.13 * Math.max(0, Math.min(1, weight));
 }
 
 /** Dot radius (degrees) of an earthquake from its magnitude. */
 export function quakeRadius(magnitude: number | undefined): number {
   const m = magnitude ?? 4;
-  return Math.max(0.12, Math.min(0.9, (m - 3.5) * 0.22));
+  return Math.max(0.08, Math.min(0.6, (m - 3.5) * 0.16));
 }
