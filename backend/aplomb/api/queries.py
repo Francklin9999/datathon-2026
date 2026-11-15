@@ -31,6 +31,10 @@ def parameters(request, kind: str) -> dict:
             TypeAdapter(ProfileId).validate_python(query["profileId"])
         if kind == "world_exposure" and "profileId" not in query:
             raise ValueError("profileId is required")
+        if kind == "world_observations" and "mapOnly" in query:
+            if query["mapOnly"] not in {"true", "false"}:
+                raise ValueError("mapOnly must be true or false")
+            query["mapOnly"] = query["mapOnly"] == "true"
         limits = {
             "assets": (50, 500),
             "world_events": (300, 1000),

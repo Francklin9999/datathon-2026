@@ -103,38 +103,14 @@ export type DataVersion = string;
 export type AgentRole = "planner" | "researcher" | "quant" | "risk_officer" | "writer" | "auditor";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ProfileId".
+ */
+export type ProfileId = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Ticker".
  */
 export type Ticker = string;
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "RunId".
- */
-export type RunId = string;
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "ErrorCode".
- */
-export type ErrorCode =
-  | "validation_error"
-  | "not_found"
-  | "conflict"
-  | "forbidden_action"
-  | "insufficient_data"
-  | "rate_limited"
-  | "upstream_unavailable"
-  | "feature_disabled"
-  | "internal";
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "AssetClass".
- */
-export type AssetClass = "equity" | "etf_equity" | "etf_bond" | "etf_commodity" | "crypto" | "cash";
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "AssetGroup".
- */
-export type AssetGroup = "equity" | "fixed_income" | "commodity" | "crypto" | "cash";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "ThemeTag".
@@ -169,6 +145,45 @@ export type ThemeTag =
   | "dividend_payers";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EvidenceId".
+ */
+export type EvidenceId = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "FactId".
+ */
+export type FactId = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RunId".
+ */
+export type RunId = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ErrorCode".
+ */
+export type ErrorCode =
+  | "validation_error"
+  | "not_found"
+  | "conflict"
+  | "forbidden_action"
+  | "insufficient_data"
+  | "rate_limited"
+  | "upstream_unavailable"
+  | "feature_disabled"
+  | "internal";
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AssetClass".
+ */
+export type AssetClass = "equity" | "etf_equity" | "etf_bond" | "etf_commodity" | "crypto" | "cash";
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AssetGroup".
+ */
+export type AssetGroup = "equity" | "fixed_income" | "commodity" | "crypto" | "cash";
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "AssetFlag".
  */
 export type AssetFlag =
@@ -184,11 +199,6 @@ export type AssetFlag =
  * via the `definition` "WindowCode".
  */
 export type WindowCode = "full" | "1y" | "3y" | "5y" | "ytd" | "custom";
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "FactId".
- */
-export type FactId = string;
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "FactKey".
@@ -334,11 +344,6 @@ export type LimitationCode =
   | "LIM_MV_ILLUSTRATION";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "EvidenceId".
- */
-export type EvidenceId = string;
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "EvidenceType".
  */
 export type EvidenceType =
@@ -349,11 +354,6 @@ export type EvidenceType =
  */
 export type AuditCheckCode =
   "A01" | "A02" | "A03" | "A04" | "A05" | "A06" | "A07" | "A08" | "A09" | "A10" | "A11" | "A12" | "A13" | "A14";
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "ProfileId".
- */
-export type ProfileId = string;
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "FundingMode".
@@ -890,6 +890,7 @@ export interface AplombContracts {
   WorldObservationLocation: WorldObservationLocation;
   WorldObservationSource: WorldObservationSource;
   WorldObservationsResponse: WorldObservationsResponse;
+  WorldPortfolioAssessment: WorldPortfolioAssessment;
   WorstExposure: WorstExposure;
 }
 /**
@@ -1109,6 +1110,45 @@ export interface AirportReference {
   countryIso3: string | null;
   sourceUrl: string;
   capturedAt: ISODateTime;
+  assessment?: WorldPortfolioAssessment | null;
+}
+/**
+ * Completed holdings screen using the record's available source evidence.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldPortfolioAssessment".
+ */
+export interface WorldPortfolioAssessment {
+  profileId: ProfileId;
+  assessedAt: ISODateTime;
+  holdingsChecked: number;
+  matchedWeightPct: number;
+  relatedTickers: Ticker[];
+  relatedThemes: ThemeTag[];
+  relatedCountries: string[];
+  exposures: HoldingExposure[];
+  limitations: I18NText[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "HoldingExposure".
+ */
+export interface HoldingExposure {
+  ticker: Ticker;
+  weightPct: number;
+  linkType: "named_in_source" | "listing_country" | "sector" | "theme" | "documented_exposure" | "etf_lookthrough";
+  evidenceIds: EvidenceId[];
+  impact: "not_established" | "measured_price_move";
+  impactFactId: FactId | null;
+  note: I18NText;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "I18nText".
+ */
+export interface I18NText {
+  en: string;
+  fr: string;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -1267,14 +1307,6 @@ export interface Fact {
   verification: Verification;
   createdBy: "quant" | "rules" | "optimizer" | "research" | "profile" | "user" | "world" | "timemachine";
   createdAt: ISODateTime;
-}
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "I18nText".
- */
-export interface I18NText {
-  en: string;
-  fr: string;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2499,19 +2531,6 @@ export interface EventSource {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "HoldingExposure".
- */
-export interface HoldingExposure {
-  ticker: Ticker;
-  weightPct: number;
-  linkType: "named_in_source" | "listing_country" | "sector" | "theme" | "documented_exposure" | "etf_lookthrough";
-  evidenceIds: EvidenceId[];
-  impact: "not_established" | "measured_price_move";
-  impactFactId: FactId | null;
-  note: I18NText;
-}
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "EventRelationshipReview".
  */
 export interface EventRelationshipReview {
@@ -3110,6 +3129,7 @@ export interface Facility {
   registry: "eccc_ghgrp" | "epa_ghgrp";
   sourceUrl: string;
   dataVersion: DataVersion;
+  assessment?: WorldPortfolioAssessment | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3224,6 +3244,7 @@ export interface Hazard {
   title: string;
   origin: "usgs" | "firms";
   sourceUrl: string;
+  assessment?: WorldPortfolioAssessment | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3849,6 +3870,7 @@ export interface WorldEventResponse {
   related: WorldEvent[];
   exposures: HoldingExposure[];
   geographicRelationships?: WorldGeographicRelationship[];
+  assessment?: WorldPortfolioAssessment | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3941,6 +3963,7 @@ export interface WorldObservation {
   source: WorldObservationSource;
   datasetId: string;
   limitations: string[];
+  assessment?: WorldPortfolioAssessment | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema

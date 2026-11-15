@@ -46,6 +46,7 @@ Implemented in `backend/aplomb/world/` with the standard library only.
 | `geo.py` | Country reference table (ISO3, EN/FR name, approximate centroid), source-place resolution, dateline-aware bounding box |
 | `dataset.py` | `load_bundle()` verifies every file against the manifest SHA-256 and row counts; `BundleProvider` loads lazily |
 | `service.py` | `WorldServiceImpl`: the `WorldService` protocol of the API plus `search_events` for the `world.search_events` tool |
+| `assessment.py` | Source-supported country and corporate-name resolution, disclosed theme rules for screening every provider and reference record |
 | `passports.py` | Passports of `world_events` and `natural_hazards` once loaded; `WorldDatastoreService` overlays them on `GET /datasets` |
 | `bundle/` | The committed bundle: `events.json`, `hazards.json`, `manifest.json` |
 
@@ -87,3 +88,46 @@ A source that fails is recorded with its error and contributes nothing; if no ev
 ### 8.3 Verification
 
 `uv run pytest backend/tests/unit/world` (44 tests, offline): WLD-01 identity and merge, WLD-02 ambiguous places and company names, WLD-03 importance at the build date and deterministic bundle, WLD-04 country weights and unknown bucket for the three personas, WLD-05 filters, cursors, bounding boxes and the dateline, WLD-07 links without impact, WLD-08 failed source, tampered bundle and unavailable layers; WLD-06 has no data to test (no facility registry). Parser inputs in the tests are synthetic payloads in the source formats; the committed bundle is checked for integrity, contract validity and identity. `backend/tests/integration/test_run_composition.py` exercises every world endpoint and the `event_brief` run through HTTP.
+
+### 8.4 Extended globe coverage
+
+The current bundle supersedes the initial counts above. It contains 3,090 events
+and 2,528 earthquake hazards. An additional USGS magnitude-5 capture covers
+2025-11-12 to 2026-11-12: 1,999 source records, no rejected records and 1,860 new
+identities after URL deduplication. Prior official releases, NASA EONET events
+and older earthquakes remain present. Raw source evidence, hashes and prior
+capture metadata are retained. `scripts/expand_world_events.py` produces a fresh
+verified directory before publication.
+
+Provider snapshots supply additional news location metadata, conflicts,
+disaster alerts, power plants, aviation, environmental observations and
+geographic references. `GET /world/observations` supports `scope=providers` to
+avoid duplicating core events, `mapOnly=true` to retain actual source coordinates,
+and `order=coverage` to interleave datasets and geographic cells. These options
+are included in the cursor signature; default date ordering remains supported.
+The frontend's initial provider overview loads up to 2,000 points, with further
+loading and topic/region filters. Verified event pages still load completely.
+
+Source observations retain their provenance, precision, capture gate and limitations.
+
+### 8.5 Portfolio assessments for every globe record
+
+Every portfolio-scoped event detail, provider observation, emissions facility,
+earthquake and airport reference includes a completed holdings assessment.
+Screen all positive-weight positions against the source's explicit issuer names,
+disclosed theme proxies and supported countries. Return one row per holding with
+its strongest name/theme/listing-country match, plus unique matched weight,
+holdings checked, calculation time and matching inputs.
+
+Source country codes and supported source-place strings are used; GDELT FIPS
+codes require an explicit mapping and are never treated as ISO alpha-2. Unknown
+geography stays unknown. Name mentions from reporting-company fields remain
+name mentions, not ownership or reviewed security relationships. Source capture
+files are unchanged by the assessment. Financial impact and operating exposure
+remain unestablished.
+
+An empty match list is a completed screen, with the source and holding coverage
+gaps shown alongside it. Provider cursors include profile and effective holding
+inputs, so a profile switch or portfolio edit cannot mix assessed pages.
+The event feed's relevance flag uses the same matcher as its detail popup,
+including theme proxies.

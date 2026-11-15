@@ -22,8 +22,8 @@ import { countryCentroid, countryName, hexReadyCountries, outlineLabel, regionIs
 import { islandHexes } from '../../lib/geoHex';
 import { insideBbox, viewportBounds, type GeographicArea } from '../../lib/world';
 import {
-  ATMOSPHERE_COLOR, CATEGORY_COLORS, LAND_HOVER_COLOR, PIN_RADIUS, SPHERE_COLOR, exposureColor, labelOffset, pinColor,
-  quakeRadius, spikeAltitude, spreadStacked, clusterPins, sourceGeometry, type GlobePin, type ScreenBox, type ScreenSpike,
+  ATMOSPHERE_COLOR, CATEGORY_COLORS, LAND_HOVER_COLOR, PIN_RADIUS, REFERENCE_PIN_ALTITUDE, SPHERE_COLOR, exposureColor, labelOffset, pinColor,
+  quakeRadius, spikeAltitude, spreadStacked, clusterPins, sourceGeometry, type GlobeHover, type GlobePin, type ScreenBox, type ScreenSpike,
 } from './globeStyle';
 
 export interface MapCommand { action: 'zoom-in' | 'zoom-out' | 'left' | 'right' | 'up' | 'down' | 'reset' | 'query'; sequence: number }
@@ -46,7 +46,7 @@ export interface GlobeViewProps {
   height: number;
   onPin: (pin: GlobePin) => void;
   onCountry: (iso3: string) => void;
-  onHover: (text: string | null) => void;
+  onHover: (hover: GlobeHover | null) => void;
   /** The person grabbed the globe: the stage stops the idle rotation. */
   onInteract: () => void;
 }
@@ -305,7 +305,7 @@ export default function GlobeView({
     hoverKey.current = key;
     setHoverIso(f.iso3 ?? null);
     const weight = f.iso3 ? exposure?.get(f.iso3) : undefined;
-    onHover(name ? (weight ? `${name}: ${fmtPct(weight, lang)}` : name) : null);
+    onHover(name ? { label: weight ? `${name}: ${fmtPct(weight, lang)}` : name } : null);
   }, [leaveSoon, lang, exposure, onHover]);
   const hoverPin = useCallback((pin: object | null) => {
     if (!pin) { leaveSoon(); return; }
@@ -314,8 +314,9 @@ export default function GlobeView({
     if (hoverKey.current === `pin:${p.id}`) return;
     hoverKey.current = `pin:${p.id}`;
     setHoverIso(null);
-    onHover(p.label);
-  }, [leaveSoon, onHover]);
+    const anchor = globe.current?.getScreenCoords(p.lat, p.lng, p.kind === 'event' ? spikeAltitude(p.weight) : REFERENCE_PIN_ALTITUDE);
+    onHover({ label: p.label, pin: original.get(p.id) ?? p, ...(anchor ? { x: anchor.x, y: anchor.y } : {}), width });
+  }, [leaveSoon, onHover, original, width]);
   const clickCountry = useCallback((feature: object) => {
     const iso3 = (feature as CountryFeature).iso3;
     if (iso3) onCountry(iso3);
@@ -342,7 +343,7 @@ export default function GlobeView({
   const pointColor = useCallback((pin: object) => pinColor(pin as GlobePin, selectedId), [selectedId]);
   const pointAltitude = useCallback((pin: object) => {
     const p = pin as GlobePin;
-    return p.kind === 'event' ? spikeAltitude(p.weight) : p.kind === 'hazard' ? 0.008 : 0.012;
+    return p.kind === 'event' ? spikeAltitude(p.weight) : REFERENCE_PIN_ALTITUDE;
   }, []);
   const pointRadius = useCallback((pin: object) => {
     const p = pin as GlobePin;

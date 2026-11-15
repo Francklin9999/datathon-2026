@@ -1,18 +1,18 @@
 {
- "builtAt": "2026-11-15T07:20:44Z",
+ "builtAt": "2026-11-15T22:10:11Z",
  "events": {
   "byCategory": {
    "macro_release": 58,
    "monetary_policy": 22,
-   "natural_disaster": 1147,
+   "natural_disaster": 3007,
    "other": 3
   },
   "byOrigin": {
    "eonet": 479,
    "official": 83,
-   "usgs": 668
+   "usgs": 2528
   },
-  "count": 1230,
+  "count": 3090,
   "coverage": {
    "end": "2026-11-12",
    "start": "2021-11-14"
@@ -20,16 +20,16 @@
  },
  "files": {
   "events.json": {
-   "sha256": "c96e42936db661e5e0372ef3b1b2bd2029de59e89110de1b377856635516be41"
+   "sha256": "53f612336a7d11d483202940039d8d7bb2b1b0c2c6cd4d57499666262d16e74b"
   },
   "hazards.json": {
-   "sha256": "475663ae95a48a6e62f64524256fa60e1bd1f7b1808046b8948ba714b2004bbf"
+   "sha256": "32cf6d40f3d4c67ab6889e4b7b51fde7210e50c056f681f2cf7e05e2ec8ee9bc"
   }
  },
  "hazards": {
-  "count": 668,
+  "count": 2528,
   "coverage": {
-   "end": "2026-11-09",
+   "end": "2026-11-12",
    "start": "2021-11-14"
   }
  },
@@ -54,15 +54,15 @@
  },
  "notIngested": [
   {
-   "reason": "Article index returned no usable batch on the build date and its items carry no source-supported event location; not loaded (O-07).",
+   "reason": "Not merged into the verified event feed. Separately loaded source observations and reference layers retain their own coverage and provenance.",
    "source": "GDELT"
   },
   {
-   "reason": "Facility layer not loaded (cut-list item 2).",
+   "reason": "Not merged into the verified event feed. Separately loaded source observations and reference layers retain their own coverage and provenance.",
    "source": "ECCC / EPA facility emissions"
   },
   {
-   "reason": "Requires a key; not loaded.",
+   "reason": "Not merged into the verified event feed. Separately loaded source observations and reference layers retain their own coverage and provenance.",
    "source": "NASA FIRMS wildfires"
   }
  ],
@@ -72,15 +72,25 @@
  },
  "sources": [
   {
-   "filter": "magnitude >= 6.0",
+   "filter": "Magnitude >= 5 during 2025-11-12 to 2026-11-12; prior earthquake archive retained",
    "id": "usgs_earthquakes",
-   "items": 668,
+   "items": 2528,
    "name": "USGS Earthquake Catalog (FDSN event service)",
+   "parsedItems": 1999,
+   "payloadSha256": "54bfcad05deabec7002ec121120ae4fe2f34dd39d9c8c31833162e1546b04c92",
+   "previousCaptures": [
+    {
+     "filter": "magnitude >= 6.0",
+     "retrievedAt": "2026-11-15T00:32:58Z",
+     "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&starttime=2021-11-12&endtime=2026-11-12T23:59:59&minmagnitude=6.0&orderby=time-asc"
+    }
+   ],
+   "rawCapture": "data/inputs/world-events/usgs-2025-11-12-2026-11-12-m5-54bfcad05dea.json.gz",
    "rejected": 0,
-   "retrievedAt": "2026-11-15T00:32:58Z",
+   "retrievedAt": "2026-11-15T22:10:11Z",
    "status": "ok",
    "terms": "U.S. Government work, public domain; https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
-   "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&starttime=2021-11-12&endtime=2026-11-12T23:59:59&minmagnitude=6.0&orderby=time-asc"
+   "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&starttime=2025-11-12&endtime=2026-11-12T23%3A59%3A59&minmagnitude=5.0&orderby=time-asc&limit=20000"
   },
   {
    "id": "boc_press",
@@ -128,5 +138,5 @@
    "url": "https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start=2026-10-15&end=2026-11-12&limit=500"
   }
  ],
- "worldVersion": "snap-20261115-world-eonet-570970dd"
+ "worldVersion": "snap-20261115-world-expanded-54bfcad0"
 }

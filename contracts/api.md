@@ -123,7 +123,8 @@ Every non-2xx response has the body `ApiError`:
 | 6.5 | GET `/world/countries/{iso3}` | P1 | Country panel |
 | 6.6 | GET `/world/facilities` | P1 | Emissions facilities |
 | 6.7 | GET `/world/hazards` | P1 | Earthquakes and wildfires |
-| 6.8 | GET `/world/observations` | P1 | Source-backed world observations; `mode`, `bbox`, `country`, `from`, `to`, `asOf`, `q`, `limit`, `cursor` |
+| 6.8 | GET `/world/observations` | P1 | Source-backed world observations; optional `profileId` adds a completed holdings assessment to every item. `mode`, `bbox`, `country`, `from`, `to`, `asOf`, `q`, `scope` (`all`/`providers`), `mapOnly` (boolean), `order` (`date`/`coverage`), `limit`, `cursor`. Coverage order interleaves source datasets and geographic cells; cursors bind these options and the assessed holdings. |
+| 6.9 | GET `/world/airports` | P1 | Static airport references and optional portfolio assessments |
 | 7.1 | GET `/replay/presets` | P1 | Time Machine dates on offer |
 | 8.1 | GET `/datasets` | P0 | Data room |
 | 8.2 | GET `/datasets/{datasetId}` | P0 | One passport |
@@ -558,11 +559,15 @@ Query:
 
 `200` → `{ items: (WorldEvent & { portfolioRelevant?: boolean })[]; nextCursor: string | null; total: number; coverage: Period; dataVersion: DataVersion }`.
 
-`portfolioRelevant` is true when `relatedTickers` intersects the profile's positions or `relatedCountries` contains a country with exposure > 0. It is a documented match, not an impact estimate.
+`portfolioRelevant` uses the same matcher as the detail assessment: a held issuer is named, a holding shares a disclosed theme proxy, or its listing country is in the source's related countries. One match is sufficient. The flag identifies potential relevance; it does not establish financial impact.
+
+The cursor binds the filters, data version, profile and effective holdings. Switching profiles or editing the portfolio requires a fresh first page.
 
 ### 6.3 GET `/world/events/{eventId}`
 
-Query: `profileId` (optional). `200` → `{ event: WorldEvent; related: WorldEvent[] /* same country ±7 days, max 10 */; exposures: HoldingExposure[] /* code-only matches; linkType never "documented_exposure" here */ }`.
+Query: `profileId` (optional). `200` → `{ event: WorldEvent; related: WorldEvent[] /* same country ±7 days, max 10 */; exposures: HoldingExposure[] /* code-only matches; linkType never "documented_exposure" here */; assessment?: WorldPortfolioAssessment | null }`.
+
+Supplying `profileId` screens every positive-weight holding in the session's effective portfolio. The completed `assessment` includes the profile, calculation time, holdings checked, unique matched weight, source names/themes/countries checked, matching holdings and actual coverage gaps. Each holding appears once with its strongest match: named issuer, theme proxy, then listing country. All impacts remain `not_established`. An empty match list is a completed negative screen using the available source fields; unresolved source geography and holdings without a listing country are disclosed. Coordinates alone do not establish operating exposure. Static registry company-name mentions do not create ownership or reviewed issuer-to-security relationships.
 
 The AI brief is requested separately with `POST /runs` kind `event_brief`.
 
@@ -576,13 +581,23 @@ Query: `profileId`, `from`, `to`. `200` → `{ countryIso3: string; name: I18nTe
 
 ### 6.6 GET `/world/facilities` — flag `world_layer_facilities`
 
-Query: `bbox`, `country`, `ticker`, `minEmissions`, `limit` (default 500, max 2,000). `200` → `{ items: Facility[]; total: number; reportingYear: number; limitations: LimitationCode[] }`.
+Query: `profileId` (optional), `bbox`, `country`, `ticker`, `minEmissions`, `limit` (default 500, max 2,000). `200` → `{ items: Facility[]; total: number; reportingYear: number; limitations: LimitationCode[] }`. With `profileId`, every item includes `assessment` using the same holdings screen as §6.3.
 
 Facility captures expose optional `capturedAt` and `dataVersion` alongside `reportingYear`. Current ECCC coverage is Canada, latest completed reference year; emissions are reported tonnes CO2e excluding biomass CO2. Query `asOf` is rejected because the captured file has no original historical vintages. `ticker` filtering establishes no matches until reviewed security relationships exist. The legacy `Facility.operator` wire field carries the registry’s reporting-company legal name; it does not prove operator or owner status. The UI labels it Reporting company. Public contact fields are not retained. The data passport records attribution, rejection counts and checksums.
 
 ### 6.7 GET `/world/hazards` — flag `world_layer_hazards`
 
-Query: `from`, `to`, `type`, `bbox`, `limit`. `200` → `{ items: Hazard[]; total: number }`.
+Query: `profileId` (optional), `from`, `to`, `type`, `bbox`, `limit`. `200` → `{ items: Hazard[]; total: number }`. With `profileId`, every item includes `assessment`, reusing the related fields of the corresponding source event when available.
+
+### 6.8 GET `/world/observations`
+
+Query: optional `profileId`, `mode`, `bbox`, `country` (repeatable), `from`, `to`, `asOf`, `q`, `scope` (`all` or `providers`, default `all`), `mapOnly` (boolean, default false), `order` (`date` or `coverage`, default `date`), `limit` (default 250, max 500), `cursor`. `200` → `WorldObservationsResponse`.
+
+With `profileId`, each item includes a completed `WorldPortfolioAssessment`, even when no holdings match or source geography is unavailable. Country resolution uses explicit source codes, names and supported place strings; GDELT FIPS codes are never interpreted as ISO alpha-2. Provider source coordinates, time basis, limitations and capture gating remain intact. A cursor binds the filters, source versions, profile and effective holdings; changing the portfolio requires a fresh first page. Omitting `profileId` preserves unscoped source access.
+
+### 6.9 GET `/world/airports`
+
+Query: optional `profileId`, `country` (repeatable), `bbox`, `q`, `limit` (default and max 2,000). `200` → `AirportsResponse`. Every returned reference includes `assessment` when `profileId` is supplied. The current static capture does not support historical `asOf` queries; it establishes neither aircraft movements nor an airport-to-company relationship.
 
 ---
 

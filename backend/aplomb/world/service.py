@@ -11,6 +11,8 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import math
+from collections import deque
 from datetime import date, datetime, timedelta, timezone
 from functools import cached_property
 from typing import Callable
@@ -21,6 +23,7 @@ from aplomb.datastore import Snapshot
 from aplomb.quant.facts import FactContext, LocalLedger, fact_key, make_fact
 
 from .airports import filter_airports, load_airports
+from .assessment import source_context
 from .country_macro import INDICATORS
 from .dataset import WorldDataError, WorldDataset
 from .facilities import filter_facilities, load_facilities
@@ -81,6 +84,29 @@ PROVIDER_MODES = {
 }
 
 
+def geographic_observation_order(rows: list[dict]) -> list[dict]:
+    """Interleave sources and geographic cells so dense registries do not hide smaller feeds."""
+    sources: dict[str, dict[tuple[int, int] | None, list[dict]]] = {}
+    for row in rows:
+        location = row["location"]
+        cell = (math.floor((location["lat"] + 90) / 15), math.floor((location["lon"] + 180) / 15)) if location else None
+        sources.setdefault(row["datasetId"], {}).setdefault(cell, []).append(row)
+    active = deque(
+        deque(deque(items) for items in cells.values())
+        for _, cells in sorted(sources.items())
+    )
+    ordered = []
+    while active:
+        cells = active.popleft()
+        cell = cells.popleft()
+        ordered.append(cell.popleft())
+        if cell:
+            cells.append(cell)
+        if cells:
+            active.append(cells)
+    return ordered
+
+
 def _t(en: str, fr: str) -> dict:
     return {"en": en, "fr": fr}
 
@@ -135,6 +161,35 @@ class WorldServiceImpl:
             out.setdefault(asset.country or UNKNOWN_COUNTRY, []).append((asset.ticker, weight))
         return out
 
+    def _assessment(self, context: dict, holdings, profile_id: str, *, source_record: bool = True) -> dict:
+        exposures = self.link_candidates(context, holdings, source_record=source_record)
+        countries = context["relatedCountries"]
+        limitations = [_t(
+            "Name, theme and listing-country matches identify potential relevance. Financial impact and operational exposure are not established.",
+            "Les noms, thèmes et pays de cotation indiquent une pertinence potentielle. L’impact financier et l’exposition opérationnelle ne sont pas établis.",
+        )]
+        if not countries:
+            limitations.append(_t(
+                "The available source fields could not be mapped to a country. Geographic matching is limited; no match does not rule out exposure.",
+                "Les champs de source disponibles n’ont pas pu être associés à un pays. La correspondance géographique est limitée ; l’absence de correspondance n’exclut pas une exposition.",
+            ))
+        unlocated_weight = sum(weight for asset, weight in holdings if not asset.country or asset.country == UNKNOWN_COUNTRY)
+        if unlocated_weight:
+            limitations.append(_t(
+                f"{unlocated_weight:g}% of this portfolio has no listing country and was checked by name and theme only.",
+                f"{unlocated_weight:g} % du portefeuille n’a pas de pays de cotation et a été vérifié par nom et thème seulement.",
+            ))
+        return {
+            "profileId": profile_id, "assessedAt": self._now(), "holdingsChecked": len(holdings),
+            "matchedWeightPct": min(sum(row["weightPct"] for row in exposures), 100.0),
+            "relatedTickers": context["relatedTickers"], "relatedThemes": context["relatedThemes"],
+            "relatedCountries": countries, "exposures": exposures, "limitations": limitations,
+        }
+
+    @staticmethod
+    def _holdings_signature(holdings) -> list:
+        return sorted((asset.ticker, weight, asset.country, sorted(asset.themes)) for asset, weight in holdings)
+
     def _range(self, ds: WorldDataset, query: dict, default_days: int) -> tuple[str, str]:
         coverage = ds.coverage
         if coverage is None:
@@ -175,6 +230,10 @@ class WorldServiceImpl:
 
         return load_provider_snapshots()
 
+    @cached_property
+    def _provider_contexts(self) -> dict[str, dict]:
+        return {row["id"]: source_context(row, properties=row.get("properties")) for row in self._provider_capture[0]}
+
     def observations(self, session_id: str, query: dict) -> a.WorldObservationsResponse:
         """Bounded, source-backed world observations for mode and viewport exploration.
 
@@ -193,6 +252,15 @@ class WorldServiceImpl:
         mode = query.get("mode")
         if mode is not None and mode not in OBSERVATION_MODES:
             raise _invalid("mode must be a supported world observation mode", "mode")
+        scope = query.get("scope", "all")
+        if scope not in {"all", "providers"}:
+            raise _invalid("scope must be all or providers", "scope")
+        order = query.get("order", "date")
+        if order not in {"date", "coverage"}:
+            raise _invalid("order must be date or coverage", "order")
+        map_only = query.get("mapOnly", False)
+        if type(map_only) is not bool:
+            raise _invalid("mapOnly must be a boolean", "mapOnly")
         bbox = tuple(float(v) for v in query["bbox"].split(",")) if query.get("bbox") else None
         countries = set(query.get("country") or [])
         needle = (query.get("q") or "").strip().casefold()
@@ -200,9 +268,11 @@ class WorldServiceImpl:
             raise _invalid("search must contain at most 200 characters", "q")
         start, end = query.get("from"), query.get("to")
         as_of = query.get("asOf")
+        profile_id = query.get("profileId")
+        holdings = self._holdings(session_id, profile_id) if profile_id else None
         rows: list[dict] = []
         provider_countries: dict[str, str] = {}
-        if self._capture_visible(ds, query):
+        if scope == "all" and self._capture_visible(ds, query):
             for event in ds.events:
                 source = event["sources"][0]
                 provenance = self.provenance(event)
@@ -262,6 +332,8 @@ class WorldServiceImpl:
                                + manifest.get("limitations", []),
             })
 
+        if map_only:
+            rows = [row for row in rows if row["location"] is not None]
         counts = {key: 0 for key in OBSERVATION_MODES}
         for row in rows:
             counts[row["mode"]] += 1
@@ -287,11 +359,16 @@ class WorldServiceImpl:
         if needle:
             rows = [r for r in rows if needle in r["title"].casefold() or needle in r["source"]["name"].casefold()]
         rows.sort(key=lambda r: (r["occurredAt"], r["id"]), reverse=True)
+        if order == "coverage":
+            rows = geographic_observation_order(rows)
         version_parts = [ds.version] + [m["dataVersion"] for m in provider_meta]
         version = hashlib.sha256("|".join(sorted(version_parts)).encode()).hexdigest()[:16]
         signature = hashlib.sha256(json.dumps(
             {"version": version, "mode": mode, "bbox": bbox, "country": sorted(countries),
-             "q": needle, "from": start, "to": end, "asOf": as_of}, sort_keys=True).encode()).hexdigest()[:16]
+             "q": needle, "from": start, "to": end, "asOf": as_of,
+             "scope": scope, "order": order, "mapOnly": map_only, "profileId": profile_id,
+             "holdings": self._holdings_signature(holdings) if holdings is not None else None},
+            sort_keys=True).encode()).hexdigest()[:16]
         offset = 0
         if query.get("cursor"):
             try:
@@ -303,6 +380,12 @@ class WorldServiceImpl:
                 raise _invalid("cursor is invalid for this query", "cursor") from exc
         limit = int(query.get("limit", 250))
         page = rows[offset:offset + limit]
+        if holdings is not None:
+            event_contexts = {event["eventId"]: event for event in ds.events}
+            for row in page:
+                context = event_contexts[row["id"]] if row["datasetId"] == "world_events" else self._provider_contexts[row["id"]]
+                row["assessment"] = self._assessment(context, holdings, profile_id,
+                                                     source_record=row["datasetId"] != "world_events")
         next_cursor = (base64.urlsafe_b64encode(json.dumps({"key": signature, "offset": offset + limit}).encode()).decode()
                        if offset + limit < len(rows) else None)
         return a.WorldObservationsResponse.model_validate({
@@ -350,7 +433,7 @@ class WorldServiceImpl:
              "coverage": {"start": f"{facility_meta['reportingYear']}-01-01", "end": f"{facility_meta['reportingYear']}-12-31"} if facility_meta else None},
             {"layerId": "hazards", "title": _t("Earthquakes (USGS)", "Séismes (USGS)"), "tier": "P2", "available": hazards_ok,
              "datasetIds": ["natural_hazards"],
-             "legend": [{"label": _t("Earthquake, magnitude 6 or more", "Séisme de magnitude 6 ou plus"), "color": "#A04000"}],
+             "legend": [{"label": _t("Recorded earthquake · magnitude 5 or more in the expanded window", "Séisme enregistré · magnitude 5 ou plus dans l’intervalle élargi"), "color": "#A04000"}],
              "count": len(ds.hazards) if hazards_ok else None,
              "coverage": ds.manifest["hazards"]["coverage"] if hazards_ok else None},
         ]
@@ -371,7 +454,11 @@ class WorldServiceImpl:
             bbox=tuple(float(v) for v in query["bbox"].split(",")) if query.get("bbox") else None)
         if countries:
             selected = [row for row in selected if row["countryIso3"] in countries]
-        return a.AirportsResponse.model_validate({"items": selected[:query.get("limit", 2000)],
+        page = selected[:query.get("limit", 2000)]
+        if query.get("profileId"):
+            holdings = self._holdings(session_id, query["profileId"])
+            page = [dict(row, assessment=self._assessment(source_context(row), holdings, query["profileId"])) for row in page]
+        return a.AirportsResponse.model_validate({"items": page,
             "total": len(selected), "dataVersion": meta["dataVersion"], "capturedAt": meta["capturedAt"]})
 
     # 6.2 events -------------------------------------------------------------------------------
@@ -420,10 +507,14 @@ class WorldServiceImpl:
         sort = query.get("sort", "importance")
         matches = self._sorted(self._filter(ds, query, start, end), sort) if self._capture_visible(ds, query) else []
         limit = int(query.get("limit", 300))
+        profile_id = query.get("profileId")
+        holdings = self._holdings(session_id, profile_id) if profile_id else None
         # The cursor is bound to the filter set, so a cursor cannot be replayed on another query.
         signature = hashlib.sha256(json.dumps(
             {k: query.get(k) for k in ("category", "country", "origin", "q", "ticker", "theme", "bbox", "asOf")}
-            | {"from": start, "to": end, "sort": sort, "v": ds.version}, sort_keys=True).encode()).hexdigest()[:16]
+            | {"from": start, "to": end, "sort": sort, "v": ds.version, "profileId": profile_id,
+               "holdings": self._holdings_signature(holdings) if holdings is not None else None},
+            sort_keys=True).encode()).hexdigest()[:16]
         offset = 0
         if query.get("cursor"):
             try:
@@ -437,40 +528,36 @@ class WorldServiceImpl:
         next_cursor = None
         if offset + limit < len(matches):
             next_cursor = base64.urlsafe_b64encode(json.dumps({"k": signature, "o": offset + limit}).encode()).decode()
-        relevant = None
-        if query.get("profileId"):
-            holdings = self._holdings(session_id, query["profileId"])
-            held = {asset.ticker for asset, _ in holdings}
-            exposed = {c for c in self._country_weights(holdings) if c != UNKNOWN_COUNTRY}
-            relevant = (held, exposed)
         items = []
         for ev in page:
             item = self._wire_event(ev)
-            if relevant is not None:
-                item["portfolioRelevant"] = bool(relevant[0] & set(ev["relatedTickers"]) or relevant[1] & set(ev["relatedCountries"]))
+            if holdings is not None:
+                item["portfolioRelevant"] = bool(self.link_candidates(ev, holdings))
             items.append(item)
         return a.WorldEventsResponse.model_validate({
             "items": items, "nextCursor": next_cursor, "total": len(matches), "coverage": ds.coverage, "dataVersion": ds.version})
 
     # 6.3 one event ----------------------------------------------------------------------------
 
-    def link_candidates(self, event: dict, holdings) -> list[dict]:
+    def link_candidates(self, event: dict, holdings, *, source_record: bool = False) -> list[dict]:
         """Code-only matches, strongest link per holding; never ``documented_exposure`` (api.md §6.3)."""
         rows = []
         for asset, weight in holdings:
             links = []
             if asset.ticker in event["relatedTickers"]:
                 links.append(("named_in_source", _t(
-                    f"{asset.name} is named in the source title. Financial impact not established.",
-                    f"{asset.name} est nommée dans le titre de la source. Incidence financière non établie.")))
+                    f"{asset.name} is named in the source {'record' if source_record else 'title'}. Financial impact not established.",
+                    f"{asset.name} est nommée dans {'l’enregistrement' if source_record else 'le titre'} de la source. Incidence financière non établie.")))
             shared = sorted(set(asset.themes) & set(event["relatedThemes"]))
             if shared:
                 tags = ", ".join(shared)
+                subject_en = "source record" if source_record else "kind of event"
+                subject_fr = "cette observation" if source_record else "ce type d’événement"
                 links.append(("theme", _t(
-                    f"Proxy link (team assumption): the holding carries the theme tag {tags}, which this kind of event is "
-                    "tagged with. Financial impact not established.",
-                    f"Lien indirect (hypothèse de l'équipe) : le titre porte l'étiquette thématique {tags}, associée à ce type "
-                    "d'événement. Incidence financière non établie.")))
+                    f"Proxy link (team assumption): the holding carries the theme tag {tags}, which this {subject_en} "
+                    "is tagged with. Financial impact not established.",
+                    f"Lien indirect (hypothèse de l’équipe) : le titre porte l’étiquette thématique {tags}, associée à "
+                    f"{subject_fr}. Incidence financière non établie.")))
             if asset.country and asset.country in event["relatedCountries"]:
                 place = country_name(asset.country)
                 links.append(("listing_country", _t(
@@ -500,8 +587,11 @@ class WorldServiceImpl:
                        and set(e["relatedCountries"]) & set(event["relatedCountries"])]
             related = self._sorted(related, "importance")[:10]
         exposures = []
+        assessment = None
         if query.get("profileId"):
-            exposures = self.link_candidates(event, self._holdings(session_id, query["profileId"]))
+            assessment = self._assessment(event, self._holdings(session_id, query["profileId"]),
+                                          query["profileId"], source_record=False)
+            exposures = assessment["exposures"]
         relation = event_geography(event, self.provenance(event))
         geographic_relationships = []
         if relation is not None:
@@ -516,7 +606,8 @@ class WorldServiceImpl:
             })
         return a.WorldEventResponse.model_validate({
             "event": self._wire_event(event), "related": [self._wire_event(e) for e in related],
-            "exposures": exposures, "geographicRelationships": geographic_relationships})
+            "exposures": exposures, "geographicRelationships": geographic_relationships,
+            **({"assessment": assessment} if assessment is not None else {})})
 
     # 6.4 exposure -----------------------------------------------------------------------------
 
@@ -649,7 +740,11 @@ class WorldServiceImpl:
         if query.get("asOf"):
             raise _invalid("Facility capture has no original historical vintages", "asOf")
         selected = filter_facilities(rows, query)
-        return a.FacilitiesResponse.model_validate({"items": selected[:query.get("limit", 500)],
+        page = selected[:query.get("limit", 500)]
+        if query.get("profileId"):
+            holdings = self._holdings(session_id, query["profileId"])
+            page = [dict(row, assessment=self._assessment(source_context(row), holdings, query["profileId"])) for row in page]
+        return a.FacilitiesResponse.model_validate({"items": page,
             "total": len(selected), "reportingYear": meta["reportingYear"], "capturedAt": meta["capturedAt"],
             "dataVersion": meta["dataVersion"], "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"]})
 
@@ -657,6 +752,8 @@ class WorldServiceImpl:
         ds = self.dataset()
         if not ds.hazards:
             raise unavailable("Natural hazards dataset")
+        profile_id = query.get("profileId")
+        holdings = self._holdings(session_id, profile_id) if profile_id else None
         if not self._capture_visible(ds, query):
             return a.HazardsResponse.model_validate({"items": [], "total": 0})
         kind = query.get("type")
@@ -669,7 +766,14 @@ class WorldServiceImpl:
                and (start is None or h["occurredAt"][:10] >= start) and (end is None or h["occurredAt"][:10] <= end)
                and (bbox is None or in_bbox(h["lat"], h["lon"], bbox))]
         out.sort(key=lambda h: (h["occurredAt"], h["hazardId"]), reverse=True)
-        return a.HazardsResponse.model_validate({"items": out[:int(query.get("limit", 500))], "total": len(out)})
+        page = out[:int(query.get("limit", 500))]
+        if holdings is not None:
+            by_source = {source["url"]: event for event in ds.events for source in event["sources"]}
+            page = [dict(row, assessment=self._assessment(
+                by_source.get(row["sourceUrl"]) or source_context(row, properties={"place": row["title"].split(" - ", 1)[-1]}),
+                holdings, profile_id, source_record=False,
+            )) for row in page]
+        return a.HazardsResponse.model_validate({"items": page, "total": len(out)})
 
     # Research tool (contracts/tools.md §5: world.search_events) --------------------------------
 

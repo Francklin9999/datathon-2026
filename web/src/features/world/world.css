@@ -9,8 +9,31 @@
 .world-map-controls { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; background: rgba(0,0,0,.2); }
 .world-map-controls .btn { color: #edf2ff; border-color: #4a5c79; }
 .world-globe-toggle { margin: 0 0 12px; }
+.world-stage .stage-top { flex-wrap: wrap; padding-right: 42px; }
+.world-stage .stage-chip { max-width: 100%; min-width: 0; padding: 6px 12px; line-height: 1.4; }
+.world-event-hover { position: absolute; z-index: 3; width: min(300px, calc(100% - 24px)); padding: 14px 16px;
+  border: 1px solid rgba(233, 238, 255, .18); border-radius: 16px; pointer-events: none;
+  color: #E9EEFF; background: rgba(11, 18, 34, .96); box-shadow: 0 12px 32px rgba(0, 0, 0, .35); }
+.world-hover-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; color: #BCCAFF; }
+.world-hover-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+  font-size: 14px; line-height: 1.35; text-wrap: balance; overflow-wrap: anywhere; }
+.world-hover-summary { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+  margin-top: 8px; font-size: 12px; line-height: 1.45; color: #C7D1E9; text-wrap: pretty; }
+.world-hover-exposure { margin-top: 10px; font-size: 12px; font-weight: 600; }
+.world-hover-hint { margin-top: 6px; font-size: 11px; line-height: 1.4; color: #A9B9DA; }
+.world-event-details { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.world-event-details .event-title { margin: 0; font-size: 25px; text-wrap: balance; }
+.world-event-summary { color: var(--text-2); font-size: 14px; line-height: 1.6; text-wrap: pretty; }
+.world-event-exposure { display: flex; flex-direction: column; gap: 10px; padding: 18px; border: 1px solid var(--line);
+  border-radius: 18px; background: var(--glass-inset); }
+.world-event-exposure[data-exposed="true"] { border-color: var(--tension-line); }
+.world-exposure-title { font-size: 19px; font-weight: 650; letter-spacing: -.01em; text-wrap: balance; }
+.world-event-exposure .holdings-inline { margin: 0; }
+.world-event-details .fold { min-width: 0; }
 @media (max-width: 760px) {
   .world-navigation-fields { grid-template-columns: minmax(0, 1fr); }
   .world-mode-grid .btn { flex: 1 1 140px; }
   .world-navigation { padding: 12px; }
+  .world-event-details .event-title { font-size: 21px; }
+  .world-event-exposure { padding: 14px; }
 }

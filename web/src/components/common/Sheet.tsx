@@ -35,8 +35,8 @@ export function Sheet({ open, title, onClose, origin, children }: {
   const { tr } = useApp();
   const panel = useRef<HTMLDivElement | null>(null);
   const titleId = useId();
-  useDialogFocus(open, panel, onClose);
   const mounted = useMounted();
+  useDialogFocus(open && mounted, panel, onClose);
   if (!mounted) return null;
   const drift = driftFrom(origin);
   const hidden = { opacity: 0, scale: 0.9, x: drift.x, y: drift.y };

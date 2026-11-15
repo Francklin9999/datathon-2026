@@ -107,13 +107,16 @@ def test_world_endpoints_validate_against_the_contract(client):
     event_id = multi["items"][0]["eventId"]
     detail = ok(client.get(f"/v1/world/events/{event_id}", params={"profileId": "robert"}, headers=headers), "WorldEventResponse")
     assert detail["exposures"] and all(x["impact"] == "not_established" for x in detail["exposures"])
+    assert detail["assessment"]["profileId"] == "robert" and detail["assessment"]["holdingsChecked"] == 11
+    assert detail["assessment"]["exposures"] == detail["exposures"]
     assert detail["geographicRelationships"][0]["relation"] == "EVENT_OCCURRED_AT"
-    observation_page = ok(client.get("/v1/world/observations", params={"mode": "hazards", "limit": 2},
+    observation_page = ok(client.get("/v1/world/observations", params={"profileId": "robert", "mode": "hazards", "limit": 2},
                                      headers=headers), "WorldObservationsResponse")
     assert observation_page["total"] > 2 and len(observation_page["items"]) == 2
     assert observation_page["nextCursor"]
     assert all(item["source"]["url"].startswith("https://") for item in observation_page["items"])
     assert all(item["timeBasis"] == "event_date" for item in observation_page["items"] if item["datasetId"] == "world_events")
+    assert all(item["assessment"]["holdingsChecked"] == 11 for item in observation_page["items"])
     historical_observations = ok(client.get("/v1/world/observations", params={"mode": "hazards", "asOf": "2026-11-14"},
                                              headers=headers), "WorldObservationsResponse")
     assert historical_observations["total"] == 0
@@ -138,14 +141,24 @@ def test_world_endpoints_validate_against_the_contract(client):
     assert sum(i["weightPct"] for i in exposure["items"]) == pytest.approx(100)
     country = ok(client.get("/v1/world/countries/CAN", params={"profileId": "robert"}, headers=headers), "WorldCountryResponse")
     assert country["exposure"]["weightPct"] > 0 and len([f for f in country["macro"] if f["sources"][0]["datasetId"] == "macro_rates"]) == 2
-    facilities = ok(client.get("/v1/world/facilities", params={"limit": 3}, headers=headers), "FacilitiesResponse")
+    facilities = ok(client.get("/v1/world/facilities", params={"profileId": "robert", "limit": 3}, headers=headers), "FacilitiesResponse")
     assert facilities["total"] == 1863 and facilities["reportingYear"] == 2024
     assert all(row["ticker"] is None for row in facilities["items"])
-    hazards = ok(client.get("/v1/world/hazards", params={"limit": 3}, headers=headers), "HazardsResponse")
+    assert all(row["assessment"]["exposures"] for row in facilities["items"])
+    hazards = ok(client.get("/v1/world/hazards", params={"profileId": "amira", "limit": 3}, headers=headers), "HazardsResponse")
     assert len(hazards["items"]) == 3 and hazards["total"] > 3
+    assert all(row["assessment"]["profileId"] == "amira" and row["assessment"]["holdingsChecked"] == 16
+               for row in hazards["items"])
+    airports = ok(client.get("/v1/world/airports", params={"profileId": "robert", "limit": 3}, headers=headers), "AirportsResponse")
+    assert all(row["assessment"]["profileId"] == "robert" and row["assessment"]["holdingsChecked"] == 11
+               for row in airports["items"])
     for path, status in (("/v1/world/events/evt_000000000000", 404), ("/v1/world/exposure", 422),
                          ("/v1/world/events?from=2020-01-01&to=2026-01-01", 422), ("/v1/world/events?country=can", 422),
-                         ("/v1/world/countries/canada", 422), ("/v1/world/events?profileId=p_aaaaaaaaaa", 404)):
+                         ("/v1/world/countries/canada", 422), ("/v1/world/events?profileId=p_aaaaaaaaaa", 404),
+                         ("/v1/world/observations?profileId=p_aaaaaaaaaa", 404),
+                         ("/v1/world/facilities?profileId=p_aaaaaaaaaa", 404),
+                         ("/v1/world/hazards?profileId=p_aaaaaaaaaa", 404),
+                         ("/v1/world/airports?profileId=p_aaaaaaaaaa", 404)):
         response = client.get(path, headers=headers)
         assert response.status_code == status, (path, response.text)
         adapter("ApiError").validate_json(response.content)

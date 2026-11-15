@@ -321,6 +321,53 @@ def test_unlocated_policy_publication_is_in_feed_but_not_on_map(world):
                                       "asOf": "2026-11-14"}).total == 0
 
 
+def test_overview_balances_sources_and_places_without_duplicate_event_markers(world):
+    service = WorldServiceImpl(world.profiles, world.snapshot, world.dataset, clock=lambda: BUILT)
+    stamp = "2026-11-15T01:00:00Z"
+
+    def row(source, key, lat, lon):
+        return {
+            "id": key, "sourceId": source, "category": "news", "title": key,
+            "sourceUrl": "https://example.org/" + key, "retrievedAt": stamp,
+            "availableAt": stamp, "observedAt": None, "publishedAt": None,
+            "latitude": lat, "longitude": lon, "countryIso3": None, "properties": {},
+        }
+
+    dense = [row("large_registry", f"dense-{n:03}", 40, 40) for n in range(20)]
+    other_place = row("large_registry", "other-place", -40, -100)
+    small = [row("small_feed", "small-1", 20, 100), row("small_feed", "small-2", -20, -100)]
+    unlocated = row("unlocated_source", "unlocated", None, None)
+    sources = tuple({"datasetId": name, "dataVersion": name + "-1", "retrievedAt": stamp}
+                    for name in ("large_registry", "small_feed", "unlocated_source"))
+    service._provider_capture = (tuple(dense + [other_place] + small + [unlocated]), sources)
+    query = {"scope": "providers", "mapOnly": True, "order": "coverage", "limit": 4}
+    first = service.observations(SID, query)
+    assert first.total == 23 and first.next_cursor
+    assert {item.dataset_id for item in first.items} == {"large_registry", "small_feed"}
+    assert {item.id for item in first.items} >= {"other-place", "small-1", "small-2"}
+    assert all(item.location is not None and not item.id.startswith("evt_") for item in first.items)
+    ids = [item.id for item in first.items]
+    cursor = first.next_cursor
+    while cursor:
+        page = service.observations(SID, {**query, "cursor": cursor})
+        ids.extend(item.id for item in page.items)
+        cursor = page.next_cursor
+    assert len(ids) == len(set(ids)) == 23
+    assert service.observations(SID, {**query, "mapOnly": False}).total == 24
+    for change in ({"scope": "all"}, {"mapOnly": False}, {"order": "date"}):
+        with pytest.raises(ServiceError):
+            service.observations(SID, {**query, **change, "cursor": first.next_cursor})
+    assert service.observations(SID, {**query, "asOf": "2026-11-14"}).total == 0
+
+
+@pytest.mark.parametrize("query", [
+    {"scope": "unverified"}, {"order": "random"}, {"mapOnly": "true"},
+])
+def test_observation_overview_options_are_validated(world, query):
+    with pytest.raises(ServiceError):
+        world.observations(SID, query)
+
+
 def test_event_and_facility_geography_are_evidenced_without_ownership(world):
     event = next(e for e in world.dataset().events if e["location"]["precision"] == "point")
     detail = world.event(SID, event["eventId"], {}).to_wire()
@@ -343,7 +390,11 @@ def test_event_and_facility_geography_are_evidenced_without_ownership(world):
 def test_filters_pagination_and_cursor_binding(world):
     q = {"from": "2025-11-13", "to": "2026-11-12"}
     everything = world.events(SID, {**q, "limit": 1000})
-    assert everything.total == len(everything.items) and everything.next_cursor is None
+    expected_ids = {event["eventId"] for event in world.dataset().events
+                    if q["from"] <= event["occurredAt"] <= q["to"]}
+    assert everything.total == len(expected_ids)
+    assert len(everything.items) == min(everything.total, 1000)
+    assert (everything.next_cursor is not None) == (everything.total > 1000)
     seen, cursor, pages = [], None, 0
     while True:
         page = world.events(SID, {**q, "limit": 40, **({"cursor": cursor} if cursor else {})})
@@ -353,7 +404,9 @@ def test_filters_pagination_and_cursor_binding(world):
         cursor = page.next_cursor
         if cursor is None:
             break
-    assert seen == [e.event_id for e in everything.items] and pages == -(-everything.total // 40)
+    assert seen[:len(everything.items)] == [e.event_id for e in everything.items]
+    assert len(seen) == len(set(seen)) == everything.total and set(seen) == expected_ids
+    assert pages == -(-everything.total // 40)
     first_cursor = world.events(SID, {**q, "limit": 40}).next_cursor
     for bad in ({**q, "limit": 40, "cursor": "garbage"}, {**q, "category": ["monetary_policy"], "limit": 40, "cursor": first_cursor}):
         with pytest.raises(ServiceError) as exc:
@@ -460,7 +513,8 @@ def test_country_panel(world):
 def test_hazards_filters(world):
     ds = world.dataset()
     everything = world.hazards(SID, {"limit": 2000})
-    assert everything.total == len(ds.hazards) == len(everything.items)
+    assert everything.total == len(ds.hazards)
+    assert len(everything.items) == min(2000, everything.total)
     recent = world.hazards(SID, {"from": "2026-01-01", "to": "2026-11-12", "limit": 2000})
     assert 0 < recent.total < everything.total and all(h.occurred_at[:4] == "2026" for h in recent.items)
     assert world.hazards(SID, {"type": "wildfire"}).total == 0

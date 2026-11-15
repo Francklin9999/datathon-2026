@@ -12,13 +12,14 @@ import dynamic from 'next/dynamic';
 import { Maximize2, Minimize2, Pause, Play } from 'lucide-react';
 import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { EventCategory, WorldEvent, WorldExposureResponse } from '../../contracts/types';
-import { useApp } from '../../state/app';
+import { profileKey, useApp } from '../../state/app';
 import { EVENT_CATEGORY, labelOf } from '../../lib/labels';
 import { fmtDate, fmtPct } from '../../lib/format';
 import { countryLabel, decodeCountries, isKnownIso3, regionIso3, type CountryFeature, type Topology } from '../../lib/geo';
-import { CATEGORY_COLORS, EXPOSURE_BREAKS, EXPOSURE_COLORS, PIN_COLORS, type GlobePin } from './globeStyle';
+import { CATEGORY_COLORS, EXPOSURE_BREAKS, EXPOSURE_COLORS, OBSERVATION_COLORS, PIN_COLORS, pinColor, type GlobeHover, type GlobePin } from './globeStyle';
 import type { GlobeViewProps, MapCommand } from './GlobeView';
-import type { GeographicArea } from '../../lib/world';
+import { eventSummary, WORLD_MODES, type GeographicArea } from '../../lib/world';
+import { sourceLang } from './WorldPanels';
 
 function GlobeLoading() {
   const { tr } = useApp();
@@ -75,7 +76,7 @@ export interface WorldGlobeProps {
   selectedEvent: WorldEvent | null;
   exposure: ReadonlyMap<string, number> | null;
   exposureRows: WorldExposureResponse['items'];
-  counts: { shown: number; total: number | null; linked: number };
+  counts: { shown: number; total: number | null; linked: number; observations: number; loading: boolean; partial: boolean };
   showHazards: boolean;
   /** What the loaded hazards layer contains (its API title). */
   hazardsLabel: string;
@@ -87,11 +88,13 @@ export interface WorldGlobeProps {
 export function WorldGlobe({
   pins, selectedId, selectedGeometry, selectedCountry, selectedEvent, exposure, exposureRows, counts, showHazards, hazardsLabel, onPin, onCountry, onOpenDetails, area, onViewport,
 }: WorldGlobeProps) {
-  const { tr, lang } = useApp();
+  const app = useApp();
+  const { tr, lang } = app;
+  const scope = profileKey(app);
   const [webgl, setWebgl] = useState<boolean | null>(null);
   const [geography, setGeography] = useState<Geography>({ status: 'loading' });
   const [rotate, setRotate] = useState(true);
-  const [hover, setHover] = useState<string | null>(null);
+  const [hover, setHover] = useState<GlobeHover | null>(null);
   const [height, setHeight] = useState(520);
   const [showGlobe, setShowGlobe] = useState(true);
   const [command, setCommand] = useState<MapCommand | null>(null);
@@ -106,15 +109,13 @@ export function WorldGlobe({
   const [expanded, setExpanded] = useState<false | 'native' | 'cover'>(false);
 
   useEffect(() => { setWebgl(webglAvailable()); }, []);
-  useEffect(() => { setHover(null); }, [lang]);
+  useEffect(() => { setHover(null); }, [lang, selectedId, scope]);
   useEffect(() => {
     const update = () => setHeight(expanded ? window.innerHeight : window.innerWidth < 768 ? 340 : window.innerWidth < 1100 ? 440 : 540);
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, [expanded]);
-  // On mount only: entering or leaving full screen must not hide a globe the visitor chose to show.
-  useEffect(() => { setShowGlobe(window.innerWidth >= 768); }, []);
 
   // Runs again whenever the globe is shown or hidden: hiding it unmounts the stage element.
   useEffect(() => {
@@ -139,14 +140,14 @@ export function WorldGlobe({
     return () => { document.removeEventListener('keydown', onKey); root.style.overflow = overflow; delete root.dataset.globeCover; };
   }, [expanded]);
 
-  const exitExpanded = useCallback(() => {
-    if (expanded === 'native') void document.exitFullscreen().catch(() => undefined);
+  const exitExpanded = useCallback(async () => {
+    if (expanded === 'native') await document.exitFullscreen().catch(() => undefined);
     else if (expanded === 'cover') setExpanded(false);
   }, [expanded]);
   const toggleExpanded = useCallback(() => {
     const stage = stageRef.current;
     if (!stage) return;
-    if (expanded) { exitExpanded(); return; }
+    if (expanded) { void exitExpanded(); return; }
     if (document.fullscreenEnabled && typeof stage.requestFullscreen === 'function') {
       // Refused, or left unanswered by an embedding browser: cover the window instead.
       let settled = false;
@@ -156,12 +157,17 @@ export function WorldGlobe({
       setExpanded('cover');
     }
   }, [expanded, exitExpanded]);
-  // The details sit below the stage: leave full screen first, then scroll to them.
+  // Leave full screen before opening a dialog in the page's portal layer.
   const openDetails = useCallback(() => {
     if (!expanded) { onOpenDetails(); return; }
-    exitExpanded();
-    window.setTimeout(onOpenDetails, 250);
+    void exitExpanded().then(onOpenDetails);
   }, [expanded, exitExpanded, onOpenDetails]);
+  const pickPin = useCallback((pin: GlobePin) => {
+    setHover(null);
+    setRotate(false);
+    if (pin.kind !== 'cluster' && expanded) void exitExpanded().then(() => onPin(pin));
+    else onPin(pin);
+  }, [expanded, exitExpanded, onPin]);
 
   useEffect(() => {
     if (!webgl) return undefined;
@@ -180,6 +186,11 @@ export function WorldGlobe({
   const rows = [...exposureRows].filter(row => isKnownIso3(row.countryIso3)).sort((a, b) => b.weightPct - a.weightPct);
   const maxWeight = Math.max(1, ...rows.map(row => row.weightPct));
   const categories = [...new Set(pins.filter(p => p.kind === 'event' && p.category).map(p => p.category as EventCategory))];
+  const observationModes = [...new Set(pins.flatMap(pin => pin.observation ? [pin.observation.mode] : []))];
+  const previewEvent = hover?.pin?.event;
+  const previewObservation = hover?.pin?.observation;
+  const previewReference = hover?.pin?.reference;
+  const previewAssessment = previewObservation?.assessment ?? previewReference?.assessment;
   const selectedRow = selectedCountry ? rows.find(row => regionIso3(row.countryIso3) === selectedCountry) : undefined;
 
   const globe = webgl === null ? <GlobeLoading /> : !webgl ? (
@@ -187,8 +198,8 @@ export function WorldGlobe({
   ) : (
     <GlobeBoundary fallback={<p className="globe-fallback">{tr({ en: 'The globe could not be loaded. The list beside it and the feed below show the same events and countries.', fr: 'Le globe n’a pas pu être chargé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>}>
       <GlobeView pins={pins} selectedId={selectedId} selectedGeometry={selectedGeometry} selectedCountry={selectedCountry} countries={countries} exposure={exposure}
-        rotate={rotate} reducedMotion={reducedMotion} lang={lang} height={height}
-        onPin={onPin} onCountry={onCountry} onHover={setHover} onInteract={stopRotation} area={area} command={command} onClusters={setClusterCount} onViewport={onViewport} onReady={markGlobeReady} />
+        rotate={rotate && !hover?.pin} reducedMotion={reducedMotion} lang={lang} height={height}
+        onPin={pickPin} onCountry={onCountry} onHover={setHover} onInteract={stopRotation} area={area} command={command} onClusters={setClusterCount} onViewport={onViewport} onReady={markGlobeReady} />
     </GlobeBoundary>
   );
 
@@ -205,11 +216,47 @@ export function WorldGlobe({
         <div className="stage-overlay stage-top">
           <span className="stage-chip">
             {counts.total !== null
-              ? tr({ en: `${counts.shown} events, ${counts.linked} linked to the portfolio`, fr: `${counts.shown} événements, ${counts.linked} liés au portefeuille` })
+              ? counts.loading
+                ? tr({ en: `Loading all events… ${counts.shown} of ${counts.total}`, fr: `Chargement de tous les événements… ${counts.shown} sur ${counts.total}` })
+                : counts.partial
+                ? tr({ en: `${counts.shown} of ${counts.total} events available`, fr: `${counts.shown} événements disponibles sur ${counts.total}` })
+                : tr({ en: `${counts.shown} events, ${counts.linked} linked to the portfolio`, fr: `${counts.shown} événements, ${counts.linked} liés au portefeuille` })
               : tr({ en: 'Loading events…', fr: 'Chargement des événements…' })}
           </span>
+          {counts.observations > 0 && <span className="stage-chip world-data-chip">
+            {tr({ en: `+ ${counts.observations} source data points`, fr: `+ ${counts.observations} points de données sourcées` })}
+          </span>}
         </div>
-        <p className="stage-overlay stage-hover">{hover ?? tr({ en: 'Drag to turn, scroll to zoom, click a country or a spike', fr: 'Glissez pour tourner, molette pour zoomer, cliquez un pays ou un pic' })}</p>
+        {(previewEvent || previewObservation || previewReference) && hover && <div className="world-event-hover" role="tooltip" style={{
+          left: Math.max(12, Math.min((hover.x ?? 12) + 18, (hover.width ?? 324) - 312)),
+          top: Math.max(12, Math.min((hover.y ?? 12) + 18, height - 260)),
+        }}>
+          <p className="world-hover-meta">
+            <span className="stage-dot" style={{ background: pinColor(hover.pin!, null) }} />
+            {previewEvent ? labelOf(EVENT_CATEGORY, previewEvent.category, lang)
+              : previewObservation ? tr(WORLD_MODES.find(mode => mode.id === previewObservation.mode)!.title)
+              : previewReference && tr(previewReference.sourceName)}
+          </p>
+          <strong className="world-hover-title" lang={previewEvent ? sourceLang(previewEvent) : undefined}>{hover.pin?.label}</strong>
+          <p className="world-hover-summary">{previewEvent ? eventSummary(previewEvent, lang)
+            : previewObservation?.summary ?? (previewReference && tr(previewReference.summary))}</p>
+          {previewEvent?.portfolioRelevant !== undefined && <p className="world-hover-exposure">
+            {previewEvent.portfolioRelevant
+              ? tr({ en: 'Portfolio match identified', fr: 'Correspondance avec le portefeuille' })
+              : tr({ en: 'No portfolio match in the event feed', fr: 'Aucune correspondance dans le fil d’événements' })}
+          </p>}
+          {previewAssessment && previewAssessment.profileId === app.profile?.profileId && <p className="world-hover-exposure">
+            {previewAssessment.exposures.length
+              ? tr({ en: `Potential exposure · ${fmtPct(previewAssessment.matchedWeightPct, lang)} matched`, fr: `Exposition potentielle · ${fmtPct(previewAssessment.matchedWeightPct, lang)} correspondant` })
+              : tr({ en: 'No portfolio match in the available data', fr: 'Aucune correspondance dans les données disponibles' })}
+          </p>}
+          <p className="world-hover-hint">{previewEvent
+            ? tr({ en: 'Click for event details and portfolio exposure', fr: 'Cliquez pour les détails et l’exposition du portefeuille' })
+            : tr({ en: 'Click for source data and portfolio exposure', fr: 'Cliquez pour les données sourcées et l’exposition du portefeuille' })}</p>
+        </div>}
+        <p className="stage-overlay stage-hover">{hover?.pin?.event
+          ? tr({ en: 'Click the event to inspect your portfolio’s exposure', fr: 'Cliquez sur l’événement pour examiner l’exposition du portefeuille' })
+          : hover?.label ?? tr({ en: 'Drag to turn, scroll to zoom, hover to preview, click for details', fr: 'Glissez pour tourner, molette pour zoomer, survolez pour un aperçu, cliquez pour les détails' })}</p>
       </div>
       {webgl && (
         <div className="stage-controls">
@@ -286,7 +333,8 @@ export function WorldGlobe({
         <div className="stage-block">
           <h2 className="stage-heading">{tr({ en: 'Reading the globe', fr: 'Lire le globe' })}</h2>
           <ul className="stage-legend">
-            {(selectedGeometry || pins.some(pin => pin.kind === 'observation')) && <li><span className="stage-dot" style={{ background: '#6AE0CF' }} aria-hidden="true" />{tr({ en: 'Source observations · selected original polygons or lines use the same color', fr: 'Observations sourcées · polygones ou lignes d’origine sélectionnés de même couleur' })}</li>}
+            {observationModes.map(mode => <li key={`observation:${mode}`}><span className="stage-dot" style={{ background: OBSERVATION_COLORS[mode] }} aria-hidden="true" />{tr({ en: 'Data', fr: 'Données' })}: {tr(WORLD_MODES.find(item => item.id === mode)!.title)}</li>)}
+            {selectedGeometry && <li><span className="stage-dot" style={{ background: '#6AE0CF' }} aria-hidden="true" />{tr({ en: 'Selected source boundary', fr: 'Limite de source sélectionnée' })}</li>}
             <li><span className="stage-ramp" aria-hidden="true">{EXPOSURE_COLORS.map(c => <span key={c} style={{ background: c }} />)}</span>
               {tr({ en: `Share of the portfolio (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)`, fr: `Part du portefeuille (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)` })}</li>
             <li><span className="stage-spike" aria-hidden="true" />{tr({ en: 'Event: the taller, the more important', fr: 'Événement : plus il est haut, plus il est important' })}</li>

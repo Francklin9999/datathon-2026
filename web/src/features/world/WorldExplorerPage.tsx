@@ -1,10 +1,10 @@
 'use client';
 /**
  * World Explorer (T15, web/page-specs/world-explorer.md): sourced events and factual exposure.
- * Fetches the layers, a paginated event page and the profile's country exposure. The feed is the
- * primary, keyboard-accessible view; the globe is an alternate view of the same loaded events
- * (thinned and labelled). Dates default to the dataset coverage returned by the API, never to "today".
- * The feed opens on events matching the portfolio; the detailed filters are folded (review §4.6).
+ * Fetches every cursor page for the selected filters and the profile's country exposure. The feed is
+ * the keyboard-accessible view; the globe groups every located event geographically at wider zooms.
+ * Dates default to the dataset coverage returned by the API, never to "today".
+ * All events are shown by default. Selecting an event opens its details and exposure in a sheet.
  * Nothing here estimates a financial impact, and a failed call never falls back to fixture data.
  */
 import Link from 'next/link';
@@ -21,6 +21,7 @@ import { profileKey, useApp } from '../../state/app';
 import { useAssetUniverse } from '../../state/useAssetUniverse';
 import { useQuery } from '../../state/useQuery';
 import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
+import { Sheet } from '../../components/common/Sheet';
 import { SuggestInput } from '../../components/ui/SuggestInput';
 import { Empty, ErrorState, Loading, Unavailable } from '../../components/common/States';
 import { ExternalLink } from '../../components/common/ExternalLink';
@@ -33,9 +34,9 @@ import { fmtDate, fmtDateTime, fmtNumber, fmtPct } from '../../lib/format';
 import { countryLabel, countryName, isKnownIso3, regionIso3 } from '../../lib/geo';
 import { tickerSuggestions, type Suggestion } from '../../lib/suggest';
 import {
-  EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, GEOGRAPHIC_AREAS, WORLD_MODES, validBbox, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, spatialReferencePins, buildEventsQuery, clampRange,
-  defaultRange, eventSelectionPatch, exposureFactId, filtersKey, insideBbox, isResidualExposure, layerState, mergeEventPages, mergeSelection,
-  rangeIssue, selectionQuery, thinPins, visibleEvents, type LayerId, type LayerUnavailable, type RangeIssue, type WorldFilters,
+  EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, FEED_PAGE_SIZE, GEOGRAPHIC_AREAS, WORLD_MODES, validBbox, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, spatialReferencePins, buildEventsQuery, clampRange,
+  defaultRange, eventSelectionPatch, exposureFactId, filtersKey, hasCoordinates, insideBbox, isResidualExposure, layerState, mergeEventPages, mergeSelection,
+  rangeIssue, selectionQuery, visibleEvents, type LayerId, type LayerUnavailable, type RangeIssue, type WorldFilters,
   type WorldSelection, type WorldSelectionPatch, type WorldMode,
 } from '../../lib/world';
 import { CountryPanel, EventLine, EventPanel, sourceLang } from './WorldPanels';
@@ -43,6 +44,7 @@ import { WorldGlobe } from './WorldGlobe';
 import type { GlobePin } from './globeStyle';
 import { WorldNavigation } from './WorldNavigation';
 import { WorldObservations } from './WorldObservations';
+import { airportPin, facilityPin, hazardPin, ReferenceDetail } from './WorldReferences';
 import './world.css';
 
 const TITLE = { en: 'World Explorer', fr: 'Explorateur mondial' };
@@ -113,6 +115,10 @@ function WorldContent({ profile }: { profile: Profile }) {
   const app = useApp();
   const { tr, lang, sessionId, meta, feature } = app;
   const pKey = profileKey(app);
+  const [observationPins, setObservationPins] = useState<GlobePin[]>([]);
+  const [observationId, setObservationId] = useState<string | null>(null);
+  const [observationGeometry, setObservationGeometry] = useState<Record<string, unknown> | null>(null);
+  const [picked, setPicked] = useState<GlobePin | null>(null);
   const params = useSearchParams();
   const router = useRouter();
   const eventId = params.get('eventId');
@@ -133,6 +139,8 @@ function WorldContent({ profile }: { profile: Profile }) {
   }, [router]);
   // A brief belongs to one event: selecting another event drops it unless the caller keeps it.
   const selectEvent = useCallback((id: string, keepRun = false) => {
+    setPicked(null);
+    setObservationId(null);
     navigate(eventSelectionPatch(selection.current, id, keepRun));
   }, [navigate]);
   const selectCountry = useCallback((iso3: string) => navigate({ country: iso3 }), [navigate]);
@@ -158,9 +166,8 @@ function WorldContent({ profile }: { profile: Profile }) {
   const [applied, setApplied] = useState<WorldFilters | null>(null);
   const [coverage, setCoverage] = useState<Period | null>(null);
   const [formIssue, setFormIssue] = useState<FormIssue | null>(null);
-  // Default view: only events with a documented link to this portfolio (review §4.6); untick to see all.
-  const [relevantOnly, setRelevantOnly] = useState(true);
-  const [mode, setMode] = useState<WorldMode>('portfolio');
+  const [relevantOnly, setRelevantOnly] = useState(false);
+  const [mode, setMode] = useState<WorldMode>('overview');
   const [area, setArea] = useState('');
   const changeMode = (next: WorldMode) => {
     const preset = WORLD_MODES.find(item => item.id === next)!;
@@ -199,13 +206,11 @@ function WorldContent({ profile }: { profile: Profile }) {
     setDraft(current => (current.from ? current : { ...current, ...range }));
   }, [applied, coverage]);
 
-  // ----- feed: first page per filter set, further pages by cursor -----
+  // ----- events: first page immediately, remaining cursor pages automatically -----
   const feedKey = applied && pKey ? `${pKey}|${filtersKey(applied, profile.profileId)}` : null;
   const [feed, setFeed] = useState<FeedState>(EMPTY_FEED);
   const [nonce, setNonce] = useState(0);
-  const liveKey = useRef<string | null>(null);
   useEffect(() => {
-    liveKey.current = feedKey;
     if (!feedKey || !applied) return undefined;
     const controller = new AbortController();
     setFeed(previous => ({ ...previous, loading: true, loadingMore: false, error: null, moreError: null }));
@@ -229,21 +234,30 @@ function WorldContent({ profile }: { profile: Profile }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feedKey, nonce]);
 
-  const loadMore = async () => {
-    if (!applied || !feed.nextCursor || feed.loadingMore || feed.key !== feedKey) return;
+  useEffect(() => {
+    if (!applied || !feedKey || feed.key !== feedKey || !feed.nextCursor || feed.loading || feed.error || feed.moreError) return undefined;
+    const controller = new AbortController();
     const startedFor = feedKey;
     setFeed(previous => ({ ...previous, loadingMore: true, moreError: null }));
-    try {
-      const page = await getApiClient().worldEvents(buildEventsQuery(applied, profile.profileId, feed.nextCursor));
-      if (liveKey.current !== startedFor) return;
-      setFeed(previous => (previous.key !== startedFor ? previous : {
-        ...previous, items: mergeEventPages(previous.items, page.items), nextCursor: page.nextCursor, total: page.total, loadingMore: false,
-      }));
-    } catch (error) {
-      if (liveKey.current !== startedFor) return;
-      setFeed(previous => ({ ...previous, loadingMore: false, moreError: asApiError(error) }));
-    }
-  };
+    getApiClient().worldEvents(buildEventsQuery(applied, profile.profileId, feed.nextCursor, 500), controller.signal).then(
+      page => {
+        if (controller.signal.aborted) return;
+        setFeed(previous => (previous.key !== startedFor ? previous : {
+          ...previous, items: mergeEventPages(previous.items, page.items), nextCursor: page.nextCursor, total: page.total,
+          loadingMore: false,
+        }));
+      },
+      error => {
+        if (controller.signal.aborted || isAbort(error)) return;
+        setFeed(previous => (previous.key !== startedFor ? previous : {
+          ...previous, loadingMore: false, moreError: asApiError(error),
+        }));
+      },
+    );
+    return () => controller.abort();
+  }, [applied, feedKey, feed.key, feed.nextCursor, feed.loading, feed.error, feed.moreError, profile.profileId]);
+
+  const retryRemaining = () => setFeed(previous => ({ ...previous, moreError: null }));
 
   const current = feed.key === feedKey;
   const sameProfile = feed.profileId === profile.profileId;
@@ -253,6 +267,9 @@ function WorldContent({ profile }: { profile: Profile }) {
   const relevanceKnown = loaded.some(event => event.portfolioRelevant !== undefined);
   const visible = useMemo(() => visibleEvents(loaded, relevantOnly && relevanceKnown), [loaded, relevantOnly, relevanceKnown]);
   const relevantCount = loaded.filter(event => event.portfolioRelevant === true).length;
+  const [feedLimit, setFeedLimit] = useState(FEED_PAGE_SIZE);
+  useEffect(() => { setFeedLimit(FEED_PAGE_SIZE); }, [feedKey, relevantOnly]);
+  const feedEvents = visible.slice(0, feedLimit);
 
   // ----- exposure and optional layers -----
   const exposure = useQuery<WorldExposureResponse>(pKey ? `world-exposure|${pKey}` : null,
@@ -274,55 +291,57 @@ function WorldContent({ profile }: { profile: Profile }) {
   // The card, its table and the globe legend name what the API says is loaded ("Earthquakes (USGS)"), not a wider category.
   const hazardsTitle = layerStates.hazards.layer ? tr(layerStates.hazards.layer.title) : labelOf(WORLD_LAYER, 'hazards', lang);
   const appliedCountry = applied?.country ?? '';
-  const facilities = useQuery<FacilitiesResponse>(facilitiesOn && sessionId && meta ? `world-facilities|${sessionId}|${meta.dataVersion}|${appliedCountry}|${applied?.bbox ?? ''}` : null,
-    signal => getApiClient().worldFacilities({ limit: EXTRA_LAYER_LIMIT, ...(appliedCountry ? { country: [appliedCountry] } : {}), ...(applied?.bbox ? { bbox: applied.bbox } : {}) }, signal));
-  const hazards = useQuery<HazardsResponse>(hazardsOn && sessionId && meta && applied ? `world-hazards|${sessionId}|${meta.dataVersion}|${applied.from}|${applied.to}|${applied.bbox ?? ''}` : null,
-    signal => getApiClient().worldHazards({ limit: EXTRA_LAYER_LIMIT, ...(applied?.from && applied.to ? { from: applied.from, to: applied.to } : {}), ...(applied?.bbox ? { bbox: applied.bbox } : {}) }, signal));
+  const facilities = useQuery<FacilitiesResponse>(facilitiesOn && pKey ? `world-facilities|${pKey}|${appliedCountry}|${applied?.bbox ?? ''}` : null,
+    signal => getApiClient().worldFacilities({ profileId: profile.profileId, limit: EXTRA_LAYER_LIMIT, ...(appliedCountry ? { country: [appliedCountry] } : {}), ...(applied?.bbox ? { bbox: applied.bbox } : {}) }, signal));
+  const hazards = useQuery<HazardsResponse>(hazardsOn && pKey && applied ? `world-hazards|${pKey}|${applied.from}|${applied.to}|${applied.bbox ?? ''}` : null,
+    signal => getApiClient().worldHazards({ profileId: profile.profileId, limit: EXTRA_LAYER_LIMIT, ...(applied?.from && applied.to ? { from: applied.from, to: applied.to } : {}), ...(applied?.bbox ? { bbox: applied.bbox } : {}) }, signal));
 
   const airportsOn = isOn('airports');
-  const airports = useQuery<AirportsResponse>(airportsOn && sessionId ? `world-airports|${sessionId}|${countryIso3 ?? ''}` : null,
-    signal => getApiClient().worldAirports({ limit: 2000, ...(countryIso3 ? { country: [countryIso3] } : {}) }, signal));
+  const airports = useQuery<AirportsResponse>(airportsOn && pKey ? `world-airports|${pKey}|${countryIso3 ?? ''}|${appliedCountry}` : null,
+    signal => getApiClient().worldAirports({ profileId: profile.profileId, limit: 2000, ...((countryIso3 || appliedCountry) ? { country: [countryIso3 || appliedCountry] } : {}) }, signal));
   const airportRows = useMemo(() => (airports.data?.items ?? []).filter(row => !applied?.bbox || insideBbox(row.lat, row.lon, applied.bbox)), [airports.data, applied?.bbox]);
   const airportPins = useMemo(() => spatialReferencePins(airportRows, MAX_PINS), [airportRows]);
 
-  // ----- pins (capped separately from the feed) -----
+  // ----- every located event is offered to the zoom-dependent geographic grouping -----
   const eventsOn = isOn('events');
-  const [observationPins, setObservationPins] = useState<GlobePin[]>([]);
-  const [observationId, setObservationId] = useState<string | null>(null);
-  const [observationGeometry, setObservationGeometry] = useState<Record<string, unknown> | null>(null);
-  useEffect(() => { setObservationId(null); }, [mode, applied?.bbox, countryIso3, appliedCountry]);
-  const pinSelection = useMemo(() => thinPins(visible, MAX_PINS, eventId), [visible, eventId]);
+  useLayoutEffect(() => { setObservationId(null); }, [pKey, mode, applied?.bbox, countryIso3, appliedCountry]);
+  const eventPins = useMemo(() => visible.filter(hasCoordinates), [visible]);
   const facilityPins = useMemo(() => (facilities.data?.items ?? []).slice(0, MAX_PINS), [facilities.data]);
   const hazardPins = useMemo(() => (hazards.data?.items ?? []).slice(0, MAX_PINS), [hazards.data]);
   const pins = useMemo<GlobePin[]>(() => [
     ...observationPins,
-    ...(eventsOn ? pinSelection.pins.map(event => ({
+    ...(eventsOn ? eventPins.map(event => ({
       id: event.eventId, kind: 'event' as const, lat: event.location.lat, lng: event.location.lon, label: event.title,
       countryLevel: event.location.precision === 'country', weight: event.importance,
-      category: event.category, related: event.relatedCountries,
+      category: event.category, related: event.relatedCountries, event,
     })) : []),
-    ...(facilitiesOn ? facilityPins.map(facility => ({
-      id: `facility:${facility.facilityId}`, kind: 'facility' as const, lat: facility.lat, lng: facility.lon, label: facility.name, countryLevel: false, weight: 0.2,
-    })) : []),
-    ...(hazardsOn ? hazardPins.map(hazard => ({
-      id: `hazard:${hazard.hazardId}`, kind: 'hazard' as const, lat: hazard.lat, lng: hazard.lon, label: hazard.title, countryLevel: false, weight: 0.2,
-      ...(typeof hazard.magnitude === 'number' ? { magnitude: hazard.magnitude } : {}),
-    })) : []),
-    ...(airportsOn ? airportPins.map(airport => ({
-      id: airport.airportId, kind: 'airport' as const, lat: airport.lat, lng: airport.lon,
-      label: `${airport.ident} · ${airport.name}`, countryLevel: false, weight: 0.15,
-    })) : []),
-  ], [observationPins, eventsOn, facilitiesOn, hazardsOn, airportsOn, pinSelection, facilityPins, hazardPins, airportPins]);
+    ...(facilitiesOn ? facilityPins.map(facility => facilityPin(facility, facilities.data?.capturedAt)) : []),
+    ...(hazardsOn ? hazardPins.map(hazardPin) : []),
+    ...(airportsOn ? airportPins.map(airportPin) : []),
+  ], [observationPins, eventsOn, facilitiesOn, hazardsOn, airportsOn, eventPins, facilityPins, hazardPins, airportPins, facilities.data?.capturedAt]);
 
   const selectedEvent = useMemo(() => (eventId ? loaded.find(event => event.eventId === eventId) ?? null : null), [eventId, loaded]);
   const openDetails = useCallback(() => {
+    if (selection.current.eventId) { selectEvent(selection.current.eventId, true); return; }
     document.querySelector('.world-panels')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
-  }, []);
-  const [picked, setPicked] = useState<GlobePin | null>(null);
-  const onPin = useCallback((pin: GlobePin) => {
-    if (pin.kind === 'observation') { setObservationId(pin.id); setPicked(null); }
-    else if (pin.kind === 'event') { setPicked(null); setObservationId(null); selectEvent(pin.id); } else setPicked(pin);
   }, [selectEvent]);
+  const closeEvent = useCallback(() => navigate({ eventId: null, runId: null }), [navigate]);
+  useLayoutEffect(() => { setPicked(null); }, [pKey, mode, applied?.bbox, countryIso3, appliedCountry, layersOn]);
+  const selectObservation = useCallback((id: string | null) => {
+    if (id) {
+      setPicked(null);
+      if (selection.current.eventId) closeEvent();
+    }
+    setObservationId(id);
+  }, [closeEvent]);
+  const onPin = useCallback((pin: GlobePin) => {
+    if (pin.kind === 'observation') selectObservation(pin.id);
+    else if (pin.kind === 'event') { setPicked(null); setObservationId(null); selectEvent(pin.id); }
+    else {
+      if (selection.current.eventId) closeEvent();
+      setObservationId(null); setPicked(pin);
+    }
+  }, [closeEvent, selectEvent, selectObservation]);
 
   // ----- filter form -----
   const dirty = applied !== null && filtersKey(draft, null) !== filtersKey(applied, null);
@@ -348,7 +367,7 @@ function WorldContent({ profile }: { profile: Profile }) {
   };
   const reset = () => {
     const base = coverage ? { ...EMPTY_FILTERS, ...defaultRange(coverage) } : EMPTY_FILTERS;
-    setDraft(base); setApplied(base); setFormIssue(null); setRelevantOnly(true); setArea(''); setMode('portfolio');
+    setDraft(base); setApplied(base); setFormIssue(null); setRelevantOnly(false); setArea(''); setMode('overview');
     setLayersOn({ events: true, exposure: true, facilities: false, hazards: false, airports: false });
   };
   const countryOptions = useMemo(() => {
@@ -381,10 +400,18 @@ function WorldContent({ profile }: { profile: Profile }) {
         bbox={draft.bbox ?? ''} onBbox={bbox => { setArea(''); setDraft(value => ({ ...value, bbox })); }} />
       {!layers.loading && WORLD_MODES.find(item => item.id === mode)!.layers.filter(id => !layerStates[id as LayerId]?.enabled).map(id =>
         <p key={id} className="small" role="status">{labelOf(WORLD_LAYER, id, lang)}: {tr(LAYER_REASON[layerStates[id as LayerId]?.reason ?? 'not_listed'])}</p>)}
-      <WorldGlobe pins={pins} selectedId={observationId ?? eventId} selectedGeometry={observationGeometry} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? regionIso3(countryIso3) : null}
+      <WorldGlobe pins={pins} selectedId={picked?.id ?? observationId ?? eventId} selectedGeometry={observationGeometry} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? regionIso3(countryIso3) : null}
         selectedEvent={selectedEvent} exposure={isOn('exposure') ? exposureByIso3 : null} exposureRows={exposure.data?.items ?? []}
-        counts={{ shown: visible.length, total: feed.total, linked: relevantCount }} showHazards={hazardsOn} hazardsLabel={hazardsTitle}
+        counts={{
+          shown: eventPins.length, total: current ? feed.total : null, linked: relevantCount,
+          observations: observationPins.length,
+          loading: feed.loading || Boolean(current && feed.nextCursor && !feed.error && !feed.moreError),
+          partial: Boolean(current && feed.nextCursor),
+        }} showHazards={hazardsOn} hazardsLabel={hazardsTitle}
         onPin={onPin} onCountry={selectCountry} onOpenDetails={openDetails} area={GEOGRAPHIC_AREAS.find(item => item.id === area) ?? null} onViewport={queryViewport} />
+      {visible.length > eventPins.length && <p className="small muted">
+        {tr({ en: `${visible.length - eventPins.length} events have no usable location and are available in the feed.`, fr: `${visible.length - eventPins.length} événements n’ont pas de lieu utilisable et restent disponibles dans le fil.` })}
+      </p>}
 
       <div className="world-controls">
         <Card id="filters" section={tr({ en: 'Filters', fr: 'Filtres' })} tour="world-filters" title={tr({ en: 'Filters', fr: 'Filtres' })}>
@@ -396,7 +423,7 @@ function WorldContent({ profile }: { profile: Profile }) {
           </div>
           <p className="small muted">
             {relevanceKnown
-              ? tr({ en: 'A held ticker is named in the event, or the event’s country has weight in the portfolio.', fr: 'Un symbole détenu est nommé dans l’événement, ou le pays de l’événement a un poids dans le portefeuille.' })
+              ? tr({ en: 'A holding matches an issuer name, a theme proxy or a source country through its listing country.', fr: 'Une position correspond à un nom d’émetteur, un thème indirect ou un pays de source par son pays de cotation.' })
               : tr({ en: 'Not available yet: the API has not returned a portfolio match for the loaded events.', fr: 'Pas encore disponible : l’API n’a pas renvoyé de correspondance avec le portefeuille pour les événements chargés.' })}
           </p>
           <details className="filters-fold">
@@ -501,12 +528,6 @@ function WorldContent({ profile }: { profile: Profile }) {
           </details>
         </Card>
         <div className="world-layers">
-          {picked && (
-            <p className="small" role="status">
-              <strong>{picked.kind === 'airport' ? tr({ en: 'Airport reference', fr: 'Référence aéroportuaire' }) : picked.kind === 'facility' ? tr({ en: 'Facility', fr: 'Installation' }) : tr({ en: 'Hazard', fr: 'Aléa' })}:</strong> {picked.label}.{' '}
-              {tr({ en: 'Its details are in the table below.', fr: 'Ses détails sont dans le tableau ci-dessous.' })}
-            </p>
-          )}
           <Card id="layers" title={tr({ en: 'Layers', fr: 'Couches' })}>
             {layers.loading && <Loading />}
             {layers.error && (
@@ -543,15 +564,15 @@ function WorldContent({ profile }: { profile: Profile }) {
       </div>
 
       {mode !== 'portfolio' && <WorldObservations mode={mode} bbox={applied?.bbox ?? ''} country={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : appliedCountry}
-        q={applied?.q ?? ''} from={applied?.from ?? ''} to={applied?.to ?? ''} selectedId={observationId} onPins={setObservationPins} onSelect={setObservationId} onGeometry={setObservationGeometry} />}
+        q={applied?.q ?? ''} from={applied?.from ?? ''} to={applied?.to ?? ''} selectedId={observationId} onPins={setObservationPins} onSelect={selectObservation} onGeometry={setObservationGeometry} />}
       {mode !== 'aviation' && mode !== 'infrastructure' && <Card id="feed" className="world-feed" section={tr({ en: 'Feed', fr: 'Fil' })} tour="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
         actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={feed.loading || applied === null}>{tr({ en: 'Reload', fr: 'Recharger' })}</button>}>
         <div role="status" aria-live="polite" className="small feed-counts">
           {(current || keptAfterFailure) && feed.total !== null && (
             <p>
               {tr({
-                en: `${visible.length} of ${feed.total} events`,
-                fr: `${visible.length} sur ${feed.total} événements`,
+                en: `${feedEvents.length} of ${relevantOnly && relevanceKnown ? visible.length : feed.total} events in the feed`,
+                fr: `${feedEvents.length} sur ${relevantOnly && relevanceKnown ? visible.length : feed.total} événements dans le fil`,
               })}
               {relevantOnly && relevanceKnown && <>{tr({ en: `, ${relevantCount} linked to the portfolio`, fr: `, ${relevantCount} liés au portefeuille` })}</>}
             </p>
@@ -574,13 +595,13 @@ function WorldContent({ profile }: { profile: Profile }) {
           <Empty>{tr({ en: 'No event matches these filters in the loaded dataset. Widen the interval or remove a filter.', fr: 'Aucun événement ne correspond à ces filtres dans le jeu de données chargé. Élargissez l’intervalle ou retirez un filtre.' })}</Empty>
         )}
         {loaded.length > 0 && visible.length === 0 && (
-          <Empty>{tr({ en: 'None of the loaded events matches this portfolio. Load more events or untick the portfolio filter.', fr: 'Aucun des événements chargés ne correspond à ce portefeuille. Chargez plus d’événements ou décochez le filtre de portefeuille.' })}</Empty>
+          <Empty>{tr({ en: 'No event matches this portfolio in the available data. Untick the portfolio filter to see all events.', fr: 'Aucun événement ne correspond à ce portefeuille dans les données disponibles. Décochez le filtre de portefeuille pour tous les afficher.' })}</Empty>
         )}
         {visible.length > 0 && (
           <ol className="feed-list" aria-label={tr({ en: 'Events, in the order returned by the API', fr: 'Événements, dans l’ordre renvoyé par l’API' })}>
-            {visible.map(event => (
+            {feedEvents.map(event => (
               <li key={event.eventId}>
-                <button type="button" className="feed-item" aria-current={event.eventId === eventId ? 'true' : undefined} onClick={() => selectEvent(event.eventId)}>
+                <button type="button" className="feed-item" aria-haspopup="dialog" aria-current={event.eventId === eventId ? 'true' : undefined} onClick={() => selectEvent(event.eventId)}>
                   <span className="feed-title" lang={sourceLang(event)}>{event.title}</span>
                   <EventLine event={event} />
                   <span className="block">
@@ -593,28 +614,32 @@ function WorldContent({ profile }: { profile: Profile }) {
             ))}
           </ol>
         )}
-        {current && feed.nextCursor && (
+        {visible.length > feedLimit && (
           <div className="row-actions">
-            <button type="button" className="btn ghost" onClick={() => void loadMore()} disabled={feed.loadingMore}>
-              {tr({ en: 'Load the next page', fr: 'Charger la page suivante' })}
+            <button type="button" className="btn ghost" onClick={() => setFeedLimit(limit => limit + FEED_PAGE_SIZE)}>
+              {tr({ en: 'Show more events', fr: 'Afficher plus d’événements' })}
             </button>
-            {feed.total !== null && <span className="small muted">{tr({ en: `${Math.max(0, feed.total - feed.items.length)} more in the dataset for these filters.`, fr: `${Math.max(0, feed.total - feed.items.length)} de plus dans le jeu de données pour ces filtres.` })}</span>}
+            <span className="small muted">{tr({ en: `${visible.length - feedEvents.length} more events are already available on the globe.`, fr: `${visible.length - feedEvents.length} événements supplémentaires sont déjà disponibles sur le globe.` })}</span>
           </div>
         )}
-        {feed.loadingMore && <Loading label={tr({ en: 'Loading the next page…', fr: 'Chargement de la page suivante…' })} />}
+        {feed.loadingMore && <Loading label={tr({ en: 'Loading the remaining events onto the globe…', fr: 'Chargement des événements restants sur le globe…' })} />}
         {feed.moreError && (
-          <ErrorState error={feed.moreError} onRetry={() => void loadMore()}
-            title={tr({ en: 'The next page could not be loaded. The events already loaded stay listed.', fr: 'La page suivante n’a pas pu être chargée. Les événements déjà chargés restent listés.' })} />
+          <ErrorState error={feed.moreError} onRetry={retryRemaining}
+            title={tr({ en: 'Some events could not be loaded. Retry to add the remaining events to the globe.', fr: 'Certains événements n’ont pas pu être chargés. Réessayez pour ajouter les événements restants au globe.' })} />
         )}
       </Card>}
 
-      {(eventId || countryIso3) && (
+      <Sheet open={Boolean(eventId)} title={tr({ en: 'Event details', fr: 'Détails de l’événement' })} origin={null} onClose={closeEvent}>
+        {eventId && <EventPanel eventId={eventId} profile={profile} runId={runId}
+          onSelectEvent={id => selectEvent(id, true)} onSelectCountry={iso3 => { closeEvent(); selectCountry(iso3); }}
+          onRun={id => navigate({ runId: id })} />}
+      </Sheet>
+      <Sheet open={Boolean(picked?.reference)} title={tr({ en: 'Layer details', fr: 'Détails de la couche' })} origin={null} onClose={() => setPicked(null)}>
+        {picked && <ReferenceDetail pin={picked} />}
+      </Sheet>
+
+      {countryIso3 && (
         <div className="world-panels">
-          {eventId && (
-            <EventPanel eventId={eventId} profile={profile} runId={runId}
-              onSelectEvent={id => selectEvent(id, true)} onSelectCountry={selectCountry}
-              onRun={id => navigate({ runId: id })} onClose={() => navigate({ eventId: null, runId: null })} />
-          )}
           {countryIso3 && isKnownIso3(countryIso3) && (
             <CountryPanel iso3={countryIso3} profile={profile} from={applied?.from ?? ''} to={applied?.to ?? ''}
               onSelectEvent={id => selectEvent(id)} onClose={() => navigate({ country: null })} />
@@ -717,7 +742,7 @@ function WorldContent({ profile }: { profile: Profile }) {
                     <tbody>
                       {facilities.data.items.map(facility => (
                         <tr key={facility.facilityId}>
-                          <th scope="row">{facility.name}<span className="block small muted">{countryLabel(facility.countryIso3, lang)}</span></th>
+                          <th scope="row"><button type="button" className="linklike" aria-haspopup="dialog" onClick={() => onPin(facilityPin(facility, facilities.data?.capturedAt))}>{facility.name}</button><span className="block small muted">{countryLabel(facility.countryIso3, lang)}</span></th>
                           <td>{facility.operator}</td>
                           <td>
                             {facility.ticker ? <span className="mono">{facility.ticker}</span> : '—'}
@@ -752,7 +777,7 @@ function WorldContent({ profile }: { profile: Profile }) {
           <p className="small"><ExternalLink href="https://github.com/davidmegginson/ourairports-data/blob/main/LICENSE">{tr({ en: 'OurAirports public-domain dedication', fr: 'OurAirports : dédicace au domaine public' })}</ExternalLink> · <ExternalLink href="https://datacatalog.worldbank.org/public-licenses">{tr({ en: 'Country-code crosswalk: World Bank, CC BY 4.0', fr: 'Correspondance des codes pays : Banque mondiale, CC BY 4.0' })}</ExternalLink></p>
           <div className="table-scroll" role="region" aria-label={tr({ en: 'Airport references', fr: 'Références aéroportuaires' })} tabIndex={0}>
             <table><thead><tr><th>{tr({ en: 'Airport', fr: 'Aéroport' })}</th><th>{tr({ en: 'Country', fr: 'Pays' })}</th><th>{tr({ en: 'Source coordinates', fr: 'Coordonnées de la source' })}</th></tr></thead>
-            <tbody>{airportRows.map(row => <tr key={row.airportId}><th scope="row"><ExternalLink href={row.sourceUrl}>{row.ident} · {row.name}</ExternalLink></th><td>{row.countryIso3 ?? row.countryIso2 ?? '—'}</td><td className="num">{row.lat.toFixed(3)}, {row.lon.toFixed(3)}</td></tr>)}</tbody></table>
+            <tbody>{airportRows.map(row => <tr key={row.airportId}><th scope="row"><button type="button" className="linklike" aria-haspopup="dialog" onClick={() => onPin(airportPin(row))}>{row.ident} · {row.name}</button></th><td>{row.countryIso3 ?? row.countryIso2 ?? '—'}</td><td className="num">{row.lat.toFixed(3)}, {row.lon.toFixed(3)}</td></tr>)}</tbody></table>
           </div>
         </>}
       </Card>}
@@ -784,7 +809,7 @@ function WorldContent({ profile }: { profile: Profile }) {
                     <tbody>
                       {hazards.data.items.map(hazard => (
                         <tr key={hazard.hazardId}>
-                          <th scope="row">{hazard.title}</th>
+                          <th scope="row"><button type="button" className="linklike" aria-haspopup="dialog" onClick={() => onPin(hazardPin(hazard))}>{hazard.title}</button></th>
                           <td>{labelOf(HAZARD_TYPE, hazard.type, lang)}</td>
                           <td className="small">{fmtDateTime(hazard.occurredAt, lang)}</td>
                           <td className="num-col num">{hazard.magnitude === null ? tr({ en: 'not stated', fr: 'non indiquée' }) : fmtNumber(hazard.magnitude, lang, 1)}</td>

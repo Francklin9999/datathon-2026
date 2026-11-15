@@ -7,7 +7,7 @@
  * ground as spikes whose height is their importance, in a colour per category; arcs run from an event
  * to the exposed countries it names; earthquakes are small dots sized by magnitude.
  */
-import type { EventCategory } from '../../contracts/types';
+import type { EventCategory, I18nText, WorldEventItem, WorldObservation, WorldPortfolioAssessment } from '../../contracts/types';
 
 export interface GlobePin {
   id: string;
@@ -21,6 +21,20 @@ export interface GlobePin {
   /** 0–1: spike height of an event. */
   weight: number;
   category?: EventCategory;
+  /** The source event, used for the hover preview. */
+  event?: WorldEventItem;
+  observation?: WorldObservation;
+  /** Source fields for optional reference-layer popups. */
+  reference?: {
+    sourceName: I18nText;
+    sourceUrl: string;
+    datasetId: string;
+    summary: I18nText;
+    countryIso3: string | null;
+    occurredAt?: string;
+    capturedAt?: string | null;
+    assessment?: WorldPortfolioAssessment | null;
+  };
   /** ISO3 codes the event names; arcs go to the ones where the portfolio has weight. */
   related?: readonly string[];
   /** Earthquake magnitude, for the dot size. */
@@ -29,6 +43,18 @@ export interface GlobePin {
   /** Original provider GeoJSON, used only for the selected source overlay. */
   geometry?: Record<string, unknown> | null;
 }
+
+/** React-rendered hover content; coordinates are local to the globe canvas. */
+export interface GlobeHover {
+  label: string;
+  pin?: GlobePin;
+  x?: number;
+  y?: number;
+  width?: number;
+}
+
+/** Reference markers stay above the selected country's raised surface and source overlays. */
+export const REFERENCE_PIN_ALTITUDE = 0.03;
 
 export interface SourceGeometry {
   polygon: { geometry: Record<string, unknown> } | null;
@@ -93,6 +119,12 @@ export const CATEGORY_COLORS: Record<EventCategory, string> = {
   other: '#C5CAD6',
 };
 
+export const OBSERVATION_COLORS: Record<WorldObservation['mode'], string> = {
+  news: '#7FD1FF', macro: '#2EC4B6', trade: '#B28CFF', energy: '#F28C38',
+  hazards: '#FFC27A', conflicts: '#F2667A', aviation: '#BCA9F5',
+  environment: '#6FD0C5', infrastructure: '#D0D8E8',
+};
+
 export const PIN_COLORS = {
   selected: '#FFFFFF', facility: '#6FD0C5', hazard: '#FFC27A', airport: '#BCA9F5',
 } as const;
@@ -100,7 +132,7 @@ export const PIN_COLORS = {
 export function pinColor(pin: GlobePin, selectedId: string | null): string {
   if (pin.id === selectedId) return PIN_COLORS.selected;
   if (pin.kind === 'cluster') return '#D8E8FF';
-  if (pin.kind === 'observation') return '#6AE0CF';
+  if (pin.kind === 'observation') return OBSERVATION_COLORS[pin.observation?.mode ?? 'news'];
   if (pin.kind === 'facility') return PIN_COLORS.facility;
   if (pin.kind === 'hazard') return PIN_COLORS.hazard;
   if (pin.kind === 'airport') return PIN_COLORS.airport;

@@ -29,7 +29,8 @@ import {
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct } from '../../lib/format';
 import { countryLabel, isKnownIso3 } from '../../lib/geo';
 import { isTerminal } from '../../lib/runs';
-import { briefImpactStatement, briefOtherProfileId, decisionInvestigationUrl } from '../../lib/world';
+import { briefImpactStatement, briefOtherProfileId, decisionInvestigationUrl, eventSummary } from '../../lib/world';
+import { PortfolioAssessment } from './PortfolioAssessment';
 
 const LANG_TAG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 /** `lang` attribute for verbatim source text, when the source states a usable language tag. */
@@ -98,10 +99,10 @@ function ExposureTable({ exposures, inRun, eventId, profileId, sourceRunId }: { 
   );
 }
 
-export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCountry, onRun, onClose }: {
+export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCountry, onRun }: {
   eventId: string; profile: Profile; runId: string | null;
   onSelectEvent: (eventId: string) => void; onSelectCountry: (iso3: string) => void;
-  onRun: (runId: string | null) => void; onClose: () => void;
+  onRun: (runId: string | null) => void;
 }) {
   const app = useApp();
   const { tr, lang } = app;
@@ -112,7 +113,13 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
   const passport = useQuery<DatasetPassport>(key && datasetId ? `world-event-passport|${key}|${datasetId}|${detail.data?.event.dataVersion}` : null,
     signal => getApiClient().dataset(datasetId!, signal));
   const ref = useRef<HTMLDivElement | null>(null);
-  useEffect(() => { ref.current?.focus(); }, [eventId]);
+  const previousEvent = useRef(eventId);
+  useEffect(() => {
+    // The sheet captures and restores its opener's focus. Only an event change inside it moves focus.
+    if (previousEvent.current !== eventId) ref.current?.focus({ preventScroll: true });
+    previousEvent.current = eventId;
+    ref.current?.parentElement?.scrollTo({ top: 0 });
+  }, [eventId]);
 
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
   const creating = creatingFor === eventId;
@@ -142,9 +149,7 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
   const location = event?.location ?? null;
 
   return (
-    <div ref={ref} tabIndex={-1} className="focus-target" id="event-panel">
-      <Card title={tr({ en: 'Event', fr: 'Événement' })}
-        actions={<button type="button" className="btn ghost btn-sm" onClick={onClose}>{tr({ en: 'Close event', fr: 'Fermer l’événement' })}</button>}>
+    <div ref={ref} tabIndex={-1} className="world-event-details focus-target" id="event-panel">
         {detail.loading && <Loading />}
         {detail.error && <ErrorState error={detail.error} onRetry={detail.reload}
           {...(detail.error.code === 'not_found' ? { title: tr({ en: 'This event is not in the loaded dataset.', fr: 'Cet événement n’est pas dans le jeu de données chargé.' }) } : {})} />}
@@ -152,7 +157,15 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
           <>
             <p className="eyebrow">{labelOf(EVENT_CATEGORY, event.category, lang)} · {labelOf(EVENT_ORIGIN, event.origin, lang)}</p>
             <h3 className="serif event-title" lang={sourceLang(event)}>{event.title}</h3>
+            <p className="world-event-summary">{eventSummary(event, lang)}</p>
+            <p className="small"><ExternalLink href={event.sources[0].url}>{tr({ en: 'Read the source report', fr: 'Lire la publication source' })}</ExternalLink></p>
 
+            <PortfolioAssessment assessment={detail.data.assessment}>
+              <ExposureTable exposures={detail.data.exposures} inRun={false} eventId={eventId} profileId={profile.profileId} />
+            </PortfolioAssessment>
+
+            <details className="fold">
+              <summary>{tr({ en: 'Sources, location and event context', fr: 'Sources, lieu et contexte de l’événement' })}</summary>
             <dl>
               <div className="kv"><dt className="k">{tr({ en: 'Occurred', fr: 'Survenu le' })}</dt><dd className="v">{fmtDate(event.occurredAt, lang)}</dd></div>
               <div className="kv"><dt className="k">{tr({ en: 'Published', fr: 'Publié' })}</dt>
@@ -221,19 +234,7 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
                 {row.limitations.map((limitation, index) => <span className="block" key={index}>{limitation}</span>)}
               </li>)}</ul>
             </details>}
-
-            <h3 className="h4">{tr({ en: `Holdings of ${profile.name} linked to this event`, fr: `Positions de ${profile.name} liées à cet événement` })}</h3>
-            {detail.data.exposures.length === 0 ? (
-              <p className="small muted">{tr({ en: 'No holding relevance candidate was returned for this event. Portfolio effects remain unverified.', fr: 'Aucune position potentiellement pertinente n’a été renvoyée pour cet événement. Les effets sur le portefeuille restent non vérifiés.' })}</p>
-            ) : (
-              <>
-                <p className="small"><strong>{detail.data.exposures.every(exposure => exposure.impact === 'not_established')
-                  ? tr({ en: 'Potential exposure identified, financial impact not established.', fr: 'Exposition potentielle repérée, impact financier non établi.' })
-                  : tr({ en: 'Potential exposure identified. Where a price change was observed, it is an observation, not proof that the event caused it.', fr: 'Exposition potentielle repérée. Lorsqu’une variation de prix a été observée, c’est une observation, pas la preuve que l’événement l’a causée.' })}</strong>{' '}
-                  {tr({ en: 'Each row states why the holding is listed. Theme and listing-country matches are relevance proxies; documented relationships require their source evidence.', fr: 'Chaque ligne indique pourquoi la position est listée. Les thèmes et pays de cotation sont des approximations de pertinence ; les relations documentées nécessitent leurs preuves de source.' })}</p>
-                <ExposureTable exposures={detail.data.exposures} inRun={false} eventId={eventId} profileId={profile.profileId} />
-              </>
-            )}
+            </details>
 
             <h3 className="h4">{tr({ en: 'Related events (same country, within 7 days)', fr: 'Événements connexes (même pays, à 7 jours près)' })}</h3>
             {detail.data.related.length === 0
@@ -264,7 +265,6 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
           </>
         )}
         {runId && <EventBriefRun runId={runId} eventId={eventId} profile={profile} onSelectEvent={onSelectEvent} onDismiss={() => onRun(null)} />}
-      </Card>
     </div>
   );
 }

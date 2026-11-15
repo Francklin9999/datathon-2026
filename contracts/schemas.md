@@ -654,6 +654,18 @@ interface HoldingExposure {
   note: I18nText;
 }
 
+interface WorldPortfolioAssessment {
+  profileId: ProfileId;
+  assessedAt: ISODateTime;
+  holdingsChecked: number;               // every positive-weight position checked
+  matchedWeightPct: number;              // sum of unique matched holdings, never double-counted
+  relatedTickers: Ticker[];              // explicit corporate name aliases in source fields
+  relatedThemes: ThemeTag[];             // disclosed relevance proxies
+  relatedCountries: string[];            // explicit source countries or supported source-place mappings
+  exposures: HoldingExposure[];          // strongest name/theme/listing-country match per holding
+  limitations: I18nText[];                // proxy limits and actual source/holding coverage gaps
+}
+
 interface EventBriefResult {
   event: WorldEvent;
   exposures: HoldingExposure[];
@@ -695,6 +707,7 @@ interface Facility {
   registry: "eccc_ghgrp" | "epa_ghgrp";
   sourceUrl: string;
   dataVersion: DataVersion;
+  assessment?: WorldPortfolioAssessment | null; // included when profileId is supplied
 }
 
 interface Hazard {
@@ -706,6 +719,7 @@ interface Hazard {
   title: string;
   origin: "usgs" | "firms";
   sourceUrl: string;
+  assessment?: WorldPortfolioAssessment | null; // included when profileId is supplied
 }
 
 interface WorldLayer {

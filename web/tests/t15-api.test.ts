@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import type { Fact, Run, WorldEvent } from '../src/contracts/types';
+import type { Fact, Run, WorldEvent, WorldPortfolioAssessment } from '../src/contracts/types';
 import { createApiClient } from '../src/api/client';
 import { ApiRequestError } from '../src/api/errors';
 import { createFixtureFetch } from '../src/api/fixtures';
@@ -137,6 +137,62 @@ test('provider observations preserve missing geography and send geographic pagin
   assert.equal(url.searchParams.get('cursor'), 'page-1');
   await invalid(clientFor(200, { ...body, items: [{ ...observation, timeBasis: 'invented_event' }] }).worldObservations());
   await invalid(clientFor(200, { ...body, items: [{ ...observation, location: { lat: 91, lon: 0, countryIso3: null, precision: 'point' } }] }).worldObservations());
+});
+
+test('every globe source endpoint sends the profile and validates the completed assessment', async () => {
+  const captured: Captured[] = [];
+  const assessment: WorldPortfolioAssessment = {
+    profileId: 'robert', assessedAt: '2026-11-15T12:00:00Z', holdingsChecked: 11, matchedWeightPct: 5,
+    relatedTickers: ['RY.TO'], relatedThemes: [], relatedCountries: ['CAN'],
+    exposures: [{ ticker: 'RY.TO', weightPct: 5, linkType: 'named_in_source', evidenceIds: [],
+      impact: 'not_established', impactFactId: null, note: text('Named in the registry record; impact not established.') }],
+    limitations: [text('Name and listing-country screens are relevance proxies.')],
+  };
+  const observation = {
+    id: 'registry:1', mode: 'energy', title: 'Reporting site', summary: 'Registry record',
+    occurredAt: '2026-11-15T12:00:00Z', timeBasis: 'capture_only', publishedAt: null,
+    retrievedAt: '2026-11-15T12:00:00Z', location: null, countryIso3: null,
+    source: { name: 'Registry', url: 'https://example.org/registry' }, datasetId: 'provider_capture',
+    limitations: ['No source coordinates'], assessment,
+  };
+  const observations = { items: [observation], total: 1, nextCursor: null, dataVersion: 'capture-1',
+    capturedAt: '2026-11-15T12:00:00Z', modes: [] };
+  const page = await clientFor(200, observations, captured).worldObservations({ profileId: 'robert', scope: 'providers' });
+  assert.equal(new URL(captured[0]!.url).searchParams.get('profileId'), 'robert');
+  assert.deepEqual(page.items[0]?.assessment, assessment);
+  assert.equal(page.items[0]?.location, null, 'screening must not fill missing source coordinates');
+  assert.equal(page.items[0]?.countryIso3, null, 'screening must not rewrite source country fields');
+
+  const facility = { facilityId: 'registry-1', name: 'Site', operator: 'Royal Bank of Canada',
+    ticker: null, matchConfidence: 'none', lat: 45, lon: -73, countryIso3: 'CAN', reportingYear: 2024,
+    emissionsTco2e: 100, registry: 'eccc_ghgrp', sourceUrl: 'https://example.org/registry',
+    dataVersion: eventsPage.dataVersion, assessment };
+  const facilities = await clientFor(200, { items: [facility], total: 1, reportingYear: 2024, limitations: [] }, captured)
+    .worldFacilities({ profileId: 'robert' });
+  assert.equal(new URL(captured[1]!.url).searchParams.get('profileId'), 'robert');
+  assert.equal(facilities.items[0]?.assessment?.exposures[0]?.ticker, 'RY.TO');
+  assert.equal(facilities.items[0]?.ticker, null, 'a name mention must not create a reviewed security relationship');
+
+  const hazard = { hazardId: 'quake-1', type: 'earthquake', occurredAt: '2026-11-15T12:00:00Z',
+    lat: 35, lon: 139, magnitude: 5, title: 'Earthquake', origin: 'usgs', sourceUrl: 'https://example.org/quake',
+    assessment: { ...assessment, relatedTickers: [], relatedThemes: [], relatedCountries: ['JPN'], exposures: [], matchedWeightPct: 0 } };
+  const hazards = await clientFor(200, { items: [hazard], total: 1 }, captured).worldHazards({ profileId: 'robert' });
+  assert.equal(new URL(captured[2]!.url).searchParams.get('profileId'), 'robert');
+  assert.equal(hazards.items[0]?.assessment?.holdingsChecked, 11, 'an empty match list remains a completed screen');
+  assert.equal(hazards.items[0]?.assessment?.exposures.length, 0);
+
+  const airport = { airportId: 'oa_1', ident: 'CYUL', name: 'Montréal', lat: 45.5, lon: -73.5,
+    countryIso2: 'CA', countryIso3: 'CAN', sourceUrl: 'https://example.org/airports',
+    capturedAt: '2026-11-15T12:00:00Z', assessment };
+  const airports = await clientFor(200, { items: [airport], total: 1, capturedAt: airport.capturedAt,
+    dataVersion: eventsPage.dataVersion }, captured).worldAirports({ profileId: 'robert', bbox: '-75,45,-73,46' });
+  assert.equal(new URL(captured[3]!.url).searchParams.get('profileId'), 'robert');
+  assert.equal(new URL(captured[3]!.url).searchParams.get('bbox'), '-75,45,-73,46');
+  assert.deepEqual(airports.items[0]?.assessment, assessment);
+
+  await invalid(clientFor(200, { ...observations, items: [{ ...observation, assessment: { ...assessment, holdingsChecked: -1 } }] }).worldObservations({ profileId: 'robert' }));
+  await invalid(clientFor(200, { ...observations, items: [{ ...observation, assessment: { ...assessment, matchedWeightPct: 101 } }] }).worldObservations({ profileId: 'robert' }));
+  await invalid(clientFor(200, { ...observations, items: [{ ...observation, assessment: { ...assessment, relatedThemes: ['unknown_theme'] } }] }).worldObservations({ profileId: 'robert' }));
 });
 
 test('replayPresets validates ReplayPresetsResponse', async () => {

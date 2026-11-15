@@ -14,13 +14,14 @@ test('geographic search includes uncovered countries in both languages without r
   }
 });
 
-test('all ten modes have bilingual coverage limits and reference modes request actual reference layers', () => {
-  assert.equal(WORLD_MODES.length, 10);
-  assert.equal(new Set(WORLD_MODES.map(mode => mode.id)).size, 10);
+test('the all-data overview and topic modes have bilingual coverage limits and request actual reference layers', () => {
+  assert.equal(WORLD_MODES.length, 11);
+  assert.equal(new Set(WORLD_MODES.map(mode => mode.id)).size, 11);
   for (const mode of WORLD_MODES) {
     assert.ok(mode.title.en && mode.title.fr && mode.note.en && mode.note.fr);
   }
   assert.deepEqual(WORLD_MODES.find(mode => mode.id === 'aviation')?.layers, ['airports']);
+  assert.deepEqual(WORLD_MODES.find(mode => mode.id === 'overview')?.layers, ['events', 'exposure']);
 });
 
 test('selected source geometry preserves original shapes and refuses invalid or unbounded coordinates', () => {

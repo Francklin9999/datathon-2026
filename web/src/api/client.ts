@@ -43,9 +43,13 @@ export interface WorldEventsQuery {
   sort?: 'importance' | 'date'; limit?: number; cursor?: string;
 }
 export interface WorldCountryQuery { profileId?: string; from?: string; to?: string }
-export interface WorldFacilitiesQuery { bbox?: string; country?: readonly string[]; ticker?: string; minEmissions?: number; limit?: number }
-export interface WorldHazardsQuery { from?: string; to?: string; type?: 'earthquake' | 'wildfire'; bbox?: string; limit?: number }
-export interface WorldObservationsQuery { mode?: string; bbox?: string; country?: readonly string[]; q?: string; from?: string; to?: string; asOf?: string; limit?: number; cursor?: string }
+export interface WorldFacilitiesQuery { bbox?: string; country?: readonly string[]; ticker?: string; minEmissions?: number; limit?: number; profileId?: string }
+export interface WorldHazardsQuery { from?: string; to?: string; type?: 'earthquake' | 'wildfire'; bbox?: string; limit?: number; profileId?: string }
+export interface WorldObservationsQuery {
+  mode?: string; bbox?: string; country?: readonly string[]; q?: string; from?: string; to?: string; asOf?: string;
+  scope?: 'all' | 'providers'; order?: 'date' | 'coverage'; mapOnly?: boolean; limit?: number; cursor?: string;
+  profileId?: string;
+}
 
 export interface ResponseMeta { requestId: string | null; dataVersion: string | null; status: number }
 
@@ -355,7 +359,7 @@ export function createApiClient(config: ClientConfig) {
       call('WorldCountryResponse', 'GET', `/world/countries/${enc(iso3)}`, { query: { ...query }, signal }),
     worldFacilities: (query: WorldFacilitiesQuery = {}, signal?: AbortSignal) =>
       call('FacilitiesResponse', 'GET', '/world/facilities', { query: { ...query }, signal }),
-    worldAirports: (query: { country?: readonly string[]; q?: string; limit?: number }, signal?: AbortSignal) =>
+    worldAirports: (query: { country?: readonly string[]; q?: string; bbox?: string; limit?: number; profileId?: string }, signal?: AbortSignal) =>
       call('AirportsResponse', 'GET', '/world/airports', { query: { ...query }, signal }),
     worldHazards: (query: WorldHazardsQuery = {}, signal?: AbortSignal) =>
       call('HazardsResponse', 'GET', '/world/hazards', { query: { ...query }, signal }),

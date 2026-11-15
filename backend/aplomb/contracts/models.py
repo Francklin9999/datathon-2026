@@ -1297,6 +1297,20 @@ class HoldingExposure(WireModel):
     note: I18nText
 
 
+class WorldPortfolioAssessment(WireModel):
+    """Completed holdings screen using the record's available source evidence."""
+
+    profile_id: ProfileId
+    assessed_at: ISODateTime
+    holdings_checked: Count = Field(json_schema_extra={"minimum": 0})
+    matched_weight_pct: Percent
+    related_tickers: list[Ticker]
+    related_themes: list[ThemeTag]
+    related_countries: list[String]
+    exposures: list[HoldingExposure]
+    limitations: list[I18nText]
+
+
 class EventHypothesis(WireModel):
     """A documented event→issuer→security lead; never a measured or causal impact."""
 
@@ -1347,6 +1361,7 @@ class Facility(WireModel):
     registry: Literal["eccc_ghgrp", "epa_ghgrp"]
     source_url: String
     data_version: DataVersion
+    assessment: WorldPortfolioAssessment | None = None
 
 
 class Hazard(WireModel):
@@ -1359,6 +1374,7 @@ class Hazard(WireModel):
     title: String
     origin: Literal["usgs", "firms"]
     source_url: String
+    assessment: WorldPortfolioAssessment | None = None
 
 
 class LegendItem(WireModel):

@@ -64,6 +64,7 @@ from .models import (
     WindowSpec,
     WorldEvent,
     WorldLayer,
+    WorldPortfolioAssessment,
 )
 
 
@@ -756,6 +757,7 @@ class WorldEventResponse(WireModel):
     related: list[WorldEvent]
     exposures: list[HoldingExposure]
     geographic_relationships: list[WorldGeographicRelationship] = []
+    assessment: WorldPortfolioAssessment | None = None
 
 
 class WorldExposureResponse(WireModel):
@@ -802,6 +804,7 @@ class WorldObservation(WireModel):
     source: WorldObservationSource
     dataset_id: String
     limitations: list[String]
+    assessment: WorldPortfolioAssessment | None = None
 
 
 class WorldModeStatus(WireModel):
@@ -839,6 +842,7 @@ class AirportReference(WireModel):
     country_iso3: String | None
     source_url: String
     captured_at: ISODateTime
+    assessment: WorldPortfolioAssessment | None = None
 
 
 class AirportsResponse(WireModel):

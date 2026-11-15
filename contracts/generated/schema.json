@@ -289,6 +289,17 @@
         },
         "capturedAt": {
           "$ref": "#/$defs/ISODateTime"
+        },
+        "assessment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorldPortfolioAssessment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3389,6 +3400,17 @@
         },
         "dataVersion": {
           "$ref": "#/$defs/DataVersion"
+        },
+        "assessment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorldPortfolioAssessment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -4456,6 +4478,17 @@
         },
         "sourceUrl": {
           "type": "string"
+        },
+        "assessment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorldPortfolioAssessment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -10398,6 +10431,17 @@
             "$ref": "#/$defs/WorldGeographicRelationship"
           },
           "type": "array"
+        },
+        "assessment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorldPortfolioAssessment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -10757,6 +10801,17 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "assessment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorldPortfolioAssessment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -10903,6 +10958,70 @@
         "modes"
       ],
       "title": "WorldObservationsResponse",
+      "type": "object"
+    },
+    "WorldPortfolioAssessment": {
+      "description": "Completed holdings screen using the record's available source evidence.",
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "assessedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "holdingsChecked": {
+          "ge": 0,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "matchedWeightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "relatedTickers": {
+          "items": {
+            "$ref": "#/$defs/Ticker"
+          },
+          "type": "array"
+        },
+        "relatedThemes": {
+          "items": {
+            "$ref": "#/$defs/ThemeTag"
+          },
+          "type": "array"
+        },
+        "relatedCountries": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exposures": {
+          "items": {
+            "$ref": "#/$defs/HoldingExposure"
+          },
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/I18nText"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "profileId",
+        "assessedAt",
+        "holdingsChecked",
+        "matchedWeightPct",
+        "relatedTickers",
+        "relatedThemes",
+        "relatedCountries",
+        "exposures",
+        "limitations"
+      ],
+      "title": "WorldPortfolioAssessment",
       "type": "object"
     },
     "WorstExposure": {
@@ -11817,6 +11936,9 @@
     "WorldObservationsResponse": {
       "$ref": "#/$defs/WorldObservationsResponse"
     },
+    "WorldPortfolioAssessment": {
+      "$ref": "#/$defs/WorldPortfolioAssessment"
+    },
     "WorstExposure": {
       "$ref": "#/$defs/WorstExposure"
     }
@@ -12118,6 +12240,7 @@
     "WorldObservationLocation",
     "WorldObservationSource",
     "WorldObservationsResponse",
+    "WorldPortfolioAssessment",
     "WorstExposure"
   ],
   "title": "AplombContracts",
@@ -12126,9 +12249,9 @@
   "$id": "https://aplomb.local/contracts/1.5.0/schema.json",
   "x-contract-version": "1.5.0",
   "x-spec-sha256": {
-    "schemas.md": "c9fe5e81df038f00f9cbb123a9350cd071a55f13ffd2969488532f0392136156",
+    "schemas.md": "b33e470fa58ff0d480ef7074e8a2f5407c4a7dbef3c0d646ae49c11a96e41f6a",
     "catalog.md": "c92377a3c0d36e055a3e2c441dce252dc79408cf98f8bb7892f2de89e3d262f7",
-    "api.md": "eb8f2b53bd485d2f34eca9dcd9d166c9c5771cfe972ccff81feabb880b2240ac",
+    "api.md": "108e147dbb09c016678435da27139a9e0b4f2332894d328352bc043f4ae4eca2",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
   }

@@ -4,10 +4,11 @@
  * Nothing here estimates an impact or reassigns an unknown exposure bucket.
  */
 import type {
-  CountryExposure, EventBriefResult, EventCategory, Fact, I18NText, Period, WorldEvent, WorldEventItem, WorldLayer,
+  CountryExposure, EventBriefResult, EventCategory, Fact, I18NText, Lang, Period, WorldEvent, WorldEventItem, WorldLayer,
 } from '../contracts/types';
 import type { WorldEventsQuery } from '../api/client';
 import { countryLabel, iso3FromNumeric } from './geo';
+import { fmtDate } from './format';
 
 export const EVENT_CATEGORIES: readonly EventCategory[] = [
   'monetary_policy', 'macro_release', 'geopolitical', 'trade_regulation', 'corporate',
@@ -19,6 +20,8 @@ export const EVENT_ORIGINS: readonly WorldEvent['origin'][] = ['official', 'cura
 export const MAX_RANGE_DAYS = 366;
 export const FEED_PAGE_SIZE = 100;
 export const MAX_PINS = 300;
+/** Bound the initial reference overview; events continue to load in full. */
+export const OBSERVATION_OVERVIEW_LIMIT = 2000;
 
 const DAY_MS = 86_400_000;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -40,8 +43,9 @@ export function daysBetween(from: string, to: string): number {
 
 export interface DateRange { from: string; to: string }
 
-export type WorldMode = 'news' | 'portfolio' | 'macro' | 'trade' | 'energy' | 'hazards' | 'conflicts' | 'aviation' | 'environment' | 'infrastructure';
+export type WorldMode = 'overview' | 'news' | 'portfolio' | 'macro' | 'trade' | 'energy' | 'hazards' | 'conflicts' | 'aviation' | 'environment' | 'infrastructure';
 export const WORLD_MODES: readonly { id: WorldMode; title: I18NText; categories: readonly EventCategory[]; layers: readonly string[]; note: I18NText }[] = [
+  { id: 'overview', title: { en: 'All data', fr: 'Toutes les données' }, categories: [], layers: ['events', 'exposure'], note: { en: 'All events plus a geographic sample of news, hazards, conflicts, energy, aviation and environmental records. Choose a topic or region to explore more.', fr: 'Tous les événements et un échantillon géographique des actualités, aléas, conflits, données énergétiques, aériennes et environnementales. Choisissez un thème ou une région pour approfondir.' } },
   { id: 'news', title: { en: 'News', fr: 'Actualités' }, categories: [], layers: ['events'], note: { en: 'Loaded source observations and releases. This sample does not cover all worldwide news.', fr: 'Observations et publications chargées. Cet échantillon ne couvre pas toutes les actualités mondiales.' } },
   { id: 'portfolio', title: { en: 'Portfolio exposure', fr: 'Exposition du portefeuille' }, categories: [], layers: ['events', 'exposure'], note: { en: 'Listing-country and theme matches are proxies. Inspect event evidence before drawing a financial conclusion.', fr: 'Les correspondances de pays de cotation et de thème sont des approximations. Consultez les preuves avant toute conclusion financière.' } },
   { id: 'macro', title: { en: 'Macro & markets', fr: 'Macro et marchés' }, categories: ['macro_release', 'monetary_policy', 'markets'], layers: ['events'], note: { en: 'Select any country to inspect supported annual indicators and releases. Annual observations are not live market signals.', fr: 'Sélectionnez un pays pour consulter les indicateurs annuels et publications disponibles. Les observations annuelles ne sont pas des signaux de marché en direct.' } },
@@ -204,6 +208,16 @@ export function visibleEvents(loaded: readonly WorldEventItem[], relevantOnly: b
 export function hasCoordinates(event: Pick<WorldEvent, 'location'>): boolean {
   const { lat, lon } = event.location;
   return Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+}
+
+/** A short description of the recorded source, place and occurrence date, without inferred effects. */
+export function eventSummary(event: WorldEvent, lang: Lang): string {
+  const place = event.location.placeName || (event.location.countryIso3 ? countryLabel(event.location.countryIso3, lang) : null);
+  const publisher = event.sources[0]?.publisher;
+  const date = fmtDate(event.occurredAt, lang);
+  return lang === 'fr'
+    ? `Événement signalé${place ? ` à ${place}` : ''} le ${date}${publisher ? ` par ${publisher}` : ''}.`
+    : `Event reported${place ? ` in ${place}` : ''} on ${date}${publisher ? ` by ${publisher}` : ''}.`;
 }
 
 export interface PinSelection<T> {
