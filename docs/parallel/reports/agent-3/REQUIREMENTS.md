@@ -22,8 +22,8 @@ Base: `2604b9689e9f992b4e9e46c4a06ea89ec57ac155`. This is a truthful ledger for 
 | Browser, mobile, combined AWS and video acceptance | Local checks recorded separately in HANDOFF.md | Targeted HTTP/backend/frontend/browser evidence | Combined release, live AWS and video belong to integrator and require full specification condition. No deployment attempted. |
 
 The user requested the full specification. This branch does **not** complete it:
-131 assigned source rows still need engineering, 57 login gated rows are set
-aside, 5 paid or billing dependent rows are excluded, and important cross-agent
-investigation steps still lack verified inputs. These are 194 checklist rows
+129 assigned source rows still need engineering, 57 login gated rows are set
+aside, 6 paid or billing dependent rows are excluded, and important cross-agent
+investigation steps still lack verified inputs. These are 192 checklist rows
 altogether, not distinct APIs. Those are recorded as remaining work rather than
 relabeled as finished.

@@ -67,7 +67,7 @@ SOURCES = {
         "parser": public.gdacs,
     },
     "power": {
-        "datasetId": "world_nasa_power", "sourceIds": ["SRC-185"],
+        "datasetId": "world_nasa_power", "sourceIds": ["SRC-185", "MASTER-073"],
         "name": "NASA POWER daily gridded temperature sample", "sourceUrl": public.POWER_URL,
         "licence": "NASA United States Government data; source attribution NASA POWER",
         "licenceUrl": "https://power.larc.nasa.gov/docs/services/api/",

@@ -11,7 +11,7 @@ Final commit: see `git rev-parse codex/agent-3-world-data` after the branch is p
 - Extended World Explorer with ten navigable modes, source observation list/detail, pins and layer controls, geographic search and regional navigation, and clear unavailable states. Preserved separate core event, airport, facility, hazard and portfolio views. A map position is not promoted to a company or financial relationship.
 - Added typed, source-hashed geographic relationships for world events and facility geography. Explicit historical world queries gate the current-only event bundle at its build date.
 
-The complete task is **not finished**. `REQUIREMENTS.md` and all 218 checklist rows in `SOURCES.csv` give the exact status: 14 baseline rows, 11 new integrations, 131 unimplemented rows requiring engineering, 57 login gated rows set aside, and 5 paid or billing dependent rows excluded on the user's instruction. These are checklist rows, not distinct APIs. `BLOCKERS.md` separates actual external access and rights dependencies from unfinished engineering.
+The complete task is **not finished**. `REQUIREMENTS.md` and all 218 checklist rows in `SOURCES.csv` give the exact status: 14 baseline rows, 12 new integrations, 129 unimplemented rows requiring engineering, 57 login gated rows set aside, and 6 paid or billing dependent rows excluded on the user's instruction. These are checklist rows, not distinct APIs. `BLOCKERS.md` separates actual external access and rights dependencies from unfinished engineering.
 
 ## Provenance and scope
 

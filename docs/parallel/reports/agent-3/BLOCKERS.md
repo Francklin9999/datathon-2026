@@ -27,9 +27,13 @@ unpublished; the observed feed and terms are recorded in
 Paid or billing dependent integrations are excluded from this branch, and sources
 requiring login, an account, a key, a token or approval are set aside. The source
 ledger retains these assigned rows for audit and marks them `excluded_paid_plan`
-or `deferred_login`. Five paid or billing dependent rows and 57 login gated rows
+or `deferred_login`. Six paid or billing dependent rows and 57 login gated rows
 are affected; some rows name the same underlying provider. No enabled new
 provider capture requires a paid plan or login.
+
+Open-Meteo SRC-179 is included in the excluded set: its free API terms restrict
+use to non-commercial purposes. The linked terms are recorded in
+`docs/evidence/parallel/agent-3/source-audit/open-meteo-terms.json`.
 
 ## Credentials and restricted plans
 
