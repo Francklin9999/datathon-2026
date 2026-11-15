@@ -129,10 +129,18 @@ pre.args { margin: 6px 0; padding: 10px 12px; border-radius: 10px; background: v
 .stage-chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border-radius: var(--r-pill); font-size: 12px; font-weight: 500;
   background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .stage-hover { bottom: 14px; margin: 0; font-size: 13px; color: rgba(233, 238, 255, .82); text-shadow: 0 1px 8px rgba(0, 0, 0, .6); }
-.stage-rotate { position: absolute; top: 14px; right: 334px; z-index: 2; width: 36px; height: 36px; border: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(255, 255, 255, .1); color: #E9EEFF; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .15); }
-.stage-rotate:hover { background: rgba(255, 255, 255, .18); }
-.stage-rotate:focus-visible { outline: 2px solid #9DB2FF; outline-offset: 2px; }
+.stage-controls { position: absolute; top: 14px; right: 334px; z-index: 2; display: flex; gap: 8px; }
+.stage-btn { width: 36px; height: 36px; border: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .1); color: #E9EEFF; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .15);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.stage-btn:hover { background: rgba(255, 255, 255, .18); }
+.stage-btn:focus-visible { outline: 2px solid #9DB2FF; outline-offset: 2px; }
+
+/* Full screen: the browser's own (the stage is the full-screen element) or a cover of the window. */
+.world-stage[data-expanded] { margin: 0; border-radius: 0; height: 100vh; height: 100dvh; grid-template-rows: minmax(0, 1fr); box-shadow: none; }
+.world-stage[data-expanded='cover'] { position: fixed; inset: 0; z-index: 1000; }
+html[data-globe-cover] :is(.topbar, .rail, .dock) { visibility: hidden; }
+.world-stage[data-expanded] .stage-side { max-height: none; }
 
 .stage-side { display: flex; flex-direction: column; gap: 14px; padding: 18px; max-height: 540px; overflow-y: auto;
   background: rgba(255, 255, 255, .04); border-left: 1px solid rgba(255, 255, 255, .07); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
@@ -162,8 +170,9 @@ pre.args { margin: 6px 0; padding: 10px 12px; border-radius: 10px; background: v
 
 @media (max-width: 1100px) {
   .world-stage { grid-template-columns: minmax(0, 1fr); }
-  .stage-rotate { right: 14px; }
+  .stage-controls { right: 14px; }
   .stage-side { max-height: none; border-left: 0; border-top: 1px solid rgba(255, 255, 255, .07); }
+  .world-stage[data-expanded] .stage-side { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   html:not([data-anim='on']) .stage-bar > span { animation: none; }

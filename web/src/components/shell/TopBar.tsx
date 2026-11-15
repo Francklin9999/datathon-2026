@@ -37,9 +37,9 @@ export function Logo() {
   );
 }
 
-/** Investor switcher: a styled listbox. */
+/** Investor switcher: a styled listbox, with "Manage profiles" under the investors. */
 export function PersonaSwitcher() {
-  const { profiles, profile, selectProfile, tr } = useApp();
+  const { profiles, profile, selectProfile, tr, feature } = useApp();
   if (!profile) return null;
   const caption = tr({ en: 'Fictional investor', fr: 'Investisseur fictif' });
   const options = profiles.map(p => ({
@@ -51,6 +51,13 @@ export function PersonaSwitcher() {
     <div className="persona" data-tour="persona">
       <Listbox label={caption} value={profile.profileId} options={options} onChange={selectProfile}
         triggerClassName="persona-trigger"
+        {...(feature('profile_creator') ? {
+          footer: (close: () => void) => (
+            <Link href="/profiles/" className="popover-action" onClick={close}>
+              <UserRound aria-hidden="true" size={16} strokeWidth={1.75} />{tr({ en: 'Manage profiles', fr: 'Gérer les profils' })}
+            </Link>
+          ),
+        } : {})}
         renderTrigger={selected => (
           <>
             <span className="avatar" aria-hidden="true">{profile.initial}</span>
@@ -182,13 +189,13 @@ function useAnimPref(): [AnimPref, (pref: AnimPref) => void] {
 }
 
 export function SettingsMenu() {
-  const { tr, lang, setLang, meta, feature } = useApp();
+  const { tr, lang, setLang, meta } = useApp();
   const { pref, setPref } = useTheme();
   const [anim, setAnim] = useAnimPref();
   const bilingual = !(meta && meta.features.bilingual === false);
   return (
     <ChromeMenu label={tr({ en: 'Settings', fr: 'Réglages' })} icon={<Settings2 aria-hidden="true" size={18} strokeWidth={1.75} />} tour="settings">
-      {close => (
+      {() => (
         <>
           {bilingual && (
             <div className="settings-row">
@@ -207,11 +214,6 @@ export function SettingsMenu() {
             <SegmentedControl<AnimPref> label={tr({ en: 'Animations', fr: 'Animations' })} value={anim} onChange={setAnim}
               options={ANIM_OPTIONS.map(o => ({ value: o.value, label: tr(o.label) }))} />
           </div>
-          {feature('profile_creator') && (
-            <Link href="/profiles/" className="btn ghost btn-sm" onClick={close}>
-              <UserRound aria-hidden="true" size={16} strokeWidth={1.75} />{tr({ en: 'Manage profiles', fr: 'Gérer les profils' })}
-            </Link>
-          )}
           {meta && (
             <p className="settings-meta">
               <span>{tr({ en: 'Data as of', fr: 'Données au' })}</span>

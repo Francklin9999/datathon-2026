@@ -5,10 +5,12 @@
  * the feed, never the only way to select an event: the side list and the feed below are the keyboard
  * and screen-reader path. Without WebGL, or if the globe chunk fails, the side column still works.
  * Country outlines come from the site's own origin (public/geo, Natural Earth, public domain).
+ * The stage can go full screen: the browser's own full screen where it is allowed, else a cover of the
+ * window (Escape closes both).
  */
 import dynamic from 'next/dynamic';
-import { Pause, Play } from 'lucide-react';
-import { Component, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Maximize2, Minimize2, Pause, Play } from 'lucide-react';
+import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { EventCategory, WorldEvent, WorldExposureResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { EVENT_CATEGORY, labelOf } from '../../lib/labels';
@@ -89,15 +91,64 @@ export function WorldGlobe({
   const [height, setHeight] = useState(520);
   const reducedMotion = useReducedMotion();
   const stopRotation = useCallback(() => setRotate(false), []);
+  const stageRef = useRef<HTMLElement | null>(null);
+  // Full screen: 'native' = the browser's, 'cover' = the stage fixed over the window (no Fullscreen API).
+  const [expanded, setExpanded] = useState<false | 'native' | 'cover'>(false);
 
   useEffect(() => { setWebgl(webglAvailable()); }, []);
   useEffect(() => { setHover(null); }, [lang]);
   useEffect(() => {
-    const update = () => setHeight(window.innerWidth < 768 ? 340 : window.innerWidth < 1100 ? 440 : 540);
+    const update = () => setHeight(expanded ? window.innerHeight : window.innerWidth < 768 ? 340 : window.innerWidth < 1100 ? 440 : 540);
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
+  }, [expanded]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    const sync = () => setExpanded(current => (document.fullscreenElement && document.fullscreenElement === stage ? 'native' : current === 'native' ? false : current));
+    document.addEventListener('fullscreenchange', sync);
+    return () => {
+      document.removeEventListener('fullscreenchange', sync);
+      if (stage && document.fullscreenElement === stage) void document.exitFullscreen().catch(() => undefined);
+    };
   }, []);
+  // The window cover closes with Escape, and the page behind it does not scroll.
+  useEffect(() => {
+    if (expanded !== 'cover') return undefined;
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setExpanded(false); };
+    const root = document.documentElement;
+    const overflow = root.style.overflow;
+    root.style.overflow = 'hidden';
+    // The shell's bars sit in a higher stacking layer than the page: they hide while the cover is up.
+    root.dataset.globeCover = '';
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('keydown', onKey); root.style.overflow = overflow; delete root.dataset.globeCover; };
+  }, [expanded]);
+
+  const exitExpanded = useCallback(() => {
+    if (expanded === 'native') void document.exitFullscreen().catch(() => undefined);
+    else if (expanded === 'cover') setExpanded(false);
+  }, [expanded]);
+  const toggleExpanded = useCallback(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    if (expanded) { exitExpanded(); return; }
+    if (document.fullscreenEnabled && typeof stage.requestFullscreen === 'function') {
+      // Refused, or left unanswered by an embedding browser: cover the window instead.
+      let settled = false;
+      stage.requestFullscreen().then(() => { settled = true; }, () => { settled = true; setExpanded('cover'); });
+      window.setTimeout(() => { if (!settled && document.fullscreenElement !== stage) setExpanded('cover'); }, 500);
+    } else {
+      setExpanded('cover');
+    }
+  }, [expanded, exitExpanded]);
+  // The details sit below the stage: leave full screen first, then scroll to them.
+  const openDetails = useCallback(() => {
+    if (!expanded) { onOpenDetails(); return; }
+    exitExpanded();
+    window.setTimeout(onOpenDetails, 250);
+  }, [expanded, exitExpanded, onOpenDetails]);
 
   useEffect(() => {
     if (!webgl) return undefined;
@@ -129,7 +180,8 @@ export function WorldGlobe({
   );
 
   return (
-    <section className="world-stage" aria-label={tr({ en: 'World map of the events and of the portfolio’s countries', fr: 'Carte du monde des événements et des pays du portefeuille' })}>
+    <section ref={stageRef} className="world-stage" data-expanded={expanded || undefined}
+      aria-label={tr({ en: 'World map of the events and of the portfolio’s countries', fr: 'Carte du monde des événements et des pays du portefeuille' })}>
       <div className="stage-globe" aria-hidden="true">
         {globe}
         <div className="stage-overlay stage-top">
@@ -141,11 +193,21 @@ export function WorldGlobe({
         </div>
         <p className="stage-overlay stage-hover">{hover ?? tr({ en: 'Drag to turn, scroll to zoom, click a country or a spike', fr: 'Glissez pour tourner, molette pour zoomer, cliquez un pays ou un pic' })}</p>
       </div>
-      {webgl && !reducedMotion && (
-        <button type="button" className="stage-rotate" onClick={() => setRotate(v => !v)} aria-pressed={rotate}
-          aria-label={rotate ? tr({ en: 'Pause rotation', fr: 'Arrêter la rotation' }) : tr({ en: 'Rotate the globe', fr: 'Faire tourner le globe' })}>
-          {rotate ? <Pause aria-hidden="true" size={16} strokeWidth={2} /> : <Play aria-hidden="true" size={16} strokeWidth={2} />}
-        </button>
+      {webgl && (
+        <div className="stage-controls">
+          {!reducedMotion && (
+            <button type="button" className="stage-btn" onClick={() => setRotate(v => !v)} aria-pressed={rotate}
+              aria-label={rotate ? tr({ en: 'Pause rotation', fr: 'Arrêter la rotation' }) : tr({ en: 'Rotate the globe', fr: 'Faire tourner le globe' })}
+              title={rotate ? tr({ en: 'Pause rotation', fr: 'Arrêter la rotation' }) : tr({ en: 'Rotate the globe', fr: 'Faire tourner le globe' })}>
+              {rotate ? <Pause aria-hidden="true" size={16} strokeWidth={2} /> : <Play aria-hidden="true" size={16} strokeWidth={2} />}
+            </button>
+          )}
+          <button type="button" className="stage-btn" onClick={toggleExpanded} aria-pressed={Boolean(expanded)}
+            aria-label={expanded ? tr({ en: 'Exit full screen', fr: 'Quitter le plein écran' }) : tr({ en: 'Full screen', fr: 'Plein écran' })}
+            title={expanded ? tr({ en: 'Exit full screen (Esc)', fr: 'Quitter le plein écran (Échap)' }) : tr({ en: 'Full screen', fr: 'Plein écran' })}>
+            {expanded ? <Minimize2 aria-hidden="true" size={16} strokeWidth={2} /> : <Maximize2 aria-hidden="true" size={16} strokeWidth={2} />}
+          </button>
+        </div>
       )}
 
       <div className="stage-side">
@@ -159,7 +221,7 @@ export function WorldGlobe({
             {selectedEvent.relatedCountries.length > 0 && (
               <p className="stage-text">{tr({ en: 'Names', fr: 'Concerne' })} {selectedEvent.relatedCountries.map(c => countryLabel(c, lang)).join(', ')}</p>
             )}
-            <button type="button" className="btn btn-sm" onClick={onOpenDetails}>{tr({ en: 'Sources and linked holdings', fr: 'Sources et positions liées' })}</button>
+            <button type="button" className="btn btn-sm" onClick={openDetails}>{tr({ en: 'Sources and linked holdings', fr: 'Sources et positions liées' })}</button>
           </div>
         ) : selectedCountry ? (
           <div className="stage-card" aria-live="polite">
@@ -170,7 +232,7 @@ export function WorldGlobe({
                 ? tr({ en: `${fmtPct(selectedRow.weightPct, lang)} of the portfolio, through ${selectedRow.holdings.map(h => h.ticker).join(', ')}.`, fr: `${fmtPct(selectedRow.weightPct, lang)} du portefeuille, via ${selectedRow.holdings.map(h => h.ticker).join(', ')}.` })
                 : tr({ en: 'No holding is listed in this country.', fr: 'Aucune position n’est cotée dans ce pays.' })}
             </p>
-            <button type="button" className="btn btn-sm" onClick={onOpenDetails}>{tr({ en: 'Country details', fr: 'Détails du pays' })}</button>
+            <button type="button" className="btn btn-sm" onClick={openDetails}>{tr({ en: 'Country details', fr: 'Détails du pays' })}</button>
           </div>
         ) : null}
 
