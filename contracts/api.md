@@ -44,6 +44,32 @@ Every non-2xx response has the body `ApiError`:
 | 2.6 | GET `/intelligence/entities` | P1 | Bounded official GLEIF legal-entity candidates; q 2–120 characters, limit 1–20; not a security-issuer link |
 | 2.1 | GET `/assets` | P0 | Search the universe |
 | 2.5 | GET `/assets/{ticker}/analytics` | P1 | Deterministic asset metrics and their facts; `currency`, `window`, optional `start`/`end` |
+| A1.1 | GET `/profiles/{profileId}/account-valuations` | P1 | Traded plus separately appraised private asset values |
+| A1.2 | POST `/profiles/{profileId}/accounts/{accountId}/private-assets` | P1 | Add or update a dated private appraisal with FX receipt |
+| A1.3 | POST `/profiles/{profileId}/accounts/{accountId}/refresh` | P1 | Explicitly refresh native FX valuation, retaining prior receipt |
+| A1.4 | POST `/profiles/{profileId}/accounts/{accountId}/transfer` | P1 | Transfer a proportional slice of traded holdings between accounts |
+| A1.5 | POST `/profiles/{profileId}/custom-rules` | P1 | Add typed allocation cap or floor |
+| A1.6 | GET `/profiles/{profileId}/strategic-candidates` | P1 | Deterministic focus candidates and local evidence ledger |
+| A1.7 | GET `/profiles/{profileId}/allocation-targets` | P1 | Compare explicit targets against known allocations |
+| A1.8 | POST `/profiles/{profileId}/requirements-scenario` | P1 | Evaluate entered cash requirements against explicit liquid capital and flows |
+| A1.9 | POST `/risk/scenario` | P1 | Explicit-input sensitivity scenario |
+| A1.10 | POST `/risk/factor-fit` | P1 | Regression against caller-supplied aligned factor returns |
+| A1.11 | POST `/risk/fund-look-through` | P1 | Exact-ISIN caller-supplied dated disclosure arithmetic |
+| A1.12 | GET `/risk/source-inputs` | P1 | Captured dated risk data with provenance and availability |
+| A1.13 | POST `/decision/target-funding` | P1 | Rebalance financing with explicit deposit or withdrawal |
+| A1.14 | GET `/risk/providers` | P1 | Anonymous-feed connector status; paid sources excluded and login sources set aside |
+| A1.15 | POST `/risk/providers/{providerId}/capture` | P1 | Acquire bounded permitted anonymous provider data into session-owned immutable storage |
+| A1.16 | GET `/risk/providers/{providerId}/captures/{captureId}` | P1 | Inspect session-owned normalized capture and verify raw checksum |
+| A1.17 | POST `/profiles/{profileId}/condition-rules` | P1 | Add bounded typed conditional policy tree with origin |
+| A1.18 | DELETE `/profiles/{profileId}/condition-rules/{ruleId}` | P1 | Remove owned conditional policy with expected version |
+| A1.19 | PUT `/profiles/{profileId}/accounts/{accountId}` | P1 | Rename or explicitly replace a modeled account, retaining retired evidence |
+| A1.20 | POST `/profiles/{profileId}/joint-plan` | P1 | Joint shared-capital goal/requirement scenario and priority alternative |
+| A1.21 | POST `/portfolios/compare` | P1 | Common-currency and common-sample portfolio comparisons |
+| A1.22 | POST `/risk/covariance` | P1 | Aligned daily sample covariance and source inputs |
+| A1.23 | POST `/profiles/{profileId}/liquidity-analysis` | P1 | Explicit sale dates, capacities, spread/impact costs and unknown holdings |
+| A1.24 | POST `/risk/nested-fund-look-through` | P1 | Dated nested exact-ISIN fund decomposition with unresolved/cyclic weights |
+| A1.25 | POST `/profiles/{profileId}/factor-exposure` | P1 | Actual active-portfolio returns fitted to attributed or captured factors |
+| A1.26 | POST `/profiles/{profileId}/position-details` | P1 | Modeled values and separately documented quantities |
 | 3.22 | POST `/profiles/{profileId}/duplicate` | P1 | Duplicate active portfolio/context/policy into a new session-owned profile, with imported policy origin |
 | 3.21 | POST `/profiles/{profileId}/exposure-limits` | P1 | Typed user country/currency cap, expected version required |
 | 3.20 | GET `/profiles/{profileId}/goals` | P1 | Explicit-assumption goal funding scenarios; allocation overlap detected |

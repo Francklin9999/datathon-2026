@@ -1,0 +1,331 @@
+file:///home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/scripts/agent1_browser_extended.mjs:13
+const wait=async(expression)=>{for(let i=0;i<120;i++){if(await evaluate(expression))return;await delay(250);}throw new Error('Wait failed: '+expression+'\n'+await evaluate('document.body.innerText'));};
+                                                                                                                   ^
+
+Error: Wait failed: !!document.getElementById('shock-key')
+Skip to content
+Aplomb
+B
+Fictional investor
+Browser EUR foundation
+Ask Aplomb to test a move
+/
+
+Simulation, not advice
+Simulation only. Fictional profiles. Not financial advice.
+
+Home
+Home
+Portfolio
+Portfolio
+Markets
+Markets
+Risk
+Risk
+Decide
+Decide
+World
+World
+Evidence
+Evidence
+Replay
+Replay
+System
+System
+Sources
+Sources
+Show labels
+
+Page not found · Page introuvable
+
+Home · Accueil
+    at wait (file:///home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/scripts/agent1_browser_extended.mjs:13:116)
+    at async file:///home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/scripts/agent1_browser_extended.mjs:52:21
+
+Node.js v24.18.0
+e inputs and quotes. Refresh is explicit and keeps earlier receipts. This is fictional capital, not a live account valuation or a currency trade. Editing an account’s capital in reporting currency replaces its earlier native-value receipt.
+
+Analyze account
+Primary · EUR 60,100
+Browser Yen · EUR 5,556
+All accounts combined
+Account	Entered capital	Reporting value	Pinned conversion evidence
+Primary	EUR 60,100	EUR 60,100	User-entered reporting-currency value; no FX receipt
+Browser Yen	EUR 5,556	EUR 5,556	User-entered reporting-currency value; no FX receipt
+Previous valuation receipts (2)
+Optional historical FX availability cutoff
+
+Empty uses the current pinned snapshot. Historical requests require quotes actually available at that date. Refresh retains the original receipt; unavailable rates leave the account unchanged.
+
+Transfer modeled assets between accounts
+Add a fictional account
+Private and illiquid asset valuations
+
+These are additional user or imported appraisals, separate from traded portfolio capital. Do not enter the same asset twice. Market risk, performance, allocation limits and rebalancing exclude these assets because no traded return or liquidation model is available. An appraisal is not an executable sale price.
+
+All accounts: modeled traded capital
+EUR 65,656
+Additional private appraisals
+EUR 2,500
+Combined reported value
+EUR 68,156
+Primary · Synthetic artwork · EUR 2,500
+Add or update a documented appraisal
+Holdings
+Asset	Class	Sector label	Weight	Market value (EUR)	1-year return (historical)
+SPY
+SPDR S&P 500 ETF Trust
+	Equity ETF	Broad market (U.S.)	
+100.0%
+100.0%	
+EUR 5,556
+EUR 5,556	+17.3%
+Total (1)	100.00%	EUR 5,556	
+By asset group
+Equity
+100.0%
+By sector (direct equities)
+
+No direct single-name equities.
+
+By listing country
+USA
+100.0%
+Historical risk
+Annualized volatility
+17.5%
+17.5%
+Maximum drawdown
+23.9%
+23.9%
+2022 replay return
+−13.0%
+−13.0%
+Worst 12 months
+−13.5%
+−13.5%
+Effective positions
+1.0
+1.0
+Correlation of daily returns
+
+Not shown: more than 20 positions or not supplied.
+
+Target allocation drift
+Target	Actual weight	Target weight	Drift	State / origin
+position: SPY	
+100.0%
+100.0%	20.0%	80.0 pts (±5)	outside drift threshold · user
+
+2026-11-12 · Review frequency: annual
+
+Weights cover traded positions only; listing country and quotation currency are proxies, fund holdings are not looked through, and themes may overlap.
+
+Spending and liquidity scenario
+
+Use the requirements entered in Profiles. Supply available liquid capital separately from total wealth and state the return assumption. Spending and liabilities consume cash; liquidity requirements reserve a minimum balance. Empty cash flows explicitly assume no additional flows. This nominal scenario does not establish investment or tax advice.
+
+Scenario start
+Scenario end
+Available liquid capital (EUR)
+Assumed annual return (%)
+Additional cash flows: DATE SIGNED_AMOUNT per line
+
+Example format: 2027-01-31 500. Positive adds liquid capital; negative withdraws. Do not duplicate spending already in the requirements.
+
+Calculate entered requirements
+Custom exposure policy
+
+These are user assumptions. Country limits use listing-country proxies; currency limits use quote currencies. Neither measures revenue geography, ETF holdings, hedges or regulatory requirements.
+
+Dimension
+Quote currency
+Listing country
+ISO 4217
+Maximum weight (%)
+Save user limit
+Custom allocation conditions
+
+Typed user limits are evaluated by code in portfolio and decision checks. A floor sets a minimum; a cap sets a maximum. Country limits use ISO three-letter listing-country proxies; currency limits use quotation currency, with economic exposure and hedges unknown. These inputs are user policies, never official regulation.
+
+Dimension
+position
+sector
+asset class
+country
+currency
+theme
+Exact ticker, sector, class, ISO code or theme
+Condition
+≤ Maximum
+≥ Minimum
+Weight threshold (%)
+Save and evaluate condition
+Plan rules
+Restore derived rules…
+Rules of this plan
+Rule	Value	Threshold	Headroom	Status	Edit
+
+R1No single stock or crypto asset above 25.0% of the portfolio
+Details
+	
+0.0%
+0.0%	≤ 
+25.0%
+25.0%	25.0%	
+✓
+Fit	
+Threshold (pct)
+2.0% – 50.0%
+Enabled
+Preview
+Save
+
+
+R2No sector above 40.0% of the portfolio (directly held stocks)
+Details
+	
+0.0%
+0.0%	≤ 
+40.0%
+40.0%	40.0%	
+✓
+Fit	
+Threshold (pct)
+2.0% – 50.0%
+Enabled
+Preview
+Save
+
+
+R3Crypto assets at most 15.0%
+Details
+	
+0.0%
+0.0%	≤ 
+15.0%
+15.0%	15.0%	
+✓
+Fit	
+Threshold (pct)
+2.0% – 50.0%
+Enabled
+Preview
+Save
+
+
+R4Keep bonds, cash and gold together at 8.0% or more
+Details
+	
+0.0%
+0.0%	≥ 
+8.0%
+8.0%	-8.0%	
+✕
+Conflict	
+Threshold (pct)
+0.0% – 100.0%
+Enabled
+Preview
+Save
+
+
+R5Portfolio volatility at most 22.0% a year
+Details
+	
+17.5%
+17.5%	≤ 
+22.0%
+22.0%	4.5%	
+✓
+Fit	
+Threshold (pct)
+2.0% – 40.0%
+Enabled
+Preview
+Save
+
+
+R6A repeat of 2022 may cost at most 33.0% of the portfolio
+Details
+	
+13.0%
+13.0%	≤ 
+33.0%
+33.0%	20.0%	
+✓
+Fit	
+Threshold (pct)
+1.0% – 60.0%
+Enabled
+Preview
+Save
+
+
+R7Largest historical peak-to-trough fall at most 44.0%
+Details
+	
+23.9%
+23.9%	≤ 
+44.0%
+44.0%	20.1%	
+✓
+Fit	
+Threshold (pct)
+2.0% – 80.0%
+Enabled
+Preview
+Save
+
+
+R8Show when the requested asset is drawing unusual public attention
+Details
+	—	—	—	
+i
+Information	Fixed
+
+R9Show how the portfolio behaved while interest rates rose
+Details
+	
+4.2%
+4.2%	—	—	
+i
+Information	Fixed
+
+R10Simulation only: no order is ever placed
+Details
+	—	—	—	
+i
+Information	Fixed
+
+R11At most 5.0% in position SPY
+Details
+	
+100.0%
+100.0%	≤ 
+5.0%
+5.0%	-95.0%	
+✕
+Conflict	
+Threshold (pct)
+0.0% – 100.0%
+Enabled
+Preview
+Save
+Risk/return frontier (historical)
+Load frontier
+
+Loaded on demand. Points illustrate the past sample, not optimal future portfolios.
+
+Limitations
+
+Show 11 limitations
+Holdings
+Allocation
+Risk
+Rules
+Frontier
+    at wait (file:///home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/scripts/agent1_browser_extended.mjs:13:116)
+    at async file:///home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/scripts/agent1_browser_extended.mjs:50:127
+
+Node.js v24.18.0

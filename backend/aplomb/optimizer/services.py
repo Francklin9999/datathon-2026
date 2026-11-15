@@ -37,7 +37,7 @@ def _control_outcome_type():
 def _profile_engine(profile: m.Profile, snapshot: Snapshot, created_at: str, ledger=None) -> QuantEngine:
     gate = snapshot.gate(snapshot.data_as_of, "current")
     return QuantEngine(gate, ledger if ledger is not None else LocalLedger(), currency=profile.reporting_currency,
-                       subject_id=profile.profile_id, created_at=created_at)
+                       subject_id=profile.profile_id, created_at=created_at, custom_themes=profile.investor_context.custom_theme_definitions if profile.investor_context else ())
 
 
 def deriver(*, profile: m.Profile, snapshot: Snapshot, window: dict | None, created_at: str):
@@ -114,7 +114,7 @@ class DecisionControls:
         created_at = clock() if callable(clock) else f"{ctx.as_of}T00:00:00Z"
         profile = ctx.profile
         return QuantEngine(ctx.gate, ctx.ledger, currency=profile.reporting_currency, subject_id=profile.profile_id,
-                           created_at=created_at, window=window)
+                           created_at=created_at, window=window, custom_themes=profile.investor_context.custom_theme_definitions if profile.investor_context else ())
 
     @staticmethod
     def _wire(obj):

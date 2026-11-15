@@ -15,6 +15,10 @@ export function Accounts({ profile }: { profile: Profile }) {
   const [capital, setCapital] = useState('');
   const [currency, setCurrency] = useState(profile.reportingCurrency);
   const [ticker, setTicker] = useState('');
+  const [asOf, setAsOf] = useState('');
+  const [source, setSource] = useState('');
+  const [destination, setDestination] = useState('');
+  const [amount, setAmount] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiRequestError | null>(null);
   if (!feature('profile_creator')) return null;
@@ -31,8 +35,18 @@ export function Accounts({ profile }: { profile: Profile }) {
       applyProfile(saved); setName(''); setCapital(''); setTicker('');
     } catch (e) { setError(asApiError(e)); } finally { setBusy(false); }
   };
+  const refresh = async (accountId: string) => {
+    setBusy(true); setError(null);
+    try { applyProfile(await getApiClient().refreshAccount(profile.profileId, accountId, profile.version, asOf || undefined)); }
+    catch (e) { setError(asApiError(e)); } finally { setBusy(false); }
+  };
+  const transfer = async () => {
+    setBusy(true); setError(null);
+    try { applyProfile(await getApiClient().transferAccount(profile.profileId, source, destination, Number(amount), profile.version)); }
+    catch (e) { setError(asApiError(e)); } finally { setBusy(false); }
+  };
   return <Card title={tr({ en: 'Portfolio accounts', fr: 'Comptes de portefeuille' })}>
-    <p className="small muted">{tr({ en: 'Accounts share this profile’s policy. Native-currency capital is converted once using the pinned FX snapshot; all analyses and aggregation use the reporting currency. Conversion receipts retain the source inputs and quotes. This is fictional capital, not a live account valuation or a currency trade. Editing an account’s capital in reporting currency replaces its earlier native-value receipt.', fr: 'Les comptes partagent le plan du profil. Le capital en devise native est converti une fois avec les taux de l’instantané; analyses et agrégation utilisent la devise de présentation. Le reçu conserve les entrées et taux. Capital fictif, sans valorisation en direct ni opération de change. Modifier le capital dans la devise de présentation remplace le reçu natif antérieur.' })}</p>
+    <p className="small muted">{tr({ en: 'Accounts share this profile’s policy. Native-currency capital is converted once using the pinned FX snapshot; all analyses and aggregation use the reporting currency. Conversion receipts retain the source inputs and quotes. Refresh is explicit and keeps earlier receipts. This is fictional capital, not a live account valuation or a currency trade. Editing an account’s capital in reporting currency replaces its earlier native-value receipt.', fr: 'Les comptes partagent le plan du profil. Le capital en devise native est converti une fois avec les taux de l’instantané; analyses et agrégation utilisent la devise de présentation. Le reçu conserve les entrées et taux. Capital fictif, sans valorisation en direct ni opération de change. Modifier le capital dans la devise de présentation remplace le reçu natif antérieur.' })}</p>
     {!!profile.accounts?.length && <div className="field"><label htmlFor="account-select">{tr({ en: 'Analyze account', fr: 'Compte à analyser' })}</label>
       <select id="account-select" disabled={busy} value={profile.activeAccountId ?? ''} onChange={e => void select(e.target.value)}>
         {profile.accounts.map(a => <option key={a.accountId} value={a.accountId}>{a.name} · {fmtMoney(a.portfolio.totalValue, a.portfolio.currency, lang)}</option>)}
@@ -44,8 +58,18 @@ export function Accounts({ profile }: { profile: Profile }) {
         <span className="block small muted">{tr({ en: 'Code-checked pinned receipt', fr: 'Reçu figé contrôlé par code' })} · {receipt.verifiedChecks?.length ?? 0} {tr({ en: 'checks', fr: 'contrôles' })}</span>
         <span className="block small">{receipt.valuationDate} · {fmtNumber(receipt.conversionRate, lang, 6)} {receipt.reportingCurrency}/{receipt.nativeCurrency}</span>
         {receipt.quotes.length ? receipt.quotes.map((quote, i) => <span className="block small" key={i}><ExternalLink href={quote.source.sourceUrl ?? ''}>{quote.source.sourceName}</ExternalLink> · {quote.observedOn} · {fmtNumber(quote.cadPerUnit, lang, 6)} CAD/{quote.currency}</span>) : <span className="small muted">{tr({ en: 'Same-currency identity conversion', fr: 'Conversion identité, même devise' })}</span>}
-      </> : <span className="small muted">{tr({ en: 'User-entered reporting-currency value; no FX receipt', fr: 'Valeur saisie en devise de présentation; sans reçu de change' })}</span>}</td></tr>;
+        <button type="button" className="btn ghost btn-sm" disabled={busy} onClick={() => void refresh(account.accountId)}>{tr({ en: 'Refresh FX valuation', fr: 'Actualiser la valorisation FX' })}</button>
+      </> : <span className="small muted">{tr({ en: 'User-entered reporting-currency value; no FX receipt', fr: 'Valeur saisie en devise de présentation; sans reçu de change' })}</span>}
+      {!!account.valuationHistory?.length && <details><summary>{tr({ en: 'Previous valuation receipts', fr: 'Reçus de valorisation antérieurs' })} ({account.valuationHistory.length})</summary><ul>{account.valuationHistory.map((old, i) => <li key={i}>{old.valuationDate} · {fmtMoney(old.nativeValue, old.nativeCurrency, lang)} → {fmtMoney(old.reportingValue, old.reportingCurrency, lang)} · {old.dataVersion}</li>)}</ul></details>}
+      </td></tr>;
     })}</tbody></table></div>}
+    <div className="field"><label htmlFor="account-refresh-asof">{tr({ en: 'Optional historical FX availability cutoff', fr: 'Date limite de disponibilité historique FX (facultative)' })}</label><input id="account-refresh-asof" type="date" value={asOf} onChange={e => setAsOf(e.target.value)} /><p className="small muted">{tr({ en: 'Empty uses the current pinned snapshot. Historical requests require quotes actually available at that date. Refresh retains the original receipt; unavailable rates leave the account unchanged.', fr: 'Vide : instantané figé actuel. Une date historique exige des taux disponibles à cette date. Les anciens reçus sont conservés; sans taux, le compte reste inchangé.' })}</p></div>
+    {(profile.accounts?.length ?? 0) > 1 && <details><summary>{tr({ en: 'Transfer modeled assets between accounts', fr: 'Transférer des actifs modélisés entre comptes' })}</summary>
+      <p className="small muted">{tr({ en: 'Transfers move a proportional slice of source holdings at their reporting-currency values. Combined capital is conserved; no purchase, FX trade, fees or tax is modeled. The source must retain positive capital. Earlier FX receipts become historical evidence after this cash flow.', fr: 'Le transfert déplace une part proportionnelle des positions à leur valeur de présentation. Le capital total est conservé, sans achat, change, frais ni impôts modélisés. Le compte source doit rester positif. Les reçus FX antérieurs deviennent historiques.' })}</p>
+      <div className="form-grid">{([['transfer-source', source, setSource, tr({ en: 'From account', fr: 'Compte source' })], ['transfer-destination', destination, setDestination, tr({ en: 'To account', fr: 'Compte cible' })]] as const).map(([id, value, setter, label]) => <div className="field" key={id}><label htmlFor={id}>{label}</label><select id={id} value={value} disabled={busy} onChange={e => setter(e.target.value)}><option value="">—</option>{profile.accounts?.map(a => <option key={a.accountId} value={a.accountId}>{a.name}</option>)}</select></div>)}
+      <div className="field"><label htmlFor="transfer-amount">{tr({ en: 'Transfer value', fr: 'Valeur transférée' })} ({profile.reportingCurrency})</label><input id="transfer-amount" type="number" min="0.01" step="any" value={amount} disabled={busy} onChange={e => setAmount(e.target.value)} /></div></div>
+      <button type="button" className="btn" disabled={busy || !source || !destination || source === destination || !Number.isFinite(Number(amount)) || Number(amount) <= 0} onClick={() => void transfer()}>{tr({ en: 'Transfer and conserve total value', fr: 'Transférer et conserver le total' })}</button>
+    </details>}
     <details><summary>{tr({ en: 'Add a fictional account', fr: 'Ajouter un compte fictif' })}</summary>
       <p className="small muted">{tr({ en: 'Enter a supported initial holding and fictional capital explicitly. Edit the active account’s allocation in Profiles afterward. Creating an account represents additional assets, not a transfer from an existing account.', fr: 'Indiquez un titre initial pris en charge et un capital fictif. Modifiez ensuite la répartition active dans Profils. Un nouveau compte représente des actifs supplémentaires et non un transfert.' })}</p>
       <div className="form-grid">

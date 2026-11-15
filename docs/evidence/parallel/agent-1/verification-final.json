@@ -1,0 +1,50 @@
+{
+  "branch": "codex/agent-1-investor-quant",
+  "base": "2604b9689e9f992b4e9e46c4a06ea89ec57ac155",
+  "pythonTests": 903,
+  "pythonSubtests": 16,
+  "webTests": 208,
+  "infraTests": 6,
+  "fullGate": "passed",
+  "staticExport": "passed",
+  "httpRequests": 37,
+  "extendedBrowserInteractions": 11,
+  "browserErrors": [],
+  "newCapturedFeeds": 5,
+  "additionalAnonymousConnectors": 5,
+  "excludedOrSetAside": [
+    "cme",
+    "oanda",
+    "fred",
+    "finra-interest"
+  ],
+  "liveAdditionalConnectorAcquisition": "not asserted; rights gated",
+  "push": "blocked by automatic approval review; no retry/workaround",
+  "modelExecution": "none in live smoke; existing scripted tests labeled separately",
+  "evidence": {
+    "check-providers-final.log": {
+      "sha256": "d16fd0fa38f045ceacbd683016ac1236b222646b1b5cc55b0c165c203f762c13",
+      "bytes": 20339
+    },
+    "provider-build.log": {
+      "sha256": "dc3bf98a696c522e6a07c0dcbfdf5959af7cd61193275adb2c44d4530c268cbc",
+      "bytes": 962
+    },
+    "http-smoke.json": {
+      "sha256": "0d953d2fc9f10dfcc6fbeb180f615bcc11182918308386430c24146b7bbcc178",
+      "bytes": 6548
+    },
+    "browser/browser-extended.json": {
+      "sha256": "ff71c680fcf2983910f843f8f7a6df0ce88164adf07f109af57621267098c362",
+      "bytes": 1474
+    },
+    "browser/browser-interactions.json": {
+      "sha256": "f6ad0cbd0cd6ae8aa080436217c7d96b24c5e770dadeb202c625d79d067ca9ba",
+      "bytes": 514
+    },
+    "provider-reachability.json": {
+      "sha256": "5fc41900307673b0122effe91da5cb0728d6946f9f65201cd2eebbdd4d24033f",
+      "bytes": 2291
+    }
+  }
+}

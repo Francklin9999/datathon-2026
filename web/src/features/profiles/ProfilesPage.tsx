@@ -24,6 +24,10 @@ import {
   EMPTY_PROFILE_FORM, applyDraft, formFromProfile, formPositions, toCreateRequest, validateProfileForm,
   type ProfileForm, type ProfileFormIssue,
 } from '../../lib/profileForm';
+import { CustomThemeInputs } from './CustomThemeInputs';
+import { AllocationInputs } from './AllocationInputs';
+import { InvestorInputs } from './InvestorInputs';
+import { ProfileCompare } from './ProfileCompare';
 import { horizonText } from '../home/HomePage';
 
 const RISK_LEVELS = Object.keys(RISK_LEVEL) as (keyof typeof RISK_LEVEL)[];
@@ -40,6 +44,7 @@ const FIELD_LABEL: Record<string, I18NText> = {
   horizonMax: { en: 'Horizon maximum', fr: 'Horizon maximum' },
   objective: { en: 'Objective', fr: 'Objectif' },
   experience: { en: 'Experience', fr: 'Expérience' },
+  investorContext: { en: 'Investor policy inputs', fr: 'Entrées du plan investisseur' },
   reportingCurrency: { en: 'Reporting currency', fr: 'Devise de présentation' },
   capital: { en: 'Fictional capital', fr: 'Capital fictif' },
   positions: { en: 'Holdings', fr: 'Positions' },
@@ -66,7 +71,7 @@ function issueText(issue: ProfileFormIssue, tr: (t: I18NText) => string): string
     invalid: { en: 'not a valid value.', fr: 'valeur non valide.' },
     range: { en: 'must be empty or at least the minimum.', fr: 'doit être vide ou au moins égal au minimum.' },
   } as const;
-  return `${label(issue.field, tr)}: ${tr(messages[issue.code])}`;
+  return `${label(issue.field, tr)}: ${tr(messages[issue.code])}${issue.detail ? ` (${issue.detail})` : ''}`;
 }
 
 export function ProfilesPage() {
@@ -190,6 +195,8 @@ function ProfilesContent() {
         <ul className="list-plain">{archivedProfiles.data?.items.map(p => <li key={p.profileId}>{p.name}{' '}<button type="button" className="btn ghost btn-sm" onClick={() => void setArchive(p, false)}>{tr({ en: 'Restore', fr: 'Restaurer' })}</button></li>)}</ul>
       </Card>
 
+      <ProfileCompare profiles={profiles} />
+
       <DraftFromText onApply={(run, draft) => {
         const { form: next, filled } = applyDraft(EMPTY_PROFILE_FORM, draft.profile);
         load(next, { mode: 'create', fromDraftRunId: run.runId });
@@ -253,9 +260,8 @@ function ProfilesContent() {
               <div className="field"><label htmlFor="pf-country">{tr({ en: 'Country (ISO two-letter code, optional)', fr: 'Pays (code ISO à deux lettres, facultatif)' })}</label>
                 <input id="pf-country" maxLength={2} pattern="[A-Z]{2}" value={form.investorContext?.country ?? ''} onChange={e => set({ investorContext: { ...form.investorContext, country: e.target.value.toUpperCase() || null } })} /></div>
               <div className="field"><label htmlFor="pf-type">{tr({ en: 'Investor type', fr: 'Type d’investisseur' })}</label>
-                <select id="pf-type" value={form.investorContext?.investorType ?? 'individual'} onChange={e => set({ investorContext: { ...form.investorContext, investorType: e.target.value as NonNullable<NonNullable<Profile['investorContext']>['investorType']> } })}>
-                  {['individual', 'retirement', 'income', 'crypto', 'institutional', 'family_office', 'endowment', 'pension', 'wealth_manager', 'advisor', 'custom'].map(t => <option key={t} value={t}>{t.replaceAll('_', ' ')}</option>)}
-                </select></div>
+                <input id="pf-type" maxLength={80} list="investor-types" value={form.investorContext?.investorType ?? 'individual'} onChange={e => set({ investorContext: { ...form.investorContext, investorType: e.target.value } })} />
+                <datalist id="investor-types">{['individual', 'retirement', 'income', 'crypto', 'institutional', 'family_office', 'endowment', 'pension', 'wealth_manager', 'advisor', 'custom'].map(t => <option key={t} value={t} />)}</datalist></div>
             </div>
             <p className="small muted">{tr({ en: 'Jurisdiction does not imply tax or regulatory coverage. Goal amounts use the reporting currency; feasibility is not established.', fr: 'Le pays n’implique aucune couverture fiscale ou réglementaire. Les montants utilisent la devise de présentation; leur faisabilité n’est pas établie.' })}</p>
             {(form.investorContext?.objectives ?? []).map((goal, i) => <div className="form-grid" key={i}>
@@ -269,10 +275,18 @@ function ProfilesContent() {
               ] as const).map(([key, text]) => <div className="field" key={key}>
                 <label htmlFor={`goal-${key}-${i}`}>{tr(text)}</label><input id={`goal-${key}-${i}`} type="number" step="any" min={key === 'assumedReturnPct' ? -99.99 : 0} value={goal[key] ?? ''} onChange={e => setGoal(i, { [key]: e.target.value === '' ? null : Number(e.target.value) })} />
               </div>)}
+              <div className="field"><label htmlFor={`goal-priority-${i}`}>{tr({ en: 'Priority (1 = highest)', fr: 'Priorité (1 = plus élevée)' })}</label><input id={`goal-priority-${i}`} type="number" min={1} max={100} value={goal.priority} onChange={e => setGoal(i, { priority: Number(e.target.value) })} /></div>
+              {(['startDate', 'endDate', 'deadline'] as const).map(key => <div className="field" key={key}><label htmlFor={`goal-${key}-${i}`}>{key}</label><input id={`goal-${key}-${i}`} type="date" value={goal[key] ?? ''} onChange={e => setGoal(i, { [key]: e.target.value || null })} /></div>)}
+              <div className="field"><label htmlFor={`goal-origin-${i}`}>{tr({ en: 'Goal input origin', fr: 'Origine de l’objectif' })}</label><select id={`goal-origin-${i}`} value={goal.origin ?? 'user'} onChange={e => setGoal(i, { origin: e.target.value as NonNullable<InvestmentGoal['origin']> })}>{['user', 'imported', 'system_default', 'assumption'].map(o => <option key={o} value={o}>{o}</option>)}</select></div>
+              <div className="field"><label htmlFor={`goal-source-${i}`}>{tr({ en: 'Source URL (optional)', fr: 'URL source (facultative)' })}</label><input id={`goal-source-${i}`} type="url" value={goal.sourceUrl ?? ''} onChange={e => setGoal(i, { sourceUrl: e.target.value || null })} /></div>
               <button type="button" className="btn ghost" onClick={() => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.filter((_, j) => j !== i) } })}>{tr({ en: 'Remove goal', fr: 'Retirer l’objectif' })}</button>
             </div>)}
             <button type="button" className="btn ghost" disabled={(form.investorContext?.objectives?.length ?? 0) >= 20} onClick={() => set({ investorContext: { ...form.investorContext, objectives: [...(form.investorContext?.objectives ?? []), { name: '', horizonYears: 1, priority: (form.investorContext?.objectives?.length ?? 0) + 1, origin: 'user' }] } })}>{tr({ en: 'Add objective', fr: 'Ajouter un objectif' })}</button>
           </fieldset>
+
+          <CustomThemeInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} tickers={form.positions.map(p => p.ticker.trim().toUpperCase()).filter(Boolean)} />
+          <AllocationInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} />
+          <InvestorInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} />
 
           <fieldset style={{ marginTop: 16 }}>
             <legend>{tr({ en: 'Preferences', fr: 'Préférences' })}</legend>

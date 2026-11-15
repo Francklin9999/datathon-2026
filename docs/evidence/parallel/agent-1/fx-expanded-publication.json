@@ -1,0 +1,52 @@
+{
+  "version": "snap-20261115-a1-fx-expanded",
+  "fx": {
+    "schemaVersion": 1,
+    "rowCount": 25459,
+    "firstDate": "2021-11-01",
+    "lastDate": "2026-11-12",
+    "sha256": "2dc16ce570caf6ca50b447f87d9389d075972b139ed33b4f7788a1ec904339e5",
+    "availabilityPolicy": "boc_2130_current_capture_historical",
+    "checks": [
+      {
+        "name": "Valet FX validated",
+        "ok": true,
+        "detail": "Unique dated positive finite CAD-per-unit quotes; raw capture SHA-256 matched.",
+        "checkedAt": "2026-11-15T17:23:39.000Z"
+      }
+    ],
+    "details": {
+      "sourceUrl": "https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json?start_date=2021-11-01&end_date=2026-11-12",
+      "retrievedAt": "2026-11-15T17:23:39.000Z",
+      "currencies": [
+        "AUD",
+        "BRL",
+        "CHF",
+        "CNY",
+        "EUR",
+        "GBP",
+        "HKD",
+        "IDR",
+        "INR",
+        "JPY",
+        "KRW",
+        "MXN",
+        "MYR",
+        "NOK",
+        "NZD",
+        "PEN",
+        "PLN",
+        "SEK",
+        "SGD",
+        "THB",
+        "TRY",
+        "TWD",
+        "ZAR"
+      ],
+      "historicalVintage": "unknown; no rows visible before capture",
+      "captureDirectory": "global-fx-a1",
+      "captureStem": "boc-expanded-20261115"
+    },
+    "path": "normalized/snap-20261115-a1-fx-expanded/fx_boc_global.csv"
+  }
+}

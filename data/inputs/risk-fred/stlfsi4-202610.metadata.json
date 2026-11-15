@@ -1,0 +1,14 @@
+{
+  "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=STLFSI4&cosd=2026-09-01&coed=2026-10-30",
+  "retrievedAt": "2026-11-15T16:13:31Z",
+  "rawSha256": "5604e480c6ffab42d1f9a67e045fc1b7871103a0d688d6e4c3f1d79b9860c705",
+  "series": "STLFSI4",
+  "frequency": "weekly ending Friday",
+  "unit": "index",
+  "vintage": "latest at capture; historical availability not established",
+  "attribution": "Federal Reserve Bank of St. Louis, St. Louis Fed Financial Stress Index [STLFSI4], retrieved from FRED",
+  "status": "withheld_rights",
+  "contentRetained": false,
+  "termsUrl": "https://fred.stlouisfed.org/legal/terms/",
+  "reason": "FRED general terms prohibit use connected to AI/software development. New raw capture removed before commit; obtain written permission and reuse Agent 2 rights-gated adapter."
+}

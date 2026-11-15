@@ -140,7 +140,7 @@ interface Profile {
 
 ```ts
 type RuleType = "cap" | "floor" | "limit" | "exclude" | "evidence" | "flag" | "sim";
-type RuleOrigin = "derived" | "profile_preference" | "user" | "system" | "imported";
+type RuleOrigin = "derived" | "profile_preference" | "user" | "system" | "imported" | "assumption" | "system_default";
 type Comparator = "<=" | ">=" | "==" | "none";
 type Unit = "pct" | "pts" | "ratio" | "count" | "days" | "cad" | "usd" | "currency" | "date" | "text" | "bool";
 

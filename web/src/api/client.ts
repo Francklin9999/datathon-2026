@@ -9,6 +9,10 @@ import type {
   SabotageRequest, UpdatePortfolioRequest, UpdateProfileRequest, WindowCode, AnswerRequest,
   RunKind, RevealRequest, WindowSpec,
 } from '../contracts/types';
+import { expandedResult } from './expandedInvestor';
+import { focusResult, targetsResult } from './focusModels';
+import { factorFitResult, fundLookThroughResult } from './investorModels';
+import { sensitivityScenarioResult, type SensitivityScenarioRequest } from './riskModels';
 import { ApiRequestError } from './errors';
 
 export interface ClientConfig {
@@ -166,6 +170,70 @@ export function createApiClient(config: ClientConfig) {
     fetchAsset: (ticker: string) =>
       call('FetchAssetResponse', 'POST', `/assets/${enc(ticker)}/fetch`, { body: {} }),
 
+    addConditionRule: (profileId: string, body: unknown) => call('Profile', 'POST', `/profiles/${enc(profileId)}/condition-rules`, { body }),
+    removeConditionRule: (profileId: string, ruleId: string, version: number) => call('Profile', 'DELETE', `/profiles/${enc(profileId)}/condition-rules/${enc(ruleId)}`, { query: { version } }),
+    editAccount: (profileId: string, accountId: string, body: unknown) => call('Profile', 'PUT', `/profiles/${enc(profileId)}/accounts/${enc(accountId)}`, { body }),
+    jointPlan: async (profileId: string, body: unknown) => {
+      const result = await raw('POST', `/profiles/${enc(profileId)}/joint-plan`, { body });
+      try { return expandedResult('joint', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid joint plan response' }); }
+    },
+    comparePortfolios: async (body: unknown) => {
+      const result = await raw('POST', '/portfolios/compare', { body });
+      try { return expandedResult('compare', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid comparison response' }); }
+    },
+    covariance: async (body: unknown) => {
+      const result = await raw('POST', '/risk/covariance', { body });
+      try { return expandedResult('covariance', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid covariance response' }); }
+    },
+    liquidityAnalysis: async (profileId: string, body: unknown) => {
+      const result = await raw('POST', `/profiles/${enc(profileId)}/liquidity-analysis`, { body });
+      try { return expandedResult('liquidity', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid liquidity response' }); }
+    },
+    activeFactorExposure: async (profileId: string, body: unknown) => {
+      const result = await raw('POST', `/profiles/${enc(profileId)}/factor-exposure`, { body });
+      try { return expandedResult('factor', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid active factor response' }); }
+    },
+    nestedFundExposure: async (body: unknown) => {
+      const result = await raw('POST', '/risk/nested-fund-look-through', { body });
+      try { return expandedResult('nested', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid nested fund response' }); }
+    },
+    positionDetails: async (profileId: string, body: unknown) => {
+      const result = await raw('POST', `/profiles/${enc(profileId)}/position-details`, { body });
+      try { return expandedResult('positions', result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid position details response' }); }
+    },
+    strategicCandidates: async (profileId: string, signal?: AbortSignal) => {
+      const { body } = await raw('GET', `/profiles/${enc(profileId)}/strategic-candidates`, { signal });
+      try { return focusResult(body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid strategic candidate response' }); }
+    },
+    allocationTargets: async (profileId: string, signal?: AbortSignal) => {
+      const { body } = await raw('GET', `/profiles/${enc(profileId)}/allocation-targets`, { signal });
+      try { return targetsResult(body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid allocation target response' }); }
+    },
+    factorFit: async (body: unknown) => {
+      const result = await raw('POST', '/risk/factor-fit', { body });
+      try { return factorFitResult(result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid factor fit response' }); }
+    },
+    fundLookThrough: async (body: unknown) => {
+      const result = await raw('POST', '/risk/fund-look-through', { body });
+      try { return fundLookThroughResult(result.body); } catch { throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid fund look-through response' }); }
+    },
+    requirementsScenario: async (profileId: string, body: { asOf: string; through: string; liquidCapital: number; annualReturnPct: number; cashflows: { date: string; amount: number }[] }) => {
+      const result = await raw('POST', `/profiles/${enc(profileId)}/requirements-scenario`, { body });
+      const r = result.body as { state: string; currency: string; endingValue: number | null; shortfall: number | null; shortfallDate: string | null; missingInputs: string[]; events: { date: string; balance: number; reserve: number; shortfall: number; requirements: string[] }[]; assumptions: string[] };
+      if (!r || typeof r.state !== 'string' || !Array.isArray(r.missingInputs) || !Array.isArray(r.events) || !Array.isArray(r.assumptions)) throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid requirement scenario response' });
+      return r;
+    },
+    targetFunding: async (body: { totalValue: number; before: Record<string, number>; target: Record<string, number>; externalFlow: number }) => {
+      const result = await raw('POST', '/decision/target-funding', { body });
+      const r = result.body as { beforeValue: number; afterValue: number; externalFlow: number; purchases: number; sales: number; changes: { ticker: string; beforeValue: number; targetValue: number; changeValue: number; beforeWeight: number; targetWeight: number }[]; assumptions: string[] };
+      if (!r || ![r.beforeValue, r.afterValue, r.externalFlow, r.purchases, r.sales].every(Number.isFinite) || !Array.isArray(r.changes) || !r.changes.every(c => typeof c.ticker === 'string' && [c.beforeValue, c.targetValue, c.changeValue].every(Number.isFinite)) || !Array.isArray(r.assumptions)) throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid target funding response' });
+      return r;
+    },
+    sensitivityScenario: async (body: SensitivityScenarioRequest) => {
+      const result = await raw('POST', '/risk/scenario', { body });
+      try { return sensitivityScenarioResult(result.body); }
+      catch { throw new ApiRequestError({ status: result.meta.status, code: 'invalid_response', message: 'Invalid sensitivity scenario response' }); }
+    },
     riskDiagnostics: (profileId: string, window: WindowCode | WindowSpec, signal?: AbortSignal) =>
       call('RiskDiagnosticsResponse', 'GET', `/profiles/${enc(profileId)}/risk`, { query: windowQuery(window), signal }),
     profiles: (signal?: AbortSignal) => call('ProfilesResponse', 'GET', '/profiles', { signal }),
@@ -175,6 +243,25 @@ export function createApiClient(config: ClientConfig) {
     updateProfile: (profileId: string, body: UpdateProfileRequest) =>
       call('Profile', 'PUT', `/profiles/${enc(profileId)}`, { body }),
     duplicateProfile: (profileId: string) => call('Profile', 'POST', `/profiles/${enc(profileId)}/duplicate`, { body: {} }),
+    addCustomRule: (profileId: string, body: { dimension: 'position' | 'sector' | 'asset_class' | 'country' | 'currency' | 'theme'; key: string; operation: 'cap' | 'floor'; threshold: number; version: number }) =>
+      call('Profile', 'POST', `/profiles/${enc(profileId)}/custom-rules`, { body }),
+    financialProviders: async (signal?: AbortSignal) => {
+      const { body } = await raw('GET', '/risk/providers', { signal });
+      const r = body as { providers: { id: string; name: string; status: string; limitation: string; documentation: string; terms: string }[]; setAside: { id: string; name: string; status: string; reason: string }[]; scope: string; limitations: string[] };
+      if (!r || !Array.isArray(r.providers) || !r.providers.every(p => typeof p.id === 'string' && typeof p.status === 'string') || !Array.isArray(r.setAside)) throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid financial provider status' });
+      return r;
+    },
+    captureFinancialProvider: async (providerId: string, body: { asOf: string; symbol: string; sheet: string; limit: number }) => {
+      const result = await raw('POST', `/risk/providers/${enc(providerId)}/capture`, { body });
+      const r = result.body as { provider: string; label: string; status: string; captureId: string; version: string; unit: string; asOf: string; availableAt: string; source: { sourceUrl: string; retrievedAt: string; rawSha256: string }; records: Record<string, unknown>[]; limitations: string[] };
+      if (!r || typeof r.captureId !== 'string' || typeof r.unit !== 'string' || !Array.isArray(r.records) || !r.source || typeof r.source.rawSha256 !== 'string' || !Array.isArray(r.limitations)) throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid financial provider capture' });
+      return r;
+    },
+    sourceInputs: async (signal?: AbortSignal) => {
+      const { body } = await raw('GET', '/risk/source-inputs', { signal });
+      if (!body || typeof body !== 'object' || !Array.isArray((body as { sources?: unknown }).sources)) throw new ApiRequestError({ status: 200, code: 'invalid_response', message: 'Invalid financial source inputs' });
+      return body as { asOf: string; knownAt: string; sources: { id: string; label?: string; status: string; observation: Record<string, string | number> | null; sourceUrl?: string; retrievedAt?: string; sha256?: string; rights?: string; limitation: string }[] };
+    },
     addExposureLimit: (profileId: string, dimension: 'country' | 'currency', key: string, threshold: number, version: number) =>
       call('Profile', 'POST', `/profiles/${enc(profileId)}/exposure-limits`, { body: { dimension, key, threshold, version } }),
     rebalance: (request: RebalanceRequest, signal?: AbortSignal) =>
@@ -188,6 +275,12 @@ export function createApiClient(config: ClientConfig) {
       call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts`, { body: { name, version, portfolio, ...(currency ? { currency } : {}) } }),
     selectAccount: (profileId: string, accountId: string, version: number) =>
       call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts/${enc(accountId)}/select`, { body: { version } }),
+    savePrivateAsset: (profileId: string, accountId: string, body: { version: number; assetId?: string; name: string; assetType: string; liquidityNotes: string; valuationDate: string; origin: 'user' | 'imported'; sourceDescription: string; nativeCurrency: string; nativeValue: number }) =>
+      call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts/${enc(accountId)}/private-assets`, { body }),
+    refreshAccount: (profileId: string, accountId: string, version: number, asOf?: string) =>
+      call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts/${enc(accountId)}/refresh`, { body: { version, ...(asOf ? { asOf } : {}) } }),
+    transferAccount: (profileId: string, sourceAccountId: string, destinationAccountId: string, amountReporting: number, version: number) =>
+      call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts/${enc(sourceAccountId)}/transfer`, { body: { version, destinationAccountId, amountReporting } }),
     deleteProfile: async (profileId: string): Promise<void> => {
       await raw('DELETE', `/profiles/${enc(profileId)}`);
     },

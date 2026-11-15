@@ -73,6 +73,8 @@ TEMPLATES: dict[tuple[str, str], T] = {
                                            "Les données nécessaires à ce calcul sont postérieures à la date choisie."),
     ("any", "nee:asset_unknown"): _t("{worst} could not be found in the data.", "{worst} est introuvable dans les données."),
     ("any", "nee:dataset_missing"): _t("A dataset this rule needs is not loaded.", "Un jeu de données requis par cette règle n'est pas chargé."),
+    ("any", "nee:no_evidence_loaded"): _t("The classifications needed for this condition are incomplete.",
+                                              "Les classifications nécessaires à cette condition sont incomplètes."),
 }
 
 WHAT: dict[str, T] = {

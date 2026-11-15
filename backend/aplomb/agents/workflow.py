@@ -1156,7 +1156,7 @@ def _event_brief(e, ctx):
             clock = getattr(isolated.ledger, "clock", None)
             created_at = clock() if callable(clock) else f"{isolated.as_of}T00:00:00Z"
             engine = QuantEngine(isolated.gate, isolated.ledger, currency=profile.reporting_currency,
-                                 subject_id=profile.profile_id, created_at=created_at)
+                                 subject_id=profile.profile_id, created_at=created_at, custom_themes=profile.investor_context.custom_theme_definitions if profile.investor_context else ())
             primary = event.sources[0]
             engine.ledger.add_fact(make_fact(
                 engine.ctx, key=fact_key("count.sources", "event", event.event_id, "na", "na"), kind="observed",

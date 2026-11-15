@@ -7,6 +7,12 @@ import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
 import { Loading, ErrorState } from '../../components/common/States';
 import { FactScopeProvider, FactChip } from '../../components/common/FactDrawer';
 import { Risk } from '../portfolio/PortfolioPage';
+import { ActiveFactor, Covariance, Liquidity, NestedFunds } from './ExpandedRisk';
+import { FinancialProviders } from './FinancialProviders';
+import { FocusCandidates } from './FocusCandidates';
+import { ModelInputs } from './ModelInputs';
+import { FinancialInputs } from './FinancialInputs';
+import { SensitivityScenario } from './SensitivityScenario';
 import { fmtPct } from '../../lib/format';
 
 export function RiskPage() { return <ProfileGate>{profile => <RiskContent key={profile.profileId} profile={profile} />}</ProfileGate>; }
@@ -22,6 +28,15 @@ function RiskContent({ profile }: { profile: Profile }) {
     <PageHeader title={tr({ en: `${profile.name}: Risk Intelligence`, fr: `${profile.name} : Analyse des risques` })}>
       <p className="page-sub">{profile.reportingCurrency} · {tr({ en: 'Historical samples, deterministic calculations, inspectable evidence.', fr: 'Échantillons historiques, calculs déterministes, preuves consultables.' })}</p>
     </PageHeader>
+    <FocusCandidates profile={profile} />
+    <Covariance key={`cov|${profile.profileId}|${profile.version}|${windowCode}`} profile={profile} />
+    <Liquidity key={`liquidity|${profile.profileId}|${profile.version}`} profile={profile} />
+    <ActiveFactor key={`active-factor|${profile.profileId}|${profile.version}|${windowCode}`} profile={profile} />
+    <NestedFunds />
+    <FinancialInputs />
+    <FinancialProviders />
+    <ModelInputs />
+    <SensitivityScenario key={`${profile.profileId}|${profile.version}`} profile={profile} />
     {overview.loading && <Loading />}{overview.error && <ErrorState error={overview.error} onRetry={overview.reload} />}
     {overview.data && <FactScopeProvider scope={{ kind: 'local', label: { en: 'Portfolio risk overview', fr: 'Aperçu du risque' }, facts: overview.data.facts }}><Risk overview={overview.data} /></FactScopeProvider>}
     {risk.loading && <Loading />}{risk.error && <ErrorState error={risk.error} onRetry={risk.reload} />}

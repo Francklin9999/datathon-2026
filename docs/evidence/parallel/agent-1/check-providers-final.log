@@ -1,0 +1,318 @@
+
+> aplomb@0.1.0 check
+> npm run check:generated && npm run check:python && npm run typecheck && npm run test:contracts && uv run python scripts/check_specs.py && npm run check:infra
+
+
+> aplomb@0.1.0 check:generated
+> uv run python scripts/export_contracts.py --check && node scripts/generate_contracts.mjs --check && uv run python scripts/build_source_directory.py --check
+
+Contract catalog and JSON Schema are current.
+TypeScript contract types are current.
+
+> aplomb@0.1.0 check:python
+> uv run ruff check backend/aplomb backend/tests scripts/export_contracts.py scripts/live_agents_smoke.py scripts/deploy_site.py scripts/build_source_directory.py scripts/ingest_eonet.py && uv run pytest
+
+All checks passed!
+........................................................................ [  7%]
+........................................................................ [ 15%]
+........................................................................ [ 23%]
+........................................................................ [ 31%]
+........................................................................ [ 39%]
+........................................................................ [ 47%]
+........................................................................ [ 55%]
+........................................................................ [ 63%]
+........................................................................ [ 71%]
+................................................................................................................................ [ 85%]
+........................................................................ [ 93%]
+.......................................................                  [100%]
+=============================== warnings summary ===============================
+backend/tests/api/test_http.py::test_lambda_http_api_v2_adapter
+  /home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/.venv/lib64/python3.12/site-packages/mangum/adapter.py:65: DeprecationWarning: There is no current event loop
+    asyncio.get_event_loop()
+
+backend/tests/integration/test_review_regressions.py::test_sabotage_modes_run_with_scripted_writer[false_comparison-{{fact:F-001}} is higher than {{fact:F-002}}.]
+  /home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/.venv/lib64/python3.12/site-packages/pydantic/main.py:520: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `enum` - serialized value may not be as expected [field_name='failed_checks', input_value='A03', input_type=str])
+    return self.__pydantic_serializer__.to_python(
+
+backend/tests/integration/test_review_regressions.py::test_sabotage_modes_run_with_scripted_writer[unsupported_interpretation-Guaranteed future returns.]
+  /home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/.venv/lib64/python3.12/site-packages/pydantic/main.py:520: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `enum` - serialized value may not be as expected [field_name='failed_checks', input_value='A07', input_type=str])
+    PydanticSerializationUnexpectedValue(Expected `enum` - serialized value may not be as expected [field_name='failed_checks', input_value='A04', input_type=str])
+    return self.__pydantic_serializer__.to_python(
+
+backend/tests/integration/test_run_composition.py::test_sabotage_child_is_isolated_and_reports_actual_strike
+  /home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/.venv/lib64/python3.12/site-packages/pydantic/main.py:520: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `enum` - serialized value may not be as expected [field_name='failed_checks', input_value='A02', input_type=str])
+    PydanticSerializationUnexpectedValue(Expected `enum` - serialized value may not be as expected [field_name='failed_checks', input_value='A04', input_type=str])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+903 passed, 4 warnings, 16 subtests passed in 160.41s (0:02:40)
+
+> aplomb@0.1.0 typecheck
+> npm run typecheck --workspace web
+
+
+> @aplomb/web@0.1.0 typecheck
+> tsc --noEmit
+
+
+> aplomb@0.1.0 test:contracts
+> npm run test:contracts --workspace web
+
+
+> @aplomb/web@0.1.0 test:contracts
+> tsx --test tests/*.test.ts
+
+✔ actual FastAPI responses satisfy the web contracts (1483.604049ms)
+✔ full window omits dates (221.965867ms)
+✔ custom window (0.196134ms)
+✔ custom window needs both dates (0.335187ms)
+✔ optional date rejects explicit null (0.075302ms)
+✔ impossible date (0.617067ms)
+✔ leap date (0.056438ms)
+✔ date is not a timestamp (0.061963ms)
+✔ UTC timestamp (0.619947ms)
+✔ timestamp must use Z (0.139572ms)
+✔ timestamp cannot be naive (0.123181ms)
+✔ timestamp has valid calendar date (0.071848ms)
+✔ default profile ID (0.398301ms)
+✔ custom profile ID (0.057624ms)
+✔ unknown default ID (0.045841ms)
+✔ UUID4 capability (0.3624ms)
+✔ wrong UUID version (0.090084ms)
+✔ fact ID (0.346578ms)
+✔ short fact ID (0.074704ms)
+✔ theme rule family (0.747107ms)
+✔ ticker rule family (0.201637ms)
+✔ sector rule family (0.029544ms)
+✔ unknown rule (0.041827ms)
+✔ unknown theme rule (0.030078ms)
+✔ known theme (0.557582ms)
+✔ catalog prose is not a theme (0.064428ms)
+✔ metric enum closed (0.789277ms)
+✔ funding omits donors (1.079167ms)
+✔ named donors (0.064484ms)
+✔ named donors required (0.062142ms)
+✔ named donors cannot be empty (0.040172ms)
+✔ move units are points (0.928183ms)
+✔ new money can exceed current value (0.045015ms)
+✔ zero move invalid (0.045662ms)
+✔ number string not coerced (0.033153ms)
+✔ boolean is not number (0.028381ms)
+✔ current portfolio check (1.406013ms)
+✔ nullable move must be present (0.069093ms)
+✔ goal target required (1.916195ms)
+✔ theme goal (0.049295ms)
+✔ text segment (1.218325ms)
+✔ fact segment (0.055756ms)
+✔ segment discriminator checked (0.057324ms)
+✔ fact segment requires factId (0.042179ms)
+✔ required bilingual keys (0.494259ms)
+✔ unknown keys are forward compatible (0.031505ms)
+✔ patch must change a field (0.578873ms)
+✔ toggle patch (0.032575ms)
+✔ patch boolean is strict (0.030334ms)
+✔ patch threshold not nullable (0.029004ms)
+✔ partial profile stays partial (1.140361ms)
+✔ partial profile validates supplied fields (0.053035ms)
+✔ partial profile does not add nullability (0.031909ms)
+✔ create draft omits optional fields (1.24513ms)
+✔ create union needs matching variant (0.067907ms)
+✔ batch empty (0.667381ms)
+✔ mixed batch result (1.254378ms)
+✔ error code closed (0.540048ms)
+✔ cached brief may be empty (1.273238ms)
+✔ fictional flag is true (1.106627ms)
+✔ fictional flag cannot be numeric (0.07419ms)
+✔ nonfictional portfolio rejected (0.035393ms)
+✔ integral JSON numbers are counts (0.645068ms)
+✔ fractional counts rejected (0.047956ms)
+✔ boolean counts rejected (0.052136ms)
+✔ count strings not coerced (0.028009ms)
+✔ fact identifiers use ASCII digits (0.047363ms)
+✔ all three fixture response envelopes validate without mutation (17.625188ms)
+✔ validated responses expose useful static types (1.501898ms)
+✔ Python serialization is accepted by the web consumer end to end (368.408759ms)
+✔ meta example contains every feature flag (7.412755ms)
+✔ non-finite numbers and oversized batches are rejected (0.630225ms)
+✔ generated types remain assignable to every documented schema (468.839442ms)
+✔ heatmap: the ends are the poles and zero is the neutral middle (1.823652ms)
+✔ heatmap: lightness moves monotonically away from the middle on each arm (1.279699ms)
+✔ heatmap: every cell text reaches WCAG AA on its own background (3.817334ms)
+✔ heatmap: strength bands read in plain words (0.213019ms)
+✔ count-up: English figures keep groups, decimals and signs (2.115192ms)
+✔ count-up: French figures keep narrow spaces and decimal commas (0.438413ms)
+✔ count-up: intermediate values are written in the source style (0.231786ms)
+✔ count-up: no number means no animation, and the easing settles on 1 (0.16278ms)
+✔ animations: the setting wins over the system, a hidden page never animates (7.561492ms)
+✔ count-up: dates, labels and identifiers are left alone (0.190829ms)
+✔ animations: on by default, before paint, unless Auto or Off was chosen (1.031985ms)
+✔ moveItem reorders and keeps every widget once (3.726837ms)
+✔ resizeItem clamps to each widget limits (0.42074ms)
+✔ normalizeLayout keeps known order, drops unknown, appends missing, clamps, survives garbage (0.513215ms)
+✔ keyboard move and resize (0.50453ms)
+✔ sizeFromPointer snaps a drag to whole columns and rows (0.292615ms)
+✔ indexSeries rebases to 100 on the first point (0.33925ms)
+✔ drawdownSeries is the fall from the running peak, in percent (0.374984ms)
+✔ periodChangePct compares last to first (0.297331ms)
+✔ scope: window follows the app window unless a custom range is set (0.316452ms)
+✔ validateRange catches format, order and out-of-data dates (0.921212ms)
+✔ normalizeScope tolerates corrupt storage and unknown values (0.478757ms)
+✔ filterPositions applies asset groups and minimum weight, largest first (0.33314ms)
+✔ windowQuery sends presets as codes and custom ranges with their dates (0.261549ms)
+✔ normalizeScope snaps the minimum weight to an offered step, so the control always shows the filter in force (0.19267ms)
+✔ custom scope rejects calendar dates that JavaScript rolls into the next month (0.181865ms)
+✔ a rule sentence states the threshold the check was evaluated with, not the current profile value (63.829722ms)
+✔ audit-appended limitation codes, section ids and raw statuses are shown as words (0.538024ms)
+✔ disabled rules stay listed in the plan so they can be enabled again (2.307981ms)
+✔ percentages never show a negative zero (0.78239ms)
+✔ multiple objectives and fractional horizons survive profile copy/edit without sharing mutable context (291.895564ms)
+✔ goal statements remain inputs and do not overwrite deterministic rule thresholds (0.714702ms)
+✔ factor fit accepts finite descriptive outputs and retains unknown R² (3.389499ms)
+✔ fund result preserves unresolved value and provenance and rejects impossible totals (1.03886ms)
+✔ model imports are bounded JSON objects and cannot execute user text (1.72024ms)
+✔ limited fetch: never more than max in flight, first come first served (86.268384ms)
+✔ limited fetch: a request aborted before it starts never reaches the network (1.158023ms)
+✔ worldLayers validates WorldLayersResponse (326.840169ms)
+✔ worldEvents sends repeatable filters as repeated keys and validates the page (5.255162ms)
+✔ worldEvent, worldExposure and worldCountry validate their responses and encode path parameters (10.719898ms)
+✔ worldFacilities and worldHazards validate their responses (4.677111ms)
+✔ replayPresets validates ReplayPresetsResponse (2.129444ms)
+✔ reveal posts RevealRequest to /runs/{id}/reveal and validates RevealResult (4.02234ms)
+✔ feature-disabled and provider-unavailable answers stay typed errors for the pages (0.532849ms)
+✔ fixture mode invents no world or replay data: every T15 endpoint answers 503 upstream_unavailable (12.247203ms)
+✔ events query: repeatable params are repeated keys, blanks are omitted (4.626029ms)
+✔ the filter identity ignores cursor and page size, so cursor pages merge only within one filter set (0.339689ms)
+✔ date ranges: default is the dataset coverage, at most 366 days, never an invented current day (1.132332ms)
+✔ range clamping keeps the end date, respects coverage and reports whether it changed anything (0.45811ms)
+✔ cursor pages merge without duplicates and keep the first position (stable feed order) (389.552516ms)
+✔ portfolio relevance uses only the API flag; an absent flag is not treated as relevant (0.297402ms)
+✔ pin thinning is capped, deterministic, keeps the selected event and counts what it left out (6.960385ms)
+✔ layers: a toggle is enabled only with its flag on and the API reporting the layer available (0.249051ms)
+✔ exposure: non-country codes are a residual row; facts are matched only by country subject (14.072593ms)
+✔ geography: ISO codes, localized names and the TopoJSON decoder (13.162521ms)
+✔ every World and System code shown has an English and a French label (0.370268ms)
+✔ as-of dates are accepted only inside the range the presets endpoint reports (0.120573ms)
+✔ reveal: only a succeeded replay is revealable; until must be after the cutoff and inside the snapshot (2.329261ms)
+✔ a refused replay shows only well-formed details: supported range and assets unknown at the date (0.256195ms)
+✔ reveal figures link only to a reveal fact carrying the same value; series are passed through unchanged (1.253115ms)
+✔ role map: six roles, model work versus deterministic code, tools as in contracts/tools.md §6 (0.240492ms)
+✔ step ↔ role/actor mapping follows run-events.md §2 and flags recorded deviations without rewriting them (1.005651ms)
+✔ tool-call arguments are redacted defensively and the session capability never survives (0.493373ms)
+✔ run readings come from the payload: produced IDs, budget totals, guardrail configured versus applied (1.211389ms)
+✔ event investigation link retains selected source and safely encodes context (0.290534ms)
+✔ persisted event context validates IDs and rejects arbitrary references (0.331274ms)
+✔ site manifest identity rejects invalid or absent release information (0.244205ms)
+✔ reference pin cap preserves sparse regions before adding dense local points (0.193207ms)
+✔ globe: degenerate outlines are dropped before hexagons, centroids land inside the country (3.785627ms)
+✔ globe: events sharing a spot are fanned out, each apart, the rest untouched (4.048581ms)
+✔ globe: a country label moves off the event spikes and off other labels (0.473052ms)
+✔ globe: islands smaller than a hexagon get one, larger land none (71.44376ms)
+✔ tour: the bubble goes on the preferred side when it fits (2.028276ms)
+✔ tour: the bubble flips when the preferred side has no room (0.348038ms)
+✔ tour: the bubble stays inside the viewport horizontally (0.283381ms)
+✔ tour: no target, or a target filling the screen, centres the bubble (0.330776ms)
+✔ tour: the hole hugs the target and stays on screen (0.37ms)
+✔ tour: hidden targets count as missing and routes ignore the trailing slash (0.33982ms)
+✔ tour: stored progress survives bad values and records finished tours once (1.981715ms)
+✔ tour scripts: unique ids, both languages, valid routes (0.811342ms)
+✔ light: the three text roles reach AA on every surface (1.705765ms)
+✔ light: accent text and status colours reach AA on every surface (0.398071ms)
+✔ light: white on the accent fill reaches AA (primary buttons) (0.230612ms)
+✔ light: focus ring reaches 3:1 against every surface (WCAG 1.4.11) (0.189619ms)
+✔ dark: the three text roles reach AA on every surface (0.216846ms)
+✔ dark: accent text and status colours reach AA on every surface (0.257352ms)
+✔ dark: white on the accent fill reaches AA (primary buttons) (0.150532ms)
+✔ dark: focus ring reaches 3:1 against every surface (WCAG 1.4.11) (0.141678ms)
+✔ nextSegmentIndex wraps and supports Home/End (1.53483ms)
+✔ window short labels stay short in both languages (0.319331ms)
+✔ resolveTheme honours an explicit preference (0.1628ms)
+✔ resolveTheme falls back to the system for system/missing/corrupt values (0.133367ms)
+✔ boot script reads the same key the provider writes and sets data-theme (0.330773ms)
+✔ donutArcs: proportional, ignores non-positive, never NaN (3.117139ms)
+✔ donutArcs: weights not summing to 100 are normalised (0.315964ms)
+✔ donutArcs: single item is a full ring; empty input is empty (0.27837ms)
+✔ chartScale pads range and survives flat series (0.293132ms)
+✔ nearestIndex clamps and picks the closest x (0.292529ms)
+✔ areaPath closes the line down to the baseline (0.356736ms)
+✔ linePath joins points in order (0.108451ms)
+✔ rollSegments flags only ASCII digits and keeps every character (0.247341ms)
+✔ themeToApply waits until the stored preference has been read (no flash over the boot script) (0.116647ms)
+✔ only the solid series gets pathLength; the dashed benchmark keeps real dashes (0.126501ms)
+✔ segment accessible name starts with the visible label (WCAG 2.5.3) (0.119063ms)
+✔ splitLimitations dedupes, keeps order and folds after n (0.207987ms)
+✔ browser theme-color follows the resolved theme, not only the OS (0.1154ms)
+✔ motion boot script pauses entrance motion while the page is hidden (0.104714ms)
+✔ listboxNext moves within bounds (no wrap) and supports Home/End (0.123152ms)
+✔ typeaheadIndex finds the next label by prefix, case-insensitive, wrapping (0.099615ms)
+✔ sidebar state is a stored preference applied before first paint (0.095036ms)
+✔ session IDs are s_ + UUIDv4 (1.226173ms)
+✔ protected calls carry the session header; Content-Type only with a body (298.586658ms)
+✔ /health and /meta are anonymous (1.456551ms)
+✔ POST bodies are JSON; window, since and lang go in the query string (3.681383ms)
+✔ ApiError bodies become typed errors with code, status, request id and Retry-After (0.476986ms)
+✔ a 200 body that breaks the contract is rejected, never passed to the UI (0.590468ms)
+✔ network failures and missing sessions are typed (0.539892ms)
+✔ POST /runs: 202 queued and 200 cached both validate; Idempotency-Key forwarded (2.747012ms)
+✔ DELETE 204 resolves without a body (0.310724ms)
+✔ fixture adapter serves only what contract fixtures contain (28.649589ms)
+✔ fixture adapter never invents data for endpoints without fixtures (0.863605ms)
+✔ factIds accept both fixture ("volatilityPct") and live API ("volatility") keys (1.680924ms)
+✔ rule labels never double the unit symbol (19.580706ms)
+✔ watermark is the highest contiguous completed seq, never a running one (330.191143ms)
+✔ delta merge upserts steps by seq and merges fact maps by id (4.214099ms)
+✔ poll cadence: 1 s active, 5 s waiting, stop at terminal, backoff on failure (0.157495ms)
+✔ size 0 previews the baseline with move=null (DESK-03) (2.006792ms)
+✔ only the latest slider request may apply its response (AT-20) (0.142547ms)
+✔ move form validation mirrors api.md 4.2 (0.236326ms)
+✔ a brief is stale when the request on screen differs from the run request (0.142557ms)
+✔ fixture run: references resolve, usage is projected, struck text hidden in normal mode (1.9597ms)
+✔ every displayed catalog code has a non-empty English and French label (0.253335ms)
+✔ holdings validation exposes the actual sum (CRE-03) (0.217154ms)
+✔ profile form: required fields block save; drafts are provisional; request matches contract (3.176739ms)
+✔ Home falls back to surviving facts when the executive summary was rejected (0.937016ms)
+ℹ tests 208
+ℹ suites 0
+ℹ pass 208
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2165.078482
+PASS: 113 specification documents linked; 3 fixtures validated; numeric controls reproduced.
+PASS: delivery artifact/log hashes and all 20 acceptance rows validated.
+Application runtime, live sources and AWS execution are not verified by this check.
+
+> aplomb@0.1.0 check:infra
+> npm --prefix infra run check
+
+
+> aplomb-infra@0.1.0 check
+> npm test && npm run synth
+
+
+> aplomb-infra@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ deployed feature keys match the shared contract catalog (5.628782ms)
+✔ foundation retains private data and cannot imply a working API (419.979277ms)
+✔ routes rewrite deep links and exclude static assets (1.18889ms)
+✔ real handlers/artifacts and bounded model IAM are required (2.598222ms)
+✔ application has exact handlers, finite concurrency and least privilege (268.85275ms)
+✔ release changes publish new isolated IAM and retain old version delivery configuration (96.270572ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1463.28348
+
+> aplomb-infra@0.1.0 synth
+> node scripts/synth.mjs
+
+AI agent detected
+85 feature flags are not configured. Run 'cdk flags --unstable=flags' to learn more.

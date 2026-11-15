@@ -26,7 +26,8 @@ def test_every_documented_endpoint_has_one_registered_method_and_path():
     app = create_app(Settings(data_version="snap-20261113-starter"))
     actual = {
         (method, normalized(route.path))
-        for route in app.routes
+        for item in app.routes
+        for route in (item.effective_route_contexts() if hasattr(item, "effective_route_contexts") else [item])
         for method in route.methods
         if method not in {"HEAD", "OPTIONS"}
     }
