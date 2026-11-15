@@ -1,0 +1,65 @@
+{
+  "baselineRef": "codex/parallel-base-20261115",
+  "integratorBranch": "codex/global-platform-expansion",
+  "mode": "user-launched three independent worktrees",
+  "deploymentAllowed": false,
+  "sourcesTotal": 243,
+  "sourceCounts": {
+    "2": 74,
+    "1": 16,
+    "3": 153
+  },
+  "cards": [
+    {
+      "id": "agent-1",
+      "owner": "user-launched-agent-1",
+      "title": "Investor, portfolio, quantitative risk and decision controls",
+      "state": "ready",
+      "branch": "codex/agent-1-investor-quant",
+      "worktree": ".worktrees/investor-quant",
+      "assignment": "AGENT-1-INVESTOR-QUANT.md",
+      "handoff": "docs/parallel/reports/agent-1/HANDOFF.md",
+      "acceptance": [
+        "Full assigned requirement/source matrix reconciled",
+        "Focused and full verification evidence",
+        "Real source attribution and temporal/ownership checks",
+        "Intentional changes committed and pushed on assigned branch"
+      ],
+      "mergeGate": "Independent integration review, generated-contract reconciliation, merged full tests/build and end-to-end demonstrations; no automatic deployment"
+    },
+    {
+      "id": "agent-2",
+      "owner": "user-launched-agent-2",
+      "title": "Research, security identity, agent orchestration, audit and history",
+      "state": "ready",
+      "branch": "codex/agent-2-research-audit",
+      "worktree": ".worktrees/research-audit",
+      "assignment": "AGENT-2-RESEARCH-AUDIT.md",
+      "handoff": "docs/parallel/reports/agent-2/HANDOFF.md",
+      "acceptance": [
+        "Full assigned requirement/source matrix reconciled",
+        "Focused and full verification evidence",
+        "Real source attribution and temporal/ownership checks",
+        "Intentional changes committed and pushed on assigned branch"
+      ],
+      "mergeGate": "Independent integration review, generated-contract reconciliation, merged full tests/build and end-to-end demonstrations; no automatic deployment"
+    },
+    {
+      "id": "agent-3",
+      "owner": "user-launched-agent-3",
+      "title": "Worldwide observations, globe, external sources and ingestion",
+      "state": "ready",
+      "branch": "codex/agent-3-world-data",
+      "worktree": ".worktrees/world-data",
+      "assignment": "AGENT-3-WORLD-DATA.md",
+      "handoff": "docs/parallel/reports/agent-3/HANDOFF.md",
+      "acceptance": [
+        "Full assigned requirement/source matrix reconciled",
+        "Focused and full verification evidence",
+        "Real source attribution and temporal/ownership checks",
+        "Intentional changes committed and pushed on assigned branch"
+      ],
+      "mergeGate": "Independent integration review, generated-contract reconciliation, merged full tests/build and end-to-end demonstrations; no automatic deployment"
+    }
+  ]
+}

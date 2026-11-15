@@ -14,6 +14,7 @@ from .base import (
     ISODateTime,
     NonNegative,
     Number,
+    Percent,
     ProfileId,
     RunId,
     String,
@@ -244,6 +245,7 @@ class ArchiveProfileRequest(WireModel):
 
 
 class CreateAccountRequest(WireModel):
+    currency: Currency | None = None
     name: Annotated[String, Field(min_length=1, max_length=80)]
     version: Annotated[int, Field(strict=True, ge=1)]
     portfolio: InitialPortfolio
@@ -376,6 +378,41 @@ class CheckRequest(WireModel):
     window: WindowSpec = None
     as_of: ISODate = None
     compare_funding: Boolean = None
+
+
+class RebalanceRequest(WireModel):
+    profile_id: ProfileId
+    profile_version: Annotated[int, Field(strict=True, ge=1)]
+    positions: Annotated[list[Position], Field(min_length=1, max_length=40, json_schema_extra={"tsType": "Position[]"})]
+    window: WindowSpec | None = None
+
+
+class AllocationChange(WireModel):
+    ticker: Ticker
+    before_pct: Percent
+    target_pct: Percent
+    change_pct: Number
+
+
+class RebalanceResponse(WireModel):
+    profile_id: ProfileId
+    profile_version: Annotated[int, Field(strict=True, ge=1)]
+    currency: Currency
+    total_value: NonNegative
+    as_of: ISODate
+    data_version: DataVersion
+    window: WindowSpec
+    changes: list[AllocationChange]
+    portfolio_before: PortfolioSnapshot
+    portfolio_after: PortfolioSnapshot
+    verdict_before: Verdict
+    verdict_after: Verdict
+    counts_before: VerdictCounts
+    counts_after: VerdictCounts
+    rule_checks_before: list[RuleCheck]
+    rule_checks_after: list[RuleCheck]
+    facts: dict[FactId, Fact]
+    assumptions: list[I18nText]
 
 
 class BatchCheckRequest(WireModel):

@@ -1,5 +1,90 @@
 {
   "$defs": {
+    "AccountFXQuote": {
+      "properties": {
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "cadPerUnit": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "observedOn": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "availableAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "source": {
+          "$ref": "#/$defs/SourceRef"
+        }
+      },
+      "required": [
+        "currency",
+        "cadPerUnit",
+        "observedOn",
+        "availableAt",
+        "source"
+      ],
+      "title": "AccountFXQuote",
+      "type": "object"
+    },
+    "AccountValuation": {
+      "properties": {
+        "verifiedChecks": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "nativeCurrency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "nativeValue": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "reportingCurrency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "reportingValue": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "conversionRate": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "valuationDate": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "capturedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "quotes": {
+          "items": {
+            "$ref": "#/$defs/AccountFXQuote"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "nativeCurrency",
+        "nativeValue",
+        "reportingCurrency",
+        "reportingValue",
+        "conversionRate",
+        "valuationDate",
+        "capturedAt",
+        "dataVersion",
+        "quotes"
+      ],
+      "title": "AccountValuation",
+      "type": "object"
+    },
     "AddExposureLimitRequest": {
       "properties": {
         "dimension": {
@@ -131,6 +216,34 @@
         "capturedAt"
       ],
       "title": "AirportsResponse",
+      "type": "object"
+    },
+    "AllocationChange": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "beforePct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "targetPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "changePct": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "ticker",
+        "beforePct",
+        "targetPct",
+        "changePct"
+      ],
+      "title": "AllocationChange",
       "type": "object"
     },
     "AnswerRequest": {
@@ -1119,6 +1232,17 @@
     },
     "CreateAccountRequest": {
       "properties": {
+        "currency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Currency"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "name": {
           "maxLength": 80,
           "minLength": 1,
@@ -5021,6 +5145,17 @@
     },
     "PortfolioAccount": {
       "properties": {
+        "nativeValuation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AccountValuation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "accountId": {
           "pattern": "^acct_[0-9a-f]{12}$",
           "type": "string"
@@ -5551,6 +5686,144 @@
         "pollAfterMs"
       ],
       "title": "QueuedRunResponse",
+      "type": "object"
+    },
+    "RebalanceRequest": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "profileVersion": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "maxItems": 40,
+          "minItems": 1,
+          "tsType": "Position[]",
+          "type": "array"
+        },
+        "window": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WindowSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "profileId",
+        "profileVersion",
+        "positions"
+      ],
+      "title": "RebalanceRequest",
+      "type": "object"
+    },
+    "RebalanceResponse": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "profileVersion": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "totalValue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        },
+        "changes": {
+          "items": {
+            "$ref": "#/$defs/AllocationChange"
+          },
+          "type": "array"
+        },
+        "portfolioBefore": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "portfolioAfter": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "verdictBefore": {
+          "$ref": "#/$defs/Verdict"
+        },
+        "verdictAfter": {
+          "$ref": "#/$defs/Verdict"
+        },
+        "countsBefore": {
+          "$ref": "#/$defs/VerdictCounts"
+        },
+        "countsAfter": {
+          "$ref": "#/$defs/VerdictCounts"
+        },
+        "ruleChecksBefore": {
+          "items": {
+            "$ref": "#/$defs/RuleCheck"
+          },
+          "type": "array"
+        },
+        "ruleChecksAfter": {
+          "items": {
+            "$ref": "#/$defs/RuleCheck"
+          },
+          "type": "array"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        },
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/I18nText"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "profileId",
+        "profileVersion",
+        "currency",
+        "totalValue",
+        "asOf",
+        "dataVersion",
+        "window",
+        "changes",
+        "portfolioBefore",
+        "portfolioAfter",
+        "verdictBefore",
+        "verdictAfter",
+        "countsBefore",
+        "countsAfter",
+        "ruleChecksBefore",
+        "ruleChecksAfter",
+        "facts",
+        "assumptions"
+      ],
+      "title": "RebalanceResponse",
       "type": "object"
     },
     "Refusal": {
@@ -8178,6 +8451,12 @@
     }
   },
   "properties": {
+    "AccountFXQuote": {
+      "$ref": "#/$defs/AccountFXQuote"
+    },
+    "AccountValuation": {
+      "$ref": "#/$defs/AccountValuation"
+    },
     "AddExposureLimitRequest": {
       "$ref": "#/$defs/AddExposureLimitRequest"
     },
@@ -8189,6 +8468,9 @@
     },
     "AirportsResponse": {
       "$ref": "#/$defs/AirportsResponse"
+    },
+    "AllocationChange": {
+      "$ref": "#/$defs/AllocationChange"
     },
     "AnswerRequest": {
       "$ref": "#/$defs/AnswerRequest"
@@ -8664,6 +8946,12 @@
     "QueuedRunResponse": {
       "$ref": "#/$defs/QueuedRunResponse"
     },
+    "RebalanceRequest": {
+      "$ref": "#/$defs/RebalanceRequest"
+    },
+    "RebalanceResponse": {
+      "$ref": "#/$defs/RebalanceResponse"
+    },
     "Refusal": {
       "$ref": "#/$defs/Refusal"
     },
@@ -8918,10 +9206,13 @@
     }
   },
   "required": [
+    "AccountFXQuote",
+    "AccountValuation",
     "AddExposureLimitRequest",
     "AgentRole",
     "AirportReference",
     "AirportsResponse",
+    "AllocationChange",
     "AnswerRequest",
     "AnswerResponse",
     "ApiError",
@@ -9080,6 +9371,8 @@
     "ProposedMove",
     "QuestionOption",
     "QueuedRunResponse",
+    "RebalanceRequest",
+    "RebalanceResponse",
     "Refusal",
     "ReplayInput",
     "ReplayPreset",
@@ -9168,12 +9461,12 @@
   "title": "AplombContracts",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aplomb.local/contracts/1.3.0/schema.json",
-  "x-contract-version": "1.3.0",
+  "$id": "https://aplomb.local/contracts/1.4.0/schema.json",
+  "x-contract-version": "1.4.0",
   "x-spec-sha256": {
     "schemas.md": "8ef77c78d2a4c1ceefc2015264a83fe93b3afcd9912cb8054ad674976d1ff14a",
     "catalog.md": "4ba031046bbf11c423bbd1f1b97e8e0604947fbb0540d7186cf25c7f42034e88",
-    "api.md": "7eeadf7ccc6b453c7f7861444e5a51c77c0ddfff669944ccceecf279e0096737",
+    "api.md": "6f13245221577f105f2940462d7dde9560a4fd815ef7a44bcc2ff711744743e9",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
   }

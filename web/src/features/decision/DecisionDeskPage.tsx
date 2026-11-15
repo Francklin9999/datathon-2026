@@ -5,6 +5,7 @@
  * evidence" creates a decision run kept in ?runId=; compare uses /check/batch with identical inputs.
  */
 import Link from 'next/link';
+import { RebalancePanel } from './RebalancePanel';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
@@ -167,6 +168,8 @@ function DeskContent({ profile }: { profile: Profile }) {
         title={tr({ en: `Test a hypothetical move for ${profile.name}`, fr: `Tester un mouvement hypothétique pour ${profile.name}` })}>
         <p className="page-sub">{tr({ en: 'Describe a move or fill the form. Rule checks are deterministic; the evidence analysis is an audited agent run. Nothing is ever executed.', fr: 'Décrivez un mouvement ou remplissez le formulaire. Les vérifications sont déterministes ; l’analyse des preuves est une exécution d’agents auditée. Rien n’est jamais exécuté.' })}</p>
       </PageHeader>
+
+      <RebalancePanel key={`${profile.profileId}|${profile.version}|${JSON.stringify(windowSpec)}`} profile={profile} />
 
       {contextEvent && <Card title={tr({ en: 'Investigation context', fr: 'Contexte de recherche' })}>
         <p className="small">{tr({ en: 'Event relevance does not establish financial impact. Review its sources before testing a hypothetical move.', fr: 'La pertinence de l’événement ne prouve pas une incidence financière. Examinez ses sources avant de tester un mouvement hypothétique.' })}</p>

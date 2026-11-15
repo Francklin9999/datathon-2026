@@ -103,7 +103,7 @@ Every non-2xx response has the body `ApiError`:
 
 ```json
 {
-  "contractVersion": "1.3.0",
+  "contractVersion": "1.4.0",
   "dataVersion": "snap-20261113-starter",
   "dataAsOf": "2026-11-12",
   "environment": "aws",
@@ -580,11 +580,10 @@ Create/replace profile requests accept optional `investorContext`: country code 
 letters), investorType, language, up to 20 objectives (name, horizonYears > 0, priority 1–100,
 optional targetAmount in reporting currency, optional deadline, and origin), liquidityNotes and
 riskCapacityNotes. These are user statements, not regulatory policies or verified financial
-facts. Existing profiles require no migration. Reporting calculations still support CAD/USD;
-country context does not enable additional FX or tax coverage.
+facts. Existing profiles require no migration. Reporting coverage is advertised by `Meta.reportingCurrencies`; country context does not establish tax coverage.
 
 `GET /assets/{ticker}/analytics` accepts the same preset/custom window semantics as portfolio
-reads and `currency=CAD|USD`. It returns AssetAnalyticsResponse with four measurements and a
+reads and a supported ISO reporting `currency`. It returns AssetAnalyticsResponse with four measurements and a
 local claims ledger. Missing history returns null values with reasons, never zero risk.
 
 `GET /profiles/{profileId}/risk` returns RiskDiagnosticsResponse with daily historical 95% VaR,
@@ -596,5 +595,12 @@ original portfolio becomes the Primary account on first creation. At most 20 acc
 positions per analyzed portfolio are supported. Selection preserves unsaved-in-account active
 holdings and increments the profile version. `accountId=aggregate` combines value-weighted
 positions in the common reporting currency, deduplicates securities and prohibits holdings
-edits. Cross-currency aggregation requires a sourced FX implementation and is unavailable.
+edits. Optional creation `currency` identifies the native currency of the explicitly entered capital (default: profile reporting currency). Supported conversion uses the pinned FX snapshot at `dataAsOf`, via CAD-per-unit cross rates; missing quotes reject creation without changing state.
+
+`PortfolioAccount.nativeValuation` retains the original capital/currency, reporting value, conversion rate, snapshot and valuation date, source rows/passports and independently executed check codes. Account portfolios remain stored in reporting currency so individual and aggregate analyses share one base. These are fixed fictional capital inputs, not current asset valuations, currency trades, forecasts or transfer instructions. No spread, fees or taxes are inferred. Switching accounts does not silently revalue native capital. Editing capital explicitly in reporting currency clears the earlier native receipt. Holdings-only edits preserve it. Snapshot/version, source row identity, quote set, currency direction and multiplication are checked independently against the pinned dataset. Dates and rate inputs remain inspectable.
 All account operations require session ownership, optimistic version and profile_creator.
+
+
+| POST `/rebalance/check` | Full target allocation, including reductions and removals | `RebalanceResponse` |
+
+`RebalanceRequest` contains `profileId`, the current `profileVersion`, the complete target `positions` and optional `window`. Target weights must sum to 100%; duplicate or unsupported securities, stale profiles and empty targets are rejected. This is a read-only comparison at constant modeled capital. Omitted holdings have zero final weight. Before/after policy results, metrics, allocation changes and the calculation ledger share the pinned snapshot and reporting currency. No maximum purchase-size boundary is inferred for a multi-asset rebalance. No orders, tax lots, execution costs, spreads, liquidity, new financing, independent model review or research are implied. Missing evidence remains insufficient. The existing incremental purchase endpoint retains its existing semantics.

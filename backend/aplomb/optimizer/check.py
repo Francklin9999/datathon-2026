@@ -179,6 +179,10 @@ class CheckServiceImpl:
         self.clock = clock or (lambda: datetime.now(timezone.utc))
         self.ledger_factory = ledger_factory
 
+    def rebalance(self, session_id: str, request: a.RebalanceRequest) -> a.RebalanceResponse:
+        from .rebalance import check_targets
+        return check_targets(self.profiles, self.snapshot(), session_id, request, _now(self.clock))
+
     def check(self, session_id: str, request: a.CheckRequest) -> m.CheckResult:
         started = time.perf_counter()
         profile = self.profiles.get(session_id, request.profile_id)

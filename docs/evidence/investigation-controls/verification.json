@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-11-15T15:37:20.988424+00:00",
+  "contractVersion": "1.4.0",
+  "pythonTests": 845,
+  "pythonSubtests": 16,
+  "webTests": 180,
+  "infraTests": 6,
+  "httpChecks": 8,
+  "nativeAccountReceiptChecks": 8,
+  "browserInteractionChecks": 2,
+  "browserExceptions": 0,
+  "mobile": {
+    "viewport": 390,
+    "scroll": 390
+  },
+  "staticExport": "passed",
+  "deployed": false,
+  "scope": "Native-currency account capital and deterministic complete target allocations. Full specification remains open.",
+  "sha256": {
+    "browser-account-receipt.png": "f8fc29c3a3f15a82262949fff1782b79685ee34c7567cfa2393338d084f13210",
+    "browser-interactions.json": "0f0d629b7f0947f6ef099d8cd9530bf716c9aaa20a0cfb531dea6bee47af346a",
+    "browser-interactions.log": "ce4b80befcf2ea4ff52fb28ea840c551308e806e379ed3d6c4e48520537a1df1",
+    "browser-target-allocation.png": "355ba2488b5ecea721606d7fb38e42ec64d058cca0a059d2efe2cedf979ee73b",
+    "focused-tests.log": "fe9dca0451129aaabdd76ea13e310b61a52091a146a1f9fe5b72b851eb33547f",
+    "full-check.log": "3e0ce2231fdd7a31f9c89274f2164ab5a3843545e72f44c959eeaed04b4124cc",
+    "http-smoke.json": "af1b6d0d48deb2e2a8af49bc72464cce9e9c1a3256c67394be7c95d02f7108af",
+    "http-smoke.log": "d9bec66db717112f9e3b8d79437190c4df5c56bf00973f1c7e577514d521818c",
+    "scripts-lint.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "static-build.log": "c2042c976d34aca78d26cc609046c43f059ee9ce6df0de5616638da2b4f02e3f"
+  }
+}

@@ -1,0 +1,244 @@
+source_id,agent,category,name,url,access,use
+SRC-001,2,MARKET DATA & SECURITIES,Alpha Vantage,https://www.alphavantage.co/documentation/,F,Stocks FX crypto macro
+SRC-002,2,MARKET DATA & SECURITIES,Finnhub,https://finnhub.io/docs/api,F,Stocks fundamentals news
+SRC-003,2,MARKET DATA & SECURITIES,Twelve Data,https://twelvedata.com/docs,F,Global prices and indicators
+SRC-004,2,MARKET DATA & SECURITIES,Financial Modeling Prep,https://site.financialmodelingprep.com/developer/docs,F,Company fundamentals and prices
+SRC-005,2,MARKET DATA & SECURITIES,EOD Historical Data,https://eodhd.com/financial-apis/,F,International securities prices
+SRC-006,2,MARKET DATA & SECURITIES,Massive (Polygon),https://massive.com/docs,F,Stocks options indices FX crypto
+SRC-007,2,MARKET DATA & SECURITIES,Alpaca Market Data,https://docs.alpaca.markets/docs/market-data,F,US equities and crypto
+SRC-008,2,MARKET DATA & SECURITIES,Tiingo,https://www.tiingo.com/documentation/general/overview,F,EOD prices and news
+SRC-009,2,MARKET DATA & SECURITIES,Marketstack,https://marketstack.com/documentation,F,Global EOD stocks
+SRC-010,2,MARKET DATA & SECURITIES,Nasdaq Data Link,https://docs.data.nasdaq.com/,M,Open and premium datasets
+SRC-011,2,MARKET DATA & SECURITIES,Databento,https://databento.com/docs,T,Historical tick and market depth
+SRC-012,2,MARKET DATA & SECURITIES,Tradier,https://documentation.tradier.com/,S,Options and sandbox market data
+SRC-013,1,MARKET DATA & SECURITIES,OANDA v20,https://developer.oanda.com/rest-live-v20/introduction/,S,Forex prices and practice account
+SRC-014,2,MARKET DATA & SECURITIES,Interactive Brokers Client Portal,https://www.interactivebrokers.com/campus/ibkr-api-page/,S,Worldwide brokerage market data
+SRC-015,2,MARKET DATA & SECURITIES,Intrinio,https://docs.intrinio.com/,T,Institutional US financial data
+SRC-016,2,MARKET DATA & SECURITIES,Finazon,https://finazon.io/,S,Licensed modular market feeds
+SRC-017,2,MARKET DATA & SECURITIES,Financial Datasets,https://docs.financialdatasets.ai/,T,Company financials and earnings
+SRC-018,2,MARKET DATA & SECURITIES,Stooq,https://stooq.com/dbh/,D,Historical daily prices files
+SRC-019,2,MARKET DATA & SECURITIES,Yahoo Finance / yfinance,https://github.com/ranaroussi/yfinance,U,Unofficial Yahoo historical series
+SRC-020,2,MARKET DATA & SECURITIES,J-Quants (Japan),https://jpx-jquants.com/en/spec/quickstart,F,Japan stock prices and filings
+SRC-021,2,MARKET DATA & SECURITIES,KOSIS Korea,https://kosis.kr/openapi/,F,Korean economic statistics
+SRC-022,1,MARKET DATA & SECURITIES,Fama French factors,https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html,D,Historical equity factors
+SRC-023,1,MARKET DATA & SECURITIES,AQR Data Sets,https://www.aqr.com/Insights/Datasets,D,Factor datasets
+SRC-024,1,MARKET DATA & SECURITIES,Cboe indices data,https://www.cboe.com/us/indices/market_statistics/,R,VIX and indices public reports
+SRC-025,1,MARKET DATA & SECURITIES,OCC market data,https://www.theocc.com/market-data,D,Options volume and open interest
+SRC-026,1,MARKET DATA & SECURITIES,FINRA short sale volume,https://www.finra.org/finra-data/browse-catalog/short-sale-volume-data,D,Off exchange short sale volume
+SRC-027,1,MARKET DATA & SECURITIES,FINRA short interest,https://www.finra.org/finra-data/browse-catalog/equity-short-interest/data,D,Short interest
+SRC-028,1,MARKET DATA & SECURITIES,CFTC Commitments of Traders,https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm,D,Futures positioning
+SRC-029,1,MARKET DATA & SECURITIES,CFTC Public Reporting Environment,https://publicreporting.cftc.gov/,A,Swaps public reporting
+SRC-030,1,MARKET DATA & SECURITIES,CME Group DataMine,https://www.cmegroup.com/market-data/datamine-historical-data.html,P,Futures historical data
+SRC-031,1,MARKET DATA & SECURITIES,FRED ICE BofA OAS series,https://fred.stlouisfed.org/categories/32297,A,Corporate credit spreads
+SRC-032,1,MARKET DATA & SECURITIES,US Treasury yield curve,https://home.treasury.gov/resource-center/data-chart-center/interest-rates,A,Treasury curve
+SRC-033,1,MARKET DATA & SECURITIES,NY Fed Markets API,https://markets.newyorkfed.org/static/docs/markets-api.html,A,SOFR and money market rates
+SRC-034,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEC EDGAR submissions API,https://www.sec.gov/search-filings/edgar-application-programming-interfaces,A,US issuer filings
+SRC-035,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEC Company Facts XBRL API,https://www.sec.gov/search-filings/edgar-application-programming-interfaces,A,Structured company facts
+SRC-036,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEC company concepts XBRL,https://www.sec.gov/search-filings/edgar-application-programming-interfaces,A,Time series company concept
+SRC-037,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEC companyframes XBRL,https://www.sec.gov/search-filings/edgar-application-programming-interfaces,A,Cross company concepts
+SRC-038,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEC filing RSS,https://www.sec.gov/about/rss-feeds,A,Latest disclosures
+SRC-039,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEC 13F data,https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets,D,Institutional holdings
+SRC-040,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEC N-PORT data,https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets,D,Mutual fund and ETF holdings
+SRC-041,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEC N-CEN data,https://www.sec.gov/data-research/sec-markets-data/form-n-cen-data-sets,D,Fund metadata
+SRC-042,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEC Insider Transactions,https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets,D,Forms 3 4 5
+SRC-043,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",GLEIF API,https://www.gleif.org/en/lei-data/gleif-api/,A,LEI entities and relationships
+SRC-044,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",GLEIF Golden Copy files,https://www.gleif.org/en/lei-data/gleif-golden-copy/download-the-golden-copy,D,Entity reference bulk
+SRC-045,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",UK Companies House API,https://developer.company-information.service.gov.uk/,F,UK incorporation officers filings
+SRC-046,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",OpenCorporates API,https://api.opencorporates.com/documentation/API-Reference,M,Global corporate registry
+SRC-047,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",Corporations Canada open data,https://ised-isde.canada.ca/site/corporations-canada/en/open-data,D,Canadian federal corporations
+SRC-048,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEDAR+,https://www.sedarplus.ca/,R,Canadian issuer filings portal
+SRC-049,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",SEDI,https://www.sedi.ca/,R,Canadian insider records portal
+SRC-050,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",Companies Registration Office Ireland,https://www.cro.ie/,D,Irish business data
+SRC-051,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",Australian Business Register ABN Lookup,https://abr.business.gov.au/Tools/AbnLookup,F,Australian company identifiers
+SRC-052,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",EU ESMA registers,https://registers.esma.europa.eu/publication/,A,EU regulated entities
+SRC-053,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",EBA Transparency Exercise,https://www.eba.europa.eu/risk-and-data-analysis/risk-analysis/eu-wide-transparency-exercise,D,EU bank risk disclosures
+SRC-054,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",iShares Holdings,https://www.ishares.com/,D,Issuer published ETF holdings
+SRC-055,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",Vanguard Fund Holdings,https://investor.vanguard.com/investment-products/etfs,D,Fund composition
+SRC-056,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",State Street SPDR Holdings,https://www.ssga.com/,D,Fund holdings
+SRC-057,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",Wikidata SPARQL,https://query.wikidata.org/,A,Global entities and relations
+SRC-058,2,"COMPANY FILINGS, OWNERSHIP & FUND HOLDINGS",OpenFIGI,https://www.openfigi.com/api,F,Global instrument identifier matching
+SRC-059,2,"CRYPTO, BLOCKCHAIN & DEFI",CoinGecko API,https://docs.coingecko.com/,F,Global crypto quotes and tokens
+SRC-060,2,"CRYPTO, BLOCKCHAIN & DEFI",CoinMarketCap API,https://coinmarketcap.com/api/documentation/v1/,F,Coins markets and listings
+SRC-061,2,"CRYPTO, BLOCKCHAIN & DEFI",CoinPaprika API,https://api.coinpaprika.com/,F,Crypto prices and metadata
+SRC-062,2,"CRYPTO, BLOCKCHAIN & DEFI",CryptoCompare API,https://min-api.cryptocompare.com/documentation,F,Crypto pricing and volume
+SRC-063,2,"CRYPTO, BLOCKCHAIN & DEFI",CoinLore API,https://www.coinlore.com/cryptocurrency-data-api,A,Coins market cap prices
+SRC-064,2,"CRYPTO, BLOCKCHAIN & DEFI",DexScreener API,https://docs.dexscreener.com/api/reference,A,DEX pools liquidity and trades
+SRC-065,2,"CRYPTO, BLOCKCHAIN & DEFI",DefiLlama API,https://api-docs.defillama.com/,A,DeFi TVL stablecoins protocols
+SRC-066,2,"CRYPTO, BLOCKCHAIN & DEFI",GeckoTerminal API,https://apiguide.geckoterminal.com/,A,Onchain DEX pool information
+SRC-067,2,"CRYPTO, BLOCKCHAIN & DEFI",Alternative.me Fear Greed,https://alternative.me/crypto/fear-and-greed-index/,A,Crypto fear greed indicator
+SRC-068,2,"CRYPTO, BLOCKCHAIN & DEFI",Binance public market API,https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints,A,Exchange spot order books trades
+SRC-069,2,"CRYPTO, BLOCKCHAIN & DEFI",Binance historical data,https://data.binance.vision/,D,Exchange crypto historical files
+SRC-070,2,"CRYPTO, BLOCKCHAIN & DEFI",Coinbase Exchange API,https://docs.cdp.coinbase.com/exchange/reference/exchangerestapi_getproductbook,A,Exchange crypto orders/trades
+SRC-071,2,"CRYPTO, BLOCKCHAIN & DEFI",Kraken REST API,https://docs.kraken.com/api/,A,Crypto exchange public market data
+SRC-072,2,"CRYPTO, BLOCKCHAIN & DEFI",Bitstamp API,https://www.bitstamp.net/api/,A,Spot cryptocurrency market data
+SRC-073,2,"CRYPTO, BLOCKCHAIN & DEFI",Etherscan API,https://docs.etherscan.io/,F,Blockchain transactions and balances
+SRC-074,2,"CRYPTO, BLOCKCHAIN & DEFI",Blockscout API,https://docs.blockscout.com/devs/apis,A,Blockchain explorer
+SRC-075,2,"CRYPTO, BLOCKCHAIN & DEFI",mempool.space API,https://mempool.space/docs/api/rest,A,Bitcoin mempool/fees
+SRC-076,2,"CRYPTO, BLOCKCHAIN & DEFI",Blockchain.com Data API,https://www.blockchain.com/explorer/api,A,Bitcoin charts and on-chain
+SRC-077,2,"CRYPTO, BLOCKCHAIN & DEFI",Blockchair API,https://blockchair.com/api/docs,F,Multi-chain blockchain data
+SRC-078,2,"CRYPTO, BLOCKCHAIN & DEFI",Dune API,https://docs.dune.com/api-reference/overview/introduction,F,Onchain analytics queries
+SRC-079,2,"CRYPTO, BLOCKCHAIN & DEFI",Flipside,https://docs.flipsidecrypto.xyz/,F,Crypto analytical queries
+SRC-080,2,"CRYPTO, BLOCKCHAIN & DEFI",Alchemy,https://www.alchemy.com/docs,F,Blockchain RPC/data
+SRC-081,2,"CRYPTO, BLOCKCHAIN & DEFI",Infura,https://docs.metamask.io/services/,F,Blockchain RPC
+SRC-082,2,"CRYPTO, BLOCKCHAIN & DEFI",QuickNode,https://www.quicknode.com/docs,F,Blockchain RPC and data
+SRC-083,2,"CRYPTO, BLOCKCHAIN & DEFI",Covalent GoldRush API,https://goldrush.dev/docs/,F,Token balances and historical
+SRC-084,2,"CRYPTO, BLOCKCHAIN & DEFI",The Graph,https://thegraph.com/docs/en/,F,GraphQL indexed on-chain
+SRC-085,2,"CRYPTO, BLOCKCHAIN & DEFI",Glassnode,https://docs.glassnode.com/,M,Onchain market metrics
+SRC-086,2,"MACRO, CENTRAL BANKS, ECONOMICS",FRED API,https://fred.stlouisfed.org/docs/api/fred/,F,Macro time series
+SRC-087,2,"MACRO, CENTRAL BANKS, ECONOMICS",ALFRED vintages,https://fred.stlouisfed.org/docs/api/fred/,F,Point in time revisions
+SRC-088,1,"MACRO, CENTRAL BANKS, ECONOMICS",Bank of Canada Valet,https://www.bankofcanada.ca/valet/docs/,A,Canadian FX and rates
+SRC-089,3,"MACRO, CENTRAL BANKS, ECONOMICS",World Bank Indicators,https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api,A,Global national indicators
+SRC-090,3,"MACRO, CENTRAL BANKS, ECONOMICS",World Bank SDMX,https://datahelpdesk.worldbank.org/knowledgebase/articles/1886701-sdmx-api-queries,A,Structured World Bank data
+SRC-091,3,"MACRO, CENTRAL BANKS, ECONOMICS",IMF SDMX API,https://data.imf.org/en/Resource-Pages/IMF-API,A,International macro series
+SRC-092,3,"MACRO, CENTRAL BANKS, ECONOMICS",OECD SDMX API,https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html,A,Global economic indicators
+SRC-093,3,"MACRO, CENTRAL BANKS, ECONOMICS",ECB SDMX,https://data.ecb.europa.eu/help/getting-data-web-services-sdmx-0,A,Eurozone rates/economy
+SRC-094,3,"MACRO, CENTRAL BANKS, ECONOMICS",BIS SDMX,https://stats.bis.org/api-doc/v2/,A,Banking capital cross-border loans
+SRC-095,3,"MACRO, CENTRAL BANKS, ECONOMICS",Eurostat REST,https://ec.europa.eu/eurostat/web/main/data/web-services,A,EU economic statistics
+SRC-096,3,"MACRO, CENTRAL BANKS, ECONOMICS",Statistics Canada Web Data Service,https://www.statcan.gc.ca/en/developers/wds,A,Canadian statistical tables
+SRC-097,3,"MACRO, CENTRAL BANKS, ECONOMICS",US Census API,https://www.census.gov/data/developers/data-sets.html,F,US demographics and business
+SRC-098,3,"MACRO, CENTRAL BANKS, ECONOMICS",US BLS API,https://www.bls.gov/developers/,F,US labor and inflation
+SRC-099,3,"MACRO, CENTRAL BANKS, ECONOMICS",US BEA API,https://apps.bea.gov/api/signup/,F,US GDP national accounts
+SRC-100,1,"MACRO, CENTRAL BANKS, ECONOMICS",US Treasury Fiscal Data,https://fiscaldata.treasury.gov/api-documentation/,A,Fiscal and debt data
+SRC-101,1,"MACRO, CENTRAL BANKS, ECONOMICS",NY Fed Markets API,https://markets.newyorkfed.org/static/docs/markets-api.html,A,Money market reference rates
+SRC-102,3,"MACRO, CENTRAL BANKS, ECONOMICS",NY Fed Survey Data,https://www.newyorkfed.org/microeconomics/sce,D,Consumer expectations
+SRC-103,3,"MACRO, CENTRAL BANKS, ECONOMICS",Federal Reserve Data Download,https://www.federalreserve.gov/data.htm,D,US banking and financial releases
+SRC-104,3,"MACRO, CENTRAL BANKS, ECONOMICS",Federal Reserve RSS,https://www.federalreserve.gov/feeds/feeds.htm,A,Monetary policy publications
+SRC-105,3,"MACRO, CENTRAL BANKS, ECONOMICS",ECB RSS,https://www.ecb.europa.eu/home/html/rss.en.html,A,Euro central bank news
+SRC-106,3,"MACRO, CENTRAL BANKS, ECONOMICS",UNdata API,https://data.un.org/Host.aspx?Content=API,A,UN global indicators
+SRC-107,3,"MACRO, CENTRAL BANKS, ECONOMICS",UNICEF SDMX API,https://data.unicef.org/sdmx-api-documentation/,A,Global social indicators
+SRC-108,3,"MACRO, CENTRAL BANKS, ECONOMICS",ILO SDMX,https://sdmx.ilo.org/,A,Labor worldwide
+SRC-109,3,"MACRO, CENTRAL BANKS, ECONOMICS",WHO GHO OData,https://www.who.int/data/gho/info/gho-odata-api,A,Global health indicators
+SRC-110,3,"MACRO, CENTRAL BANKS, ECONOMICS",FAOSTAT API/Downloads,https://www.fao.org/faostat/en/#data,D,Global agriculture
+SRC-111,3,"MACRO, CENTRAL BANKS, ECONOMICS",WTO Timeseries API,https://apiportal.wto.org/,F,Trade tariffs and policy
+SRC-112,3,"MACRO, CENTRAL BANKS, ECONOMICS",UN Comtrade API,https://comtradeplus.un.org/en/api-docs,A,Merchandise trade
+SRC-113,3,"MACRO, CENTRAL BANKS, ECONOMICS",WITS Trade API,https://wits.worldbank.org/witsapiintro.aspx?lang=en,A,Tariff trade indicators
+SRC-114,3,"MACRO, CENTRAL BANKS, ECONOMICS",UNCTADstat,https://unctadstat.unctad.org/,D,Trade investment shipping
+SRC-115,3,"NEWS, OSINT, GEOPOLITICS",GDELT DOC 2.0,https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/,A,News search timeline
+SRC-116,3,"NEWS, OSINT, GEOPOLITICS",GDELT Events,https://www.gdeltproject.org/data.html,D,Global event records
+SRC-117,3,"NEWS, OSINT, GEOPOLITICS",GDELT GKG,https://www.gdeltproject.org/data.html,D,Knowledge graph themes
+SRC-118,3,"NEWS, OSINT, GEOPOLITICS",GDELT GEO,https://www.gdeltproject.org/data.html,A,Geolocated news mentions
+SRC-119,3,"NEWS, OSINT, GEOPOLITICS",Guardian Open Platform,https://open-platform.theguardian.com/access/,F,News articles search
+SRC-120,3,"NEWS, OSINT, GEOPOLITICS",NewsAPI,https://newsapi.org/pricing,R,News aggregation dev restricted
+SRC-121,3,"NEWS, OSINT, GEOPOLITICS",Mediastack,https://mediastack.com/documentation,F,News headlines
+SRC-122,3,"NEWS, OSINT, GEOPOLITICS",Currents API,https://currentsapi.services/,F,World news
+SRC-123,3,"NEWS, OSINT, GEOPOLITICS",NewsData.io,https://newsdata.io/documentation,F,News API
+SRC-124,3,"NEWS, OSINT, GEOPOLITICS",The News API,https://www.thenewsapi.com/documentation,F,News search
+SRC-125,3,"NEWS, OSINT, GEOPOLITICS",Newscatcher API,https://www.newscatcherapi.com/,T,News and extraction
+SRC-126,3,"NEWS, OSINT, GEOPOLITICS",Wikimedia Pageviews,https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/,A,Attention indicators
+SRC-127,3,"NEWS, OSINT, GEOPOLITICS",Wikipedia Recent Changes,https://www.mediawiki.org/wiki/API:Recent_changes,A,Edit activity
+SRC-128,3,"NEWS, OSINT, GEOPOLITICS",Google Trends API,https://developers.google.com/search/apis/trends,R,Search trends alpha
+SRC-129,3,"NEWS, OSINT, GEOPOLITICS",Google News RSS,https://news.google.com/rss,U,News feeds terms/reuse
+SRC-130,3,"NEWS, OSINT, GEOPOLITICS",UCDP GED,https://ucdp.uu.se/downloads/,D,Geolocated historical conflict
+SRC-131,3,"NEWS, OSINT, GEOPOLITICS",ACLED API,https://acleddata.com/api-documentation/getting-started,F,Conflict events registration/approval
+SRC-132,3,"NEWS, OSINT, GEOPOLITICS",ReliefWeb API,https://apidoc.reliefweb.int/,S,Humanitarian reports disasters
+SRC-133,3,"NEWS, OSINT, GEOPOLITICS",Humanitarian Data Exchange HAPI,https://hdx-hapi.readthedocs.io/en/latest/,A,Humanitarian subnational indicators
+SRC-134,3,"NEWS, OSINT, GEOPOLITICS",GDACS API,https://www.gdacs.org/gdacsapi/swagger/index.html,A,Disaster alerts
+SRC-135,3,"NEWS, OSINT, GEOPOLITICS",GDELT TV API,https://api.gdeltproject.org/api/v2/tv/tv,R,Broadcast monitoring access restrictions
+SRC-136,3,"NEWS, OSINT, GEOPOLITICS",OFAC Sanctions,https://ofac.treasury.gov/sanctions-list-service,D,Sanctioned people/entities
+SRC-137,3,"NEWS, OSINT, GEOPOLITICS",UN Sanctions,https://main.un.org/securitycouncil/en/sanctions/un-sc-consolidated-list,D,UN sanctioned entities
+SRC-138,3,"NEWS, OSINT, GEOPOLITICS",EU Sanctions Map,https://www.sanctionsmap.eu/,D,EU sanctions
+SRC-139,3,"NEWS, OSINT, GEOPOLITICS",UK Sanctions List,https://www.gov.uk/government/publications/the-uk-sanctions-list,D,UK sanctions
+SRC-140,3,"NEWS, OSINT, GEOPOLITICS",US Congress API,https://api.congress.gov/,F,Legislation bills votes
+SRC-141,3,"NEWS, OSINT, GEOPOLITICS",Federal Register API,https://www.federalregister.gov/developers/documentation/api/v1,A,US proposed/final regulations
+SRC-142,3,"NEWS, OSINT, GEOPOLITICS",Regulations.gov API,https://open.gsa.gov/api/regulationsgov/,F,US regulation comments/documents
+SRC-143,3,"NEWS, OSINT, GEOPOLITICS",Canada Gazette RSS,https://gazette.gc.ca/rss/sc-rb-eng.html,A,Canadian policy publications
+SRC-144,3,"NEWS, OSINT, GEOPOLITICS",EU EUR-Lex API,https://eur-lex.europa.eu/content/help/data-reuse/reuse-contents-eurlex-details.html,A,EU laws legislation and publications
+SRC-145,3,"NEWS, OSINT, GEOPOLITICS",EU TED API,https://docs.ted.europa.eu/api/latest/index.html,A,Public procurement notices
+SRC-146,3,"NEWS, OSINT, GEOPOLITICS",V-Dem Dataset,https://v-dem.net/data/the-v-dem-dataset/,D,Governance historical indices
+SRC-147,3,"NEWS, OSINT, GEOPOLITICS",World Governance Indicators,https://www.worldbank.org/en/publication/worldwide-governance-indicators,D,Governance metrics
+SRC-148,3,"MAP, GEOSPATIAL, GLOBE",OpenStreetMap API,https://wiki.openstreetmap.org/wiki/API_v0.6,A,OSM objects and edits
+SRC-149,3,"MAP, GEOSPATIAL, GLOBE",Overpass API,https://wiki.openstreetmap.org/wiki/Overpass_API,A,OSM geographic queries
+SRC-150,3,"MAP, GEOSPATIAL, GLOBE",Geofabrik Downloads,https://download.geofabrik.de/,D,OSM extracts
+SRC-151,3,"MAP, GEOSPATIAL, GLOBE",Nominatim,https://nominatim.org/release-docs/latest/api/Overview/,R,Geocoding public policy
+SRC-152,3,"MAP, GEOSPATIAL, GLOBE",GeoNames,https://www.geonames.org/export/web-services.html,F,Worldwide placenames
+SRC-153,3,"MAP, GEOSPATIAL, GLOBE",Natural Earth,https://www.naturalearthdata.com/downloads/,D,Country borders physical geography
+SRC-154,3,"MAP, GEOSPATIAL, GLOBE",geoBoundaries API,https://www.geoboundaries.org/api.html,A,Admin boundaries
+SRC-155,3,"MAP, GEOSPATIAL, GLOBE",Overture Maps,https://docs.overturemaps.org/,D,Open global buildings places transport
+SRC-156,3,"MAP, GEOSPATIAL, GLOBE",OpenAddresses,https://openaddresses.io/,D,Worldwide address files
+SRC-157,3,"MAP, GEOSPATIAL, GLOBE",NASA GIBS,https://nasa-gibs.github.io/gibs-api-docs/access-basics/,A,Earth satellite basemaps
+SRC-158,3,"MAP, GEOSPATIAL, GLOBE",NASA Earthdata CMR,https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html,A,NASA datasets discovery
+SRC-159,3,"MAP, GEOSPATIAL, GLOBE",OpenTopography,https://opentopography.org/developers,F,Elevation and terrain
+SRC-160,3,"MAP, GEOSPATIAL, GLOBE",Copernicus Data Space,https://documentation.dataspace.copernicus.eu/APIs.html,F,Sentinel satellite imagery
+SRC-161,3,"MAP, GEOSPATIAL, GLOBE",Sentinel Hub,https://docs.sentinel-hub.com/api/latest/,T,Satellite imagery processing
+SRC-162,3,"MAP, GEOSPATIAL, GLOBE",USGS EarthExplorer M2M,https://m2m.cr.usgs.gov/api/docs/json/,S,Landsat and remote sensing
+SRC-163,3,"MAP, GEOSPATIAL, GLOBE",MapTiler,https://docs.maptiler.com/cloud/api/,F,Maps and geocoding tiles
+SRC-164,3,"MAP, GEOSPATIAL, GLOBE",Mapbox,https://docs.mapbox.com/api/overview/,F,Mapping tiles/geocoding
+SRC-165,3,"MAP, GEOSPATIAL, GLOBE",Cesium ion,https://cesium.com/learn/ion/ion-rest-api/,F,3D world terrain tiles
+SRC-166,3,"MAP, GEOSPATIAL, GLOBE",OpenRouteService,https://openrouteservice.org/dev/,F,Routing and geocoding
+SRC-167,3,"MAP, GEOSPATIAL, GLOBE",Geoapify,https://apidocs.geoapify.com/,F,Maps places geocoding
+SRC-168,3,"MAP, GEOSPATIAL, GLOBE",LocationIQ,https://locationiq.com/docs,F,Geocoding map tiles
+SRC-169,3,"MAP, GEOSPATIAL, GLOBE",OpenCage,https://opencagedata.com/api,F,Geocoding worldwide
+SRC-170,3,"MAP, GEOSPATIAL, GLOBE",HERE Geocoding,https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/topics/what-is.html,F,Places geocoding
+SRC-171,3,"NATURAL HAZARDS, CLIMATE & WEATHER",USGS Earthquake GeoJSON,https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php,A,Live earthquake reports
+SRC-172,3,"NATURAL HAZARDS, CLIMATE & WEATHER",USGS Earthquake ComCat,https://earthquake.usgs.gov/fdsnws/event/1/,A,Historical earthquake catalogs
+SRC-173,3,"NATURAL HAZARDS, CLIMATE & WEATHER",NASA EONET,https://eonet.gsfc.nasa.gov/docs/v3,A,Natural event geojson
+SRC-174,3,"NATURAL HAZARDS, CLIMATE & WEATHER",NASA FIRMS,https://firms.modaps.eosdis.nasa.gov/api/,F,Satellite fire hotspots
+SRC-175,3,"NATURAL HAZARDS, CLIMATE & WEATHER",GDACS,https://www.gdacs.org/gdacsapi/swagger/index.html,A,Disaster event alerts
+SRC-176,3,"NATURAL HAZARDS, CLIMATE & WEATHER",NOAA NWS API,https://www.weather.gov/documentation/services-web-api,A,US alerts forecasts stations
+SRC-177,3,"NATURAL HAZARDS, CLIMATE & WEATHER",NOAA NHC GIS,https://www.nhc.noaa.gov/gis/,A,Tropical storms tracks
+SRC-178,3,"NATURAL HAZARDS, CLIMATE & WEATHER",NOAA Climate Data Online,https://www.ncdc.noaa.gov/cdo-web/webservices/v2,F,Historical US weather
+SRC-179,3,"NATURAL HAZARDS, CLIMATE & WEATHER",Open-Meteo API,https://open-meteo.com/en/docs,A,Global weather historical forecast
+SRC-180,3,"NATURAL HAZARDS, CLIMATE & WEATHER",Meteostat API,https://dev.meteostat.net/api/,F,Historical weather stations
+SRC-181,3,"NATURAL HAZARDS, CLIMATE & WEATHER",OpenWeather API,https://openweathermap.org/api,F,Weather and air quality
+SRC-182,3,"NATURAL HAZARDS, CLIMATE & WEATHER",WeatherAPI.com,https://www.weatherapi.com/docs/,F,Global weather forecast
+SRC-183,3,"NATURAL HAZARDS, CLIMATE & WEATHER",Visual Crossing Weather,https://www.visualcrossing.com/weather-api/,F,Weather history/forecast
+SRC-184,3,"NATURAL HAZARDS, CLIMATE & WEATHER",Tomorrow.io,https://docs.tomorrow.io/,F,Weather intelligence
+SRC-185,3,"NATURAL HAZARDS, CLIMATE & WEATHER",NASA POWER,https://power.larc.nasa.gov/docs/services/api/,A,Solar climate energy
+SRC-186,3,"NATURAL HAZARDS, CLIMATE & WEATHER",Copernicus Climate Data Store,https://cds.climate.copernicus.eu/how-to-api,F,Climate reanalysis
+SRC-187,3,"NATURAL HAZARDS, CLIMATE & WEATHER",Copernicus Emergency,https://emergency.copernicus.eu/,D,Disaster rapid mapping
+SRC-188,3,"NATURAL HAZARDS, CLIMATE & WEATHER",Global Flood Database,https://global-flood-database.cloudtostreet.ai/,D,Flood extents
+SRC-189,3,"NATURAL HAZARDS, CLIMATE & WEATHER",OpenAQ API,https://docs.openaq.org/,F,Air pollution monitors
+SRC-190,3,"ENERGY, TRADE, MARITIME, AVIATION",EIA Energy API,https://www.eia.gov/opendata/documentation.php,F,Global and US energy statistics
+SRC-191,3,"ENERGY, TRADE, MARITIME, AVIATION",Ember API,https://ember-energy.org/data/api/,F,Electricity generation emissions
+SRC-192,3,"ENERGY, TRADE, MARITIME, AVIATION",Electricity Maps API,https://app.electricitymaps.com/docs,T,Electricity flows carbon intensity
+SRC-193,3,"ENERGY, TRADE, MARITIME, AVIATION",ENTSO-E Transparency API,https://transparency.entsoe.eu/,F,European electricity grid
+SRC-194,3,"ENERGY, TRADE, MARITIME, AVIATION",Open Power System Data,https://open-power-system-data.org/,D,Energy time series
+SRC-195,3,"ENERGY, TRADE, MARITIME, AVIATION",Fraunhofer Energy Charts API,https://api.energy-charts.info/,A,European grid generation pricing
+SRC-196,3,"ENERGY, TRADE, MARITIME, AVIATION",WRI Global Power Plant DB,https://datasets.wri.org/datasets/global-power-plant-database,D,World power plant locations
+SRC-197,3,"ENERGY, TRADE, MARITIME, AVIATION",Global Energy Monitor,https://globalenergymonitor.org/,D,Power oil gas mines facilities
+SRC-198,3,"ENERGY, TRADE, MARITIME, AVIATION",JODI Oil,https://www.jodidata.org/oil/database/data-downloads.aspx,D,Global oil market
+SRC-199,3,"ENERGY, TRADE, MARITIME, AVIATION",USGS Mineral Commodities,https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries,D,Critical minerals
+SRC-200,3,"ENERGY, TRADE, MARITIME, AVIATION",FAOSTAT,https://www.fao.org/faostat/en/,D,Food agriculture statistics
+SRC-201,3,"ENERGY, TRADE, MARITIME, AVIATION",USDA PSD,https://apps.fas.usda.gov/psdonline/,D,Agriculture supply-demand
+SRC-202,3,"ENERGY, TRADE, MARITIME, AVIATION",USDA Quick Stats API,https://quickstats.nass.usda.gov/api,F,US agriculture statistics
+SRC-203,3,"ENERGY, TRADE, MARITIME, AVIATION",IMF PortWatch,https://portwatch.imf.org/,A,Ports maritime trade routes
+SRC-204,3,"ENERGY, TRADE, MARITIME, AVIATION",PortWatch ArcGIS ports,https://services9.arcgis.com/weJ1QsnbMYJlCHdG/ArcGIS/rest/services/PortWatch_ports_database/FeatureServer,A,Port geographic features
+SRC-205,3,"ENERGY, TRADE, MARITIME, AVIATION",PortWatch chokepoints,https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0,A,Chokepoints daily activity
+SRC-206,3,"ENERGY, TRADE, MARITIME, AVIATION",UN Comtrade,https://comtradeplus.un.org/en/api-docs,A,Global trade partners
+SRC-207,3,"ENERGY, TRADE, MARITIME, AVIATION",WTO API,https://apiportal.wto.org/,F,Global trade and tariffs
+SRC-208,3,"ENERGY, TRADE, MARITIME, AVIATION",UNCTADstat,https://unctadstat.unctad.org/,D,International shipping/trade
+SRC-209,3,"ENERGY, TRADE, MARITIME, AVIATION",MarineCadastre AIS,https://marinecadastre.gov/ais/,D,US historical AIS vessels
+SRC-210,3,"ENERGY, TRADE, MARITIME, AVIATION",Danish Maritime AIS,https://www.dma.dk/safety-at-sea/navigational-information/ais-data,D,Danish AIS archives
+SRC-211,3,"ENERGY, TRADE, MARITIME, AVIATION",Global Fishing Watch API,https://globalfishingwatch.org/our-apis/,R,Vessel/fishing locations
+SRC-212,3,"ENERGY, TRADE, MARITIME, AVIATION",OpenSky Network API,https://openskynetwork.github.io/opensky-api/rest.html,F,Aircraft state vectors
+SRC-213,3,"ENERGY, TRADE, MARITIME, AVIATION",ADS-B.lol,https://api.adsb.lol/docs,A,Community aircraft observations
+SRC-214,3,"ENERGY, TRADE, MARITIME, AVIATION",Airplanes.live,https://airplanes.live/api-guide/,A,Aircraft ADS-B data
+SRC-215,3,"ENERGY, TRADE, MARITIME, AVIATION",OurAirports,https://ourairports.com/data/,D,Airport metadata
+SRC-216,3,"ENERGY, TRADE, MARITIME, AVIATION",AviationWeather,https://aviationweather.gov/data/api/,A,Aviation weather
+SRC-217,3,"ENERGY, TRADE, MARITIME, AVIATION",OpenFlights Airports,https://openflights.org/data.html,D,Airport/route historical files
+SRC-218,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",ECCC Emissions,https://open.canada.ca/data/en/dataset/a8ba14b7-7f23-462a-bdbb-83b0ef629823,D,Canadian facility GHG
+SRC-219,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",EPA Envirofacts API,https://www.epa.gov/enviro/envirofacts-data-service-api,A,Environmental facilities
+SRC-220,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",EPA ECHO,https://echo.epa.gov/tools/data-downloads,D,Compliance and enforcement
+SRC-221,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",EPA eGRID,https://www.epa.gov/egrid,D,Power emissions plant-level
+SRC-222,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",OpenAQ,https://docs.openaq.org/,F,Global air quality
+SRC-223,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Ember,https://ember-energy.org/data/api/,F,Electricity emissions and generation
+SRC-224,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Global Carbon Project,https://globalcarbonproject.org/,D,Carbon emissions budgets
+SRC-225,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",EDGAR EU Emissions,https://edgar.jrc.ec.europa.eu/,D,Global emissions inventory
+SRC-226,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Climate TRACE,https://climatetrace.org/,D,Asset emissions data
+SRC-227,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",CDP Open Data,https://www.cdp.net/en/data,D,Corporate climate disclosures subset
+SRC-228,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",World Bank Climate Portal,https://climateknowledgeportal.worldbank.org/download-data,D,Climate risk indicators
+SRC-229,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Wikimedia Pageviews,https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/,A,Attention measures
+SRC-230,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Google Trends API,https://developers.google.com/search/apis/trends,R,Search interest limited access
+SRC-231,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Reddit API,https://www.reddit.com/dev/api/,R,Community discussion/terms
+SRC-232,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Hacker News Algolia,https://hn.algolia.com/api,A,Technology attention
+SRC-233,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",GitHub REST API,https://docs.github.com/en/rest,F,Company software activity proxy
+SRC-234,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",GDELT news volume,https://www.gdeltproject.org/data.html,A,News coverage volume
+SRC-235,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",OpenAlex API,https://docs.openalex.org/,F,Research publications and citations
+SRC-236,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Crossref API,https://www.crossref.org/documentation/retrieve-metadata/rest-api/,A,Academic article metadata
+SRC-237,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Semantic Scholar API,https://www.semanticscholar.org/product/api,F,Research paper metadata
+SRC-238,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",ClinicalTrials.gov API,https://clinicaltrials.gov/data-api/api,A,Pharma clinical pipeline
+SRC-239,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",FDA openFDA API,https://open.fda.gov/apis/,F,Drug/device regulation events
+SRC-240,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",USPTO PatentsView,https://patentsview.org/apis/purpose,F,Patent technology metadata
+SRC-241,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",EPO OPS,https://www.epo.org/en/searching-for-patents/data/web-services/ops,F,Global patent documents
+SRC-242,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",Google Patents public dataset,https://console.cloud.google.com/marketplace/product/patents-public-data/google-patents-public-data,F,Patent publications BigQuery
+SRC-243,3,"ESG, CLIMATE, INFRASTRUCTURE & ALTERNATIVE",GDELT TV,https://blog.gdeltproject.org/,R,Broadcast news coverage access check

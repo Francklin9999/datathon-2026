@@ -1,4 +1,4 @@
-"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.3.0.
+"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.4.0.
 
 Boundary types only: numerical calculations, temporal gates, workflow transitions,
 and cross-resource checks remain with their owning services.
@@ -320,7 +320,29 @@ class PolicyRule(WireModel):
     updated_at: ISODateTime
 
 
+class AccountFXQuote(WireModel):
+    currency: Currency
+    cad_per_unit: Annotated[Number, Field(gt=0)]
+    observed_on: ISODate
+    available_at: ISODateTime
+    source: "SourceRef"
+
+
+class AccountValuation(WireModel):
+    verified_checks: list[String] = Field(default_factory=list)
+    native_currency: Currency
+    native_value: Annotated[Number, Field(gt=0)]
+    reporting_currency: Currency
+    reporting_value: Annotated[Number, Field(gt=0)]
+    conversion_rate: Annotated[Number, Field(gt=0)]
+    valuation_date: ISODate
+    captured_at: ISODateTime
+    data_version: DataVersion
+    quotes: list[AccountFXQuote]
+
+
 class PortfolioAccount(WireModel):
+    native_valuation: AccountValuation | None = None
     account_id: Annotated[String, Field(pattern=r"^acct_[0-9a-f]{12}$")]
     name: Annotated[String, Field(min_length=1, max_length=80)]
     portfolio: Portfolio

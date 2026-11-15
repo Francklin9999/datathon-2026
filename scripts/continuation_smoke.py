@@ -5,6 +5,7 @@ import uuid
 from pathlib import Path
 
 import httpx
+from aplomb.contracts import CONTRACT_VERSION
 from aplomb.contracts.registry import adapter
 
 BASE = os.environ.get('APLOMB_QA_API', 'http://localhost:8001/v1')
@@ -25,7 +26,7 @@ def main():
         return data
 
     meta = call('GET', '/meta', 'Meta')
-    assert meta['contractVersion'] == '1.3.0'
+    assert meta['contractVersion'] == CONTRACT_VERSION
     assert set(meta['reportingCurrencies']) == {'CAD', 'USD', 'EUR', 'GBP', 'CHF', 'JPY', 'HKD', 'SGD', 'AUD'}
     seed = call('GET', '/profiles/amira', 'Profile')
     payload = {key: seed[key] for key in ('age', 'riskLevel', 'horizonYears', 'objective', 'experience', 'preferences')}

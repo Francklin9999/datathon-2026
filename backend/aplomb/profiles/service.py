@@ -252,6 +252,11 @@ class ProfileServiceImpl:
         data = profile.to_wire()
         data["portfolio"] = {"isFictional": True, "totalValue": float(portfolio.total_value), "currency": profile.reporting_currency,
                              "positions": positions, "updatedAt": now}
+        for account in data.get("accounts", []):
+            if account["accountId"] == profile.active_account_id:
+                if account["portfolio"]["totalValue"] != data["portfolio"]["totalValue"]:
+                    account["nativeValuation"] = None
+                account["portfolio"] = copy.deepcopy(data["portfolio"])
         data["updatedAt"] = now
         return self._save(session_id, m.Profile.model_validate(data), stored)
 
@@ -285,6 +290,8 @@ class ProfileServiceImpl:
             data["activeAccountId"] = profile.active_account_id
             for account in data["accounts"]:
                 if account["accountId"] == profile.active_account_id:
+                    if account["portfolio"]["totalValue"] != data["portfolio"]["totalValue"]:
+                        account["nativeValuation"] = None
                     account["portfolio"] = copy.deepcopy(data["portfolio"])
         data["archived"] = profile.archived
         data["version"] = stored["revision"] + 1
@@ -323,9 +330,13 @@ class ProfileServiceImpl:
         self._validate_portfolio(portfolio.total_value, positions)
         now = _now(self.clock)
         account_id = "acct_" + secrets.token_hex(6)
+        from .account_fx import convert_account_value
+        valuation = convert_account_value(self.snapshot(), request.currency or profile.reporting_currency,
+            portfolio.total_value, profile.reporting_currency, now)
         saved_portfolio = {"isFictional": True, "currency": profile.reporting_currency,
-                           "totalValue": portfolio.total_value, "positions": positions, "updatedAt": now}
-        accounts.append({"accountId": account_id, "name": request.name.strip(), "portfolio": saved_portfolio})
+                           "totalValue": valuation.reporting_value, "positions": positions, "updatedAt": now}
+        accounts.append({"accountId": account_id, "name": request.name.strip(), "portfolio": saved_portfolio,
+                         "nativeValuation": valuation.to_wire()})
         data.update(accounts=accounts, activeAccountId=account_id, portfolio=saved_portfolio, updatedAt=now)
         return self._save(session_id, m.Profile.model_validate(data), stored)
 
@@ -344,13 +355,16 @@ class ProfileServiceImpl:
         if account_id == "aggregate":
             if any(x["portfolio"]["currency"] != profile.reporting_currency for x in accounts):
                 raise unavailable("Cross-currency account aggregation needs sourced FX conversion")
-            total = math.fsum(x["portfolio"]["totalValue"] for x in accounts)
+            try:
+                total = math.fsum(x["portfolio"]["totalValue"] for x in accounts)
+            except OverflowError:
+                raise validation("Combined account value exceeds the supported finite range") from None
             values = {}
             for account in accounts:
                 portfolio = account["portfolio"]
                 for position in portfolio["positions"]:
                     ticker = position["ticker"]
-                    values[ticker] = values.get(ticker, 0) + portfolio["totalValue"] * position["weightPct"] / 100
+                    values[ticker] = values.get(ticker, 0) + portfolio["totalValue"] * (position["weightPct"] / 100)
             positions = [{"ticker": ticker, "weightPct": value / total * 100} for ticker, value in values.items()]
             self._validate_portfolio(total, positions)
             portfolio = {"isFictional": True, "currency": profile.reporting_currency, "totalValue": total,
@@ -423,8 +437,8 @@ class ProfileServiceImpl:
         return m.Profile.model_validate(body).to_wire()
 
     def _validate_portfolio(self, total_value: float, positions: list[dict]) -> None:
-        if not total_value > 0:
-            raise validation("totalValue must be greater than 0", {"fields": ["totalValue"]})
+        if not math.isfinite(total_value) or not total_value > 0:
+            raise validation("totalValue must be positive and finite", {"fields": ["totalValue"]})
         if len(positions) > MAX_POSITIONS:
             raise validation(f"At most {MAX_POSITIONS} positions", {"fields": ["positions"]})
         tickers = [p["ticker"] for p in positions]

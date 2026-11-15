@@ -51,6 +51,7 @@ class ProfileService(Protocol):
 
 
 class CheckService(Protocol):
+    def rebalance(self, session_id: str, request: a.RebalanceRequest) -> a.RebalanceResponse: ...
     def check(self, session_id: str, request: a.CheckRequest) -> m.CheckResult: ...
 
 

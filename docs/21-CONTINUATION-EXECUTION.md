@@ -1,5 +1,7 @@
 # Global platform continuation — execution record
 
+The later [investigation-controls record](22-INVESTIGATION-CONTROLS.md) supersedes this batch’s common-currency account boundary.
+
 This continues branch `codex/global-platform-expansion` after `62836f5`. Contract **1.3.0** is a paired frontend/backend change. Production has not been updated by this branch.
 
 ## Execution board

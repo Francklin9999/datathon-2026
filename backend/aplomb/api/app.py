@@ -434,6 +434,10 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         require(services.profiles, "Profile service").get(sid, body.profile_id)
         return require(services.parser, "Request parser").parse(sid, body)
 
+    @app.post("/v1/rebalance/check", response_model=a.RebalanceResponse, response_model_exclude_unset=True)
+    def rebalance_check(body: a.RebalanceRequest, sid: Session):
+        return require(services.checks, "Deterministic checks").rebalance(sid, body)
+
     @app.post("/v1/check", response_model=m.CheckResult, response_model_exclude_unset=True)
     def check(body: a.CheckRequest, sid: Session):
         require(services.profiles, "Profile service").get(sid, body.profile_id)

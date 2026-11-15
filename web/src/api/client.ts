@@ -5,7 +5,7 @@
 import { validateContract, ContractValidationError } from '../contracts/validate';
 import type {
   AplombContracts, ApiError, BatchCheckRequest, CheckRequest, CreateProfileRequest,
-  CreateRunRequest, DeriveRulesRequest, Lang, ParseRequest, RulePatchRequest,
+  CreateRunRequest, DeriveRulesRequest, Lang, ParseRequest, RebalanceRequest, RulePatchRequest,
   SabotageRequest, UpdatePortfolioRequest, UpdateProfileRequest, WindowCode, AnswerRequest,
   RunKind, RevealRequest, WindowSpec,
 } from '../contracts/types';
@@ -177,13 +177,15 @@ export function createApiClient(config: ClientConfig) {
     duplicateProfile: (profileId: string) => call('Profile', 'POST', `/profiles/${enc(profileId)}/duplicate`, { body: {} }),
     addExposureLimit: (profileId: string, dimension: 'country' | 'currency', key: string, threshold: number, version: number) =>
       call('Profile', 'POST', `/profiles/${enc(profileId)}/exposure-limits`, { body: { dimension, key, threshold, version } }),
+    rebalance: (request: RebalanceRequest, signal?: AbortSignal) =>
+      call('RebalanceResponse', 'POST', '/rebalance/check', { body: request, signal }),
     goalFunding: (profileId: string, signal?: AbortSignal) =>
       call('GoalFundingResponse', 'GET', `/profiles/${enc(profileId)}/goals`, { signal }),
     archivedProfiles: (signal?: AbortSignal) => call('ProfilesResponse', 'GET', '/profiles/archived', { signal }),
     archiveProfile: (profileId: string, archived: boolean, version: number) =>
       call('Profile', 'PATCH', `/profiles/${enc(profileId)}/archive`, { body: { archived, version } }),
-    createAccount: (profileId: string, name: string, version: number, portfolio: { totalValue: number; positions: { ticker: string; weightPct: number }[] }) =>
-      call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts`, { body: { name, version, portfolio } }),
+    createAccount: (profileId: string, name: string, version: number, portfolio: { totalValue: number; positions: { ticker: string; weightPct: number }[] }, currency?: string) =>
+      call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts`, { body: { name, version, portfolio, ...(currency ? { currency } : {}) } }),
     selectAccount: (profileId: string, accountId: string, version: number) =>
       call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts/${enc(accountId)}/select`, { body: { version } }),
     deleteProfile: async (profileId: string): Promise<void> => {
