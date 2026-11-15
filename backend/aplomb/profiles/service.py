@@ -13,9 +13,10 @@ import copy
 import hashlib
 import json
 import math
+import re
 import secrets
 import unicodedata
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Callable
 
 from aplomb.api.errors import Conflict, NotFound, ServiceError, unavailable
@@ -33,7 +34,8 @@ from .rulebuilder import renumber
 
 VOL_BUDGET = {"low": 6.0, "low_moderate": 9.0, "moderate": 12.0, "moderate_high": 16.0, "high": 22.0}  # A-02
 RISK_ORDER = ("low", "low_moderate", "moderate", "moderate_high", "high")
-WINDOW_CODES = ("full", "1y", "3y", "5y", "ytd")
+WINDOW_CODES = ("full", "1y", "3y", "5y", "ytd", "custom")
+ISO_DAY = re.compile(r"\d{4}-\d{2}-\d{2}")
 MAX_POSITIONS = 40
 _B32 = "0123456789abcdefghjkmnpqrstvwxyz"  # Crockford base32, lower case (contracts ProfileId)
 
@@ -52,6 +54,31 @@ def validation(message: str, details: dict | None = None) -> ServiceError:
 def _fold(label: str) -> str:
     """Slug without accents, so "Énergie", "energie" and "Energy " compare by their letters."""
     return slug("".join(c for c in unicodedata.normalize("NFKD", label) if not unicodedata.combining(c)))
+
+
+def _window_spec(query: dict | None) -> dict:
+    """WindowSpec wire of a read query: ``window`` (default ``full``); ``custom`` also takes
+    ``start`` and ``end`` (ISO days, start <= end), from the query or from a ``window`` dict."""
+    query = query or {}
+    raw = query.get("window") or "full"
+    spec = dict(raw) if isinstance(raw, dict) else {"code": raw}
+    code = spec.get("code") or "full"
+    if code not in WINDOW_CODES:
+        raise validation(f"window must be one of {', '.join(WINDOW_CODES)}", {"fields": ["window"]})
+    if code != "custom":
+        return {"code": code}
+    start, end = spec.get("start", query.get("start")), spec.get("end", query.get("end"))
+    if not start or not end:
+        raise validation("window=custom needs both start and end (YYYY-MM-DD)", {"fields": ["start", "end"]})
+    try:
+        if not (isinstance(start, str) and isinstance(end, str) and ISO_DAY.fullmatch(start) and ISO_DAY.fullmatch(end)):
+            raise ValueError
+        d0, d1 = date.fromisoformat(start), date.fromisoformat(end)
+    except ValueError:
+        raise validation("start and end must be ISO dates (YYYY-MM-DD)", {"fields": ["start", "end"]}) from None
+    if d0 > d1:
+        raise validation(f"start ({start}) must be on or before end ({end})", {"fields": ["start", "end"]})
+    return {"code": "custom", "start": start, "end": end}
 
 
 class ProfileServiceImpl:
@@ -318,16 +345,24 @@ class ProfileServiceImpl:
     # Deterministic analytics ------------------------------------------------------------------
 
     def _engine(self, profile: m.Profile, query: dict, ledger: LocalLedger):
-        code = (query or {}).get("window") or "full"
-        if isinstance(code, dict):
-            code = code.get("code", "full")
-        if code not in WINDOW_CODES:
-            raise validation(f"window must be one of {', '.join(WINDOW_CODES)}", {"fields": ["window"]})
+        window = _window_spec(query)
         snap = self.snapshot()
         gate = snap.gate(snap.data_as_of, "current")
         eng = QuantEngine(gate, ledger, currency=profile.reporting_currency, subject_id=profile.profile_id,
-                          created_at=_now(self.clock), window={"code": code})
-        return eng, {"code": code}
+                          created_at=_now(self.clock), window=window)
+        if window["code"] == "custom":
+            # A caller-chosen range must hold visible history; fixed codes keep their own handling.
+            try:
+                eng.window(window)
+            except Unavailable as exc:
+                dates = eng.market.dates
+                first, last = (dates[0], dates[-1]) if dates else (None, None)
+                raise ServiceError(
+                    "insufficient_data",
+                    f"No usable history for {window['start']}..{window['end']}: {exc.detail}"
+                    + (f" (visible history {first}..{last})" if first else ""),
+                    {"fields": ["start", "end"], "reason": exc.reason, "historyStart": first, "historyEnd": last}) from exc
+        return eng, window
 
     @staticmethod
     def _weights(profile: m.Profile) -> dict[str, float]:
@@ -455,7 +490,7 @@ class ProfileServiceImpl:
                json.dumps({k: v for k, v in query.items() if k != "lang"}, sort_keys=True, default=str))
         cached = self._frontier_cache.get(key)
         if cached is None:
-            eng, _ = self._engine(profile, {"window": query.get("window") or "full"}, LocalLedger())
+            eng, _ = self._engine(profile, query, LocalLedger())
             cached = a.FrontierResponse.model_validate(frontier(eng, profile, query))
             if len(self._frontier_cache) >= 64:
                 self._frontier_cache.pop(next(iter(self._frontier_cache)))

@@ -97,6 +97,30 @@ def test_overview_performance_and_creator(client):
     assert listed[-1]["profileId"] == created["profileId"]
 
 
+def test_custom_window_reads(client):
+    custom = {"window": "custom", "start": "2023-01-01", "end": "2026-01-01"}
+    spec = {"code": "custom", "start": "2023-01-01", "end": "2026-01-01"}
+    overview = ok(client.get("/v1/profiles/robert/overview", params=custom, headers=H), "OverviewResponse")
+    assert overview["window"] == spec
+    vol = overview["facts"][overview["risk"]["factIds"]["volatility"]]
+    assert vol["key"].endswith("|custom:2023-01-01..2026-01-01")
+    perf = ok(client.get("/v1/profiles/robert/performance", params={**custom, "benchmark": "SPY"}, headers=H),
+              "PerformanceResponse")
+    assert perf["window"] == spec and perf["benchmark"]["ticker"] == "SPY"
+    assert perf["series"][0]["date"] == "2022-12-30" and perf["series"][-1]["date"] == "2025-12-31"
+
+    def error(params):
+        response = client.get("/v1/profiles/robert/performance", params=params, headers=H)
+        assert response.status_code == 422, response.text
+        return response.json()["error"]
+
+    swapped = error({**custom, "start": "2026-01-01", "end": "2023-01-01"})
+    assert (swapped["code"], swapped["details"]["fields"]) == ("validation_error", ["start", "end"])
+    assert error({"window": "custom", "start": "2023-01-01"})["code"] == "validation_error"  # rejected by query parsing
+    early = error({**custom, "start": "2020-01-01"})
+    assert (early["code"], early["details"]["historyStart"]) == ("insufficient_data", "2021-11-12")
+
+
 def test_unconfigured_and_bare_app_keep_previous_behaviour():
     bare = TestClient(create_app(settings()))
     assert bare.get("/v1/profiles", headers=H).status_code == 503
