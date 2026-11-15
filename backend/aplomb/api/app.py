@@ -188,10 +188,12 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
             if services.datastore
             else m.UniverseSummary(total=0, by_tier={"starter": 0, "extended": 0, "on_demand": 0})
         )
+        served = getattr(services.datastore, "current_version", None) if services.datastore else None
+        data_version, data_as_of = served() if served else (settings.data_version, settings.data_as_of)
         return m.Meta(
             contract_version=CONTRACT_VERSION,
-            data_version=settings.data_version,
-            data_as_of=settings.data_as_of,
+            data_version=data_version,
+            data_as_of=data_as_of,
             environment=settings.environment,
             languages=["en", "fr"] if feature_enabled("bilingual") else ["en"],
             features={flag: feature_enabled(flag) for flag in FeatureFlag},
