@@ -48,7 +48,7 @@ The router receives the existing application store and session dependency from `
 
 ## Expanded policy, accounts, portfolio and planning follow-up
 
-The following additive interfaces were implemented after the previous verification checkpoint; fresh full-gate and browser results are pending.
+The following additive interfaces were implemented after the previous verification checkpoint; current full-gate and browser acceptance pass; see HANDOFF.md and completion evidence.
 
 - `POST /v1/profiles/{id}/condition-rules` and `DELETE /v1/profiles/{id}/condition-rules/{ruleId}` manage validated bounded condition trees using `all`/`any` and typed `lt`/`lte`/`eq`/`gte`/`gt` predicates. Measurements cover the supported weight dimensions, annualized volatility and maximum drawdown. Three-valued logic preserves unknown measurements; user-supplied text is never executed. Permitted asset classes materialize exclusion rules and conflicting attempts to disable those rules fail. Dated custom theme classifications are exact-ticker user/imported inputs; missing held-ticker classifications or future data are unknown.
 - `PUT /v1/profiles/{id}/accounts/{accountId}` supports optimistic-version account edits including user/imported quantities with dates and source. Obsolete quantities are retained in history and invalidated when holdings move; a weight is not a quantity.
@@ -65,3 +65,5 @@ Full details, inputs, assumptions, focused tests and limits are in `POLICY-NOTES
 ## Expanded FX publication boundary
 
 `snap-20261115-a1-fx-expanded` is an opt-in immutable manifest for the validated Bank of Canada capture under `data/inputs/global-fx-a1/`. It offers 25 reporting currencies including CAD/USD; its source observations are CAD per foreign unit and conversion divides source by target CAD-per-unit values. Retrieval time remains a conservative historical visibility boundary. The integration-owned `data/manifests/active.json` still points to `snap-20261115-globalfx` (nine currencies). The final integrator must reconstruct/verify, reconcile the manifest with other agents' snapshots and explicitly select any future active version; no silent activation is implied.
+
+The two cross-owner call-site changes only forward `profile.investor_context.custom_theme_definitions` into QuantEngine; they add no agent workflow or replay behavior. Review those two lines explicitly when integrating Agent 2. Copied/edited UI inputs now replace inherited origin with `user` only for changed fields, preserving untouched imported/system provenance. Native account requests/receipts add `nativeValueOrigin` and `nativeValueSource`; refresh preserves original inputs and legacy unknowns.
