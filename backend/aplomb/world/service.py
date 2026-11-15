@@ -76,6 +76,7 @@ PROVIDER_MODES = {
     "world_copernicus_activation_centroids": "hazards",
     "world_firms_modis_europe": "hazards",
     "world_geofabrik_monaco_transport": "infrastructure",
+    "world_hapi_inform_risk_2025": "hazards",
 }
 
 
@@ -700,6 +701,12 @@ def _utc_stamp(value: str) -> str:
 def _observation_summary(row: dict) -> str:
     """Short code-owned description of recorded fields, never an AI summary."""
     props = row.get("properties") or {}
+    if row["sourceId"] == "world_hapi_inform_risk_2025":
+        return (f"INFORM 2025 national humanitarian risk index for {props['sourceCountryName']}: "
+                f"{props['overallRisk']:g} of 10, source risk class {props['riskClass']} "
+                f"and global rank {props['globalRank']}. This annual composite is not a "
+                "disaster event, forecast, issuer exposure or financial risk estimate. "
+                f"{props['attribution']}")
     if row["sourceId"] == "world_ember_monthly_generation_2026":
         return (f"Ember {props['referenceMonth']} {props['electricitySource']}: "
                 f"{props['generationTWh']:g} TWh. Country electricity generation is "

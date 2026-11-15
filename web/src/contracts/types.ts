@@ -75,6 +75,7 @@ export type DatasetId =
   | "world_nyfed_sce_inflation_2024"
   | "world_ember_monthly_generation_2026"
   | "world_geofabrik_monaco_transport"
+  | "world_hapi_inform_risk_2025"
   | "world_geoboundaries_fra_adm1"
   | "world_ucdp_ged_ukraine_2025"
   | "energy_wri_plants"

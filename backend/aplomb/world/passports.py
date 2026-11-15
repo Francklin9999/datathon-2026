@@ -39,6 +39,7 @@ PROVIDER_DATASET_IDS = frozenset({
     "world_copernicus_activation_centroids", "world_firms_modis_europe",
     "world_nyfed_sce_inflation_2024",
     "world_ember_monthly_generation_2026", "world_geofabrik_monaco_transport",
+    "world_hapi_inform_risk_2025",
     "world_nasa_cmr_modis_granules",
     "world_openflights_airport_reference",
 })

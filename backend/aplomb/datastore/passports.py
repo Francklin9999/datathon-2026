@@ -586,6 +586,17 @@ DESCRIPTORS: dict[str, Descriptor] = {
         t("Capture time establishes availability; mapped features have no event date.",
           "La capture établit la disponibilité; les éléments cartographiés n'ont pas de date d'événement."),
         planned_source="© OpenStreetMap contributors, processed by Geofabrik; separate ODbL derived database"),
+    "world_hapi_inform_risk_2025": Descriptor(
+        t("INFORM 2025 national humanitarian risk index", "Indice national INFORM 2025 de risque humanitaire"),
+        t("Annual national humanitarian risk composite and source components for 191 countries.",
+          "Indice national annuel de risque humanitaire et composantes source pour 191 pays."),
+        "annual", "versioned HDX HAPI v2 INFORM capture",
+        (t("A composite index, not a disaster event, forecast or financial risk estimate; no point coordinates.",
+           "Un indice composite, ni catastrophe, ni prévision, ni estimation de risque financier; aucun point."),),
+        ("LIM_IMPACT_NOT_ESTABLISHED",),
+        t("Capture time establishes availability; January 1 is an annual display anchor.",
+          "La capture établit la disponibilité; le 1er janvier est un repère d'affichage annuel."),
+        planned_source="INFORM Risk Index via OCHA HDX HAPI; HDX dataset licence CC BY"),
     "world_statcan_cpi": Descriptor(
         t("Statistics Canada consumer price index", "Indice des prix à la consommation de Statistique Canada"),
         t("Latest twelve Canada all-items monthly CPI index observations.",

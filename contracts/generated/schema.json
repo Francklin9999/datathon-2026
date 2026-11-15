@@ -1643,6 +1643,7 @@
         "world_nyfed_sce_inflation_2024",
         "world_ember_monthly_generation_2026",
         "world_geofabrik_monaco_transport",
+        "world_hapi_inform_risk_2025",
         "world_geoboundaries_fra_adm1",
         "world_ucdp_ged_ukraine_2025",
         "energy_wri_plants",
@@ -9879,7 +9880,7 @@
   "x-contract-version": "1.4.0",
   "x-spec-sha256": {
     "schemas.md": "8ef77c78d2a4c1ceefc2015264a83fe93b3afcd9912cb8054ad674976d1ff14a",
-    "catalog.md": "870e6b7e02280039b7c657c4e607e336459bc2700319ed914052781e48ffec35",
+    "catalog.md": "ee4926c72dbd6a7fa40af039d67a8aeba16099f2a7564926aaae2dc483c0bd5a",
     "api.md": "6f13245221577f105f2940462d7dde9560a4fd815ef7a44bcc2ff711744743e9",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"

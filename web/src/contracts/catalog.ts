@@ -269,6 +269,7 @@ export const DatasetId = {
   "WORLD_NYFED_SCE_INFLATION_2024": "world_nyfed_sce_inflation_2024",
   "WORLD_EMBER_MONTHLY_GENERATION_2026": "world_ember_monthly_generation_2026",
   "WORLD_GEOFABRIK_MONACO_TRANSPORT": "world_geofabrik_monaco_transport",
+  "WORLD_HAPI_INFORM_RISK_2025": "world_hapi_inform_risk_2025",
   "WORLD_GEOBOUNDARIES_FRA_ADM1": "world_geoboundaries_fra_adm1",
   "WORLD_UCDP_GED_UKRAINE_2025": "world_ucdp_ged_ukraine_2025",
   "ENERGY_WRI_PLANTS": "energy_wri_plants",
