@@ -108,7 +108,7 @@ export function SourcesPage() {
             )}
           </Card>
 
-          <Card id="traps" section={tr({ en: 'Traps', fr: 'Pièges' })} title={tr({ en: 'Known data traps and how they are treated', fr: 'Pièges connus des données et leur traitement' })}
+          <Card id="traps" tour="traps" section={tr({ en: 'Traps', fr: 'Pièges' })} title={tr({ en: 'Known data traps and how they are treated', fr: 'Pièges connus des données et leur traitement' })}
             info={tr({ en: '“Handled” means an implemented, tested treatment; “disclosed” means the limitation is shown but not corrected.', fr: '« Traité » signifie un traitement implémenté et testé ; « signalé » signifie que la limite est affichée sans être corrigée.' })}>
             {list.data.traps.length === 0 ? <Empty>{tr({ en: 'No trap mapping was returned.', fr: 'Aucune correspondance de pièges n’a été retournée.' })}</Empty> : (
               <ul className="list-plain">

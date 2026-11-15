@@ -14,7 +14,7 @@ export function PositionsCard({ overview, scope }: { overview: OverviewResponse;
   const shown = filterPositions(all, scope);
   const share = shown.reduce((sum, p) => sum + p.weightPct, 0);
   return (
-    <Card title={tr({ en: 'Positions', fr: 'Positions' })}
+    <Card title={tr({ en: 'Positions', fr: 'Positions' })} tour="positions"
       actions={<Link href="/portfolio/" className="btn ghost btn-sm">{tr({ en: 'All holdings', fr: 'Toutes les positions' })}</Link>}>
       {shown.length === 0
         ? <p className="small muted">{tr({ en: 'No position matches this scope', fr: 'Aucune position ne correspond à ce périmètre' })}</p>

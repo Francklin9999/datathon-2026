@@ -223,7 +223,7 @@ function PerformanceCard({ state, scope, period }: { state: QueryState<Performan
     );
   }
   return (
-    <Card title={tr({ en: 'Past performance', fr: 'Performance passée' })}
+    <Card title={tr({ en: 'Past performance', fr: 'Performance passée' })} tour="performance"
       info={tr({ en: 'Today’s weights applied to past prices: a hypothetical history, not account gains.', fr: 'Pondérations actuelles appliquées aux prix passés : un historique hypothétique, pas des gains réels.' })}
       actions={data && data.series.length > 1 ? (
         <button type="button" className="btn ghost btn-sm" onClick={() => setAsTable(v => !v)}>
