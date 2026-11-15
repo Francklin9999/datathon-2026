@@ -125,7 +125,9 @@ export function SimPill() {
 }
 
 /** A round chrome button that opens a small popover; Escape or a click outside closes it. */
-export function ChromeMenu({ label, icon, tour, children }: { label: string; icon: ReactNode; tour: string; children: (close: () => void) => ReactNode }) {
+export function ChromeMenu({ label, icon, tour, children, wide = false }: {
+  label: string; icon: ReactNode; tour: string; children: (close: () => void) => ReactNode; wide?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement | null>(null);
   const button = useRef<HTMLButtonElement | null>(null);
@@ -145,7 +147,7 @@ export function ChromeMenu({ label, icon, tour, children }: { label: string; ico
         {icon}
       </button>
       {open && (
-        <div id={id} className="settings-pop glass-pop" role="dialog" aria-label={label}>
+        <div id={id} className={`settings-pop glass-pop${wide ? ' help-pop' : ''}`} role="dialog" aria-label={label}>
           {children(() => setOpen(false))}
         </div>
       )}
