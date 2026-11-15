@@ -12,7 +12,7 @@ import time
 import uuid
 from pathlib import Path
 
-from aplomb.agents.models import Generation
+from aplomb.agents.models import Generation, prompt_token_count
 
 
 def write_json(path: Path, value: dict) -> None:
@@ -37,7 +37,7 @@ class McpFileGateway:
         total_in = total_out = 0
         for attempt in range(2):
             body, usage, model_id = self._attempt(role, schema, messages, limits)
-            total_in += usage["inputTokens"]
+            total_in += prompt_token_count(usage)
             total_out += usage["outputTokens"]
             try:
                 output = schema.model_validate_json(body)
@@ -88,7 +88,7 @@ class McpFileGateway:
                     }
                 ],
                 "messages": [{"role": "user", "content": [{"text": prompt}]}],
-                "inferenceConfig": {"maxTokens": 2048},
+                "inferenceConfig": {"maxTokens": 4096},
             },
         }
         request_path = self.directory / f"request-{self.sequence:03d}.json"

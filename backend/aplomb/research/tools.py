@@ -104,7 +104,7 @@ def passages(document, query=None, max_chars=6000):
 def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
     from aplomb.agents.registry import ToolResult
     edgar = EdgarAdapter(service)
-    gdelt, attention, etf = gdelt or GdeltAdapter(), attention or AttentionAdapter(service), etf or ETFAdapter(service)
+    gdelt, attention, etf = gdelt or GdeltAdapter(service=service), attention or AttentionAdapter(service), etf or ETFAdapter(service)
 
     def context(ctx):
         if getattr(ctx, "historical", False):

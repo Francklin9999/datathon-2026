@@ -1,0 +1,20 @@
+{
+  "overview": {
+    "http": 200,
+    "window": {
+      "code": "custom",
+      "start": "2024-01-01",
+      "end": "2025-01-01"
+    },
+    "dataVersion": "snap-20261114-sourced"
+  },
+  "performance": {
+    "http": 200,
+    "window": {
+      "code": "custom",
+      "start": "2024-01-01",
+      "end": "2025-01-01"
+    },
+    "dataVersion": null
+  }
+}

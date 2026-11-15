@@ -4,7 +4,7 @@ import hashlib
 import json
 import re
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from typing import Callable, Mapping
 
@@ -471,5 +471,7 @@ def fork_for_sabotage(parent_run, parent_ledger: Ledger, child_run_id: str) -> L
     child = Ledger(child_run_id, parent_ledger.as_of, clock=parent_ledger.clock)
     child._facts, child._evidence = pinned.facts, pinned.evidence
     child._keys = {f.key: f.id for f in pinned.facts.values()}
-    child._documents = dict(parent_ledger._documents)
+    # Captured bytes are pinned into the child; bind copies to the new run for safe restore.
+    child._documents = {key: replace(document, run_id=child_run_id)
+                        for key, document in parent_ledger._documents.items()}
     return child

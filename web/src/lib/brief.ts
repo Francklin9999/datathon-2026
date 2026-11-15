@@ -42,7 +42,7 @@ export function briefsOf(result: RunResult | null): Brief[] {
     case 'portfolio_brief': return [result.portfolioBrief.brief];
     case 'event_brief': return [result.eventBrief.brief];
     case 'replay': return [result.replay.decision.brief];
-    case 'sabotage': return [result.sabotage.briefBeforeAudit, result.sabotage.briefAfterAudit];
+    case 'sabotage': return [result.sabotage.briefAfterAudit];
     default: return [];
   }
 }

@@ -15,7 +15,7 @@ from aplomb.contracts import api as a
 from aplomb.contracts import models as m
 
 from .dispatcher import Dispatcher
-from .errors import NotFound, unavailable
+from .errors import Conflict, NotFound, unavailable
 from .repositories import RunRepository, timestamp
 
 
@@ -188,6 +188,34 @@ class RunCoordinator:
                 self.repository.dispatch_failed(session_id, run.run_id, record.generation)
                 raise unavailable("Worker dispatch") from exc
         return self._accepted(record.run)
+
+    def sabotage(self, session_id: str, parent: m.Run, request: a.SabotageRequest) -> a.QueuedRunResponse:
+        record = self.repository.get(session_id, parent.run_id)
+        parent = record.run
+        if parent.kind != "decision" or parent.status != "succeeded" or parent.result is None:
+            raise Conflict("Sabotage requires a succeeded decision")
+        if request.lang != parent.lang:
+            raise Conflict("Sabotage language must match the parent decision")
+        checkpoint = record.private.get("agents", {}).get("ledger")
+        if not checkpoint or not checkpoint.get("frozen"):
+            raise Conflict("Signed parent ledger checkpoint is unavailable")
+        now = timestamp(self.clock())
+        payload = parent.to_wire()
+        payload.update(runId=new_run_id(self.clock()), kind="sabotage", status="queued", parentRunId=parent.run_id,
+                       lang=request.lang, input={"kind": "sabotage", "mode": request.mode}, steps=[], facts={}, evidence={},
+                       result=None, error=None, question=None, flags={"sabotage": request.mode, "fixture": False, "timeMachine": False},
+                       usage={"inputTokens": 0, "outputTokens": 0, "llmCalls": 0, "toolCalls": 0, "durationMs": 0},
+                       createdAt=now, updatedAt=now)
+        child = m.Run.model_validate(payload)
+        private = {k: v for k, v in record.private.items() if k != "agents"}
+        private.update(sabotageParent=parent.to_wire(), sabotageLedger=checkpoint)
+        child_record, _ = self.repository.create(child, private, record.profile_version)
+        try:
+            self.dispatcher.dispatch(child.run_id, child_record.generation)
+        except Exception as exc:
+            self.repository.dispatch_failed(session_id, child.run_id, child_record.generation)
+            raise unavailable("Worker dispatch") from exc
+        return a.QueuedRunResponse(run_id=child.run_id, status="queued", poll_after_ms=1000)
 
     @staticmethod
     def _accepted(run: m.Run) -> a.QueuedRunResponse | a.CachedRunResponse:

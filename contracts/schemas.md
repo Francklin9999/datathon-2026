@@ -567,7 +567,7 @@ interface ProfileDraftResult {
 interface SabotageResult {
   mode: SabotageMode;
   injectedInstruction: string;           // the exact extra instruction given to the writer
-  briefBeforeAudit: Brief;               // the lie visible, audit status "struck" on the offending sentence
+  briefBeforeAudit: UnsignedDraft;       // untrusted writer templates; status unaudited, no signature
   briefAfterAudit: Brief;
   caught: boolean;                       // true when at least one check failed on the injected sentence
   failedChecks: AuditCheckResult[];
@@ -731,3 +731,7 @@ interface Meta {                         // response of GET /meta
   disclaimer: I18nText;
 }
 ```
+
+### Unsigned sabotage draft (contract 1.1.0)
+
+`UnsignedDraft` contains `status: "unaudited"`, the actual writer model identifier, and sections with sentence IDs and raw writer templates. It has no audit status, signature or verification claim. The sabotage endpoint was disabled in 1.0.0; this deliberate incompatible change to that unused result field enables an honest demonstration. The audited output stays a `Brief`. A missing `S-INJECTED` is reported as not caught; it does not prove a writer refused.

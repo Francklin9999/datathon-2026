@@ -28,10 +28,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 # Flags with an implemented provider. On-demand tickers is advertised only when APLOMB_TIINGO_TOKEN
-# is set (the local data directory is writable). Sabotage, open-web research, guardrails and the
+# is set (the local data directory is writable). Open-web research, guardrails and the
 # facilities layer have no provider here, so switching them on would change nothing.
 FEATURES = ("bilingual", "world_explorer", "world_layer_hazards", "time_machine", "profile_creator",
-            "goal_requests", "frontier_chart", "on_demand_tickers")
+            "goal_requests", "frontier_chart", "on_demand_tickers", "sabotage_demo")
 # Git-ignored local settings (for example APLOMB_TIINGO_TOKEN). Only APLOMB_* keys are read.
 ENV_FILE = ROOT / ".env"
 

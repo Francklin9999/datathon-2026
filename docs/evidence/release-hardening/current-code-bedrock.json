@@ -1,0 +1,47 @@
+{
+  "environment": "local-current-code",
+  "gateway": "genuine Bedrock via official AWS MCP; not deployed",
+  "guardrail": "not applied in local smoke",
+  "runs": [
+    {
+      "runId": "run_01M7EZHP3DGMQ1TR6D496G1VM5",
+      "kind": "portfolio_brief",
+      "status": "failed",
+      "error": {
+        "code": "upstream_unavailable",
+        "message": "The language model did not return a usable answer; the steps already executed are kept.",
+        "requestId": "run_01M7EZHP3DGMQ1TR6D496G1VM5"
+      },
+      "usage": {
+        "inputTokens": 2,
+        "outputTokens": 718,
+        "llmCalls": 2,
+        "toolCalls": 0,
+        "durationMs": 62501.46794319153
+      },
+      "result": null,
+      "steps": [
+        {
+          "type": "plan",
+          "status": "done",
+          "model": "us.openai.gpt-6-astra"
+        },
+        {
+          "type": "quant",
+          "status": "done",
+          "model": null
+        },
+        {
+          "type": "risk_check",
+          "status": "done",
+          "model": null
+        },
+        {
+          "type": "write",
+          "status": "failed",
+          "model": null
+        }
+      ]
+    }
+  ]
+}

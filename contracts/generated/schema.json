@@ -5781,7 +5781,7 @@
           "type": "string"
         },
         "briefBeforeAudit": {
-          "$ref": "#/$defs/Brief"
+          "$ref": "#/$defs/UnsignedDraft"
         },
         "briefAfterAudit": {
           "$ref": "#/$defs/Brief"
@@ -6551,6 +6551,65 @@
         "byTier"
       ],
       "title": "UniverseSummary",
+      "type": "object"
+    },
+    "UnsignedDraft": {
+      "properties": {
+        "status": {
+          "const": "unaudited",
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "sections": {
+          "items": {
+            "$ref": "#/$defs/UnsignedDraftSection"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "model",
+        "sections"
+      ],
+      "title": "UnsignedDraft",
+      "type": "object"
+    },
+    "UnsignedDraftSection": {
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/BriefSectionId"
+        },
+        "sentences": {
+          "items": {
+            "$ref": "#/$defs/UnsignedDraftSentence"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "sentences"
+      ],
+      "title": "UnsignedDraftSection",
+      "type": "object"
+    },
+    "UnsignedDraftSentence": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "template": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "template"
+      ],
+      "title": "UnsignedDraftSentence",
       "type": "object"
     },
     "UpdatePortfolioRequest": {
@@ -7877,6 +7936,15 @@
     "UniverseSummary": {
       "$ref": "#/$defs/UniverseSummary"
     },
+    "UnsignedDraft": {
+      "$ref": "#/$defs/UnsignedDraft"
+    },
+    "UnsignedDraftSection": {
+      "$ref": "#/$defs/UnsignedDraftSection"
+    },
+    "UnsignedDraftSentence": {
+      "$ref": "#/$defs/UnsignedDraftSentence"
+    },
     "UpdatePortfolioRequest": {
       "$ref": "#/$defs/UpdatePortfolioRequest"
     },
@@ -8138,6 +8206,9 @@
     "TopPosition",
     "Unit",
     "UniverseSummary",
+    "UnsignedDraft",
+    "UnsignedDraftSection",
+    "UnsignedDraftSentence",
     "UpdatePortfolioRequest",
     "UpdateProfileRequest",
     "Verdict",
@@ -8159,12 +8230,12 @@
   "title": "AplombContracts",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aplomb.local/contracts/1.0.0/schema.json",
-  "x-contract-version": "1.0.0",
+  "$id": "https://aplomb.local/contracts/1.1.0/schema.json",
+  "x-contract-version": "1.1.0",
   "x-spec-sha256": {
-    "schemas.md": "a9c32017b1ae14af8d23b876cc24988142fdd15b35a914718f2e62fd514aaf42",
+    "schemas.md": "557f5095b285d5632b9be0921f728bb4f1d2ea855a6230fe71ffd52e7e3917c7",
     "catalog.md": "bbb2dc5a3d14f79db60dcb72d12306501fee14f6101749d87dbce4b9a8d0c3be",
-    "api.md": "3846d1515f9348ada696116279bb0f296512b0b0b3fb615e0f634af9b8b37246",
+    "api.md": "f2e28fa469e59cc747895e5391ca537179faa41abd800dbfae26b0e9327878e2",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
   }

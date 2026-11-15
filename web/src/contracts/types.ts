@@ -709,6 +709,9 @@ export interface AplombContracts {
   TopPosition: TopPosition;
   Unit: Unit;
   UniverseSummary: UniverseSummary;
+  UnsignedDraft: UnsignedDraft;
+  UnsignedDraftSection: UnsignedDraftSection;
+  UnsignedDraftSentence: UnsignedDraftSentence;
   UpdatePortfolioRequest: UpdatePortfolioRequest;
   UpdateProfileRequest: UpdateProfileRequest;
   Verdict: Verdict;
@@ -1890,10 +1893,35 @@ export interface SabotageRunResult {
 export interface SabotageResult {
   mode: SabotageMode;
   injectedInstruction: string;
-  briefBeforeAudit: Brief;
+  briefBeforeAudit: UnsignedDraft;
   briefAfterAudit: Brief;
   caught: boolean;
   failedChecks: AuditCheckResult[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "UnsignedDraft".
+ */
+export interface UnsignedDraft {
+  status: "unaudited";
+  model: string;
+  sections: UnsignedDraftSection[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "UnsignedDraftSection".
+ */
+export interface UnsignedDraftSection {
+  id: BriefSectionId;
+  sentences: UnsignedDraftSentence[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "UnsignedDraftSentence".
+ */
+export interface UnsignedDraftSentence {
+  id: string;
+  template: string;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema

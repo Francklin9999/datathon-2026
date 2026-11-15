@@ -1,5 +1,7 @@
 # 00 — Team entry point
 
+Latest gap closure: [implemented fixes, real-model tests and recorded demonstration](17-GAP-CLOSURE.md). Deployment remains with the team AWS operator; SEC/GDELT source access is still an external blocker.
+
 Current hardening audit (2026-11-15): [release report](12-RELEASE-HARDENING.md) records the latest pull, local changes, live AWS smoke, connector failures and remaining release gates. It supersedes older deployment/status claims below where they differ. Hardening changes are not yet deployed.
 
 ## Where the project stands (updated 2026-11-15, 00:07 EST)

@@ -16,6 +16,7 @@ from aplomb.api.runtime import RunPreparerImpl, build_agent_services
 from aplomb.api.services import RunCoordinator
 from aplomb.api.settings import Settings
 from aplomb.api.storage import MemoryStore
+from aplomb.contracts import api as a
 from aplomb.contracts import models as m
 from aplomb.contracts.catalog import FeatureFlag
 from aplomb.contracts.registry import adapter
@@ -357,3 +358,39 @@ def test_macro_facts_are_labelled_in_both_languages_and_an_index_is_not_a_ratio(
     assert all(f["label"]["fr"] != f["label"]["en"] for f in usa)
     canada = client.get("/v1/world/countries/CAN", headers=headers).json()["macro"]
     assert all(f["label"]["fr"] != f["label"]["en"] and f["unit"] == "pct" for f in canada)
+
+
+@pytest.mark.parametrize("role", ["writer", "auditor"])
+def test_sabotage_worker_resumes_after_model_crash(role):
+    gateway = CrashingGateway()
+    harness = Harness(gateway)
+    parent, _ = harness.drive(harness.create(decision_body()))
+    assert parent.status == "succeeded", parent.error
+    old_parent = parent.to_wire()
+    gateway.crash_on = (role, gateway.roles.count(role) + 1)
+    child_id = harness.coordinator.sabotage(harness.session, parent, a.SabotageRequest(mode="invented_number", lang="en")).run_id
+    child, crashes = harness.drive(child_id)
+    assert crashes == 1 and child.status == "succeeded", child.error
+    assert child.result.sabotage.caught is False
+    assert harness.runs.get(harness.session, parent.run_id).run.to_wire() == old_parent
+
+
+@pytest.mark.parametrize("mode,attempt", [
+    ("false_comparison", "{{fact:F-001}} is higher than {{fact:F-002}}."),
+    ("unsupported_interpretation", "Guaranteed future returns."),
+])
+def test_sabotage_modes_run_with_scripted_writer(mode, attempt):
+    def writer(message):
+        result = default_draft(message)
+        if "controlled test" in message.get("instruction", ""):
+            result["sections"][0]["sentences"].append({"id": "S-INJECTED", "template": attempt})
+        return result
+
+    harness = Harness(ScriptedGateway(writer=writer))
+    parent, _ = harness.drive(harness.create(decision_body()))
+    assert parent.status == "succeeded"
+    child_id = harness.coordinator.sabotage(harness.session, parent, a.SabotageRequest(mode=mode, lang="en")).run_id
+    child, _ = harness.drive(child_id)
+    assert child.status == "succeeded", child.error
+    assert child.result.sabotage.caught
+    assert child.result.sabotage.failed_checks
