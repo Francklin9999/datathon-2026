@@ -15,6 +15,13 @@ coordinates, validates port IDs and coordinates, and avoids issuer relationships
 The exact chokepoint table is reachable but has no geometry; a sourced geographic crosswalk and
 activity capture remain unimplemented.
 
+Canada Gazette's RSS feed is publicly reachable without a login. Its catalogue
+links to the Canada.ca terms, which require prior written permission for
+commercial redistribution unless otherwise specified. Feed reuse rights for
+this application were not established, so SRC-143 and MASTER-048 remain
+unpublished; the observed feed and terms are recorded in
+`docs/evidence/parallel/agent-3/source-audit/canada-gazette-rights.json`.
+
 ## User access preference
 
 Paid or billing dependent integrations are excluded from this branch, and sources
