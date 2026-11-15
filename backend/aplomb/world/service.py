@@ -25,6 +25,7 @@ from .country_macro import INDICATORS
 from .dataset import WorldDataError, WorldDataset
 from .facilities import filter_facilities, load_facilities
 from .geo import UNKNOWN_COUNTRY, country_name, in_bbox
+from .geo_boundaries import geometry_intersects_bbox
 from .relationships import event_geography
 
 DEFAULT_FEED_DAYS = 30
@@ -58,6 +59,13 @@ EVENT_MODES = {
     "monetary_policy": "macro", "macro_release": "macro", "geopolitical": "conflicts",
     "trade_regulation": "trade", "energy_commodities": "energy", "natural_disaster": "hazards",
     "corporate": "news", "markets": "news", "other": "news",
+}
+PROVIDER_MODES = {
+    "world_fda_drug_enforcement_counts": "news", "world_crossref_climate_bibliography": "news",
+    "world_ted_published_notice_metadata": "trade",
+    "world_climate_trace_canada_electricity_co2": "environment",
+    "world_ecb_press": "macro", "world_uk_sanctions_updates": "conflicts",
+    "world_geoboundaries_fra_adm1": "infrastructure", "world_ucdp_ged_ukraine_2025": "conflicts",
 }
 
 
@@ -181,6 +189,7 @@ class WorldServiceImpl:
         start, end = query.get("from"), query.get("to")
         as_of = query.get("asOf")
         rows: list[dict] = []
+        provider_countries: dict[str, str] = {}
         if self._capture_visible(ds, query):
             for event in ds.events:
                 source = event["sources"][0]
@@ -193,6 +202,7 @@ class WorldServiceImpl:
                     "publishedAt": event["publishedAt"], "retrievedAt": provenance["retrievedAt"],
                     "location": dict(event["location"], geometry=None), "source": {
                         "name": source["publisher"], "url": source["url"]},
+                    "countryIso3": event["location"].get("countryIso3"),
                     "datasetId": event["datasetId"],
                     "limitations": ["Occurrence time is known only to the calendar day in this event record.",
                                     "Geographic overlap does not establish issuer exposure or financial effect."],
@@ -202,28 +212,42 @@ class WorldServiceImpl:
             if as_of is not None and item["retrievedAt"][:10] > as_of:
                 continue
             category = item["category"]
-            item_mode = category if category in OBSERVATION_MODES else "news"
+            item_mode = PROVIDER_MODES.get(item["sourceId"], category if category in OBSERVATION_MODES else "news")
             props = item.get("properties") or {}
+            manifest = next((m for m in provider_meta if m.get("datasetId") == item["sourceId"]), {})
+            attribution = manifest.get("attribution") or props.get("attribution")
+            reference_month = (props.get("period") if item["sourceId"] == "world_climate_trace_canada_electricity_co2"
+                               and props.get("periodResolution") == "month" else None)
             role = props.get("geographicRole")
             precision = "polygon_anchor" if role == "alert_polygon_representative_anchor" else "point"
             observed = item.get("observedAt") or item.get("publishedAt") or item["retrievedAt"]
+            if reference_month:
+                observed = reference_month + "-01"
             published = item.get("publishedAt")
+            if item.get("countryIso3"):
+                provider_countries[item["id"]] = item["countryIso3"]
             rows.append({
                 "id": item["id"], "mode": item_mode, "title": item["title"],
                 "summary": _observation_summary(item),
                 "occurredAt": _utc_stamp(observed), "publishedAt": _utc_stamp(published) if published else None,
-                "timeBasis": "source_observation" if item.get("observedAt") else
-                             ("event_date" if published else "capture_only"),
+                "timeBasis": ("reference_period" if reference_month else
+                             (("event_date" if item["sourceId"] == "world_ucdp_ged_ukraine_2025"
+                              else "reference_period" if props.get("temporalPrecision") else "source_observation")
+                             if item.get("observedAt") else
+                             ("event_date" if published else "capture_only"))),
                 "retrievedAt": _utc_stamp(item["retrievedAt"]),
                 "location": ({"lat": lat, "lon": lon, "countryIso3": item.get("countryIso3"),
                               "precision": precision, "geometry": props.get("geometry")}
                              if lat is not None and lon is not None else None),
-                "source": {"name": next((m["name"] for m in provider_meta
-                                          if m.get("datasetId") == item["sourceId"]), item["sourceId"]),
+                "countryIso3": item.get("countryIso3"),
+                "geometry": props.get("geometry"),
+                "source": {"name": manifest.get("name", item["sourceId"]),
                            "url": item["sourceUrl"]},
                 "datasetId": item["sourceId"],
-                "limitations": ["Current captured source record; no verified historical vintage.",
-                                "A point or displayed polygon anchor does not establish issuer exposure or financial effect."],
+                "limitations": ([attribution] if isinstance(attribution, str) else [])
+                               + ["Current captured source record; no verified historical vintage.",
+                                "A point or displayed polygon anchor does not establish issuer exposure or financial effect."]
+                               + manifest.get("limitations", []),
             })
 
         counts = {key: 0 for key in OBSERVATION_MODES}
@@ -235,9 +259,14 @@ class WorldServiceImpl:
         if mode:
             rows = [r for r in rows if r["mode"] == mode]
         if countries:
-            rows = [r for r in rows if r["location"] and r["location"]["countryIso3"] in countries]
+            rows = [r for r in rows if (r["location"]["countryIso3"] if r["location"]
+                                        else provider_countries.get(r["id"])) in countries]
         if bbox:
-            rows = [r for r in rows if r["location"] and in_bbox(r["location"]["lat"], r["location"]["lon"], bbox)]
+            rows = [r for r in rows if (
+                geometry_intersects_bbox(r.get("geometry"), bbox)
+                if r["datasetId"] == "world_geoboundaries_fra_adm1"
+                else r["location"] and in_bbox(r["location"]["lat"], r["location"]["lon"], bbox)
+            )]
         if start:
             rows = [r for r in rows if r["occurredAt"][:10] >= start]
         if end:
@@ -660,6 +689,63 @@ def _utc_stamp(value: str) -> str:
 def _observation_summary(row: dict) -> str:
     """Short code-owned description of recorded fields, never an AI summary."""
     props = row.get("properties") or {}
+    if row["sourceId"] == "world_ted_published_notice_metadata":
+        return (f"TED published procurement notice {props['publicationNumber']}; "
+                f"source publication date {props['publicationDate']} (day precision); "
+                f"reported buyer countries: {', '.join(props['buyerCountries'])}. "
+                "Five-notice first-page sample; buyer country is not contract performance geography. "
+                "Publication does not establish an award or realized spending. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_fda_drug_enforcement_counts":
+        return (f"FDA {props['classification']}: {props['recordCount']:,} matching drug enforcement records "
+                f"with report dates {props['queryPeriodStart']} to {props['queryPeriodEnd']}; "
+                f"source last updated {props['sourceLastUpdated']}. "
+                "Counts are not unique recalls or current recall alerts. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_crossref_climate_bibliography":
+        publication_date = "-".join(str(part).zfill(2) for part in props["publicationDateParts"])
+        return (f"Crossref bibliographic metadata: {props['workType']}; DOI {props['doi']}; "
+                f"deposited publication date {publication_date} ({props['publicationDateResolution']} precision). "
+                "Five-record title-query sample; relevance does not establish scientific validity or geography.")
+    if row["sourceId"] == "world_climate_trace_canada_electricity_co2":
+        return (f"Climate TRACE modeled Canada electricity-generation CO2 in {props['period']}: "
+                f"{props['emissionsQuantity']:,.0f} {props['unit']} (release {props['dataRelease']}). "
+                "National estimate; may be revised. First-of-month midnight UTC is a display anchor "
+                "for the monthly reference period, not a measurement or publication time.")
+    if row["sourceId"] == "world_geoboundaries_fra_adm1":
+        return (f"geoBoundaries simplified {props['representedYear']} France ADM1 administrative boundary. "
+                "Metropolitan France sample; source polygon has no point coordinates.")
+    if row["sourceId"] == "world_ucdp_ged_ukraine_2025":
+        return (f"UCDP GED 26.1 Ukraine event {props['eventId']}, possible dates "
+                f"{props['dateStart']} to {props['dateEnd']}. Estimated fatalities: "
+                f"{props['fatalitiesBest']} best, {props['fatalitiesLow']}–{props['fatalitiesHigh']} range. "
+                f"Source location precision code {props['locationPrecision']}; "
+                f"date precision code {props['datePrecision']}. "
+                "Midnight UTC represents the earliest possible date, not an exact event time.")
+    if row["sourceId"] == "world_ecb_press":
+        return "ECB press release metadata from the current RSS feed."
+    if row["sourceId"] == "world_uk_sanctions_updates":
+        return "UK Sanctions List publication update note. Consult the current official list and applicable law."
+    if row["sourceId"] == "world_usgs_minerals":
+        return (f"USGS estimated {props['commodity']} mine production in {props['country']} for "
+                f"{props['referenceYear']}: {props['value']:g} {props['unit']}. Country total, not a mine location.")
+    if row["sourceId"] == "world_usgs_geojson":
+        return (f"USGS reported magnitude {props['magnitude']:g} earthquake epicenter. "
+                "Affected area, damage and issuer exposure are not established.")
+    if row["sourceId"] == "world_statcan_cpi":
+        return (f"Canada all-items CPI in {props['referenceMonth']}: {props['index']:g} "
+                f"({props['unit']}), not seasonally adjusted. {props['attribution']}")
+    if row["sourceId"] == "trade_un_comtrade_exports":
+        return (f"Source: UN Comtrade. {props['referenceYear']} merchandise exports from {props['reporterName']} "
+                f"to the world: US${props['valueUsd']:,.0f}. Country total; conditional reuse applies.")
+    if row["sourceId"] == "trade_wits_fuel_exports":
+        return (f"WITS, Source: UN Comtrade. {props['referenceYear']} fuel exports from Canada to the world: "
+                f"US${props['valueUsdThousands']:,.0f} thousand. Country total; conditional reuse applies.")
+    if row["sourceId"] == "trade_unctad_concentration":
+        return (f"United Nations Trade and Development Data Hub (UNCTAD), adapted by Aplomb: "
+                f"{props['referenceYear']} global export market concentration for "
+                f"{props['productLabel']}: {props['concentrationIndex']:.6f}. "
+                "Normalized index, not trade value or port activity.")
     if row["category"] == "aviation":
         return f"Airport weather observation at {props.get('stationId', 'station')}: {props.get('metar', 'report unavailable')}."
     if row["category"] == "energy":

@@ -16,9 +16,15 @@ from .facilities import load_facilities
 from .providers import load_provider_snapshots
 
 PROVIDER_DATASET_IDS = frozenset({
-    "world_aviation_weather", "world_noaa_alerts", "world_gdacs_alerts", "world_nasa_power", "world_epa_sems_sites",
-    "world_federal_register",
-    "energy_wri_plants", "trade_portwatch_ports",
+    "world_aviation_weather", "world_noaa_alerts", "world_usgs_geojson", "world_gdacs_alerts",
+    "world_nasa_power", "world_epa_sems_sites",
+    "world_climate_trace_canada_electricity_co2",
+    "world_federal_register", "world_ecb_press", "world_uk_sanctions_updates", "world_usgs_minerals", "world_statcan_cpi",
+    "energy_wri_plants", "trade_portwatch_ports", "trade_un_comtrade_exports", "trade_wits_fuel_exports",
+    "trade_unctad_concentration",
+    "world_geoboundaries_fra_adm1", "world_ucdp_ged_ukraine_2025",
+    "world_fda_drug_enforcement_counts", "world_crossref_climate_bibliography",
+    "world_ted_published_notice_metadata",
 })
 
 
@@ -149,12 +155,22 @@ def provider_passports() -> dict[str, dict]:
     out = {}
     for manifest in manifests:
         source_id = manifest["datasetId"]
+        attribution = manifest.get("attribution") or next(
+            (row.get("properties", {}).get("attribution") for row in rows
+             if row["sourceId"] == source_id and row.get("properties", {}).get("attribution")), None,
+        )
         retrieved = manifest["retrievedAt"]
+        scope = manifest.get("scope") or (
+            "Five published procurement notice metadata records from the first page of "
+            "2026-11-01 through 2026-11-15; source-reported buyer countries only."
+            if source_id == "world_ted_published_notice_metadata"
+            else manifest["name"]
+        )
         version = f"snap-{retrieved[:10].replace('-', '')}-{source_id}-{manifest['sha256'][:10]}"
         out[source_id] = {
             "datasetId": source_id,
             "name": _t(manifest["name"], manifest["name"]),
-            "role": _t(manifest["scope"], manifest["scope"]),
+            "role": _t(scope, scope),
             "status": "in_use",
             "source": manifest["name"],
             "sourceUrl": manifest["sourceUrl"],
@@ -168,10 +184,12 @@ def provider_passports() -> dict[str, dict]:
             "dataVersion": version,
             "schema": [
                 {"name": "id", "type": "string", "description": "Provider-stable source observation ID"},
-                {"name": "location", "type": "object", "description": "Validated source coordinates and geographic role"},
+                {"name": "location", "type": "object", "description": "Validated source coordinates when provided; may be absent"},
+                {"name": "geometry", "type": "object", "description": "Source polygon or line geometry when provided; a polygon may have no point coordinates"},
                 {"name": "retrievedAt", "type": "timestamp", "description": "First proven availability of this captured version"},
             ],
-            "processing": [_t(note, note) for note in manifest["limitations"]],
+            "processing": [_t(note, note) for note in
+                           ([attribution] if attribution else []) + manifest["limitations"]],
             "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"],
             "availabilityRule": _t(manifest["availabilityRule"], manifest["availabilityRule"]),
             "checks": [
@@ -180,7 +198,7 @@ def provider_passports() -> dict[str, dict]:
                            "raw captures also passed SHA-256 verification.",
                  "checkedAt": retrieved},
                 {"name": "pagination_coverage", "ok": bool(manifest.get("coverageComplete")),
-                 "detail": manifest["scope"], "checkedAt": retrieved},
+                 "detail": scope, "checkedAt": retrieved},
             ],
             "rejectedReason": None,
         }

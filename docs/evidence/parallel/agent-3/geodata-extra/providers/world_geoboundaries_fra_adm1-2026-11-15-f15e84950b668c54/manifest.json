@@ -1,0 +1,38 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_geoboundaries_fra_adm1-2026-11-15-f15e84950b668c54",
+ "datasetId": "world_geoboundaries_fra_adm1",
+ "frequency": "Pinned 2022 release, manually captured",
+ "historicalReplay": false,
+ "licence": "geoBoundaries CC BY 4.0; underlying IGN-F data Etalab Open License 2.0; attribution and changes indicated",
+ "licenceUrl": "https://www.geoboundaries.org/index.html",
+ "limitations": [
+  "Only 13 metropolitan France regions; overseas regions excluded.",
+  "Simplified geometry is unsuitable for surveying or legal boundary decisions.",
+  "No historical publication vintage; availability gated at capture."
+ ],
+ "name": "geoBoundaries France ADM1 simplified boundaries",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "26b876de5b03c99399ccec16a367deb8681c4953eecede32ac6f5d4fb581bf09",
+   "url": "https://www.geoboundaries.org/api/current/gbOpen/FRA/ADM1/"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "7dc61e5c7e4c81f5fa10d339e6a5bc8428f1346f43f4426d9d165d2e44fc3a7e",
+   "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/FRA/ADM1/geoBoundaries-FRA-ADM1_simplified.geojson"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:17:04Z",
+ "rowCount": 13,
+ "scope": "13 metropolitan France regions in the pinned 2022 ADM1 release; overseas regions excluded.",
+ "sha256": "f15e84950b668c542e77a3de83077b6e1f45b58323d28e68be6f33bdced31ce4",
+ "sourceIds": [
+  "SRC-154"
+ ],
+ "sourceRows": 13,
+ "sourceUrl": "https://www.geoboundaries.org/api/current/gbOpen/FRA/ADM1/"
+}

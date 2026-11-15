@@ -253,12 +253,26 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `world_events` | Geolocated events | P1 |
 | `world_aviation_weather` | Aviation weather observations from bounded airport station captures | P2 |
 | `world_noaa_alerts` | NOAA weather alert observations with source geometry | P2 |
+| `world_usgs_geojson` | USGS weekly magnitude 4.5 to below 6 earthquake GeoJSON observations | P2 |
 | `world_gdacs_alerts` | GDACS bounded global disaster alert observations | P2 |
 | `world_nasa_power` | NASA POWER bounded gridded daily temperature observations | P2 |
 | `world_epa_sems_sites` | EPA Envirofacts bounded geolocated SEMS site references | P2 |
+| `world_climate_trace_canada_electricity_co2` | Climate TRACE monthly 2025 Canada electricity-generation CO2 estimates | P2 |
 | `world_federal_register` | Federal Register policy observations | P2 |
+| `world_ecb_press` | ECB press release metadata from the current RSS feed | P2 |
+| `world_uk_sanctions_updates` | UK Sanctions List publication change notes | P2 |
+| `world_usgs_minerals` | USGS selected annual country mine-production estimates | P2 |
+| `world_statcan_cpi` | Statistics Canada bounded monthly all-items CPI index | P2 |
+| `world_fda_drug_enforcement_counts` | openFDA bounded drug enforcement record counts by classification | P2 |
+| `world_crossref_climate_bibliography` | Crossref five-record 2024 climate-title bibliographic metadata sample | P2 |
+| `world_ted_published_notice_metadata` | TED five-record published procurement notice metadata sample with reported buyer countries | P2 |
+| `world_geoboundaries_fra_adm1` | geoBoundaries pinned 2022 metropolitan France ADM1 polygons | P2 |
+| `world_ucdp_ged_ukraine_2025` | UCDP GED 26.1 bounded Ukraine 2025 conflict events | P2 |
 | `energy_wri_plants` | WRI power plant reference observations | P2 |
 | `trade_portwatch_ports` | IMF PortWatch port reference observations | P2 |
+| `trade_un_comtrade_exports` | UN Comtrade selected annual country merchandise exports to the world | P2 |
+| `trade_wits_fuel_exports` | WITS Canada annual fuel exports to the world, sourced from UN Comtrade | P2 |
+| `trade_unctad_concentration` | UNCTAD selected global export concentration indices | P2 |
 | `attention_pageviews` | Wikipedia page views per asset | P1 |
 | `emissions_facilities` | ECCC and EPA facility emissions | P1 (cut item 2) |
 | `natural_hazards` | USGS earthquakes, NASA FIRMS wildfires | P1 (cut item 2) |

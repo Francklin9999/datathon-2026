@@ -278,6 +278,7 @@ function WorldContent({ profile }: { profile: Profile }) {
   const eventsOn = isOn('events');
   const [observationPins, setObservationPins] = useState<GlobePin[]>([]);
   const [observationId, setObservationId] = useState<string | null>(null);
+  const [observationGeometry, setObservationGeometry] = useState<Record<string, unknown> | null>(null);
   useEffect(() => { setObservationId(null); }, [mode, applied?.bbox, countryIso3, appliedCountry]);
   const pinSelection = useMemo(() => thinPins(visible, MAX_PINS, eventId), [visible, eventId]);
   const facilityPins = useMemo(() => (facilities.data?.items ?? []).slice(0, MAX_PINS), [facilities.data]);
@@ -362,7 +363,7 @@ function WorldContent({ profile }: { profile: Profile }) {
         bbox={draft.bbox ?? ''} onBbox={bbox => { setArea(''); setDraft(value => ({ ...value, bbox })); }} />
       {!layers.loading && WORLD_MODES.find(item => item.id === mode)!.layers.filter(id => !layerStates[id as LayerId]?.enabled).map(id =>
         <p key={id} className="small" role="status">{labelOf(WORLD_LAYER, id, lang)}: {tr(LAYER_REASON[layerStates[id as LayerId]?.reason ?? 'not_listed'])}</p>)}
-      <WorldGlobe pins={pins} selectedId={observationId ?? eventId} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : null}
+      <WorldGlobe pins={pins} selectedId={observationId ?? eventId} selectedGeometry={observationGeometry} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : null}
         selectedEvent={selectedEvent} exposure={isOn('exposure') ? exposureByIso3 : null} exposureRows={exposure.data?.items ?? []}
         counts={{ shown: visible.length, total: feed.total, linked: relevantCount }} showHazards={hazardsOn} hazardsLabel={hazardsTitle}
         onPin={onPin} onCountry={selectCountry} onOpenDetails={openDetails} area={GEOGRAPHIC_AREAS.find(item => item.id === area) ?? null} onViewport={queryViewport} />
@@ -528,7 +529,7 @@ function WorldContent({ profile }: { profile: Profile }) {
       </div>
 
       {mode !== 'portfolio' && <WorldObservations mode={mode} bbox={applied?.bbox ?? ''} country={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : appliedCountry}
-        q={applied?.q ?? ''} from={applied?.from ?? ''} to={applied?.to ?? ''} selectedId={observationId} onPins={setObservationPins} onSelect={setObservationId} />}
+        q={applied?.q ?? ''} from={applied?.from ?? ''} to={applied?.to ?? ''} selectedId={observationId} onPins={setObservationPins} onSelect={setObservationId} onGeometry={setObservationGeometry} />}
       {mode !== 'aviation' && mode !== 'infrastructure' && <Card id="feed" className="world-feed" section={tr({ en: 'Feed', fr: 'Fil' })} tour="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
         actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={feed.loading || applied === null}>{tr({ en: 'Reload', fr: 'Recharger' })}</button>}>
         <div role="status" aria-live="polite" className="small feed-counts">

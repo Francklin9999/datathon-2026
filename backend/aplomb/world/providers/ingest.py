@@ -11,7 +11,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlencode
 
-from . import public
+from . import (
+    audit_extra,
+    climate_trace_extra,
+    crossref_extra,
+    fda_extra,
+    feeds_extra,
+    geodata_extra,
+    minerals,
+    public,
+    quake_feed,
+    ted_extra,
+    trade_extra,
+    trade_followon,
+    ucdp_static,
+)
 from .snapshot import DIRECTORY, publish
 from .transport import Transport
 
@@ -115,13 +129,47 @@ def collect(name: str, fetch, stamp: str | None = None, directory: Path = DIRECT
 
 def main() -> int:
     parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument("--source", choices=sorted(SOURCES), action="append", required=True)
+    parser.add_argument("--source", choices=sorted(SOURCES) + ["ecb", "minerals", "quake", "statcan_cpi", "trade",
+                                                               "uk_sanctions", "unctad", "wits", "geoboundaries", "ucdp", "climate_trace",
+                                                               "fda", "crossref", "ted"],
+                        action="append", required=True)
     parser.add_argument("--directory", type=Path, default=DIRECTORY)
     args = parser.parse_args()
     transport, results, failures = Transport(), [], False
     for name in dict.fromkeys(args.source):
         try:
-            manifest = collect(name, transport, directory=args.directory)
+            if name in {"ecb", "uk_sanctions"}:
+                manifest = feeds_extra.collect(name, directory=args.directory)
+            elif name == "minerals":
+                manifest = minerals.collect(args.directory, fetch=Transport(max_bytes=5_000_000))
+            elif name == "quake":
+                manifest = quake_feed.collect(args.directory)
+            elif name == "statcan_cpi":
+                manifest = audit_extra.collect(args.directory)
+            elif name == "trade":
+                manifest = trade_extra.collect(args.directory)
+            elif name == "wits":
+                manifest = trade_followon.collect(args.directory)
+            elif name == "unctad":
+                manifest = trade_followon.collect_unctad(args.directory)
+            elif name == "geoboundaries":
+                manifest = geodata_extra.collect(directory=args.directory)
+            elif name == "climate_trace":
+                manifest = climate_trace_extra.collect(directory=args.directory)
+            elif name == "fda":
+                manifest = fda_extra.collect(directory=args.directory)
+            elif name == "crossref":
+                manifest = crossref_extra.collect(directory=args.directory)
+            elif name == "ted":
+                manifest = ted_extra.collect(directory=args.directory)
+            elif name == "ucdp":
+                manifest = ucdp_static.collect(
+                    args.directory,
+                    ucdp_static.fetch(ucdp_static.ARCHIVE_URL, 40_000_000),
+                    ucdp_static.fetch(ucdp_static.CODEBOOK_URL, 2_000_000),
+                )
+            else:
+                manifest = collect(name, transport, directory=args.directory)
             results.append({"source": name, "status": "captured", "version": manifest["dataVersion"], "rows": manifest["rowCount"]})
         except (ValueError, OSError, KeyError, TypeError) as exc:
             failures = True

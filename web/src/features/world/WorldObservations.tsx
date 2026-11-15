@@ -20,9 +20,10 @@ type ObservationState = {
 const INITIAL: ObservationState = { key: null, page: null, loading: false, loadingMore: false, error: null, moreError: null, loadedAt: null };
 
 /** Provider observations remain separate from portfolio matches; no relationship is inferred here. */
-export function WorldObservations({ mode, bbox, country, q, from, to, selectedId, onPins, onSelect }: {
+export function WorldObservations({ mode, bbox, country, q, from, to, selectedId, onPins, onSelect, onGeometry }: {
   mode: WorldMode; bbox: string; country: string; q: string; from: string; to: string; selectedId: string | null;
   onPins: (pins: GlobePin[]) => void; onSelect: (id: string) => void;
+  onGeometry: (geometry: Record<string, unknown> | null) => void;
 }) {
   const app = useApp();
   const { tr, lang } = app;
@@ -74,6 +75,9 @@ export function WorldObservations({ mode, bbox, country, q, from, to, selectedId
     }
   }, [page, key, query, state.loadingMore, state.loading]);
   const selected = page?.items.find(row => `observation:${row.id}` === selectedId);
+  // Polygon-only records have no point coordinates. Keep their source geometry separate from pins.
+  const selectedGeometry = selected?.geometry ?? null;
+  useEffect(() => { onGeometry(selectedGeometry); return () => onGeometry(null); }, [selectedGeometry, onGeometry]);
   const title = WORLD_MODES.find(item => item.id === mode)!.title;
   const availability = sourceMode ? page?.modes.find(item => item.mode === sourceMode) : null;
   return <Card id="world-observations" title={`${tr(title)} · ${tr({ en: 'source observations', fr: 'observations sourcées' })}`}
@@ -93,8 +97,8 @@ export function WorldObservations({ mode, bbox, country, q, from, to, selectedId
       {selected && <ObservationDetail observation={selected} />}
       <ol className="feed-list" aria-label={tr({ en: 'Source observations', fr: 'Observations sourcées' })}>
         {page.items.map(row => <li key={row.id}><button type="button" className="feed-item" aria-current={`observation:${row.id}` === selectedId ? 'true' : undefined} onClick={() => onSelect(`observation:${row.id}`)}>
-          <span className="feed-title">{row.title}</span><span className="small muted block">{row.source.name} · {fmtDateTime(row.occurredAt, lang)} · {row.location?.countryIso3 ? countryLabel(row.location.countryIso3, lang) : tr({ en: 'country not stated', fr: 'pays non indiqué' })}</span>
-          <span className="small muted block">{row.location?.precision ?? tr({ en: 'No source coordinates', fr: 'Aucune coordonnée de source' })} · {row.timeBasis}</span>
+          <span className="feed-title">{row.title}</span><span className="small muted block">{row.source.name} · {row.timeBasis === 'reference_period' ? row.occurredAt.slice(0, 7) : fmtDateTime(row.occurredAt, lang)} · {row.countryIso3 ? countryLabel(row.countryIso3, lang) : tr({ en: 'country not stated', fr: 'pays non indiqué' })}</span>
+          <span className="small muted block">{row.location?.precision ?? (row.geometry ? tr({ en: 'Source boundary · no point', fr: 'Limite de source · sans point' }) : tr({ en: 'No source coordinates', fr: 'Aucune coordonnée de source' }))} · {row.timeBasis}</span>
         </button></li>)}
       </ol>
       {page.nextCursor && <button className="btn ghost" type="button" onClick={() => void loadMore()} disabled={state.loadingMore || state.loading}>{tr({ en: 'Load more observations', fr: 'Charger plus d’observations' })}</button>}
@@ -114,10 +118,10 @@ function ObservationDetail({ observation }: { observation: WorldObservation }) {
     <p className="small muted">{tr({ en: 'Source record description; no generated AI summary or financial impact model is implied.', fr: 'Description de l’enregistrement source ; aucune synthèse IA ni modélisation financière implicite.' })}</p>
     <dl>
       <div className="kv"><dt className="k">{tr({ en: 'Original source', fr: 'Source originale' })}</dt><dd className="v"><ExternalLink href={observation.source.url}>{observation.source.name}</ExternalLink></dd></div>
-      <div className="kv"><dt className="k">{tr({ en: 'Observed / time basis', fr: 'Observation / fondement temporel' })}</dt><dd className="v">{fmtDateTime(observation.occurredAt, lang)} · {observation.timeBasis}</dd></div>
+      <div className="kv"><dt className="k">{tr({ en: 'Observed / time basis', fr: 'Observation / fondement temporel' })}</dt><dd className="v">{observation.timeBasis === 'reference_period' ? `${tr({ en: 'Reference month', fr: 'Mois de référence' })} ${observation.occurredAt.slice(0, 7)}` : fmtDateTime(observation.occurredAt, lang)} · {observation.timeBasis}</dd></div>
       <div className="kv"><dt className="k">{tr({ en: 'Publication', fr: 'Publication' })}</dt><dd className="v">{observation.publishedAt ? fmtDateTime(observation.publishedAt, lang) : tr({ en: 'Not stated', fr: 'Non indiquée' })}</dd></div>
       <div className="kv"><dt className="k">{tr({ en: 'Retrieved', fr: 'Collecté' })}</dt><dd className="v">{fmtDateTime(observation.retrievedAt, lang)}</dd></div>
-      <div className="kv"><dt className="k">{tr({ en: 'Source geometry', fr: 'Géométrie de source' })}</dt><dd className="v">{observation.location ? `${observation.location.precision} · ${observation.location.lat}, ${observation.location.lon}` : tr({ en: 'No coordinates supplied; this record has no map pin.', fr: 'Aucune coordonnée fournie ; cet enregistrement n’a pas d’épingle.' })}</dd></div>
+      <div className="kv"><dt className="k">{tr({ en: 'Source geometry', fr: 'Géométrie de source' })}</dt><dd className="v">{observation.location ? `${observation.location.precision} · ${observation.location.lat}, ${observation.location.lon}` : observation.geometry ? tr({ en: 'Source boundary available on the globe; no point coordinates supplied.', fr: 'Limite de source disponible sur le globe ; aucune coordonnée de point fournie.' }) : tr({ en: 'No coordinates supplied; this record has no map pin.', fr: 'Aucune coordonnée fournie ; cet enregistrement n’a pas d’épingle.' })}</dd></div>
       <div className="kv"><dt className="k">{tr({ en: 'Source passport', fr: 'Passeport de source' })}</dt><dd className="v"><Link href={`/sources/?datasetId=${encodeURIComponent(observation.datasetId)}`}>{observation.datasetId}</Link></dd></div>
     </dl>
     <ul className="small">{observation.limitations.map((limitation, index) => <li key={index}>{limitation}</li>)}</ul>

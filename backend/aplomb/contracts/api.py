@@ -609,10 +609,12 @@ class WorldObservation(WireModel):
     title: String
     summary: String
     occurred_at: ISODateTime
-    time_basis: Literal["source_observation", "event_date", "capture_only"]
+    time_basis: Literal["source_observation", "reference_period", "event_date", "capture_only"]
     published_at: ISODateTime | None
     retrieved_at: ISODateTime
     location: WorldObservationLocation | None
+    geometry: dict | None = None
+    country_iso3: String | None = None
     source: WorldObservationSource
     dataset_id: String
     limitations: list[String]

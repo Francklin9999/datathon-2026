@@ -1604,12 +1604,26 @@
         "world_events",
         "world_aviation_weather",
         "world_noaa_alerts",
+        "world_usgs_geojson",
         "world_gdacs_alerts",
         "world_nasa_power",
         "world_epa_sems_sites",
+        "world_climate_trace_canada_electricity_co2",
         "world_federal_register",
+        "world_ecb_press",
+        "world_uk_sanctions_updates",
+        "world_usgs_minerals",
+        "world_statcan_cpi",
+        "world_fda_drug_enforcement_counts",
+        "world_crossref_climate_bibliography",
+        "world_ted_published_notice_metadata",
+        "world_geoboundaries_fra_adm1",
+        "world_ucdp_ged_ukraine_2025",
         "energy_wri_plants",
         "trade_portwatch_ports",
+        "trade_un_comtrade_exports",
+        "trade_wits_fuel_exports",
+        "trade_unctad_concentration",
         "attention_pageviews",
         "emissions_facilities",
         "natural_hazards",
@@ -8566,6 +8580,7 @@
         "timeBasis": {
           "enum": [
             "source_observation",
+            "reference_period",
             "event_date",
             "capture_only"
           ],
@@ -8593,6 +8608,29 @@
               "type": "null"
             }
           ]
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "countryIso3": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "source": {
           "$ref": "#/$defs/WorldObservationSource"
@@ -9815,7 +9853,7 @@
   "x-contract-version": "1.4.0",
   "x-spec-sha256": {
     "schemas.md": "8ef77c78d2a4c1ceefc2015264a83fe93b3afcd9912cb8054ad674976d1ff14a",
-    "catalog.md": "1b84468b98ce34b3c0b5958ce73ff5d1d250e3c6becef06d09a77464d8d1c189",
+    "catalog.md": "2be4868842472167ae07ceeb650576b0d966bc45c463a2ef866e5e308cdec809",
     "api.md": "6f13245221577f105f2940462d7dde9560a4fd815ef7a44bcc2ff711744743e9",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"

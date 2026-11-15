@@ -1,0 +1,151 @@
+[
+ {
+  "availableAt": "2026-11-15T17:30:17Z",
+  "category": "research",
+  "countryIso3": null,
+  "id": "world_crossref_climate_bibliography:10.1016/j.emc.2024.02.022",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Crossref bibliographic metadata",
+   "dateRole": "Crossref member-deposited publication date",
+   "doi": "10.1016/j.emc.2024.02.022",
+   "geographicRole": "none",
+   "publicationDateParts": [
+    2024,
+    8
+   ],
+   "publicationDateResolution": "month",
+   "titles": [
+    "Climate Change"
+   ],
+   "workType": "journal-article"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:17Z",
+  "sourceId": "world_crossref_climate_bibliography",
+  "sourceUrl": "https://doi.org/10.1016/j.emc.2024.02.022",
+  "title": "Climate Change"
+ },
+ {
+  "availableAt": "2026-11-15T17:30:17Z",
+  "category": "research",
+  "countryIso3": null,
+  "id": "world_crossref_climate_bibliography:10.1080/09638237.2024.2390383",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Crossref bibliographic metadata",
+   "dateRole": "Crossref member-deposited publication date",
+   "doi": "10.1080/09638237.2024.2390383",
+   "geographicRole": "none",
+   "publicationDateParts": [
+    2024,
+    8,
+    14
+   ],
+   "publicationDateResolution": "day",
+   "titles": [
+    "Climate Change"
+   ],
+   "workType": "journal-article"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:17Z",
+  "sourceId": "world_crossref_climate_bibliography",
+  "sourceUrl": "https://doi.org/10.1080/09638237.2024.2390383",
+  "title": "Climate Change"
+ },
+ {
+  "availableAt": "2026-11-15T17:30:17Z",
+  "category": "research",
+  "countryIso3": null,
+  "id": "world_crossref_climate_bibliography:10.1215/25783491-11206904",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Crossref bibliographic metadata",
+   "dateRole": "Crossref member-deposited publication date",
+   "doi": "10.1215/25783491-11206904",
+   "geographicRole": "none",
+   "publicationDateParts": [
+    2024,
+    3,
+    1
+   ],
+   "publicationDateResolution": "day",
+   "titles": [
+    "Inventing Climate Change"
+   ],
+   "workType": "journal-article"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:17Z",
+  "sourceId": "world_crossref_climate_bibliography",
+  "sourceUrl": "https://doi.org/10.1215/25783491-11206904",
+  "title": "Inventing Climate Change"
+ },
+ {
+  "availableAt": "2026-11-15T17:30:17Z",
+  "category": "research",
+  "countryIso3": null,
+  "id": "world_crossref_climate_bibliography:10.51582/interconf.19-20.02.2024.048",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Crossref bibliographic metadata",
+   "dateRole": "Crossref member-deposited publication date",
+   "doi": "10.51582/interconf.19-20.02.2024.048",
+   "geographicRole": "none",
+   "publicationDateParts": [
+    2024,
+    2,
+    20
+   ],
+   "publicationDateResolution": "day",
+   "titles": [
+    "Climate change and consequences of climate change in Kazakhstan"
+   ],
+   "workType": "journal-article"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:17Z",
+  "sourceId": "world_crossref_climate_bibliography",
+  "sourceUrl": "https://doi.org/10.51582/interconf.19-20.02.2024.048",
+  "title": "Climate change and consequences of climate change in Kazakhstan"
+ },
+ {
+  "availableAt": "2026-11-15T17:30:17Z",
+  "category": "research",
+  "countryIso3": null,
+  "id": "world_crossref_climate_bibliography:10.56261/built.v22.251630",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Crossref bibliographic metadata",
+   "dateRole": "Crossref member-deposited publication date",
+   "doi": "10.56261/built.v22.251630",
+   "geographicRole": "none",
+   "publicationDateParts": [
+    2024,
+    5,
+    2
+   ],
+   "publicationDateResolution": "day",
+   "titles": [
+    "Climate Change 2022 Mitigation of Climate Change:  Urban System"
+   ],
+   "workType": "journal-article"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:17Z",
+  "sourceId": "world_crossref_climate_bibliography",
+  "sourceUrl": "https://doi.org/10.56261/built.v22.251630",
+  "title": "Climate Change 2022 Mitigation of Climate Change:  Urban System"
+ }
+]

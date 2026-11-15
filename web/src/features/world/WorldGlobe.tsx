@@ -68,6 +68,7 @@ export interface WorldGlobeProps {
   onViewport: (bbox: string) => void;
   pins: readonly GlobePin[];
   selectedId: string | null;
+  selectedGeometry: Record<string, unknown> | null;
   selectedCountry: string | null;
   selectedEvent: WorldEvent | null;
   exposure: ReadonlyMap<string, number> | null;
@@ -82,7 +83,7 @@ export interface WorldGlobeProps {
 }
 
 export function WorldGlobe({
-  pins, selectedId, selectedCountry, selectedEvent, exposure, exposureRows, counts, showHazards, hazardsLabel, onPin, onCountry, onOpenDetails, area, onViewport,
+  pins, selectedId, selectedGeometry, selectedCountry, selectedEvent, exposure, exposureRows, counts, showHazards, hazardsLabel, onPin, onCountry, onOpenDetails, area, onViewport,
 }: WorldGlobeProps) {
   const { tr, lang } = useApp();
   const [webgl, setWebgl] = useState<boolean | null>(null);
@@ -132,7 +133,7 @@ export function WorldGlobe({
     <p className="globe-fallback">{tr({ en: 'This browser has no WebGL, so the globe is off. The list beside it and the feed below show the same events and countries.', fr: 'Ce navigateur n’a pas WebGL : le globe est désactivé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>
   ) : (
     <GlobeBoundary fallback={<p className="globe-fallback">{tr({ en: 'The globe could not be loaded. The list beside it and the feed below show the same events and countries.', fr: 'Le globe n’a pas pu être chargé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>}>
-      <GlobeView pins={pins} selectedId={selectedId} selectedCountry={selectedCountry} countries={countries} exposure={exposure}
+      <GlobeView pins={pins} selectedId={selectedId} selectedGeometry={selectedGeometry} selectedCountry={selectedCountry} countries={countries} exposure={exposure}
         rotate={rotate} reducedMotion={reducedMotion} lang={lang} height={height}
         onPin={onPin} onCountry={onCountry} onHover={setHover} onInteract={stopRotation} area={area} command={command} onClusters={setClusterCount} onViewport={onViewport} onReady={markGlobeReady} />
     </GlobeBoundary>
@@ -221,7 +222,7 @@ export function WorldGlobe({
         <div className="stage-block">
           <h2 className="stage-heading">{tr({ en: 'Reading the globe', fr: 'Lire le globe' })}</h2>
           <ul className="stage-legend">
-            {pins.some(pin => pin.kind === 'observation') && <li><span className="stage-dot" style={{ background: '#6AE0CF' }} aria-hidden="true" />{tr({ en: 'Source observations · selected original polygons or lines use the same color', fr: 'Observations sourcées · polygones ou lignes d’origine sélectionnés de même couleur' })}</li>}
+            {(selectedGeometry || pins.some(pin => pin.kind === 'observation')) && <li><span className="stage-dot" style={{ background: '#6AE0CF' }} aria-hidden="true" />{tr({ en: 'Source observations · selected original polygons or lines use the same color', fr: 'Observations sourcées · polygones ou lignes d’origine sélectionnés de même couleur' })}</li>}
             <li><span className="stage-ramp" aria-hidden="true">{EXPOSURE_COLORS.map(c => <span key={c} style={{ background: c }} />)}</span>
               {tr({ en: `Share of the portfolio (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)`, fr: `Part du portefeuille (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)` })}</li>
             <li><span className="stage-spike" aria-hidden="true" />{tr({ en: 'Event: the taller, the more important', fr: 'Événement : plus il est haut, plus il est important' })}</li>

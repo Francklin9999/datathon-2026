@@ -36,12 +36,26 @@ export type DatasetId =
   | "world_events"
   | "world_aviation_weather"
   | "world_noaa_alerts"
+  | "world_usgs_geojson"
   | "world_gdacs_alerts"
   | "world_nasa_power"
   | "world_epa_sems_sites"
+  | "world_climate_trace_canada_electricity_co2"
   | "world_federal_register"
+  | "world_ecb_press"
+  | "world_uk_sanctions_updates"
+  | "world_usgs_minerals"
+  | "world_statcan_cpi"
+  | "world_fda_drug_enforcement_counts"
+  | "world_crossref_climate_bibliography"
+  | "world_ted_published_notice_metadata"
+  | "world_geoboundaries_fra_adm1"
+  | "world_ucdp_ged_ukraine_2025"
   | "energy_wri_plants"
   | "trade_portwatch_ports"
+  | "trade_un_comtrade_exports"
+  | "trade_wits_fuel_exports"
+  | "trade_unctad_concentration"
   | "attention_pageviews"
   | "emissions_facilities"
   | "natural_hazards"
@@ -3194,10 +3208,14 @@ export interface WorldObservation {
   title: string;
   summary: string;
   occurredAt: ISODateTime;
-  timeBasis: "source_observation" | "event_date" | "capture_only";
+  timeBasis: "source_observation" | "reference_period" | "event_date" | "capture_only";
   publishedAt: ISODateTime | null;
   retrievedAt: ISODateTime;
   location: WorldObservationLocation | null;
+  geometry?: {
+    [k: string]: unknown;
+  } | null;
+  countryIso3?: string | null;
   source: WorldObservationSource;
   datasetId: string;
   limitations: string[];

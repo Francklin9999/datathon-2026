@@ -1,0 +1,38 @@
+{
+ "attribution": "US Environmental Protection Agency, Enforcement and Compliance History Online (ECHO)",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_epa_echo_facilities-2026-11-15-eef4c7dc4e78da11",
+ "datasetId": "world_epa_echo_facilities",
+ "frequency": "Current ECHO search; manual capture",
+ "historicalReplay": false,
+ "licence": "EPA-produced geospatial data are public domain unless otherwise specified; other content may have separate rights",
+ "licenceUrl": "https://www.epa.gov/web-policies-and-procedures/epa-disclaimers",
+ "limitations": [
+  "Only the first 100 results of a ZIP 10004 search are included; ECHO may return facilities with a different displayed ZIP. This is not a complete ECHO or New York inventory.",
+  "EPA coordinates are source facility map positions and may be inaccurate or differ from mailing ZIP; accuracy is source-reported where present.",
+  "Compliance status reflects EPA source records and does not establish current legal compliance or prove an absence of violations.",
+  "Records may be incomplete or updated; original historical availability is unproven and capture-time gating applies.",
+  "No ownership, issuer, investment exposure, emissions, or facility boundaries are established."
+ ],
+ "name": "EPA ECHO facility search, ZIP 10004 sample",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "7298cbf1c225a2d35f45eb384eb6d46b842aa020122fbf4c580ab2cc5b2c5101",
+   "url": "https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&tablelist=Y&maplist=Y&responseset=100&queryset=1000&p_zip=10004"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:19:56Z",
+ "returnedRows": 100,
+ "rowCount": 100,
+ "scope": "First 100 results of EPA ECHO facility search for ZIP 10004; map locations matched by FRS RegistryID.",
+ "sha256": "eef4c7dc4e78da11c54c37fcf8fb73a1f15bc8d0d446f599666441aa3600c3ce",
+ "sourceIds": [
+  "SRC-220",
+  "MASTER-091"
+ ],
+ "sourceRows": 337,
+ "sourceUrl": "https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&tablelist=Y&maplist=Y&responseset=100&queryset=1000&p_zip=10004"
+}

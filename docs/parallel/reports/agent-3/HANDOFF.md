@@ -2,50 +2,31 @@
 
 Branch: `codex/agent-3-world-data` in `.worktrees/world-data`.
 Base: `2604b9689e9f992b4e9e46c4a06ea89ec57ac155` (`codex/parallel-base-20261115`).
-Final commit: see `git rev-parse codex/agent-3-world-data` after the branch is pushed.
+Commit: use `git rev-parse codex/agent-3-world-data` after push.
 
 ## Implemented and inspectable
 
-- Added a bounded, source-backed `/v1/world/observations` API with mode, viewport, country, date, search, `asOf` and cursor filtering. It returns original URLs, dates, capture version, mode availability, limitations and optional sourced geometry. An unlocated policy publication remains in the list without a map pin.
-- Captured seven provider datasets with raw and normalized SHA-256, quality reports, rights and conservative capture-date replay gates: 34,936 WRI power plants, six requested international NOAA AviationWeather stations, three NOAA polygon weather alerts, 20 Federal Register publications, 100 recent GDACS disaster alerts, 186 NASA POWER daily temperature values at six points, and 438 EPA Envirofacts site references. Their captures and manifests are in `backend/aplomb/world/bundle/providers/`; evidence is in `docs/evidence/parallel/agent-3/source-audit/`.
-- Extended World Explorer with ten navigable modes, source observation list/detail, pins and layer controls, geographic search and regional navigation, and clear unavailable states. Preserved separate core event, airport, facility, hazard and portfolio views. A map position is not promoted to a company or financial relationship.
-- Added typed, source-hashed geographic relationships for world events and facility geography. Explicit historical world queries gate the current-only event bundle at its build date.
+- Added a source-backed, bounded `GET /v1/world/observations` API with mode, viewport, country, date, search, `asOf` and cursor filtering. Each item retains source URL, capture version, dates, time basis, limitations and available source geography. National, publication and bibliographic records stay in the list without fabricated map pins.
+- Added 21 checksum-verified runtime provider captures totaling 36,093 rows, with raw and normalized SHA-256, quality reports, rights notes, source passports and capture-date availability gates. The captures are WRI plants; AviationWeather selected stations; NOAA polygon weather alerts; Federal Register publications; GDACS alerts; NASA POWER temperature; EPA SEMS site references; ECB press releases; UK sanctions update notes; USGS minerals; UN Comtrade exports; WITS fuel exports; UNCTAD export concentration; Statistics Canada CPI; USGS weekly magnitude 4.5 to below 6 earthquakes; France ADM1 geoBoundaries polygons; Ukraine 2025 UCDP GED coded events; Canada electricity-generation Climate TRACE modeled CO₂; openFDA drug enforcement class counts; Crossref climate bibliography; and EU TED published procurement notice metadata. Exact bounds and rights are in each provider manifest and source report.
+- Extended World Explorer with ten navigable modes, observation list/detail, pins, sourced polygons, layer controls, geographic search, regional navigation and clear unavailable states. The existing event, airport, facility, hazard and portfolio views remain. National and institutional association is not promoted to an issuer or holding relationship.
+- Added typed, source-hashed geographic relationships for bundled events and facility geography. Explicit historical world queries gate current-only bundled events at their build date.
 
-The complete task is **not finished**. `REQUIREMENTS.md` and all 218 checklist rows in `SOURCES.csv` give the exact status: 14 baseline rows, 14 new integrations, 127 unimplemented rows requiring engineering, 57 login gated rows set aside, and 6 paid or billing dependent rows excluded on the user's instruction. These are checklist rows, not distinct APIs. `BLOCKERS.md` separates actual external access and rights dependencies from unfinished engineering.
+The 218 checklist rows are fully dispositioned in `SOURCES.csv`: 14 baseline, 36 newly integrated, 4 staged evidence-only, 2 checked with empty current feeds, 2 checked with reuse rights unresolved, 55 login gated set aside, 6 paid or billing dependent excluded, and 99 still needing provider engineering. Rows can repeat a source under SRC and MASTER; they do not count distinct APIs. `REQUIREMENTS.md` and `BLOCKERS.md` state the incomplete acceptance and external dependencies.
 
 ## Provenance and scope
 
-WRI plant records are an attributed static reference, with source owner text retained as reported metadata and no asserted listed issuer. NOAA alerts retain polygon source geometry and a labeled display anchor; 335 records without supported geometry were excluded. AviationWeather is a six-station sample, not a global flight feed. Federal Register results are unlocated policy metadata, not geographic events. GDACS is only the newest 100-record page; coordinates may be representative and do not show the impact footprint. NASA POWER values are gridded daily estimates at six requested points for October 2026, not weather station measurements or global coverage; local solar time dates display as UTC midnight day anchors. EPA site references are a six-state bounded sample, not emissions or current contamination findings. All seven captures were retrieved on 2026-11-15 and cannot be presented in earlier historical replay. Existing WDI annual values, ECCC reporting-company fields, and OurAirports static reference keep their original limits.
+Every new capture is bounded, manually retrieved on 2026-11-15, and cannot be presented as available in earlier historical replay. WRI's 34,936 power-plant records are a static reference, not current generation or verified issuer ownership. AviationWeather covers six chosen stations, not aircraft movement. NOAA alerts preserve source polygons and labeled display anchors; 335 lacking supported geometry were excluded. GDACS covers its newest 100-record page and source points can be representative. NASA POWER is 186 gridded daily values at six requested points, not station measurements. EPA SEMS is a 438-record site-reference sample, not emissions or current contamination. Federal Register, ECB and UK sanctions rows are publication metadata and have no source point coordinates. USGS minerals, trade and CPI values are country or global records without invented points; CPI levels are not inflation rates. The monthly CPI and Climate TRACE dates are labeled reference periods. Climate TRACE estimates are modeled emissions, FDA aggregates count enforcement records rather than unique recalls, Crossref rows are bibliographic metadata, and TED buyer country is not a procurement performance location. UCDP points are source coded representative locations at the recorded precision. France ADM1 polygons retain source geometry for viewport intersection and have no invented pin. The reports beside this handoff state each selected slice, attribution and reuse terms.
 
-## Changed paths and integration interfaces
+Four additional captures remain only in evidence: Eurostat greenhouse-gas data (reuse terms unclear), EPA ECHO facility results (rights of underlying fields unclear), and ClinicalTrials.gov Canadian study locations (publication guidance requires continuous freshness). NHC's three official current basin feeds had no active cyclone advisory or geometry at capture time. OFAC was anonymously reachable, but an affirmative applicable redistribution basis was not established. Those checks are documented without presenting them as runtime datasets.
 
-Primary-owned changes: `backend/aplomb/world/` (provider transport, parsers, immutable snapshots, bundle captures, service, passports and relationships); `web/src/features/world/`, `web/src/lib/world.ts`; world tests; `docs/parallel/reports/agent-3/` and `docs/evidence/parallel/agent-3/`.
+## Integration interfaces
 
-Additive shared bridges:
+Primary paths: `backend/aplomb/world/`, `web/src/features/world/`, `web/src/lib/world.ts`, `docs/parallel/reports/agent-3/`, `docs/evidence/parallel/agent-3/`.
 
-| Paths | Purpose |
-|---|---|
-| `backend/aplomb/contracts/{api,catalog}.py`, `contracts/catalog.md`, `contracts/generated/schema.json`, `web/src/contracts/{catalog,types}.ts` | Observation/relationship types and provider dataset IDs, with generated mirrors. |
-| `backend/aplomb/api/{app,queries,services}.py` | Observation route, query bounds and service protocol. |
-| `backend/aplomb/datastore/passports.py` | Planned descriptors so baseline `/datasets` remains valid while world passports override verified captures as in use. |
-| `web/src/api/client.ts` | Typed observations request. |
-| `backend/tests/integration/test_run_composition.py`, `web/tests/t15-api.test.ts` | HTTP and client coverage for shared wiring. |
-
-`INTERFACES.md` documents the HTTP shape, snapshot loader and Agent 2 handoff. Agent 2's runtime needs to pass `historical=ctx.historical` into `world.search_events` to apply the new bundle availability gate during tool replay. Validated issuer/holding relationships and sourced AI event summaries require Agent 2's work; financial calculations require Agent 1. Merge this branch after reconciling those shared bridges, regenerate the contracts and rerun all gates.
+Shared additive bridges are `backend/aplomb/contracts/{api,catalog}.py`, generated contract mirrors, `backend/aplomb/api/{app,queries,services}.py`, `backend/aplomb/datastore/passports.py`, and `web/src/api/client.ts`. `INTERFACES.md` documents the HTTP shape, snapshot loader and Agent 2 handoff. Agent 2's runtime must pass `historical=ctx.historical` to `world.search_events` for the current-event availability gate during tool replay. Validated issuer and holding relationships, grounded AI summaries and risk calculations require integration with Agent 2 and Agent 1. Merge this branch only after reconciling shared bridges and running combined gates.
 
 ## Verification
 
-Focused provider, world service and world HTTP integration checks passed: 66 tests.
-`npm run test:contracts` passed 213 tests, `npm run typecheck` passed, and
-`APLOMB_NEXT_DIST_DIR=.next-world-data-final npm run build:web` produced a static
-export. The full `npm run check` did not finish; its pytest phase reached the
-slow budget-watchdog integration test and was stopped. No full-suite pass is
-claimed. Browser inspection loaded Japan country search and a Japanese aviation
-station; desktop evidence is at
-`docs/evidence/parallel/agent-3/browser/aviation-japan-desktop.png`. The mobile
-viewport was checked for horizontal overflow but its captured source panel was
-still loading, so loaded mobile data is not claimed. The GDACS, NASA POWER, and EPA captures were added
-after the web build; generated contracts and TypeScript type checking passed
-after that addition.
+The runtime loader verified 21 manifests and 36,093 rows. The latest TED registration passed dataset HTTP smoke checks, contract generation and TypeScript type checking. Earlier focused provider, world-service and HTTP checks passed 66 tests; contract tests passed 213 tests, TypeScript type checking passed and a web static export built. Browser inspection loaded Japan country search and a Japanese aviation station; desktop evidence is `docs/evidence/parallel/agent-3/browser/aviation-japan-desktop.png`. The mobile viewport was checked for horizontal overflow while its captured source panel was loading. Later source additions were not covered by that web build. No new tests were written for the latest integrations and no full-suite pass is claimed. The full `npm run check` did not finish at the slow budget-watchdog integration test.
 
 No deployment, production change, cloud mutation, merge or video publication was performed.

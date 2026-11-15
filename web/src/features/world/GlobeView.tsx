@@ -35,6 +35,7 @@ export interface GlobeViewProps {
   onReady: () => void;
   pins: readonly GlobePin[];
   selectedId: string | null;
+  selectedGeometry: Record<string, unknown> | null;
   selectedCountry: string | null;
   countries: readonly CountryFeature[];
   /** Portfolio weight (percent) by ISO3 for the exposure layer; null = layer off. */
@@ -77,6 +78,20 @@ const noSide = () => '';
 const HEX_RESOLUTION = 3;
 const LABEL_ALTITUDE = 0.03;
 
+/** Camera target from the bounds of the validated France polygon; not a source point. */
+function boundaryView(polygon: { geometry: Record<string, unknown> } | null): { lat: number; lng: number } | null {
+  if (!polygon) return null;
+  const coordinates = polygon.geometry.coordinates as number[][][] | number[][][][];
+  const polygons = polygon.geometry.type === 'Polygon' ? [coordinates as number[][][]] : coordinates as number[][][][];
+  let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+  for (const rings of polygons) for (const ring of rings) for (const [lon, lat] of ring) {
+    if (lon === undefined || lat === undefined) continue;
+    minLat = Math.min(minLat, lat); maxLat = Math.max(maxLat, lat);
+    minLon = Math.min(minLon, lon); maxLon = Math.max(maxLon, lon);
+  }
+  return { lat: (minLat + maxLat) / 2, lng: (minLon + maxLon) / 2 };
+}
+
 /**
  * Moves each country label (its inner box, by CSS transform) to the nearest spot around its anchor that
  * covers no event spike on the visible side of the globe and no other label.
@@ -116,7 +131,7 @@ function layoutLabels(globe: GlobeMethods, pins: readonly GlobePin[], labels: re
 const fmtPct = (value: number, lang: Lang) => `${new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', { maximumFractionDigits: 0 }).format(value)}${lang === 'fr' ? ' %' : '%'}`;
 
 export default function GlobeView({
-  pins, selectedId, selectedCountry, countries, exposure, rotate, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract, area, command, onClusters, onViewport, onReady,
+  pins, selectedId, selectedGeometry: standaloneGeometry, selectedCountry, countries, exposure, rotate, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract, area, command, onClusters, onViewport, onReady,
 }: GlobeViewProps) {
   const globe = useRef<GlobeMethods | undefined>(undefined);
   const holder = useRef<HTMLDivElement | null>(null);
@@ -133,7 +148,7 @@ export default function GlobeView({
   const placed = useMemo(() => spreadStacked(grouped), [grouped]);
   useEffect(() => { onClusters(grouped.filter(pin => pin.kind === 'cluster').length); }, [grouped, onClusters]);
   const original = useMemo(() => new Map(pins.map(pin => [pin.id, pin])), [pins]);
-  const selectedGeometry = useMemo(() => sourceGeometry(pins.find(pin => pin.id === selectedId)?.geometry), [pins, selectedId]);
+  const selectedGeometry = useMemo(() => sourceGeometry(standaloneGeometry ?? pins.find(pin => pin.id === selectedId)?.geometry), [standaloneGeometry, pins, selectedId]);
   const polygonData = useMemo(() => [...land, ...(selectedGeometry.polygon ? [selectedGeometry.polygon] : [])], [land, selectedGeometry]);
 
   useEffect(() => {
@@ -231,15 +246,17 @@ export default function GlobeView({
     return () => controls.removeEventListener('start', stop);
   }, [ready, onInteract]);
 
-  // Fly to the selected event or country.
+  // A polygon-only record uses its bounds to position the camera, without a map pin.
   useEffect(() => {
     if (!ready || !globe.current) return;
     const pin = placed.find(item => item.id === selectedId);
-    const target = pin ?? (selectedCountry ? centroids.get(selectedCountry) : undefined);
-    if (target) globe.current.pointOfView({ lat: target.lat, lng: target.lng, altitude: 1.7 }, reducedMotion ? 0 : 900);
+    const boundary = standaloneGeometry ? boundaryView(selectedGeometry.polygon) : null;
+    const target = boundary ?? pin ?? (selectedCountry ? centroids.get(selectedCountry) : undefined);
+    if (boundary) onInteract();
+    if (target) globe.current.pointOfView({ lat: target.lat, lng: target.lng, altitude: boundary ? 0.8 : 1.7 }, reducedMotion ? 0 : 900);
     // Only a change of selection moves the camera.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, selectedCountry, ready, reducedMotion, centroids]);
+  }, [selectedId, selectedCountry, standaloneGeometry, ready, reducedMotion, centroids]);
 
   useEffect(() => {
     if (!ready || !globe.current || !area) return;

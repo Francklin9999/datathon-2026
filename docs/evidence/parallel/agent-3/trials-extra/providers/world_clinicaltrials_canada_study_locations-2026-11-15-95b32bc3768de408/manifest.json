@@ -1,0 +1,61 @@
+{
+ "attribution": "ClinicalTrials.gov, U.S. National Library of Medicine",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_clinicaltrials_canada_study_locations-2026-11-15-95b32bc3768de408",
+ "datasetId": "world_clinicaltrials_canada_study_locations",
+ "excludedNonCanadianLocations": 57,
+ "frequency": "Registry updated daily; this is a manually captured snapshot",
+ "historicalReplay": false,
+ "licence": "ClinicalTrials.gov Terms and Conditions; no-charge access and distribution subject to attribution and stated conditions; international and third-party copyright caveats",
+ "licenceUrl": "https://clinicaltrials.gov/about-site/terms-conditions",
+ "limitations": [
+  "This frozen sample is not a complete or continuously current registry; consult linked live records for updates.",
+  "Data processed date is the upstream version dataTimestamp, retained verbatim with unspecified timezone.",
+  "Registry presence and reported status do not establish safety, efficacy, approval, ongoing operations or recruitment availability.",
+  "Study titles and locations are submitter-reported registry metadata; no company or security inference is made.",
+  "All selected studies may share an update date; upstream ordering within ties is not guaranteed.",
+  "Original historical availability is unproven; availability is gated at capture, not registry posting or estimated study dates.",
+  "ClinicalTrials.gov terms acknowledge international and third-party copyright; this capture is not labelled public domain or Creative Commons."
+ ],
+ "modifications": [
+  "API projection retains only identifiers, brief titles, study status, study dates and location fields.",
+  "Normalized rows expand studies into explicit Canadian locations, excluding other countries.",
+  "Upstream geoPoints are retained as metadata; display coordinates are unset because facility precision is unproven.",
+  "Registry posting dates retain day resolution; study date structures retain ACTUAL or ESTIMATED type.",
+  "No contacts, emails, eligibility, interventions, outcomes, narratives, sponsors or company associations are selected."
+ ],
+ "name": "ClinicalTrials.gov Canadian study locations, bounded registry sample",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "dea044878c7aea78177cd07e98ed31b379112d63ee5391c0d04810970baff87c",
+   "url": "https://clinicaltrials.gov/api/v2/version"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "13a8ebded47da797802dc95b238d682d9ed4facb8773408c8e9d38da55d41656",
+   "url": "https://clinicaltrials.gov/api/v2/studies?format=json&pageSize=3&query.locn=Canada&sort=LastUpdatePostDate%3Adesc&fields=NCTId%2CBriefTitle%2COverallStatus%2CStudyFirstPostDate%2CStudyFirstPostDateType%2CLastUpdatePostDate%2CLastUpdatePostDateType%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CCompletionDate%2CCompletionDateType%2CLocationFacility%2CLocationCity%2CLocationState%2CLocationCountry%2CLocationGeoPoint%2CLocationStatus"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "dea044878c7aea78177cd07e98ed31b379112d63ee5391c0d04810970baff87c",
+   "url": "https://clinicaltrials.gov/api/v2/version"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:28:25Z",
+ "rowCount": 6,
+ "scope": "One first page of at most three studies matching Canada, ordered by last registry update; Canadian locations only.",
+ "sha256": "95b32bc3768de4088743a76221aab5f4945cd07d82fcce77d3d907b1a1a9ec2f",
+ "sourceIds": [
+  "SRC-238"
+ ],
+ "sourceLocationRows": 63,
+ "sourceRelease": {
+  "apiVersion": "2.0.5",
+  "dataTimestamp": "2026-11-13T10:00:06"
+ },
+ "sourceRows": 3,
+ "sourceUrl": "https://clinicaltrials.gov/api/v2/studies?format=json&pageSize=3&query.locn=Canada&sort=LastUpdatePostDate%3Adesc&fields=NCTId%2CBriefTitle%2COverallStatus%2CStudyFirstPostDate%2CStudyFirstPostDateType%2CLastUpdatePostDate%2CLastUpdatePostDateType%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CCompletionDate%2CCompletionDateType%2CLocationFacility%2CLocationCity%2CLocationState%2CLocationCountry%2CLocationGeoPoint%2CLocationStatus"
+}

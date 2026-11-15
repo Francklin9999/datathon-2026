@@ -1,0 +1,50 @@
+{
+ "accessDocumentationUrl": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/access-and-authentication/",
+ "attribution": "Crossref bibliographic metadata",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_crossref_climate_bibliography-2026-11-15-41a6b01a19d3663d",
+ "datasetId": "world_crossref_climate_bibliography",
+ "frequency": "Manual immutable capture; upstream member metadata can change",
+ "historicalReplay": false,
+ "licence": "Crossref REST documentation permits bibliographic metadata use for any purpose; abstracts may be copyrighted and are excluded.",
+ "licenceUrl": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+ "limitations": [
+  "Title search is relevance ranked and does not establish subject classification, scientific validity or climate exposure.",
+  "Publication dates are deposited metadata with variable precision; top-level publishedAt and observedAt remain unset.",
+  "Capture-time availability gates apply; historical availability and historical API ranking are unproven.",
+  "The five records are an incomplete sample, not global research coverage; query results may change.",
+  "Anonymous public access is permitted; no contact email is invented to obtain the optional polite pool.",
+  "This permission statement is not a Creative Commons or public-domain licence assertion for linked publications."
+ ],
+ "modifications": [
+  "API select projects DOI, title, published and type only; no abstracts, authors, full text, references or affiliations.",
+  "First title is the display title; all returned title variants and publication date parts are retained.",
+  "No geographical coordinates, country, company or security associations are inferred."
+ ],
+ "name": "Crossref climate change bibliography, bounded 2024 metadata sample",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "32497c61d5eb5eedc37959a11a3b144b7146ffa52bc4b9c15f01032f05fe6de8",
+   "url": "https://api.crossref.org/works?filter=type%3Ajournal-article%2Cfrom-pub-date%3A2024-01-01%2Cuntil-pub-date%3A2024-12-31&query.title=climate+change&rows=5&select=DOI%2Ctitle%2Cpublished%2Ctype"
+  }
+ ],
+ "rejected": 0,
+ "responseLimits": {
+  "x-api-pool": "public-array",
+  "x-concurrency-limit": "1",
+  "x-rate-limit-interval": "1s",
+  "x-rate-limit-limit": "1"
+ },
+ "retrievedAt": "2026-11-15T17:30:17Z",
+ "rowCount": 5,
+ "scope": "First five relevance-ranked 2024 journal records matching the title query climate change; no pagination.",
+ "sha256": "41a6b01a19d3663daaa515c61be38f83d22cd04f904a5c0771b50316cb88b39e",
+ "sourceIds": [
+  "SRC-236"
+ ],
+ "sourceRows": 5,
+ "sourceTotalResults": 48213,
+ "sourceUrl": "https://api.crossref.org/works?filter=type%3Ajournal-article%2Cfrom-pub-date%3A2024-01-01%2Cuntil-pub-date%3A2024-12-31&query.title=climate+change&rows=5&select=DOI%2Ctitle%2Cpublished%2Ctype"
+}

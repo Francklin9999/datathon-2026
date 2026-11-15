@@ -1,0 +1,38 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_uk_sanctions_updates-2026-11-15-9132e6eedf76d8f8",
+ "datasetId": "world_uk_sanctions_updates",
+ "frequency": "First 50 publication change notes, manually captured",
+ "historicalReplay": false,
+ "licence": "Open Government Licence v3.0; contains public sector information; adapted by Aplomb",
+ "licenceUrl": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+ "limitations": [
+  "Update notes, not the current list of designated persons, vessels or entities.",
+  "UK jurisdiction only; sanctions regimes named in notes are not location or issuer links.",
+  "Incomplete change history and no proven historical vintage; consult current official list."
+ ],
+ "name": "UK Sanctions List publication update notes",
+ "quality": {
+  "acceptedRows": 50,
+  "examinedRows": 50,
+  "inputRows": 491,
+  "rejectedRows": 0,
+  "truncated": true
+ },
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "bb89cc5c8d5549f6d9f424ad98a76dce0733e531847a75fce33a7577e58a2879",
+   "url": "https://www.gov.uk/api/content/government/publications/the-uk-sanctions-list"
+  }
+ ],
+ "retrievedAt": "2026-11-15T17:11:42Z",
+ "rowCount": 50,
+ "scope": "First 50 UK Sanctions List publication change notes; not the designated persons list.",
+ "sha256": "9132e6eedf76d8f8446bdb0dbdfbd972d94561c8bbee87f50e87492b00212a51",
+ "sourceIds": [
+  "SRC-139"
+ ],
+ "sourceUrl": "https://www.gov.uk/api/content/government/publications/the-uk-sanctions-list"
+}

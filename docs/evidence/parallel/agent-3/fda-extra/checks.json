@@ -1,0 +1,34 @@
+[
+  {
+    "name": "terms",
+    "url": "https://open.fda.gov/terms/",
+    "finalUrl": "https://open.fda.gov/terms/",
+    "bytes": 130897,
+    "sha256": "b11f712bfb11d03319675fc04e6948133a83c57aa2913b7f18d3677d0209f723",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "name": "auth",
+    "url": "https://open.fda.gov/apis/authentication/",
+    "finalUrl": "https://open.fda.gov/apis/authentication/",
+    "bytes": 118723,
+    "sha256": "ecf761a790313637189576d6f3870ccbad6a618e9f91cf494f6d3ea7e49122a4",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "name": "enforcement",
+    "url": "https://open.fda.gov/apis/drug/enforcement/",
+    "finalUrl": "https://open.fda.gov/apis/drug/enforcement/",
+    "bytes": 130914,
+    "sha256": "2173d35e4240000dea08a386a104336236e737cfe88c3f2bb94cd3ac95f99590",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "name": "counts",
+    "url": "https://api.fda.gov/drug/enforcement.json?search=report_date:%5B20260101+TO+20261115%5D&count=classification.exact",
+    "finalUrl": "https://api.fda.gov/drug/enforcement.json?search=report_date:%5B20260101+TO+20261115%5D&count=classification.exact",
+    "bytes": 687,
+    "sha256": "1ee83dc116d5be3413b4e45494a75a7075ab0a92f37908b8882bcb91b6d5d880",
+    "contentType": "application/json; charset=utf-8"
+  }
+]

@@ -1,16 +1,10 @@
 # Agent 3 status
 
-State: Bounded implementation complete; broader assigned source scope incomplete.
+State: Bounded implementation complete; full assigned source integration and cross-agent acceptance incomplete.
 
 Baseline: `2604b9689e9f992b4e9e46c4a06ea89ec57ac155` (`codex/parallel-base-20261115`).
 Branch/worktree: `codex/agent-3-world-data` at `.worktrees/world-data`.
 
-Implemented locally: seven content-addressed new provider captures, a bounded
-observations API, geographic relationship evidence, and World Explorer mode,
-source and navigation views. The 218-row audit is in `SOURCES.csv`: 14 baseline
-rows, 14 newly integrated rows, 127 rows still needing engineering, 57 login
-gated rows set aside, and 6 paid or billing dependent rows excluded per the
-user's instruction. These statuses count checklist rows, not distinct APIs.
-Focused provider/world/HTTP checks, contract tests, type checking, and a web
-build passed. A full repository check did not finish. Cross-agent orchestration
-and validated security resolution remain integration dependencies.
+The branch contains 21 new checksum-verified runtime provider captures with source passports, a bounded observations API, geographic relationship evidence, and World Explorer mode, source, map and navigation views. The runtime loader verifies 36,093 new provider rows. The 218-row checklist in `SOURCES.csv` has 14 baseline rows, 36 newly integrated rows, 4 staged evidence-only rows, 2 checked with no current data, 2 checked with reuse rights unresolved, 55 login gated rows set aside, 6 paid or billing dependent rows excluded on the user's instruction, and 99 rows still requiring provider engineering. These are checklist rows, not distinct APIs. The catalogue contains 160 distinct source URLs.
+
+Targeted dataset HTTP checks, contract generation and TypeScript type checking passed after the latest TED registration. Earlier focused provider/world/HTTP and web checks are described in `HANDOFF.md`. No new tests were written for the latest source integrations. A full repository check did not finish. Validated security and portfolio relationships, grounded AI summaries, combined AWS acceptance and the remaining provider integrations are open.

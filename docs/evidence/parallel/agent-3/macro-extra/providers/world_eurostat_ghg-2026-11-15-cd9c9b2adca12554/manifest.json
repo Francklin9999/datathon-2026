@@ -1,0 +1,36 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_eurostat_ghg-2026-11-15-cd9c9b2adca12554",
+ "datasetId": "world_eurostat_ghg",
+ "frequency": "Annual, manual snapshot",
+ "historicalReplay": false,
+ "licence": "European Union/Eurostat data; attribution required and modifications indicated; source EEA",
+ "licenceUrl": "https://commission.europa.eu/legal-notice_en#copyright-notice",
+ "limitations": [
+  "Selected six EU countries from 2018 onward, not all countries or full history.",
+  "Annual national estimates exclude land use, land-use change, forestry and memo items; not facility emissions.",
+  "Year start is a display anchor for the annual period, not an event or exact measurement time.",
+  "Values may be revised; original historical availability is unknown and snapshots are gated at retrieval.",
+  "No issuer, exposure or financial relationship is established."
+ ],
+ "missingCells": 0,
+ "name": "Eurostat domestic greenhouse gas emissions per capita",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "f5f919f720ffeb08c3d52b8d53ab4e383e119babf1561a95086a24878b1db722",
+   "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sdg_13_10?lang=en&freq=A&src_crf=TOTX4_MEMO&unit=T_HAB&geo=DE&geo=ES&geo=FR&geo=IT&geo=PL&geo=SE&sinceTimePeriod=2018"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:11:19Z",
+ "rowCount": 42,
+ "scope": "Selected six EU countries since 2018; annual domestic greenhouse gas emissions per capita excluding LULUCF and memo items.",
+ "sha256": "cd9c9b2adca12554a8c3ae1747f5df0b1c0bab98b88373910981fe81dc5a3fe4",
+ "sourceIds": [
+  "SRC-095"
+ ],
+ "sourceRows": 42,
+ "sourceUrl": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sdg_13_10?lang=en&freq=A&src_crf=TOTX4_MEMO&unit=T_HAB&geo=DE&geo=ES&geo=FR&geo=IT&geo=PL&geo=SE&sinceTimePeriod=2018"
+}
