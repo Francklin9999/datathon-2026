@@ -149,7 +149,6 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
           <>
             <p className="eyebrow">{labelOf(EVENT_CATEGORY, event.category, lang)} · {labelOf(EVENT_ORIGIN, event.origin, lang)}</p>
             <h3 className="serif event-title" lang={sourceLang(event)}>{event.title}</h3>
-            <p className="small muted">{tr({ en: 'Title as written by the source; not rewritten.', fr: 'Titre tel qu’écrit par la source ; non réécrit.' })}</p>
 
             <dl>
               <div className="kv"><dt className="k">{tr({ en: 'Occurred', fr: 'Survenu le' })}</dt><dd className="v">{fmtDate(event.occurredAt, lang)}</dd></div>
@@ -179,7 +178,6 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
                       </li>
                     ))}
                   </ul>
-                  <span className="small muted">{tr({ en: `${event.sourceCount} source(s) counted for this event; ${event.sources.length} listed.`, fr: `${event.sourceCount} source(s) comptée(s) pour cet événement ; ${event.sources.length} listée(s).` })}</span>
                 </dd></div>
               <div className="kv"><dt className="k">{tr({ en: 'Documented matches', fr: 'Correspondances documentées' })}</dt>
                 <dd className="v">
@@ -205,7 +203,7 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
             ) : (
               <>
                 <p className="small"><strong>{detail.data.exposures.every(exposure => exposure.impact === 'not_established')
-                  ? tr({ en: 'Potential exposure identified — financial impact not established.', fr: 'Exposition potentielle repérée — impact financier non établi.' })
+                  ? tr({ en: 'Potential exposure identified, financial impact not established.', fr: 'Exposition potentielle repérée, impact financier non établi.' })
                   : tr({ en: 'Potential exposure identified. Where a price change was observed, it is an observation, not proof that the event caused it.', fr: 'Exposition potentielle repérée. Lorsqu’une variation de prix a été observée, c’est une observation, pas la preuve que l’événement l’a causée.' })}</strong>{' '}
                   {tr({ en: 'Each row states why the holding is listed. A link is a documented match, not an estimate of gain or loss.', fr: 'Chaque ligne indique pourquoi la position est listée. Un lien est une correspondance documentée, pas une estimation de gain ou de perte.' })}</p>
                 <ExposureTable exposures={detail.data.exposures} inRun={false} eventId={eventId} profileId={profile.profileId} />
@@ -231,7 +229,7 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
               <button type="button" className="btn gold" onClick={() => void briefMe()} disabled={creating}>
                 {tr({ en: 'Brief me', fr: 'Rédiger une note' })}
               </button>
-              <span className="small muted">{tr({ en: 'Starts an agent run for this event and this profile. The explanation is audited; it does not estimate an impact.', fr: 'Lance une exécution d’agents pour cet événement et ce profil. L’explication est auditée ; elle n’estime aucun impact.' })}</span>
+              <span className="small muted">{tr({ en: 'Writes an audited explanation for this event.', fr: 'Rédige une explication auditée pour cet événement.' })}</span>
             </div>
             {creating && <Loading label={tr({ en: 'Creating the run…', fr: 'Création de l’exécution…' })} />}
             {createError && (
@@ -255,14 +253,14 @@ function EventBriefRun({ runId, eventId, profile, onSelectEvent, onDismiss }: {
   return (
     <section className="event-brief" aria-labelledby="event-brief-title">
       <div className="card-head">
-        <h3 className="h4" id="event-brief-title">{tr({ en: 'Event brief run', fr: 'Exécution de la note d’événement' })}</h3>
-        <button type="button" className="btn ghost btn-sm" onClick={onDismiss}>{tr({ en: 'Hide this run', fr: 'Masquer cette exécution' })}</button>
+        <h3 className="h4" id="event-brief-title">{tr({ en: 'Event brief', fr: 'Note d’événement' })}</h3>
+        <button type="button" className="btn ghost btn-sm" onClick={onDismiss}>{tr({ en: 'Hide', fr: 'Masquer' })}</button>
       </div>
       {polled.loading && !run && <Loading />}
       {polled.error && <ErrorState error={polled.error} onRetry={polled.reload}
         {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This run does not exist or belongs to another session.', fr: 'Cette exécution n’existe pas ou appartient à une autre session.' }) } : {})} />}
       {polled.pollError && (
-        <p className="small muted" role="status">{tr({ en: 'Polling paused after an error; retrying with backoff.', fr: 'Interrogation suspendue après une erreur ; nouvel essai progressif.' })} ({polled.pollError.code})</p>
+        <p className="small muted" role="status">{tr({ en: 'Connection lost, retrying…', fr: 'Connexion perdue, nouvel essai…' })}</p>
       )}
       {run && <EventBriefBody run={run} eventId={eventId} profile={profile} onSelectEvent={onSelectEvent} />}
     </section>
@@ -290,7 +288,6 @@ function EventBriefBody({ run, eventId, profile, onSelectEvent }: {
   }
   return (
     <FactScopeProvider scope={scope}>
-      {run.flags.fixture && <p className="banner banner-fixture">{tr({ en: 'Development fixture — no agents executed.', fr: 'Jeu d’essai — aucun agent exécuté.' })}</p>}
       {otherProfileId && (
         <p className="stale-note" role="note">
           {tr({

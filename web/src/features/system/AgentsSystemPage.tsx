@@ -17,6 +17,7 @@ import { Card, PageHeader } from '../../components/common/Page';
 import { Empty, ErrorState, Loading } from '../../components/common/States';
 import { RunStatusBadge, VerdictBadge } from '../../components/common/Badges';
 import { RunTimeline } from '../../components/run/RunTimeline';
+import { RunsTable } from '../../components/run/RunsTable';
 import {
   ACTOR, AGENT_ROLE, ERROR_CODE, FEATURE_FLAG, RUN_KIND, RUN_STATUS, SABOTAGE_MODE, STEP_TYPE, labelOf,
 } from '../../lib/labels';
@@ -45,14 +46,14 @@ export function AgentsSystemPage() {
   const [live, setLive] = useState<Run | null>(null);
   return (
     <>
-      <PageHeader eyebrow={tr({ en: 'Agents & System', fr: 'Agents et système' })} title={tr({ en: 'What actually ran', fr: 'Ce qui s’est réellement exécuté' })}>
-        <p className="page-sub">{tr({ en: 'Code computes every figure and verdict; models plan, research and explain. This page separates what is configured from what a run recorded.', fr: 'Le code calcule chaque chiffre et chaque verdict ; les modèles planifient, recherchent et expliquent. Cette page distingue ce qui est configuré de ce qu’une exécution a enregistré.' })}</p>
+      <PageHeader tour="system-header" title={tr({ en: 'What actually ran', fr: 'Ce qui a réellement tourné' })}>
+        <p className="page-sub">{tr({ en: 'Code computes every figure and verdict; AI plans, researches and explains. Here is what each analysis recorded.', fr: 'Le code calcule chaque chiffre et verdict ; l’IA planifie, cherche et explique. Voici ce que chaque analyse a enregistré.' })}</p>
       </PageHeader>
-      <BuildIdentity />
       <RoleMap />
-      <ArchitectureCard />
       <RunPicker selectedId={runId} live={live && live.runId === runId ? live : null} />
       {runId && <RunDetail key={runId} runId={runId} onRun={setLive} />}
+      <ArchitectureCard />
+      <BuildIdentity />
     </>
   );
 }
@@ -75,14 +76,16 @@ function BuildIdentity() {
     }
     return () => controller.abort();
   }, []);
-  return <Card title={tr({ en: 'Release identity', fr: 'Identité de la version' })}>
+  return <details className="fold section-fold" id="release" data-section={tr({ en: 'Release', fr: 'Version' })}>
+    <summary>{tr({ en: 'Release identity', fr: 'Identité de la version' })}</summary>
+    <div className="fold-body">
     {build ? <p className="small">{tr({ en: 'Frontend commit', fr: 'Commit de l’interface' })}: <span className="mono break">{build.revision}</span><br />
       {tr({ en: 'Frontend built', fr: 'Interface construite le' })}: {fmtDateTime(build.builtAt, lang)}</p>
       : <p className="small muted">{tr({ en: 'Frontend build manifest unavailable.', fr: 'Manifeste de l’interface indisponible.' })}</p>}
     <p className="small">{tr({ en: 'API contract version', fr: 'Version du contrat API' })}: <span className="mono">{meta?.contractVersion ?? '—'}</span> · {tr({ en: 'Dataset snapshot', fr: 'Instantané des données' })}: <span className="mono">{meta?.dataVersion ?? '—'}</span></p>
     <p className="small">{tr({ en: 'Backend commit', fr: 'Commit du serveur' })}: {apiRevision ? <span className="mono break">{apiRevision}</span> : tr({ en: 'unavailable', fr: 'indisponible' })}</p>
-    <p className="small muted">{tr({ en: 'Backend identity comes from the API response header; feature flags are listed below.', fr: 'L’identité du serveur provient de l’en-tête de réponse API ; les fonctionnalités sont listées ci-dessous.' })}</p>
-  </Card>;
+    </div>
+  </details>;
 }
 
 function NatureBadge({ nature }: { nature: WorkNature }) {
@@ -93,8 +96,8 @@ function NatureBadge({ nature }: { nature: WorkNature }) {
 function RoleMap() {
   const { tr, lang } = useApp();
   return (
-    <Card id="roles" title={tr({ en: 'Roles: who may do what', fr: 'Rôles : qui peut faire quoi' })}>
-      <p className="small muted">{tr({ en: 'A static description of the design. It is not a claim that any of these ran; the selected run below shows that.', fr: 'Une description statique de la conception. Elle n’affirme pas que ces rôles se sont exécutés ; l’exécution sélectionnée ci-dessous le montre.' })}</p>
+    <Card id="roles" section={tr({ en: 'Roles', fr: 'Rôles' })} tour="roles" title={tr({ en: 'Roles: who may do what', fr: 'Rôles : qui peut faire quoi' })}
+      info={tr({ en: 'How the system is designed, not a record that any of these ran. The selected analysis below shows what ran.', fr: 'La conception du système, pas la preuve que ces rôles ont tourné. L’analyse sélectionnée ci-dessous montre ce qui a tourné.' })}>
       <ul className="role-grid">
         {ROLE_CARDS.map(card => (
           <li key={card.role} className="role-card">
@@ -102,11 +105,15 @@ function RoleMap() {
             <p><NatureBadge nature={card.nature} /></p>
             <p className="small">{tr(card.purpose)}</p>
             <p className="small"><span className="eyebrow">{tr({ en: 'Steps', fr: 'Étapes' })}</span> {card.steps.map(step => labelOf(STEP_TYPE, step, lang)).join(', ')}</p>
-            <p className="eyebrow">{tr({ en: 'Allowed tools', fr: 'Outils autorisés' })}</p>
             {card.tools.length === 0
-              ? <p className="small"><strong>{tr({ en: 'None', fr: 'Aucun' })}</strong></p>
-              : <ul className="tool-list">{card.tools.map(tool => <li key={tool} className="mono">{tool}</li>)}</ul>}
-            <p className="small muted">{tr(card.toolsNote)}</p>
+              ? <p className="small">{tr({ en: 'Allowed tools', fr: 'Outils autorisés' })}: <strong>{tr({ en: 'none', fr: 'aucun' })}</strong></p>
+              : (
+                <details className="rule-more small">
+                  <summary>{tr({ en: `Allowed tools (${card.tools.length})`, fr: `Outils autorisés (${card.tools.length})` })}</summary>
+                  <ul className="tool-list">{card.tools.map(tool => <li key={tool} className="mono">{tool}</li>)}</ul>
+                  <p className="muted">{tr(card.toolsNote)}</p>
+                </details>
+              )}
           </li>
         ))}
       </ul>
@@ -142,10 +149,12 @@ function ArchitectureCard() {
     ),
   };
   return (
-    <Card id="architecture" title={tr({ en: 'Architecture and reported configuration', fr: 'Architecture et configuration déclarée' })}>
+    <details className="fold section-fold" id="architecture" data-section={tr({ en: 'Architecture', fr: 'Architecture' })}>
+      <summary>{tr({ en: 'Architecture and configuration', fr: 'Architecture et configuration' })}</summary>
+      <div className="fold-body">
       <div className="state state-unavailable" role="note">
         <p className="state-title">{tr({ en: 'Configuration is not proof of execution', fr: 'Une configuration n’est pas une preuve d’exécution' })}</p>
-        <p className="small">{tr({ en: 'The values below come from GET /meta. A model ID or a flag shown here says what this deployment is set up to use; it does not show that a Bedrock call occurred. A model call is evidenced only by the model ID and token usage recorded on a step of a run (below).', fr: 'Les valeurs ci-dessous viennent de GET /meta. Un identifiant de modèle ou un indicateur affiché ici dit ce que ce déploiement est configuré pour utiliser ; il ne montre pas qu’un appel Bedrock a eu lieu. Un appel de modèle n’est attesté que par l’identifiant de modèle et les jetons enregistrés sur une étape d’exécution (ci-dessous).' })}</p>
+        <p className="small">{tr({ en: 'Configuration only: it does not prove that a model call happened. Recorded calls are in each analysis.', fr: 'Configuration seulement : elle ne prouve aucun appel de modèle. Les appels enregistrés sont dans chaque analyse.' })}</p>
       </div>
       <p className="small">
         {tr({ en: 'Environment reported', fr: 'Environnement déclaré' })}: <strong>{meta.environment === 'aws' ? 'AWS' : tr({ en: 'local', fr: 'local' })}</strong>.{' '}
@@ -173,7 +182,6 @@ function ArchitectureCard() {
           <thead>
             <tr>
               <th scope="col">{tr({ en: 'Feature', fr: 'Fonctionnalité' })}</th>
-              <th scope="col">{tr({ en: 'Flag', fr: 'Indicateur' })}</th>
               <th scope="col">{tr({ en: 'State', fr: 'État' })}</th>
             </tr>
           </thead>
@@ -181,14 +189,14 @@ function ArchitectureCard() {
             {flags.map(([flag, enabled]) => (
               <tr key={flag}>
                 <th scope="row">{labelOf(FEATURE_FLAG, flag, lang)}</th>
-                <td className="mono small">{flag}</td>
                 <td><span className={`pill ${enabled ? 's-pass' : 's-nee'}`}>{enabled ? tr({ en: 'On', fr: 'Activé' }) : tr({ en: 'Off', fr: 'Désactivé' })}</span></td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-    </Card>
+      </div>
+    </details>
   );
 }
 
@@ -227,53 +235,22 @@ function RunPicker({ selectedId, live }: { selectedId: string | null; live: Run 
   };
 
   return (
-    <Card id="runs" title={tr({ en: 'Runs of this session', fr: 'Exécutions de cette session' })}
+    <Card id="runs" section={tr({ en: 'Analyses', fr: 'Analyses' })} tour="system-runs" title={tr({ en: 'Analyses of this session', fr: 'Analyses de cette session' })}
+      info={tr({ en: 'Only analyses started from this browser session are listed. Pick one to see what it recorded.', fr: 'Seules les analyses lancées depuis cette session de navigateur sont listées. Choisissez-en une pour voir ce qu’elle a enregistré.' })}
       actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={state.loading}>{tr({ en: 'Refresh', fr: 'Actualiser' })}</button>}>
-      <p className="small muted">{tr({ en: 'Only runs created from this browser session are listed. Pick one to see what it recorded.', fr: 'Seules les exécutions créées depuis cette session de navigateur sont listées. Choisissez-en une pour voir ce qu’elle a enregistré.' })}</p>
       {state.loaded && state.items.length === 0 && !state.error && (
-        <Empty>{tr({ en: 'No run yet in this session. Start one from Home, the Decision Desk, the World Explorer or the Time Machine.', fr: 'Aucune exécution dans cette session. Lancez-en une depuis l’Accueil, le Pupitre de décision, l’Explorateur mondial ou la Machine à remonter le temps.' })}</Empty>
+        <Empty>{tr({ en: 'No analysis yet in this session. Start one from Home, Decide, World or Replay.', fr: 'Aucune analyse dans cette session. Lancez-en une depuis l’Accueil, Décider, Monde ou Rejouer.' })}</Empty>
       )}
       {state.items.length > 0 && (
-        <div className="table-scroll" role="region" aria-label={tr({ en: 'Session runs', fr: 'Exécutions de la session' })} tabIndex={0}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th scope="col">{tr({ en: 'Run', fr: 'Exécution' })}</th>
-                <th scope="col">{tr({ en: 'Kind', fr: 'Type' })}</th>
-                <th scope="col">{tr({ en: 'Profile', fr: 'Profil' })}</th>
-                <th scope="col">{tr({ en: 'Status', fr: 'Statut' })}</th>
-                <th scope="col">{tr({ en: 'Verdict', fr: 'Verdict' })}</th>
-                <th scope="col">{tr({ en: 'Created', fr: 'Créée' })}</th>
-                <th scope="col" className="num-col">{tr({ en: 'Duration', fr: 'Durée' })}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {state.items.map(item => (
-                <tr key={item.runId} className={item.runId === selectedId ? 'row-selected' : ''}>
-                  <th scope="row">
-                    <Link href={`/agents-system/?runId=${encodeURIComponent(item.runId)}#run-detail`} aria-current={item.runId === selectedId ? 'true' : undefined}>{tr(item.title)}</Link>
-                    <span className="block small mono muted">{item.runId}</span>
-                  </th>
-                  <td>{labelOf(RUN_KIND, item.kind, lang)}</td>
-                  <td>{item.profileId ? (profiles.find(p => p.profileId === item.profileId)?.name ?? item.profileId) : '—'}</td>
-                  <td><RunStatusBadge status={live && live.runId === item.runId ? live.status : item.status} /></td>
-                  <td>{item.verdict ? <VerdictBadge verdict={item.verdict} /> : '—'}</td>
-                  <td className="small">{fmtDateTime(item.createdAt, lang)}</td>
-                  <td className="num-col">{fmtDuration(item.durationMs, lang)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <RunsTable items={state.items} selectedId={selectedId}
+          linkFor={id => `/agents-system/?runId=${encodeURIComponent(id)}#run-detail`}
+          statusOf={item => (live && live.runId === item.runId ? live.status : item.status)} />
       )}
       {state.loading && <Loading />}
       {state.error && <ErrorState error={state.error} onRetry={() => (state.loaded && state.nextCursor ? void more() : setNonce(n => n + 1))} />}
-      {state.loaded && (
+      {state.loaded && state.nextCursor && !state.loading && (
         <p className="row-actions small">
-          <span>{tr({ en: `${state.items.length} run(s) loaded`, fr: `${state.items.length} exécution(s) chargée(s)` })}{state.nextCursor ? tr({ en: '; more exist.', fr: ' ; il en existe d’autres.' }) : tr({ en: '; that is all of them.', fr: ' ; ce sont toutes les exécutions.' })}</span>
-          {state.nextCursor && !state.loading && (
-            <button type="button" className="btn ghost btn-sm" onClick={() => void more()}>{tr({ en: 'Load more runs', fr: 'Charger plus d’exécutions' })}</button>
-          )}
+          <button type="button" className="btn ghost btn-sm" onClick={() => void more()}>{tr({ en: 'Load more', fr: 'Charger plus' })}</button>
         </p>
       )}
     </Card>
@@ -299,14 +276,13 @@ function RunDetail({ runId, onRun }: { runId: string; onRun: (run: Run | null) =
 
   return (
     <div ref={headingRef} tabIndex={-1} id="run-detail" className="focus-target">
-      <Card title={`${tr({ en: 'Selected run', fr: 'Exécution sélectionnée' })}${run ? ` · ${labelOf(RUN_KIND, run.kind, lang)}` : ''}`}
-        actions={<button type="button" className="btn ghost btn-sm" onClick={() => router.push('/agents-system/#runs')}>{tr({ en: 'Close run', fr: 'Fermer l’exécution' })}</button>}>
-        <p className="small mono muted break">{runId}</p>
+      <Card title={`${tr({ en: 'Selected analysis', fr: 'Analyse sélectionnée' })}${run ? `, ${labelOf(RUN_KIND, run.kind, lang).toLowerCase()}` : ''}`}
+        actions={<button type="button" className="btn ghost btn-sm" onClick={() => router.push('/agents-system/#runs')}>{tr({ en: 'Close', fr: 'Fermer' })}</button>}>
         {polled.loading && !run && <Loading />}
         {polled.error && <ErrorState error={polled.error} onRetry={polled.reload}
-          {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This run does not exist or belongs to another session.', fr: 'Cette exécution n’existe pas ou appartient à une autre session.' }) } : {})} />}
+          {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This analysis does not exist or belongs to another session.', fr: 'Cette analyse n’existe pas ou appartient à une autre session.' }) } : {})} />}
         {polled.pollError && (
-          <p className="small muted" role="status">{tr({ en: 'Polling paused after an error; retrying with backoff.', fr: 'Interrogation suspendue après une erreur ; nouvel essai progressif.' })} ({polled.pollError.code})</p>
+          <p className="small muted" role="status">{tr({ en: 'Connection lost, retrying…', fr: 'Connexion perdue, nouvel essai…' })}</p>
         )}
         {run && <RunBody run={run} profileName={run.profileId ? (profiles.find(p => p.profileId === run.profileId)?.name ?? run.profileId) : null} guardrailsConfigured={feature('guardrails')} />}
       </Card>
@@ -315,18 +291,7 @@ function RunDetail({ runId, onRun }: { runId: string; onRun: (run: Run | null) =
 }
 
 function StateLine({ run }: { run: Run }) {
-  const { tr } = useApp();
-  const text = (() => {
-    switch (run.status) {
-      case 'queued': return tr({ en: 'Queued: no step has started. Nothing is shown until a step is recorded.', fr: 'En file : aucune étape n’a commencé. Rien n’est affiché tant qu’aucune étape n’est enregistrée.' });
-      case 'running': return tr({ en: 'Running: steps appear as the worker records them.', fr: 'En cours : les étapes apparaissent à mesure que le traitement les enregistre.' });
-      case 'waiting_input': return tr({ en: 'Waiting for an answer to a clarifying question; the run resumes from the same state once answered.', fr: 'En attente d’une réponse à une question de clarification ; l’exécution reprend du même état une fois la réponse donnée.' });
-      case 'succeeded': return tr({ en: 'Terminal: a signed result exists.', fr: 'Terminal : un résultat signé existe.' });
-      case 'failed': return tr({ en: 'Terminal: failed. The steps executed before the failure remain below; no signed result exists.', fr: 'Terminal : échec. Les étapes réalisées avant l’échec restent ci-dessous ; aucun résultat signé n’existe.' });
-      default: return tr({ en: 'Terminal: cancelled. No signed result exists.', fr: 'Terminal : annulée. Aucun résultat signé n’existe.' });
-    }
-  })();
-  return <p className="small"><RunStatusBadge status={run.status} /> {text}</p>;
+  return <p className="small"><RunStatusBadge status={run.status} /></p>;
 }
 
 function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profileName: string | null; guardrailsConfigured: boolean }) {
@@ -341,7 +306,6 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
 
   return (
     <>
-      {run.flags.fixture && <p className="banner banner-fixture">{tr({ en: 'Development fixture: these steps are illustrative and were not executed.', fr: 'Jeu d’essai de développement : ces étapes sont illustratives et n’ont pas été exécutées.' })}</p>}
       <StateLine run={run} />
       {question && (
         <div className="state" role="note">
@@ -354,7 +318,7 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
         <div className="state state-error" role="alert">
           <p className="state-title">{labelOf(ERROR_CODE, run.error.code, lang)}</p>
           <p className="small">{run.error.message}</p>
-          <p className="small mono">{tr({ en: 'Request', fr: 'Requête' })} {run.error.requestId}</p>
+          <details className="tech-details"><summary>{tr({ en: 'Technical details', fr: 'Détails techniques' })}</summary><p className="mono">{tr({ en: 'Request', fr: 'Requête' })} {run.error.requestId}</p></details>
         </div>
       )}
 
@@ -366,14 +330,14 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
         <div className="kv"><dt className="k">{tr({ en: 'Data snapshot', fr: 'Instantané de données' })}</dt><dd className="v mono break">{run.dataVersion}</dd></div>
         {run.parentRunId && (
           <div className="kv"><dt className="k">{tr({ en: 'Derived from run', fr: 'Dérivée de l’exécution' })}</dt>
-            <dd className="v"><Link href={`/agents-system/?runId=${encodeURIComponent(run.parentRunId)}#run-detail`} className="mono break">{run.parentRunId}</Link></dd></div>
+            <dd className="v"><Link href={`/agents-system/?runId=${encodeURIComponent(run.parentRunId)}#run-detail`}>{tr({ en: 'Open it', fr: 'L’ouvrir' })}</Link></dd></div>
         )}
         {run.flags.sabotage && (
           <div className="kv"><dt className="k">{tr({ en: 'Sabotage demonstration', fr: 'Démonstration de sabotage' })}</dt><dd className="v">{labelOf(SABOTAGE_MODE, run.flags.sabotage, lang)}</dd></div>
         )}
       </dl>
 
-      <h3 className="h4">{tr({ en: 'Run budget (totals recorded on the run)', fr: 'Budget de l’exécution (totaux enregistrés sur l’exécution)' })}</h3>
+      <details className="fold"><summary>{tr({ en: 'Budget used', fr: 'Budget utilisé' })}</summary><div className="fold-body">
       <div className="table-scroll" role="region" aria-label={tr({ en: 'Run budget', fr: 'Budget de l’exécution' })} tabIndex={0}>
         <table className="data-table">
           <thead>
@@ -395,7 +359,7 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
           </tbody>
         </table>
       </div>
-      <p className="small muted">{tr({ en: 'Limits are the documented contract defaults (target / hard for duration); a deployment may override them. Recorded values come from the run payload, not from timers in this page.', fr: 'Les limites sont les valeurs par défaut documentées du contrat (cible / stricte pour la durée) ; un déploiement peut les modifier. Les valeurs enregistrées viennent de la charge utile de l’exécution, pas de minuteries de cette page.' })}</p>
+      </div></details>
 
       <h3 className="h4">{tr({ en: 'Guardrail: configured versus applied', fr: 'Garde-fou : configuré ou appliqué' })}</h3>
       <p className="small">
@@ -409,12 +373,10 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
       </p>
 
       <h3 className="h4">{tr({ en: 'Steps recorded', fr: 'Étapes enregistrées' })} ({budget.stepsRecorded})</h3>
-      <p className="small muted">{tr({ en: 'Same timeline as the Decision Desk and Evidence & Audit. A step that was not needed is absent; there are no “skipped” entries.', fr: 'Même chronologie que le Pupitre de décision et Preuves et audit. Une étape inutile est absente ; il n’y a pas d’entrées « ignorées ».' })}</p>
-      <RunTimeline run={run} />
+      {run.steps.length === 0 && <p className="small muted">{tr({ en: 'No step recorded yet.', fr: 'Aucune étape enregistrée pour l’instant.' })}</p>}
 
       {run.steps.length > 0 && (
         <>
-          <h3 className="h4">{tr({ en: 'Step detail', fr: 'Détail des étapes' })}</h3>
           <div className="step-details">
             {run.steps.map(step => <StepDetail key={step.seq} step={step} runId={run.runId} />)}
           </div>
@@ -422,8 +384,8 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
       )}
 
       <p className="row-actions small">
-        <Link href={auditHref}>{tr({ en: 'Open Evidence & Audit for this run', fr: 'Ouvrir Preuves et audit pour cette exécution' })}</Link>
-        {!isTerminal(run.status) && <span className="muted">{tr({ en: 'The run is still active; this view updates as steps are recorded.', fr: 'L’exécution est encore active ; cette vue se met à jour à mesure que les étapes sont enregistrées.' })}</span>}
+        <Link href={auditHref}>{tr({ en: 'See the evidence and audit', fr: 'Voir les preuves et l’audit' })}</Link>
+        {!isTerminal(run.status) && <span className="muted">{tr({ en: 'Still running: this view updates.', fr: 'En cours : cette vue se met à jour.' })}</span>}
       </p>
     </>
   );

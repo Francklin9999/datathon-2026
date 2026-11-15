@@ -298,17 +298,17 @@ function WorldContent({ profile }: { profile: Profile }) {
 
   const exposureScope = useMemo<FactScope | null>(() => (exposure.data ? {
     kind: 'local',
-    label: { en: `Country exposure of ${profile.name} (GET /world/exposure, no model). Not part of any run ledger.`, fr: `Exposition par pays de ${profile.name} (GET /world/exposure, sans modèle). Hors de tout registre d’exécution.` },
+    label: { en: `Country exposure of ${profile.name}, computed by code.`, fr: `Exposition par pays de ${profile.name}, calculée par le code.` },
     facts: exposure.data.facts,
   } : null), [exposure.data, profile.name]);
 
   return (
     <>
-      <PageHeader eyebrow={tr(TITLE)} title={tr({ en: `Sourced events and the exposure of ${profile.name}`, fr: `Événements sourcés et exposition de ${profile.name}` })}>
-        <p className="page-sub">{tr({ en: 'Events come from the loaded dataset, each with its source. A link to a holding states its basis; the financial impact is not established unless a measured observation says otherwise. This is not a feed of all worldwide news.', fr: 'Les événements viennent du jeu de données chargé, chacun avec sa source. Un lien avec une position indique son fondement ; l’impact financier n’est pas établi sauf observation mesurée. Ce n’est pas un fil de toutes les nouvelles mondiales.' })}</p>
+      <PageHeader tour="world-header" title={tr({ en: `World events and ${profile.name}’s holdings`, fr: `Événements mondiaux et positions de ${profile.name}` })}>
+        <p className="page-sub">{tr({ en: 'Sourced events linked to the holdings. A link is a documented match, not an impact estimate.', fr: 'Événements sourcés liés aux positions. Un lien est une correspondance documentée, pas une estimation d’impact.' })}</p>
       </PageHeader>
 
-      <Card id="filters" title={tr({ en: 'Filters', fr: 'Filtres' })}>
+      <Card id="filters" section={tr({ en: 'Filters', fr: 'Filtres' })} tour="world-filters" title={tr({ en: 'Filters', fr: 'Filtres' })}>
         <div className="checks">
           <label>
             <input type="checkbox" checked={relevantOnly && relevanceKnown} disabled={!relevanceKnown} onChange={e => setRelevantOnly(e.target.checked)} />
@@ -317,7 +317,7 @@ function WorldContent({ profile }: { profile: Profile }) {
         </div>
         <p className="small muted">
           {relevanceKnown
-            ? tr({ en: 'A match means a held ticker is named in the event or the event’s country has portfolio weight. It is a documented match, not an impact estimate, and it filters the loaded events only.', fr: 'Une correspondance signifie qu’un symbole détenu est nommé dans l’événement ou que le pays de l’événement a un poids dans le portefeuille. C’est une correspondance documentée, pas une estimation d’impact, et elle ne filtre que les événements chargés.' })
+            ? tr({ en: 'A held ticker is named in the event, or the event’s country has weight in the portfolio.', fr: 'Un symbole détenu est nommé dans l’événement, ou le pays de l’événement a un poids dans le portefeuille.' })
             : tr({ en: 'Not available yet: the API has not returned a portfolio match for the loaded events.', fr: 'Pas encore disponible : l’API n’a pas renvoyé de correspondance avec le portefeuille pour les événements chargés.' })}
         </p>
         <details className="filters-fold">
@@ -377,7 +377,7 @@ function WorldContent({ profile }: { profile: Profile }) {
             {coverage
               ? <>{tr({ en: 'Dataset coverage', fr: 'Couverture du jeu de données' })}: {fmtDate(coverage.start, lang)} → {fmtDate(coverage.end, lang)}. </>
               : <>{tr({ en: 'Dataset coverage not known yet; without dates the API uses the last 30 days of its events dataset.', fr: 'Couverture du jeu de données pas encore connue ; sans dates, l’API utilise les 30 derniers jours de son jeu d’événements.' })} </>}
-            {tr({ en: `An interval covers at most ${MAX_RANGE_DAYS} days.`, fr: `Un intervalle couvre au plus ${MAX_RANGE_DAYS} jours.` })}
+            {tr({ en: `${MAX_RANGE_DAYS} days at most.`, fr: `${MAX_RANGE_DAYS} jours au plus.` })}
           </p>
 
           <div className="filter-sets">
@@ -427,16 +427,16 @@ function WorldContent({ profile }: { profile: Profile }) {
       </Card>
 
       <div className="world-grid">
-        <Card id="feed" className="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
+        <Card id="feed" className="world-feed" section={tr({ en: 'Feed', fr: 'Fil' })} tour="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
           actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={feed.loading || applied === null}>{tr({ en: 'Reload', fr: 'Recharger' })}</button>}>
           <div role="status" aria-live="polite" className="small feed-counts">
             {(current || keptAfterFailure) && feed.total !== null && (
               <p>
                 {tr({
-                  en: `Showing ${visible.length} of ${loaded.length} loaded event(s); ${feed.total} match the filters in the dataset.`,
-                  fr: `${visible.length} affiché(s) sur ${loaded.length} événement(s) chargé(s) ; ${feed.total} correspondent aux filtres dans le jeu de données.`,
+                  en: `${visible.length} of ${feed.total} events`,
+                  fr: `${visible.length} sur ${feed.total} événements`,
                 })}
-                {relevantOnly && relevanceKnown && <> {tr({ en: `${relevantCount} of the loaded events match the portfolio.`, fr: `${relevantCount} des événements chargés correspondent au portefeuille.` })}</>}
+                {relevantOnly && relevanceKnown && <>{tr({ en: `, ${relevantCount} linked to the portfolio`, fr: `, ${relevantCount} liés au portefeuille` })}</>}
               </p>
             )}
           </div>
@@ -467,7 +467,7 @@ function WorldContent({ profile }: { profile: Profile }) {
                     <span className="feed-title" lang={sourceLang(event)}>{event.title}</span>
                     <EventLine event={event} />
                     <span className="block">
-                      {event.portfolioRelevant === true && <span className="tag tag-strong">{tr({ en: 'Matches this portfolio (documented link)', fr: 'Correspond à ce portefeuille (lien documenté)' })}</span>}
+                      {event.portfolioRelevant === true && <span className="tag tag-strong">{tr({ en: 'Linked to the portfolio', fr: 'Lié au portefeuille' })}</span>}
                       {event.location.precision === 'country' && <span className="tag">{labelOf(LOCATION_PRECISION, 'country', lang)}</span>}
                       {event.sourceCount > 1 && <span className="tag">{event.sourceCount} {tr({ en: 'sources', fr: 'sources' })}</span>}
                     </span>
@@ -489,19 +489,15 @@ function WorldContent({ profile }: { profile: Profile }) {
             <ErrorState error={feed.moreError} onRetry={() => void loadMore()}
               title={tr({ en: 'The next page could not be loaded. The events already loaded stay listed.', fr: 'La page suivante n’a pas pu être chargée. Les événements déjà chargés restent listés.' })} />
           )}
-          {current && feed.dataVersion && (
-            <p className="small muted">{tr({ en: 'Events dataset version', fr: 'Version du jeu d’événements' })} <span className="mono break">{feed.dataVersion}</span></p>
-          )}
         </Card>
 
         <div className="world-map">
-          <Card id="globe" title={tr({ en: 'Globe', fr: 'Globe' })}
+          <Card id="globe" section={tr({ en: 'Globe', fr: 'Globe' })} tour="world-globe" title={tr({ en: 'Globe', fr: 'Globe' })}
             actions={(
               <button type="button" className="btn ghost btn-sm" aria-expanded={showGlobe === true} aria-controls="globe-body" onClick={() => setShowGlobe(value => !value)}>
                 {showGlobe ? tr({ en: 'Hide the globe', fr: 'Masquer le globe' }) : tr({ en: 'Show the globe', fr: 'Afficher le globe' })}
               </button>
             )}>
-            <p className="small muted">{tr({ en: 'An alternate view of the loaded events. Everything it shows is also in the feed and the tables.', fr: 'Une autre vue des événements chargés. Tout ce qu’elle montre figure aussi dans le fil et les tableaux.' })}</p>
             <div id="globe-body">
               {showGlobe && (
                 <>
@@ -510,8 +506,8 @@ function WorldContent({ profile }: { profile: Profile }) {
                   <p className="small" role="status">
                     {eventsOn
                       ? tr({
-                        en: `Showing ${pinSelection.pins.length} of ${pinSelection.eligible} event pins${pinSelection.thinned ? ' (highest ranking score first; narrow the filters to see the others)' : ''}.`,
-                        fr: `${pinSelection.pins.length} épingles d’événements affichées sur ${pinSelection.eligible}${pinSelection.thinned ? ' (score de classement le plus élevé d’abord ; resserrez les filtres pour voir les autres)' : ''}.`,
+                        en: `${pinSelection.pins.length} of ${pinSelection.eligible} events on the globe${pinSelection.thinned ? ', highest ranked first' : ''}.`,
+                        fr: `${pinSelection.pins.length} sur ${pinSelection.eligible} événements sur le globe${pinSelection.thinned ? ', les mieux classés d’abord' : ''}.`,
                       })
                       : tr({ en: 'The events layer is off: no event pin is drawn.', fr: 'La couche des événements est désactivée : aucune épingle d’événement n’est tracée.' })}
                     {eventsOn && pinSelection.unlocated > 0 && <> {tr({ en: `${pinSelection.unlocated} event(s) have no usable location and appear in the feed only.`, fr: `${pinSelection.unlocated} événement(s) n’ont pas de localisation utilisable et n’apparaissent que dans le fil.` })}</>}
@@ -687,7 +683,7 @@ function WorldContent({ profile }: { profile: Profile }) {
                   </table>
                 </div>
               )}
-              <p className="small muted">{tr({ en: 'Reported registry figures, not a score. A facility near an event, or matched to an issuer by name, is not proof of any impact on a holding.', fr: 'Chiffres déclarés au registre, pas un score. Une installation proche d’un événement, ou associée par son nom à un émetteur, ne prouve aucun impact sur une position.' })}</p>
+              <p className="small muted">{tr({ en: 'Reported registry figures, not a score.', fr: 'Chiffres déclarés au registre, pas un score.' })}</p>
               <LimitationList codes={facilities.data.limitations} />
             </>
           )}
@@ -732,7 +728,6 @@ function WorldContent({ profile }: { profile: Profile }) {
                   </table>
                 </div>
               )}
-              <p className="small muted">{tr({ en: 'Source, time and magnitude as recorded. Proximity to a holding or a facility is not proof of impact.', fr: 'Source, heure et magnitude telles qu’enregistrées. La proximité d’une position ou d’une installation ne prouve aucun impact.' })}</p>
             </>
           )}
         </Card>
