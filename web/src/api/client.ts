@@ -7,7 +7,7 @@ import type {
   AplombContracts, ApiError, BatchCheckRequest, CheckRequest, CreateProfileRequest,
   CreateRunRequest, DeriveRulesRequest, Lang, ParseRequest, RebalanceRequest, RulePatchRequest,
   SabotageRequest, UpdatePortfolioRequest, UpdateProfileRequest, WindowCode, AnswerRequest,
-  RunKind, RevealRequest, WindowSpec,
+  RunKind, RevealRequest, StrategySimulateRequest, WindowSpec,
 } from '../contracts/types';
 import { expandedResult } from './expandedInvestor';
 import { focusResult, targetsResult } from './focusModels';
@@ -301,6 +301,8 @@ export function createApiClient(config: ClientConfig) {
       call('FrontierResponse', 'GET', `/profiles/${enc(profileId)}/frontier`, { query: windowQuery(window), signal }),
     brief: (profileId: string, lang: Lang, signal?: AbortSignal) =>
       call('CachedBriefResponse', 'GET', `/profiles/${enc(profileId)}/brief`, { query: { lang }, signal }),
+    simulateStrategy: (profileId: string, body: StrategySimulateRequest, signal?: AbortSignal) =>
+      call('StrategySimulation', 'POST', `/profiles/${enc(profileId)}/strategies/simulate`, { body, signal }),
 
     parse: (body: ParseRequest, signal?: AbortSignal) =>
       call('ParsedRequest', 'POST', '/requests/parse', { body, signal }),

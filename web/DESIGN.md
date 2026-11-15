@@ -40,12 +40,16 @@ Instrument Sans (variable weight and width, local `@fontsource-variable/instrume
 ## Layout
 
 - **Top bar** (floating, sticky): investor switcher, **Ask Aplomb** (text sent to Decide as `?q=`, interpreted once; `/` focuses it; where the browser has speech recognition a microphone dictates into the field, one utterance per press, cobalt while listening, Escape cancels; the words are only filled in, never sent on their own), the simulation note (short on the bar, full text for assistive technology), Help (tutorials) and Settings (language, theme, profiles, data date).
-- **Rail** (floating, left): the seven pages and Sources as icons with tooltips; the bottom arrow shows labels (`aplomb.pref.sidebar`, `html[data-sidebar='expanded']`). Phones use the menu drawer instead.
+- **Rail** (floating, left): the eight pages (Strategies after Decide) and Sources as icons with tooltips; the bottom arrow shows labels (`aplomb.pref.sidebar`, `html[data-sidebar='expanded']`). Phones use the menu drawer instead.
 - **Page panel:** title and one sentence on the left, the period control and main action on the right (`PageHeader actions`).
 - **Section dock** (floating, bottom): every element in `<main>` with `data-section` and an `id` (via `Card section=…` or a dashboard widget's `section`), shown from three sections, with scroll spy; the cobalt + tests a move. Hidden on phones.
 - **Home:** scope bar (period or custom range, benchmark, asset classes, minimum weight, chart view); Reset layout sits in the page header, always shown, inactive while the layout is the default over a 12-column grid of widgets (`aplomb.pref.dashboard.layout.v1`); key figures are four tiles with the value tile in cobalt. Details: [movable widgets and details sheets](../docs/superpowers/specs/2026-11-15-movable-widgets-details-design.md).
   - **Always arrangeable, no edit mode.** Grab a widget by its header: after 5 px of travel it lifts (scale 1.025, denser glass, deeper shadow) and follows the pointer, a recessed slot shows where it will land, the others glide out of its way, and it settles into the slot on release. A plain click on the header stays a click. The grabber at the top edge (on hover or focus) is the keyboard handle (arrows, Home/End); the corner handle resizes within the widget's limits (arrows too). Every change is announced. Below 880 px of grid width the widgets stack and do not move.
   - **A widget never scrolls.** It shows its essentials and adapts to its size: Positions shows the rows that fit, then "+N"; Plan health adds the rules nearest their limit as room allows; the chart fills the widget. Tables, limitations, method, the full brief and its steps open from ⤢ in a details sheet. Minimum sizes still hold the essentials.
+
+## Strategies
+
+[Strategies](page-specs/strategies.md) shows standing automations (rebalancing, regular contributions, risk guard) simulated on history next to the untouched holdings. Each kind has one colour, used only for its icon and its action labels: rebalance cobalt, contributions green, risk guard amber. Figures compare with "untouched" in a quiet second line; the strategy's figure turns green or red only when it is clearly better or worse. The Automations widget on Home shows each active strategy's next action; "Due now" is the only emphasis. Proposals only, said once on the page and in the widget's note.
 
 ## Guided tours
 

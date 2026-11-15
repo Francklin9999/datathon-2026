@@ -198,6 +198,10 @@ export const LIMITATION: Labels<LimitationCode> = {
     'Les consultations de pages mesurent l’attention du public, pas la qualité d’un placement.'),
   LIM_REGISTRY_MATCH: l('Facilities are matched to companies by name; some matches may be wrong or missing.',
     'Les installations sont associées aux sociétés par leur nom ; certaines correspondances peuvent être fausses ou manquantes.'),
+  LIM_STRATEGY_COSTS: l('Trading costs are the flat rate per traded amount you set. Taxes, bid-ask spreads and whole-share limits are not modelled.',
+    'Les frais sont le taux fixe par montant échangé que vous choisissez. Impôts, écarts acheteur-vendeur et parts entières ne sont pas modélisés.'),
+  LIM_STRATEGY_EXECUTION: l('Actions are applied at the closing price of the day the trigger is observed. Real orders would execute later, at other prices.',
+    'Les actions sont appliquées au cours de clôture du jour où le déclencheur est constaté. De vrais ordres seraient exécutés plus tard, à d’autres prix.'),
   LIM_MV_ILLUSTRATION: l('Mean-variance points use past average returns as inputs and are shown for illustration only.',
     'Les points moyenne-variance utilisent les rendements moyens passés et ne sont montrés qu’à titre d’illustration.'),
 };

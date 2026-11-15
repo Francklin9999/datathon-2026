@@ -37,6 +37,7 @@ import { drawdownSeries, indexSeries, periodChangePct } from '../../lib/ui/serie
 import { Reveal } from '../../components/ui/Reveal';
 import { CountUp } from '../../components/ui/CountUp';
 import { AllocationCard } from './AllocationCard';
+import { AutomationsCard } from './AutomationsCard';
 import { DashboardGrid, type WidgetDef } from './DashboardGrid';
 import { KeyFigures, KeyFiguresSkeleton } from './KeyFigures';
 import { DiversificationCard, HorizonsCard, StressCard } from './FigureCards';
@@ -56,6 +57,7 @@ const autoRequested = new Set<string>();
  */
 const DEFAULT_LAYOUT: readonly LayoutItem[] = [
   { id: 'figures', w: 12, h: 4 },
+  { id: 'automations', w: 12, h: 4 },
   { id: 'performance', w: 8, h: 9 },
   { id: 'allocation', w: 4, h: 9 },
   { id: 'health', w: 5, h: 7 },
@@ -67,6 +69,7 @@ const DEFAULT_LAYOUT: readonly LayoutItem[] = [
 ];
 const LIMITS: Record<string, WidgetLimits> = {
   figures: { minW: 6, maxW: 12, minH: 4, maxH: 7 },
+  automations: { minW: 4, maxW: 12, minH: 4, maxH: 8 },
   performance: { minW: 5, maxW: 12, minH: 7, maxH: 18 },
   allocation: { minW: 3, maxW: 8, minH: 8, maxH: 14 },
   positions: { minW: 4, maxW: 12, minH: 4, maxH: 18 },
@@ -142,6 +145,7 @@ function HomeContent({ profile }: { profile: Profile }) {
     const t = (en: string, fr: string) => tr({ en, fr });
     return [
       { id: 'figures', title: t('Key figures', 'Chiffres clés'), section: t('Figures', 'Chiffres'), bare: true, limits: LIMITS.figures!, render: () => <KeyFigures overview={data} period={period} /> },
+      { id: 'automations', title: t('Automations', 'Automatisations'), section: t('Automations', 'Automatisations'), limits: LIMITS.automations!, render: () => <AutomationsCard profile={profile} /> },
       { id: 'performance', title: t('Past performance', 'Performance passée'), section: t('Performance', 'Performance'), limits: LIMITS.performance!, render: () => <PerformanceCard state={performance} scope={scope} period={period} /> },
       { id: 'allocation', title: t('Allocation', 'Répartition'), section: t('Allocation', 'Répartition'), limits: LIMITS.allocation!, render: () => <AllocationCard overview={data} scope={scope} /> },
       { id: 'positions', title: t('Positions', 'Positions'), section: t('Positions', 'Positions'), limits: LIMITS.positions!, render: () => <PositionsCard overview={data} scope={scope} /> },

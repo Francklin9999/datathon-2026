@@ -30,7 +30,7 @@ Owner: track **T01 (Contracts & integration)**. See `docs/04-TRACKS.md`.
 
 ## Versioning and change process
 
-- The API is served under `/v1`. The contract version is `contractVersion` in `GET /v1/meta`; this folder is version **1.4.0**.
+- The API is served under `/v1`. The contract version is `contractVersion` in `GET /v1/meta`; this folder is version **1.5.0**.
 - **Additive change** (new optional field, new endpoint, new enum value): edit the file, add a line to the changelog below, tell the affected tracks. Bump the minor version.
 - **Breaking change** (rename, removal, type change, semantic change): needs agreement of T01 plus every consumer listed in the table above. Bump the major version. During the datathon, avoid these after Saturday night.
 - Every change updates the fixtures in the same commit. A fixture that does not match `schemas.md` is a bug.
@@ -63,6 +63,7 @@ T01's handoff and exact consumer imports are in [the integration handoff](../doc
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-14 | First version. |
+| 1.5.0 | 2026-11-15 | Additive: POST `/profiles/{profileId}/strategies/simulate` (standing strategies simulated on history), method `M_STRATEGY_SIM`, limitations `LIM_STRATEGY_COSTS` and `LIM_STRATEGY_EXECUTION`. |
 | 1.4.0 | 2026-11-15 | Native-currency account capital with independently checked FX receipts, reporting-currency aggregation, and complete target-allocation policy/risk comparison. |
 | 1.3.0 | 2026-11-15 | Global sourced FX, archived/duplicated profiles, explicit goal scenarios, country/currency policy caps, entity candidates, annual country context and airport references. Paired frontend/backend release required. |
 | 1.2.0 | 2026-11-15 | Optional investor context, multiple portfolio accounts, asset analytics, historical tail risk, and EONET event origin. Paired frontend/backend release required. |

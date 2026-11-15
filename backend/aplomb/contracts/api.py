@@ -410,6 +410,122 @@ class FrontierResponse(WireModel):
     facts: dict[FactId, Fact]
 
 
+# ----- Strategies (api.md §3.13): standing rules simulated on history, never executed -----
+
+StrategyFrequency = TypeAliasType("StrategyFrequency", Literal["monthly", "quarterly", "yearly"])
+CostBps = Annotated[Number, Field(ge=0, le=100)]
+
+
+class RebalanceStrategy(WireModel):
+    """Bring weights back to today's target on a calendar or when one drifts past a band."""
+    kind: Literal["rebalance"]
+    trigger: Literal["calendar", "band"]
+    frequency: StrategyFrequency = None
+    band_pts: Annotated[Number, Field(ge=1, le=25)] = None
+    cost_bps: CostBps = None
+
+
+class ContributeStrategy(WireModel):
+    """Add a fixed amount every period, split by target weights or into the most underweight."""
+    kind: Literal["contribute"]
+    amount: Annotated[Number, Field(gt=0, le=1_000_000)]
+    frequency: Literal["monthly", "quarterly"]
+    allocation: Literal["target", "underweight"]
+    cost_bps: CostBps = None
+
+
+class RiskGuardStrategy(WireModel):
+    """Move part of the growth assets to a defensive asset after a fall; move back once it recovers."""
+    kind: Literal["risk_guard"]
+    trigger_drawdown_pct: Annotated[Number, Field(ge=2, le=50)]
+    shift_pct: Annotated[Number, Field(ge=10, le=100)]
+    reentry_drawdown_pct: Annotated[Number, Field(ge=0, le=50)]
+    safe_ticker: Ticker | None = None
+    cost_bps: CostBps = None
+
+    @model_validator(mode="after")
+    def _reentry_below_trigger(self):
+        if self.reentry_drawdown_pct >= self.trigger_drawdown_pct:
+            raise ValueError("reentryDrawdownPct must be below triggerDrawdownPct")
+        return self
+
+
+StrategyConfig = TypeAliasType(
+    "StrategyConfig",
+    Annotated[RebalanceStrategy | ContributeStrategy | RiskGuardStrategy, Field(discriminator="kind")],
+)
+
+
+class StrategySimulateRequest(WireModel):
+    strategy: StrategyConfig
+    window: WindowSpec = None
+
+
+class StrategyTrade(WireModel):
+    ticker: Ticker
+    amount: Number          # signed, reporting currency: positive buys, negative sells
+    weight_before_pct: Number
+    weight_after_pct: Number
+
+
+class StrategyAction(WireModel):
+    date: ISODate
+    kind: Literal["rebalance", "contribute", "de_risk", "re_risk"]
+    reason: I18nText
+    value_before: NonNegative
+    trades: list[StrategyTrade]
+    cost: NonNegative
+
+
+class StrategyMetrics(WireModel):
+    end_value: NonNegative
+    invested: NonNegative           # starting value plus every contribution
+    gain: Number                    # end value minus invested
+    twr_pct: Number                 # time-weighted return over the window (contributions removed)
+    vol_pct: NonNegative | None
+    max_drawdown_pct: NonNegative | None
+    turnover_pct: NonNegative       # sum of traded amounts ÷ average value × 100
+    costs: NonNegative
+    actions: Count
+
+
+class StrategyRuleDays(WireModel):
+    rule_id: RuleId
+    code: String
+    strategy_months: Count
+    baseline_months: Count
+
+
+class StrategyPlanCheck(WireModel):
+    months_checked: Count
+    strategy_months_in_conflict: Count
+    baseline_months_in_conflict: Count
+    by_rule: list[StrategyRuleDays]
+
+
+class StrategyNextAction(WireModel):
+    due: Boolean
+    summary: I18nText
+    trades: list[StrategyTrade]
+
+
+class StrategySimulation(WireModel):
+    window: WindowSpec
+    currency: Currency
+    strategy: StrategyConfig
+    series: list[SeriesPoint]
+    baseline: list[SeriesPoint]
+    invested: list[SeriesPoint] | None
+    metrics: StrategyMetrics
+    baseline_metrics: StrategyMetrics
+    actions: list[StrategyAction]
+    actions_truncated: Boolean
+    plan: StrategyPlanCheck
+    next_action: StrategyNextAction
+    method: MethodId
+    limitations: list[LimitationCode]
+
+
 class CachedBriefResponse(WireModel):
     run: Run | None
     stale: Boolean

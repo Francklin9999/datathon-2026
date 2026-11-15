@@ -793,6 +793,16 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     register_profile_read("brief", "brief", a.CachedBriefResponse)
 
     @app.post(
+        "/v1/profiles/{profile_id}/strategies/simulate",
+        response_model=a.StrategySimulation,
+        response_model_exclude_unset=True,
+    )
+    def simulate_strategy(profile_id: ProfileId, body: a.StrategySimulateRequest, sid: Session):
+        provider = require(services.profiles, "Profile service")
+        provider.get(sid, profile_id)
+        return provider.simulate_strategy(sid, profile_id, body)
+
+    @app.post(
         "/v1/requests/parse", response_model=m.ParsedRequest, response_model_exclude_unset=True
     )
     def parse(body: a.ParseRequest, sid: Session):

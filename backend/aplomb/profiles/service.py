@@ -1253,6 +1253,20 @@ class ProfileServiceImpl:
             self._frontier_cache[key] = cached
         return cached.model_copy(deep=True)
 
+    def simulate_strategy(self, session_id: str, profile_id: str, body: a.StrategySimulateRequest) -> a.StrategySimulation:
+        """Standing strategy simulated on history (api.md §3.13): deterministic, nothing stored."""
+        from aplomb.strategies.service import run
+
+        profile = self.get(session_id, profile_id)
+        wire = body.to_wire()
+        query = {"window": wire.get("window") or {"code": "full"}}
+        eng, window = self._engine(profile, query, LocalLedger())
+        try:
+            result = run(eng, profile, self._weights(profile), wire["strategy"], window)
+        except UnknownTicker as exc:
+            raise ServiceError("insufficient_data", str(exc)) from exc
+        return a.StrategySimulation.model_validate(result)
+
     # Set by the application composition: ``(session_id, profile_id, lang) -> (run | None, stale)``.
     brief_finder: Callable | None = None
 
