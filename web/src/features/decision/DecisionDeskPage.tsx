@@ -9,15 +9,16 @@ import { RebalancePanel } from './RebalancePanel';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
-  ApiError, AssetsResponse, BatchCheckResponse, CheckResult, DecisionRequest, FetchAssetResponse, FundingMode,
+  ApiError, BatchCheckResponse, CheckResult, DecisionRequest, FetchAssetResponse, FundingMode,
   ParsedRequest, Profile, Run,
 } from '../../contracts/types';
 import { getApiClient } from '../../api/index';
 import { asApiError, isAbort, type ApiRequestError } from '../../api/errors';
 import { useApp } from '../../state/app';
-import { useQuery } from '../../state/useQuery';
+import { assetsChanged, useAssetUniverse } from '../../state/useAssetUniverse';
 import { useRun } from '../../state/useRun';
 import { WindowControl } from '../../components/shell/TopBar';
+import { SuggestInput } from '../../components/ui/SuggestInput';
 import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
 import { ErrorState, Loading } from '../../components/common/States';
 import { FactScopeProvider, LimitationList, type FactScope } from '../../components/common/FactDrawer';
@@ -35,6 +36,7 @@ import {
   validateMoveForm, type MoveForm, type MoveFormIssue,
 } from '../../lib/move';
 import { isTerminal } from '../../lib/runs';
+import { tickerSuggestions } from '../../lib/suggest';
 import { investigationOriginalText, readInvestigationContext, validInvestigationContext } from '../../lib/world';
 
 const FUNDING_MODES: readonly FundingMode[] = ['auto', 'pro_rata', 'from_cash', 'from_holdings', 'new_money'];
@@ -278,7 +280,12 @@ function PreviewError({ error, ticker }: { error: ApiRequestError; ticker: strin
   const canFetch = error.code === 'not_found' && feature('on_demand_tickers') && symbol !== '';
   const fetchTicker = async () => {
     setFetching(true); setFetchError(null);
-    try { setResult(await getApiClient().fetchAsset(symbol)); }
+    try {
+      const fetched = await getApiClient().fetchAsset(symbol);
+      setResult(fetched);
+      // The new asset joins the suggestions everywhere.
+      if (fetched.accepted) assetsChanged();
+    }
     catch (e) { setFetchError(asApiError(e)); }
     finally { setFetching(false); }
   };
@@ -381,12 +388,12 @@ export function MoveFormCard({ profile, form, update, maxSize, currentWeight, is
   profile: Profile; form: MoveForm; update: (patch: Partial<MoveForm>) => void; maxSize: number; currentWeight: number;
   issues: MoveFormIssue[]; goal: DecisionRequest | null;
 }) {
-  const { tr, lang, sessionId } = useApp();
-  const query = form.ticker.trim();
-  const [debounced, setDebounced] = useState(query);
-  useEffect(() => { const t = setTimeout(() => setDebounced(query), DEBOUNCE_MS); return () => clearTimeout(t); }, [query]);
-  const assets = useQuery<AssetsResponse>(sessionId && debounced.length >= 1 ? `assets|${debounced.toUpperCase()}` : null,
-    signal => getApiClient().assets({ q: debounced, limit: 20 }, signal));
+  const { tr, lang } = useApp();
+  // One read of the universe, searched locally on each keystroke; holdings first, offered even if the read fails.
+  const { assets } = useAssetUniverse();
+  const positions = profile.portfolio.positions;
+  const suggestions = useMemo(() => tickerSuggestions(assets, positions.map(p => p.ticker), tr({ en: 'Held', fr: 'Détenu' })),
+    [assets, positions, tr]);
   const issueFor = (field: keyof MoveForm) => issues.some(i => i.field === field);
   return (
     <Card title={tr({ en: 'Move details', fr: 'Détails du mouvement' })} tour="move-form">
@@ -400,11 +407,9 @@ export function MoveFormCard({ profile, form, update, maxSize, currentWeight, is
       <div className="form-grid">
         <div className="field">
           <label htmlFor="move-ticker">{tr({ en: 'Asset (ticker)', fr: 'Actif (symbole)' })}</label>
-          <input id="move-ticker" type="text" list="ticker-options" autoComplete="off" value={form.ticker}
-            onChange={e => update({ ticker: e.target.value.toUpperCase() })} aria-invalid={issueFor('ticker')} />
-          <datalist id="ticker-options">
-            {assets.data?.items.map(a => <option key={a.ticker} value={a.ticker}>{a.name}</option>)}
-          </datalist>
+          <SuggestInput id="move-ticker" value={form.ticker} onChange={ticker => update({ ticker: ticker.toUpperCase() })}
+            suggestions={suggestions} listLabel={tr({ en: 'Matching assets', fr: 'Actifs correspondants' })}
+            aria-invalid={issueFor('ticker')} />
           <span className="hint">{tr({ en: 'Current weight', fr: 'Poids actuel' })}: {fmtPct(currentWeight, lang)}</span>
         </div>
         <div className="field">

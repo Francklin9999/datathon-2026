@@ -1,11 +1,14 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import sources from '../../data/source-directory.json';
 import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
 import { ExternalLink } from '../../components/common/ExternalLink';
+import { fold } from '../../lib/suggest';
 
 const categories = [...new Set(sources.map(s => s.category))];
+/** Searched text, prepared once: case and accents ignored ("donnees" finds "données"). */
+const searchable = sources.map(s => fold(`${s.name} ${s.use} ${s.category}`));
 const accessLabels: Record<string, { en: string; fr: string }> = {
   A: { en: 'Public / generally keyless', fr: 'Public / généralement sans clé' },
   F: { en: 'Signup / free tier', fr: 'Inscription / offre gratuite' },
@@ -23,9 +26,14 @@ export function SourceDirectory() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [access, setAccess] = useState('');
-  const matches = useMemo(() => sources.filter(s => (!category || s.category === category)
-    && (!access || s.access === access)
-    && `${s.name} ${s.use} ${s.category}`.toLowerCase().includes(query.trim().toLowerCase())), [query, category, access]);
+  // The table follows a deferred query, so typing never waits for 243 rows to render.
+  const deferredQuery = useDeferredValue(query);
+  const matches = useMemo(() => {
+    const needle = fold(deferredQuery.trim());
+    return sources.filter((s, i) => (!category || s.category === category)
+      && (!access || s.access === access)
+      && (!needle || (searchable[i] ?? '').includes(needle)));
+  }, [deferredQuery, category, access]);
   return <Card id="worldwide-directory" title={tr({ en: 'Worldwide source research directory', fr: 'Répertoire mondial des sources candidates' })}>
     <p>{tr({ en: '243 researched API and dataset entries. These are candidate sources; access codes do not establish current availability, integration, or redistribution rights. Loaded datasets and their evidence appear in the passports above.', fr: '243 entrées de recherche. Ce sont des sources candidates; les codes d’accès ne prouvent ni disponibilité, ni intégration, ni droits de redistribution. Les jeux chargés et leurs preuves figurent dans les passeports ci-dessus.' })}</p>
     <div className="form-grid">

@@ -18,8 +18,10 @@ import { ThemeTag as THEMES } from '../../contracts/catalog';
 import { getApiClient } from '../../api/index';
 import { asApiError, isAbort, type ApiRequestError } from '../../api/errors';
 import { profileKey, useApp } from '../../state/app';
+import { useAssetUniverse } from '../../state/useAssetUniverse';
 import { useQuery } from '../../state/useQuery';
 import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
+import { SuggestInput } from '../../components/ui/SuggestInput';
 import { Empty, ErrorState, Loading, Unavailable } from '../../components/common/States';
 import { ExternalLink } from '../../components/common/ExternalLink';
 import { FactChip, FactScopeProvider, LimitationList, type FactScope } from '../../components/common/FactDrawer';
@@ -28,7 +30,8 @@ import {
   WORLD_LAYER, labelOf,
 } from '../../lib/labels';
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct } from '../../lib/format';
-import { countryLabel, isKnownIso3 } from '../../lib/geo';
+import { countryLabel, countryName, isKnownIso3 } from '../../lib/geo';
+import { tickerSuggestions, type Suggestion } from '../../lib/suggest';
 import {
   EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, GEOGRAPHIC_AREAS, WORLD_MODES, validBbox, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, spatialReferencePins, buildEventsQuery, clampRange,
   defaultRange, eventSelectionPatch, exposureFactId, filtersKey, insideBbox, isResidualExposure, layerState, mergeEventPages, mergeSelection,
@@ -346,6 +349,13 @@ function WorldContent({ profile }: { profile: Profile }) {
     for (const event of loaded) if (event.location.countryIso3) codes.add(event.location.countryIso3);
     return [...codes].sort();
   }, [exposure.data, loaded]);
+  // Suggestions are searched locally: a country by code or name, a ticker among holdings then the universe.
+  const countrySuggestions = useMemo<Suggestion[]>(() => countryOptions.map(code => ({ value: code, label: countryName(code, lang) ?? '' })),
+    [countryOptions, lang]);
+  const { assets } = useAssetUniverse();
+  const heldTickers = profile.portfolio.positions;
+  const tickerOptions = useMemo(() => tickerSuggestions(assets, heldTickers.map(p => p.ticker), tr({ en: 'Held', fr: 'Détenu' })),
+    [assets, heldTickers, tr]);
 
   const exposureScope = useMemo<FactScope | null>(() => (exposure.data ? {
     kind: 'local',
@@ -401,19 +411,15 @@ function WorldContent({ profile }: { profile: Profile }) {
               </div>
               <div className="field">
                 <label htmlFor="world-country">{tr({ en: 'Country (ISO code)', fr: 'Pays (code ISO)' })}</label>
-                <input id="world-country" type="text" list="world-country-options" maxLength={3} autoComplete="off" value={draft.country}
-                  onChange={e => setDraft(value => ({ ...value, country: e.target.value.toUpperCase() }))} placeholder="CAN" />
-                <datalist id="world-country-options">
-                  {countryOptions.map(code => <option key={code} value={code}>{countryLabel(code, lang)}</option>)}
-                </datalist>
+                <SuggestInput id="world-country" maxLength={3} placeholder="CAN" value={draft.country}
+                  onChange={country => setDraft(value => ({ ...value, country: country.toUpperCase() }))}
+                  suggestions={countrySuggestions} listLabel={tr({ en: 'Matching countries', fr: 'Pays correspondants' })} />
               </div>
               <div className="field">
                 <label htmlFor="world-ticker">{tr({ en: 'Ticker named in the event', fr: 'Symbole nommé dans l’événement' })}</label>
-                <input id="world-ticker" type="text" list="world-ticker-options" autoComplete="off" value={draft.ticker}
-                  onChange={e => setDraft(value => ({ ...value, ticker: e.target.value.toUpperCase() }))} />
-                <datalist id="world-ticker-options">
-                  {profile.portfolio.positions.map(position => <option key={position.ticker} value={position.ticker} />)}
-                </datalist>
+                <SuggestInput id="world-ticker" value={draft.ticker}
+                  onChange={ticker => setDraft(value => ({ ...value, ticker: ticker.toUpperCase() }))}
+                  suggestions={tickerOptions} listLabel={tr({ en: 'Matching tickers', fr: 'Symboles correspondants' })} />
               </div>
               <div className="field">
                 <label htmlFor="world-theme">{tr({ en: 'Theme', fr: 'Thème' })}</label>

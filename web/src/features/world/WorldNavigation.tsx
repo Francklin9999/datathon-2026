@@ -1,7 +1,10 @@
 'use client';
 import { useMemo, useState, type FormEvent } from 'react';
 import { GEOGRAPHIC_AREAS, WORLD_MODES, geographicCountries, type WorldMode } from '../../lib/world';
+import { countryName } from '../../lib/geo';
+import { buildSuggestIndex, fold, rankSuggestions, type Suggestion } from '../../lib/suggest';
 import { useApp } from '../../state/app';
+import { SuggestInput } from '../../components/ui/SuggestInput';
 
 export function WorldNavigation({ mode, onMode, onCountry, area, onArea, bbox, onBbox }: {
   mode: WorldMode; onMode: (mode: WorldMode) => void; onCountry: (country: string) => void;
@@ -10,16 +13,18 @@ export function WorldNavigation({ mode, onMode, onCountry, area, onArea, bbox, o
   const { tr, lang } = useApp();
   const [search, setSearch] = useState('');
   const [noMatch, setNoMatch] = useState(false);
-  const countries = useMemo(() => geographicCountries(lang), [lang]);
-  const matches = useMemo(() => {
-    const needle = search.trim().toLocaleLowerCase(lang);
-    return needle ? countries.filter(row => row.iso3.toLowerCase() === needle || row.label.toLocaleLowerCase(lang).includes(needle)).slice(0, 8) : [];
-  }, [search, countries, lang]);
+  // Ranked locally like every search field: ISO code or name, case and accents ignored ("etats" finds États-Unis).
+  const countries = useMemo<Suggestion[]>(() => geographicCountries(lang).map(row => ({ value: row.iso3, label: countryName(row.iso3, lang) ?? '' })), [lang]);
+  const index = useMemo(() => buildSuggestIndex(countries), [countries]);
+  const matches = useMemo(() => (search.trim() ? rankSuggestions(index, search, 8) : []), [index, search]);
   const choose = (iso3: string) => { onCountry(iso3); setSearch(''); setNoMatch(false); };
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    const exact = countries.find(row => row.iso3 === search.trim().toUpperCase() || row.label.toLocaleLowerCase(lang) === search.trim().toLocaleLowerCase(lang));
-    if (exact || matches.length === 1) choose((exact ?? matches[0])!.iso3);
+    const typed = fold(search.trim());
+    const exact = countries.find(row => fold(row.value) === typed || fold(row.label) === typed);
+    const only = matches.length === 1 ? matches[0] : undefined;
+    if (exact) choose(exact.value);
+    else if (only) choose(only.value);
     else setNoMatch(true);
   };
   const description = WORLD_MODES.find(item => item.id === mode)!;
@@ -34,13 +39,11 @@ export function WorldNavigation({ mode, onMode, onCountry, area, onArea, bbox, o
         <form onSubmit={submit} className="field">
           <label htmlFor="world-geographic-search">{tr({ en: 'Find a country or territory', fr: 'Trouver un pays ou territoire' })}</label>
           <div className="world-search-row">
-            <input id="world-geographic-search" value={search} type="search" autoComplete="off" maxLength={80}
-              aria-describedby="world-geographic-note" onChange={event => { setSearch(event.target.value); setNoMatch(false); }} />
+            <SuggestInput id="world-geographic-search" type="search" value={search} maxLength={80} aria-describedby="world-geographic-note"
+              suggestions={countries} listLabel={tr({ en: 'Matching countries', fr: 'Pays correspondants' })}
+              onPick={row => choose(row.value)} onChange={value => { setSearch(value); setNoMatch(false); }} />
             <button type="submit" className="btn ghost btn-sm">{tr({ en: 'Open', fr: 'Ouvrir' })}</button>
           </div>
-          {matches.length > 0 && <ul className="world-country-results" aria-label={tr({ en: 'Matching countries', fr: 'Pays correspondants' })}>
-            {matches.map(row => <li key={row.iso3}><button type="button" className="linklike" onClick={() => choose(row.iso3)}>{row.label}</button></li>)}
-          </ul>}
           {noMatch && <p role="alert" className="small">{tr({ en: 'Choose a matching country below or enter its three-letter ISO code.', fr: 'Choisissez un pays correspondant ci-dessous ou entrez son code ISO de trois lettres.' })}</p>}
           <p id="world-geographic-note" className="small muted">{tr({ en: 'Local country search. Map navigation does not imply source or market coverage.', fr: 'Recherche locale des pays. La navigation cartographique n’implique aucune couverture des sources ou marchés.' })}</p>
         </form>

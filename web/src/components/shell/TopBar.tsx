@@ -6,11 +6,13 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowUp, ChevronsUpDown, Info, Menu, Mic, Settings2, UserRound } from 'lucide-react';
-import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import type { I18NText, WindowCode } from '../../contracts/types';
 import { useApp, WINDOW_CODES } from '../../state/app';
+import { useAssetUniverse } from '../../state/useAssetUniverse';
 import { WINDOW, labelOf } from '../../lib/labels';
 import { fmtDate } from '../../lib/format';
+import { buildCompletionVocab, completeRequest } from '../../lib/completion';
 import { withDictation } from '../../lib/dictation';
 import { windowShortLabel } from '../../lib/ui/segmented';
 import { ANIM_PREF_KEY, DEFAULT_ANIM, isAnimPref, type AnimPref, type ThemePref } from '../../lib/ui/theme';
@@ -78,20 +80,39 @@ export function PersonaSwitcher() {
 const ASK_MAX = 600;
 /** A dictation error note stays this long unless the person acts first. */
 const NOTE_MS = 8000;
+/** The completion copies these from the field so its text lines up with what was typed. */
+const GHOST_TYPE = ['font-family', 'font-size', 'font-weight', 'font-style', 'font-stretch', 'letter-spacing', 'word-spacing',
+  'font-feature-settings', 'font-variation-settings', 'font-kerning', 'text-transform'] as const;
 
 /**
  * "Ask Aplomb": typed or dictated requests open Decision Desk, which interprets them (nothing runs before
- * confirmation). Dictation only fills the field; the person checks the words and sends them.
+ * confirmation). Dictation only fills the field; the person checks the words and sends them. While the
+ * person types (never for dictated words), the rest of a phrase, ticker or name shows in grey after the
+ * caret: Tab or the right arrow accepts it, Escape hides it.
  */
 export function CommandBar() {
-  const { tr, lang } = useApp();
+  const { tr, lang, profile } = useApp();
   const router = useRouter();
   const [text, setText] = useState('');
   const form = useRef<HTMLFormElement | null>(null);
   const input = useRef<HTMLInputElement | null>(null);
+  const ghost = useRef<HTMLSpanElement | null>(null);
   const typed = useRef('');
   const id = useId();
-  const dictation = useDictation(lang, heard => setText(withDictation(typed.current, heard, ASK_MAX)), () => {
+  const hintId = useId();
+  // Completion state: the last change was typed, the caret is at the end, no IME composition is open.
+  const [typing, setTyping] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [atEnd, setAtEnd] = useState(true);
+  const [composing, setComposing] = useState(false);
+  const [fits, setFits] = useState(true);
+  // The universe is read once the bar is first used, then shared with the other search fields.
+  const [used, setUsed] = useState(false);
+  const { assets } = useAssetUniverse(used);
+  const positions = profile?.portfolio.positions;
+  const vocab = useMemo(() => buildCompletionVocab(lang,
+    [...(positions ?? []).map(p => p.ticker), ...assets.map(a => a.ticker)], assets.map(a => a.name)), [lang, positions, assets]);
+  const dictation = useDictation(lang, heard => { setTyping(false); setText(withDictation(typed.current, heard, ASK_MAX)); }, () => {
     // Back to the field to check and send, unless focus went elsewhere meanwhile (or never came: iOS taps).
     const field = input.current;
     if (!field || !field.value || !form.current?.contains(document.activeElement)) return;
@@ -99,6 +120,25 @@ export function CommandBar() {
     field.setSelectionRange(field.value.length, field.value.length);
   });
   const { message, dismiss } = dictation;
+  const completion = useMemo(() => (typing && focused && atEnd && !composing && !dictation.listening ? completeRequest(text, vocab) : null),
+    [typing, focused, atEnd, composing, dictation.listening, text, vocab]);
+  const shownCompletion = completion && fits ? completion : null;
+
+  useLayoutEffect(() => {
+    // Same type as the field, and hidden when the text and the completion no longer fit in view.
+    const field = input.current;
+    const rest = ghost.current;
+    if (!field || !rest) return;
+    const style = getComputedStyle(field);
+    for (const property of GHOST_TYPE) rest.style.setProperty(property, style.getPropertyValue(property));
+    setFits(field.scrollLeft === 0 && rest.scrollWidth <= rest.clientWidth);
+  }, [completion, text]);
+
+  const acceptCompletion = () => {
+    if (!shownCompletion) return;
+    setText(shownCompletion.accepted.slice(0, ASK_MAX));
+    setAtEnd(true);
+  };
 
   useEffect(() => {
     if (!message) return undefined;
@@ -123,6 +163,7 @@ export function CommandBar() {
     event.preventDefault();
     dictation.cancel();
     dismiss();
+    setTyping(false);
     const value = text.trim();
     if (!value) return;
     router.push(`/decision-desk/?q=${encodeURIComponent(value.slice(0, ASK_MAX))}`);
@@ -143,21 +184,57 @@ export function CommandBar() {
     dismiss();
   };
 
+  const onFieldKey = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (!shownCompletion || event.nativeEvent.isComposing) return;
+    const plain = !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey;
+    if (plain && (event.key === 'Tab' || event.key === 'ArrowRight')) {
+      event.preventDefault();
+      acceptCompletion();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      setTyping(false);
+    }
+  };
+
+  const trackCaret = (field: HTMLInputElement) => setAtEnd(field.selectionStart === field.value.length && field.selectionEnd === field.value.length);
+
   return (
     <form ref={form} className="command" role="search" onSubmit={submit} onKeyDown={onKeyDown} data-tour="command">
       <label htmlFor={id} className="sr-only">{tr({ en: 'Ask Aplomb to test a move', fr: 'Demander à Aplomb de tester un mouvement' })}</label>
       <div className="command-field" data-listening={dictation.listening || undefined}>
         <span className="command-orb" aria-hidden="true" />
-        <input ref={input} id={id} className="command-input" type="text" value={text} maxLength={ASK_MAX} autoComplete="off"
-          placeholder={dictation.listening
-            ? tr({ en: 'Listening… say a move, then check it', fr: 'À l’écoute… dites un mouvement, puis vérifiez-le' })
-            : tr({ en: 'Ask: add 5% of NVDA, funded from bonds', fr: 'Demander : ajouter 5 % de NVDA, financé par les obligations' })}
-          onChange={event => {
-            // Typing takes over from dictation.
-            dictation.cancel();
-            dismiss();
-            setText(event.target.value);
-          }} />
+        <span className="command-input-wrap">
+          <input ref={input} id={id} className="command-input" type="text" value={text} maxLength={ASK_MAX} autoComplete="off"
+            placeholder={dictation.listening
+              ? tr({ en: 'Listening… say a move, then check it', fr: 'À l’écoute… dites un mouvement, puis vérifiez-le' })
+              : tr({ en: 'Ask: add 5% of NVDA, funded from bonds', fr: 'Demander : ajouter 5 % de NVDA, financé par les obligations' })}
+            {...(shownCompletion ? { 'aria-describedby': hintId } : {})}
+            onChange={event => {
+              // Typing takes over from dictation, and only typing offers a completion.
+              dictation.cancel();
+              dismiss();
+              setTyping(true);
+              trackCaret(event.target);
+              setText(event.target.value);
+            }}
+            onSelect={event => trackCaret(event.currentTarget)}
+            onKeyDown={onFieldKey}
+            onFocus={() => { setFocused(true); setUsed(true); }}
+            onBlur={() => setFocused(false)}
+            onCompositionStart={() => setComposing(true)}
+            onCompositionEnd={() => setComposing(false)} />
+          {completion && (
+            <span ref={ghost} className="command-ghost" data-fits={fits ? undefined : 'false'} aria-hidden="true">
+              <span className="command-ghost-typed">{text}</span>
+              <span className="command-ghost-rest" onPointerDown={event => { event.preventDefault(); acceptCompletion(); }}>{completion.ghost}</span>
+            </span>
+          )}
+        </span>
+        {shownCompletion && (
+          <span id={hintId} className="sr-only">
+            {tr({ en: `Suggestion: ${shownCompletion.accepted}. Tab accepts it.`, fr: `Suggestion : ${shownCompletion.accepted}. Tab l’accepte.` })}
+          </span>
+        )}
         <kbd className="command-kbd" aria-hidden="true">/</kbd>
         {dictation.supported && (
           <button type="button" className="command-mic" aria-pressed={dictation.listening} onClick={toggleDictation}

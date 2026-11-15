@@ -6,7 +6,7 @@
  */
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import type { Brief, Run, RuleCheck, RunsResponse, SabotageMode } from '../../contracts/types';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
@@ -25,6 +25,7 @@ import { AUDIT_CHECK, FACT_KIND, RUN_KIND, RUN_STATUS, SABOTAGE_MODE, VERIFICATI
 import { fmtDate, fmtDateTime } from '../../lib/format';
 import { RunsTable } from '../../components/run/RunsTable';
 import { briefsOf, danglingReferences } from '../../lib/brief';
+import { fold } from '../../lib/suggest';
 
 const SABOTAGE_MODES: readonly SabotageMode[] = ['invented_number', 'false_comparison', 'unsupported_interpretation'];
 
@@ -200,11 +201,13 @@ function FactLedger({ run, scope }: { run: Run; scope: FactScope }) {
   const { tr, lang } = useApp();
   const { openFact } = useFactDrawer();
   const [query, setQuery] = useState('');
-  const facts = Object.values(run.facts);
-  const q = query.trim().toLowerCase();
-  const filtered = q
-    ? facts.filter(f => [f.id, f.metric, f.kind, f.key, f.label.en, f.label.fr].some(v => v.toLowerCase().includes(q)))
-    : facts;
+  // Typing stays instant: the searched text is prepared once per run and the table follows a deferred
+  // query. Case and accents are ignored ("verifie" finds "vérifié").
+  const facts = useMemo(() => Object.values(run.facts), [run.facts]);
+  const searchable = useMemo(() => facts.map(f => fold([f.id, f.metric, f.kind, f.key, f.label.en, f.label.fr].join('\n'))), [facts]);
+  const deferredQuery = useDeferredValue(query);
+  const q = fold(deferredQuery.trim());
+  const filtered = useMemo(() => (q ? facts.filter((_, i) => searchable[i]?.includes(q)) : facts), [facts, searchable, q]);
   return (
     <details className="fold section-fold" id="ledger" data-section={tr({ en: 'Facts', fr: 'Faits' })} data-tour="ledger">
       <summary>{tr({ en: `Fact ledger (${facts.length})`, fr: `Registre des faits (${facts.length})` })}</summary>

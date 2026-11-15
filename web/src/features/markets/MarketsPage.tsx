@@ -19,10 +19,12 @@ import { OpenFigi } from './OpenFigi';
 import { KeyedMarkets } from './KeyedMarkets';
 import { RegionalResearch } from './RegionalResearch';
 import { SourceAvailability, readySource, useSourceCapabilities } from './SourceAvailability';
-import { useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import type { AssetsResponse, AssetAnalyticsResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
+import { ASSET_UNIVERSE_LIMIT, assetUniverseKey } from '../../state/useAssetUniverse';
+import { fold } from '../../lib/suggest';
 import { getApiClient } from '../../api/index';
 import { Card, PageHeader } from '../../components/common/Page';
 import { Loading, ErrorState } from '../../components/common/States';
@@ -43,12 +45,17 @@ export function MarketsPage() {
   const [query, setQuery] = useState('');
   const [ticker, setTicker] = useState<string | null>(null);
   const currency = profile?.reportingCurrency ?? 'CAD';
-  // Load the supported universe once; filtering is local and never probes unsupported exchanges.
-  const assets = useQuery<AssetsResponse>(sessionId && meta ? `markets|${sessionId}|${meta.dataVersion}` : null,
-    signal => getApiClient().assets({ limit: 500 }, signal));
+  // Load the supported universe once (the same read the search fields share); filtering is local and
+  // never probes unsupported exchanges.
+  const assets = useQuery<AssetsResponse>(sessionId && meta ? assetUniverseKey(meta.dataVersion) : null,
+    signal => getApiClient().assets({ limit: ASSET_UNIVERSE_LIMIT }, signal));
   const analytics = useQuery<AssetAnalyticsResponse>(ticker && sessionId && meta ? `asset|${sessionId}|${meta.dataVersion}|${ticker}|${currency}|${windowCode}` : null,
     signal => getApiClient().assetAnalytics(ticker!, currency, windowCode, signal));
-  const items = assets.data?.items.filter(a => `${a.ticker} ${a.name} ${a.market} ${a.assetClass}`.toLowerCase().includes(query.trim().toLowerCase())) ?? [];
+  // Typing stays instant: the searched text is prepared once per universe and the table follows a
+  // deferred query (case and accents ignored).
+  const searchable = useMemo(() => (assets.data?.items ?? []).map(a => ({ asset: a, text: fold(`${a.ticker} ${a.name} ${a.market} ${a.assetClass}`) })), [assets.data]);
+  const needle = fold(useDeferredValue(query).trim());
+  const items = useMemo(() => searchable.filter(row => !needle || row.text.includes(needle)).map(row => row.asset), [searchable, needle]);
   return <>
     <PageHeader title={tr({ en: 'Markets & Stocks', fr: 'Marchés et titres' })}>
       <p className="page-sub">{tr({ en: 'Explore the supported instrument universe and inspect reproducible historical analytics. Snapshot coverage is regional; worldwide navigation does not imply global price coverage.', fr: 'Explorez les instruments pris en charge et leurs analyses historiques reproductibles. La couverture des prix reste régionale.' })}</p>

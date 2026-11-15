@@ -27,8 +27,8 @@ export const BASIC_TOUR: Tour = {
       id: 'command', route: '/', target: 'command',
       title: { en: 'Ask in plain words', fr: 'Demandez en langage courant' },
       body: {
-        en: 'Type a move such as “add 5% of NVDA”, or say it with the microphone if your browser shows one, check the words and press Enter. It opens in Decide, where nothing runs until you confirm. Shortcut: /',
-        fr: 'Tapez un mouvement comme « ajouter 5 % de NVDA », ou dites-le avec le micro si votre navigateur en affiche un, vérifiez les mots puis Entrée. Il s’ouvre dans Décider, où rien ne s’exécute avant votre confirmation. Raccourci : /',
+        en: 'Type a move such as “add 5% of NVDA” (Tab takes the grey completion), or say it with the microphone if your browser shows one, check the words and press Enter. It opens in Decide, where nothing runs until you confirm. Shortcut: /',
+        fr: 'Tapez un mouvement comme « ajouter 5 % de NVDA » (Tab prend la complétion grise), ou dites-le avec le micro si votre navigateur en affiche un, vérifiez les mots puis Entrée. Il s’ouvre dans Décider, où rien ne s’exécute avant votre confirmation. Raccourci : /',
       },
     },
     {

@@ -6,7 +6,7 @@
  * checks (409 keeps the unsaved form). No real contact or account information is requested.
  */
 import { useMemo, useState, type ReactNode } from 'react';
-import type { AssetClass, I18NText, ProfileDraftResult, InvestmentGoal, Profile, ProfilesResponse, Run, ThemeTag } from '../../contracts/types';
+import type { AssetClass, I18NText, Lang, ProfileDraftResult, InvestmentGoal, Profile, ProfilesResponse, Run, ThemeTag } from '../../contracts/types';
 import { ThemeTag as THEMES } from '../../contracts/catalog';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
@@ -20,6 +20,8 @@ import { RunTimeline } from '../../components/run/RunTimeline';
 import { ASSET_CLASS, EXPERIENCE, OBJECTIVE, RISK_LEVEL, labelOf, THEME_TAG } from '../../lib/labels';
 import { fmtMoney } from '../../lib/format';
 import { MAX_POSITIONS, weightSum } from '../../lib/holdings';
+import type { Suggestion } from '../../lib/suggest';
+import { SuggestInput } from '../../components/ui/SuggestInput';
 import {
   EMPTY_PROFILE_FORM, applyDraft, formFromProfile, formPositions, toCreateRequest, validateProfileForm,
   type ProfileForm, type ProfileFormIssue,
@@ -35,6 +37,26 @@ const OBJECTIVES = Object.keys(OBJECTIVE) as (keyof typeof OBJECTIVE)[];
 const EXPERIENCES = Object.keys(EXPERIENCE) as (keyof typeof EXPERIENCE)[];
 const ASSET_CLASSES = Object.keys(ASSET_CLASS) as AssetClass[];
 const THEME_TAGS = Object.values(THEMES) as ThemeTag[];
+
+/** Investor types offered in the profile form; the stored value is the code, the list shows the name. */
+const INVESTOR_TYPES: readonly { value: string; label: I18NText }[] = [
+  { value: 'individual', label: { en: 'Individual', fr: 'Particulier' } },
+  { value: 'retirement', label: { en: 'Retirement', fr: 'Retraite' } },
+  { value: 'income', label: { en: 'Income', fr: 'Revenu' } },
+  { value: 'crypto', label: { en: 'Crypto', fr: 'Crypto' } },
+  { value: 'institutional', label: { en: 'Institutional', fr: 'Institutionnel' } },
+  { value: 'family_office', label: { en: 'Family office', fr: 'Bureau de gestion familial' } },
+  { value: 'endowment', label: { en: 'Endowment', fr: 'Fonds de dotation' } },
+  { value: 'pension', label: { en: 'Pension fund', fr: 'Caisse de retraite' } },
+  { value: 'wealth_manager', label: { en: 'Wealth manager', fr: 'Gestionnaire de patrimoine' } },
+  { value: 'advisor', label: { en: 'Advisor', fr: 'Conseiller' } },
+  { value: 'custom', label: { en: 'Custom', fr: 'Personnalisé' } },
+];
+
+/** "Canadian dollar" for CAD, from the browser's own names; empty when it has none. */
+function currencyName(code: string, lang: Lang): string {
+  try { return new Intl.DisplayNames([lang === 'fr' ? 'fr-CA' : 'en-CA'], { type: 'currency' }).of(code) ?? ''; } catch { return ''; }
+}
 
 const FIELD_LABEL: Record<string, I18NText> = {
   name: { en: 'Name', fr: 'Nom' },
@@ -110,6 +132,8 @@ function ProfilesContent() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<ApiRequestError | null>(null);
   const issues = useMemo(() => validateProfileForm(form), [form]);
+  const currencySuggestions = useMemo<Suggestion[]>(() => (meta?.reportingCurrencies ?? ['CAD', 'USD']).map(code => ({ value: code, label: currencyName(code, lang) })), [meta, lang]);
+  const investorTypeSuggestions = useMemo<Suggestion[]>(() => INVESTOR_TYPES.map(type => ({ value: type.value, label: tr(type.label) })), [tr]);
   const needsConfirmation = provisional.length > 0 || unresolved.length > 0;
 
   const set = (patch: Partial<ProfileForm>) => setForm(f => ({ ...f, ...patch }));
@@ -249,8 +273,8 @@ function ProfilesContent() {
               </select>
             </Field>
             <Field id="pf-cur" text={label('reportingCurrency', tr)} issues={fieldIssues('reportingCurrency')}>
-              <input id="pf-cur" maxLength={3} pattern="[A-Z]{3}" list="reporting-currencies" value={form.reportingCurrency} onChange={e => set({ reportingCurrency: e.target.value.toUpperCase() })} />
-              <datalist id="reporting-currencies">{(meta?.reportingCurrencies ?? ['CAD', 'USD']).map(c => <option key={c} value={c} />)}</datalist>
+              <SuggestInput id="pf-cur" maxLength={3} pattern="[A-Z]{3}" value={form.reportingCurrency} onChange={value => set({ reportingCurrency: value.toUpperCase() })}
+                suggestions={currencySuggestions} listLabel={tr({ en: 'Reporting currencies', fr: 'Devises de présentation' })} />
             </Field>
           </div>
 
@@ -260,8 +284,9 @@ function ProfilesContent() {
               <div className="field"><label htmlFor="pf-country">{tr({ en: 'Country (ISO two-letter code, optional)', fr: 'Pays (code ISO à deux lettres, facultatif)' })}</label>
                 <input id="pf-country" maxLength={2} pattern="[A-Z]{2}" value={form.investorContext?.country ?? ''} onChange={e => set({ investorContext: { ...form.investorContext, country: e.target.value.toUpperCase() || null } })} /></div>
               <div className="field"><label htmlFor="pf-type">{tr({ en: 'Investor type', fr: 'Type d’investisseur' })}</label>
-                <input id="pf-type" maxLength={80} list="investor-types" value={form.investorContext?.investorType ?? 'individual'} onChange={e => set({ investorContext: { ...form.investorContext, investorType: e.target.value } })} />
-                <datalist id="investor-types">{['individual', 'retirement', 'income', 'crypto', 'institutional', 'family_office', 'endowment', 'pension', 'wealth_manager', 'advisor', 'custom'].map(t => <option key={t} value={t} />)}</datalist></div>
+                <SuggestInput id="pf-type" maxLength={80} value={form.investorContext?.investorType ?? 'individual'}
+                  onChange={value => set({ investorContext: { ...form.investorContext, investorType: value } })}
+                  suggestions={investorTypeSuggestions} listLabel={tr({ en: 'Investor types', fr: 'Types d’investisseur' })} /></div>
             </div>
             <p className="small muted">{tr({ en: 'Jurisdiction does not imply tax or regulatory coverage. Goal amounts use the reporting currency; feasibility is not established.', fr: 'Le pays n’implique aucune couverture fiscale ou réglementaire. Les montants utilisent la devise de présentation; leur faisabilité n’est pas établie.' })}</p>
             {(form.investorContext?.objectives ?? []).map((goal, i) => <div className="form-grid" key={i}>
