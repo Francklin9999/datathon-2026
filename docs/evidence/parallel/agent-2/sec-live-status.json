@@ -1,0 +1,8 @@
+{
+  "source": "SEC submissions",
+  "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+  "contact": "existing project configuration; value not recorded",
+  "http_status": 403,
+  "bytes": 4819,
+  "content_type": "text/html"
+}

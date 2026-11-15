@@ -1473,6 +1473,45 @@
       "title": "CreateProfileRequest",
       "type": "object"
     },
+    "CreateRebalanceRunRequest": {
+      "properties": {
+        "kind": {
+          "const": "rebalance",
+          "type": "string"
+        },
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "profileVersion": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "maxItems": 40,
+          "minItems": 1,
+          "type": "array"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec",
+          "default": null
+        }
+      },
+      "required": [
+        "kind",
+        "profileId",
+        "profileVersion",
+        "lang",
+        "positions"
+      ],
+      "title": "CreateRebalanceRunRequest",
+      "type": "object"
+    },
     "CreateReplayRunRequest": {
       "properties": {
         "kind": {
@@ -1513,6 +1552,7 @@
           "event_brief": "#/$defs/CreateEventBriefRunRequest",
           "portfolio_brief": "#/$defs/CreatePortfolioBriefRunRequest",
           "profile_draft": "#/$defs/CreateProfileDraftRunRequest",
+          "rebalance": "#/$defs/CreateRebalanceRunRequest",
           "replay": "#/$defs/CreateReplayRunRequest"
         },
         "propertyName": "kind"
@@ -1520,6 +1560,9 @@
       "oneOf": [
         {
           "$ref": "#/$defs/CreateDecisionRunRequest"
+        },
+        {
+          "$ref": "#/$defs/CreateRebalanceRunRequest"
         },
         {
           "$ref": "#/$defs/CreatePortfolioBriefRunRequest"
@@ -2274,6 +2317,17 @@
         },
         "impactStatement": {
           "$ref": "#/$defs/I18nText"
+        },
+        "relationshipReview": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EventRelationshipReview"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -2315,6 +2369,39 @@
         "other"
       ],
       "type": "string"
+    },
+    "EventHypothesis": {
+      "description": "A documented event→issuer→security lead; never a measured or causal impact.",
+      "properties": {
+        "securityId": {
+          "type": "string"
+        },
+        "issuerId": {
+          "type": "string"
+        },
+        "evidenceIds": {
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          },
+          "type": "array"
+        },
+        "impact": {
+          "const": "not_established",
+          "type": "string"
+        },
+        "interpretation": {
+          "$ref": "#/$defs/I18nText"
+        }
+      },
+      "required": [
+        "securityId",
+        "issuerId",
+        "evidenceIds",
+        "impact",
+        "interpretation"
+      ],
+      "title": "EventHypothesis",
+      "type": "object"
     },
     "EventId": {
       "pattern": "^evt_[0-9a-f]{12}$",
@@ -2369,6 +2456,38 @@
         "precision"
       ],
       "title": "EventLocation",
+      "type": "object"
+    },
+    "EventRelationshipReview": {
+      "properties": {
+        "status": {
+          "enum": [
+            "not_configured",
+            "none_found",
+            "documented",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "hypotheses": {
+          "items": {
+            "$ref": "#/$defs/EventHypothesis"
+          },
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "$ref": "#/$defs/I18nText"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "hypotheses",
+        "limitations"
+      ],
+      "title": "EventRelationshipReview",
       "type": "object"
     },
     "EventSource": {
@@ -3210,6 +3329,17 @@
             "$ref": "#/$defs/FactId"
           },
           "type": "array"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FocusDetail"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3218,6 +3348,118 @@
         "factIds"
       ],
       "title": "FocusCard",
+      "type": "object"
+    },
+    "FocusDetail": {
+      "description": "Code-owned focus metadata. ``score`` is an inspectable heuristic, never a forecast.",
+      "properties": {
+        "priority": {
+          "ge": 1,
+          "le": 3,
+          "type": "integer"
+        },
+        "topic": {
+          "enum": [
+            "risk",
+            "concentration",
+            "plan",
+            "fixed_income",
+            "objective"
+          ],
+          "type": "string"
+        },
+        "score": {
+          "ge": 0,
+          "le": 100,
+          "type": "integer"
+        },
+        "basis": {
+          "enum": [
+            "built_in",
+            "candidate_provider"
+          ],
+          "type": "string"
+        },
+        "timeHorizon": {
+          "enum": [
+            "short",
+            "medium",
+            "long"
+          ],
+          "type": "string"
+        },
+        "horizonYears": {
+          "maximum": 150,
+          "minimum": 0,
+          "type": "number"
+        },
+        "objective": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "holdings": {
+          "items": {
+            "$ref": "#/$defs/Ticker"
+          },
+          "type": "array"
+        },
+        "evidenceIds": {
+          "items": {
+            "$ref": "#/$defs/EvidenceId"
+          },
+          "type": "array"
+        },
+        "ruleIds": {
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          },
+          "type": "array"
+        },
+        "uncertainty": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "type": "string"
+        },
+        "uncertaintyReasons": {
+          "items": {
+            "$ref": "#/$defs/I18nText"
+          },
+          "type": "array"
+        },
+        "investigation": {
+          "$ref": "#/$defs/I18nText"
+        },
+        "href": {
+          "pattern": "^/[A-Za-z0-9/_?=&%.-]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "priority",
+        "topic",
+        "score",
+        "basis",
+        "timeHorizon",
+        "horizonYears",
+        "holdings",
+        "evidenceIds",
+        "ruleIds",
+        "uncertainty",
+        "uncertaintyReasons",
+        "investigation",
+        "href"
+      ],
+      "title": "FocusDetail",
       "type": "object"
     },
     "FrontierAsset": {
@@ -5688,6 +5930,65 @@
       "title": "QueuedRunResponse",
       "type": "object"
     },
+    "RebalanceChange": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "beforePct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "targetPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "changePct": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "ticker",
+        "beforePct",
+        "targetPct",
+        "changePct"
+      ],
+      "title": "RebalanceChange",
+      "type": "object"
+    },
+    "RebalanceInput": {
+      "properties": {
+        "kind": {
+          "const": "rebalance",
+          "type": "string"
+        },
+        "profileVersion": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "maxItems": 40,
+          "minItems": 1,
+          "type": "array"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        }
+      },
+      "required": [
+        "kind",
+        "profileVersion",
+        "positions",
+        "window"
+      ],
+      "title": "RebalanceInput",
+      "type": "object"
+    },
     "RebalanceRequest": {
       "properties": {
         "profileId": {
@@ -5824,6 +6125,23 @@
         "assumptions"
       ],
       "title": "RebalanceResponse",
+      "type": "object"
+    },
+    "RebalanceRunResult": {
+      "properties": {
+        "kind": {
+          "const": "rebalance",
+          "type": "string"
+        },
+        "rebalance": {
+          "$ref": "#/$defs/ReviewedRebalance"
+        }
+      },
+      "required": [
+        "kind",
+        "rebalance"
+      ],
+      "title": "RebalanceRunResult",
       "type": "object"
     },
     "Refusal": {
@@ -6074,6 +6392,100 @@
         "code"
       ],
       "title": "ReviewFinding",
+      "type": "object"
+    },
+    "ReviewedRebalance": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "profileVersion": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "totalValue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        },
+        "changes": {
+          "items": {
+            "$ref": "#/$defs/RebalanceChange"
+          },
+          "type": "array"
+        },
+        "portfolioBefore": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "portfolioAfter": {
+          "$ref": "#/$defs/PortfolioSnapshot"
+        },
+        "verdictBefore": {
+          "$ref": "#/$defs/Verdict"
+        },
+        "verdictAfter": {
+          "$ref": "#/$defs/Verdict"
+        },
+        "countsBefore": {
+          "$ref": "#/$defs/VerdictCounts"
+        },
+        "countsAfter": {
+          "$ref": "#/$defs/VerdictCounts"
+        },
+        "ruleChecksBefore": {
+          "items": {
+            "$ref": "#/$defs/RuleCheck"
+          },
+          "type": "array"
+        },
+        "ruleChecksAfter": {
+          "items": {
+            "$ref": "#/$defs/RuleCheck"
+          },
+          "type": "array"
+        },
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/I18nText"
+          },
+          "type": "array"
+        },
+        "brief": {
+          "$ref": "#/$defs/Brief"
+        }
+      },
+      "required": [
+        "profileId",
+        "profileVersion",
+        "currency",
+        "totalValue",
+        "asOf",
+        "dataVersion",
+        "window",
+        "changes",
+        "portfolioBefore",
+        "portfolioAfter",
+        "verdictBefore",
+        "verdictAfter",
+        "countsBefore",
+        "countsAfter",
+        "ruleChecksBefore",
+        "ruleChecksAfter",
+        "assumptions",
+        "brief"
+      ],
+      "title": "ReviewedRebalance",
       "type": "object"
     },
     "RiskDiagnosticsResponse": {
@@ -6640,6 +7052,7 @@
           "event_brief": "#/$defs/EventBriefInput",
           "portfolio_brief": "#/$defs/PortfolioBriefInput",
           "profile_draft": "#/$defs/ProfileDraftInput",
+          "rebalance": "#/$defs/RebalanceInput",
           "replay": "#/$defs/ReplayInput",
           "sabotage": "#/$defs/SabotageInput"
         },
@@ -6648,6 +7061,9 @@
       "oneOf": [
         {
           "$ref": "#/$defs/DecisionInput"
+        },
+        {
+          "$ref": "#/$defs/RebalanceInput"
         },
         {
           "$ref": "#/$defs/PortfolioBriefInput"
@@ -6669,6 +7085,7 @@
     "RunKind": {
       "enum": [
         "decision",
+        "rebalance",
         "portfolio_brief",
         "event_brief",
         "replay",
@@ -6684,6 +7101,7 @@
           "event_brief": "#/$defs/EventBriefRunResult",
           "portfolio_brief": "#/$defs/PortfolioBriefRunResult",
           "profile_draft": "#/$defs/ProfileDraftRunResult",
+          "rebalance": "#/$defs/RebalanceRunResult",
           "replay": "#/$defs/ReplayRunResult",
           "sabotage": "#/$defs/SabotageRunResult"
         },
@@ -6692,6 +7110,9 @@
       "oneOf": [
         {
           "$ref": "#/$defs/DecisionRunResult"
+        },
+        {
+          "$ref": "#/$defs/RebalanceRunResult"
         },
         {
           "$ref": "#/$defs/PortfolioBriefRunResult"
@@ -8589,6 +9010,9 @@
     "CreateProfileRequest": {
       "$ref": "#/$defs/CreateProfileRequest"
     },
+    "CreateRebalanceRunRequest": {
+      "$ref": "#/$defs/CreateRebalanceRunRequest"
+    },
     "CreateReplayRunRequest": {
       "$ref": "#/$defs/CreateReplayRunRequest"
     },
@@ -8673,11 +9097,17 @@
     "EventCategory": {
       "$ref": "#/$defs/EventCategory"
     },
+    "EventHypothesis": {
+      "$ref": "#/$defs/EventHypothesis"
+    },
     "EventId": {
       "$ref": "#/$defs/EventId"
     },
     "EventLocation": {
       "$ref": "#/$defs/EventLocation"
+    },
+    "EventRelationshipReview": {
+      "$ref": "#/$defs/EventRelationshipReview"
     },
     "EventSource": {
       "$ref": "#/$defs/EventSource"
@@ -8747,6 +9177,9 @@
     },
     "FocusCard": {
       "$ref": "#/$defs/FocusCard"
+    },
+    "FocusDetail": {
+      "$ref": "#/$defs/FocusDetail"
     },
     "FrontierAsset": {
       "$ref": "#/$defs/FrontierAsset"
@@ -8946,11 +9379,20 @@
     "QueuedRunResponse": {
       "$ref": "#/$defs/QueuedRunResponse"
     },
+    "RebalanceChange": {
+      "$ref": "#/$defs/RebalanceChange"
+    },
+    "RebalanceInput": {
+      "$ref": "#/$defs/RebalanceInput"
+    },
     "RebalanceRequest": {
       "$ref": "#/$defs/RebalanceRequest"
     },
     "RebalanceResponse": {
       "$ref": "#/$defs/RebalanceResponse"
+    },
+    "RebalanceRunResult": {
+      "$ref": "#/$defs/RebalanceRunResult"
     },
     "Refusal": {
       "$ref": "#/$defs/Refusal"
@@ -8981,6 +9423,9 @@
     },
     "ReviewFinding": {
       "$ref": "#/$defs/ReviewFinding"
+    },
+    "ReviewedRebalance": {
+      "$ref": "#/$defs/ReviewedRebalance"
     },
     "RiskDiagnosticsResponse": {
       "$ref": "#/$defs/RiskDiagnosticsResponse"
@@ -9252,6 +9697,7 @@
     "CreatePortfolioBriefRunRequest",
     "CreateProfileDraftRunRequest",
     "CreateProfileRequest",
+    "CreateRebalanceRunRequest",
     "CreateReplayRunRequest",
     "CreateRunRequest",
     "Currency",
@@ -9280,8 +9726,10 @@
     "EventBriefResult",
     "EventBriefRunResult",
     "EventCategory",
+    "EventHypothesis",
     "EventId",
     "EventLocation",
+    "EventRelationshipReview",
     "EventSource",
     "Evidence",
     "EvidenceId",
@@ -9305,6 +9753,7 @@
     "FetchAssetResponse",
     "FieldExplanation",
     "FocusCard",
+    "FocusDetail",
     "FrontierAsset",
     "FrontierMetrics",
     "FrontierPoint",
@@ -9371,8 +9820,11 @@
     "ProposedMove",
     "QuestionOption",
     "QueuedRunResponse",
+    "RebalanceChange",
+    "RebalanceInput",
     "RebalanceRequest",
     "RebalanceResponse",
+    "RebalanceRunResult",
     "Refusal",
     "ReplayInput",
     "ReplayPreset",
@@ -9383,6 +9835,7 @@
     "RevealRequest",
     "RevealResult",
     "ReviewFinding",
+    "ReviewedRebalance",
     "RiskDiagnosticsResponse",
     "RiskLevel",
     "RuleBounds",
@@ -9464,9 +9917,9 @@
   "$id": "https://aplomb.local/contracts/1.4.0/schema.json",
   "x-contract-version": "1.4.0",
   "x-spec-sha256": {
-    "schemas.md": "8ef77c78d2a4c1ceefc2015264a83fe93b3afcd9912cb8054ad674976d1ff14a",
+    "schemas.md": "e2eee92f123f9d567479bfff1ceb5d937d8d168487446d46a89f265162069dec",
     "catalog.md": "4ba031046bbf11c423bbd1f1b97e8e0604947fbb0540d7186cf25c7f42034e88",
-    "api.md": "6f13245221577f105f2940462d7dde9560a4fd815ef7a44bcc2ff711744743e9",
+    "api.md": "923687b4971bbaab41ce26b81f97ed0ea60fa33314c1ff63c2abbfa2e8d6bc39",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
   }

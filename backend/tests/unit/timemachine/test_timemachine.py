@@ -297,6 +297,32 @@ def test_reveal_requires_a_succeeded_replay_owned_by_the_session():
     assert ok.until == "2023-12-29"
 
 
+def test_reveal_is_persisted_separately_and_idempotent():
+    from datetime import datetime, timezone
+
+    from aplomb.api.storage import MemoryStore
+
+    snap = starter_snapshot()
+    run = replay_run(snap)
+    before = run.to_wire()
+    store = MemoryStore()
+    service = ReplayServiceImpl(lambda: snap, clock=lambda: datetime(2026, 11, 15, tzinfo=timezone.utc), store=store)
+    request = a.RevealRequest(until="2023-12-29")
+    first = service.reveal(SID, run, request).to_wire()
+    again = ReplayServiceImpl(lambda: snap, store=store).reveal(SID, run, request).to_wire()
+    assert first == again and run.to_wire() == before
+    records = store.query("runs", "SESSION#" + SID + "#REVEAL#" + run.run_id)
+    assert len(records) == 1 and records[0]["result"] == first
+    assert records[0]["dataVersion"] == run.data_version and records[0]["runId"] == run.run_id
+    class OtherSnapshot:
+        data_version = "different-version"
+        data_as_of = snap.data_as_of
+    with pytest.raises(Conflict, match="does not match"):
+        ReplayServiceImpl(lambda: OtherSnapshot(), store=store).reveal(SID, run, request)
+    with pytest.raises(NotFound):
+        service.reveal("s_00000000-0000-4000-8000-000000000000", run, request)
+
+
 def test_replay_result_reports_the_actual_gate_and_mandatory_notices():
     snap = starter_snapshot()
     run = replay_run(snap)

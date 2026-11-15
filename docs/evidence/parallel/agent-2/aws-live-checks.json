@@ -1,0 +1,28 @@
+{
+  "transport": "Official AWS MCP",
+  "checked_at": "2026-11-15",
+  "sts_GetCallerIdentity": "success; no account identity retained",
+  "bedrock_ListInferenceProfiles": "success; 103 system-defined profiles returned, nextToken null",
+  "bedrock_Converse_smoke": {
+    "model": "us.amazon.nova-lite-v1:0",
+    "input_tokens": 11,
+    "output_tokens": 14,
+    "status": "success"
+  },
+  "rebalance_workflow": {
+    "status": "succeeded",
+    "model": "us.anthropic.claude-sonnet-4-6",
+    "usage": {
+      "inputTokens": 45072,
+      "outputTokens": 5139,
+      "llmCalls": 3,
+      "toolCalls": 0,
+      "durationMs": 130372.63131141663
+    },
+    "audit_status": "passed_with_strikes",
+    "struck": 11
+  },
+  "deployment": false,
+  "production_configuration_changed": false,
+  "scope": "Fresh local workflow calling real Bedrock; unchanged competition starter data and fictional default profile, not live account data. No AgentCore usage or production release acceptance asserted."
+}

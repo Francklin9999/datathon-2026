@@ -1,0 +1,17 @@
+{
+  "head" : {
+    "vars" : [ "item", "isin" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q312"
+      },
+      "isin" : {
+        "type" : "literal",
+        "value" : "US0378331005"
+      }
+    } ]
+  }
+}

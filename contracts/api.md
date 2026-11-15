@@ -42,6 +42,16 @@ Every non-2xx response has the body `ApiError`:
 | 1.1 | GET `/health` | P0 | Liveness |
 | 1.2 | GET `/meta` | P0 | Versions, flags, disclaimer |
 | 2.6 | GET `/intelligence/entities` | P1 | Bounded official GLEIF legal-entity candidates; q 2–120 characters, limit 1–20; not a security-issuer link |
+| 2.7 | GET `/intelligence/listings` | P1 | Captured instrument-master listings at `as_of`; optional exact `ticker`, `mic`, `isin` filters |
+| 2.8 | GET `/intelligence/listings/{listingId}` | P1 | One captured listing record at `as_of` |
+| 2.9 | GET `/intelligence/security-issuer` | P1 | Exact captured ISIN↔LEI pair check (`isin`, `lei`); no fuzzy identity |
+| 2.10 | GET `/intelligence/wikidata-candidates` | P1 | Wikidata candidates for an exact `isin`; candidates only, unavailable without a source contact configuration |
+| 2.11 | GET `/intelligence/sec-structured` | P1 | Session-owned SEC structured disclosure feed capture; `503` when the source is unavailable |
+| 2.12 | GET `/intelligence/sec-data-library` | P1 | Session-owned SEC DERA data library capture; `503` when the source is unavailable |
+| 2.13 | GET `/intelligence/coinmetrics/{asset}` | P1 | Coin Metrics Community observation capture; `503` when unavailable or use is not permitted |
+| 2.14 | GET `/intelligence/disclosures/aapu` | P1 | Dated partial ETF look-through example at `as_of`; uncovered weights stay unknown |
+| 2.15 | GET `/intelligence/regional` | P1 | Regional research by `region`, `identifier`, `start`, `end`, `kind` (overview/financials/ownership), optional `fiscal_year` |
+| 2.16 | GET `/research/company/{cik}` | P1 | Source-backed company detail by exact SEC CIK; `country` other than `USA` is unavailable |
 | 2.1 | GET `/assets` | P0 | Search the universe |
 | 2.5 | GET `/assets/{ticker}/analytics` | P1 | Deterministic asset metrics and their facts; `currency`, `window`, optional `start`/`end` |
 | 3.22 | POST `/profiles/{profileId}/duplicate` | P1 | Duplicate active portfolio/context/policy into a new session-owned profile, with imported policy origin |
@@ -78,6 +88,7 @@ Every non-2xx response has the body `ApiError`:
 | 5.6 | GET `/runs/{runId}/facts/{factId}` | P0 | One fact (deep link) |
 | 5.7 | POST `/runs/{runId}/sabotage` | P1 | Start the sabotage demonstration |
 | 5.8 | POST `/runs/{runId}/reveal` | P1 | Time Machine reveal |
+| 5.9 | GET `/runs/{runId}/trace` | P1 | Recorded execution timeline, budgets, retries/fallbacks, checkpoints and per-claim audit with source hashes/offsets |
 | 6.1 | GET `/world/layers` | P1 | Available globe layers |
 | 6.2 | GET `/world/events` | P1 | Events for the globe and the feed |
 | 6.3 | GET `/world/events/{eventId}` | P1 | One event |
@@ -438,6 +449,18 @@ For a succeeded `replay` run: returns what the scenarios did after the as-of dat
 
 Request: `{ until?: ISODate /* default: last date in the snapshot */ }` → `200 RevealResult`. `409 conflict` when the run is not a succeeded replay.
 
+### 5.9 GET `/runs/{runId}/trace` — P1
+
+Session-owned, read-only. Built only from what the worker recorded; nothing is re-executed and no provider or model text is added. `404 not_found` for another session's run. Response (JSON object, not a versioned contract type):
+
+- `steps[]`: role, actor, status, timings, model, token usage, `modelCalls[]` (per physical attempt: model, outcome, provider error **code** only, `next` = `retry` | `repair` | `fallback`) and `toolCalls[]` (redacted errors).
+- `budgets[]`: `{ name, used, limit }` for `llm_calls`, `research_calls`, `revisions`, `rewrites`, `scenarios`, `wall_clock_ms`.
+- `events[]`: `resumed`, `step_reused_from_checkpoint`, `model_output_reused`, `model_retry`, `model_schema_repair`, `model_fallback`, `step_failed`, `run_failed`; `generation`, `claims`, `checkpoints`; `limitations[]`.
+- `claimAudit[]`: per brief sentence, its status, failed audit codes and check families (`numeric`, `comparison`, `reference`, `policy`, `source_quote`, `source_interpretation`, `temporal`, `guardrail`, `structure`), and cited fact/evidence/rule IDs. `briefs[]` adds global checks and whether the signed ledger hash matches the restored checkpoint.
+- `sources[]`: up to 12 evidence items with the SHA-256 of the full captured source, Unicode-character excerpt/quote offsets and excerpts (untrusted data), or `unavailable` when no verified same-run capture exists.
+
+A model fallback happens only when `APLOMB_BEDROCK_FALLBACK_MODEL_ID` names a different supported Bedrock model; it is charged against `llm_calls` and recorded here.
+
 ---
 
 ## 6. World Explorer (all P1, flag `world_explorer`)
@@ -604,3 +627,49 @@ All account operations require session ownership, optimistic version and profile
 | POST `/rebalance/check` | Full target allocation, including reductions and removals | `RebalanceResponse` |
 
 `RebalanceRequest` contains `profileId`, the current `profileVersion`, the complete target `positions` and optional `window`. Target weights must sum to 100%; duplicate or unsupported securities, stale profiles and empty targets are rejected. This is a read-only comparison at constant modeled capital. Omitted holdings have zero final weight. Before/after policy results, metrics, allocation changes and the calculation ledger share the pinned snapshot and reporting currency. No maximum purchase-size boundary is inferred for a multi-asset rebalance. No orders, tax lots, execution costs, spreads, liquidity, new financing, independent model review or research are implied. Missing evidence remains insufficient. The existing incremental purchase endpoint retains its existing semantics.
+
+
+### Agent 2 research API additions (contract version remains 1.4.0)
+
+These additive research routes require the session header. Source captures use the existing session-owned store; source URLs, hashes, retrieval/availability, limitations and source-specific failure states remain inspectable. The branch-local research payloads use snake_case and must be reconciled with generated client models during integration. A route is not a claim of live source access or complete worldwide coverage. Rights-gated sources return unavailable until their documented entitlement is configured. See `docs/parallel/reports/agent-2/CONT-*.md` and `SOURCES.csv` for exact request arguments, source scope and verification.
+
+| Method and path | Purpose |
+|---|---|
+| GET `/intelligence/bitcoin-sentiment` | intelligence → bitcoin-sentiment |
+| GET `/intelligence/chains/bitcoin` | intelligence → chains → bitcoin |
+| GET `/intelligence/company-registry/{jurisdiction}/{number}` | intelligence → company-registry → {jurisdiction} → {number} |
+| GET `/intelligence/crypto-markets/compare/{asset}` | intelligence → crypto-markets → compare → {asset} |
+| GET `/intelligence/crypto-markets/market/{venue}/{symbol}` | intelligence → crypto-markets → market → {venue} → {symbol} |
+| GET `/intelligence/crypto-markets/venues` | intelligence → crypto-markets → venues |
+| GET `/intelligence/crypto-markets/vision/{symbol}/{day}` | intelligence → crypto-markets → vision → {symbol} → {day} |
+| GET `/intelligence/defi/pair/{chain}/{pool}` | intelligence → defi → pair → {chain} → {pool} |
+| GET `/intelligence/defi/protocol/{slug}` | intelligence → defi → protocol → {slug} |
+| GET `/intelligence/defi/sources` | intelligence → defi → sources |
+| GET `/intelligence/eu/eba-market-risk/{lei}` | intelligence → eu → eba-market-risk → {lei} |
+| GET `/intelligence/eu/esma-entity/{lei}` | intelligence → eu → esma-entity → {lei} |
+| GET `/intelligence/funds` | intelligence → funds |
+| GET `/intelligence/funds/{fund_id}` | intelligence → funds → {fund id} |
+| GET `/intelligence/gleif-golden/entity/{lei}` | intelligence → gleif-golden → entity → {lei} |
+| GET `/intelligence/gleif-golden/metadata` | intelligence → gleif-golden → metadata |
+| GET `/intelligence/issuer-holdings/rights` | intelligence → issuer-holdings → rights |
+| GET `/intelligence/issuer-holdings/{issuer}/{fund_ticker}` | intelligence → issuer-holdings → {issuer} → {fund ticker} |
+| GET `/intelligence/master/coverage` | intelligence → master → coverage |
+| GET `/intelligence/master/crosswalk` | intelligence → master → crosswalk |
+| GET `/intelligence/openfigi` | intelligence → openfigi |
+| GET `/intelligence/relationships` | intelligence → relationships |
+| GET `/intelligence/relationships/captures/{sha256}` | intelligence → relationships → captures → {sha256} |
+| GET `/intelligence/stooq/daily` | intelligence → stooq → daily |
+| GET `/research/sec/concept/{cik}` | research → sec → concept → {cik} |
+| GET `/research/sec/frames` | research → sec → frames |
+| GET `/research/sec/latest-filings` | research → sec → latest-filings |
+| GET `/research/sec/ncen/{cik}` | research → sec → ncen → {cik} |
+| GET `/timemachine/point-in-time/{cik}` | timemachine → point-in-time → {cik} |
+| GET `/timemachine/point-in-time/{cik}/published-later` | timemachine → point-in-time → {cik} → published-later |
+| GET `/timemachine/sec-ticker-candidates` | timemachine → sec-ticker-candidates |
+| GET `/timemachine/vintages/status` | timemachine → vintages → status |
+| POST `/intelligence/funds/{series_id}` | intelligence → funds → {series id} |
+| POST `/intelligence/gleif-golden/delta/{lei}` | intelligence → gleif-golden → delta → {lei} |
+| POST `/intelligence/master/adapters/coinmetrics/{asset}` | intelligence → master → adapters → coinmetrics → {asset} |
+| POST `/intelligence/master/adapters/gleif-pair` | intelligence → master → adapters → gleif-pair |
+| POST `/intelligence/master/adapters/wikidata` | intelligence → master → adapters → wikidata |
+| GET `/intelligence/source-capabilities` | Source availability, signup/permission prerequisites and removed paid catalogue |

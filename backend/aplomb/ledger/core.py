@@ -6,6 +6,7 @@ import re
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
+from itertools import islice
 from typing import Callable, Mapping
 
 from aplomb.contracts.models import Evidence, Fact, I18nText, Verification
@@ -284,7 +285,7 @@ class Ledger:
                         {
                             "code": "A08",
                             "ok": ok,
-                            "detail": "Exact quote matched cached same-run source"
+                            "detail": f"Exact quote matched cached same-run source sha256={doc.content_hash}"
                             if ok
                             else "Quote/source not verified",
                         }
@@ -294,6 +295,35 @@ class Ledger:
         )
         self._evidence[item.id] = item
         return item.id
+
+    def source_review_context(self, evidence_id: str) -> dict:
+        """Bounded original source around a verified quote, with original-text hash and offsets.
+
+        Excerpts remain untrusted external data and must never acquire instruction authority.
+        Offsets are Unicode character indices into the immutable captured text; the digest is
+        over its exact UTF-8 encoding. A missing or cross-run source fails closed.
+        """
+        item = self._evidence.get(evidence_id)
+        if item is None or item.verification.status != "verified" or not item.quote:
+            raise ValueError("Verified same-run source evidence is required")
+        doc = self._documents.get(item.document_ref)
+        if doc is None or doc.run_id != self.run_id or doc.source_url != item.url:
+            raise ValueError("Same-run captured source is unavailable")
+        words = item.quote.split()
+        if not words:
+            raise ValueError("Source quote is empty")
+        pattern = r"\s+".join(re.escape(word) for word in words)
+        matches = list(islice(re.finditer(pattern, doc.text), 4))
+        if not matches:
+            raise ValueError("Source quote is absent from captured text")
+        excerpts = []
+        for match in matches[:3]:
+            start, end = max(0, match.start() - 600), min(len(doc.text), match.end() + 600)
+            excerpts.append({"start": start, "end": end, "quoteStart": match.start(),
+                             "quoteEnd": match.end(), "text": doc.text[start:end]})
+        return {"evidenceId": evidence_id, "documentRef": doc.reference, "sourceUrl": doc.source_url,
+                "contentSha256": doc.content_hash, "offsetUnit": "unicode_characters", "excerpts": excerpts,
+                "moreMatches": len(matches) > 3, "sourceTextLength": len(doc.text)}
 
     def add_quote_figure(
         self, fact: Fact | Mapping, evidence_id: str, *, value_text: str, unit_text: str
@@ -393,7 +423,7 @@ class Ledger:
     def checkpoint(self) -> dict:
         """Internal persistence only; never accept this state from writer/tool arguments."""
         view = self.export()
-        return {
+        state = {
             "runId": self.run_id,
             "asOf": self.as_of,
             "frozen": self._frozen,
@@ -411,11 +441,24 @@ class Ledger:
             ],
             "hash": view.digest(),
         }
+        state["checkpointHash"] = hashlib.sha256(json.dumps(
+            state, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+        ).encode("utf-8")).hexdigest()
+        return state
 
     @classmethod
     def restore(cls, run_id: str, as_of: str, state: Mapping, *, clock=utc_now):
         if state["runId"] != run_id or state["asOf"] != as_of:
             raise ValueError("Checkpoint run/cutoff mismatch")
+        if "checkpointHash" in state:
+            content = {key: value for key, value in state.items() if key != "checkpointHash"}
+            digest = hashlib.sha256(json.dumps(
+                content, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+            ).encode("utf-8")).hexdigest()
+            if digest != state["checkpointHash"]:
+                raise ValueError("Checkpoint context/document integrity mismatch")
+        if not isinstance(state["frozen"], bool):
+            raise ValueError("Checkpoint frozen state invalid")
         ledger = cls(run_id, as_of, clock=clock)
         ledger._facts = {k: Fact.model_validate(v) for k, v in state["facts"].items()}
         ledger._evidence = {k: Evidence.model_validate(v) for k, v in state["evidence"].items()}
@@ -443,6 +486,12 @@ class Ledger:
             if document.content_hash != expected_hash:
                 raise ValueError("Checkpoint document integrity mismatch")
             ledger.register_document(document)
+        for evidence in ledger._evidence.values():
+            if evidence.verification.status == "verified":
+                document = ledger._documents.get(evidence.document_ref)
+                if (not document or document.source_url != evidence.url or not evidence.quote
+                        or " ".join(evidence.quote.split()) not in " ".join(document.text.split())):
+                    raise ValueError("Checkpoint verified evidence lacks its same-run document")
         if ledger.export().digest() != state["hash"]:
             raise ValueError("Checkpoint bundle integrity mismatch")
         ledger._frozen = bool(state["frozen"])

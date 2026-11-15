@@ -89,6 +89,20 @@ class RunPreparerImpl:
                        "window": window}
             return PreparedRun(payload, snap.data_as_of, snap.data_version, {**base, "profile": profile.to_wire()},
                                profile.version)
+        if request.kind == "rebalance":
+            from aplomb.optimizer.check import CheckServiceImpl
+
+            target = a.RebalanceRequest(profile_id=request.profile_id, profile_version=request.profile_version,
+                                        positions=request.positions, window=request.window)
+            started = _stamp(self.clock)
+            started_mono = time.monotonic()
+            comparison = CheckServiceImpl(self.profiles, lambda: snap).rebalance(session_id, target)
+            receipt = {"startedAt": started, "durationMs": max(0, (time.monotonic() - started_mono) * 1000)}
+            payload = {"kind": "rebalance", "profileVersion": request.profile_version,
+                       "positions": [position.to_wire() for position in request.positions], "window": window}
+            return PreparedRun(payload, snap.data_as_of, snap.data_version,
+                               {**base, "profile": profile.to_wire(), "rebalance": comparison.to_wire(),
+                                "rebalanceReceipt": receipt}, profile.version)
         if request.kind == "replay":
             from aplomb.timemachine import validate_asof
 

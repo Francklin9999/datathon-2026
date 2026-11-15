@@ -39,6 +39,7 @@ export const RUN_STATUS: Labels<RunStatus> = {
 
 export const RUN_KIND: Labels<RunKind> = {
   decision: l('Decision audit', 'Audit de décision'),
+  rebalance: l('Target allocation review', 'Examen de la répartition cible'),
   portfolio_brief: l('Portfolio brief', 'Note de portefeuille'),
   event_brief: l('Event brief', "Note d'événement"),
   replay: l('Historical replay', 'Rejeu historique'),

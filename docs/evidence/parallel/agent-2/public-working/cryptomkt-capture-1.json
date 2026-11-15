@@ -1,0 +1,14 @@
+{
+  "revision": 1,
+  "encoding": "utf-8",
+  "raw": "fd53a05f0aa1b5986ceda02583e83785fc5987f9d4024bc4b4dfeb2ea9d9f1f4  BTCUSDT-1d-2026-11-12.zip",
+  "meta": {
+    "capture_id": "binance_vision:checksum-1d:bf43cba6ebeec35e4ea65f1e3d0eff479b201bebdfe4072b7c118ad1f6be729e",
+    "venue": "binance_vision",
+    "kind": "checksum-1d",
+    "source_url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/1d/BTCUSDT-1d-2026-11-12.zip.CHECKSUM",
+    "sha256": "bf43cba6ebeec35e4ea65f1e3d0eff479b201bebdfe4072b7c118ad1f6be729e",
+    "bytes": 91,
+    "retrieved_at": "2026-11-15T17:22:30.158250+00:00"
+  }
+}

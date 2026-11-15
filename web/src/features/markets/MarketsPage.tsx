@@ -1,6 +1,23 @@
 'use client';
 import Link from 'next/link';
 import { EntityResearch } from './EntityResearch';
+import { GoldenCopy } from './GoldenCopy';
+import { DefiResearch } from './DefiResearch';
+import { CryptoHistory } from './CryptoHistory';
+import { EURegulatory } from './EURegulatory';
+import { BitcoinNetwork } from './BitcoinNetwork';
+import { IssuerEvidence } from './IssuerEvidence';
+import { WikidataCandidates } from './WikidataCandidates';
+import { CompanyResearch } from './CompanyResearch';
+import { BitcoinSentiment } from './BitcoinSentiment';
+import { CompanyRegistry } from './CompanyRegistry';
+import { DisclosureExample } from './DisclosureExample';
+import { FundHoldings } from './FundHoldings';
+import { ProviderObservations } from './ProviderObservations';
+import { InstrumentMaster } from './InstrumentMaster';
+import { OpenFigi } from './OpenFigi';
+import { RegionalResearch } from './RegionalResearch';
+import { SourceAvailability, readySource, useSourceCapabilities } from './SourceAvailability';
 import { useState } from 'react';
 import type { AssetsResponse, AssetAnalyticsResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
@@ -20,6 +37,8 @@ const metrics = {
 
 export function MarketsPage() {
   const { tr, lang, sessionId, meta, profile, windowCode } = useApp();
+  const sourceCapabilities = useSourceCapabilities();
+  const ready = (id: string) => readySource(sourceCapabilities.data, id);
   const [query, setQuery] = useState('');
   const [ticker, setTicker] = useState<string | null>(null);
   const currency = profile?.reportingCurrency ?? 'CAD';
@@ -43,7 +62,22 @@ export function MarketsPage() {
         </tbody></table>
       </div>
     </Card>
-    <EntityResearch />
+    <SourceAvailability value={sourceCapabilities.data} loading={sourceCapabilities.loading} error={sourceCapabilities.error} reload={sourceCapabilities.reload} />
+    {ready('gleif') && <><EntityResearch /><IssuerEvidence /></>}
+    {ready('golden_copy') && <GoldenCopy />}
+    {ready('wikidata') && <WikidataCandidates />}
+    {ready('sec') && <><CompanyResearch /><FundHoldings /></>}
+    {sourceCapabilities.data?.families.some(item => item.id === 'nport_example' && item.state === 'evidence') && <details className="fold section-fold"><summary>{tr({ en: 'Preserved ETF disclosure example', fr: 'Exemple conservé de déclaration de fonds' })}</summary><DisclosureExample /></details>}
+    {ready('coinmetrics') && <ProviderObservations secAvailable={ready('sec')} />}
+    {ready('dexscreener') && <DefiResearch />}
+    {ready('binance_vision') && <CryptoHistory />}
+    {ready('eu') && <EURegulatory />}
+    {ready('mempool') && <BitcoinNetwork />}
+    {ready('sentiment') && <BitcoinSentiment />}
+    {ready('registries') && <CompanyRegistry />}
+    {ready('master') && <InstrumentMaster showCoinMetrics={ready('coinmetrics')} showWikidata={ready('wikidata')} />}
+    {ready('openfigi') && <OpenFigi />}
+    {ready('regional') && <RegionalResearch />}
     {ticker && <Card title={ticker}>
       {analytics.loading && <Loading />}{analytics.error && <ErrorState error={analytics.error} onRetry={analytics.reload} />}
       {analytics.data && <FactScopeProvider scope={{ kind: 'local', label: { en: 'Deterministic security analytics', fr: 'Analyse déterministe du titre' }, facts: analytics.data.facts }}>

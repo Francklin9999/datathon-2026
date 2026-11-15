@@ -26,6 +26,7 @@ import {
   BoundaryNote, FundingOptions, ScenarioCards, SnapshotCompare, VerdictHeader, fundingLabel,
 } from '../../components/run/Results';
 import { CancelButton, MoveFormCard, QuestionForm } from '../decision/DecisionDeskPage';
+import { PointInTimePanel, PublishedLaterPanel } from './PointInTimePanel';
 import { RUN_STATUS, labelOf } from '../../lib/labels';
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct, fmtSignedPct } from '../../lib/format';
 import { describeRequest, moveOf, roundSize, validateMoveForm, type MoveForm } from '../../lib/move';
@@ -216,6 +217,8 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
         </div>
       </div>
 
+      <PointInTimePanel cutoff={asOf && !dateIssue ? asOf : ''} />
+
       {runId && (
         <Card id="replay-run" section={tr({ en: 'Result', fr: 'Résultat' })} tour="tm-result" title={tr({ en: 'Replay', fr: 'Rejeu' })}>
           {polled.loading && !run && <Loading />}
@@ -310,7 +313,7 @@ function GatePanel({ replay }: { replay: ReplayResult }) {
           </table>
         </div>
       )}
-      <p className="small muted">{tr({ en: 'Withheld rows are dated after the cutoff. A check that needs them is reported as not enough evidence; it is never hidden.', fr: 'Les lignes retenues sont postérieures à la date limite. Une vérification qui en a besoin est signalée comme preuves insuffisantes ; elle n’est jamais masquée.' })}</p>
+      <p className="small muted">{tr({ en: 'Rows are withheld when their availability is later than the cutoff or unknown, even if their observation date is earlier. A check that needs them reports insufficient evidence.', fr: 'Les lignes sont retenues lorsque leur disponibilité est ultérieure à la date limite ou inconnue, même si leur date d’observation est antérieure. Une vérification qui en a besoin signale des preuves insuffisantes.' })}</p>
       </div>
     </details>
   );
@@ -574,6 +577,7 @@ function RevealView({ run, replay, reveal, hashCheck, hashBefore, headingRef }: 
         </p>
         <p className="small muted">{tr({ en: 'The brief above was written without these outcomes and is not rewritten.', fr: 'La note ci-dessus a été rédigée sans ces résultats et n’est pas réécrite.' })}</p>
       </div>
+      <PublishedLaterPanel cutoff={reveal.asOf} until={reveal.until} />
     </div>
   );
 }

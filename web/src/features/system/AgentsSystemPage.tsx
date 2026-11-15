@@ -17,6 +17,7 @@ import { Card, PageHeader } from '../../components/common/Page';
 import { Empty, ErrorState, Loading } from '../../components/common/States';
 import { RunStatusBadge, VerdictBadge } from '../../components/common/Badges';
 import { RunTimeline } from '../../components/run/RunTimeline';
+import { TargetReview } from './TargetReview';
 import { RunsTable } from '../../components/run/RunsTable';
 import {
   ACTOR, AGENT_ROLE, ERROR_CODE, FEATURE_FLAG, RUN_KIND, RUN_STATUS, SABOTAGE_MODE, STEP_TYPE, labelOf,
@@ -39,7 +40,7 @@ const NATURE_LABEL: Record<WorkNature, { en: string; fr: string }> = {
 const NATURE_CLASS: Record<WorkNature, string> = { model: 's-tension', code: 's-pass', mixed: 's-nee' };
 
 export function AgentsSystemPage() {
-  const { tr } = useApp();
+  const { tr, profile } = useApp();
   const params = useSearchParams();
   const runId = params.get('runId');
   // The selected run's live state, so its picker row does not keep the status read at page open.
@@ -50,6 +51,7 @@ export function AgentsSystemPage() {
         <p className="page-sub">{tr({ en: 'Code computes every figure and verdict; AI plans, researches and explains. Here is what each analysis recorded.', fr: 'Le code calcule chaque chiffre et verdict ; l’IA planifie, cherche et explique. Voici ce que chaque analyse a enregistré.' })}</p>
       </PageHeader>
       <RoleMap />
+      {profile && <TargetReview key={`${profile.profileId}:${profile.version}`} profile={profile} />}
       <RunPicker selectedId={runId} live={live && live.runId === runId ? live : null} />
       {runId && <RunDetail key={runId} runId={runId} onRun={setLive} />}
       <ArchitectureCard />

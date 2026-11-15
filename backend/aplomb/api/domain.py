@@ -153,5 +153,5 @@ def default_services(settings: Settings, store=None, gateway=None, price_provide
     if runs is not None and (gateway is not None or (settings.model_strong and settings.model_fast)):
         capabilities.add("sabotage_demo")
     return Services(profiles=profiles, checks=checks, runs=runs, parser=parser, world=world, sabotage=runs.sabotage if runs else None,
-                    replay=ReplayServiceImpl(snapshot), datastore=WorldDatastoreService(snapshot, BundleProvider(), on_demand),
+                    replay=ReplayServiceImpl(snapshot, store=run_repo.store), datastore=WorldDatastoreService(snapshot, BundleProvider(), on_demand),
                     capabilities=capabilities)

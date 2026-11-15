@@ -1,0 +1,102 @@
+
+> aplomb@0.1.0 check
+> npm run check:generated && npm run check:python && npm run typecheck && npm run test:contracts && uv run python scripts/check_specs.py && npm run check:infra
+
+
+> aplomb@0.1.0 check:generated
+> uv run python scripts/export_contracts.py --check && node scripts/generate_contracts.mjs --check && uv run python scripts/build_source_directory.py --check
+
+Contract catalog and JSON Schema are current.
+TypeScript contract types are current.
+
+> aplomb@0.1.0 check:python
+> uv run ruff check backend/aplomb backend/tests scripts/export_contracts.py scripts/live_agents_smoke.py scripts/deploy_site.py scripts/build_source_directory.py scripts/ingest_eonet.py && uv run pytest
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> backend/aplomb/api/app.py:259:9
+    |
+257 |       @app.get("/v1/intelligence/disclosures/aapu")
+258 |       def disclosure_aapu(sid: Session, as_of: str = Query(pattern=r"^\d{4}-\d{2}-\d{2}$")):
+259 | /         from datetime import date
+260 | |         from aplomb.intelligence.disclosure_examples import aapu_partial_lookthrough
+    | |____________________________________________________________________________________^
+261 |           try:
+262 |               return aapu_partial_lookthrough(date.fromisoformat(as_of), historical=True)
+    |
+help: Organize imports
+    |
+259 |         from datetime import date
+260 +
+261 |         from aplomb.intelligence.disclosure_examples import aapu_partial_lookthrough
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend/aplomb/intelligence/disclosure_examples.py:6:1
+   |
+ 4 |   exchange prices or derivative exposure are reported. See the evidence record for links.
+ 5 |   """
+ 6 | / from datetime import date, datetime, timezone
+ 7 | | from pathlib import Path
+ 8 | | import hashlib
+ 9 | | import json
+10 | |
+11 | | from .entities import Evidence
+12 | | from .overlap import Holding, HoldingsSnapshot, portfolio_lookthrough
+   | |_____________________________________________________________________^
+help: Organize imports
+   |
+5  | """
+6  + import hashlib
+7  + import json
+8  | from datetime import date, datetime, timezone
+9  | from pathlib import Path
+   - import hashlib
+   - import json
+10 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> backend/tests/integration/test_agent_runtime.py:179:5
+    |
+178 |   def test_rebalance_local_ids_are_remapped_when_run_already_has_facts():
+179 | /     from types import SimpleNamespace
+180 | |     from aplomb.agents.workflow import _register_rebalance
+181 | |     from aplomb.ledger import Ledger
+    | |____________________________________^
+182 |
+183 |       settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
+    |
+help: Organize imports
+    |
+179 |     from types import SimpleNamespace
+180 +
+181 |     from aplomb.agents.workflow import _register_rebalance
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> backend/tests/unit/test_security_sources.py:1:1
+   |
+ 1 | / import hashlib
+ 2 | | import json
+ 3 | | from datetime import date, datetime, timezone
+ 4 | | from pathlib import Path
+ 5 | |
+ 6 | | import pytest
+ 7 | |
+ 8 | | from aplomb.intelligence.entities import Evidence
+ 9 | | from aplomb.intelligence.exact import exact_pair
+10 | | from aplomb.intelligence.holdings_ingest import issuer_holdings_csv, nport_holdings_xml
+11 | | from aplomb.intelligence.overlap import Holding, portfolio_lookthrough
+   | |______________________________________________________________________^
+12 |
+13 |   NOW = datetime(2026, 11, 15, tzinfo=timezone.utc)
+   |
+help: Organize imports
+  |
+6 | import pytest
+  -
+7 | from aplomb.intelligence.entities import Evidence
+  |
+
+Found 4 errors.
+[*] 4 fixable with `--fix`.

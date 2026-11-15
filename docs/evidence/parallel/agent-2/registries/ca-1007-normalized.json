@@ -1,0 +1,31 @@
+{
+  "status": "found",
+  "record": {
+    "jurisdiction": "CA-federal",
+    "number": "1007",
+    "names": [
+      "Abbotsford Chamber of Commerce"
+    ],
+    "status": "Active",
+    "governing_act": "Boards of Trade Act - Part II",
+    "registration_date": null,
+    "status_date": null
+  },
+  "source": {
+    "url": "https://ised-isde.canada.ca/cc/lgcy/api/corporations/1007.json?lang=eng",
+    "sha256": "7e8e0a0f3e5ae7dd30830c937b32e9db1e94282f5d3a969c924eeba067b61ceb",
+    "dataset_version": "registry-7e8e0a0f3e5ae7dd3083",
+    "retrieved_at": "2026-11-15T17:11:51.395952+00:00",
+    "available_at": "2026-11-15T17:11:51.395952+00:00",
+    "published_at": null,
+    "provider": "Corporations Canada",
+    "licence": "Open Government Licence \u2013 Canada",
+    "terms_url": "https://open.canada.ca/en/open-government-licence-canada",
+    "attribution": "Contains information licensed under the Open Government Licence \u2013 Canada"
+  },
+  "limitations": [
+    "Exact corporate registry number only; no link to a listed security, ISIN or portfolio is inferred.",
+    "Current capture is not a historical vintage; earlier availability and revisions are unknown.",
+    "Federal registry excludes provincial/territorial and certain financial corporations."
+  ]
+}

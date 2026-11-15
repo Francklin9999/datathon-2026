@@ -115,7 +115,7 @@ BriefSectionId = TypeAliasType(
 )
 RunKind = TypeAliasType(
     "RunKind",
-    Literal["decision", "portfolio_brief", "event_brief", "replay", "profile_draft", "sabotage"],
+    Literal["decision", "rebalance", "portfolio_brief", "event_brief", "replay", "profile_draft", "sabotage"],
 )
 RunStatus = TypeAliasType(
     "RunStatus", Literal["queued", "running", "waiting_input", "succeeded", "failed", "cancelled"]
@@ -859,6 +859,13 @@ class DecisionInput(WireModel):
     window: WindowSpec
 
 
+class RebalanceInput(WireModel):
+    kind: Literal["rebalance"]
+    profile_version: Annotated[int, Field(strict=True, ge=1)]
+    positions: Annotated[list[Position], Field(min_length=1, max_length=40)]
+    window: WindowSpec
+
+
 class PortfolioBriefInput(WireModel):
     kind: Literal["portfolio_brief"]
     window: WindowSpec
@@ -891,6 +898,7 @@ RunInput = TypeAliasType(
     "RunInput",
     Annotated[
         DecisionInput
+        | RebalanceInput
         | PortfolioBriefInput
         | EventBriefInput
         | ReplayInput
@@ -927,10 +935,30 @@ class DecisionResult(WireModel):
     limitations: list[LimitationCode]
 
 
+class FocusDetail(WireModel):
+    """Code-owned focus metadata. ``score`` is an inspectable heuristic, never a forecast."""
+
+    priority: Annotated[Integer, Field(ge=1, le=3)]
+    topic: Literal["risk", "concentration", "plan", "fixed_income", "objective"]
+    score: Annotated[Integer, Field(ge=0, le=100)]
+    basis: Literal["built_in", "candidate_provider"]
+    time_horizon: Literal["short", "medium", "long"]
+    horizon_years: Annotated[Number, Field(ge=0, le=150)]
+    objective: String | None = None
+    holdings: list[Ticker]
+    evidence_ids: list[EvidenceId]
+    rule_ids: list[RuleId]
+    uncertainty: Literal["low", "medium", "high"]
+    uncertainty_reasons: list[I18nText]
+    investigation: I18nText
+    href: Annotated[String, Field(pattern=r"^/[A-Za-z0-9/_?=&%.-]*$")]
+
+
 class FocusCard(WireModel):
     title: I18nText
     body: list[Sentence]
     fact_ids: list[FactId]
+    detail: FocusDetail | None = None
 
 
 class PortfolioBriefResult(WireModel):
@@ -1031,11 +1059,28 @@ class HoldingExposure(WireModel):
     note: I18nText
 
 
+class EventHypothesis(WireModel):
+    """A documented event→issuer→security lead; never a measured or causal impact."""
+
+    security_id: String
+    issuer_id: String
+    evidence_ids: list[EvidenceId]
+    impact: Literal["not_established"]
+    interpretation: I18nText
+
+
+class EventRelationshipReview(WireModel):
+    status: Literal["not_configured", "none_found", "documented", "failed"]
+    hypotheses: list[EventHypothesis]
+    limitations: list[I18nText]
+
+
 class EventBriefResult(WireModel):
     event: WorldEvent
     exposures: list[HoldingExposure]
     brief: Brief
     impact_statement: I18nText
+    relationship_review: EventRelationshipReview | None = None
 
 
 class HoldingWeight(WireModel):
@@ -1140,6 +1185,39 @@ class DecisionRunResult(WireModel):
     decision: DecisionResult
 
 
+class RebalanceChange(WireModel):
+    ticker: Ticker
+    before_pct: Percent
+    target_pct: Percent
+    change_pct: Number
+
+
+class ReviewedRebalance(WireModel):
+    profile_id: ProfileId
+    profile_version: Annotated[int, Field(strict=True, ge=1)]
+    currency: Currency
+    total_value: NonNegative
+    as_of: ISODate
+    data_version: DataVersion
+    window: WindowSpec
+    changes: list[RebalanceChange]
+    portfolio_before: PortfolioSnapshot
+    portfolio_after: PortfolioSnapshot
+    verdict_before: Verdict
+    verdict_after: Verdict
+    counts_before: VerdictCounts
+    counts_after: VerdictCounts
+    rule_checks_before: list[RuleCheck]
+    rule_checks_after: list[RuleCheck]
+    assumptions: list[I18nText]
+    brief: Brief
+
+
+class RebalanceRunResult(WireModel):
+    kind: Literal["rebalance"]
+    rebalance: ReviewedRebalance
+
+
 class PortfolioBriefRunResult(WireModel):
     kind: Literal["portfolio_brief"]
     portfolio_brief: PortfolioBriefResult
@@ -1169,6 +1247,7 @@ RunResult = TypeAliasType(
     "RunResult",
     Annotated[
         DecisionRunResult
+        | RebalanceRunResult
         | PortfolioBriefRunResult
         | EventBriefRunResult
         | ReplayRunResult

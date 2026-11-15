@@ -130,3 +130,117 @@ def test_runtime_mismatch_fails_before_any_model_call():
     run = repo.get(sid, queued.run_id).run
     assert run.status == "failed" and run.usage.llm_calls == 0
     assert "runtime configuration" in run.error.message
+
+
+def test_reviewed_rebalance_owns_all_local_facts_and_preserves_targets():
+    from aplomb.api.runtime import RunPreparerImpl
+    from aplomb.api.services import RunCoordinator
+
+    settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
+    store = MemoryStore()
+    profiles_repo, runs, _ = create_repositories(settings, store)
+
+    def snapshot():
+        return LocalDataStore(starter_root()).open(STARTER_VERSION)
+
+    profiles, checks = build_domain_services(profiles_repo, snapshot)
+    sid = "s_" + str(uuid.uuid4())
+    profile = profiles.get(sid, "robert")
+    positions = profile.portfolio.positions
+    body = a.CreateRebalanceRunRequest(kind="rebalance", profile_id="robert", profile_version=profile.version,
+                                       positions=positions, lang="en")
+    request = a.RebalanceRequest(profile_id="robert", profile_version=profile.version, positions=positions)
+    deterministic = checks.rebalance(sid, request)
+
+    class Capture:
+        def dispatch(self, run_id, generation):
+            self.event = {"runId": run_id, "generation": generation}
+
+    dispatch = Capture()
+    prepare = RunPreparerImpl(profiles, snapshot, models_configured=True, settings=settings)
+    queued = RunCoordinator(runs, dispatch, prepare).create(sid, body, "target-once")
+    make_handler(make_worker_services(settings, store, SyntheticText()))(dispatch.event)
+    run = runs.get(sid, queued.run_id).run
+    assert run.status == "succeeded", run.error
+    result = run.result.rebalance
+    assert result.brief.audit.status == "passed"
+    assert result.verdict_after == deterministic.verdict_after
+    assert result.portfolio_after.total_value == deterministic.portfolio_after.total_value
+    assert [s.type for s in run.steps] == ["plan", "quant", "risk_check", "write", "audit", "sign"]
+    quant = next(step for step in run.steps if step.type == "quant")
+    assert run.usage.tool_calls == 1 and quant.tool_calls[0].tool == "check.rebalance"
+    assert quant.tool_calls[0].fact_ids and all(fid in run.facts for fid in quant.tool_calls[0].fact_ids)
+    for check in result.rule_checks_after:
+        assert all(fid in run.facts for fid in (check.value_fact_id, check.threshold_fact_id) if fid)
+    for fact in run.facts.values():
+        assert all(fid in run.facts for fid in fact.inputs)
+    with pytest.raises(Exception):
+        runs.get("s_" + str(uuid.uuid4()), queued.run_id)
+
+
+def test_rebalance_local_ids_are_remapped_when_run_already_has_facts():
+    from types import SimpleNamespace
+
+    from aplomb.agents.workflow import _register_rebalance
+    from aplomb.ledger import Ledger
+
+    settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
+    profiles_repo, _, _ = create_repositories(settings, MemoryStore())
+
+    def snapshot():
+        return LocalDataStore(starter_root()).open(STARTER_VERSION)
+
+    profiles, checks = build_domain_services(profiles_repo, snapshot)
+    sid = "s_" + str(uuid.uuid4())
+    profile = profiles.get(sid, "robert")
+    result = checks.rebalance(sid, a.RebalanceRequest(profile_id="robert", profile_version=profile.version,
+                                                       positions=profile.portfolio.positions))
+    ledger = Ledger("run_00000000000000000000000000", as_of=result.as_of)
+    first = next(f.to_wire() for f in result.facts.values() if not f.inputs)
+    first.pop("id")
+    first["subject"]["id"] = "preexisting"
+    assert ledger.add_fact(first) == "F-001"
+    comparison = _register_rebalance(SimpleNamespace(ledger=ledger), result.to_wire())
+    assert len(ledger.export().facts) > len(result.facts)
+    for check in comparison["ruleChecksAfter"]:
+        for key in ("valueFactId", "thresholdFactId"):
+            if check.get(key):
+                assert check[key] != "F-001"
+                assert check[key] in ledger.export().facts
+    assert all(item in ledger.export().facts for fact in ledger.export().facts.values() for item in fact.inputs)
+
+
+def test_rebalance_model_failure_keeps_standalone_comparison_available():
+    from aplomb.api.runtime import RunPreparerImpl
+    from aplomb.api.services import RunCoordinator
+
+    class UnavailableModel:
+        def generate(self, role, schema, messages, tools, limits):
+            limits.take("llm_calls")
+            raise RuntimeError("provider credential SECRET is intentionally not exposed")
+
+    class Capture:
+        def dispatch(self, run_id, generation):
+            self.event = {"runId": run_id, "generation": generation}
+
+    settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
+    store = MemoryStore()
+    profiles_repo, runs, _ = create_repositories(settings, store)
+
+    def snapshot():
+        return LocalDataStore(starter_root()).open(STARTER_VERSION)
+
+    profiles, checks = build_domain_services(profiles_repo, snapshot)
+    sid = "s_" + str(uuid.uuid4())
+    profile = profiles.get(sid, "robert")
+    body = a.CreateRebalanceRunRequest(kind="rebalance", profile_id="robert", profile_version=profile.version,
+                                       positions=profile.portfolio.positions, lang="en")
+    dispatch = Capture()
+    queued = RunCoordinator(runs, dispatch, RunPreparerImpl(profiles, snapshot, models_configured=True,
+                                                            settings=settings)).create(sid, body, None)
+    make_handler(make_worker_services(settings, store, UnavailableModel()))(dispatch.event)
+    run = runs.get(sid, queued.run_id).run
+    assert run.status == "failed" and "SECRET" not in str(run.to_wire())
+    comparison = checks.rebalance(sid, a.RebalanceRequest(profile_id="robert", profile_version=profile.version,
+                                                           positions=profile.portfolio.positions))
+    assert comparison.portfolio_after.total_value == profile.portfolio.total_value

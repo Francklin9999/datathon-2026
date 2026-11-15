@@ -20,6 +20,12 @@ def runtime_signature(settings):
                "dataPrefix": settings.data_prefix}
     if settings.build_revision:
         context["buildRevision"] = settings.build_revision
+    from .models import configured_fallback
+
+    fallback = configured_fallback((settings.model_strong or "", settings.model_fast or ""))
+    if fallback:
+        # A configured fallback can change which model wrote a cached brief.
+        context["fallbackModel"] = fallback
     return hashlib.sha256(json.dumps(context, sort_keys=True).encode()).hexdigest()
 
 

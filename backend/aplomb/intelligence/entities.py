@@ -115,8 +115,12 @@ RelationshipType = Literal[
     'ENTITY_HEADQUARTERED_IN', 'COMPANY_REPORTS_REVENUE_IN', 'FACILITY_LOCATED_IN',
     'COMPANY_SUPPLIES_TO', 'SECURITY_HELD_BY_PORTFOLIO', 'EVENT_OCCURRED_AT',
     'EVENT_REFERENCES_ENTITY', 'CLAIM_SUPPORTED_BY_SOURCE',
+    # Dated relationship graph (relationship_graph.py): GLEIF Level 2 and explicit derivations.
+    'ENTITY_ULTIMATE_PARENT_OF', 'SECURITY_ISSUER_ULTIMATE_PARENT', 'PORTFOLIO_HOLDS_ISSUER_SECURITY',
+    'FACT_SOURCED_FROM_DATASET',
 ]
-EvidenceClass = Literal['direct', 'derived', 'model_inferred', 'candidate']
+# 'unverified' marks a documented link whose source check failed or was not run.
+EvidenceClass = Literal['direct', 'derived', 'model_inferred', 'candidate', 'unverified']
 
 
 class Relationship(Model):

@@ -556,9 +556,26 @@ interface AttentionSignal {
 interface PortfolioBriefResult {
   snapshot: PortfolioSnapshot;           // variant "before"
   ruleChecks: RuleCheck[]; verdict: Verdict; counts: VerdictCounts;
-  focusCards: { title: I18nText; body: Sentence[]; factIds: FactId[] }[];   // exactly 3
+  focusCards: { title: I18nText; body: Sentence[]; factIds: FactId[]; detail?: FocusDetail | null }[];   // exactly 3
   brief: Brief;
   horizonBand: "short" | "medium" | "long";    // 0–3, 3–10, 10+ years (plan §5; product default)
+}
+
+interface FocusDetail {                  // code-owned; the score is a visible heuristic, never a forecast
+  priority: 1 | 2 | 3;
+  topic: "risk" | "concentration" | "plan" | "fixed_income" | "objective";
+  score: number;                         // 0–100, deterministic ranking input
+  basis: "built_in" | "candidate_provider";   // provider findings must cite verified same-run facts
+  timeHorizon: "short" | "medium" | "long";
+  horizonYears: number;                  // the profile or objective horizon the card was ranked against
+  objective?: string | null;             // exact name of the user objective it relates to
+  holdings: Ticker[];                    // session portfolio tickers only
+  evidenceIds: EvidenceId[];
+  ruleIds: RuleId[];
+  uncertainty: "low" | "medium" | "high";
+  uncertaintyReasons: I18nText[];
+  investigation: I18nText;               // suggested next investigation, not advice
+  href: string;                          // in-app navigation path
 }
 
 interface ProfileDraftResult {
@@ -620,6 +637,21 @@ interface EventBriefResult {
   exposures: HoldingExposure[];
   brief: Brief;                          // sections map to: what happened, why it matters, holdings exposed, mechanisms, uncertainties, what to watch
   impactStatement: I18nText;             // "Potential exposure identified — financial impact not established." unless measured
+  relationshipReview?: EventRelationshipReview | null;   // documented relationship leads, or why there are none
+}
+
+interface EventHypothesis {              // a documented lead, never a measured or causal impact
+  securityId: string;
+  issuerId: string;
+  evidenceIds: EvidenceId[];             // same-run verified evidence for both relationships
+  impact: "not_established";
+  interpretation: I18nText;
+}
+
+interface EventRelationshipReview {
+  status: "not_configured" | "none_found" | "documented" | "failed";
+  hypotheses: EventHypothesis[];
+  limitations: I18nText[];
 }
 
 interface CountryExposure {

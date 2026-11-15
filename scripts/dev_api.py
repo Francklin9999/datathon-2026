@@ -77,6 +77,15 @@ def main() -> int:
         "APLOMB_ALLOWED_ORIGINS": "http://localhost:3000,http://127.0.0.1:3000",
         **{f"APLOMB_FEATURE_{flag.upper()}": "true" for flag in FEATURES},
     }
+    # These no-key sources publish terms permitting local, noncommercial research. Limit
+    # defaults to the local loopback server; explicit environment settings always win.
+    # Never carry these rights assertions into the AWS composition or a network listener.
+    if env.get("APLOMB_ENV", "local") == "local" and args.host in ("127.0.0.1", "localhost", "::1"):
+        defaults.update({
+            "APLOMB_COINMETRICS_NONCOMMERCIAL": "1",  # CC BY-NC, attribution required
+            "APLOMB_BINANCE_VISION_NONCOMMERCIAL": "1",  # CC BY-NC-SA, personal research only
+            "APLOMB_DEXSCREENER_RIGHTS_CONFIRMED": "true",  # noncommercial, noncompetitive local use
+        })
     for key, value in defaults.items():
         env.setdefault(key, value)
 
