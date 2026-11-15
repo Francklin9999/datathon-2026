@@ -558,6 +558,12 @@ class PortfolioView:
             return Measurement(value, fid, worst=worst)
         if metric in ("weight.country", "weight.currency"):
             dimension = metric.split(".")[1]
+            unknown = [t for t, w in self.weights.items() if w > 0 and
+                       (not getattr(self.assets[t], dimension) or
+                        str(getattr(self.assets[t], dimension)).lower() in ('unknown', 'n/a'))]
+            if unknown:
+                return Measurement(None, None, nee_reason='no_evidence_loaded',
+                                   detail=f"Missing {dimension} classification: {', '.join(sorted(unknown))}")
             values = [100 * w for t, w in self.weights.items() if getattr(self.assets[t], dimension) == key]
             value = math.fsum(values)
             fid = self._weight_fact(metric, value, subject={"type": dimension, "id": key or "unknown", "variant": self.variant},

@@ -69,12 +69,18 @@ def derive_thresholds(profile: m.Profile, engine: QuantEngine, *, created_at: st
     wr = engine.window(window or {"code": "full"})
     if wr.i1 - wr.i0 < 2:
         raise Unavailable("short_history", "window holds fewer than three master-calendar days; volatility needs two returns")
-    risk = profile.risk_level
+    tolerance = profile.risk_level
+    capacity = profile.investor_context.risk_capacity if profile.investor_context else None
+    # Explicit conservative assumption, not a regulatory or suitability classification.
+    risk = min((tolerance, capacity), key=VOL_BUDGET.__getitem__) if capacity else tolerance
     budget = VOL_BUDGET[risk]
     prefs = profile.preferences
     ctx = engine.ctx
     ledger = engine.ledger
     issues: list[dict] = []
+    if capacity and capacity != tolerance:
+        issues.append({"code": "capacity_tolerance_difference",
+            "detail": f"Tolerance {tolerance} and capacity {capacity} differ. Derived budgets use the lower assumed table budget ({budget:g}%), without changing user/imported overrides."})
     fids: dict[str, str] = {}
     window_spec = wr.spec
 
@@ -82,7 +88,7 @@ def derive_thresholds(profile: m.Profile, engine: QuantEngine, *, created_at: st
         ctx, key=fact_key("budget.volatility", "portfolio", engine.subject_id, risk, "na"), kind="assumption",
         metric="budget.volatility", label={"en": f"Volatility budget for risk level {risk}", "fr": f"Budget de volatilité, niveau de risque {risk}"},
         value=budget, unit="pct", currency=None, subject={"type": "portfolio", "id": engine.subject_id, "variant": "na"},
-        method_id="M_DERIVE_VOL_BUDGET", created_by="optimizer", params={"riskLevel": risk},
+        method_id="M_DERIVE_VOL_BUDGET", created_by="optimizer", params={"riskLevel": risk, "riskTolerance": tolerance, "riskCapacity": capacity or "unknown", "selectionAssumption": "lower of explicit capacity and tolerance table budgets"},
         limitations=["LIM_THRESHOLDS_ASSUMED"], checks=[{"code": "lookup", "ok": True, "detail": "A-02 table lookup."}]))
 
     stocks, crypto, skipped = reference_volatilities(engine, wr)

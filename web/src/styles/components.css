@@ -124,17 +124,13 @@
   background: var(--glass-inset); color: var(--text-3); transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
 .info-btn::after { content: ''; position: absolute; inset: -11px; }
 .info-btn:hover, .info-btn[aria-expanded='true'] { color: var(--text); background: var(--raised-2); }
-.info-bubble { position: absolute; top: calc(100% + 8px); left: 50%; z-index: 55; width: max-content; max-width: min(320px, 80vw); padding: 10px 12px; border-radius: 12px;
-  transform: translate3d(-50%, -4px, 0); opacity: 0; visibility: hidden; pointer-events: none;
+/* Fixed portals avoid hidden absolute bubbles widening the document. JS clamps both axes. */
+.info-bubble { position: fixed; z-index: 155; width: max-content; max-width: min(320px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow: auto; box-sizing: border-box; padding: 10px 12px; border-radius: 12px;
+  opacity: 0; visibility: hidden; pointer-events: none;
   background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm); box-shadow: var(--shadow-pop);
-  color: var(--text-2); font-size: 13px; font-weight: 400; line-height: 1.45; text-align: left; white-space: normal; letter-spacing: 0;
-  transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), visibility 0s linear var(--dur-fast); }
-.info-tip[data-align='start'] .info-bubble { left: -8px; transform: translate3d(0, -4px, 0); }
-.info-tip[data-align='end'] .info-bubble { left: auto; right: -8px; transform: translate3d(0, -4px, 0); }
-.info-tip:hover .info-bubble, .info-tip:focus-within .info-bubble, .info-tip[data-open] .info-bubble {
-  opacity: 1; visibility: visible; transform: translate3d(-50%, 0, 0); transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), visibility 0s; }
-.info-tip[data-align='start']:hover .info-bubble, .info-tip[data-align='start']:focus-within .info-bubble, .info-tip[data-align='start'][data-open] .info-bubble,
-.info-tip[data-align='end']:hover .info-bubble, .info-tip[data-align='end']:focus-within .info-bubble, .info-tip[data-align='end'][data-open] .info-bubble { transform: translate3d(0, 0, 0); }
+  color: var(--text-2); font-size: 13px; font-weight: 400; line-height: 1.45; text-align: left; white-space: normal; overflow-wrap: anywhere; letter-spacing: 0;
+  transition: opacity var(--dur-fast) var(--ease); }
+.info-bubble[data-open] { opacity: 1; visibility: visible; }
 
 /* Disclosure: details folded by default */
 details.fold { border-radius: 14px; background: var(--glass-inset); margin: 12px 0; }

@@ -61,6 +61,13 @@ def _fold(label: str) -> str:
     return slug("".join(c for c in unicodedata.normalize("NFKD", label) if not unicodedata.combining(c)))
 
 
+def _retire_valuation(account: dict) -> None:
+    """Keep the receipt as evidence even when a cash flow makes it no longer current."""
+    if account.get("nativeValuation") is not None:
+        account.setdefault("valuationHistory", []).append(account["nativeValuation"])
+        account["nativeValuation"] = None
+
+
 def _window_spec(query: dict | None) -> dict:
     """WindowSpec wire of a read query: ``window`` (default ``full``); ``custom`` also takes
     ``start`` and ``end`` (ISO days, start <= end), from the query or from a ``window`` dict."""
@@ -116,7 +123,7 @@ class ProfileServiceImpl:
         body = {key: data[key] for key in ("age", "riskLevel", "horizonYears", "objective", "experience", "reportingCurrency", "preferences")}
         body.update(name=name or (profile.name + " copy")[:40],
             portfolio={"totalValue": profile.portfolio.total_value, "positions": [p.to_wire() for p in profile.portfolio.positions]},
-            rules=[{**r.to_wire(), "origin": "imported"} for r in profile.rules], fromDraftRunId=None,
+            rules=[r.to_wire() for r in profile.rules], fromDraftRunId=None,
             investorContext=data.get("investorContext"))
         now = _now(self.clock)
         profile_id = "p_" + "".join(secrets.choice(_B32) for _ in range(10))
@@ -124,6 +131,9 @@ class ProfileServiceImpl:
         if profile.accounts:
             id_map = {account.account_id: "acct_" + secrets.token_hex(6) for account in profile.accounts}
             cloned["accounts"] = [{**account.to_wire(), "accountId": id_map[account.account_id]} for account in profile.accounts]
+            for account in cloned["accounts"]:
+                for asset in account.get("privateAssets", []):
+                    asset["assetId"] = "priv_" + secrets.token_hex(6)
             cloned["activeAccountId"] = id_map.get(profile.active_account_id, profile.active_account_id)
         cloned["version"] = 1
         self.repo.save(session_id, profile_id, cloned, None)
@@ -147,9 +157,91 @@ class ProfileServiceImpl:
         data.update(rules=renumber(rules), updatedAt=now)
         return self._save(session_id, m.Profile.model_validate(data), stored)
 
+    def add_custom_rule(self, session_id: str, profile_id: str, request: a.AddCustomRuleRequest):
+        """Create a bounded, declarative condition from supported portfolio measurements."""
+        from .rulebuilder import make_rule
+
+        profile, stored = self._load(session_id, profile_id)
+        if profile.is_default:
+            raise Conflict("Copy a seed profile before adding custom policy rules")
+        if profile.version != request.version:
+            raise Conflict()
+        dimension, key = request.dimension, request.key.strip()
+        if dimension in ("position", "country", "currency"):
+            key = key.upper()
+        elif dimension == "sector":
+            labels = self._sector_labels([key])
+            key = slug(labels[0])
+        elif dimension in ("asset_class", "theme"):
+            key = key.lower()
+        if dimension == "position":
+            snap = self.snapshot()
+            if key not in snap.gate(snap.data_as_of).universe():
+                raise validation("Unknown position ticker")
+        elif dimension in ("country", "currency") and not re.fullmatch(r"[A-Z]{3}", key):
+            raise validation("Country and currency keys must be three uppercase letters")
+        elif dimension == "asset_class" and key not in ("equity", "etf_equity", "etf_bond", "etf_commodity", "crypto", "cash"):
+            raise validation("Unknown asset class")
+        elif dimension == "theme" and key not in {x.value for x in m.ThemeTag}:
+            raise validation("Unknown theme")
+        rid = f"{request.operation}.{dimension}.{key}"
+        now = _now(self.clock)
+        rules = [r.to_wire() for r in profile.rules if r.rule_id != rid]
+        rules.append(make_rule(rid, f"R{len(rules) + 1}", threshold=request.threshold, origin="user", derivation=None,
+            rationale={"en": "User-defined condition. Country and currency conditions use listing and quotation proxies; fund holdings are not looked through.",
+                       "fr": "Condition définie par l'utilisateur. Le pays et la devise de cotation sont des approximations; les fonds ne sont pas décomposés."},
+            updated_at=now))
+        self._validate_rules([m.PolicyRule.model_validate(r) for r in rules])
+        data = profile.to_wire()
+        data.update(rules=renumber(rules), updatedAt=now)
+        return self._save(session_id, m.Profile.model_validate(data), stored)
+
     def goal_funding(self, session_id: str, profile_id: str):
         from .goals import assess_goals
         return assess_goals(self.get(session_id, profile_id), self.snapshot().data_version, _now(self.clock))
+
+    def allocation_targets(self, session_id: str, profile_id: str) -> dict:
+        """Compare explicit targets to measurable traded weights without placing orders."""
+        profile = self.get(session_id, profile_id)
+        eng, _ = self._engine(profile, {}, LocalLedger())
+        view = eng.view(self._weights(profile), "target-comparison", profile.portfolio.total_value)
+        rows = []
+        for target in profile.investor_context.target_allocations if profile.investor_context else []:
+            dimension, key = target.dimension, target.key.strip()
+            valid = bool(key)
+            if dimension == "position":
+                key = key.upper()
+                valid = key in eng.universe
+            elif dimension == "sector":
+                sectors = {slug(label) for label in self._universe_sectors()}
+                key = slug(key)
+                valid = key in sectors
+            elif dimension in ("country", "currency"):
+                key = key.upper()
+                valid = bool(re.fullmatch(r"[A-Z]{3}", key))
+            elif dimension == "asset_class":
+                key = key.lower()
+                valid = key in ("equity", "etf_equity", "etf_bond", "etf_commodity", "crypto", "cash")
+            elif dimension == "theme":
+                key = key.lower()
+                valid = key in {item.value for item in m.ThemeTag}
+            measurement = view.measure(f"weight.{dimension}", key) if valid else None
+            value = measurement.value if measurement else None
+            drift = value - target.target_pct if value is not None else None
+            preference = profile.investor_context.rebalancing
+            band = preference.drift_threshold_pct if preference else None
+            state = ("unavailable" if drift is None else "no_drift_threshold" if band is None else
+                     "outside_drift_threshold" if abs(drift) > band else "within_drift_threshold")
+            rows.append({"dimension": dimension, "key": target.key, "targetPct": target.target_pct,
+                         "origin": target.origin, "actualPct": value,
+                         "driftPct": drift, "driftThresholdPct": band, "state": state,
+                         "factId": measurement.fact_id if measurement else None,
+                         "unavailableReason": (measurement.nee_reason if measurement and value is None else
+                                               "unsupported_key" if not valid else None)})
+        return {"profileId": profile_id, "profileVersion": profile.version, "asOf": eng.ctx.as_of,
+                "targets": rows, "facts": eng.ledger.wire(),
+                "limitations": ["Weights cover traded positions only; listing country and quotation currency "
+                                "are proxies, fund holdings are not looked through, and themes may overlap."]}
 
     def archived(self, session_id: str) -> list[m.Profile]:
         return [m.Profile.model_validate(item["value"]) for item in self.repo.list(session_id)
@@ -262,7 +354,7 @@ class ProfileServiceImpl:
         for account in data.get("accounts", []):
             if account["accountId"] == profile.active_account_id:
                 if account["portfolio"]["totalValue"] != data["portfolio"]["totalValue"]:
-                    account["nativeValuation"] = None
+                    _retire_valuation(account)
                 account["portfolio"] = copy.deepcopy(data["portfolio"])
         data["updatedAt"] = now
         return self._save(session_id, m.Profile.model_validate(data), stored)
@@ -285,6 +377,14 @@ class ProfileServiceImpl:
             raise Conflict("Select an individual account before replacing a profile")
         now = _now(self.clock)
         data = self._custom_body(request, profile_id, now, created_at=profile.created_at)
+        if "investor_context" not in request.model_fields_set and profile.investor_context is not None:
+            data["investorContext"] = profile.investor_context.to_wire()
+            origins = data["investorContext"].setdefault("inputOrigins", {})
+            old = profile.to_wire()
+            new = request.to_wire()
+            for key in ("name", "age", "riskLevel", "horizonYears", "objective", "experience", "reportingCurrency", "preferences"):
+                if new.get(key) != old.get(key):
+                    origins[key] = "user"
         if request.rules is None:
             overrides = {r.rule_id: r.to_wire() for r in profile.rules if r.origin in ("user", "imported")}
             derived_ids = {r["ruleId"] for r in data["rules"]}
@@ -298,7 +398,7 @@ class ProfileServiceImpl:
             for account in data["accounts"]:
                 if account["accountId"] == profile.active_account_id:
                     if account["portfolio"]["totalValue"] != data["portfolio"]["totalValue"]:
-                        account["nativeValuation"] = None
+                        _retire_valuation(account)
                     account["portfolio"] = copy.deepcopy(data["portfolio"])
         data["archived"] = profile.archived
         data["version"] = stored["revision"] + 1
@@ -384,6 +484,153 @@ class ProfileServiceImpl:
         data.update(accounts=accounts, activeAccountId=account_id, portfolio=portfolio, updatedAt=_now(self.clock))
         return self._save(session_id, m.Profile.model_validate(data), stored)
 
+    def refresh_account(self, session_id: str, profile_id: str, account_id: str, version: int,
+                        as_of: str | None = None) -> m.Profile:
+        """Revalue the unchanged native amount; explicit dates use point-in-time visibility."""
+        from .account_fx import convert_account_value
+
+        profile, stored = self._load(session_id, profile_id)
+        if profile.version != version:
+            raise Conflict()
+        data = profile.to_wire()
+        account = next((x for x in data.get("accounts", []) if x["accountId"] == account_id), None)
+        if account is None:
+            raise NotFound("Unknown account in this session-owned profile")
+        original = account.get("nativeValuation")
+        if original is None:
+            raise Conflict("Account has no current native valuation to refresh")
+        now = _now(self.clock)
+        receipt = convert_account_value(self.snapshot(), original["nativeCurrency"], original["nativeValue"],
+                                        profile.reporting_currency, now, as_of)
+        _retire_valuation(account)
+        account["nativeValuation"] = receipt.to_wire()
+        account["portfolio"]["totalValue"] = receipt.reporting_value
+        account["portfolio"]["updatedAt"] = now
+        self._refresh_selected_portfolio(data, now)
+        return self._save(session_id, m.Profile.model_validate(data), stored)
+
+    def value_private_asset(self, session_id: str, profile_id: str, account_id: str,
+                            request: a.PrivateAssetRequest) -> m.Profile:
+        """Store an explicit private valuation outside market-return/risk calculations."""
+        from .account_fx import convert_account_value
+
+        profile, stored = self._load(session_id, profile_id)
+        if profile.version != request.version:
+            raise Conflict()
+        data = profile.to_wire()
+        account = next((x for x in data.get("accounts", []) if x["accountId"] == account_id), None)
+        if account is None:
+            raise NotFound("Unknown account in this session-owned profile")
+        if not all(x.strip() for x in (request.name, request.asset_type, request.source_description)):
+            raise validation("Private asset name, type and valuation source must be visible text")
+        now = _now(self.clock)
+        if request.valuation_date > now[:10]:
+            raise validation("Private valuation date cannot be in the future")
+        assets = account.setdefault("privateAssets", [])
+        asset = next((x for x in assets if x["assetId"] == request.asset_id), None) if request.asset_id else None
+        if request.asset_id and asset is None:
+            raise NotFound("Unknown private asset in this account")
+        if not request.asset_id and len(assets) >= 100:
+            raise validation("At most 100 private assets per account")
+        receipt = convert_account_value(self.snapshot(), request.native_currency, request.native_value,
+                                        profile.reporting_currency, now)
+        valuation = {"valuationDate": request.valuation_date, "origin": request.origin,
+                     "sourceDescription": request.source_description.strip(), "conversion": receipt.to_wire()}
+        if asset is None:
+            asset = {"assetId": "priv_" + secrets.token_hex(6), "valuationHistory": []}
+            assets.append(asset)
+        else:
+            asset.setdefault("valuationHistory", []).append(asset["valuation"])
+        asset.update(name=request.name.strip(), assetType=request.asset_type.strip(),
+                     liquidityNotes=request.liquidity_notes, valuation=valuation)
+        data["updatedAt"] = now
+        return self._save(session_id, m.Profile.model_validate(data), stored)
+
+    def account_valuation_summary(self, session_id: str, profile_id: str) -> dict:
+        """Include explicit private valuations without implying a market risk model."""
+        profile = self.get(session_id, profile_id)
+        accounts = profile.accounts
+        rows = []
+        for account in accounts:
+            try:
+                private = math.fsum(asset.valuation.conversion.reporting_value for asset in account.private_assets)
+                total = math.fsum((account.portfolio.total_value, private))
+            except OverflowError:
+                raise validation("Combined account value exceeds the supported finite range") from None
+            rows.append({"accountId": account.account_id, "name": account.name,
+                         "modeledTradedValue": account.portfolio.total_value,
+                         "privateValue": private, "combinedValue": total})
+        if not rows:
+            rows.append({"accountId": None, "name": "Primary", "modeledTradedValue": profile.portfolio.total_value,
+                         "privateValue": 0.0, "combinedValue": profile.portfolio.total_value})
+        try:
+            total = math.fsum(row["combinedValue"] for row in rows)
+        except OverflowError:
+            raise validation("Combined account value exceeds the supported finite range") from None
+        return {"profileId": profile_id, "currency": profile.reporting_currency, "accounts": rows,
+                "combinedValue": total,
+                "limitations": ["Private values are user or imported estimates, converted at the receipt date; "
+                                "they are excluded from traded portfolio weights, returns and risk. "
+                                "Do not also include the same assets in the traded portfolio."]}
+
+    def transfer_account(self, session_id: str, profile_id: str, source_account_id: str,
+                         destination_account_id: str, amount_reporting: float, version: int) -> m.Profile:
+        """Move a proportional slice of holdings, valued in reporting currency, with no cash flow."""
+        profile, stored = self._load(session_id, profile_id)
+        if profile.version != version:
+            raise Conflict()
+        if not math.isfinite(amount_reporting) or amount_reporting <= 0:
+            raise validation("Transfer amount must be positive and finite")
+        if source_account_id == destination_account_id:
+            raise validation("Transfer source and destination must differ")
+        data = profile.to_wire()
+        accounts = {x["accountId"]: x for x in data.get("accounts", [])}
+        if source_account_id not in accounts or destination_account_id not in accounts:
+            raise NotFound("Unknown account in this session-owned profile")
+        source, destination = accounts[source_account_id], accounts[destination_account_id]
+        source_value, destination_value = source["portfolio"]["totalValue"], destination["portfolio"]["totalValue"]
+        if amount_reporting >= source_value:
+            raise validation("Transfer must leave a positive value in the source account")
+        new_destination = destination_value + amount_reporting
+        if not math.isfinite(new_destination):
+            raise validation("Combined account value exceeds the supported finite range")
+        combined = {}
+        for position in destination["portfolio"]["positions"]:
+            combined[position["ticker"]] = destination_value * (position["weightPct"] / 100)
+        for position in source["portfolio"]["positions"]:
+            ticker = position["ticker"]
+            combined[ticker] = combined.get(ticker, 0) + amount_reporting * (position["weightPct"] / 100)
+        positions = [{"ticker": ticker, "weightPct": value / new_destination * 100} for ticker, value in combined.items()]
+        self._validate_portfolio(new_destination, positions)
+        now = _now(self.clock)
+        for account in (source, destination):
+            _retire_valuation(account)
+            account["portfolio"]["updatedAt"] = now
+        source["portfolio"]["totalValue"] = source_value - amount_reporting
+        destination["portfolio"].update(totalValue=new_destination, positions=positions)
+        self._refresh_selected_portfolio(data, now)
+        return self._save(session_id, m.Profile.model_validate(data), stored)
+
+    def _refresh_selected_portfolio(self, data: dict, now: str) -> None:
+        accounts = data["accounts"]
+        if data["activeAccountId"] == "aggregate":
+            try:
+                total = math.fsum(a["portfolio"]["totalValue"] for a in accounts)
+            except OverflowError:
+                raise validation("Combined account value exceeds the supported finite range") from None
+            values = {}
+            for account in accounts:
+                for position in account["portfolio"]["positions"]:
+                    ticker = position["ticker"]
+                    values[ticker] = values.get(ticker, 0) + account["portfolio"]["totalValue"] * (position["weightPct"] / 100)
+            positions = [{"ticker": ticker, "weightPct": value / total * 100} for ticker, value in values.items()]
+            self._validate_portfolio(total, positions)
+            data["portfolio"] = {"isFictional": True, "currency": data["reportingCurrency"],
+                                 "totalValue": total, "positions": positions, "updatedAt": now}
+        else:
+            data["portfolio"] = copy.deepcopy(next(a["portfolio"] for a in accounts if a["accountId"] == data["activeAccountId"]))
+        data["updatedAt"] = now
+
     def rederive_rules(self, session_id: str, profile_id: str, reset: bool, window: m.WindowSpec | None):
         if self.deriver is None:
             raise unavailable("Threshold derivation")
@@ -432,8 +679,13 @@ class ProfileServiceImpl:
                       "fr": f"Profil fictif personnalisé, risque {request.risk_level.replace('_', ' ')}."},
             "personaTest": None, "portfolio": portfolio, "rules": [], "version": 1, "createdAt": created_at, "updatedAt": now,
         }
-        if request.investor_context is not None:
-            body["investorContext"] = request.investor_context.model_dump(mode="json", by_alias=True)
+        context = request.investor_context.to_wire() if request.investor_context is not None else m.InvestorContext().to_wire()
+        origins = context.setdefault("inputOrigins", {})
+        default_origin = "assumption" if request.from_draft_run_id else "user"
+        for key in ("name", "age", "riskLevel", "horizonYears", "objective", "experience", "reportingCurrency", "preferences"):
+            origins.setdefault(key, default_origin)
+        origins.setdefault("portfolio", default_origin if request.portfolio is not None else "assumption")
+        body["investorContext"] = context
         if request.rules is not None:
             body["rules"] = renumber([r.to_wire() for r in request.rules])
         else:

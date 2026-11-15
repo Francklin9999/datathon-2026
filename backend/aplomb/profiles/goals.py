@@ -14,9 +14,12 @@ def project_balance(capital: float, annual_contribution: float, return_pct: floa
     whole = math.floor(years)
     factor = 1 + return_pct / 100
     balance = capital
-    for _ in range(whole):
-        balance = balance * factor + annual_contribution
-    result = balance * factor ** (years - whole)
+    try:
+        for _ in range(whole):
+            balance = balance * factor + annual_contribution
+        result = balance * factor ** (years - whole)
+    except OverflowError:
+        raise ValueError('Scenario overflows; reduce the horizon or return assumption') from None
     if not math.isfinite(result):
         raise ValueError('Scenario overflows; reduce the horizon or return assumption')
     return result
@@ -29,8 +32,13 @@ def assess_goals(profile, data_version: str, now: str, as_of: str | None = None)
     ctx = FactContext(as_of or now[:10], now, data_version)
     results = []
     for i, goal in enumerate(goals):
+        missing = [name for name, value in [('targetAmount', goal.target_amount),
+            ('allocatedValue', goal.allocated_value), ('annualContribution', goal.annual_contribution),
+            ('assumedReturnPct', goal.assumed_return_pct)] if value is None]
+        if allocated > profile.portfolio.total_value:
+            missing.append('nonOverlappingGoalAllocations')
         row = {'name': goal.name, 'state': 'missing_assumptions', 'projectedValue': None,
-               'fundingGap': None, 'factIds': {}}
+               'fundingGap': None, 'factIds': {}, 'missingInputs': missing}
         values = (goal.target_amount, goal.allocated_value, goal.annual_contribution, goal.assumed_return_pct)
         if allocated > profile.portfolio.total_value or any(v is None for v in values):
             results.append(row)
@@ -39,6 +47,7 @@ def assess_goals(profile, data_version: str, now: str, as_of: str | None = None)
             projected = project_balance(goal.allocated_value, goal.annual_contribution,
                                         goal.assumed_return_pct, goal.horizon_years)
         except ValueError:
+            row['missingInputs'].append('validFiniteScenario')
             results.append(row)
             continue
         gap = max(0, goal.target_amount - projected)
@@ -53,7 +62,7 @@ def assess_goals(profile, data_version: str, now: str, as_of: str | None = None)
                 value=value, unit='pct' if name == 'returnPct' else ('ratio' if name == 'years' else 'currency'),
                 currency=profile.reporting_currency if name not in ('returnPct', 'years') else None,
                 subject={**subject, 'variant': name}, method_id='M_USER_INPUT', created_by='profile', available_at=None,
-                params={'profileVersion': profile.version})))
+                params={'profileVersion': profile.version, 'origin': goal.origin})))
         for metric, value in [('goal.projected_value', projected), ('goal.funding_gap', gap)]:
             fid = ledger.add_fact(make_fact(ctx,
                 key=fact_key(metric, 'request', subject['id'], 'scenario', 'na'), kind='scenario',

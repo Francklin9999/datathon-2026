@@ -81,6 +81,9 @@ RuleId = TypeAliasType(
                 + r"))|floor\.(fixed_income|diversifiers)|limit\.(volatility|stress_2022|drawdown)"
                 r"|exclude\.(sector\.[a-z]+(_[a-z]+)*|asset_class\.(equity|etf_equity|etf_bond|"
                 r"etf_commodity|crypto|cash)|ticker\.[A-Z0-9][A-Z0-9.^=-]*)|evidence\.controversy"
+                r"|(cap|floor)\.(position\.[A-Z0-9][A-Z0-9.^=-]*|sector\.[a-z]+(_[a-z]+)*|asset_class\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|country\.[A-Z]{3}|currency\.[A-Z]{3}|theme\.("
+                + "|".join(tag.value for tag in ThemeTag)
+                + r"))"
                 r"|flag\.(attention|rate_cycle|short_history)|sim\.only)$"
             )
         ),
@@ -249,6 +252,59 @@ class HorizonYears(WireModel):
     max: NonNegative | None
 
 
+InputOrigin = TypeAliasType("InputOrigin", Literal["user", "imported", "system_default", "assumption", "regulatory"])
+
+
+class InvestorHorizon(WireModel):
+    name: Annotated[String, Field(min_length=1, max_length=120)]
+    start_date: ISODate | None = None
+    end_date: ISODate | None = None
+    deadline: ISODate | None = None
+    origin: InputOrigin = "user"
+    source_url: String | None = None
+
+    @model_validator(mode="after")
+    def validate_dates_and_source(self):
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValueError("horizon startDate must not follow endDate")
+        if self.start_date and self.deadline and self.start_date > self.deadline:
+            raise ValueError("horizon deadline must not precede startDate")
+        if self.origin == "regulatory":
+            raise ValueError("regulatory inputs require an implemented verified source")
+        return self
+
+
+class InvestorRequirement(WireModel):
+    """Explicit input, denominated in reporting currency; not an inferred liability."""
+    name: Annotated[String, Field(min_length=1, max_length=120)]
+    kind: Literal["liquidity", "spending", "liability"]
+    amount: NonNegative
+    frequency: Literal["once", "annual"] = "once"
+    due_date: ISODate | None = None
+    origin: InputOrigin = "user"
+    source_url: String | None = None
+
+    @model_validator(mode="after")
+    def sourced_regulation(self):
+        if self.origin == "regulatory":
+            raise ValueError("regulatory inputs require an implemented verified source")
+        return self
+
+
+class TargetAllocation(WireModel):
+    dimension: Literal["position", "sector", "asset_class", "country", "currency", "theme"]
+    key: Annotated[String, Field(min_length=1, max_length=120)]
+    target_pct: Annotated[Number, Field(ge=0, le=100)]
+    origin: Literal["user", "imported", "system_default", "assumption"] = "user"
+
+
+class RebalancingPreferences(WireModel):
+    frequency: Literal["none", "monthly", "quarterly", "semiannual", "annual", "custom"] = "none"
+    custom_description: Annotated[String, Field(max_length=1000)] = ""
+    drift_threshold_pct: Annotated[Number, Field(ge=0, le=100)] | None = None
+    origin: Literal["user", "imported", "system_default", "assumption"] = "user"
+
+
 class InvestmentGoal(WireModel):
     """User-stated objective, never a promise of an achievable return."""
 
@@ -260,22 +316,57 @@ class InvestmentGoal(WireModel):
     annual_contribution: NonNegative | None = None
     assumed_return_pct: Annotated[Number, Field(gt=-100, le=100)] | None = None
     deadline: ISODate | None = None
-    origin: Literal["user", "imported", "assumption"] = "user"
+    origin: InputOrigin = "user"
+    start_date: ISODate | None = None
+    end_date: ISODate | None = None
+    source_url: String | None = None
+
+    @model_validator(mode="after")
+    def validate_dates_and_source(self):
+        if self.start_date and any(day and day < self.start_date for day in (self.end_date, self.deadline)):
+            raise ValueError("goal endDate and deadline cannot precede startDate")
+        if self.origin == "regulatory":
+            raise ValueError("regulatory inputs require an implemented verified source")
+        return self
 
 
 class InvestorContext(WireModel):
     """Optional global context. Jurisdiction is context, not a sourced tax policy."""
 
     country: Annotated[String, Field(pattern=r"^[A-Z]{2}$")] | None = None
-    investor_type: Literal[
-        "individual", "retirement", "income", "crypto", "institutional", "family_office",
-        "endowment", "pension", "wealth_manager", "advisor", "custom"
-    ] = "individual"
+    investor_type: Annotated[String, Field(min_length=1, max_length=80)] = "individual"
+    investor_type_origin: InputOrigin = "user"
     language: Lang = "en"
     objectives: list[InvestmentGoal] = Field(default_factory=list, max_length=20,
         json_schema_extra={"tsType": "InvestmentGoal[]"})
     liquidity_notes: Annotated[String, Field(max_length=2000)] = ""
     risk_capacity_notes: Annotated[String, Field(max_length=2000)] = ""
+    risk_capacity: RiskLevel | None = None
+    risk_capacity_origin: InputOrigin = "user"
+    risk_tolerance_origin: InputOrigin = "user"
+    input_origins: dict[String, Literal["user", "imported", "system_default", "assumption"]] = Field(default_factory=dict)
+    custom_themes: list[Annotated[String, Field(min_length=1, max_length=120)]] = Field(default_factory=list, max_length=50)
+    target_allocations: list[TargetAllocation] = Field(default_factory=list, max_length=100)
+    rebalancing: RebalancingPreferences | None = None
+    horizons: list[InvestorHorizon] = Field(default_factory=list, max_length=50)
+    requirements: list[InvestorRequirement] = Field(default_factory=list, max_length=100)
+
+    @model_validator(mode="after")
+    def validate_capacity_origin(self):
+        if "regulatory" in (self.risk_capacity_origin, self.risk_tolerance_origin, self.investor_type_origin):
+            raise ValueError("regulatory inputs require an implemented verified source")
+        seen = set()
+        totals = {}
+        for target in self.target_allocations:
+            identity = (target.dimension, target.key.casefold())
+            if identity in seen:
+                raise ValueError("duplicate allocation target")
+            seen.add(identity)
+            if target.dimension != "theme":  # themes may overlap
+                totals[target.dimension] = totals.get(target.dimension, 0) + target.target_pct
+        if any(total > 100.000000001 for total in totals.values()):
+            raise ValueError("targets for one dimension cannot exceed 100 percent")
+        return self
 
 
 class RuleTarget(WireModel):
@@ -329,6 +420,7 @@ class AccountFXQuote(WireModel):
 
 
 class AccountValuation(WireModel):
+    mode: Literal["current", "historical"] = "current"
     verified_checks: list[String] = Field(default_factory=list)
     native_currency: Currency
     native_value: Annotated[Number, Field(gt=0)]
@@ -341,8 +433,27 @@ class AccountValuation(WireModel):
     quotes: list[AccountFXQuote]
 
 
+class PrivateAssetValuation(WireModel):
+    """User or imported valuation, paired with its independently sourced FX receipt."""
+    valuation_date: ISODate
+    origin: Literal["user", "imported"]
+    source_description: Annotated[String, Field(min_length=1, max_length=1000)]
+    conversion: AccountValuation
+
+
+class PrivateAsset(WireModel):
+    asset_id: Annotated[String, Field(pattern=r"^priv_[0-9a-f]{12}$")]
+    name: Annotated[String, Field(min_length=1, max_length=120)]
+    asset_type: Annotated[String, Field(min_length=1, max_length=80)]
+    liquidity_notes: Annotated[String, Field(max_length=1000)] = ""
+    valuation: PrivateAssetValuation
+    valuation_history: list[PrivateAssetValuation] = Field(default_factory=list)
+
+
 class PortfolioAccount(WireModel):
     native_valuation: AccountValuation | None = None
+    valuation_history: list[AccountValuation] = Field(default_factory=list)
+    private_assets: list[PrivateAsset] = Field(default_factory=list)
     account_id: Annotated[String, Field(pattern=r"^acct_[0-9a-f]{12}$")]
     name: Annotated[String, Field(min_length=1, max_length=80)]
     portfolio: Portfolio

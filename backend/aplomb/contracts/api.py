@@ -217,6 +217,7 @@ class GoalFundingScenario(WireModel):
     projected_value: NonNegative | None
     funding_gap: NonNegative | None
     fact_ids: dict[str, FactId]
+    missing_inputs: list[String] = Field(default_factory=list)
 
 
 class GoalFundingResponse(WireModel):
@@ -239,6 +240,14 @@ class AddExposureLimitRequest(WireModel):
     version: Annotated[int, Field(strict=True, ge=1)]
 
 
+class AddCustomRuleRequest(WireModel):
+    dimension: Literal["position", "sector", "asset_class", "country", "currency", "theme"]
+    key: Annotated[String, Field(min_length=1, max_length=32)]
+    operation: Literal["cap", "floor"]
+    threshold: Annotated[Number, Field(ge=0, le=100)]
+    version: Annotated[int, Field(strict=True, ge=1)]
+
+
 class ArchiveProfileRequest(WireModel):
     archived: Boolean
     version: Annotated[int, Field(strict=True, ge=1)]
@@ -253,6 +262,30 @@ class CreateAccountRequest(WireModel):
 
 class SelectAccountRequest(WireModel):
     version: Annotated[int, Field(strict=True, ge=1)]
+
+
+class RefreshAccountRequest(WireModel):
+    version: Annotated[int, Field(strict=True, ge=1)]
+    as_of: ISODate | None = None
+
+
+class TransferAccountRequest(WireModel):
+    version: Annotated[int, Field(strict=True, ge=1)]
+    destination_account_id: String
+    amount_reporting: Annotated[Number, Field(gt=0)]
+
+
+class PrivateAssetRequest(WireModel):
+    version: Annotated[int, Field(strict=True, ge=1)]
+    asset_id: Annotated[String, Field(pattern=r"^priv_[0-9a-f]{12}$")] | None = None
+    name: Annotated[String, Field(min_length=1, max_length=120)]
+    asset_type: Annotated[String, Field(min_length=1, max_length=80)]
+    liquidity_notes: Annotated[String, Field(max_length=1000)] = ""
+    valuation_date: ISODate
+    origin: Literal["user", "imported"]
+    source_description: Annotated[String, Field(min_length=1, max_length=1000)]
+    native_currency: Currency
+    native_value: Annotated[Number, Field(gt=0)]
 
 
 class UpdatePortfolioRequest(InitialPortfolio):
@@ -378,6 +411,7 @@ class CheckRequest(WireModel):
     window: WindowSpec = None
     as_of: ISODate = None
     compare_funding: Boolean = None
+    knowledge_mode: Literal["current", "historical"] | None = None
 
 
 class RebalanceRequest(WireModel):

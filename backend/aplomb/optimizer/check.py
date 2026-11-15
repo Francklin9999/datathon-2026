@@ -191,7 +191,10 @@ class CheckServiceImpl:
         if as_of > snap.data_as_of:
             problem = f"asOf must be on or before the data date {snap.data_as_of}"
             raise ServiceError("validation_error", problem, {"fields": [{"path": "asOf", "problem": problem}]})
-        mode = "historical" if as_of < snap.data_as_of else "current"
+        if request.knowledge_mode == "current" and as_of < snap.data_as_of:
+            raise ServiceError("validation_error", "Current knowledge mode requires the latest snapshot date",
+                               {"fields": ["knowledgeMode", "asOf"]})
+        mode = "historical" if request.knowledge_mode == "historical" or as_of < snap.data_as_of else "current"
         window = request.window.to_wire() if request.window else {"code": "full"}
         gate = snap.gate(as_of, mode)
         if request.move is not None:

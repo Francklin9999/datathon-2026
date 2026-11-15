@@ -14,27 +14,51 @@ ROLLING_WINDOW = 252    # M_WORST_ROLLING_252
 
 
 def simple_returns(levels: Sequence[float]) -> list[float]:
-    return [levels[i] / levels[i - 1] - 1.0 for i in range(1, len(levels))]
+    if any(not math.isfinite(v) or v < 0 for v in levels):
+        raise ValueError("Levels must be finite and nonnegative")
+    if any(v == 0 for v in levels[:-1]):
+        raise ValueError("Cannot calculate a return from a zero level")
+    result = [levels[i] / levels[i - 1] - 1.0 for i in range(1, len(levels))]
+    if any(not math.isfinite(v) for v in result):
+        raise ValueError("Return overflows")
+    return result
 
 
 def sample_stdev(values: Sequence[float]) -> float | None:
     n = len(values)
+    if any(not math.isfinite(v) for v in values):
+        raise ValueError("Values must be finite")
     if n < 2:
         return None
-    mean = math.fsum(values) / n
-    return math.sqrt(math.fsum((v - mean) ** 2 for v in values) / (n - 1))
+    try:
+        mean = math.fsum(values) / n
+        result = math.sqrt(math.fsum((v - mean) ** 2 for v in values) / (n - 1))
+    except OverflowError as exc:
+        raise ValueError("Sample variance overflows") from exc
+    if not math.isfinite(result):
+        raise ValueError("Sample variance overflows")
+    return result
 
 
 def annualized_vol_pct(returns: Sequence[float]) -> float | None:
     """``M_VOL_STDEV_252`` in percent; None with fewer than two returns."""
     sd = sample_stdev(returns)
-    return None if sd is None else sd * math.sqrt(PERIODS_PER_YEAR) * 100.0
+    if sd is None:
+        return None
+    result = sd * math.sqrt(PERIODS_PER_YEAR) * 100.0
+    if not math.isfinite(result):
+        raise ValueError("Annualized volatility overflows")
+    return result
 
 
 def max_drawdown_pct(levels: Sequence[float]) -> float | None:
     """``M_MDD_PEAK_TROUGH`` as a positive magnitude in percent (0 when never below a peak)."""
     if not levels:
         return None
+    if not math.isfinite(levels[0]) or levels[0] <= 0 or any(
+        not math.isfinite(v) or v < 0 for v in levels[1:]
+    ):
+        raise ValueError("Drawdown requires a positive initial level and finite nonnegative levels")
     peak = levels[0]
     worst = 0.0
     for v in levels:
@@ -49,14 +73,24 @@ def max_drawdown_pct(levels: Sequence[float]) -> float | None:
 def period_return_pct(levels: Sequence[float]) -> float | None:
     if len(levels) < 2:
         return None
-    return (levels[-1] / levels[0] - 1.0) * 100.0
+    simple_returns(levels)
+    result = (levels[-1] / levels[0] - 1.0) * 100.0
+    if not math.isfinite(result):
+        raise ValueError("Period return overflows")
+    return result
 
 
 def worst_rolling_return_pct(levels: Sequence[float], window: int = ROLLING_WINDOW) -> float | None:
     """``M_WORST_ROLLING_252``: needs window + 1 levels."""
+    if not isinstance(window, int) or isinstance(window, bool) or window < 1:
+        raise ValueError("Rolling window must be a positive integer")
     if len(levels) < window + 1:
         return None
-    return min(levels[i + window] / levels[i] - 1.0 for i in range(len(levels) - window)) * 100.0
+    simple_returns(levels)
+    result = min(levels[i + window] / levels[i] - 1.0 for i in range(len(levels) - window)) * 100.0
+    if not math.isfinite(result):
+        raise ValueError("Rolling return overflows")
+    return result
 
 
 def portfolio_returns(weights: Sequence[float], asset_returns: Sequence[Sequence[float]]) -> list[float]:
@@ -76,14 +110,22 @@ def portfolio_returns(weights: Sequence[float], asset_returns: Sequence[Sequence
             continue
         for t in range(n):
             out[t] += w * rets[t]
+            if not math.isfinite(out[t]):
+                raise ValueError("Portfolio return overflows")
     return out
 
 
 def compound(returns: Sequence[float], start: float = 1.0) -> list[float]:
+    if not math.isfinite(start) or start <= 0:
+        raise ValueError("Initial level must be positive and finite")
     levels = [start]
     v = start
     for r in returns:
+        if not math.isfinite(r) or r < -1:
+            raise ValueError("Returns must be finite and at least -100%")
         v *= 1.0 + r
+        if not math.isfinite(v):
+            raise ValueError("Compounded level overflows")
         levels.append(v)
     return levels
 
@@ -93,18 +135,33 @@ def pearson(a: Sequence[float], b: Sequence[float]) -> float | None:
     n = len(a)
     if n != len(b) or n < 2:
         return None
-    ma, mb = math.fsum(a) / n, math.fsum(b) / n
-    sab = math.fsum((x - ma) * (y - mb) for x, y in zip(a, b))
-    saa = math.fsum((x - ma) ** 2 for x in a)
-    sbb = math.fsum((y - mb) ** 2 for y in b)
+    if any(not math.isfinite(v) for values in (a, b) for v in values):
+        raise ValueError("Correlation inputs must be finite")
+    try:
+        ma, mb = math.fsum(a) / n, math.fsum(b) / n
+        sab = math.fsum((x - ma) * (y - mb) for x, y in zip(a, b))
+        saa = math.fsum((x - ma) ** 2 for x in a)
+        sbb = math.fsum((y - mb) ** 2 for y in b)
+    except OverflowError as exc:
+        raise ValueError("Correlation calculation overflows") from exc
+    if not all(math.isfinite(v) for v in (sab, saa, sbb)):
+        raise ValueError("Correlation calculation overflows")
     if saa <= 0.0 or sbb <= 0.0:
         return None
-    return sab / math.sqrt(saa * sbb)
+    return (sab / math.sqrt(saa)) / math.sqrt(sbb)
 
 
 def hhi(weights: Sequence[float]) -> float:
     """Sum of squared fractional weights."""
-    return math.fsum(w * w for w in weights)
+    if any(not math.isfinite(w) for w in weights):
+        raise ValueError("Weights must be finite")
+    try:
+        result = math.fsum(w * w for w in weights)
+    except OverflowError as exc:
+        raise ValueError("Concentration overflows") from exc
+    if not math.isfinite(result):
+        raise ValueError("Concentration overflows")
+    return result
 
 
 def historical_tail_pct(returns: Sequence[float], confidence: float = .95) -> tuple[float, float] | None:
@@ -118,7 +175,15 @@ def historical_tail_pct(returns: Sequence[float], confidence: float = .95) -> tu
         return None
     count = max(1, math.ceil(round((1 - confidence) * len(returns), 12)))
     losses = sorted((-r * 100 for r in returns), reverse=True)[:count]
-    return max(0.0, losses[-1]), max(0.0, math.fsum(losses) / count)
+    if any(not math.isfinite(loss) for loss in losses):
+        raise ValueError("Historical tail loss overflows")
+    try:
+        shortfall = math.fsum(loss / count for loss in losses)
+    except OverflowError as exc:
+        raise ValueError("Historical tail loss overflows") from exc
+    if not math.isfinite(shortfall):
+        raise ValueError("Historical tail loss overflows")
+    return max(0.0, losses[-1]), max(0.0, shortfall)
 
 
 def variance_shares_pct(weights: Sequence[float], asset_returns: Sequence[Sequence[float]]) -> list[float] | None:
@@ -130,14 +195,22 @@ def variance_shares_pct(weights: Sequence[float], asset_returns: Sequence[Sequen
         raise ValueError("Aligned finite return series required")
     if n < 2:
         return None
-    portfolio = portfolio_returns(weights, asset_returns)
-    mean_p = math.fsum(portfolio) / n
-    variance = math.fsum((r - mean_p) ** 2 for r in portfolio) / (n - 1)
-    if variance <= 1e-24:
-        return None
-    result = []
-    for weight, series in zip(weights, asset_returns, strict=True):
-        mean = math.fsum(series) / n
-        cov = math.fsum((r - mean) * (p - mean_p) for r, p in zip(series, portfolio, strict=True)) / (n - 1)
-        result.append(100 * weight * cov / variance)
-    return result
+    try:
+        portfolio = portfolio_returns(weights, asset_returns)
+        mean_p = math.fsum(portfolio) / n
+        variance = math.fsum((r - mean_p) ** 2 for r in portfolio) / (n - 1)
+        if not math.isfinite(variance):
+            raise ValueError("Portfolio variance overflows")
+        if variance <= 1e-24:
+            return None
+        result = []
+        for weight, series in zip(weights, asset_returns, strict=True):
+            mean = math.fsum(series) / n
+            cov = math.fsum((r - mean) * (p - mean_p) for r, p in zip(series, portfolio, strict=True)) / (n - 1)
+            share = 100 * weight * (cov / variance)
+            if not math.isfinite(share):
+                raise ValueError("Variance contribution overflows")
+            result.append(share)
+        return result
+    except OverflowError as exc:
+        raise ValueError("Variance contribution overflows") from exc

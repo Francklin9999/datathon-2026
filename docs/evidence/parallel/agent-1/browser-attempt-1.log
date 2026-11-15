@@ -1,0 +1,8 @@
+file:///home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/scripts/agent1_browser_smoke.mjs:47
+  if(box.visible!=='visible'||box.left<0||box.right>390||box.width!==390)throw new Error('Tooltip bounds: '+JSON.stringify(box));
+                                                                               ^
+
+Error: Tooltip bounds: {"left":8,"right":328,"width":390,"visible":"hidden"}
+    at file:///home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/scripts/agent1_browser_smoke.mjs:47:80
+
+Node.js v24.18.0

@@ -118,6 +118,8 @@ export function validateProfileForm(form: ProfileForm): ProfileFormIssue[] {
   const context = form.investorContext;
   if (context?.country && !/^[A-Z]{2}$/.test(context.country)) issues.push({ field: 'investorContext', code: 'invalid' });
   if (context?.objectives?.some(g => !g.name.trim() || !Number.isFinite(g.horizonYears) || g.horizonYears <= 0 || g.horizonYears > 150)) issues.push({ field: 'investorContext', code: 'invalid' });
+  if (context?.horizons?.some(h => !h.name.trim() || (h.startDate && ((h.endDate && h.startDate > h.endDate) || (h.deadline && h.startDate > h.deadline))))) issues.push({ field: 'investorContext', code: 'invalid' });
+  if (context?.requirements?.some(r => !r.name.trim() || !Number.isFinite(r.amount) || r.amount < 0)) issues.push({ field: 'investorContext', code: 'invalid' });
   const age = num(form.age);
   if (age !== null && (Number.isNaN(age) || age < 0 || age > 120 || !Number.isInteger(age))) issues.push({ field: 'age', code: 'invalid' });
   for (const field of ['riskLevel', 'objective', 'experience', 'reportingCurrency'] as const) {

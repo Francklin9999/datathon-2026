@@ -29,7 +29,7 @@ def test_exact_duplicate_preserves_custom_policies_and_assigns_independent_ident
     clone = svc.duplicate(A, p.profile_id)
     assert clone.profile_id != p.profile_id
     assert clone.portfolio.positions == p.portfolio.positions
-    assert all(r.origin == 'imported' for r in clone.rules)
+    assert [r.origin for r in clone.rules] == [r.origin for r in p.rules]
     assert clone.rules[-1].threshold == 30
     with pytest.raises(Conflict):
         svc.add_exposure_limit(A, 'robert', AddExposureLimitRequest(dimension='currency', key='USD', threshold=30, version=1))

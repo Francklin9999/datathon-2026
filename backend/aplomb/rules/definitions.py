@@ -84,6 +84,15 @@ def rule_def(rule_id: str) -> RuleDef:
     """Definition of a rule ID, including parameterized families."""
     if rule_id in FIXED:
         return FIXED[rule_id]
+    parts = rule_id.split(".", 2)
+    if len(parts) == 3 and parts[0] in ("cap", "floor") and parts[1] in ("position", "sector", "asset_class", "country", "currency", "theme"):
+        operation, dimension, key = parts
+        qualifier = " (listing proxy)" if dimension == "country" else " (quotation proxy)" if dimension == "currency" else ""
+        comparison = "At most" if operation == "cap" else "At least"
+        return RuleDef(operation, f"weight.{dimension}", key, dimension, key,
+                       "<=" if operation == "cap" else ">=", "pct", True, FLOOR_BOUNDS, True,
+                       _t(f"{comparison} {{threshold}}% in {dimension} {key}{qualifier}",
+                          f"{comparison} {{threshold}}% in {dimension} {key}{qualifier}"))
     if rule_id.startswith(("cap.country.", "cap.currency.")):
         dimension, key = rule_id.split(".")[1:]
         en = "listing-country proxy" if dimension == "country" else "quotation currency"

@@ -16,3 +16,7 @@ cdk.out/
 
 # Independent parallel-agent working copies
 /.worktrees/
+
+# Isolated agent build outputs
+web/.next-agent1/
+web/.next-agent1-build/

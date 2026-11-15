@@ -1,0 +1,200 @@
+{
+  "testData": "synthetic investor, sensitivities, fund holdings and factor observations",
+  "modelExecution": "none",
+  "apiBase": "http://localhost:8101/v1",
+  "reportingCurrency": "EUR",
+  "snapshotAsOf": "2026-11-12",
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/meta",
+      "status": 200,
+      "contract": "Meta"
+    },
+    {
+      "method": "GET",
+      "path": "/profiles/amira",
+      "status": 200,
+      "contract": "Profile"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles",
+      "status": 201,
+      "contract": "Profile"
+    },
+    {
+      "method": "GET",
+      "path": "/profiles/p_zpmxnr3h6e",
+      "status": 404,
+      "contract": "ApiError"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/duplicate",
+      "status": 201,
+      "contract": "Profile"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/custom-rules",
+      "status": 200,
+      "contract": "Profile"
+    },
+    {
+      "method": "GET",
+      "path": "/profiles/p_zpmxnr3h6e/overview?window=1y",
+      "status": 200,
+      "contract": "OverviewResponse"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/accounts",
+      "status": 201,
+      "contract": "Profile"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/accounts/acct_156af093cb10/refresh",
+      "status": 200,
+      "contract": "Profile"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/accounts/acct_156af093cb10/refresh",
+      "status": 409,
+      "contract": "ApiError"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/accounts/acct_156af093cb10/refresh",
+      "status": 422,
+      "contract": "ApiError"
+    },
+    {
+      "method": "GET",
+      "path": "/profiles/p_zpmxnr3h6e",
+      "status": 200,
+      "contract": "Profile"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/accounts/aggregate/select",
+      "status": 200,
+      "contract": "Profile"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/accounts/acct_156af093cb10/transfer",
+      "status": 200,
+      "contract": "Profile"
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/accounts/acct_156af093cb10/transfer",
+      "status": 422,
+      "contract": "ApiError"
+    },
+    {
+      "method": "GET",
+      "path": "/profiles/p_zpmxnr3h6e",
+      "status": 200,
+      "contract": "Profile"
+    },
+    {
+      "method": "GET",
+      "path": "/profiles/p_zpmxnr3h6e/account-valuations",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/accounts/acct_1ba5268619da/private-assets",
+      "status": 200,
+      "contract": "Profile"
+    },
+    {
+      "method": "GET",
+      "path": "/profiles/p_zpmxnr3h6e/account-valuations",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "POST",
+      "path": "/profiles/p_zpmxnr3h6e/requirements-scenario",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "GET",
+      "path": "/profiles/p_zpmxnr3h6e/strategic-candidates",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "POST",
+      "path": "/decision/target-funding",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "POST",
+      "path": "/decision/target-funding",
+      "status": 422,
+      "contract": "ApiError"
+    },
+    {
+      "method": "POST",
+      "path": "/risk/scenario",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "POST",
+      "path": "/risk/fund-look-through",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "POST",
+      "path": "/risk/fund-look-through",
+      "status": 422,
+      "contract": "ApiError"
+    },
+    {
+      "method": "POST",
+      "path": "/risk/factor-fit",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "GET",
+      "path": "/risk/source-inputs",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "GET",
+      "path": "/risk/source-inputs?asOf=2020-01-01",
+      "status": 200,
+      "contract": null
+    },
+    {
+      "method": "POST",
+      "path": "/check",
+      "status": 200,
+      "contract": "CheckResult"
+    },
+    {
+      "method": "POST",
+      "path": "/check",
+      "status": 422,
+      "contract": "ApiError"
+    }
+  ],
+  "historicalCheck": {
+    "explicitHistoricalStatus": "insufficient_data",
+    "historicalMessage": "The growth cap cannot be derived from data visible at 2026-11-12: XBB.TO has no observation on some master days in the window",
+    "currentLimitations": null
+  }
+}

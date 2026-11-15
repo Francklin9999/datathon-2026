@@ -1,0 +1,49 @@
+'use client';
+import type { Profile } from '../../contracts/types';
+import { useApp } from '../../state/app';
+
+type Context = NonNullable<Profile['investorContext']>;
+type Horizon = NonNullable<Context['horizons']>[number];
+type Requirement = NonNullable<Context['requirements']>[number];
+const ORIGINS = ['user', 'imported', 'system_default', 'assumption'] as const;
+
+/** Structured explicit inputs; defaults never imply an official regulatory requirement. */
+export function InvestorInputs({ value, onChange }: { value: Profile['investorContext']; onChange: (value: Context) => void }) {
+  const { tr } = useApp();
+  const context = value ?? {};
+  const horizons = context.horizons ?? [];
+  const requirements = context.requirements ?? [];
+  const patch = (next: Partial<Context>) => onChange({ ...context, ...next });
+  const horizon = (i: number, next: Partial<Horizon>) => patch({ horizons: horizons.map((h, j) => i === j ? { ...h, ...next } : h) });
+  const requirement = (i: number, next: Partial<Requirement>) => patch({ requirements: requirements.map((h, j) => i === j ? { ...h, ...next } : h) });
+  return <fieldset style={{ marginTop: 16 }}><legend>{tr({ en: 'Risk capacity, dated horizons and cash requirements', fr: 'Capacité de risque, horizons datés et besoins de liquidités' })}</legend>
+    <div className="form-grid">
+      <div className="field"><label htmlFor="pf-language">{tr({ en: 'Investor language', fr: 'Langue du profil' })}</label><select id="pf-language" value={context.language ?? 'en'} onChange={e => patch({ language: e.target.value as 'en' | 'fr' })}><option value="en">English</option><option value="fr">Français</option></select></div>
+      <div className="field"><label htmlFor="pf-capacity">{tr({ en: 'Risk capacity (separate from tolerance)', fr: 'Capacité de risque (distincte de la tolérance)' })}</label><select id="pf-capacity" value={context.riskCapacity ?? ''} onChange={e => patch({ riskCapacity: (e.target.value || null) as Exclude<Context['riskCapacity'], undefined> })}><option value="">{tr({ en: 'Unknown', fr: 'Inconnue' })}</option>{['low', 'low_moderate', 'moderate', 'moderate_high', 'high'].map(v => <option key={v} value={v}>{v.replaceAll('_', ' ')}</option>)}</select></div>
+      <div className="field"><label htmlFor="pf-capacity-origin">{tr({ en: 'Capacity input origin', fr: 'Origine de la capacité' })}</label><select id="pf-capacity-origin" value={context.riskCapacityOrigin ?? 'user'} onChange={e => patch({ riskCapacityOrigin: e.target.value as NonNullable<Context['riskCapacityOrigin']> })}>{ORIGINS.map(o => <option key={o} value={o}>{o.replaceAll('_', ' ')}</option>)}</select></div>
+      <div className="field"><label htmlFor="pf-tolerance-origin">{tr({ en: 'Risk tolerance input origin', fr: 'Origine de la tolérance au risque' })}</label><select id="pf-tolerance-origin" value={context.riskToleranceOrigin ?? 'user'} onChange={e => patch({ riskToleranceOrigin: e.target.value as NonNullable<Context['riskToleranceOrigin']> })}>{ORIGINS.map(o => <option key={o} value={o}>{o.replaceAll('_', ' ')}</option>)}</select></div>
+      <div className="field"><label htmlFor="pf-type-origin">{tr({ en: 'Investor type input origin', fr: 'Origine du type d’investisseur' })}</label><select id="pf-type-origin" value={context.investorTypeOrigin ?? 'user'} onChange={e => patch({ investorTypeOrigin: e.target.value as NonNullable<Context['investorTypeOrigin']> })}>{ORIGINS.map(o => <option key={o} value={o}>{o.replaceAll('_', ' ')}</option>)}</select></div>
+      <div className="field"><label htmlFor="pf-capacity-notes">{tr({ en: 'Risk capacity assumptions and unknowns', fr: 'Hypothèses et inconnues de capacité' })}</label><textarea id="pf-capacity-notes" maxLength={2000} value={context.riskCapacityNotes ?? ''} onChange={e => patch({ riskCapacityNotes: e.target.value })} /></div>
+      <div className="field"><label htmlFor="pf-liquidity-notes">{tr({ en: 'Liquidity assumptions and unknowns', fr: 'Hypothèses et inconnues de liquidité' })}</label><textarea id="pf-liquidity-notes" maxLength={2000} value={context.liquidityNotes ?? ''} onChange={e => patch({ liquidityNotes: e.target.value })} /></div>
+    </div>
+    <p className="small muted">{tr({ en: 'Derived risk budgets use the lower of explicit capacity and tolerance under the disclosed system table assumption. Existing user/imported rule overrides are retained; review conflicts in Portfolio. This is not a regulatory or suitability classification.', fr: 'Les budgets dérivés utilisent le plus faible niveau explicite de capacité et de tolérance selon la table d’hypothèses du système. Les règles utilisateur/importées sont conservées; examinez les conflits dans Portefeuille. Ce n’est pas une classification réglementaire.' })}</p>
+    <h3>{tr({ en: 'Dated horizons', fr: 'Horizons datés' })}</h3>
+    {horizons.map((h, i) => <fieldset key={i}><legend>{tr({ en: 'Horizon', fr: 'Horizon' })} {i + 1}</legend><div className="form-grid">
+      <div className="field"><label htmlFor={`horizon-name-${i}`}>{tr({ en: 'Name', fr: 'Nom' })}</label><input id={`horizon-name-${i}`} maxLength={120} value={h.name} onChange={e => horizon(i, { name: e.target.value })} /></div>
+      {(['startDate', 'endDate', 'deadline'] as const).map(key => <div className="field" key={key}><label htmlFor={`horizon-${key}-${i}`}>{tr({ en: key === 'startDate' ? 'Start date' : key === 'endDate' ? 'End date' : 'Deadline', fr: key === 'startDate' ? 'Début' : key === 'endDate' ? 'Fin' : 'Échéance' })}</label><input id={`horizon-${key}-${i}`} type="date" value={h[key] ?? ''} onChange={e => horizon(i, { [key]: e.target.value || null })} /></div>)}
+      <div className="field"><label htmlFor={`horizon-origin-${i}`}>{tr({ en: 'Origin', fr: 'Origine' })}</label><select id={`horizon-origin-${i}`} value={h.origin ?? 'user'} onChange={e => horizon(i, { origin: e.target.value as NonNullable<Horizon['origin']> })}>{ORIGINS.map(o => <option key={o} value={o}>{o.replaceAll('_', ' ')}</option>)}</select></div>
+    </div><button type="button" className="btn ghost btn-sm" onClick={() => patch({ horizons: horizons.filter((_, j) => i !== j) })}>{tr({ en: 'Remove horizon', fr: 'Retirer l’horizon' })}</button></fieldset>)}
+    <button type="button" className="btn ghost" disabled={horizons.length >= 50} onClick={() => patch({ horizons: [...horizons, { name: '', origin: 'user' }] })}>{tr({ en: 'Add dated horizon', fr: 'Ajouter un horizon daté' })}</button>
+    <h3>{tr({ en: 'Explicit spending, liquidity and liabilities', fr: 'Dépenses, liquidités et passifs explicites' })}</h3>
+    <p className="small muted">{tr({ en: 'Amounts use the reporting currency. Enter only known requirements; an empty list means unknown. No liability or tax obligation is inferred from the investor type or country. Annual requirements need a schedule and modeled funding before feasibility can be established.', fr: 'Montants dans la devise de présentation. Saisissez uniquement les besoins connus; une liste vide signifie inconnu. Aucun passif ni impôt n’est déduit du type ou du pays. Les besoins annuels exigent un calendrier et un financement pour évaluer leur faisabilité.' })}</p>
+    {requirements.map((r, i) => <fieldset key={i}><legend>{tr({ en: 'Requirement', fr: 'Besoin' })} {i + 1}</legend><div className="form-grid">
+      <div className="field"><label htmlFor={`requirement-name-${i}`}>{tr({ en: 'Name', fr: 'Nom' })}</label><input id={`requirement-name-${i}`} maxLength={120} value={r.name} onChange={e => requirement(i, { name: e.target.value })} /></div>
+      <div className="field"><label htmlFor={`requirement-kind-${i}`}>{tr({ en: 'Kind', fr: 'Type' })}</label><select id={`requirement-kind-${i}`} value={r.kind} onChange={e => requirement(i, { kind: e.target.value as Requirement['kind'] })}>{['liquidity', 'spending', 'liability'].map(k => <option key={k} value={k}>{k}</option>)}</select></div>
+      <div className="field"><label htmlFor={`requirement-amount-${i}`}>{tr({ en: 'Amount', fr: 'Montant' })}</label><input id={`requirement-amount-${i}`} type="number" min={0} step="any" value={r.amount} onChange={e => requirement(i, { amount: Number(e.target.value) })} /></div>
+      <div className="field"><label htmlFor={`requirement-frequency-${i}`}>{tr({ en: 'Frequency', fr: 'Fréquence' })}</label><select id={`requirement-frequency-${i}`} value={r.frequency ?? 'once'} onChange={e => requirement(i, { frequency: e.target.value as NonNullable<Requirement['frequency']> })}><option value="once">{tr({ en: 'Once', fr: 'Une fois' })}</option><option value="annual">{tr({ en: 'Annual', fr: 'Annuelle' })}</option></select></div>
+      <div className="field"><label htmlFor={`requirement-due-${i}`}>{tr({ en: 'Due date', fr: 'Échéance' })}</label><input id={`requirement-due-${i}`} type="date" value={r.dueDate ?? ''} onChange={e => requirement(i, { dueDate: e.target.value || null })} /></div>
+      <div className="field"><label htmlFor={`requirement-origin-${i}`}>{tr({ en: 'Origin', fr: 'Origine' })}</label><select id={`requirement-origin-${i}`} value={r.origin ?? 'user'} onChange={e => requirement(i, { origin: e.target.value as NonNullable<Requirement['origin']> })}>{ORIGINS.map(o => <option key={o} value={o}>{o.replaceAll('_', ' ')}</option>)}</select></div>
+    </div><button type="button" className="btn ghost btn-sm" onClick={() => patch({ requirements: requirements.filter((_, j) => i !== j) })}>{tr({ en: 'Remove requirement', fr: 'Retirer le besoin' })}</button></fieldset>)}
+    <button type="button" className="btn ghost" disabled={requirements.length >= 100} onClick={() => patch({ requirements: [...requirements, { name: '', kind: 'liquidity', amount: 0, frequency: 'once', origin: 'user' }] })}>{tr({ en: 'Add explicit requirement', fr: 'Ajouter un besoin explicite' })}</button>
+  </fieldset>;
+}

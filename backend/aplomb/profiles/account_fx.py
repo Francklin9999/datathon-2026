@@ -6,10 +6,14 @@ from aplomb.contracts.models import AccountValuation
 from aplomb.quant.market import MarketData
 
 
-def convert_account_value(snapshot, native_currency, native_value, reporting_currency, captured_at):
-    gate = snapshot.gate(snapshot.data_as_of, 'current')
+def convert_account_value(snapshot, native_currency, native_value, reporting_currency, captured_at, as_of=None):
+    """Value at the current snapshot, or at an explicitly historical availability cutoff."""
+    day = as_of or snapshot.data_as_of
+    mode = 'historical' if as_of is not None else 'current'
+    if day > snapshot.data_as_of:
+        raise ServiceError('validation_error', 'Valuation date cannot exceed the snapshot cutoff')
+    gate = snapshot.gate(day, mode)
     market = MarketData(gate, reporting_currency)
-    day = snapshot.data_as_of
     result = market.conversion_at(native_currency, reporting_currency, day)
     if result is None:
         raise ServiceError('insufficient_data', f'No sourced {native_currency}/{reporting_currency} FX conversion at {day}')
@@ -29,7 +33,7 @@ def convert_account_value(snapshot, native_currency, native_value, reporting_cur
                                   'retrievedOn': passport['retrievedOn'], 'licence': passport['licence'], 'rowsRead': 1}})
     receipt = AccountValuation.model_validate({'nativeCurrency': native_currency, 'nativeValue': native_value,
         'reportingCurrency': reporting_currency, 'reportingValue': value, 'conversionRate': rate,
-        'valuationDate': day, 'capturedAt': captured_at, 'dataVersion': snapshot.data_version, 'quotes': quotes})
+        'valuationDate': day, 'mode': mode, 'capturedAt': captured_at, 'dataVersion': snapshot.data_version, 'quotes': quotes})
     receipt.verified_checks = verify_account_valuation(snapshot, receipt)
     return receipt
 
@@ -40,8 +44,9 @@ def verify_account_valuation(snapshot, receipt: AccountValuation) -> list[str]:
         if not ok:
             raise ValueError(code)
     require(receipt.data_version == snapshot.data_version, 'ACCOUNT_FX_SNAPSHOT')
-    require(receipt.valuation_date == snapshot.data_as_of, 'ACCOUNT_FX_CUTOFF')
-    gate = snapshot.gate(receipt.valuation_date, 'current')
+    require(receipt.valuation_date <= snapshot.data_as_of and
+            (receipt.mode == 'historical' or receipt.valuation_date == snapshot.data_as_of), 'ACCOUNT_FX_CUTOFF')
+    gate = snapshot.gate(receipt.valuation_date, receipt.mode)
     required = {receipt.native_currency, receipt.reporting_currency} - {'CAD'}
     if receipt.native_currency == receipt.reporting_currency:
         required = set()

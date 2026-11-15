@@ -5,6 +5,10 @@
  * (PORT-02). Previews go through /check with overrides and are never saved implicitly.
  */
 import { useMemo, useState } from 'react';
+import { AllocationTargets } from './AllocationTargets';
+import { RequirementsScenario } from './RequirementsScenario';
+import { PrivateAssets } from './PrivateAssets';
+import { CustomPolicies } from './CustomPolicies';
 import { Accounts } from './Accounts';
 import { GoalFunding } from './GoalFunding';
 import { ExposureLimits } from './ExposureLimits';
@@ -50,7 +54,8 @@ function PortfolioContent({ profile }: { profile: Profile }) {
           {tr({ en: `${fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} of fictional capital for ${profile.name}.`, fr: `${fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} de capital fictif pour ${profile.name}.` })}
         </p>
       </PageHeader>
-      <Accounts key={`${profile.profileId}|${profile.version}`} profile={profile} />
+      <Accounts key={`accounts|${profile.profileId}|${profile.version}`} profile={profile} />
+      <PrivateAssets key={`private|${profile.profileId}|${profile.version}`} profile={profile} />
       {overview.loading && <Loading />}
       {overview.error && <ErrorState error={overview.error} onRetry={overview.reload}
         title={tr({ en: 'The portfolio overview is unavailable. No figures are shown.', fr: 'L’aperçu du portefeuille est indisponible. Aucun chiffre n’est affiché.' })} />}
@@ -61,8 +66,11 @@ function PortfolioContent({ profile }: { profile: Profile }) {
           <Risk overview={overview.data} />
         </FactScopeProvider>
       )}
+      <AllocationTargets profile={profile} />
       <GoalFunding profile={profile} />
+      <RequirementsScenario key={`requirements|${profile.profileId}|${profile.version}`} profile={profile} />
       <ExposureLimits profile={profile} />
+      <CustomPolicies key={`policies|${profile.profileId}|${profile.version}`} profile={profile} />
       <Rules profile={profile} overview={overview.data} scope={scope} />
       <Frontier profile={profile} />
       {overview.data && <LimitationList compactAfter={0} codes={overview.data.limitations} />}
