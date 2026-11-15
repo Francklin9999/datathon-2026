@@ -1,0 +1,73 @@
+{
+  "checkedAt": "2026-11-15T13:49:36.569308+00:00",
+  "contractVersion": "1.3.0",
+  "verification": {
+    "fullRepositoryGate": "passed: npm run check",
+    "pythonTests": 834,
+    "pythonSubtests": 16,
+    "webTestsInFullGate": 179,
+    "latestWebTests": 180,
+    "infraTests": 6,
+    "staticExport": "passed",
+    "httpChecks": 19,
+    "browserInteractionChecks": 5,
+    "browserExceptions": 0,
+    "browserRoutes": 6,
+    "mobileViewport": 390,
+    "mobileScrollWidth": 390
+  },
+  "coverage": {
+    "reportingCurrencies": [
+      "AUD",
+      "CAD",
+      "CHF",
+      "EUR",
+      "GBP",
+      "HKD",
+      "JPY",
+      "SGD",
+      "USD"
+    ],
+    "worldBankObservations": 838,
+    "worldBankCountriesAndTerritories": 217,
+    "airportReferences": 1154,
+    "ecccFacilities": 1863,
+    "ecccReportingYear": 2024,
+    "ecccRejectedLatestYearRows": 16
+  },
+  "deployment": {
+    "performed": false,
+    "reason": "Full-specification condition unmet; fresh official AWS reads additionally require refreshed credentials.",
+    "liveContractVersion": "1.0.0"
+  },
+  "limits": [
+    "Tests and screenshots establish the listed local workflows; they do not certify the entire master specification.",
+    "ETF identifier/overlap models are foundations; no actual dated issuer holdings integration is claimed.",
+    "No live AWS model invocation, native Lambda package runtime probe, deployed expanded workflow or new demo video was verified in this continuation."
+  ],
+  "sha256": {
+    "aws-readback-unavailable.json": "98c8730a4573f489208e9f7832a6d4d6f90bd2d8268104de7eaa5798125c2bd3",
+    "browser-eccc-facilities.png": "d3255941251ed898723bfb74a93a3572a20e07ea1ce3db01c105b2b9aa052308",
+    "browser-gbp-goals.png": "1dd94dbc587d727cde63b13c33edf9a86892e94fbbea74d4ff44714c44f2feb7",
+    "browser-gleif.png": "3e67b3af24689caac1c6ec6d9f362c3be647fdf23085849be748f47e859cb740",
+    "browser-interactions.json": "03d3bf97b8ccb2579d9d51bafb14086b9b8805f900cfc4137fd033b2b5d06c5c",
+    "browser-interactions.log": "31138fba676931fca590b5fcb609ddb72757663505ea90fb9ce38e13645f383e",
+    "browser-japan-airports.png": "c6e61f1ddc386306b9ea5e0da12bab201faa1576ea49a271b20c1d44100bd13f",
+    "browser-markets.png": "880d8dba4d81644a0aab4e6752d0f6878b6cb1d60978a2e0552ea355d29e37b0",
+    "browser-portfolio.png": "592dddc46ab84fedd8201afdb35b21d1bd263d68140029ebf428c9354b0212ea",
+    "browser-profiles.png": "7f71b8b890547be47cd640dbcb9385d0581de89b4933842e77bbf7c9e9ac8c6c",
+    "browser-risk-intelligence.png": "6cbaa63cfa47aeab95faddf62bd19bd399c31e4170dcece38613cef04d0b32f4",
+    "browser-sources.png": "4b11c63373464d41c194a8604151575c2ef14ecb38f81916b9b680c1990c08d2",
+    "browser-world-explorer.png": "208e5087d0a3dec886f9f90b33766f6e8e8996db7786708243d27e59bd87c31f",
+    "browser.json": "222546bb5b0a92568436500abb122b490107c60e612d82bfb139e06d761568c0",
+    "full-check.log": "26264def240214f115faa57746c0a5129f87183d7d03b0081c505d7169f68c43",
+    "http-smoke.json": "c3c70ff4940e0378329f9b515b0df3ec45dc6cb32a28f70206a05ee06914aa90",
+    "http-smoke.log": "54bdde812989988dd213f4d114c9568195b2f47166026067b6691dd16a41e21c",
+    "live-meta.json": "9de02a273f24c953c33da2f440a47859d8aed59b4bb18a467dbc8192b265a722",
+    "scripts-lint.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "specifications.log": "4665e7ca894a10353d8a00bcc8661847135c6af22203d9b051073996cb3b9567",
+    "static-build.log": "34a40e1f18af1f2f96a0183a9ab5c04811110a05a02db26dd7271a9600dac6cf",
+    "web-tests-latest.log": "7f5dd93b551a60ad6cc3fd3056c056a8faa80e1de8f0ca28341affc297b05af1",
+    "web-typecheck-latest.log": "1ff1e46aac52f44d6cb03568755f2198c45b85548598681bf43ea9d95927950b"
+  }
+}

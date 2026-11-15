@@ -92,6 +92,8 @@ class QuantEngine:
         p_passport = gate.describe("prices_daily")
         f_passport = gate.describe("fx_usdcad_daily")
         self._src = {"prices_daily": p_passport, "fx_usdcad_daily": f_passport}
+        if "fx_boc_global" in gate._snap.loaded_datasets:
+            self._src["fx_boc_global"] = gate.describe("fx_boc_global")
         self._universe_avail: dict[str, str] | None = None
 
     # Windows ----------------------------------------------------------------------------------
@@ -185,9 +187,8 @@ class QuantEngine:
         out = []
         if listed:
             out.append(self._source("prices_daily", len(listed) * (i1 - i0 + 1)))
-        n_fx = self.market.fx_rows_used(tickers, i0, i1)
-        if n_fx:
-            out.append(self._source("fx_usdcad_daily", n_fx))
+        for dataset, n_fx in sorted(self.market.fx_dataset_rows_used(tickers, i0, i1).items()):
+            out.append(self._source(dataset, n_fx))
         return out
 
     def universe_provenance(self, tickers) -> tuple[list[dict], str | None]:
@@ -336,14 +337,16 @@ class QuantEngine:
             lims = ["LIM_YAHOO_NOT_CERTIFIED", "LIM_PAST_NOT_FUTURE"]
             avail = max(a["available_at"], b["available_at"])
             if ccy != listing:
-                fa = self.gate.fx_series(None, b["date"])
-                ra, rb = fa.rate_on_or_before(a["date"]), fa.rate_on_or_before(b["date"])
+                ra = self.market.conversion_at(listing, ccy, a["date"])
+                rb = self.market.conversion_at(listing, ccy, b["date"])
                 if ra is None or rb is None:
-                    out.append(Measurement(None, None, nee_reason="short_history", detail="no earlier USD/CAD rate"))
+                    out.append(Measurement(None, None, nee_reason="short_history", detail=f"no available {listing}/{ccy} FX rate"))
                     continue
-                conv = (lambda p, r: p * r[0]) if listing == "USD" else (lambda p, r: p / r[0])
-                pa, pb = conv(pa, ra), conv(pb, rb)
-                sources.append(self._source("fx_usdcad_daily", len({ra[1], rb[1]})))
+                pa, pb = pa * ra[0], pb * rb[0]
+                refs = {ref[:3] for ref in ra[1] + rb[1]}
+                for dataset in sorted({ref[0] for ref in refs}):
+                    sources.append(self._source(dataset, sum(1 for ref in refs if ref[0] == dataset)))
+                avail = max([avail, *(ref[3] for ref in ra[1] + rb[1])])
                 lims.append("LIM_FX_FFILL")
             if ticker == "CNQ.TO" and a["date"] < CNQ_FACTOR_DATE <= b["date"]:
                 lims.append("LIM_CNQ_FACTOR")
@@ -458,7 +461,7 @@ class PortfolioView:
             return None
         if self._composition is None:
             name = self.engine.subject_id
-            unit = self.engine.currency.lower()
+            unit = self.engine.currency.lower() if self.engine.currency in ("CAD", "USD") else "currency"
             ordered = sorted(self.weights, key=lambda t: (-self.weights[t], t))
             positions = "; ".join(f"{t} {self.weights[t] * 100:.4g}%" for t in ordered)
             what = ("Hypothetical portfolio after the move", "Portefeuille hypothétique après le mouvement") if self.after_move                 else ("Fictional portfolio holdings", "Titres du portefeuille fictif")
@@ -553,6 +556,15 @@ class PortfolioView:
                                                           "fr": f"Plus grand secteur parmi les actions détenues directement, {name} ({self.variant})"},
                                     lims=lims)
             return Measurement(value, fid, worst=worst)
+        if metric in ("weight.country", "weight.currency"):
+            dimension = metric.split(".")[1]
+            values = [100 * w for t, w in self.weights.items() if getattr(self.assets[t], dimension) == key]
+            value = math.fsum(values)
+            fid = self._weight_fact(metric, value, subject={"type": dimension, "id": key or "unknown", "variant": self.variant},
+                label={"en": f"{key}: {'listing-country proxy' if dimension == 'country' else 'quotation-currency'} weight",
+                       "fr": f"{key} : poids par {'pays de cotation (approximation)' if dimension == 'country' else 'devise de cotation'}"},
+                lims=("LIM_ETF_NO_LOOKTHROUGH",))
+            return Measurement(value, fid)
         if metric == "weight.sector":
             sectors = self.sector_weights()
             label = next((s for s in sectors if slug(s) == slug(key or "")), None)

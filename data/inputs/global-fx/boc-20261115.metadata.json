@@ -1,0 +1,17 @@
+{
+  "provider": "Bank of Canada Valet",
+  "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXEURCAD,FXGBPCAD,FXCHFCAD,FXJPYCAD,FXHKDCAD,FXSGDCAD,FXAUDCAD/json?start_date=2021-11-01&end_date=2026-11-12",
+  "retrievedAt": "2026-11-15T07:55:11Z",
+  "rawSha256": "ab20f3985912e9f09b91291f1e634018b118352e7bdaf7efa9d45c9ccb684ba0",
+  "terms": "https://www.bankofcanada.ca/terms/",
+  "series": [
+    "EUR",
+    "GBP",
+    "CHF",
+    "JPY",
+    "HKD",
+    "SGD",
+    "AUD"
+  ],
+  "historicalVintage": "unknown; replay withheld until capture"
+}

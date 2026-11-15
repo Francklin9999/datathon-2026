@@ -8,26 +8,13 @@ shared mirror lands, import from it instead and delete the duplicates (a test in
 
 from __future__ import annotations
 
+from aplomb.contracts.catalog import DatasetId
+
 CONTRACT_VERSION = "1.0.0"
 
 # Catalog §10 — every dataset ID, in catalog order.
-DATASET_IDS: tuple[str, ...] = (
-    "assets_universe",
-    "prices_daily",
-    "corporate_actions",
-    "fx_usdcad_daily",
-    "macro_rates",
-    "asset_themes",
-    "default_profiles",
-    "macro_release_dates",
-    "etf_holdings",
-    "world_events",
-    "attention_pageviews",
-    "emissions_facilities",
-    "natural_hazards",
-    "research_documents",
-    "filings_index",
-)
+
+DATASET_IDS: tuple[str, ...] = tuple(code.value for code in DatasetId)
 
 # Catalog §8 — theme tags.
 THEME_TAGS: frozenset[str] = frozenset(
@@ -87,7 +74,7 @@ ASSET_CLASS_TO_GROUP: dict[str, str] = {
 }
 LISTED_ASSET_CLASSES: frozenset[str] = frozenset(ASSET_CLASS_TO_GROUP) - {"cash"}
 SINGLE_NAME_CLASSES: frozenset[str] = frozenset({"equity", "crypto"})
-CURRENCIES: frozenset[str] = frozenset({"CAD", "USD"})
+CURRENCIES: frozenset[str] = frozenset({"CAD", "USD", "EUR", "GBP", "CHF", "JPY", "HKD", "SGD", "AUD"})
 TIERS: tuple[str, ...] = ("starter", "extended", "on_demand")
 
 # The 11 GICS sector names (schemas.md §3 ``gicsSector``).
@@ -114,7 +101,7 @@ CALENDAR_REF_CAD = "XIU.TO"
 CALENDAR_REF_USD = "SPY"
 
 # Cash pseudo-assets (schemas.md §1 Ticker).
-CASH_TICKERS: dict[str, str] = {"CASH.CAD": "CAD", "CASH.USD": "USD"}
+CASH_TICKERS: dict[str, str] = {f"CASH.{code}": code for code in sorted(CURRENCIES)}
 
 # A-21: risk rules need at least this many master-calendar price observations.
 MIN_MASTER_OBS_FOR_RISK = 252

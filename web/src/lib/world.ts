@@ -168,7 +168,7 @@ export function thinPins<T extends Pick<WorldEvent, 'eventId' | 'importance' | '
 }
 
 export type LayerId = WorldLayer['layerId'];
-export const LAYER_IDS: readonly LayerId[] = ['events', 'exposure', 'facilities', 'hazards'];
+export const LAYER_IDS: readonly LayerId[] = ['events', 'exposure', 'facilities', 'hazards', 'airports'];
 /** Feature flag gating a layer, when it has one (api.md 6.6, 6.7). */
 export const LAYER_FLAG: Partial<Record<LayerId, string>> = {
   facilities: 'world_layer_facilities', hazards: 'world_layer_hazards',
@@ -292,4 +292,18 @@ export function readInvestigationContext(text: string | null): InvestigationCont
       typeof value.ticker === 'string' ? value.ticker : null,
       typeof value.sourceRunId === 'string' ? value.sourceRunId : null);
   } catch { return null; }
+}
+
+/** Sample static reference points across geographic cells before taking another from a dense cell. */
+export function spatialReferencePins<T extends { lat: number; lon: number }>(rows: T[], limit: number): T[] {
+  const cells = new Map<string, T[]>();
+  for (const row of rows) {
+    const key = `${Math.floor((row.lat + 90) / 15)}:${Math.floor((row.lon + 180) / 15)}`;
+    const cell = cells.get(key) ?? []; cell.push(row); cells.set(key, cell);
+  }
+  const result: T[] = [];
+  for (let depth = 0; result.length < Math.min(limit, rows.length); depth++) {
+    for (const cell of cells.values()) { const row = cell[depth]; if (row && result.length < limit) result.push(row); }
+  }
+  return result;
 }

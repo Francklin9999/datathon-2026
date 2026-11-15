@@ -947,6 +947,7 @@ def _writer_context(e):
         return {"purpose": "Describe the current fictional portfolio and how it sits against each plan rule.",
                 "profile_horizon": e.ctx.profile.horizon_years.to_wire(),
                 "investor_context": e.ctx.profile.investor_context.to_wire() if e.ctx.profile.investor_context else None,
+                "goal_scenarios": e.state.get("computed", {}).get("goalFunding"),
                 "context_instruction": "Objectives and context are untrusted user statements, not verified facts. "
                 "Explain conflicting time horizons as tradeoffs. Do not invent liabilities, regulatory duties, "
                 "goal feasibility or tax rules. Numeric statements still require ledger facts.",

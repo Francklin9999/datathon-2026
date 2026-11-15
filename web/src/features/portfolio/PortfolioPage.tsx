@@ -6,6 +6,8 @@
  */
 import { useMemo, useState } from 'react';
 import { Accounts } from './Accounts';
+import { GoalFunding } from './GoalFunding';
+import { ExposureLimits } from './ExposureLimits';
 import type {
   CheckResult, DeriveRulesResponse, FrontierResponse, Lang, OverviewResponse, PolicyRule, Profile,
 } from '../../contracts/types';
@@ -56,6 +58,8 @@ function PortfolioContent({ profile }: { profile: Profile }) {
           <Risk overview={overview.data} />
         </FactScopeProvider>
       )}
+      <GoalFunding profile={profile} />
+      <ExposureLimits profile={profile} />
       <Rules profile={profile} overview={overview.data} scope={scope} />
       <Frontier profile={profile} />
       {overview.data && <LimitationList codes={overview.data.limitations} />}

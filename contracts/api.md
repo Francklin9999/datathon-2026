@@ -41,8 +41,14 @@ Every non-2xx response has the body `ApiError`:
 |---|---|---|---|
 | 1.1 | GET `/health` | P0 | Liveness |
 | 1.2 | GET `/meta` | P0 | Versions, flags, disclaimer |
+| 2.6 | GET `/intelligence/entities` | P1 | Bounded official GLEIF legal-entity candidates; q 2–120 characters, limit 1–20; not a security-issuer link |
 | 2.1 | GET `/assets` | P0 | Search the universe |
 | 2.5 | GET `/assets/{ticker}/analytics` | P1 | Deterministic asset metrics and their facts; `currency`, `window`, optional `start`/`end` |
+| 3.22 | POST `/profiles/{profileId}/duplicate` | P1 | Duplicate active portfolio/context/policy into a new session-owned profile, with imported policy origin |
+| 3.21 | POST `/profiles/{profileId}/exposure-limits` | P1 | Typed user country/currency cap, expected version required |
+| 3.20 | GET `/profiles/{profileId}/goals` | P1 | Explicit-assumption goal funding scenarios; allocation overlap detected |
+| 3.18 | GET `/profiles/archived` | P1 | Session-owned archived custom profiles |
+| 3.19 | PATCH `/profiles/{profileId}/archive` | P1 | Archive/restore with archived flag and expected version |
 | 3.16 | POST `/profiles/{profileId}/accounts` | P1 | Create an explicit fictional account with name, portfolio, expected version; requires profile_creator |
 | 3.17 | POST `/profiles/{profileId}/accounts/{accountId}/select` | P1 | Select owned account or `aggregate`; expected version required |
 | 3.15 | GET `/profiles/{profileId}/risk` | P1 | Historical daily VaR/ES and signed variance shares with facts; `window`, optional `start`/`end` |
@@ -97,7 +103,7 @@ Every non-2xx response has the body `ApiError`:
 
 ```json
 {
-  "contractVersion": "1.2.0",
+  "contractVersion": "1.3.0",
   "dataVersion": "snap-20261113-starter",
   "dataAsOf": "2026-11-12",
   "environment": "aws",
@@ -480,6 +486,8 @@ Query: `profileId`, `from`, `to`. `200` → `{ countryIso3: string; name: I18nTe
 
 Query: `bbox`, `country`, `ticker`, `minEmissions`, `limit` (default 500, max 2,000). `200` → `{ items: Facility[]; total: number; reportingYear: number; limitations: LimitationCode[] }`.
 
+Facility captures expose optional `capturedAt` and `dataVersion` alongside `reportingYear`. Current ECCC coverage is Canada, latest completed reference year; emissions are reported tonnes CO2e excluding biomass CO2. Query `asOf` is rejected because the captured file has no original historical vintages. `ticker` filtering establishes no matches until reviewed security relationships exist. The legacy `Facility.operator` wire field carries the registry’s reporting-company legal name; it does not prove operator or owner status. The UI labels it Reporting company. Public contact fields are not retained. The data passport records attribution, rejection counts and checksums.
+
 ### 6.7 GET `/world/hazards` — flag `world_layer_hazards`
 
 Query: `from`, `to`, `type`, `bbox`, `limit`. `200` → `{ items: Hazard[]; total: number }`.
@@ -561,6 +569,10 @@ GET /world/layers → GET /world/events?from&to → click → GET /world/events/
 GET /replay/presets → POST /runs kind=replay (asOf) → poll → POST /runs/{id}/reveal
 ```
 
+
+| GET `/world/airports` | Current static large scheduled-service airport references | `AirportsResponse` |
+
+Airport queries accept repeated ISO3 `country`, `q`, `bbox`, and `limit` (1–2000). `asOf` is rejected: this captured reference has no historical vintages. Results retain original source URL and capture time. Coordinates establish no company relationship or financial impact.
 
 ### Global profile and analytics additions (1.2.0)
 

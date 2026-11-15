@@ -4,7 +4,7 @@
  */
 export interface GlobePin {
   id: string;
-  kind: 'event' | 'facility' | 'hazard';
+  kind: 'event' | 'facility' | 'hazard' | 'airport';
   lat: number;
   lng: number;
   /** Plain text shown under the globe on hover. */
@@ -16,7 +16,7 @@ export interface GlobePin {
 }
 
 export const PIN_COLORS = {
-  event: '#E3A53B', eventCountry: '#F6E3B4', facility: '#6FD0C5', hazard: '#F2907F', selected: '#FFFFFF',
+  event: '#E3A53B', eventCountry: '#F6E3B4', facility: '#6FD0C5', hazard: '#F2907F', airport: '#BCA9F5', selected: '#FFFFFF',
 } as const;
 // Graphite globe with one sequential cobalt ramp for exposure (app accent); events keep a warm hue of their own.
 export const LAND_COLOR = '#333338';

@@ -1,5 +1,37 @@
 {
   "$defs": {
+    "AddExposureLimitRequest": {
+      "properties": {
+        "dimension": {
+          "enum": [
+            "country",
+            "currency"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "pattern": "^[A-Z]{3}$",
+          "type": "string"
+        },
+        "threshold": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "dimension",
+        "key",
+        "threshold",
+        "version"
+      ],
+      "title": "AddExposureLimitRequest",
+      "type": "object"
+    },
     "AgentRole": {
       "enum": [
         "planner",
@@ -10,6 +42,96 @@
         "auditor"
       ],
       "type": "string"
+    },
+    "AirportReference": {
+      "properties": {
+        "airportId": {
+          "type": "string"
+        },
+        "ident": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "lat": {
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "lon": {
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "countryIso2": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "countryIso3": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceUrl": {
+          "type": "string"
+        },
+        "capturedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "airportId",
+        "ident",
+        "name",
+        "lat",
+        "lon",
+        "countryIso2",
+        "countryIso3",
+        "sourceUrl",
+        "capturedAt"
+      ],
+      "title": "AirportReference",
+      "type": "object"
+    },
+    "AirportsResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/AirportReference"
+          },
+          "type": "array"
+        },
+        "total": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "capturedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "dataVersion",
+        "capturedAt"
+      ],
+      "title": "AirportsResponse",
+      "type": "object"
     },
     "AnswerRequest": {
       "properties": {
@@ -54,6 +176,23 @@
         "error"
       ],
       "title": "ApiError",
+      "type": "object"
+    },
+    "ArchiveProfileRequest": {
+      "properties": {
+        "archived": {
+          "type": "boolean"
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "archived",
+        "version"
+      ],
+      "title": "ArchiveProfileRequest",
       "type": "object"
     },
     "Asset": {
@@ -1273,10 +1412,7 @@
       ]
     },
     "Currency": {
-      "enum": [
-        "CAD",
-        "USD"
-      ],
+      "pattern": "^[A-Z]{3}$",
       "type": "string"
     },
     "DataVersion": {
@@ -1332,6 +1468,9 @@
         "assets_universe",
         "prices_daily",
         "corporate_actions",
+        "fx_boc_global",
+        "world_airports",
+        "world_bank_indicators",
         "fx_usdcad_daily",
         "macro_rates",
         "asset_themes",
@@ -1771,9 +1910,171 @@
       "title": "DeriveRulesResponse",
       "type": "object"
     },
+    "DuplicateProfileRequest": {
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "maxLength": 40,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "DuplicateProfileRequest",
+      "type": "object"
+    },
     "EmptyRequest": {
       "properties": {},
       "title": "EmptyRequest",
+      "type": "object"
+    },
+    "EntityCandidate": {
+      "properties": {
+        "lei": {
+          "type": "string"
+        },
+        "legalName": {
+          "type": "string"
+        },
+        "jurisdiction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entityStatus": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recordUrl": {
+          "type": "string"
+        },
+        "matchStatus": {
+          "const": "candidate",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lei",
+        "legalName",
+        "jurisdiction",
+        "entityStatus",
+        "recordUrl",
+        "matchStatus"
+      ],
+      "title": "EntityCandidate",
+      "type": "object"
+    },
+    "EntitySearchResponse": {
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/EntityCandidate"
+          },
+          "type": "array"
+        },
+        "total": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "returned": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "rejected": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/EntitySource"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "query",
+        "items",
+        "total",
+        "returned",
+        "rejected",
+        "truncated",
+        "source",
+        "limitations"
+      ],
+      "title": "EntitySearchResponse",
+      "type": "object"
+    },
+    "EntitySource": {
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "retrievedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "availableAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "publishedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contentSha256": {
+          "type": "string"
+        },
+        "licence": {
+          "type": "string"
+        },
+        "licenceUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "url",
+        "retrievedAt",
+        "availableAt",
+        "publishedAt",
+        "contentSha256",
+        "licence",
+        "licenceUrl"
+      ],
+      "title": "EntitySource",
       "type": "object"
     },
     "ErrorCode": {
@@ -2254,6 +2555,28 @@
     },
     "FacilitiesResponse": {
       "properties": {
+        "capturedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODateTime"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "dataVersion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataVersion"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "items": {
           "items": {
             "$ref": "#/$defs/Facility"
@@ -2636,6 +2959,7 @@
             "asset_class",
             "theme",
             "country",
+            "currency",
             "rule",
             "macro",
             "event",
@@ -3076,6 +3400,97 @@
       "title": "GateReport",
       "type": "object"
     },
+    "GoalFundingResponse": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "overallocated": {
+          "type": "boolean"
+        },
+        "unallocatedValue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "goals": {
+          "items": {
+            "$ref": "#/$defs/GoalFundingScenario"
+          },
+          "type": "array"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "profileId",
+        "currency",
+        "overallocated",
+        "unallocatedValue",
+        "goals",
+        "facts"
+      ],
+      "title": "GoalFundingResponse",
+      "type": "object"
+    },
+    "GoalFundingScenario": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "missing_assumptions",
+            "scenario_funded",
+            "scenario_shortfall"
+          ],
+          "type": "string"
+        },
+        "projectedValue": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fundingGap": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "factIds": {
+          "additionalProperties": {
+            "$ref": "#/$defs/FactId"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "state",
+        "projectedValue",
+        "fundingGap",
+        "factIds"
+      ],
+      "title": "GoalFundingScenario",
+      "type": "object"
+    },
     "GoalRequest": {
       "properties": {
         "type": {
@@ -3422,6 +3837,43 @@
           ],
           "default": null
         },
+        "allocatedValue": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "annualContribution": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "assumedReturnPct": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": -100,
+              "maximum": 100,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "deadline": {
           "anyOf": [
             {
@@ -3610,6 +4062,12 @@
     },
     "Meta": {
       "properties": {
+        "reportingCurrencies": {
+          "items": {
+            "$ref": "#/$defs/Currency"
+          },
+          "type": "array"
+        },
         "contractVersion": {
           "type": "string"
         },
@@ -3725,6 +4183,7 @@
         "M_RET_SIMPLE",
         "M_RET_CALENDAR_YEAR",
         "M_VOL_STDEV_252",
+        "M_GOAL_FUNDING_SCENARIO",
         "M_HISTORICAL_TAIL",
         "M_VARIANCE_SHARE",
         "M_MDD_PEAK_TROUGH",
@@ -3766,6 +4225,9 @@
         "return.trailing",
         "return.worst_12m",
         "vol.annualized",
+        "input.goal_assumption",
+        "goal.projected_value",
+        "goal.funding_gap",
         "risk.var95",
         "risk.es95",
         "risk.variance_share",
@@ -3783,6 +4245,7 @@
         "weight.fixed_income",
         "weight.diversifiers",
         "weight.theme",
+        "weight.currency",
         "weight.country",
         "concentration.hhi",
         "concentration.effective_n",
@@ -4201,6 +4664,10 @@
           "default": null
         },
         "isDefault": {
+          "default": null,
+          "type": "boolean"
+        },
+        "archived": {
           "default": null,
           "type": "boolean"
         },
@@ -4793,6 +5260,10 @@
           "$ref": "#/$defs/ProfileId"
         },
         "isDefault": {
+          "type": "boolean"
+        },
+        "archived": {
+          "default": false,
           "type": "boolean"
         },
         "origin": {
@@ -5567,7 +6038,7 @@
       "type": "object"
     },
     "RuleId": {
-      "pattern": "^(cap\\.(position|sector|asset_class\\.crypto|growth_assets|theme\\.(ai|semiconductors|software|cloud|ecommerce|electric_vehicles|big_tech|banks|insurance|fossil_energy|pipelines|utilities|rail_transport|consumer_staples|healthcare|retail|broad_canada|broad_us|nasdaq_growth|esg_screened|bonds_canada|bonds_us|long_treasuries|cash_like|gold|crypto|dividend_payers))|floor\\.(fixed_income|diversifiers)|limit\\.(volatility|stress_2022|drawdown)|exclude\\.(sector\\.[a-z]+(_[a-z]+)*|asset_class\\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|ticker\\.[A-Z0-9][A-Z0-9.^=-]*)|evidence\\.controversy|flag\\.(attention|rate_cycle|short_history)|sim\\.only)$",
+      "pattern": "^(cap\\.(position|sector|asset_class\\.crypto|growth_assets|country\\.[A-Z]{3}|currency\\.[A-Z]{3}|theme\\.(ai|semiconductors|software|cloud|ecommerce|electric_vehicles|big_tech|banks|insurance|fossil_energy|pipelines|utilities|rail_transport|consumer_staples|healthcare|retail|broad_canada|broad_us|nasdaq_growth|esg_screened|bonds_canada|bonds_us|long_treasuries|cash_like|gold|crypto|dividend_payers))|floor\\.(fixed_income|diversifiers)|limit\\.(volatility|stress_2022|drawdown)|exclude\\.(sector\\.[a-z]+(_[a-z]+)*|asset_class\\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|ticker\\.[A-Z0-9][A-Z0-9.^=-]*)|evidence\\.controversy|flag\\.(attention|rate_cycle|short_history)|sim\\.only)$",
       "type": "string"
     },
     "RuleOrigin": {
@@ -5575,7 +6046,8 @@
         "derived",
         "profile_preference",
         "user",
-        "system"
+        "system",
+        "imported"
       ],
       "type": "string"
     },
@@ -5683,6 +6155,8 @@
             "asset_group",
             "theme",
             "portfolio",
+            "country",
+            "currency",
             "none"
           ],
           "type": "string"
@@ -6903,6 +7377,7 @@
         "days",
         "cad",
         "usd",
+        "currency",
         "date",
         "text",
         "bool"
@@ -7599,7 +8074,8 @@
             "events",
             "exposure",
             "facilities",
-            "hazards"
+            "hazards",
+            "airports"
           ],
           "type": "string"
         },
@@ -7702,8 +8178,17 @@
     }
   },
   "properties": {
+    "AddExposureLimitRequest": {
+      "$ref": "#/$defs/AddExposureLimitRequest"
+    },
     "AgentRole": {
       "$ref": "#/$defs/AgentRole"
+    },
+    "AirportReference": {
+      "$ref": "#/$defs/AirportReference"
+    },
+    "AirportsResponse": {
+      "$ref": "#/$defs/AirportsResponse"
     },
     "AnswerRequest": {
       "$ref": "#/$defs/AnswerRequest"
@@ -7713,6 +8198,9 @@
     },
     "ApiError": {
       "$ref": "#/$defs/ApiError"
+    },
+    "ArchiveProfileRequest": {
+      "$ref": "#/$defs/ArchiveProfileRequest"
     },
     "Asset": {
       "$ref": "#/$defs/Asset"
@@ -7870,8 +8358,20 @@
     "DeriveRulesResponse": {
       "$ref": "#/$defs/DeriveRulesResponse"
     },
+    "DuplicateProfileRequest": {
+      "$ref": "#/$defs/DuplicateProfileRequest"
+    },
     "EmptyRequest": {
       "$ref": "#/$defs/EmptyRequest"
+    },
+    "EntityCandidate": {
+      "$ref": "#/$defs/EntityCandidate"
+    },
+    "EntitySearchResponse": {
+      "$ref": "#/$defs/EntitySearchResponse"
+    },
+    "EntitySource": {
+      "$ref": "#/$defs/EntitySource"
     },
     "ErrorCode": {
       "$ref": "#/$defs/ErrorCode"
@@ -7992,6 +8492,12 @@
     },
     "GateReport": {
       "$ref": "#/$defs/GateReport"
+    },
+    "GoalFundingResponse": {
+      "$ref": "#/$defs/GoalFundingResponse"
+    },
+    "GoalFundingScenario": {
+      "$ref": "#/$defs/GoalFundingScenario"
     },
     "GoalRequest": {
       "$ref": "#/$defs/GoalRequest"
@@ -8412,10 +8918,14 @@
     }
   },
   "required": [
+    "AddExposureLimitRequest",
     "AgentRole",
+    "AirportReference",
+    "AirportsResponse",
     "AnswerRequest",
     "AnswerResponse",
     "ApiError",
+    "ArchiveProfileRequest",
     "Asset",
     "AssetAnalyticsResponse",
     "AssetClass",
@@ -8468,7 +8978,11 @@
     "DecisionRunResult",
     "DeriveRulesRequest",
     "DeriveRulesResponse",
+    "DuplicateProfileRequest",
     "EmptyRequest",
+    "EntityCandidate",
+    "EntitySearchResponse",
+    "EntitySource",
     "ErrorCode",
     "ErrorDetail",
     "EventBriefInput",
@@ -8509,6 +9023,8 @@
     "FundingOption",
     "GateDataset",
     "GateReport",
+    "GoalFundingResponse",
+    "GoalFundingScenario",
     "GoalRequest",
     "GroupWeight",
     "GuardrailAudit",
@@ -8652,12 +9168,12 @@
   "title": "AplombContracts",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aplomb.local/contracts/1.2.0/schema.json",
-  "x-contract-version": "1.2.0",
+  "$id": "https://aplomb.local/contracts/1.3.0/schema.json",
+  "x-contract-version": "1.3.0",
   "x-spec-sha256": {
-    "schemas.md": "3a0218a590fa47e41fa39464825b6d46bd059c7463bb66a1afe6b46a93dcf77c",
-    "catalog.md": "4de3c105f2d7c728471a9f998337e24fd607a6b1ab33a710ded916e105b19b36",
-    "api.md": "a206cea0e09a531b47b0656144c8f41e156549b3772c122a6d93663023a159e6",
+    "schemas.md": "8ef77c78d2a4c1ceefc2015264a83fe93b3afcd9912cb8054ad674976d1ff14a",
+    "catalog.md": "4ba031046bbf11c423bbd1f1b97e8e0604947fbb0540d7186cf25c7f42034e88",
+    "api.md": "7eeadf7ccc6b453c7f7861444e5a51c77c0ddfff669944ccceecf279e0096737",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
   }

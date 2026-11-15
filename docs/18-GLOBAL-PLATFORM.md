@@ -1,5 +1,7 @@
 # Global platform implementation — 2026-11-15
 
+The later [continuation execution record](21-CONTINUATION-EXECUTION.md) supersedes the currency, profile lifecycle, source and contract boundaries in the original batch below.
+
 This is a **partial implementation of the full master specification**, not a declaration that
 all 243 sources or the complete worldwide product are integrated. The owner requested the
 largest complete implementation and made deployment conditional on completion of everything.

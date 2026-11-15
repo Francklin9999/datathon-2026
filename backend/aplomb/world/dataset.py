@@ -7,6 +7,7 @@ import threading
 from dataclasses import dataclass
 from pathlib import Path
 
+from .country_macro import load_snapshot
 from .ingest import BUNDLE_DIR, content_hash
 
 
@@ -21,6 +22,8 @@ class WorldDataset:
     events: tuple[dict, ...]
     hazards: tuple[dict, ...]
     manifest: dict
+    country_macro: tuple[dict, ...] = ()
+    country_macro_manifest: dict | None = None
 
     @property
     def coverage(self) -> dict | None:
@@ -53,7 +56,12 @@ def load_bundle(directory: Path | str = BUNDLE_DIR) -> WorldDataset:
     events, hazards = loaded.get("events.json", []), loaded.get("hazards.json", [])
     if len(events) != manifest["events"]["count"] or len(hazards) != manifest["hazards"]["count"]:
         raise WorldDataError("World bundle row counts differ from the manifest")
-    return WorldDataset(manifest["worldVersion"], manifest["builtAt"], tuple(events), tuple(hazards), manifest)
+    try:
+        country_macro, country_macro_manifest = load_snapshot(directory)
+    except (OSError, KeyError, TypeError, ValueError) as exc:
+        raise WorldDataError(f"World Bank snapshot unavailable: {exc}") from exc
+    return WorldDataset(manifest["worldVersion"], manifest["builtAt"], tuple(events), tuple(hazards), manifest,
+                        country_macro, country_macro_manifest)
 
 
 class BundleProvider:

@@ -146,6 +146,17 @@ DESCRIPTORS: dict[str, Descriptor] = {
         t("A rate dated D is available from 21:30 UTC on D (published around 16:30 Eastern time; stamp one hour late in summer). Reads may include the last available rate before the requested window.",
           "Un taux daté J est disponible à partir de 21 h 30 UTC le jour J (publié vers 16 h 30, heure de l'Est; une heure de retard en été). Une lecture peut inclure le dernier taux disponible avant la période demandée."),
     ),
+    "fx_boc_global": Descriptor(
+        t("Bank of Canada global FX", "Devises mondiales de la Banque du Canada"),
+        t("Indicative daily Canadian-dollar exchange rates for available currencies.", "Taux de change indicatifs quotidiens en dollars canadiens."),
+        "daily", "Bank of Canada Valet API, captured snapshot",
+        (t("CAD per one currency unit. Cross rates divide the two CAD quotes; missing observations are never invented.",
+           "CAD par unité de devise. Les taux croisés divisent les deux taux en CAD; les observations manquantes ne sont pas inventées."),
+         t("Rates are indicative averages and may be revised or delayed.", "Taux indicatifs moyens, susceptibles de révision ou de retard.")),
+        (LIM_FX_FFILL,),
+        t("Current mode assumes publication by 21:30 UTC on the observation date; historic mode withholds rows before the actual capture because original vintages are unavailable.",
+          "En mode courant, publication présumée à 21 h 30 UTC le jour observé; le mode historique exclut les lignes avant la capture faute de millésimes originaux."),
+        planned_source="Bank of Canada Valet (not loaded)"),
     "macro_rates": Descriptor(
         t("Macro rates and inflation", "Taux et inflation"),
         t("Context for explanations and the rate-cycle scenario (policy rates, bond yields, CPI, unemployment).",
@@ -230,6 +241,22 @@ DESCRIPTORS: dict[str, Descriptor] = {
         planned_source="ETF issuer holdings documents (planned, T09)",
         planned_owner="T09",
     ),
+    "world_airports": Descriptor(
+        t("OurAirports reference", "Référence OurAirports"),
+        t("Large scheduled-service airport coordinates.", "Coordonnées des grands aéroports avec service régulier."),
+        "batch", "versioned public CSV capture",
+        (t("Current static reference only.", "Référence statique actuelle seulement."),),
+        ("LIM_IMPACT_NOT_ESTABLISHED",),
+        t("Capture time; original publication date unknown.", "Date de capture; publication originale inconnue."),
+        planned_source="OurAirports; separate verified reference snapshot required"),
+    "world_bank_indicators": Descriptor(
+        t("World Bank country indicators", "Indicateurs nationaux de la Banque mondiale"),
+        t("Annual worldwide economic context, separate from price history.", "Contexte économique mondial annuel, distinct des prix historiques."),
+        "annual", "versioned public API capture",
+        (t("Available only when the separately verified country snapshot is loaded.", "Disponible seulement lorsque l'instantané national vérifié est chargé."),),
+        ("LIM_MACRO_REVISED",),
+        t("Capture establishes availability; not an original historical vintage.", "La capture établit la disponibilité; ce n'est pas un millésime historique original."),
+        planned_source="World Bank WDI; separate country snapshot not loaded in this datastore"),
     "world_events": Descriptor(
         t("World events", "Événements mondiaux"),
         t("Geolocated events for the World Explorer.", "Événements géolocalisés pour l'explorateur mondial."),
@@ -397,6 +424,12 @@ def _statcan_only(meta: dict) -> bool:
 
 
 def _provenance(dataset_id: str, manifest: dict) -> tuple[str, str | None, str, str | None, str | None]:
+    if dataset_id == "fx_boc_global":
+        meta = manifest["datasets"][dataset_id]
+        details = meta.get("details", {})
+        return ("Bank of Canada Valet, daily indicative FX rates", details.get("sourceUrl"),
+                "Bank of Canada terms; indicative rates and potential third-party rights",
+                "https://www.bankofcanada.ca/terms/", details.get("retrievedAt", "")[:10] or None)
     if dataset_id == "asset_themes":
         meta = manifest["datasets"]["asset_themes"]
         dates = meta.get("details", {}).get("assignedAt", [])

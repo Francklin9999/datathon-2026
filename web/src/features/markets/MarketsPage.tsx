@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { EntityResearch } from './EntityResearch';
 import { useState } from 'react';
 import type { AssetsResponse, AssetAnalyticsResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
@@ -42,6 +43,7 @@ export function MarketsPage() {
         </tbody></table>
       </div>
     </Card>
+    <EntityResearch />
     {ticker && <Card title={ticker}>
       {analytics.loading && <Loading />}{analytics.error && <ErrorState error={analytics.error} onRetry={analytics.reload} />}
       {analytics.data && <FactScopeProvider scope={{ kind: 'local', label: { en: 'Deterministic security analytics', fr: 'Analyse déterministe du titre' }, facts: analytics.data.facts }}>

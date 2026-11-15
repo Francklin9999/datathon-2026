@@ -31,7 +31,7 @@ Notation: `?` = optional key; `| null` = key always present, value may be null; 
 ```ts
 type ISODate = string;        // "2026-11-12"
 type ISODateTime = string;    // "2026-11-14T20:25:00Z"
-type Currency = "CAD" | "USD";
+type Currency = string; // ISO 4217 code; usable coverage requires sourced FX.
 type Lang = "en" | "fr";
 interface I18nText { en: string; fr: string }
 
@@ -140,9 +140,9 @@ interface Profile {
 
 ```ts
 type RuleType = "cap" | "floor" | "limit" | "exclude" | "evidence" | "flag" | "sim";
-type RuleOrigin = "derived" | "profile_preference" | "user" | "system";
+type RuleOrigin = "derived" | "profile_preference" | "user" | "system" | "imported";
 type Comparator = "<=" | ">=" | "==" | "none";
-type Unit = "pct" | "pts" | "ratio" | "count" | "days" | "cad" | "usd" | "date" | "text" | "bool";
+type Unit = "pct" | "pts" | "ratio" | "count" | "days" | "cad" | "usd" | "currency" | "date" | "text" | "bool";
 
 interface PolicyRule {
   ruleId: RuleId;                        // catalog
@@ -152,7 +152,7 @@ interface PolicyRule {
   label: I18nText;                       // plain-language sentence WITHOUT the number, with "{threshold}" placeholder
   rationale: I18nText;                   // why this rule exists for this profile, citing the profile text
   metric: MetricCode | null;             // catalog; what is measured
-  target: { dimension: "position" | "sector" | "asset_class" | "asset_group" | "theme" | "portfolio" | "none"; key: string | null };
+  target: { dimension: "position" | "sector" | "asset_class" | "asset_group" | "theme" | "portfolio" | "country" | "currency" | "none"; key: string | null };
   comparator: Comparator;
   threshold: number | null;
   unit: Unit;
@@ -251,7 +251,7 @@ interface Fact {
   currency: Currency | null;
   display: I18nText;                     // formatted by the backend: "−65.0%" / "−65,0 %"
   subject: {
-    type: "asset" | "portfolio" | "sector" | "asset_group" | "asset_class" | "theme" | "country" | "rule" | "macro" | "event" | "request" | "universe";
+    type: "asset" | "portfolio" | "sector" | "asset_group" | "asset_class" | "theme" | "country" | "currency" | "rule" | "macro" | "event" | "request" | "universe";
     id: string;                          // ticker, profileId, sector label, ruleId, series id...
     variant: "before" | "after" | "na" | string;   // "after", or "scenario:<ScenarioId>"
   };
@@ -655,7 +655,7 @@ interface Hazard {
 }
 
 interface WorldLayer {
-  layerId: "events" | "exposure" | "facilities" | "hazards";
+  layerId: "events" | "exposure" | "facilities" | "hazards" | "airports";
   title: I18nText;
   tier: "P1" | "P2";
   available: boolean;                    // false when its dataset is not loaded

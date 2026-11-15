@@ -85,7 +85,8 @@ def _parse_table(dataset_id: str, payload: bytes) -> _Table:
 def _index(dataset_id: str, rows: list[dict]) -> dict:
     """Group rows by their natural key, each group sorted by date, with a parallel date list."""
     key = {"prices_daily": "ticker", "macro_rates": "series_id", "corporate_actions": "ticker",
-           "asset_themes": "ticker", "assets_universe": "ticker", "macro_release_dates": "series_id"}.get(dataset_id)
+           "asset_themes": "ticker", "assets_universe": "ticker", "macro_release_dates": "series_id",
+           "fx_boc_global": "currency"}.get(dataset_id)
     date_col = NORMALIZED[dataset_id].date_column
     out: dict = {}
     if key:

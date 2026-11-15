@@ -81,6 +81,7 @@ export default function GlobeView({
   const height = Math.max(260, Math.min(520, Math.round(width * 0.82)));
   const pinColor = (pin: GlobePin) => (pin.id === selectedId ? PIN_COLORS.selected
     : pin.kind === 'facility' ? PIN_COLORS.facility
+      : pin.kind === 'airport' ? PIN_COLORS.airport
       : pin.kind === 'hazard' ? PIN_COLORS.hazard
         : pin.countryLevel ? PIN_COLORS.eventCountry : PIN_COLORS.event);
 

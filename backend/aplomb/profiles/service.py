@@ -98,8 +98,65 @@ class ProfileServiceImpl:
         out = [self.get(session_id, pid) for pid in self._defaults]
         customs = [item for item in self.repo.list(session_id) if not item.get("overlay")]
         for item in sorted(customs, key=lambda i: i["value"]["createdAt"]):
-            out.append(m.Profile.model_validate(item["value"]))
+            profile = m.Profile.model_validate(item["value"])
+            if not profile.archived:
+                out.append(profile)
         return out
+
+    def duplicate(self, session_id: str, profile_id: str, name: str | None = None):
+        profile = self.get(session_id, profile_id)
+        data = profile.to_wire()
+        body = {key: data[key] for key in ("age", "riskLevel", "horizonYears", "objective", "experience", "reportingCurrency", "preferences")}
+        body.update(name=name or (profile.name + " copy")[:40],
+            portfolio={"totalValue": profile.portfolio.total_value, "positions": [p.to_wire() for p in profile.portfolio.positions]},
+            rules=[{**r.to_wire(), "origin": "imported"} for r in profile.rules], fromDraftRunId=None,
+            investorContext=data.get("investorContext"))
+        now = _now(self.clock)
+        profile_id = "p_" + "".join(secrets.choice(_B32) for _ in range(10))
+        cloned = self._custom_body(a.CreateProfileRequest.model_validate(body), profile_id, now, created_at=now)
+        if profile.accounts:
+            id_map = {account.account_id: "acct_" + secrets.token_hex(6) for account in profile.accounts}
+            cloned["accounts"] = [{**account.to_wire(), "accountId": id_map[account.account_id]} for account in profile.accounts]
+            cloned["activeAccountId"] = id_map.get(profile.active_account_id, profile.active_account_id)
+        cloned["version"] = 1
+        self.repo.save(session_id, profile_id, cloned, None)
+        return m.Profile.model_validate(cloned)
+
+    def add_exposure_limit(self, session_id: str, profile_id: str, request: a.AddExposureLimitRequest):
+        from .rulebuilder import make_rule
+        profile, stored = self._load(session_id, profile_id)
+        if profile.is_default:
+            raise Conflict("Copy a seed profile before adding custom policy rules")
+        if profile.version != request.version:
+            raise Conflict()
+        rid = f"cap.{request.dimension}.{request.key}"
+        now = _now(self.clock)
+        rules = [r.to_wire() for r in profile.rules if r.rule_id != rid]
+        rules.append(make_rule(rid, f"R{len(rules)+1}", threshold=request.threshold, origin="user", derivation=None,
+            rationale={"en": "User-defined exposure limit; listing/quotation proxy only, not a regulatory rule or economic look-through.",
+                       "fr": "Limite définie par l'utilisateur; approximation par cotation/devise, sans règle réglementaire ni transparence économique."}, updated_at=now))
+        self._validate_rules([m.PolicyRule.model_validate(r) for r in rules])
+        data = profile.to_wire()
+        data.update(rules=renumber(rules), updatedAt=now)
+        return self._save(session_id, m.Profile.model_validate(data), stored)
+
+    def goal_funding(self, session_id: str, profile_id: str):
+        from .goals import assess_goals
+        return assess_goals(self.get(session_id, profile_id), self.snapshot().data_version, _now(self.clock))
+
+    def archived(self, session_id: str) -> list[m.Profile]:
+        return [m.Profile.model_validate(item["value"]) for item in self.repo.list(session_id)
+                if not item.get("overlay") and item["value"].get("archived", False)]
+
+    def archive(self, session_id: str, profile_id: str, archived: bool, version: int) -> m.Profile:
+        profile, stored = self._load(session_id, profile_id)
+        if profile.is_default:
+            raise Conflict("Seed profiles cannot be archived; copy a template first")
+        if profile.version != version:
+            raise Conflict()
+        data = profile.to_wire()
+        data.update(archived=archived, updatedAt=_now(self.clock))
+        return self._save(session_id, m.Profile.model_validate(data), stored)
 
     def get(self, session_id: str, profile_id: str) -> m.Profile:
         return self._load(session_id, profile_id)[0]
@@ -216,6 +273,11 @@ class ProfileServiceImpl:
             raise Conflict("Select an individual account before replacing a profile")
         now = _now(self.clock)
         data = self._custom_body(request, profile_id, now, created_at=profile.created_at)
+        if request.rules is None:
+            overrides = {r.rule_id: r.to_wire() for r in profile.rules if r.origin in ("user", "imported")}
+            derived_ids = {r["ruleId"] for r in data["rules"]}
+            data["rules"] = renumber([overrides.get(r["ruleId"], r) for r in data["rules"]]
+                + [r for key, r in overrides.items() if key not in derived_ids])
         if profile.accounts:
             if request.reporting_currency != profile.reporting_currency:
                 raise Conflict("Account values require explicit FX conversion before changing reporting currency")
@@ -224,6 +286,7 @@ class ProfileServiceImpl:
             for account in data["accounts"]:
                 if account["accountId"] == profile.active_account_id:
                     account["portfolio"] = copy.deepcopy(data["portfolio"])
+        data["archived"] = profile.archived
         data["version"] = stored["revision"] + 1
         self.repo.save(session_id, profile_id, data, stored["revision"])
         return m.Profile.model_validate(data)
@@ -424,6 +487,14 @@ class ProfileServiceImpl:
             seen.add(rid)
             if r.type != d.type:
                 raise bad(f"Rule {rid} must have type {d.type}")
+            if (r.metric != d.metric or r.comparator != d.comparator or r.unit != d.unit
+                    or r.target.dimension != d.dimension or r.target.key != d.target_key
+                    or r.counts_in_verdict != d.counts):
+                raise bad(f"Rule {rid} metadata must agree with its deterministic definition")
+            if d.type == "exclude" and r.threshold != 0:
+                raise bad(f"Rule {rid} is an exclusion and must use a zero threshold")
+            if d.type in ("flag", "evidence", "sim") and r.threshold is not None:
+                raise bad(f"Rule {rid} does not accept a numerical threshold")
             if rid.startswith("exclude.sector.") and rid[len("exclude.sector."):] not in sectors:
                 raise bad(f"Rule {rid} names no sector of the universe")
             if d.type in ("cap", "floor", "limit", "exclude") and r.threshold is None:

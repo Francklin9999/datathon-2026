@@ -155,6 +155,8 @@ export function createApiClient(config: ClientConfig) {
     health: (signal?: AbortSignal) => call('HealthResponse', 'GET', '/health', { anonymous: true, signal }),
     meta: (signal?: AbortSignal) => call('Meta', 'GET', '/meta', { anonymous: true, signal }),
 
+    entityCandidates: (q: string, signal?: AbortSignal) =>
+      call('EntitySearchResponse', 'GET', '/intelligence/entities', { query: { q, limit: 10 }, signal }),
     assets: (query: { q?: string; limit?: number }, signal?: AbortSignal) =>
       call('AssetsResponse', 'GET', '/assets', { query, signal }),
     asset: (ticker: string, signal?: AbortSignal) =>
@@ -172,6 +174,14 @@ export function createApiClient(config: ClientConfig) {
     createProfile: (body: CreateProfileRequest) => call('Profile', 'POST', '/profiles', { body }),
     updateProfile: (profileId: string, body: UpdateProfileRequest) =>
       call('Profile', 'PUT', `/profiles/${enc(profileId)}`, { body }),
+    duplicateProfile: (profileId: string) => call('Profile', 'POST', `/profiles/${enc(profileId)}/duplicate`, { body: {} }),
+    addExposureLimit: (profileId: string, dimension: 'country' | 'currency', key: string, threshold: number, version: number) =>
+      call('Profile', 'POST', `/profiles/${enc(profileId)}/exposure-limits`, { body: { dimension, key, threshold, version } }),
+    goalFunding: (profileId: string, signal?: AbortSignal) =>
+      call('GoalFundingResponse', 'GET', `/profiles/${enc(profileId)}/goals`, { signal }),
+    archivedProfiles: (signal?: AbortSignal) => call('ProfilesResponse', 'GET', '/profiles/archived', { signal }),
+    archiveProfile: (profileId: string, archived: boolean, version: number) =>
+      call('Profile', 'PATCH', `/profiles/${enc(profileId)}/archive`, { body: { archived, version } }),
     createAccount: (profileId: string, name: string, version: number, portfolio: { totalValue: number; positions: { ticker: string; weightPct: number }[] }) =>
       call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts`, { body: { name, version, portfolio } }),
     selectAccount: (profileId: string, accountId: string, version: number) =>
@@ -245,6 +255,8 @@ export function createApiClient(config: ClientConfig) {
       call('WorldCountryResponse', 'GET', `/world/countries/${enc(iso3)}`, { query: { ...query }, signal }),
     worldFacilities: (query: WorldFacilitiesQuery = {}, signal?: AbortSignal) =>
       call('FacilitiesResponse', 'GET', '/world/facilities', { query: { ...query }, signal }),
+    worldAirports: (query: { country?: readonly string[]; q?: string; limit?: number }, signal?: AbortSignal) =>
+      call('AirportsResponse', 'GET', '/world/airports', { query: { ...query }, signal }),
     worldHazards: (query: WorldHazardsQuery = {}, signal?: AbortSignal) =>
       call('HazardsResponse', 'GET', '/world/hazards', { query: { ...query }, signal }),
 

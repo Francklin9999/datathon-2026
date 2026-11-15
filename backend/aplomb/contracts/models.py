@@ -1,4 +1,4 @@
-"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.2.0.
+"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.3.0.
 
 Boundary types only: numerical calculations, temporal gates, workflow transitions,
 and cross-resource checks remain with their owning services.
@@ -45,7 +45,7 @@ from .catalog import (
     ThemeTag,
 )
 
-Currency = TypeAliasType("Currency", Literal["CAD", "USD"])
+Currency = TypeAliasType("Currency", Annotated[String, Field(pattern=r"^[A-Z]{3}$")])
 Lang = TypeAliasType("Lang", Literal["en", "fr"])
 WindowCode = TypeAliasType("WindowCode", Literal["full", "1y", "3y", "5y", "ytd", "custom"])
 AssetClass = TypeAliasType(
@@ -62,10 +62,10 @@ Experience = TypeAliasType("Experience", Literal["beginner", "intermediate", "ad
 RuleType = TypeAliasType(
     "RuleType", Literal["cap", "floor", "limit", "exclude", "evidence", "flag", "sim"]
 )
-RuleOrigin = TypeAliasType("RuleOrigin", Literal["derived", "profile_preference", "user", "system"])
+RuleOrigin = TypeAliasType("RuleOrigin", Literal["derived", "profile_preference", "user", "system", "imported"])
 Comparator = TypeAliasType("Comparator", Literal["<=", ">=", "==", "none"])
 Unit = TypeAliasType(
-    "Unit", Literal["pct", "pts", "ratio", "count", "days", "cad", "usd", "date", "text", "bool"]
+    "Unit", Literal["pct", "pts", "ratio", "count", "days", "cad", "usd", "currency", "date", "text", "bool"]
 )
 FundingMode = TypeAliasType(
     "FundingMode", Literal["auto", "pro_rata", "from_cash", "from_holdings", "new_money"]
@@ -76,7 +76,7 @@ RuleId = TypeAliasType(
         String,
         Field(
             pattern=(
-                r"^(cap\.(position|sector|asset_class\.crypto|growth_assets|theme\.("
+                r"^(cap\.(position|sector|asset_class\.crypto|growth_assets|country\.[A-Z]{3}|currency\.[A-Z]{3}|theme\.("
                 + "|".join(tag.value for tag in ThemeTag)
                 + r"))|floor\.(fixed_income|diversifiers)|limit\.(volatility|stress_2022|drawdown)"
                 r"|exclude\.(sector\.[a-z]+(_[a-z]+)*|asset_class\.(equity|etf_equity|etf_bond|"
@@ -256,6 +256,9 @@ class InvestmentGoal(WireModel):
     horizon_years: Annotated[Number, Field(gt=0, le=150)]
     priority: Annotated[Integer, Field(ge=1, le=100)]
     target_amount: NonNegative | None = None
+    allocated_value: NonNegative | None = None
+    annual_contribution: NonNegative | None = None
+    assumed_return_pct: Annotated[Number, Field(gt=-100, le=100)] | None = None
     deadline: ISODate | None = None
     origin: Literal["user", "imported", "assumption"] = "user"
 
@@ -277,7 +280,7 @@ class InvestorContext(WireModel):
 
 class RuleTarget(WireModel):
     dimension: Literal[
-        "position", "sector", "asset_class", "asset_group", "theme", "portfolio", "none"
+        "position", "sector", "asset_class", "asset_group", "theme", "portfolio", "country", "currency", "none"
     ]
     key: String | None
 
@@ -326,6 +329,7 @@ class PortfolioAccount(WireModel):
 class Profile(WireModel):
     profile_id: ProfileId
     is_default: Boolean
+    archived: Boolean = False
     origin: Literal["brief", "user", "agent_draft"]
     name: String
     initial: Annotated[String, Field(min_length=1, max_length=1)]
@@ -465,6 +469,7 @@ class FactSubject(WireModel):
         "asset_class",
         "theme",
         "country",
+        "currency",
         "rule",
         "macro",
         "event",
@@ -1057,7 +1062,7 @@ class LegendItem(WireModel):
 
 
 class WorldLayer(WireModel):
-    layer_id: Literal["events", "exposure", "facilities", "hazards"]
+    layer_id: Literal["events", "exposure", "facilities", "hazards", "airports"]
     title: I18nText
     tier: Literal["P1", "P2"]
     available: Boolean
@@ -1234,6 +1239,7 @@ class UniverseSummary(WireModel):
 
 
 class Meta(WireModel):
+    reporting_currencies: list[Currency] = Field(default_factory=lambda: ["CAD", "USD"])
     contract_version: String
     data_version: DataVersion
     data_as_of: ISODate

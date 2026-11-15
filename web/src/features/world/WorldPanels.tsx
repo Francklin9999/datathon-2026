@@ -404,6 +404,7 @@ export function CountryPanel({ iso3, profile, from, to, onSelectEvent, onClose }
               )}
 
             <h3 className="h4">{tr({ en: 'Macro facts', fr: 'Faits macroéconomiques' })}</h3>
+            <p className="small muted">{tr({ en: 'Annual World Bank indicators show their observation year. Revised observations were captured at the stated retrieval time; these are not historical vintages or real-time signals. Policy-rate series remain separately sourced.', fr: 'Les indicateurs annuels de la Banque mondiale indiquent leur année d’observation. Les données révisées ont été capturées à la date indiquée; ce ne sont ni des versions historiques ni des signaux en temps réel. Les taux directeurs ont leurs propres sources.' })}</p>
             {data.macro.length === 0
               ? <p className="small muted">{tr({ en: 'No macro fact was returned for this country. Policy rate and inflation series are loaded only for Canada and the United States.', fr: 'Aucun fait macro n’a été renvoyé pour ce pays. Les séries de taux directeur et d’inflation ne sont chargées que pour le Canada et les États-Unis.' })}</p>
               : (

@@ -72,8 +72,8 @@ def validate_fetched(fetched: FetchedAsset) -> dict | None:
     if not t or t != t.upper() or any(c.isspace() for c in t) or t in CASH_TICKERS:
         return _reason(f"Ticker {t!r} is not a valid listed ticker.", f"Le ticker {t!r} n'est pas un ticker coté valide.")
     if fetched.currency not in CURRENCIES:
-        return _reason(f"Listing currency {fetched.currency!r} is not CAD or USD.",
-                       f"La devise de cotation {fetched.currency!r} n'est ni le CAD ni l'USD.")
+        return _reason(f"Listing currency {fetched.currency!r} is not supported by the configured currency catalog.",
+                       f"La devise de cotation {fetched.currency!r} n'est pas prise en charge par le catalogue de devises.")
     if fetched.asset_class not in LISTED_ASSET_CLASSES:
         return _reason(f"Asset class {fetched.asset_class!r} is not supported.",
                        f"La classe d'actifs {fetched.asset_class!r} n'est pas prise en charge.")

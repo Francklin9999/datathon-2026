@@ -6,11 +6,12 @@
  * checks (409 keeps the unsaved form). No real contact or account information is requested.
  */
 import { useMemo, useState, type ReactNode } from 'react';
-import type { AssetClass, I18NText, ProfileDraftResult, Profile, Run, ThemeTag } from '../../contracts/types';
+import type { AssetClass, I18NText, ProfileDraftResult, InvestmentGoal, Profile, ProfilesResponse, Run, ThemeTag } from '../../contracts/types';
 import { ThemeTag as THEMES } from '../../contracts/catalog';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
 import { useApp } from '../../state/app';
+import { useQuery } from '../../state/useQuery';
 import { useRun } from '../../state/useRun';
 import { Card, PageHeader } from '../../components/common/Page';
 import { ErrorState, Loading, Unavailable } from '../../components/common/States';
@@ -93,7 +94,8 @@ const PREFERENCE_TOGGLES = [
 ] as const;
 
 function ProfilesContent() {
-  const { tr, lang, profiles, applyProfile, removeProfile, selectProfile, reloadProfiles, announce } = useApp();
+  const { tr, lang, profiles, applyProfile, removeProfile, selectProfile, reloadProfiles, announce, sessionId, meta } = useApp();
+  const archivedProfiles = useQuery<ProfilesResponse>(sessionId ? `archived|${sessionId}|${profiles.map(p => `${p.profileId}:${p.version}`).join()}` : null, signal => getApiClient().archivedProfiles(signal));
   const [form, setForm] = useState<ProfileForm>(EMPTY_PROFILE_FORM);
   const [editing, setEditing] = useState<Editing>({ mode: 'create', fromDraftRunId: null });
   const [provisional, setProvisional] = useState<string[]>([]);
@@ -106,6 +108,8 @@ function ProfilesContent() {
   const needsConfirmation = provisional.length > 0 || unresolved.length > 0;
 
   const set = (patch: Partial<ProfileForm>) => setForm(f => ({ ...f, ...patch }));
+  const setGoal = (index: number, patch: Partial<InvestmentGoal>) => setForm(f => ({ ...f, investorContext: { ...f.investorContext,
+    objectives: f.investorContext?.objectives?.map((g, i) => i === index ? { ...g, ...patch } : g) ?? [] } }));
   const load = (next: ProfileForm, mode: Editing) => {
     setForm(next); setEditing(mode); setProvisional([]); setUnresolved([]); setConfirmed(false); setSubmitted(false); setSaveError(null);
   };
@@ -127,6 +131,19 @@ function ProfilesContent() {
     } catch (error) {
       setSaveError(asApiError(error));
     } finally { setSaving(false); }
+  };
+
+  const duplicate = async (profile: Profile) => {
+    try { const saved = await getApiClient().duplicateProfile(profile.profileId); applyProfile(saved); selectProfile(saved.profileId); }
+    catch (error) { setSaveError(asApiError(error)); }
+  };
+
+  const setArchive = async (profile: Profile, archived: boolean) => {
+    try {
+      const saved = await getApiClient().archiveProfile(profile.profileId, archived, profile.version);
+      if (archived) removeProfile(profile.profileId); else applyProfile(saved);
+      archivedProfiles.reload();
+    } catch (error) { setSaveError(asApiError(error)); }
   };
 
   const remove = async (profile: Profile) => {
@@ -156,12 +173,21 @@ function ProfilesContent() {
               <span className="small muted">· {p.isDefault ? tr({ en: 'default (read-only; copy to change)', fr: 'par défaut (lecture seule ; copiez pour modifier)' }) : tr({ en: 'custom', fr: 'personnalisé' })} · {labelOf(RISK_LEVEL, p.riskLevel, lang)} · {horizonText(p, tr)} · {fmtMoney(p.portfolio.totalValue, p.portfolio.currency, lang)}</span>
               <div className="row-actions" style={{ marginTop: 4 }}>
                 <button type="button" className="btn ghost btn-sm" onClick={() => load(formFromProfile(p, tr({ en: ' (copy)', fr: ' (copie)' })), { mode: 'create', fromDraftRunId: null })}>{tr({ en: 'Copy', fr: 'Copier' })}</button>
+                <button type="button" className="btn ghost btn-sm" onClick={() => void duplicate(p)}>{tr({ en: 'Duplicate exactly', fr: 'Dupliquer à l’identique' })}</button>
                 {!p.isDefault && <button type="button" className="btn ghost btn-sm" onClick={() => load(formFromProfile(p), { mode: 'update', profileId: p.profileId, version: p.version })}>{tr({ en: 'Edit', fr: 'Modifier' })}</button>}
+                {!p.isDefault && <button type="button" className="btn ghost btn-sm" onClick={() => void setArchive(p, true)}>{tr({ en: 'Archive', fr: 'Archiver' })}</button>}
                 {!p.isDefault && <button type="button" className="btn danger btn-sm" onClick={() => void remove(p)}>{tr({ en: 'Delete', fr: 'Supprimer' })}</button>}
               </div>
             </li>
           ))}
         </ul>
+      </Card>
+
+      <Card title={tr({ en: 'Archived profiles', fr: 'Profils archivés' })}>
+        {archivedProfiles.loading && <Loading />}
+        {archivedProfiles.error && <ErrorState error={archivedProfiles.error} onRetry={archivedProfiles.reload} />}
+        {archivedProfiles.data?.items.length === 0 && <p className="small muted">{tr({ en: 'No archived profiles in this session.', fr: 'Aucun profil archivé dans cette session.' })}</p>}
+        <ul className="list-plain">{archivedProfiles.data?.items.map(p => <li key={p.profileId}>{p.name}{' '}<button type="button" className="btn ghost btn-sm" onClick={() => void setArchive(p, false)}>{tr({ en: 'Restore', fr: 'Restaurer' })}</button></li>)}</ul>
       </Card>
 
       <DraftFromText onApply={(run, draft) => {
@@ -216,9 +242,8 @@ function ProfilesContent() {
               </select>
             </Field>
             <Field id="pf-cur" text={label('reportingCurrency', tr)} issues={fieldIssues('reportingCurrency')}>
-              <select id="pf-cur" value={form.reportingCurrency} onChange={e => set({ reportingCurrency: e.target.value as ProfileForm['reportingCurrency'] })}>
-                <option value="">—</option><option value="CAD">CAD</option><option value="USD">USD</option>
-              </select>
+              <input id="pf-cur" maxLength={3} pattern="[A-Z]{3}" list="reporting-currencies" value={form.reportingCurrency} onChange={e => set({ reportingCurrency: e.target.value.toUpperCase() })} />
+              <datalist id="reporting-currencies">{(meta?.reportingCurrencies ?? ['CAD', 'USD']).map(c => <option key={c} value={c} />)}</datalist>
             </Field>
           </div>
 
@@ -236,6 +261,14 @@ function ProfilesContent() {
             {(form.investorContext?.objectives ?? []).map((goal, i) => <div className="form-grid" key={i}>
               <div className="field"><label htmlFor={`goal-name-${i}`}>{tr({ en: 'Goal', fr: 'Objectif' })} {i + 1}</label><input id={`goal-name-${i}`} maxLength={120} value={goal.name} onChange={e => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.map((g, j) => j === i ? { ...g, name: e.target.value } : g) } })} /></div>
               <div className="field"><label htmlFor={`goal-years-${i}`}>{tr({ en: 'Years', fr: 'Années' })}</label><input id={`goal-years-${i}`} type="number" min={0.01} max={150} step="any" value={goal.horizonYears} onChange={e => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.map((g, j) => j === i ? { ...g, horizonYears: Number(e.target.value) } : g) } })} /></div>
+              {([
+                ['targetAmount', { en: 'Target amount', fr: 'Montant cible' }],
+                ['allocatedValue', { en: 'Capital allocated to this goal', fr: 'Capital affecté à cet objectif' }],
+                ['annualContribution', { en: 'Assumed yearly contribution', fr: 'Contribution annuelle supposée' }],
+                ['assumedReturnPct', { en: 'Assumed yearly return (%) — not a forecast', fr: 'Rendement annuel supposé (%) — aucune prévision' }],
+              ] as const).map(([key, text]) => <div className="field" key={key}>
+                <label htmlFor={`goal-${key}-${i}`}>{tr(text)}</label><input id={`goal-${key}-${i}`} type="number" step="any" min={key === 'assumedReturnPct' ? -99.99 : 0} value={goal[key] ?? ''} onChange={e => setGoal(i, { [key]: e.target.value === '' ? null : Number(e.target.value) })} />
+              </div>)}
               <button type="button" className="btn ghost" onClick={() => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.filter((_, j) => j !== i) } })}>{tr({ en: 'Remove goal', fr: 'Retirer l’objectif' })}</button>
             </div>)}
             <button type="button" className="btn ghost" disabled={(form.investorContext?.objectives?.length ?? 0) >= 20} onClick={() => set({ investorContext: { ...form.investorContext, objectives: [...(form.investorContext?.objectives ?? []), { name: '', horizonYears: 1, priority: (form.investorContext?.objectives?.length ?? 0) + 1, origin: 'user' }] } })}>{tr({ en: 'Add objective', fr: 'Ajouter un objectif' })}</button>

@@ -84,6 +84,12 @@ def rule_def(rule_id: str) -> RuleDef:
     """Definition of a rule ID, including parameterized families."""
     if rule_id in FIXED:
         return FIXED[rule_id]
+    if rule_id.startswith(("cap.country.", "cap.currency.")):
+        dimension, key = rule_id.split(".")[1:]
+        en = "listing-country proxy" if dimension == "country" else "quotation currency"
+        fr = "pays de cotation (approximation)" if dimension == "country" else "devise de cotation"
+        return RuleDef("cap", f"weight.{dimension}", key, dimension, key, "<=", "pct", True, FLOOR_BOUNDS, True,
+                       _t(f"At most {{threshold}}% in {key} by {en}", f"Au plus {{threshold}} % en {key} par {fr}"))
     if rule_id.startswith("exclude.sector."):
         s = rule_id[len("exclude.sector."):]
         label = next((k for k in SECTOR_FR if slug(k) == s), s.replace("_", " ").title())

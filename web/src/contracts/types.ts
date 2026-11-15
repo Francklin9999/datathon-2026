@@ -8,6 +8,16 @@
 export type AgentRole = "planner" | "researcher" | "quant" | "risk_officer" | "writer" | "auditor";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ISODateTime".
+ */
+export type ISODateTime = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "DataVersion".
+ */
+export type DataVersion = string;
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "RunId".
  */
 export type RunId = string;
@@ -44,7 +54,7 @@ export type AssetGroup = "equity" | "fixed_income" | "commodity" | "crypto" | "c
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Currency".
  */
-export type Currency = "CAD" | "USD";
+export type Currency = string;
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "ThemeTag".
@@ -96,17 +106,15 @@ export type AssetFlag =
   | "sector_label_unsourced";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "DataVersion".
- */
-export type DataVersion = string;
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "DatasetId".
  */
 export type DatasetId =
   | "assets_universe"
   | "prices_daily"
   | "corporate_actions"
+  | "fx_boc_global"
+  | "world_airports"
+  | "world_bank_indicators"
   | "fx_usdcad_daily"
   | "macro_rates"
   | "asset_themes"
@@ -152,6 +160,9 @@ export type MetricCode =
   | "return.trailing"
   | "return.worst_12m"
   | "vol.annualized"
+  | "input.goal_assumption"
+  | "goal.projected_value"
+  | "goal.funding_gap"
   | "risk.var95"
   | "risk.es95"
   | "risk.variance_share"
@@ -169,6 +180,7 @@ export type MetricCode =
   | "weight.fixed_income"
   | "weight.diversifiers"
   | "weight.theme"
+  | "weight.currency"
   | "weight.country"
   | "concentration.hhi"
   | "concentration.effective_n"
@@ -194,12 +206,7 @@ export type MetricCode =
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Unit".
  */
-export type Unit = "pct" | "pts" | "ratio" | "count" | "days" | "cad" | "usd" | "date" | "text" | "bool";
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "ISODateTime".
- */
-export type ISODateTime = string;
+export type Unit = "pct" | "pts" | "ratio" | "count" | "days" | "cad" | "usd" | "currency" | "date" | "text" | "bool";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "MethodId".
@@ -211,6 +218,7 @@ export type MethodId =
   | "M_RET_SIMPLE"
   | "M_RET_CALENDAR_YEAR"
   | "M_VOL_STDEV_252"
+  | "M_GOAL_FUNDING_SCENARIO"
   | "M_HISTORICAL_TAIL"
   | "M_VARIANCE_SHARE"
   | "M_MDD_PEAK_TROUGH"
@@ -408,7 +416,7 @@ export type RuleType = "cap" | "floor" | "limit" | "exclude" | "evidence" | "fla
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "RuleOrigin".
  */
-export type RuleOrigin = "derived" | "profile_preference" | "user" | "system";
+export type RuleOrigin = "derived" | "profile_preference" | "user" | "system" | "imported";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "SabotageMode".
@@ -506,10 +514,14 @@ export type RulePatchRequest1 = {
 };
 
 export interface AplombContracts {
+  AddExposureLimitRequest: AddExposureLimitRequest;
   AgentRole: AgentRole;
+  AirportReference: AirportReference;
+  AirportsResponse: AirportsResponse;
   AnswerRequest: AnswerRequest;
   AnswerResponse: AnswerResponse;
   ApiError: ApiError;
+  ArchiveProfileRequest: ArchiveProfileRequest;
   Asset: Asset;
   AssetAnalyticsResponse: AssetAnalyticsResponse;
   AssetClass: AssetClass;
@@ -562,7 +574,11 @@ export interface AplombContracts {
   DecisionRunResult: DecisionRunResult;
   DeriveRulesRequest: DeriveRulesRequest;
   DeriveRulesResponse: DeriveRulesResponse;
+  DuplicateProfileRequest: DuplicateProfileRequest;
   EmptyRequest: EmptyRequest;
+  EntityCandidate: EntityCandidate;
+  EntitySearchResponse: EntitySearchResponse;
+  EntitySource: EntitySource;
   ErrorCode: ErrorCode;
   ErrorDetail: ErrorDetail;
   EventBriefInput: EventBriefInput;
@@ -603,6 +619,8 @@ export interface AplombContracts {
   FundingOption: FundingOption;
   GateDataset: GateDataset;
   GateReport: GateReport;
+  GoalFundingResponse: GoalFundingResponse;
+  GoalFundingScenario: GoalFundingScenario;
   GoalRequest: GoalRequest;
   GroupWeight: GroupWeight;
   GuardrailAudit: GuardrailAudit;
@@ -745,6 +763,41 @@ export interface AplombContracts {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AddExposureLimitRequest".
+ */
+export interface AddExposureLimitRequest {
+  dimension: "country" | "currency";
+  key: string;
+  threshold: number;
+  version: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AirportReference".
+ */
+export interface AirportReference {
+  airportId: string;
+  ident: string;
+  name: string;
+  lat: number;
+  lon: number;
+  countryIso2: string | null;
+  countryIso3: string | null;
+  sourceUrl: string;
+  capturedAt: ISODateTime;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "AirportsResponse".
+ */
+export interface AirportsResponse {
+  items: AirportReference[];
+  total: number;
+  dataVersion: DataVersion;
+  capturedAt: ISODateTime;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "AnswerRequest".
  */
 export interface AnswerRequest {
@@ -777,6 +830,14 @@ export interface ErrorDetail {
     [k: string]: unknown;
   };
   requestId: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ArchiveProfileRequest".
+ */
+export interface ArchiveProfileRequest {
+  archived: boolean;
+  version: number;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -894,6 +955,7 @@ export interface FactSubject {
     | "asset_class"
     | "theme"
     | "country"
+    | "currency"
     | "rule"
     | "macro"
     | "event"
@@ -1486,6 +1548,7 @@ export interface ProfileDraftInput {
 export interface PartialProfile {
   profileId?: string;
   isDefault?: boolean;
+  archived?: boolean;
   origin?: "brief" | "user" | "agent_draft";
   name?: string;
   initial?: string;
@@ -1496,7 +1559,7 @@ export interface PartialProfile {
   objective?: "preserve" | "balanced" | "growth";
   objectiveText?: I18NText1;
   experience?: "beginner" | "intermediate" | "advanced";
-  reportingCurrency?: "CAD" | "USD";
+  reportingCurrency?: string;
   preferences?: Preferences;
   blurb?: I18NText2;
   personaTest?: I18NText | null;
@@ -1624,7 +1687,8 @@ export interface PolicyRule {
  * via the `definition` "RuleTarget".
  */
 export interface RuleTarget {
-  dimension: "position" | "sector" | "asset_class" | "asset_group" | "theme" | "portfolio" | "none";
+  dimension:
+    "position" | "sector" | "asset_class" | "asset_group" | "theme" | "portfolio" | "country" | "currency" | "none";
   key: string | null;
 }
 /**
@@ -2169,6 +2233,7 @@ export interface CreateProfileDraftRunRequest {
 export interface PartialProfile1 {
   profileId?: string;
   isDefault?: boolean;
+  archived?: boolean;
   origin?: "brief" | "user" | "agent_draft";
   name?: string;
   initial?: string;
@@ -2179,7 +2244,7 @@ export interface PartialProfile1 {
   objective?: "preserve" | "balanced" | "growth";
   objectiveText?: I18NText1;
   experience?: "beginner" | "intermediate" | "advanced";
-  reportingCurrency?: "CAD" | "USD";
+  reportingCurrency?: string;
   preferences?: Preferences;
   blurb?: I18NText2;
   personaTest?: I18NText | null;
@@ -2338,14 +2403,63 @@ export interface DeriveRulesResponse {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "DuplicateProfileRequest".
+ */
+export interface DuplicateProfileRequest {
+  name?: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "EmptyRequest".
  */
 export interface EmptyRequest {}
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EntityCandidate".
+ */
+export interface EntityCandidate {
+  lei: string;
+  legalName: string;
+  jurisdiction: string | null;
+  entityStatus: string | null;
+  recordUrl: string;
+  matchStatus: "candidate";
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EntitySearchResponse".
+ */
+export interface EntitySearchResponse {
+  query: string;
+  items: EntityCandidate[];
+  total: number;
+  returned: number;
+  rejected: number;
+  truncated: boolean;
+  source: EntitySource;
+  limitations: string[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EntitySource".
+ */
+export interface EntitySource {
+  provider: string;
+  url: string;
+  retrievedAt: ISODateTime;
+  availableAt: ISODateTime;
+  publishedAt: ISODateTime | null;
+  contentSha256: string;
+  licence: string;
+  licenceUrl: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "FacilitiesResponse".
  */
 export interface FacilitiesResponse {
+  capturedAt?: ISODateTime | null;
+  dataVersion?: DataVersion | null;
   items: Facility[];
   total: number;
   reportingYear: number;
@@ -2443,6 +2557,33 @@ export interface FrontierResponse {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "GoalFundingResponse".
+ */
+export interface GoalFundingResponse {
+  profileId: ProfileId;
+  currency: Currency;
+  overallocated: boolean;
+  unallocatedValue: number;
+  goals: GoalFundingScenario[];
+  facts: {
+    [k: string]: Fact;
+  };
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "GoalFundingScenario".
+ */
+export interface GoalFundingScenario {
+  name: string;
+  state: "missing_assumptions" | "scenario_funded" | "scenario_shortfall";
+  projectedValue: number | null;
+  fundingGap: number | null;
+  factIds: {
+    [k: string]: FactId;
+  };
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Hazard".
  */
 export interface Hazard {
@@ -2483,6 +2624,9 @@ export interface InvestmentGoal {
   horizonYears: number;
   priority: number;
   targetAmount?: number | null;
+  allocatedValue?: number | null;
+  annualContribution?: number | null;
+  assumedReturnPct?: number | null;
   deadline?: ISODate | null;
   origin?: "user" | "imported" | "assumption";
 }
@@ -2499,6 +2643,7 @@ export interface LegendItem {
  * via the `definition` "Meta".
  */
 export interface Meta {
+  reportingCurrencies?: Currency[];
   contractVersion: string;
   dataVersion: DataVersion;
   dataAsOf: ISODate;
@@ -2638,6 +2783,7 @@ export interface PerformanceResponse {
 export interface Profile {
   profileId: ProfileId;
   isDefault: boolean;
+  archived?: boolean;
   origin: "brief" | "user" | "agent_draft";
   name: string;
   initial: string;
@@ -2897,7 +3043,7 @@ export interface WorldExposureResponse {
  * via the `definition` "WorldLayer".
  */
 export interface WorldLayer {
-  layerId: "events" | "exposure" | "facilities" | "hazards";
+  layerId: "events" | "exposure" | "facilities" | "hazards" | "airports";
   title: I18NText;
   tier: "P1" | "P2";
   available: boolean;

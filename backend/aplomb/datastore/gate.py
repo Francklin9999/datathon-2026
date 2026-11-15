@@ -42,6 +42,7 @@ _READ_LIMITATIONS: dict[str, tuple[str, ...]] = {
     "prices_daily": (LIM_YAHOO_NOT_CERTIFIED,),
     "corporate_actions": (LIM_YAHOO_NOT_CERTIFIED,),
     "fx_usdcad_daily": (LIM_FX_FFILL,),
+    "fx_boc_global": (LIM_FX_FFILL,),
     "macro_rates": (),
     "asset_themes": (LIM_THEME_TAGS,),
     "macro_release_dates": (),
@@ -178,6 +179,28 @@ class TemporalGate:
                     visible.insert(0, r)
                     break
         return self._slice("fx_usdcad_daily", visible, withheld)
+
+    def global_fx(self, currency: str, start: date | str | None = None, end: date | str | None = None) -> DataSlice:
+        """Gated CAD-per-unit rates for one currency, with the latest earlier visible row.
+
+        Absent optional data and unknown series yield an empty slice, never inferred rates.
+        Historical visibility follows the captured vintage availability, not observation date.
+        """
+        s, e = self._interval(start, end)
+        if "fx_boc_global" not in self._snap.loaded_datasets:
+            return self._slice("fx_boc_global", [], 0)
+        group = self._snap._table("fx_boc_global").by["group"].get(currency)
+        if group is None:
+            return self._slice("fx_boc_global", [], 0)
+        dates, rows = group
+        lo, hi = self._range(dates, s, e)
+        visible, withheld = self._split(rows[lo:hi])
+        if s is not None:
+            for row in reversed(rows[:lo]):
+                if self._visible(row):
+                    visible.insert(0, row)
+                    break
+        return self._slice("fx_boc_global", visible, withheld)
 
     def macro(self, series_id: str, start: date | str | None, end: date | str | None) -> DataSlice:
         s, e = self._interval(start, end)

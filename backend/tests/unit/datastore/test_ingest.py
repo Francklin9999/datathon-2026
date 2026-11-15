@@ -242,8 +242,8 @@ class FailureIsolation(unittest.TestCase):
 
     def test_unknown_currency_in_universe(self):
         def m(t):
-            t["assets_universe.csv"][2][5] = "EUR"
-        self.reject(m, "not CAD or USD")
+            t["assets_universe.csv"][2][5] = "ZZZ"
+        self.reject(m, "not supported by the configured currency catalog")
 
     def test_duplicate_fx_date(self):
         self.reject(lambda t: t["fx_usdcad_daily.csv"].append(list(t["fx_usdcad_daily.csv"][0])), "duplicate date")

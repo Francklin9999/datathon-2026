@@ -123,6 +123,7 @@ export function validateProfileForm(form: ProfileForm): ProfileFormIssue[] {
   for (const field of ['riskLevel', 'objective', 'experience', 'reportingCurrency'] as const) {
     if (!form[field]) issues.push({ field, code: 'required' });
   }
+  if (form.reportingCurrency && !/^[A-Z]{3}$/.test(form.reportingCurrency)) issues.push({ field: 'reportingCurrency', code: 'invalid' });
   const min = num(form.horizonMin);
   const max = num(form.horizonMax);
   if (min === null) issues.push({ field: 'horizonMin', code: 'required' });

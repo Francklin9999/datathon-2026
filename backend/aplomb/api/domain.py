@@ -131,6 +131,13 @@ def default_services(settings: Settings, store=None, gateway=None, price_provide
         capabilities.add("world_explorer")
         if world.dataset().hazards:
             capabilities.add("world_layer_hazards")
+        from aplomb.world.facilities import load_facilities
+        try:
+            facility_rows, _ = load_facilities()
+            if facility_rows:
+                capabilities.add("world_layer_facilities")
+        except (ValueError, OSError, KeyError):
+            pass  # Corrupt/missing optional data cannot advertise an operational provider.
     on_demand = None
     writable_local = settings.environment == "local" and not settings.data_bucket
     token = settings.tiingo_token.get_secret_value().strip() if settings.tiingo_token is not None else ""

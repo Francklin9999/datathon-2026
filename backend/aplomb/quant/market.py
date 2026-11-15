@@ -7,6 +7,7 @@ is filled: a master day without an observation (or without an earlier FX rate) i
 from __future__ import annotations
 
 import bisect
+import re
 from dataclasses import dataclass
 
 from aplomb.datastore import TemporalGate, UnknownTicker
@@ -29,7 +30,7 @@ class Series:
     listing_currency: str
     levels: tuple[float | None, ...]       # reporting currency, aligned to MarketData.dates
     avail: tuple[str | None, ...]          # availability of the latest row used per date
-    fx_used: tuple[str | None, ...]        # FX publication date used per date (None when no conversion)
+    fx_used: tuple[tuple[tuple[str, str, str, str], ...], ...]  # dataset, currency, observation date, availability
     n_obs_master: int                      # visible master-calendar observations
     synthetic: bool                        # cash pseudo-asset
 
@@ -38,8 +39,8 @@ class MarketData:
     """Master-calendar levels in one reporting currency under one gate."""
 
     def __init__(self, gate: TemporalGate, currency: str) -> None:
-        if currency not in ("CAD", "USD"):
-            raise ValueError("currency must be CAD or USD")
+        if not re.fullmatch(r"[A-Z]{3}", currency):
+            raise ValueError("currency must be an uppercase three-letter code")
         self.gate = gate
         self.currency = currency
         cal = gate.master_calendar()
@@ -50,6 +51,7 @@ class MarketData:
         self._fx_dates = tuple(r["date"] for r in fx.rows)
         self._fx_rates = tuple(r["usdcad"] for r in fx.rows)
         self._fx_avail: dict[str, str] = {r["date"]: r["available_at"] for r in fx.rows}
+        self._global: dict[str, tuple[tuple[str, ...], tuple[dict, ...]]] = {}
         self._series: dict[str, Series] = {}
         self._index = {d: i for i, d in enumerate(self.dates)}
 
@@ -63,6 +65,39 @@ class MarketData:
     def _fx_on_or_before(self, day: str) -> tuple[float, str] | None:
         i = bisect.bisect_right(self._fx_dates, day) - 1
         return (self._fx_rates[i], self._fx_dates[i]) if i >= 0 else None
+
+    def _cad_quote(self, currency: str, day: str):
+        """CAD per one currency unit and the immutable gated source rows used."""
+        if currency == "CAD":
+            return 1.0, ()
+        if currency == "USD":
+            value = self._fx_on_or_before(day)
+            if value is None:
+                return None
+            rate, observed = value
+            return rate, (("fx_usdcad_daily", "USD", observed, self._fx_avail[observed]),)
+        if currency not in self._global:
+            sl = self.gate.global_fx(currency)
+            self.reads.append(sl.dataset_read())
+            self._global[currency] = (tuple(row["date"] for row in sl.rows), tuple(sl.rows))
+        dates, rows = self._global[currency]
+        i = bisect.bisect_right(dates, day) - 1
+        if i < 0:
+            return None
+        row = rows[i]
+        rate = row["cad_per_unit"]
+        if not isinstance(rate, (int, float)) or not 0 < rate < float("inf"):
+            return None
+        return rate, (("fx_boc_global", currency, row["date"], row["available_at"]),)
+
+    def conversion_at(self, source: str, target: str, day: str):
+        """Target units per source unit via CAD. Missing rates remain unavailable."""
+        if source == target:
+            return 1.0, ()
+        a, b = self._cad_quote(source, day), self._cad_quote(target, day)
+        if a is None or b is None:
+            return None
+        return a[0] / b[0], a[1] + b[1]
 
     def series(self, ticker: str) -> Series:
         cached = self._series.get(ticker)
@@ -85,7 +120,7 @@ class MarketData:
                 if row is None:
                     levels.append(None)
                     avail.append(None)
-                    fx_used.append(None)
+                    fx_used.append(())
                     continue
                 n_master += 1
                 price = row["adj_close"]
@@ -93,18 +128,18 @@ class MarketData:
                 if listing == self.currency:
                     levels.append(price)
                     avail.append(stamp)
-                    fx_used.append(None)
+                    fx_used.append(())
                     continue
-                fx = self._fx_on_or_before(d)
-                if fx is None:  # no earlier published rate: missing, never a future rate
+                fx = self.conversion_at(listing, self.currency, d)
+                if fx is None:
                     levels.append(None)
                     avail.append(None)
-                    fx_used.append(None)
+                    fx_used.append(())
                     continue
-                rate, fx_day = fx
-                levels.append(price * rate if listing == "USD" else price / rate)
-                avail.append(max(stamp, self._fx_avail[fx_day]))
-                fx_used.append(fx_day)
+                rate, refs = fx
+                levels.append(price * rate)
+                avail.append(max([stamp, *(ref[3] for ref in refs)]))
+                fx_used.append(refs)
             s = Series(ticker, listing, tuple(levels), tuple(avail), tuple(fx_used), n_master, False)
         self._series[ticker] = s
         return s
@@ -116,18 +151,18 @@ class MarketData:
             if own == self.currency:
                 levels.append(1.0)
                 avail.append(None)
-                fx_used.append(None)
+                fx_used.append(())
                 continue
-            fx = self._fx_on_or_before(d)
+            fx = self.conversion_at(own, self.currency, d)
             if fx is None:
                 levels.append(None)
                 avail.append(None)
-                fx_used.append(None)
+                fx_used.append(())
                 continue
-            rate, fx_day = fx
-            levels.append(rate if own == "USD" else 1.0 / rate)  # USD cash in CAD / CAD cash in USD
-            avail.append(self._fx_avail[fx_day])
-            fx_used.append(fx_day)
+            rate, refs = fx
+            levels.append(rate)
+            avail.append(max((ref[3] for ref in refs), default=None))
+            fx_used.append(refs)
         return Series(ticker, own, tuple(levels), tuple(avail), tuple(fx_used), len(self.dates), True)
 
     def window_levels(self, ticker: str, i0: int, i1: int) -> list[float]:
@@ -140,13 +175,12 @@ class MarketData:
             raise Unavailable("short_history", f"{ticker} has no observation on some master days in the window")
         return list(out)
 
+    def fx_dataset_rows_used(self, tickers, i0: int, i1: int) -> dict[str, int]:
+        refs = {ref[:3] for ticker in tickers for group in self.series(ticker).fx_used[i0:i1 + 1] for ref in group}
+        return {dataset: sum(1 for ref in refs if ref[0] == dataset) for dataset in {ref[0] for ref in refs}}
+
     def fx_rows_used(self, tickers, i0: int, i1: int) -> int:
-        days = set()
-        for t in tickers:
-            for d in self.series(t).fx_used[i0:i1 + 1]:
-                if d is not None:
-                    days.add(d)
-        return len(days)
+        return sum(self.fx_dataset_rows_used(tickers, i0, i1).values())
 
     def latest_avail(self, tickers, i1: int) -> str | None:
         stamps = [self.series(t).avail[i1] for t in tickers]

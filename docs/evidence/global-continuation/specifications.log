@@ -1,0 +1,3 @@
+PASS: 84 specification documents linked; 3 fixtures validated; numeric controls reproduced.
+PASS: delivery artifact/log hashes and all 20 acceptance rows validated.
+Application runtime, live sources and AWS execution are not verified by this check.

@@ -75,7 +75,7 @@ def test_without_a_model_runs_are_refused_and_deterministic_endpoints_work():
     meta = ok(client.get("/v1/meta"), "Meta")
     assert meta["models"] == {"strong": None, "fast": None}
     assert {k for k, v in meta["features"].items() if v} == {
-        "bilingual", "frontier_chart", "goal_requests", "profile_creator", "time_machine", "world_explorer", "world_layer_hazards"}
+        "bilingual", "frontier_chart", "goal_requests", "profile_creator", "time_machine", "world_explorer", "world_layer_hazards", "world_layer_facilities"}
     refused = client.post("/v1/runs", json={"kind": "decision", "profileId": "robert", "lang": "en", "request": TSLA_25}, headers=headers)
     assert refused.status_code == 503 and refused.json()["error"]["code"] == "upstream_unavailable"
     assert ok(client.get("/v1/runs", headers=headers), "RunsResponse")["items"] == []      # nothing was persisted
@@ -86,7 +86,7 @@ def test_without_a_model_runs_are_refused_and_deterministic_endpoints_work():
     assert (check["verdict"], check["maxCompatibleSizePct"]) == ("conflict", 6.0)
     # Sabotage and on-demand fetching have no provider, so their flags stay off even when configured on.
     assert not meta["features"]["sabotage_demo"] and not meta["features"]["on_demand_tickers"]
-    assert not meta["features"]["world_layer_facilities"]
+    assert meta["features"]["world_layer_facilities"]  # verified ECCC provider is now present
 
 
 # World and replay over HTTP ---------------------------------------------------------------------
@@ -95,7 +95,7 @@ def test_without_a_model_runs_are_refused_and_deterministic_endpoints_work():
 def test_world_endpoints_validate_against_the_contract(client):
     headers = session()
     layers = ok(client.get("/v1/world/layers", headers=headers), "WorldLayersResponse")
-    assert [layer["layerId"] for layer in layers["items"]] == ["events", "exposure", "facilities", "hazards"]
+    assert [layer["layerId"] for layer in layers["items"]] == ["airports", "events", "exposure", "facilities", "hazards"]
     page = ok(client.get("/v1/world/events", params={"profileId": "robert", "limit": 5}, headers=headers), "WorldEventsResponse")
     assert len(page["items"]) == 5 and page["total"] > 5 and page["nextCursor"]
     nxt = ok(client.get("/v1/world/events", params={"profileId": "robert", "limit": 5, "cursor": page["nextCursor"]}, headers=headers),
@@ -110,10 +110,13 @@ def test_world_endpoints_validate_against_the_contract(client):
     exposure = ok(client.get("/v1/world/exposure", params={"profileId": "amira"}, headers=headers), "WorldExposureResponse")
     assert sum(i["weightPct"] for i in exposure["items"]) == pytest.approx(100)
     country = ok(client.get("/v1/world/countries/CAN", params={"profileId": "robert"}, headers=headers), "WorldCountryResponse")
-    assert country["exposure"]["weightPct"] > 0 and len(country["macro"]) == 2
+    assert country["exposure"]["weightPct"] > 0 and len([f for f in country["macro"] if f["sources"][0]["datasetId"] == "macro_rates"]) == 2
+    facilities = ok(client.get("/v1/world/facilities", params={"limit": 3}, headers=headers), "FacilitiesResponse")
+    assert facilities["total"] == 1863 and facilities["reportingYear"] == 2024
+    assert all(row["ticker"] is None for row in facilities["items"])
     hazards = ok(client.get("/v1/world/hazards", params={"limit": 3}, headers=headers), "HazardsResponse")
     assert len(hazards["items"]) == 3 and hazards["total"] > 3
-    for path, status in (("/v1/world/facilities", 501), ("/v1/world/events/evt_000000000000", 404), ("/v1/world/exposure", 422),
+    for path, status in (("/v1/world/events/evt_000000000000", 404), ("/v1/world/exposure", 422),
                          ("/v1/world/events?from=2020-01-01&to=2026-01-01", 422), ("/v1/world/events?country=can", 422),
                          ("/v1/world/countries/canada", 422), ("/v1/world/events?profileId=p_aaaaaaaaaa", 404)):
         response = client.get(path, headers=headers)
@@ -121,8 +124,8 @@ def test_world_endpoints_validate_against_the_contract(client):
         adapter("ApiError").validate_json(response.content)
     passports = ok(client.get("/v1/datasets", headers=headers), "DatasetsResponse")
     status = {p["datasetId"]: p["status"] for p in passports["items"]}
-    assert (status["world_events"], status["natural_hazards"], status["emissions_facilities"]) == ("in_use", "in_use", "planned")
-    assert ok(client.get("/v1/datasets/world_events", headers=headers), "DatasetPassport")["rowCount"] == layers["items"][0]["count"]
+    assert (status["world_events"], status["natural_hazards"], status["emissions_facilities"]) == ("in_use", "in_use", "in_use")
+    assert ok(client.get("/v1/datasets/world_events", headers=headers), "DatasetPassport")["rowCount"] == next(layer["count"] for layer in layers["items"] if layer["layerId"] == "events")
 
 
 def test_disabled_flags_answer_501():

@@ -92,6 +92,10 @@ class DatastoreService:
         self.snapshot = snapshot
         self.on_demand = on_demand
 
+    def reporting_currencies(self) -> list[str]:
+        meta = self.snapshot().manifest.get("datasets", {}).get("fx_boc_global", {})
+        return sorted({"CAD", "USD", *meta.get("details", {}).get("currencies", [])})
+
     def current_version(self) -> tuple[str, str]:
         snap = self.snapshot()
         return snap.data_version, snap.data_as_of

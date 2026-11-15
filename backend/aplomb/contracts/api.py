@@ -76,6 +76,37 @@ class AssetsResponse(WireModel):
     total: Count
 
 
+class EntityCandidate(WireModel):
+    lei: String
+    legal_name: String
+    jurisdiction: String | None
+    entity_status: String | None
+    record_url: String
+    match_status: Literal["candidate"]
+
+
+class EntitySource(WireModel):
+    provider: String
+    url: String
+    retrieved_at: ISODateTime
+    available_at: ISODateTime
+    published_at: ISODateTime | None
+    content_sha256: String
+    licence: String
+    licence_url: String
+
+
+class EntitySearchResponse(WireModel):
+    query: String
+    items: list[EntityCandidate]
+    total: Count
+    returned: Count
+    rejected: Count
+    truncated: Boolean
+    source: EntitySource
+    limitations: list[String]
+
+
 class AssetMeasurement(WireModel):
     value: Number | None
     fact_id: FactId | None
@@ -177,6 +208,39 @@ class DeriveRulesResponse(WireModel):
     rules: list[PolicyRule]
     facts: dict[FactId, Fact]
     profile_version: Count
+
+
+class GoalFundingScenario(WireModel):
+    name: String
+    state: Literal["missing_assumptions", "scenario_funded", "scenario_shortfall"]
+    projected_value: NonNegative | None
+    funding_gap: NonNegative | None
+    fact_ids: dict[str, FactId]
+
+
+class GoalFundingResponse(WireModel):
+    profile_id: ProfileId
+    currency: Currency
+    overallocated: Boolean
+    unallocated_value: NonNegative
+    goals: list[GoalFundingScenario]
+    facts: dict[str, Fact]
+
+
+class DuplicateProfileRequest(WireModel):
+    name: Annotated[String, Field(min_length=1, max_length=40)] | None = None
+
+
+class AddExposureLimitRequest(WireModel):
+    dimension: Literal["country", "currency"]
+    key: Annotated[String, Field(pattern=r"^[A-Z]{3}$")]
+    threshold: Annotated[Number, Field(ge=0, le=100)]
+    version: Annotated[int, Field(strict=True, ge=1)]
+
+
+class ArchiveProfileRequest(WireModel):
+    archived: Boolean
+    version: Annotated[int, Field(strict=True, ge=1)]
 
 
 class CreateAccountRequest(WireModel):
@@ -475,10 +539,31 @@ class WorldCountryResponse(WireModel):
 
 
 class FacilitiesResponse(WireModel):
+    captured_at: ISODateTime | None = None
+    data_version: DataVersion | None = None
     items: list[Facility]
     total: Count
     reporting_year: int
     limitations: list[LimitationCode]
+
+
+class AirportReference(WireModel):
+    airport_id: String
+    ident: String
+    name: String
+    lat: Annotated[float, Field(ge=-90, le=90)]
+    lon: Annotated[float, Field(ge=-180, le=180)]
+    country_iso2: String | None
+    country_iso3: String | None
+    source_url: String
+    captured_at: ISODateTime
+
+
+class AirportsResponse(WireModel):
+    items: list[AirportReference]
+    total: Count
+    data_version: DataVersion
+    captured_at: ISODateTime
 
 
 class HazardsResponse(WireModel):

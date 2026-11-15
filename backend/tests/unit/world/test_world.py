@@ -222,16 +222,17 @@ def test_layers_report_what_is_loaded(world):
     assert layers["events"].available and layers["events"].count == len(ds.events)
     assert layers["events"].coverage.to_wire() == ds.coverage
     assert layers["exposure"].available and layers["hazards"].available and layers["hazards"].count == len(ds.hazards)
-    assert not layers["facilities"].available and layers["facilities"].count is None       # dataset absent
-    with pytest.raises(ServiceError) as exc:
-        world.facilities(SID, {})
-    assert exc.value.code == "upstream_unavailable"
+    assert layers["facilities"].available and layers["facilities"].count == 1863
+    facilities = world.facilities(SID, {"limit": 3})
+    assert facilities.total == 1863 and len(facilities.items) == 3
+    assert all(row.ticker is None and row.match_confidence == "none" for row in facilities.items)
 
     def broken():
         raise WorldDataError("missing")
 
     offline = WorldServiceImpl(world.profiles, world.snapshot, broken)
-    assert [layer.available for layer in offline.layers(SID, {}).items] == [False, True, False, False]
+    assert {layer.layer_id: layer.available for layer in offline.layers(SID, {}).items} == {
+        "airports": True, "events": False, "exposure": True, "facilities": True, "hazards": False}
     with pytest.raises(ServiceError) as exc:
         offline.events(SID, {})
     assert exc.value.code == "upstream_unavailable"
@@ -354,12 +355,12 @@ def test_country_panel(world):
     panel = world.country(SID, "CAN", {"profileId": "robert"}).to_wire()
     assert panel["name"] == {"en": "Canada", "fr": "Canada"} and panel["exposure"]["countryIso3"] == "CAN"
     assert 0 < len(panel["events"]) <= 20 and all("CAN" in e["relatedCountries"] for e in panel["events"])
-    assert [f["subject"]["id"] for f in panel["macro"]] == ["V39079", "STATIC_TOTALCPICHANGE"]
-    for fact in panel["macro"]:
+    assert [f["subject"]["id"] for f in panel["macro"] if f["sources"][0]["datasetId"] == "macro_rates"] == ["V39079", "STATIC_TOTALCPICHANGE"]
+    for fact in [f for f in panel["macro"] if f["sources"][0]["datasetId"] == "macro_rates"]:
         assert fact["kind"] == "observed" and fact["method"]["id"] == "M_OBSERVED_ROW" and fact["sources"][0]["datasetId"] == "macro_rates"
         assert fact["period"]["end"] <= "2026-11-12" and fact["availableAt"]
     japan = world.country(SID, "JPN", {"profileId": "robert"}).to_wire()
-    assert japan["exposure"] is None and japan["macro"] == [] and japan["name"]["fr"] == "Japon"
+    assert japan["exposure"] is None and len(japan["macro"]) == 4 and japan["name"]["fr"] == "Japon"
     assert world.country(SID, "XKX", {}).to_wire()["name"] == {"en": "XKX", "fr": "XKX"}   # unknown code is not guessed
     for bad in ("can", "CA", "C4N"):
         with pytest.raises(ServiceError):
