@@ -34,12 +34,12 @@ export function HorizonsCard({ overview }: { overview: OverviewResponse }) {
   const signed = useSigned();
   const { returns } = overview;
   return (
-    <Card title={tr({ en: 'Longer horizons', fr: 'Horizons plus longs' })}>
+    <Card title={tr({ en: 'Longer horizons', fr: 'Horizons plus longs' })}
+      info={tr({ en: 'Total change over each period, not annualized.', fr: 'Variation totale sur chaque période, non annualisée.' })}>
       <dl className="figure-list">
         <Figure label={tr({ en: 'Total, 3 years', fr: 'Total sur 3 ans' })}>{signed(returns.y3Pct, returns.factIds, 'y3Pct')}</Figure>
         <Figure label={tr({ en: 'Total, 5 years', fr: 'Total sur 5 ans' })}>{signed(returns.y5Pct, returns.factIds, 'y5Pct')}</Figure>
       </dl>
-      <p className="figure-note">{tr({ en: 'Total change over each period, not annualized. Today’s weights held constant, historical in this sample.', fr: 'Variation totale sur chaque période, non annualisée. Pondérations actuelles maintenues, historique dans cet échantillon.' })}</p>
     </Card>
   );
 }
@@ -49,14 +49,14 @@ export function StressCard({ overview }: { overview: OverviewResponse }) {
   const signed = useSigned();
   const { risk } = overview;
   return (
-    <Card title={tr({ en: 'Stress test', fr: 'Test de résistance' })}>
+    <Card title={tr({ en: 'Stress test', fr: 'Test de résistance' })}
+      info={tr({ en: 'Today’s weights replayed through past markets.', fr: 'Pondérations actuelles rejouées sur les marchés passés.' })}>
       <dl className="figure-list">
         <Figure label={tr({ en: '2022 replay', fr: 'Rejeu 2022' })}>{signed(risk.stress2022Pct, risk.factIds, 'stress2022Pct')}</Figure>
         {risk.worst12mPct !== null && (
           <Figure label={tr({ en: 'Worst 12 months in the period', fr: 'Pires 12 mois de la période' })}>{signed(risk.worst12mPct, risk.factIds, 'worst12mPct')}</Figure>
         )}
       </dl>
-      <p className="figure-note">{tr({ en: 'Today’s weights replayed through past markets.', fr: 'Pondérations actuelles rejouées sur les marchés passés.' })}</p>
     </Card>
   );
 }
@@ -65,12 +65,11 @@ export function DiversificationCard({ overview }: { overview: OverviewResponse }
   const { tr, lang } = useApp();
   const { concentration } = overview;
   return (
-    <Card title={tr({ en: 'Diversification', fr: 'Diversification' })}>
+    <Card title={tr({ en: 'Diversification', fr: 'Diversification' })}
+      info={tr({ en: `The weights behave like this many equal positions (HHI ${fmtNumber(concentration.hhi, lang, 3)}).`, fr: `Les poids se comportent comme ce nombre de positions égales (HHI ${fmtNumber(concentration.hhi, lang, 3)}).` })}>
       <dl className="figure-list">
         <Figure label={tr({ en: 'Effective positions', fr: 'Positions effectives' })}><span className="num">{fmtNumber(concentration.effectiveN, lang, 1)}</span></Figure>
-        <Figure label="HHI"><span className="num">{fmtNumber(concentration.hhi, lang, 3)}</span></Figure>
       </dl>
-      <p className="figure-note">{tr({ en: 'Effective number of equal-weight positions; HHI is the sum of squared weights.', fr: 'Nombre effectif de positions équipondérées ; le HHI est la somme des poids au carré.' })}</p>
     </Card>
   );
 }

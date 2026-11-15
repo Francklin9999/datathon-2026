@@ -51,9 +51,11 @@ export function SectionDock() {
     const onScroll = () => {
       const line = window.innerHeight * 0.33;
       let active = sections[0]?.id ?? null;
+      let best = -Infinity;
+      // The lowest section top that has passed the line; side-by-side widgets share a top, the first wins.
       for (const s of sections) {
-        const el = document.getElementById(s.id);
-        if (el && el.getBoundingClientRect().top <= line) active = s.id;
+        const top = document.getElementById(s.id)?.getBoundingClientRect().top;
+        if (top !== undefined && top <= line && top > best + 1) { best = top; active = s.id; }
       }
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) active = sections[sections.length - 1]?.id ?? active;
       setCurrent(active);

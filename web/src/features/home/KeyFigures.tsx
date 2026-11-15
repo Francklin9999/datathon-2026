@@ -1,5 +1,9 @@
 'use client';
-/** Key figures: a label, the figure and what it covers. Each figure with a factId opens its source. */
+/**
+ * Key figures as tiles: an icon, a label, the figure and what it covers. The fictional value is the
+ * one cobalt tile on the page. Each figure with a factId opens its source.
+ */
+import { Activity, TrendingDown, TrendingUp, Wallet, type LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { OverviewResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
@@ -10,10 +14,15 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { RISK_LEVEL, labelOf } from '../../lib/labels';
 import { factIdFor, fmtMoney, fmtPct, fmtSignedPct } from '../../lib/format';
 
-function Figure({ label, note, children }: { label: string; note?: string; children: ReactNode }) {
+function Figure({ label, note, icon: Icon, accent = false, children }: {
+  label: string; note?: string; icon: LucideIcon; accent?: boolean; children: ReactNode;
+}) {
   return (
-    <div className="kpi">
-      <span className="kpi-label">{label}</span>
+    <div className={`kpi${accent ? ' kpi-accent' : ''}`}>
+      <span className="kpi-head">
+        <span className="kpi-icon" aria-hidden="true"><Icon size={16} strokeWidth={1.75} /></span>
+        <span className="kpi-label">{label}</span>
+      </span>
       <span className="kpi-value">{children}</span>
       {note && <span className="kpi-note">{note}</span>}
     </div>
@@ -32,25 +41,27 @@ export function KeyFigures({ overview, period }: { overview: OverviewResponse; p
   };
   const selectedId = overview.returns.factIds.selectedPct;
   const selectedValue = selectedId ? overview.facts[selectedId]?.value : null;
+  const positions = overview.snapshot.positions.length;
   return (
-    <Card title={tr({ en: 'Key figures', fr: 'Chiffres clés' })}>
+    <Card title={tr({ en: 'Key figures', fr: 'Chiffres clés' })} tour="kpis">
       <div className="kpis">
-        <Figure label={tr({ en: 'Fictional value', fr: 'Valeur fictive' })} note={overview.snapshot.currency}>
+        <Figure accent icon={Wallet} label={tr({ en: 'Fictional value', fr: 'Valeur fictive' })}
+          note={tr({ en: `${positions} positions, ${overview.snapshot.currency}`, fr: `${positions} positions, ${overview.snapshot.currency}` })}>
           <RollingText text={fmtMoney(overview.snapshot.totalValue, overview.snapshot.currency, lang)} />
         </Figure>
-        <Figure label={tr({ en: 'Historical return', fr: 'Rendement historique' })} note={period}>
+        <Figure icon={TrendingUp} label={tr({ en: 'Historical return', fr: 'Rendement historique' })} note={period}>
           {pct(typeof selectedValue === 'number' ? selectedValue : null, selectedId, true)}
         </Figure>
-        <Figure label={tr({ en: 'Annualized volatility', fr: 'Volatilité annualisée' })} note={period}>
+        <Figure icon={Activity} label={tr({ en: 'Annualized volatility', fr: 'Volatilité annualisée' })} note={period}>
           {pct(overview.risk.volatilityPct, factIdFor(overview.risk.factIds, 'volatilityPct'), false)}
         </Figure>
-        <Figure label={tr({ en: 'Maximum drawdown', fr: 'Baisse maximale' })} note={`${period}, ${tr({ en: 'peak to trough', fr: 'du sommet au creux' })}`}>
+        <Figure icon={TrendingDown} label={tr({ en: 'Maximum drawdown', fr: 'Baisse maximale' })} note={tr({ en: `${period}, peak to trough`, fr: `${period}, du sommet au creux` })}>
           {pct(overview.risk.maxDrawdownPct, factIdFor(overview.risk.factIds, 'maxDrawdownPct'), false)}
         </Figure>
       </div>
       <p className="kpis-caption">
-        {tr({ en: 'Constant-weight historical figures for today’s fictional holdings, not account gains.', fr: 'Chiffres historiques à pondérations constantes pour les positions fictives actuelles, pas des gains de compte.' })}
-        {' '}{tr({ en: 'Measured risk category', fr: 'Catégorie de risque mesurée' })} ({period}): {labelOf(RISK_LEVEL, overview.risk.riskCategory, lang).toLowerCase()}
+        {tr({ en: 'Today’s weights applied to past prices, not account gains.', fr: 'Pondérations actuelles appliquées aux prix passés, pas des gains réels.' })}
+        {' '}{tr({ en: 'Measured risk', fr: 'Risque mesuré' })}: {labelOf(RISK_LEVEL, overview.risk.riskCategory, lang).toLowerCase()}.
       </p>
     </Card>
   );
@@ -59,7 +70,7 @@ export function KeyFigures({ overview, period }: { overview: OverviewResponse; p
 /** Same footprint while the overview loads; announced once for screen readers. */
 export function KeyFiguresSkeleton({ label }: { label: string }) {
   return (
-    <div className="card" role="status">
+    <div className="card card-bare" role="status">
       <span className="sr-only">{label}</span>
       <div className="kpis" aria-hidden="true">
         {[0, 1, 2, 3].map(i => (
