@@ -71,7 +71,7 @@ class Tiingo(unittest.TestCase):
             self.assertTrue(ctx.exception.reason["fr"])
 
     def test_company_names_with_trust_are_not_funds(self):
-        f = provider(FakeHttp(meta={**META, "name": "Northern Trust Corp", "exchangeCode": "NYSE"})).fetch("NTRS", "2021-11-12", "2026-11-12")
+        f = provider(FakeHttp(meta={**META, "ticker": "ntrs", "name": "Northern Trust Corp", "exchangeCode": "NYSE"})).fetch("NTRS", "2021-11-12", "2026-11-12")
         self.assertEqual((f.asset_class, f.market), ("equity", "NYSE"))
 
     def test_token_required(self):
