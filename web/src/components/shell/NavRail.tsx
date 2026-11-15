@@ -6,9 +6,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BookOpen, ChevronsLeft, ChevronsRight, Cpu, Earth, History, LayoutDashboard, PieChart, Scale, ShieldCheck, type LucideIcon,
+  BookOpen, ChevronsRight, Cpu, Earth, History, LayoutDashboard, PieChart, Scale, ShieldCheck, type LucideIcon,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import type { I18NText } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { readPref, writePref } from '../../lib/session';
@@ -53,12 +53,12 @@ export function useSidebarState(): [SidebarState, () => void] {
   return [state, toggle];
 }
 
-function NavLink({ item, active, onNavigate, pill }: { item: NavItem; active: boolean; onNavigate?: () => void; pill: boolean }) {
+function NavLink({ item, active, onNavigate, pill, index }: { item: NavItem; active: boolean; onNavigate?: () => void; pill: boolean; index: number }) {
   const { tr } = useApp();
   const Icon = item.icon;
   const label = tr(item.label);
   return (
-    <Link href={item.href} className="nav-link" aria-current={active ? 'page' : undefined} data-tour={item.tour}
+    <Link href={item.href} className="nav-link" aria-current={active ? 'page' : undefined} data-tour={item.tour} style={{ '--n': index } as CSSProperties}
       data-pill-target={pill && active ? 'true' : undefined} {...(onNavigate ? { onClick: onNavigate } : {})}>
       <Icon className="nav-icon" aria-hidden="true" size={20} strokeWidth={1.75} />
       <span className="nav-text">{label}</span>
@@ -81,9 +81,9 @@ export function NavList({ onNavigate, withSources = false }: { onNavigate?: () =
     <div className="nav-wrap" ref={ref}>
       <span className="nav-pill" aria-hidden="true" data-animate={animate ? 'true' : undefined} style={pillStyle(box)} />
       <ul className="nav-list">
-        {all.map(item => (
+        {all.map((item, index) => (
           <li key={item.href}>
-            <NavLink item={item} active={isActive(pathname, item.href)} pill {...(onNavigate ? { onNavigate } : {})} />
+            <NavLink item={item} index={index} active={isActive(pathname, item.href)} pill {...(onNavigate ? { onNavigate } : {})} />
           </li>
         ))}
       </ul>
@@ -101,7 +101,7 @@ export function NavRail() {
       <NavList withSources />
       <div className="rail-sep" aria-hidden="true" />
       <button type="button" className="rail-toggle" onClick={toggle} aria-expanded={expanded} aria-label={toggleLabel}>
-        {expanded ? <ChevronsLeft aria-hidden="true" size={18} strokeWidth={1.75} /> : <ChevronsRight aria-hidden="true" size={18} strokeWidth={1.75} />}
+        <ChevronsRight aria-hidden="true" size={18} strokeWidth={1.75} className="rail-toggle-icon" />
         <span className="nav-tip" aria-hidden="true">{toggleLabel}</span>
       </button>
     </nav>

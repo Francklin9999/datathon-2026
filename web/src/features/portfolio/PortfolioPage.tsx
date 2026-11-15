@@ -21,6 +21,7 @@ import { RuleTable } from '../../components/run/RuleTable';
 import { GroupBars } from '../../components/run/Results';
 import { ASSET_CLASS, WINDOW, labelOf } from '../../lib/labels';
 import { CorrelationHeatmap } from './CorrelationHeatmap';
+import { CountUp } from '../../components/ui/CountUp';
 import { factIdFor, fmtMoney, fmtNumber, fmtPct, fmtSignedPct, fmtUnit } from '../../lib/format';
 import { disabledRules, planRuleRows } from '../../lib/planRules';
 
@@ -90,8 +91,8 @@ function Holdings({ overview }: { overview: OverviewResponse }) {
                   <th scope="row"><span className="ticker">{p.ticker}</span><span className="block small muted">{p.name}</span></th>
                   <td>{labelOf(ASSET_CLASS, p.assetClass, lang)}</td>
                   <td>{p.sector}</td>
-                  <td className="num-col num">{fmtPct(p.weightPct, lang)}</td>
-                  <td className="num-col num">{fmtMoney(p.marketValue, snapshot.currency, lang)}</td>
+                  <td className="num-col num"><CountUp text={fmtPct(p.weightPct, lang)} /></td>
+                  <td className="num-col num"><CountUp text={fmtMoney(p.marketValue, snapshot.currency, lang)} /></td>
                   <td className="num-col num">
                     {r === undefined
                       ? <span className="muted" title={tr({ en: 'Not supplied for this holding', fr: 'Non fourni pour cette position' })}>—</span>
@@ -154,7 +155,7 @@ function Risk({ overview }: { overview: OverviewResponse }) {
         <div className="tile"><span className="eyebrow block">{tr({ en: 'Maximum drawdown', fr: 'Baisse maximale' })}</span><span className="big">{cell(risk.maxDrawdownPct, 'maxDrawdownPct')}</span></div>
         <div className="tile"><span className="eyebrow block">{tr({ en: '2022 replay return', fr: 'Rendement rejoué 2022' })}</span><span className="big">{cell(risk.stress2022Pct, 'stress2022Pct', true)}</span></div>
         <div className="tile"><span className="eyebrow block">{tr({ en: 'Worst 12 months', fr: 'Pires 12 mois' })}</span><span className="big">{cell(risk.worst12mPct, 'worst12mPct', true)}</span></div>
-        <div className="tile"><span className="eyebrow block">{tr({ en: 'Effective positions', fr: 'Positions effectives' })}</span><span className="big num" title={`HHI ${fmtNumber(concentration.hhi, lang, 3)}`}>{fmtNumber(concentration.effectiveN, lang, 1)}</span></div>
+        <div className="tile"><span className="eyebrow block">{tr({ en: 'Effective positions', fr: 'Positions effectives' })}</span><span className="big num" title={`HHI ${fmtNumber(concentration.hhi, lang, 3)}`}><CountUp text={fmtNumber(concentration.effectiveN, lang, 1)} /></span></div>
       </div>
       <h3 className="h4">{tr({ en: 'Correlation of daily returns', fr: 'Corrélation des rendements quotidiens' })}</h3>
       {correlation === null

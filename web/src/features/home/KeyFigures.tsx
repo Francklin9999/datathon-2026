@@ -9,7 +9,7 @@ import type { OverviewResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
 import { FactChip } from '../../components/common/FactDrawer';
-import { RollingText } from '../../components/ui/RollingText';
+import { CountUp } from '../../components/ui/CountUp';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { RISK_LEVEL, labelOf } from '../../lib/labels';
 import { factIdFor, fmtMoney, fmtPct, fmtSignedPct } from '../../lib/format';
@@ -36,8 +36,8 @@ export function KeyFigures({ overview, period }: { overview: OverviewResponse; p
     if (value === null) return unavailable;
     const text = signed ? fmtSignedPct(value, lang) : fmtPct(value, lang);
     return factId
-      ? <FactChip factId={factId} display={text}><RollingText text={text} /></FactChip>
-      : <RollingText text={text} />;
+      ? <FactChip factId={factId} display={text} />
+      : <CountUp text={text} />;
   };
   const selectedId = overview.returns.factIds.selectedPct;
   const selectedValue = selectedId ? overview.facts[selectedId]?.value : null;
@@ -47,7 +47,7 @@ export function KeyFigures({ overview, period }: { overview: OverviewResponse; p
       <div className="kpis">
         <Figure accent icon={Wallet} label={tr({ en: 'Fictional value', fr: 'Valeur fictive' })}
           note={tr({ en: `${positions} positions, ${overview.snapshot.currency}`, fr: `${positions} positions, ${overview.snapshot.currency}` })}>
-          <RollingText text={fmtMoney(overview.snapshot.totalValue, overview.snapshot.currency, lang)} />
+          <CountUp text={fmtMoney(overview.snapshot.totalValue, overview.snapshot.currency, lang)} />
         </Figure>
         <Figure icon={TrendingUp} label={tr({ en: 'Historical return', fr: 'Rendement historique' })} note={period}>
           {pct(typeof selectedValue === 'number' ? selectedValue : null, selectedId, true)}

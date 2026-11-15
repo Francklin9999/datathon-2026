@@ -9,7 +9,7 @@ import { AppProvider } from '../state/app';
 import { FactDrawerProvider } from '../components/common/FactDrawer';
 import { AppShell } from '../components/shell/AppShell';
 import { UiProviders } from '../components/ui/ThemeProvider';
-import { MOTION_BOOT_SCRIPT, SIDEBAR_BOOT_SCRIPT, THEME_BOOT_SCRIPT } from '../lib/ui/theme';
+import { ANIM_BOOT_SCRIPT, MOTION_BOOT_SCRIPT, SIDEBAR_BOOT_SCRIPT, THEME_BOOT_SCRIPT } from '../lib/ui/theme';
 
 export const metadata: Metadata = {
   title: { default: 'Aplomb — simulation only', template: '%s · Aplomb' },
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* Aplomb has its own dark theme: asks the Dark Reader extension not to restyle the page, which
             would otherwise rewrite icon attributes before hydration and distort the glass colours. */}
         <meta name="darkreader-lock" />
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT + SIDEBAR_BOOT_SCRIPT + MOTION_BOOT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT + SIDEBAR_BOOT_SCRIPT + MOTION_BOOT_SCRIPT + ANIM_BOOT_SCRIPT }} />
       </head>
       <body>
         <AppProvider>

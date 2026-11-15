@@ -12,6 +12,7 @@ import type { Evidence, Fact, FactResponse, I18NText } from '../../contracts/typ
 import { getApiClient } from '../../api/index';
 import { useQuery } from '../../state/useQuery';
 import { useApp } from '../../state/app';
+import { CountUp } from '../../components/ui/CountUp';
 import { Drawer } from './Drawer';
 import { ErrorState, Loading, Unavailable } from './States';
 import { EVIDENCE_TYPE, FACT_KIND, LIMITATION, VERIFICATION, WINDOW, labelOf } from '../../lib/labels';
@@ -82,7 +83,7 @@ export function FactChip({ factId, display, scope: explicit, children }: { factI
   return (
     <button type="button" className="chip" onClick={() => openFact(scope, factId)}
       aria-label={`${tr({ en: 'Show source for', fr: 'Voir la source de' })} ${label}: ${text}`}>
-      {children ?? text}
+      {children ?? <CountUp text={text} />}
     </button>
   );
 }

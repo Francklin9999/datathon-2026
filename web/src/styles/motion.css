@@ -17,6 +17,36 @@
 /* Hidden tab or preview (html[data-motion="off"], set by the boot script): nothing waits on a frame. */
 html[data-motion='off'] *, html[data-motion='off'] *::before, html[data-motion='off'] *::after { animation: none !important; transition: none !important; }
 
+/* Reduced motion (system) unless the person turned animations on; or animations turned off. */
 @media (prefers-reduced-motion: reduce) {
-  .enter > *, .enter > .kpis > *, .roll-digit { animation: none; }
+  html:not([data-anim='on']) :is(.enter > *, .enter > .kpis > *, .roll-digit) { animation: none; }
 }
+html[data-anim='off'] :is(.enter > *, .enter > .kpis > *, .roll-digit) { animation: none; }
+
+/* Charts draw themselves once when they appear (and again when their data changes: they are re-keyed).
+   Final states are the base styles; start states live only in the keyframes. */
+.chart-line:not(.chart-line-dashed) { stroke-dasharray: 1 1; animation: chart-draw 1.3s var(--ease) backwards; }
+.chart-line-dashed { animation: chart-fade .6s var(--ease) .55s backwards; }
+.chart-area { animation: chart-reveal 1.3s var(--ease) backwards; }
+@keyframes chart-draw { from { stroke-dashoffset: 1; } }
+@keyframes chart-fade { from { opacity: 0; } }
+@keyframes chart-reveal { from { clip-path: inset(0 100% 0 0); opacity: 0; } }
+
+/* Donut: the ring sweeps clockwise from the top. */
+@property --sweep { syntax: '<angle>'; inherits: false; initial-value: 360deg; }
+.donut-svg { -webkit-mask: conic-gradient(#000 var(--sweep), transparent 0); mask: conic-gradient(#000 var(--sweep), transparent 0);
+  animation: donut-sweep 1.2s var(--ease) .1s backwards; }
+@keyframes donut-sweep { from { --sweep: 0deg; } }
+
+/* Bars grow from their start. */
+.bar-fill, .meter-bar > span { transform-origin: left center; animation: grow-x 1s var(--ease) .15s backwards; }
+@keyframes grow-x { from { transform: scaleX(0); } }
+
+/* Heatmap cells settle in a diagonal wave. */
+.corr-cell { animation: corr-in .5s var(--ease) backwards; animation-delay: calc(min(var(--k, 0), 30) * 18ms); }
+@keyframes corr-in { from { opacity: 0; transform: scale(.85); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-anim='on']) :is(.chart-line, .chart-area, .donut-svg, .bar-fill, .meter-bar > span, .corr-cell) { animation: none; }
+}
+html[data-anim='off'] :is(.chart-line, .chart-area, .donut-svg, .bar-fill, .meter-bar > span, .corr-cell) { animation: none; }
