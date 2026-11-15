@@ -678,7 +678,12 @@ These additive research routes require the session header. Source captures use t
 
 All routes require `X-Aplomb-Session`, use server-side account credentials, and retain session-owned source captures. Provider symbols alone never prove a global issuer identity. Original publication before retrieval remains unknown.
 
-- `GET /v1/research/market-connections`: credential presence, operation and official signup links; no secret values.
+| Method and path | Behavior |
+|---|---|
+| GET `/research/market-connections` | Credential presence, supported operation and official signup links; no secret values. |
+| GET `/research/market-provider/{provider}` | Bounded, session-owned observations from a selected connected provider; `symbol`, optional `mic` and `kind`. |
+| GET `/research/tiingo/{symbol}` | Supported US non-fund equity metadata/history for `start` and `end`, bounded to one year; internal account use only. |
+
 - `GET /v1/research/market-provider/{provider}?symbol=...&mic=...&kind=...`: `alpha-vantage` supports `quote`, `overview`, `income`, `balance`, `cashflow`; `twelve-data` requires an exact MIC for thirty daily bars; `finnhub` returns a company profile. Other kinds are rejected for these two providers. Quota/entitlement errors are explicit and never replaced with fixtures.
 - `GET /v1/research/tiingo/{symbol}?start=YYYY-MM-DD&end=YYYY-MM-DD`: up to one year of supported US non-fund equity metadata/history. Internal account use only.
 
