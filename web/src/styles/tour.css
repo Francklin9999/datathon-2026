@@ -35,7 +35,7 @@
   box-shadow: 0 0 22px rgba(47, 91, 255, .45); }
 
 /* Help menu */
-.help-pop { width: 340px; gap: 8px; }
+.help-pop { width: 340px; gap: 8px; max-height: calc(100vh - 96px); overflow-y: auto; }
 .help-head { font-size: 12px; color: var(--text-3); }
 .help-list { display: flex; flex-direction: column; gap: 2px; margin: 0 -6px; }
 .help-item { display: flex; align-items: flex-start; gap: 10px; width: 100%; min-height: 44px; padding: 8px 10px; border: 0; border-radius: 12px; background: transparent; text-align: left; color: var(--text);

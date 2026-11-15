@@ -11,7 +11,7 @@ To resume after an interruption: read this file, take the first unchecked item, 
 - [x] 5. Portfolio (correlation heatmap), Decision Desk, Evidence & Audit: cleanup, style, dock sections
 - [x] 6. World Explorer, Time Machine, Agents & System, Profiles, Sources: cleanup, style, dock sections
 - [x] 7. Tour engine, basic tour, Help menu
-- [ ] 8. Advanced tutorials
+- [x] 8. Advanced tutorials
 - [ ] 9. DESIGN.md rewrite, tests, full verification, PR
 
 ## Notes

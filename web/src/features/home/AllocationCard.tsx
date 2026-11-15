@@ -55,7 +55,7 @@ export function AllocationCard({ overview, scope }: { overview: OverviewResponse
   const filtered = view === 'group' && scope.assetGroups.length > 0;
   const inScope = items.reduce((sum, item) => sum + item.value, 0);
   return (
-    <Card title={tr({ en: 'Allocation', fr: 'Répartition' })} actions={(
+    <Card title={tr({ en: 'Allocation', fr: 'Répartition' })} tour="allocation" actions={(
       <SegmentedControl<View> size="sm" value={view} onChange={setView}
         label={tr({ en: 'Group allocation by', fr: 'Regrouper la répartition par' })}
         options={[
