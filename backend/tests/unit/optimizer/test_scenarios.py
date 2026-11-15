@@ -230,8 +230,13 @@ class Controls(unittest.TestCase):
         self.assertEqual(out.selected_scenario_id, "sc_goal_googl")
         self.assertEqual([s.kind for s in out.scenarios], ["goal_candidate"] * 3)
         self.assertEqual(out.check.funding_used.mode, "pro_rata")
-        with self.assertRaises(RuntimeError):
-            self.run_controls(PROFILES["robert"], {"type": "goal", "goal": goal(themes=["ai"], maxVolPct=5).to_wire()})
+        # No candidate fits a 5% volatility cap: the current portfolio is kept, with no move.
+        none = self.run_controls(PROFILES["robert"], {"type": "goal", "goal": goal(themes=["ai"], maxVolPct=5).to_wire()})
+        [kept] = none.scenarios
+        self.assertEqual((kept.scenario_id, kept.kind, kept.moves), ("sc_goal_no_change", "goal_candidate", []))
+        self.assertEqual(none.selected_scenario_id, "sc_goal_no_change")
+        self.assertIn("Only 0 candidate(s)", kept.rationale.en)
+        self.assertEqual(kept.verdict, none.check.verdict)
 
     def test_conflicting_move_gets_alternatives(self):
         out = self.run_controls(PROFILES["amira"], {"type": "move", "move": {"ticker": "NVDA", "sizePct": 25, "funding": {"mode": "pro_rata"}}})

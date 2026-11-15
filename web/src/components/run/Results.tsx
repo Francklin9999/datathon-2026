@@ -213,13 +213,15 @@ export function ScenarioCards({ scenarios, selectedId }: { scenarios: readonly S
             <span className="tag">{tr({ en: 'hypothetical scenario', fr: 'scénario hypothétique' })}</span>
           </div>
           <VerdictHeader verdict={scenario.verdict} counts={scenario.counts} />
-          <ul className="small">
-            {scenario.moves.map((move, i) => (
-              <li key={`${move.ticker}-${i}`}>
-                <span className="mono">{move.ticker}</span> +{fmtPts(move.sizePct, lang)} · {fundingLabel(move.funding, lang)}
-              </li>
-            ))}
-          </ul>
+          {scenario.moves.length > 0 && (
+            <ul className="small">
+              {scenario.moves.map((move, i) => (
+                <li key={`${move.ticker}-${i}`}>
+                  <span className="mono">{move.ticker}</span> +{fmtPts(move.sizePct, lang)} · {fundingLabel(move.funding, lang)}
+                </li>
+              ))}
+            </ul>
+          )}
           {scenario.exposure.length > 0 && (
             <ul className="small">
               {scenario.exposure.map(e => <li key={e.theme}>{e.theme}: {fmtPct(e.beforePct, lang)} → {fmtPct(e.afterPct, lang)}</li>)}
