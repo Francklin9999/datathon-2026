@@ -1,0 +1,101 @@
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never interrupt an upload halfway through. Pending main builds are coalesced.
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            infra/package-lock.json
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.9.26'
+          enable-cache: true
+      - run: uv python install 3.12 && uv sync --locked
+      - run: npm ci && npm --prefix infra ci
+      - run: npm run check
+        env:
+          UV_OFFLINE: 'true'
+      - name: Build live static export
+        run: |
+          export NEXT_PUBLIC_APLOMB_API_BASE="$(node -p "require('./infra/deploy/site.json').api_base")"
+          npm run build --workspace web
+          uv run python scripts/deploy_site.py prepare --revision "$GITHUB_SHA"
+        env:
+          NEXT_PUBLIC_APLOMB_FIXTURES: 'false'
+          NEXT_TELEMETRY_DISABLED: '1'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: site-${{ github.sha }}
+          path: web/out/
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.9.26'
+      - run: uv python install 3.12 && uv sync --locked --no-dev
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: site-${{ github.sha }}
+          path: web/out/
+      - name: Read deployment target
+        run: |
+          python - <<'PY'
+          import json, os
+          config = json.load(open('infra/deploy/site.json'))
+          with open(os.environ['GITHUB_ENV'], 'a') as out:
+              for key in ('role_arn', 'region', 'account_id'):
+                  out.write(f'{key.upper()}={config[key]}\n')
+          PY
+      - uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.REGION }}
+          allowed-account-ids: ${{ env.ACCOUNT_ID }}
+          role-session-name: site-${{ github.run_id }}
+          role-duration-seconds: 1800
+      - name: Publish, invalidate and smoke test
+        run: uv run python scripts/deploy_site.py publish --revision "$GITHUB_SHA"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: deployment-${{ github.run_id }}-${{ github.run_attempt }}
+          path: deployment-report.json
+          if-no-files-found: warn
+          retention-days: 30

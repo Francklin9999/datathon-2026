@@ -1,3 +1,7 @@
+# Automatic frontend delivery
+
+Pushes to `main` deploy the static site after checks and build. See [pipeline setup, credentials, smoke checks and rollback](deploy/README.md). Backend releases retain their separate deployment process.
+
 # Aplomb AWS handoff
 
 Deployment update (2026-11-14): `Aplomb` reached `UPDATE_COMPLETE` in us-east-1 after pulling `b0e6a15` and applying the AWS architecture changes. [Live site](https://d1r325uzu5fe7x.cloudfront.net); [API health](https://tf6efr54nd.execute-api.us-east-1.amazonaws.com/v1/health). The frontend uses the real API with fixtures disabled and snapshot `snap-20261114-sourced`. Live portfolio briefs and decisions completed planner → quant → risk → writer → audit → sign, using GPT-6 Astra, Claude Opus 5.5 and Standard-tier Guardrail version 3. Profile creation/frontier/Guardrails are enabled; other optional capabilities remain disabled.

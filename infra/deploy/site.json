@@ -1,0 +1,9 @@
+{
+  "region": "us-east-1",
+  "account_id": "010526248118",
+  "role_arn": "arn:aws:iam::010526248118:role/AplombGitHubSiteDeploy",
+  "bucket": "aplomb-web3c8945db-zqu5phdmpc7v",
+  "distribution_id": "E2WR0OIZP8KHB",
+  "site_url": "https://d1r325uzu5fe7x.cloudfront.net",
+  "api_base": "https://tf6efr54nd.execute-api.us-east-1.amazonaws.com/v1"
+}
