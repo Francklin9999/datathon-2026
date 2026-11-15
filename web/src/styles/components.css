@@ -147,9 +147,18 @@ details.fold > .fold-body { padding: 4px 14px 14px; }
 details.fold .card { background: transparent; padding: 0; box-shadow: none; border: 0; }
 
 /* Tables */
-.table-scroll { position: relative; overflow-x: auto; max-width: 100%; border-radius: 16px; background: var(--glass-card); border: 1px solid var(--glass-line); }
+/* A table scrolls sideways only when its columns cannot fit, never up and down. On a phone a table
+   of four or more columns keeps a readable width and scrolls instead of squeezing its columns. */
+.table-scroll { position: relative; overflow-x: auto; overflow-y: hidden; max-width: 100%; border-radius: 16px; background: var(--glass-card); border: 1px solid var(--glass-line); }
 .card .table-scroll { background: transparent; }
-.data-table { width: 100%; min-width: 520px; font-size: 13px; }
+.data-table { width: 100%; font-size: 13px; }
+@media (max-width: 600px) {
+  .data-table:has(> thead > tr > :nth-child(4)) { min-width: 520px; }
+}
+/* A chart's table view (one row per month) is long: it scrolls in a box about the chart's height,
+   header kept in view, so switching between chart and table does not reshape the page. */
+.table-scroll.series-table { max-height: 352px; overflow-y: auto; }
+.series-table .data-table thead th { position: sticky; top: 0; z-index: 1; background: linear-gradient(var(--glass-inset), var(--glass-inset)), var(--surface); }
 .data-table th, .data-table td { text-align: left; padding: 12px 14px; border-top: 1px solid var(--line); vertical-align: top; }
 .data-table thead th { border-top: 0; font-size: 12px; color: var(--text-3); font-weight: 500; white-space: nowrap; background: var(--glass-inset); }
 .data-table thead th:first-child { border-top-left-radius: 12px; }

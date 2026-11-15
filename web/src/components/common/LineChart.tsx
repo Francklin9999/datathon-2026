@@ -139,7 +139,7 @@ export function SeriesTable({ series, lang, unitLabel, caption, digits = 0 }: {
   });
   const lookups = series.map(s => new Map(s.points.map(p => [p.date, p.value])));
   return (
-    <div className="table-scroll" role="region" aria-label={caption} tabIndex={0}>
+    <div className="table-scroll series-table" role="region" aria-label={caption} tabIndex={0}>
       <table className="data-table">
         <caption className="sr-only">{caption}</caption>
         <thead>
