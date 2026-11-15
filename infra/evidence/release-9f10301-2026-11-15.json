@@ -1,0 +1,103 @@
+{
+  "release": "9f10301",
+  "deployedAt": "2026-11-15T06:28:15Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "method": "AWS CLI with a Workshop Studio participant profile (WSParticipantRole); CloudFormation change set reviewed before execution. Same steps as earlier releases (artifact in the data bucket pinned by object version, CDK bootstrap parameter/rule/metadata removed from the deployment copy); the AWS MCP was not available.",
+  "artifact": {
+    "key": "deployments/9f10301/lambda.zip",
+    "s3VersionId": "9tKSn4w5GPWtd3QmCESk_GXq9wy_Q7vj",
+    "bytes": 30458902,
+    "sha256Base64": "fXgpQWhFGgZdl8UgJ50zS0NV4gfuSnBhcphein7gNKQ=",
+    "files": 4283,
+    "packaging": "infra/scripts/package-backend.sh at 9f10301 in a clean WSL clone; Lambda Python 3.12 image import check passed"
+  },
+  "configurationChange": {
+    "featuresAdded": [
+      "bilingual",
+      "world_explorer",
+      "world_layer_hazards",
+      "time_machine",
+      "goal_requests"
+    ],
+    "featuresKept": [
+      "profile_creator",
+      "frontier_chart",
+      "guardrails"
+    ],
+    "unchanged": "data snapshot snap-20261114-sourced, models, guardrail 685ahdwc4uye v3, tables, buckets, CloudFront, alarms"
+  },
+  "changeSet": {
+    "name": "release-9f10301",
+    "changes": [
+      "Modify ApiF70053CD and Worker11F36D0F: Code, Environment (5 flags, worker version ref), Role",
+      "Add ApiCurrentVersion/WorkerCurrentVersion (published version 2); remove version-1 resources from the stack (DeletionPolicy Retain)",
+      "Add per-release roles, policies and worker EventInvokeConfig identical to the previous ones after hash normalization; previous ones retained",
+      "Modify HTTP integration to API version 2; replace its invoke permission"
+    ]
+  },
+  "result": {
+    "stackStatus": "UPDATE_COMPLETE",
+    "failedEvents": 0,
+    "lambdaVersions": {
+      "api": "2",
+      "worker": "2"
+    },
+    "lambdaCodeSha256MatchesArtifact": true,
+    "outputsRevision": "9f10301"
+  },
+  "liveChecks": {
+    "meta": {
+      "languages": [
+        "en",
+        "fr"
+      ],
+      "featuresTrue": [
+        "bilingual",
+        "world_explorer",
+        "world_layer_hazards",
+        "time_machine",
+        "profile_creator",
+        "goal_requests",
+        "guardrails",
+        "frontier_chart"
+      ]
+    },
+    "routes200": [
+      "/v1/world/layers",
+      "/v1/world/events",
+      "/v1/world/exposure?profileId=robert",
+      "/v1/world/hazards",
+      "/v1/replay/presets"
+    ],
+    "goalRun": {
+      "runId": "run_01M7EYCHYWVEE9F5KC7AV5RG8Y",
+      "profile": "amira",
+      "lang": "fr",
+      "goal": "ai, target 15%",
+      "status": "succeeded",
+      "seconds": 39,
+      "scenarios": [
+        "sc_goal_no_change"
+      ],
+      "audit": "passed_with_strikes (review 09 section 4.1 defect, not this release)"
+    },
+    "replayRun": {
+      "runId": "run_01M7EYDSBXEJD2Y4FC8G16P5H9",
+      "profile": "robert",
+      "asOf": "2025-02-19",
+      "status": "succeeded",
+      "seconds": 49,
+      "audit": "passed",
+      "pricesLastVisible": "2025-02-19",
+      "reveal": "2025-12-31: sc_unchanged, sc_requested, sc_max_compatible"
+    },
+    "browser": "CloudFront frontend 9f10301: globe rendered (WebGL canvas) on /world-explorer/ at 1440 px with 31 portfolio-matching events; 375 px French layout without horizontal overflow; nine pages loaded without error states; French interface switch works."
+  },
+  "notCovered": [
+    "custom date windows (70c5eda, pushed during this release) are not in this backend",
+    "real-model event brief and profile draft runs",
+    "no load test"
+  ],
+  "rollback": "Update the stack with the previous template (artifact deployments/full-audit-20261114/lambda.zip version 97vwY90ZLx_ZBdquCjfrd_VAIAezDHFv is retained)."
+}

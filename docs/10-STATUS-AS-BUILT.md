@@ -1,6 +1,6 @@
 # 10 — Status as built
 
-**As of:** Sunday 2026-11-15, 00:07 EST. Initial review: `7c4c457`; continuation and current CloudFront release: `f46c453`. Backend worker version and code hash are captured separately in the [verification follow-up](11-VERIFICATION-FOLLOWUP.md).
+**As of:** Sunday 2026-11-15, 00:07 EST. Initial review: `7c4c457`; continuation and current CloudFront release: `f46c453`. Backend worker version and code hash are captured separately in the [verification follow-up](11-VERIFICATION-FOLLOWUP.md). Backend release `9f10301` (API and worker version 2, 2026-11-15 06:28 UTC) enabled the flags marked below; see [its evidence](../infra/evidence/release-9f10301-2026-11-15.json).
 **Purpose:** one page that says what exists, where it runs, and what a judge can actually open. It replaces guessing from the original plan. Findings and recommendations are in the [independent review](09-INDEPENDENT-REVIEW.md).
 
 ## How to read the columns
@@ -30,18 +30,18 @@
 | Decision Desk: compare two profiles | — | yes | yes | yes | yes, deployed browser: 25-point and 10-point comparisons |
 | Decision Desk: hypothetical alternatives on conflict | D-16 c | optimizer function exists | yes | not produced in the live run | no |
 | Decision Desk: clarifying question to the user | D-16 d | yes | yes | no flag; part of the decision workflow, not confirmed live | no |
-| Decision Desk: exposure goals with candidate scenarios | D-13, D-14 | yes; already-met target fails | no-target run passes with scripted model; 15% AI target fails for Amira in EN/FR | **no** (`goal_requests` off) | local scripted model only |
+| Decision Desk: exposure goals with candidate scenarios | D-13, D-14 | yes; already-met target returns a no-change scenario (`af8d4d0`) | yes, both empty-candidate reasons in EN/FR | yes (release `9f10301`) | yes, real-model run: Amira 15% AI target, French, no-change scenario signed |
 | Evidence & Audit: brief with audit markings, fact drawers | D-20 | yes | yes | yes | yes |
 | Sabotage demonstration | D-21 | helpers only; no run kind | helper tests | **no** | no |
 | Agents & System page | D-22 | yes | yes | yes | yes |
 | Sources page with dataset passports and traps | — | yes | yes | yes | yes, recovered content inspection and current deployed sweep |
 | Profile creator, form and free-text draft | D-17 | yes | yes (scripted model) | yes | deployed page loads; local form validation, copy/save and stale-edit verified; real-model draft journey pending |
-| World Explorer: globe, event feed, exposure by country | D-29 to D-32 | yes | yes | **no** | local build only |
-| World Explorer: AI event brief | D-31 | yes | yes (scripted model) | **no** | local API composition with scripted model, recovered session |
-| World layers: natural hazards (USGS) | D-32 | yes | yes | **no** | no |
+| World Explorer: globe, event feed, exposure by country | D-29 to D-32 | yes | yes | yes (release `9f10301`) | yes: globe and portfolio-matching feed on CloudFront, 1440 and 375 px |
+| World Explorer: AI event brief | D-31 | yes | yes (scripted model) | yes (release `9f10301`) | local API composition with scripted model, recovered session |
+| World layers: natural hazards (USGS) | D-32 | yes | yes | yes (release `9f10301`) | API `/world/hazards` answered; layer listed on the page |
 | World layers: emissions facilities, wildfires | D-32 | no | — | no | — |
-| Time Machine: date-gated run and reveal | D-28 | yes | yes (scripted model) | **no** | local form-driven replay/reveal verified with scripted model |
-| French interface and briefs | D-36 | yes | interface and formatting verified locally; generated French prose unverified | **no** (English only) | nine local French pages rendered; no real-model French run |
+| Time Machine: date-gated run and reveal | D-28 | yes | yes (scripted model) | yes (release `9f10301`) | yes, real-model replay at 2025-02-19 signed, prices gated at the cutoff, reveal to 2025-12-31 |
+| French interface and briefs | D-36 | yes | interface and formatting verified locally; generated French prose unverified | yes (release `9f10301`) | French interface on CloudFront; one real-model French goal run |
 | Hype meter (page views) | D-33, A-19 | rule exists; no data provider | rule tests | rule shows "no data loaded" | yes, as "no data" |
 | On-demand tickers | D-24 | yes, local data directory only (Tiingo) | adapter tests | **no** | no |
 | Wide universe beyond the starter assets | D-23 | no | — | 31 assets | — |
