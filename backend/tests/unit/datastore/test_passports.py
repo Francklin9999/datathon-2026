@@ -27,7 +27,7 @@ class CatalogMirror(unittest.TestCase):
     """The datastore's copies of catalog lists equal contracts/catalog.md."""
 
     def test_dataset_ids(self):
-        ids = tuple(re.findall(r"^\| `([a-z_]+)` \|", catalog_section("Dataset IDs"), re.M))
+        ids = tuple(re.findall(r"^\| `([a-z0-9_]+)` \|", catalog_section("Dataset IDs"), re.M))
         self.assertEqual(ids, C.DATASET_IDS)
 
     def test_limitation_codes(self):
