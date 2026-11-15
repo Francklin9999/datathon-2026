@@ -9,6 +9,7 @@
     "Additional private appraisal saved and displayed with exclusion from traded risk",
     "Explicit spending scenario calculated through UI",
     "Custom position cap saved and evaluated with actual rule engine",
+    "All five anonymous provider controls render; paid/login sources are excluded from acquisition choices",
     "Explicit-input signed-duration scenario calculated for EUR portfolio",
     "Factor-fit JSON UI renders aligned sample and known synthetic beta",
     "Exact-ISIN fund consumer renders 30% unresolved remainder from synthetic partial disclosure"

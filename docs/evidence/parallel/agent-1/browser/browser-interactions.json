@@ -2,6 +2,7 @@
   "checks": [
     "Created JPY account through the form; sourced CAD receipt rendered",
     "Complete target allocations rendered before/after metrics, reductions and policy checks",
+    "Mouse hover opens tooltip and leaving closes it",
     "Touch opens tooltip and outside touch closes it",
     "All 1 Decision Desk tooltips focus, clamp at configured 390px, and close on Escape"
   ],

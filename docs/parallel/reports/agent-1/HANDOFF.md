@@ -2,6 +2,16 @@
 
 Branch: `codex/agent-1-investor-quant`. Immutable baseline: `2604b9689e9f992b4e9e46c4a06ea89ec57ac155`. Final commit is the commit containing this report; obtain it with `git rev-parse codex/agent-1-investor-quant`. No deployment, active manifest change, paid subscription, account creation, other branch merge or force push.
 
+## Final verification result
+
+The verification follow-up passed **903 Python tests + 16 subtests, 208 web tests and 6 infrastructure tests**, including all 13 focused provider cases; four existing deprecation/serializer warnings are retained in the log, with no failed tests. The complete `npm run check` exited 0. Final static export exited 0. Real HTTP smoke passed **37 requests** (including paid/login rejection and permission-gated paths). Eleven extended browser interactions and separate hover/focus/touch/Escape/outside tooltip checks passed, with no browser errors and independently measured 390/390/390 mobile bounds on all four owned routes. Logs: `check-providers-final.log`, `provider-build.log`, `http-providers-final.log`, `browser-extended-verified.log`, `browser-final.log`.
+
+The gate initially found an incorrect ledger accessor in the newly added capacity test; it was corrected to `get_fact`, the focused regression passed, and the full gate was rerun successfully. The HTTP harness respected a real 429 via `Retry-After`; production rate limits were not weakened. Final app/dev/browser processes started by this worker were stopped.
+
+Current source scope: five new actual captured feeds plus existing BoC; **five additional anonymous connectors** are implemented/covered with synthetic source-format cases, but actual data-use permission/source availability is still a separate requirement. CME is excluded; OANDA, FRED and FINRA API short interest are set aside for login/API-key requirements. No paid source, login or credential is used by active acquisition choices. Do not describe mocked transport tests or HEAD reachability as live data integration.
+
+Publication remains pending: automatic approval review rejected the push to `https://github.com/Francklin9999/datathon-2026` because destination/payload publication was not verified as authorized/trusted. No indirect push or workaround was attempted. This handoff and all work are committed locally; explicit approval is needed before retrying publication. See BLOCKERS.md.
+
 ## Implemented behavior
 
 - Generic profiles preserve dated horizons/goals/requirements, risk capacity versus tolerance, arbitrary investor types, language/country, input origins, allocation targets and rebalancing preferences. Core derivation now uses the explicitly disclosed lower of capacity/tolerance table budgets; user/imported overrides are retained. Caps/floors run through the actual deterministic rule engine. Profile duplication/session/version behavior is preserved.
@@ -11,18 +21,20 @@ Branch: `codex/agent-1-investor-quant`. Immutable baseline: `2604b9689e9f992b4e9
 - Deterministic complete-target financing distinguishes deposits/withdrawals/internal sales and purchases. Final policy/risk comparison retains its documented original-capital basis; financing separately values after-flow holdings. Existing incremental sliders and read-only final-target checks remain intact.
 - Numerical consumers support first-order signed FX/rate/spread/commodity/factor sensitivities, exact-ISIN dated partial fund look-through/overlap, and QR factor regression on explicitly supplied aligned samples. Unknown sensitivities/unresolved holdings remain unknown. Synthetic/caller inputs are never presented as actual issuer/factor acquisition.
 - At most three ranked candidate findings have locally owned facts and affected holdings/missing-input navigation. Claim IDs remain empty until the real writer/auditor creates them. Policy navigation points to the actual Risk route.
-- Five attributed real new captures (SOFR/COT/swaps/Treasury curve/debt) feed the HTTP/UI. Six additional anonymous source connectors have bounded acquisition, parsing, session-owned immutable storage and UI, with honest permission gates. Paid CME is excluded and login/API-key OANDA/FRED are set aside per latest user instructions. New FRED raw data was removed before commit. See PROVIDERS.md and SOURCES.csv; wired is not a live-access claim.
+- Five attributed real new captures (SOFR/COT/swaps/Treasury curve/debt) feed the HTTP/UI. Five additional anonymous source connectors have bounded acquisition, parsing, session-owned immutable storage and UI, with honest permission gates. Paid CME is excluded and login/API-key OANDA/FRED/FINRA short-interest are set aside per latest user instructions. New FRED raw data was removed before commit. See PROVIDERS.md and SOURCES.csv; wired is not a live-access claim.
 - Tooltip placement uses a viewport-clamped fixed portal; hidden tooltips do not expand document width. Accessible description, focus, hover handler, touch, Escape and outside-close remain supported. No page-wide overflow suppression was added.
 
 ## Validation and latest user override
 
 Before the final API-first pass, `UV_CACHE_DIR=/tmp/aplomb-agent-1-uv-cache npm run check` passed **889 Python tests + 16 subtests, 208 web tests and 6 infrastructure tests**, generated/static/spec checks and infra synthesis. Log: `docs/evidence/parallel/agent-1/check-final.log`. Static export passed (`build.log`).
 
-Real local API smoke: `UV_CACHE_DIR=/tmp/aplomb-agent-1-uv-cache uv run python scripts/agent1_http_smoke.py`, **31 requests**, EUR/FR investor and JPY valuation, conservation/rollback, private appraisal, explicit scenarios/fund/factors/candidates and current-versus-historical cutoff. Evidence `http-smoke.json`. No model invoked; investor/model inputs are synthetic. A real replay request lacked configured model IDs and returned honest unavailable; scripted tests are not Bedrock evidence.
+Real local API smoke: `UV_CACHE_DIR=/tmp/aplomb-agent-1-uv-cache uv run python scripts/agent1_http_smoke.py`, **37 requests**, EUR/FR investor and JPY valuation, conservation/rollback, private appraisal, explicit scenarios/fund/factors/candidates and current-versus-historical cutoff. Evidence `http-smoke.json`. No model invoked; investor/model inputs are synthetic. A real replay request lacked configured model IDs and returned honest unavailable; scripted tests are not Bedrock evidence.
 
-Real browser: `node scripts/agent1_browser_smoke.mjs` and `node scripts/agent1_browser_extended.mjs`, actual API/web at 8101/3101, Chrome 9321. Ten extended interactions passed, including arbitrary EUR form and all numerical input consumers. Four owned routes independently measured **configured viewport=390, actual viewport=390, document=390** with no browser errors. Tooltip focus/Escape and tap/outside-close passed. Evidence: `browser/browser-extended.json`, `browser/browser-interactions.json`, screenshots in `browser/`. Failed early harness attempts are retained as historical diagnostic logs; final logs have `final` or successful JSON records. Hover is implemented but was not separately asserted by the final harness.
+Real browser: `node scripts/agent1_browser_smoke.mjs` and `node scripts/agent1_browser_extended.mjs`, actual API/web at 8101/3101, Chrome 9321. Eleven extended interactions passed, including arbitrary EUR form and all numerical input consumers. Four owned routes independently measured **configured viewport=390, actual viewport=390, document=390** with no browser errors. Tooltip focus/Escape and tap/outside-close passed. Evidence: `browser/browser-extended.json`, `browser/browser-interactions.json`, screenshots in `browser/`. Failed early harness attempts are retained as historical diagnostic logs; final logs have `final` or successful JSON records. The final harness also asserts mouse hover/open and mouse-leave close.
 
-The user then explicitly requested API additions over new test cases. **No new provider test cases were written and no full regression rerun is claimed after the final provider/capacity edits.** Provider code lint, application construction and TypeScript checks passed; `provider-typecheck.log` records the latter. `provider-build.log` records the final static build result. These limited checks are distinguished from the earlier full gate.
+The user temporarily requested API additions over new test cases, then explicitly reauthorized small tests and complete verification. The new provider suite passes **13 focused tests**, and verification repaired actual ownership/cache/integrity/revocation/filter/error-handling defects. It also identified that FINRA short interest requires Gateway credentials; that source is now set aside, leaving five anonymous connector paths. The fresh repository-wide gate is recorded separately in `check-providers-final.log`; the final verification summary below gives its exact result. Static export passed again in `provider-build.log`. Details: PROVIDER-VERIFICATION.md.
+
+Real HEAD reachability is recorded in `provider-reachability.json`: AQR, Cboe, OCC and public FINRA short-volume endpoints returned 200; French host did not connect. HEAD is only transport/metadata evidence, not successful data acquisition or permission. FINRA API metadata HEAD failure is explicitly not interpreted as GET dataset absence; it is out of active scope due to login requirements.
 
 ## Integration and genuine limitations
 
@@ -92,6 +104,7 @@ Shared wiring is additive: API routes/router/store composition, profile/account 
 - `backend/tests/unit/datastore/test_cftc_swaps.py`
 - `backend/tests/unit/datastore/test_fama_french.py`
 - `backend/tests/unit/datastore/test_financial_inputs_api.py`
+- `backend/tests/unit/datastore/test_financial_providers.py`
 - `backend/tests/unit/datastore/test_finra_volume.py`
 - `backend/tests/unit/datastore/test_nyfed_sofr.py`
 - `backend/tests/unit/datastore/test_treasury_inputs.py`
@@ -114,7 +127,9 @@ Shared wiring is additive: API routes/router/store composition, profile/account 
 - `data/inputs/risk-treasury/par-202610.xml`
 - `docs/evidence/parallel/agent-1/browser-attempt-1.log`
 - `docs/evidence/parallel/agent-1/browser-extended-final.log`
+- `docs/evidence/parallel/agent-1/browser-extended-verified.log`
 - `docs/evidence/parallel/agent-1/browser-extended.log`
+- `docs/evidence/parallel/agent-1/browser-final.log`
 - `docs/evidence/parallel/agent-1/browser-run.log`
 - `docs/evidence/parallel/agent-1/browser/browser-account-receipt.png`
 - `docs/evidence/parallel/agent-1/browser/browser-eur-profile.png`
@@ -126,12 +141,17 @@ Shared wiring is additive: API routes/router/store composition, profile/account 
 - `docs/evidence/parallel/agent-1/browser/browser-target-allocation.png`
 - `docs/evidence/parallel/agent-1/browser/browser-visible-tooltip.png`
 - `docs/evidence/parallel/agent-1/build.log`
+- `docs/evidence/parallel/agent-1/capacity-regression.log`
 - `docs/evidence/parallel/agent-1/check-final.log`
 - `docs/evidence/parallel/agent-1/check-initial.log`
+- `docs/evidence/parallel/agent-1/check-providers-final.log`
 - `docs/evidence/parallel/agent-1/check.log`
+- `docs/evidence/parallel/agent-1/http-final.log`
+- `docs/evidence/parallel/agent-1/http-providers-final.log`
 - `docs/evidence/parallel/agent-1/http-smoke.json`
 - `docs/evidence/parallel/agent-1/infra.log`
 - `docs/evidence/parallel/agent-1/provider-build.log`
+- `docs/evidence/parallel/agent-1/provider-reachability.json`
 - `docs/evidence/parallel/agent-1/provider-typecheck.log`
 - `docs/evidence/parallel/agent-1/pytest-diagnostic.log`
 - `docs/evidence/parallel/agent-1/typecheck.log`
@@ -139,6 +159,7 @@ Shared wiring is additive: API routes/router/store composition, profile/account 
 - `docs/parallel/reports/agent-1/HANDOFF.md`
 - `docs/parallel/reports/agent-1/INTERFACES.md`
 - `docs/parallel/reports/agent-1/PROFILE-NOTES.md`
+- `docs/parallel/reports/agent-1/PROVIDER-VERIFICATION.md`
 - `docs/parallel/reports/agent-1/PROVIDERS.md`
 - `docs/parallel/reports/agent-1/REQUIREMENTS.md`
 - `docs/parallel/reports/agent-1/SOURCES.csv`
@@ -172,3 +193,4 @@ Shared wiring is additive: API routes/router/store composition, profile/account 
 - `web/src/lib/profileForm.ts`
 - `web/src/styles/components.css`
 - `web/tests/investor-models.test.ts`
+- `docs/evidence/parallel/agent-1/verification-final.json`

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import uuid
 from datetime import date, timedelta
 from pathlib import Path
@@ -22,12 +23,18 @@ def main():
 
     def call(method, path, body=None, status=200, contract=None, session_id=None):
         headers = {'X-Aplomb-Session': session_id} if session_id else None
+        retries = 0
         response = client.request(method, path, json=body, headers=headers)
+        while response.status_code == 429 and status != 429 and retries < 2:
+            # Respect the real session limiter; do not weaken production controls for QA.
+            time.sleep(min(5, max(1, int(response.headers.get('Retry-After', '1')))))
+            retries += 1
+            response = client.request(method, path, json=body, headers=headers)
         assert response.status_code == status, f'{method} {path}: {response.status_code} != {status}: {response.text[:1000]}'
         value = response.json()
         if contract:
             adapter(contract).validate_python(value)
-        records.append({'method': method, 'path': path, 'status': status, 'contract': contract})
+        records.append({'method': method, 'path': path, 'status': status, 'contract': contract, 'rateLimitRetries': retries})
         return value
 
     meta = call('GET', '/meta', contract='Meta')
@@ -125,6 +132,16 @@ def main():
     assert abs(fit['betas']['market'] - 1.5) < 1e-9 and fit['observations'] == 35
     sources = call('GET', '/risk/source-inputs')
     assert {'sofr', 'cftc-cot', 'treasury-par', 'treasury-debt'} <= {s['id'] for s in sources['sources']}
+    providers = call('GET', '/risk/providers')
+    assert {p['id'] for p in providers['providers']} == {'fama-french', 'aqr', 'cboe', 'occ', 'finra-volume'}
+    assert {p['id'] for p in providers['setAside']} == {'oanda', 'cme', 'fred', 'finra-interest'}
+    call('POST', '/risk/providers/cme/capture', {'asOf': meta['dataAsOf']}, status=503, contract='ApiError')
+    call('POST', '/risk/providers/oanda/capture', {'asOf': meta['dataAsOf']}, status=503, contract='ApiError')
+    call('POST', '/risk/providers/fred/capture', {'asOf': meta['dataAsOf']}, status=503, contract='ApiError')
+    call('POST', '/risk/providers/finra-interest/capture', {'asOf': meta['dataAsOf']}, status=503, contract='ApiError')
+    blocked = next((p['id'] for p in providers['providers'] if p['status'] == 'permission_required'), None)
+    if blocked:
+        call('POST', f'/risk/providers/{blocked}/capture', {'asOf': meta['dataAsOf']}, status=503, contract='ApiError')
     old = call('GET', '/risk/source-inputs?asOf=2020-01-01')
     assert all(s['status'] != 'available' for s in old['sources'])
     as_of = meta['dataAsOf']

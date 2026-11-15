@@ -272,6 +272,6 @@ def test_risk_capacity_uses_lower_explicit_assumed_budget_without_seed_switches(
     rule = next(r for r in result.rules if r['ruleId'] == 'limit.volatility')
     assert rule['threshold'] == 6.0
     assert any(issue['code'] == 'capacity_tolerance_difference' for issue in result.issues)
-    fact = eng.ledger.facts[result.fact_ids['budget.volatility']]
+    fact = eng.ledger.get_fact(result.fact_ids['budget.volatility'])
     assert fact.method.params['riskTolerance'] == 'high'
     assert fact.method.params['riskCapacity'] == 'low'

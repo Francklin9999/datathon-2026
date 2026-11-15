@@ -55,6 +55,13 @@ for(let i=0;i<tips;i++){
   const expanded=await evaluate(`document.querySelectorAll('.info-btn')[${i}].getAttribute('aria-expanded')`);
   if(expanded!=='false')throw new Error('Escape did not close tooltip');
 }
+const hoverPoint=await evaluate(`(()=>{const el=document.querySelector('.info-btn');el.blur();el.scrollIntoView({block:'center'});const r=el.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
+await send('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
+await send('Input.dispatchMouseEvent',{type:'mouseMoved',...hoverPoint});await delay(120);
+if(await evaluate(`document.querySelector('.info-btn').getAttribute('aria-expanded')`)!=='true')throw new Error('Mouse hover did not open tooltip');
+await send('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});await delay(120);
+if(await evaluate(`document.querySelector('.info-btn').getAttribute('aria-expanded')`)!=='false')throw new Error('Mouse leave did not close tooltip');
+checks.push('Mouse hover opens tooltip and leaving closes it');
 await send('Emulation.setTouchEmulationEnabled',{enabled:true});
 const tipCenter=await evaluate(`(()=>{const el=document.querySelector('.info-btn');el.blur();el.scrollIntoView({block:'center'});const b=el.getBoundingClientRect();return {x:b.x+b.width/2,y:b.y+b.height/2}})()`);
 await delay(150);

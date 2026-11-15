@@ -26,7 +26,7 @@ Baseline: `2604b9689e9f992b4e9e46c4a06ea89ec57ac155`; branch `codex/agent-1-inve
 
 ## Financial sources
 
-`GET /v1/risk/source-inputs?asOf=YYYY-MM-DD` returns bounded capture-gated context: sources with status, observed value, provider URL, capture time, SHA, rights and limitations. Captured NY Fed SOFR is an overnight rate, Treasury par yields are not zero-coupon rates, Treasury debt is a fiscal aggregate, CFTC COT is positioning for an explicitly named contract, and CFTC swaps is aggregate gross notional. None establishes holding sensitivity or a live option chain. Retrieval bounds historical availability; original provider vintages are not proved. Fama–French is unavailable without a validated capture. STLFSI4 is captured but intentionally awaits Agent 2's FRED adapter. Source rights and remaining adapters are itemized in `SOURCES.csv`; local captured files are not a replacement for integration-owned snapshot publication.
+`GET /v1/risk/source-inputs?asOf=YYYY-MM-DD` returns bounded capture-gated context: sources with status, observed value, provider URL, capture time, SHA, rights and limitations. Captured NY Fed SOFR is an overnight rate, Treasury par yields are not zero-coupon rates, Treasury debt is a fiscal aggregate, CFTC COT is positioning for an explicitly named contract, and CFTC swaps is aggregate gross notional. None establishes holding sensitivity or a live option chain. Retrieval bounds historical availability; original provider vintages are not proved. Fama–French is unavailable without a validated capture. The new STLFSI4 raw capture was removed; metadata only remains. FRED is set aside under no-login scope and additionally rights-restricted. Source rights and remaining adapters are itemized in `SOURCES.csv`; local captured files are not a replacement for integration-owned snapshot publication.
 
 ## Shared files and compatibility
 
@@ -34,13 +34,13 @@ Additive integration changes include `backend/aplomb/contracts/{models,api}.py`,
 
 ## Tests and live-model boundary
 
-`UV_CACHE_DIR=/tmp/aplomb-agent-1-uv-cache uv run python scripts/agent1_http_smoke.py` against actual local API port 8101 passes 31 requests, with output `docs/evidence/parallel/agent-1/http-smoke.json`. It uses synthetic investor, fund and factor inputs and does not invoke a model. `/check` at snapshot cutoff succeeds with current knowledge and returns `insufficient_data` for explicit historical knowledge, an honest missing-data outcome. A real `/runs` replay request returned 503 `upstream_unavailable` because `APLOMB_MODEL_STRONG`/`APLOMB_MODEL_FAST` were not configured. Existing replay tests using `ScriptedGateway` demonstrate scripted behavior only. Final gate/build/browser/AWS results belong in `HANDOFF.md`.
+`UV_CACHE_DIR=/tmp/aplomb-agent-1-uv-cache uv run python scripts/agent1_http_smoke.py` against actual local API port 8101 passes 37 requests, with output `docs/evidence/parallel/agent-1/http-smoke.json`. It uses synthetic investor, fund and factor inputs and does not invoke a model. `/check` at snapshot cutoff succeeds with current knowledge and returns `insufficient_data` for explicit historical knowledge, an honest missing-data outcome. A real `/runs` replay request returned 503 `upstream_unavailable` because `APLOMB_MODEL_STRONG`/`APLOMB_MODEL_FAST` were not configured. Existing replay tests using `ScriptedGateway` demonstrate scripted behavior only. Final gate/build/browser/AWS results belong in `HANDOFF.md`.
 
 ## Latest API-first pass and source-scope change
 
 The user subsequently requested APIs over new test cases, exclusion of paid plans and deferral of login/API-key feeds. Added these session-protected routes without a contract-version bump:
 
-- `GET /v1/risk/providers`: six anonymous transport/parser connectors and their honest readiness; CME excluded, OANDA/FRED set aside.
+- `GET /v1/risk/providers`: five anonymous transport/parser connectors and their honest readiness; CME excluded, OANDA/FRED/FINRA short-interest set aside.
 - `POST /v1/risk/providers/{providerId}/capture`: `{asOf:"YYYY-MM-DD",symbol?:"SPY",sheet?:"",limit?:100}`. `limit` is 1–200. Only server-confirmed permitted anonymous sources can be requested. No user URL or credentials are accepted. Returns normalized source records, unit/limitations, source URL/hash/retrieval, immutable capture ID and query/version.
 - `GET /v1/risk/providers/{providerId}/captures/{captureId}`: session-owned, raw checksum rechecked; optional `X-Aplomb-Known-Date` withholds a later capture. Raw bytes and credentials are not returned.
 

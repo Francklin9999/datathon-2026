@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import http.client
 import io
 import json
 import math
@@ -84,10 +85,11 @@ PROVIDERS = {
 }
 
 
-DEFERRED_PROVIDERS = {key: PROVIDERS.pop(key) for key in ('oanda', 'cme', 'fred')}
+DEFERRED_PROVIDERS = {key: PROVIDERS.pop(key) for key in ('oanda', 'cme', 'fred', 'finra-interest')}
 DEFERRED_REASONS = {'oanda': 'Login/account and token required; set aside by user.',
                     'cme': 'Paid/entitled data; excluded by user.',
-                    'fred': 'API key/account and written data-use permission required; set aside by user.'}
+                    'fred': 'API key/account and written data-use permission required; set aside by user.',
+                    'finra-interest': 'FINRA API credential and Gateway login required; set aside by user.'}
 
 
 def provider_status(provider: Provider) -> dict:
@@ -121,7 +123,7 @@ def _request(url: str, *, headers: dict | None = None, body: dict | None = None)
             return raw
     except urllib.error.HTTPError as exc:
         raise ServiceError('upstream_unavailable', f'Provider returned HTTP {exc.code}; access controls were not bypassed') from None
-    except (urllib.error.URLError, TimeoutError, OSError):
+    except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException):
         raise ServiceError('upstream_unavailable', 'Provider unavailable or timed out') from None
 
 
@@ -136,7 +138,7 @@ def _csv_rows(raw: bytes) -> list[dict]:
     text = raw.decode('utf-8-sig')
     if '<html' in text[:1000].lower() or '<!doctype' in text[:1000].lower():
         raise ValueError('provider returned HTML rather than a data report')
-    rows = list(csv.reader(io.StringIO(text)))
+    rows = list(csv.reader(io.StringIO(text), strict=True))
     rows = [row for row in rows if any(cell.strip() for cell in row)]
     if len(rows) < 2 or len(rows) > 100_000:
         raise ValueError('empty or oversized report')
@@ -172,7 +174,10 @@ def _xlsx_rows(raw: bytes, sheet: str) -> list[dict]:
             for cell in row.findall('s:c', ns):
                 value = cell.find('s:v', ns)
                 if cell.attrib.get('t') == 'inlineStr':
-                    parsed = ''.join(cell.find('s:is', ns).itertext())
+                    inline = cell.find('s:is', ns)
+                    if inline is None:
+                        raise ValueError('invalid inline string cell')
+                    parsed = ''.join(inline.itertext())
                 elif value is None:
                     continue
                 elif cell.attrib.get('t') == 's':
@@ -221,8 +226,8 @@ def acquire(provider_id: str, *, day: date, symbol: str = 'SPY', sheet: str = ''
     elif provider_id == 'finra-interest':
         url = 'https://api.finra.org/data/group/otcMarket/name/consolidatedShortInterest'
         body = {'limit': limit, 'compareFilters': [
-            {'compareType': 'equal', 'fieldName': 'symbolCode', 'fieldValue': symbol},
-            {'compareType': 'lesserOrEqual', 'fieldName': 'settlementDate', 'fieldValue': day.isoformat()}]}
+            {'compareType': 'EQUAL', 'fieldName': 'symbolCode', 'fieldValue': symbol},
+            {'compareType': 'LTE', 'fieldName': 'settlementDate', 'fieldValue': day.isoformat()}]}
     network_url = url + ('?' + urllib.parse.urlencode(params) if params else '')
     safe_params = {key: value for key, value in params.items() if key != 'api_key'}
     source_url = url + ('?' + urllib.parse.urlencode(safe_params) if safe_params else '')
@@ -238,9 +243,12 @@ def acquire(provider_id: str, *, day: date, symbol: str = 'SPY', sheet: str = ''
         records = [{key: str(value) for key, value in asdict(row).items()}] if row else []
         unit = 'reported shares; not short interest'
     elif provider_id == 'cboe':
-        records = []
+        records, seen = [], set()
         for row in csv.DictReader(io.StringIO(raw.decode('utf-8-sig'))):
             observed = datetime.strptime(row['DATE'], '%m/%d/%Y').date()
+            if observed in seen:
+                raise ValueError('duplicate VIX observation date')
+            seen.add(observed)
             values = {key.lower(): _finite(row[key], nonnegative=True) for key in ('OPEN', 'HIGH', 'LOW', 'CLOSE')}
             if not values['low'] <= min(values['open'], values['close']) <= max(values['open'], values['close']) <= values['high']:
                 raise ValueError('invalid VIX OHLC record')
@@ -264,7 +272,8 @@ def acquire(provider_id: str, *, day: date, symbol: str = 'SPY', sheet: str = ''
                 'currentShortPositionQuantity': _finite(row['currentShortPositionQuantity'], nonnegative=True),
                 'previousShortPositionQuantity': _finite(row['previousShortPositionQuantity'], nonnegative=True),
                 'averageDailyVolumeQuantity': _finite(row['averageDailyVolumeQuantity'], nonnegative=True),
-                'reportedDaysToCover': row.get('daysToCoverQuantity'), 'marketClassCode': row.get('marketClassCode')})
+                'reportedDaysToCover': None if row.get('daysToCoverQuantity') is None else _finite(row['daysToCoverQuantity'], nonnegative=True),
+                'marketClassCode': row.get('marketClassCode')})
         unit = 'reported position shares; days-to-cover remains provider-reported'
     if not records:
         raise ServiceError('insufficient_data', 'No matching provider observations; no values were fabricated')

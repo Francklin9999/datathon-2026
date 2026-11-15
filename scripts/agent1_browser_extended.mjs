@@ -49,7 +49,12 @@ await change('#requirements-start','2027-01-01');await change('#requirements-end
 checks.push('Explicit spending scenario calculated through UI');await shot('browser-eur-spending');
 await fill('#custom-policy-key','SPY');await fill('#custom-policy-threshold','5');await button('Save and evaluate condition');await wait(`document.body.innerText.includes('At most 5.0% in position SPY')`);
 checks.push('Custom position cap saved and evaluated with actual rule engine');
-await nav('/risk-intelligence/');await wait(`!!document.getElementById('shock-key')`);await fill('#shock-key','Synthetic parallel EUR curve');await fill('#shock-change','100');await change('#shock-asof','2026-11-12');await fill('#shock-assumption','Synthetic signed-duration assumptions only; no forecast');
+await nav('/risk-intelligence/');await wait(`!!document.getElementById('shock-key')`);
+await wait(`document.querySelectorAll('#financial-provider option').length===6`);
+const anonymous=await evaluate(`Array.from(document.querySelectorAll('#financial-provider option')).map(o=>o.value).filter(Boolean).sort()`);
+if(JSON.stringify(anonymous)!==JSON.stringify(['aqr','cboe','fama-french','finra-volume','occ']))throw new Error('Provider scope violated '+JSON.stringify(anonymous));
+checks.push('All five anonymous provider controls render; paid/login sources are excluded from acquisition choices');
+await fill('#shock-key','Synthetic parallel EUR curve');await fill('#shock-change','100');await change('#shock-asof','2026-11-12');await fill('#shock-assumption','Synthetic signed-duration assumptions only; no forecast');
 const tickers=await evaluate(`Array.from(document.querySelectorAll('input[aria-label$=" sensitivity"]')).map(e=>e.getAttribute('aria-label').replace(' sensitivity',''))`);
 for(const ticker of tickers){await fill(`input[aria-label="${ticker} sensitivity"]`,'-5');await fill(`input[aria-label="${ticker} sensitivity source"]`,'Synthetic assumption for browser verification');}
 await button('Calculate deterministic scenario');await wait(`document.body.innerText.includes('Portfolio modeled impact')`);checks.push('Explicit-input signed-duration scenario calculated for EUR portfolio');
