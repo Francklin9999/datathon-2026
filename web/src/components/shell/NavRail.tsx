@@ -13,7 +13,7 @@ import type { I18NText } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { readPref, writePref } from '../../lib/session';
 import { SIDEBAR_PREF_KEY, isSidebarState, type SidebarState } from '../../lib/ui/theme';
-import { pillStyle, useSlidingPill } from '../ui/useSlidingPill';
+import { useSlidingPill } from '../ui/useSlidingPill';
 
 export interface NavItem { href: string; label: I18NText; icon: LucideIcon; flag?: string; tour: string }
 
@@ -79,7 +79,10 @@ export function NavList({ onNavigate, withSources = false }: { onNavigate?: () =
   useEffect(() => { if (box && !animate) setAnimate(true); }, [box, animate]);
   return (
     <div className="nav-wrap" ref={ref}>
-      <span className="nav-pill" aria-hidden="true" data-animate={animate ? 'true' : undefined} style={pillStyle(box)} />
+      {/* Only the vertical position comes from measuring; the width is the column's own (CSS), so the
+          highlight widens in step with the rail instead of chasing it. */}
+      <span className="nav-pill" aria-hidden="true" data-animate={animate ? 'true' : undefined}
+        style={box ? { transform: `translate3d(0, ${box.y}px, 0)`, height: box.h } : { opacity: 0 }} />
       <ul className="nav-list">
         {all.map((item, index) => (
           <li key={item.href}>
