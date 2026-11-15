@@ -4,6 +4,7 @@
  * Fetches the layers, a paginated event page and the profile's country exposure. The feed is the
  * primary, keyboard-accessible view; the globe is an alternate view of the same loaded events
  * (thinned and labelled). Dates default to the dataset coverage returned by the API, never to "today".
+ * The feed opens on events matching the portfolio; the detailed filters are folded (review §4.6).
  * Nothing here estimates a financial impact, and a failed call never falls back to fixture data.
  */
 import Link from 'next/link';
@@ -91,6 +92,11 @@ const LAYER_REASON: Record<LayerUnavailable, { en: string; fr: string }> = {
   dataset_missing: { en: 'Unavailable: its dataset is not loaded.', fr: 'Indisponible : son jeu de données n’est pas chargé.' },
 };
 
+/** Filters narrowing the feed beyond the date interval and the sort order. */
+function activeFilterCount(filters: WorldFilters): number {
+  return [filters.country, filters.ticker, filters.theme, filters.q].filter(Boolean).length + filters.categories.length + filters.origins.length;
+}
+
 function toggle<T>(list: readonly T[], value: T, on: boolean): T[] {
   return on ? [...list.filter(item => item !== value), value] : list.filter(item => item !== value);
 }
@@ -143,7 +149,8 @@ function WorldContent({ profile }: { profile: Profile }) {
   const [applied, setApplied] = useState<WorldFilters | null>(null);
   const [coverage, setCoverage] = useState<Period | null>(null);
   const [formIssue, setFormIssue] = useState<FormIssue | null>(null);
-  const [relevantOnly, setRelevantOnly] = useState(false);
+  // Default view: only events with a documented link to this portfolio (review §4.6); untick to see all.
+  const [relevantOnly, setRelevantOnly] = useState(true);
   useEffect(() => {
     if (applied !== null || layers.loading) return;
     const initial = layerCoverage ? { ...EMPTY_FILTERS, ...defaultRange(layerCoverage) } : EMPTY_FILTERS;
@@ -280,7 +287,7 @@ function WorldContent({ profile }: { profile: Profile }) {
   };
   const reset = () => {
     const base = coverage ? { ...EMPTY_FILTERS, ...defaultRange(coverage) } : EMPTY_FILTERS;
-    setDraft(base); setApplied(base); setFormIssue(null); setRelevantOnly(false);
+    setDraft(base); setApplied(base); setFormIssue(null); setRelevantOnly(true);
   };
   const countryOptions = useMemo(() => {
     const codes = new Set<string>();
@@ -302,6 +309,23 @@ function WorldContent({ profile }: { profile: Profile }) {
       </PageHeader>
 
       <Card id="filters" title={tr({ en: 'Filters', fr: 'Filtres' })}>
+        <div className="checks">
+          <label>
+            <input type="checkbox" checked={relevantOnly && relevanceKnown} disabled={!relevanceKnown} onChange={e => setRelevantOnly(e.target.checked)} />
+            {tr({ en: `Only events matching ${profile.name}’s portfolio`, fr: `Seulement les événements correspondant au portefeuille de ${profile.name}` })}
+          </label>
+        </div>
+        <p className="small muted">
+          {relevanceKnown
+            ? tr({ en: 'A match means a held ticker is named in the event or the event’s country has portfolio weight. It is a documented match, not an impact estimate, and it filters the loaded events only.', fr: 'Une correspondance signifie qu’un symbole détenu est nommé dans l’événement ou que le pays de l’événement a un poids dans le portefeuille. C’est une correspondance documentée, pas une estimation d’impact, et elle ne filtre que les événements chargés.' })
+            : tr({ en: 'Not available yet: the API has not returned a portfolio match for the loaded events.', fr: 'Pas encore disponible : l’API n’a pas renvoyé de correspondance avec le portefeuille pour les événements chargés.' })}
+        </p>
+        <details className="filters-fold">
+          <summary>
+            {tr({ en: 'Dates, countries, categories and sources', fr: 'Dates, pays, catégories et sources' })}
+            {applied?.from && applied.to && <span className="small muted"> · {fmtDate(applied.from, lang)} → {fmtDate(applied.to, lang)}</span>}
+            {applied && activeFilterCount(applied) > 0 && <span className="small muted"> · {tr({ en: `${activeFilterCount(applied)} filter(s) applied`, fr: `${activeFilterCount(applied)} filtre(s) appliqué(s)` })}</span>}
+          </summary>
         <form onSubmit={apply} noValidate>
           <div className="form-grid">
             <div className="field">
@@ -399,17 +423,7 @@ function WorldContent({ profile }: { profile: Profile }) {
             {dirty && <span className="small muted" role="status">{tr({ en: 'Filters changed; apply them to update the feed.', fr: 'Filtres modifiés ; appliquez-les pour mettre le fil à jour.' })}</span>}
           </div>
         </form>
-        <div className="checks" style={{ marginTop: 12 }}>
-          <label>
-            <input type="checkbox" checked={relevantOnly && relevanceKnown} disabled={!relevanceKnown} onChange={e => setRelevantOnly(e.target.checked)} />
-            {tr({ en: `Only events matching ${profile.name}’s portfolio`, fr: `Seulement les événements correspondant au portefeuille de ${profile.name}` })}
-          </label>
-        </div>
-        <p className="small muted">
-          {relevanceKnown
-            ? tr({ en: 'A match means a held ticker is named in the event or the event’s country has portfolio weight. It is a documented match, not an impact estimate, and it filters the loaded events only.', fr: 'Une correspondance signifie qu’un symbole détenu est nommé dans l’événement ou que le pays de l’événement a un poids dans le portefeuille. C’est une correspondance documentée, pas une estimation d’impact, et elle ne filtre que les événements chargés.' })
-            : tr({ en: 'Not available yet: the API has not returned a portfolio match for the loaded events.', fr: 'Pas encore disponible : l’API n’a pas renvoyé de correspondance avec le portefeuille pour les événements chargés.' })}
-        </p>
+        </details>
       </Card>
 
       <div className="world-grid">
