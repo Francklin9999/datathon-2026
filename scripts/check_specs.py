@@ -9,10 +9,10 @@ import io
 import json
 import math
 import os
-from pathlib import Path
 import re
 import runpy
 import sys
+from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,7 +45,7 @@ def no_duplicate_keys(pairs):
 
 
 def load_fixture(name):
-    return json.loads((ROOT / "contracts/fixtures" / name).read_text(),
+    return json.loads((ROOT / "contracts/fixtures" / name).read_text(encoding="utf-8"),
                       object_pairs_hook=no_duplicate_keys,
                       parse_constant=lambda s: (_ for _ in ()).throw(ValueError(s)))
 
@@ -59,7 +59,7 @@ def check_links():
             subdirs[:] = [name for name in subdirs if name not in ignored]
             documents.extend(Path(directory) / name for name in names if name.endswith(".md"))
     for path in documents:
-        content = path.read_text()
+        content = path.read_text(encoding="utf-8")
         check(content.strip() not in ("pending", "TODO", ""), f"{path}: placeholder document")
         for target in re.findall(r"(?<!!)\[[^\]]+\]\(([^)]+)\)", content):
             target = target.strip().strip("<>")
@@ -95,7 +95,7 @@ def check_run(run, profiles):
     facts = run["facts"]
     kinds = {"observed", "computed", "assumption", "input", "scenario", "rule_check", "evidence"}
     keys = []
-    catalog = (ROOT / "contracts/catalog.md").read_text()
+    catalog = (ROOT / "contracts/catalog.md").read_text(encoding="utf-8")
     for fid, fact in facts.items():
         required(fact, "id key kind metric label value unit currency display subject period window asOf availableAt method inputs nObs sources limitations verification createdBy createdAt", fid)
         check(fid == fact["id"] and re.fullmatch(r"F-\d{3,}", fid), f"invalid Fact ID {fid}")

@@ -6,7 +6,7 @@
  */
 import { useMemo, useState } from 'react';
 import type {
-  CheckResult, DeriveRulesResponse, FrontierResponse, Lang, OverviewResponse, PolicyRule, Profile, RuleCheck,
+  CheckResult, DeriveRulesResponse, FrontierResponse, Lang, OverviewResponse, PolicyRule, Profile,
 } from '../../contracts/types';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
@@ -20,6 +20,7 @@ import { RuleTable } from '../../components/run/RuleTable';
 import { GroupBars } from '../../components/run/Results';
 import { ASSET_CLASS, labelOf } from '../../lib/labels';
 import { factIdFor, fmtMoney, fmtNumber, fmtPct, fmtSignedPct, fmtUnit } from '../../lib/format';
+import { disabledRules, planRuleRows } from '../../lib/planRules';
 
 export function PortfolioPage() {
   return <ProfileGate>{profile => <PortfolioContent key={profile.profileId} profile={profile} />}</ProfileGate>;
@@ -280,11 +281,10 @@ function Rules({ profile, overview, scope }: { profile: Profile; overview: Overv
     ? { kind: 'local', label: { en: 'Rule derivation inputs.', fr: 'Intrants de dérivation des règles.' }, facts: derived.facts }
     : null), [derived]);
 
-  const checks: RuleCheck[] = overview?.ruleChecks ?? profile.rules.map(rule => ({
-    ruleId: rule.ruleId, code: rule.code, status: 'info', value: null, threshold: rule.threshold, unit: rule.unit,
-    comparator: rule.comparator, headroom: null, worst: null, valueFactId: null, thresholdFactId: null,
-    detail: { en: 'Not evaluated: overview unavailable.', fr: 'Non évaluée : aperçu indisponible.' }, neeReason: null, evidenceIds: [],
-  }));
+  // One row per profile rule: the overview has no check for a disabled rule, which must stay
+  // listed (marked disabled, with its toggle) so it can be enabled again.
+  const checks = planRuleRows(profile.rules, overview ? overview.ruleChecks : null);
+  const disabled = disabledRules(profile.rules);
 
   const table = (
     <RuleTable checks={checks} rules={profile.rules} caption={tr({ en: 'Rules of this plan', fr: 'Règles de ce plan' })}
@@ -311,6 +311,13 @@ function Rules({ profile, overview, scope }: { profile: Profile; overview: Overv
         </FactScopeProvider>
       )}
       {overview === null && <p className="small muted">{tr({ en: 'Statuses need the overview; rule definitions are shown from the profile.', fr: 'Les statuts nécessitent l’aperçu ; les définitions viennent du profil.' })}</p>}
+      {disabled.length > 0 && (
+        <p className="small muted">
+          {tr({ en: 'Disabled, not counted in the plan verdict:', fr: 'Désactivées, non comptées dans le verdict du plan :' })}{' '}
+          <span className="mono">{disabled.map(rule => rule.code).join(', ')}</span>.{' '}
+          {tr({ en: 'Each stays listed below and can be enabled again.', fr: 'Chacune reste listée ci-dessous et peut être réactivée.' })}
+        </p>
+      )}
       {scope ? <FactScopeProvider scope={scope}>{table}</FactScopeProvider> : table}
       {preview && (
         <div className="card" style={{ marginTop: 16 }} aria-live="polite">
@@ -364,19 +371,19 @@ function FrontierChart({ data, lang }: { data: FrontierResponse; lang: Lang }) {
   return (
     <figure>
       <svg viewBox={`0 0 ${W} ${H}`} className="chart" role="img" aria-label={tr({ en: 'Frontier chart; a list of points follows', fr: 'Graphique de frontière ; une liste des points suit' })}>
-        <line x1={x(data.volBudgetPct)} x2={x(data.volBudgetPct)} y1={P / 2} y2={H - P} stroke="#E3A53B" strokeDasharray="4 4" />
-        <polyline points={line(data.minVarFrontier)} fill="none" stroke="#0B5E66" strokeWidth={2} />
-        <polyline points={line(data.histMvFrontier)} fill="none" stroke="#8FA3B6" strokeWidth={2} strokeDasharray="6 4" />
-        {data.assets.map(a => <circle key={a.ticker} cx={x(a.volPct)} cy={y(a.histReturnPct)} r={3} fill="#4A5B6C" />)}
-        <circle cx={x(data.portfolio.volPct)} cy={y(data.portfolio.histReturnPct)} r={6} fill="#12202F" />
-        {data.portfolioAfter && <circle cx={x(data.portfolioAfter.volPct)} cy={y(data.portfolioAfter.histReturnPct)} r={6} fill="#8A1B12" />}
+        <line x1={x(data.volBudgetPct)} x2={x(data.volBudgetPct)} y1={P / 2} y2={H - P} stroke="var(--gold)" strokeDasharray="4 4" />
+        <polyline points={line(data.minVarFrontier)} fill="none" stroke="var(--chart-1)" strokeWidth={2} />
+        <polyline points={line(data.histMvFrontier)} fill="none" stroke="var(--chart-4)" strokeWidth={2} strokeDasharray="6 4" />
+        {data.assets.map(a => <circle key={a.ticker} cx={x(a.volPct)} cy={y(a.histReturnPct)} r={3} fill="var(--text-3)" />)}
+        <circle cx={x(data.portfolio.volPct)} cy={y(data.portfolio.histReturnPct)} r={6} fill="var(--text)" />
+        {data.portfolioAfter && <circle cx={x(data.portfolioAfter.volPct)} cy={y(data.portfolioAfter.histReturnPct)} r={6} fill="var(--conflict-fg)" />}
         <text x={W / 2} y={H - 10} textAnchor="middle" className="chart-axis">{tr({ en: 'Historical annualized volatility (%)', fr: 'Volatilité annualisée historique (%)' })}</text>
         <text x={12} y={H / 2} transform={`rotate(-90 12 ${H / 2})`} textAnchor="middle" className="chart-axis">{tr({ en: 'Historical annualized return (%)', fr: 'Rendement annualisé historique (%)' })}</text>
       </svg>
       <div className="legend">
         <span><span className="swatch" aria-hidden="true" />{tr({ en: 'Risk-only minimum-variance curve', fr: 'Courbe de variance minimale (risque seul)' })}</span>
-        <span><span className="swatch" style={{ background: '#8FA3B6' }} aria-hidden="true" />{tr({ en: 'Historical mean-variance illustration', fr: 'Illustration moyenne-variance historique' })}</span>
-        <span><span className="swatch" style={{ background: '#E3A53B' }} aria-hidden="true" />{tr({ en: 'Volatility budget', fr: 'Budget de volatilité' })} {fmtPct(data.volBudgetPct, lang)}</span>
+        <span><span className="swatch" style={{ background: 'var(--chart-4)' }} aria-hidden="true" />{tr({ en: 'Historical mean-variance illustration', fr: 'Illustration moyenne-variance historique' })}</span>
+        <span><span className="swatch" style={{ background: 'var(--gold)' }} aria-hidden="true" />{tr({ en: 'Volatility budget', fr: 'Budget de volatilité' })} {fmtPct(data.volBudgetPct, lang)}</span>
         <span>● {tr({ en: 'Current portfolio', fr: 'Portefeuille actuel' })} · {data.currency} · {data.window.code}</span>
       </div>
       <details className="small">

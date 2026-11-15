@@ -16,7 +16,7 @@ from aplomb.optimizer.derive import derive_thresholds, floor5, round5
 from aplomb.optimizer.search import compare_funding, max_compatible_size
 from aplomb.optimizer.services import DecisionControls, deriver, proposer
 from aplomb.profiles.service import ProfileServiceImpl
-from aplomb.quant import LocalLedger, QuantEngine
+from aplomb.quant import LocalLedger, QuantEngine, Unavailable
 
 from tests.unit.datastore._support import starter_snapshot
 from tests.unit.profiles.test_profiles import A, create_request, make_repo
@@ -71,6 +71,24 @@ class Derivation(unittest.TestCase):
         self.assertNotIn("cap.growth_assets", ids)
         self.assertNotIn("floor.fixed_income", ids)
         self.assertIn("limit.volatility", ids)
+
+    def test_preference_exclusions_become_unique_rules(self):
+        wire = PROFILES["amira"].to_wire()
+        wire["preferences"] = {**wire["preferences"], "excludedAssetClasses": ["etf_bond", "crypto", "etf_bond", "cash"],
+                               "excludedSectors": ["Energy", "energy", "Health Care"]}
+        d = derive_thresholds(m.Profile.model_validate(wire), engine(), created_at=NOW)
+        excludes = [r["ruleId"] for r in d.rules if r["type"] == "exclude"]
+        self.assertEqual(excludes, ["exclude.asset_class.crypto", "exclude.asset_class.etf_bond", "exclude.asset_class.cash",
+                                    "exclude.sector.energy", "exclude.sector.health_care"])
+        self.assertEqual([r["code"] for r in d.rules], [f"R{i}" for i in range(1, len(d.rules) + 1)])
+
+    def test_window_needs_two_returns(self):
+        for end in ("2026-01-05", "2026-01-06"):
+            with self.assertRaises(Unavailable):
+                derive_thresholds(PROFILES["amira"], engine(), created_at=NOW,
+                                  window={"code": "custom", "start": "2026-01-05", "end": end})
+        d = derive_thresholds(PROFILES["amira"], engine(), created_at=NOW, window={"code": "custom", "start": "2026-01-05", "end": "2026-01-07"})
+        self.assertIsNotNone(d.values["sigmaStockQ3Pct"])
 
     def test_rederive_after_edit(self):  # PRF-04
         profiles, _ = services()
@@ -204,10 +222,15 @@ class CheckEndpoint(unittest.TestCase):
     def test_overrides_and_history(self):
         r = check({"profileId": "robert", "move": TSLA_25, "ruleOverrides": [{"ruleId": "limit.stress_2022", "threshold": 25}]})
         self.assertEqual({c.rule_id: c.status for c in r.rule_checks}["limit.stress_2022"], "pass")
-        h = check({"profileId": "robert", "move": None, "asOf": "2022-06-30"})
+        h = check({"profileId": "robert", "move": None, "asOf": "2022-11-22"})
         statuses = {c.rule_id: (c.status, c.nee_reason) for c in h.rule_checks}
         self.assertEqual(statuses["limit.stress_2022"], ("nee", "not_visible_at_asof"))
-        self.assertEqual(h.as_of, "2022-06-30")
+        self.assertEqual(h.as_of, "2022-11-22")
+        # Thresholds are derived from rows visible at the date (35, not the 55 of the full window).
+        self.assertEqual({c.rule_id: c.threshold for c in h.rule_checks}["cap.growth_assets"], 35.0)
+        with self.assertRaises(ServiceError) as ctx:   # too little history to derive them
+            check({"profileId": "robert", "move": None, "asOf": "2022-06-30"})
+        self.assertEqual(ctx.exception.code, "insufficient_data")
 
 
 class Adapters(unittest.TestCase):

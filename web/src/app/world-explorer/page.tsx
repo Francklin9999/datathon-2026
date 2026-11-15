@@ -1,6 +1,14 @@
-import { OwnedElsewhere } from '../../components/common/OwnedElsewhere';
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { WorldExplorerPage } from '../../features/world/WorldExplorerPage';
 
-// Skeleton only: T15 owns the World Explorer body (web/page-specs/world-explorer.md).
+export const metadata: Metadata = { title: 'World Explorer' };
+
+// ?eventId=, ?country= and ?runId= are read on the client; the static shell renders without them (web/SPEC.md §4).
 export default function Page() {
-  return <OwnedElsewhere title={{ en: 'World Explorer', fr: 'Explorateur mondial' }} flag="world_explorer" owner="T15" spec="web/page-specs/world-explorer.md" />;
+  return (
+    <Suspense fallback={null}>
+      <WorldExplorerPage />
+    </Suspense>
+  );
 }

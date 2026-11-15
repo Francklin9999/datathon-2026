@@ -1,6 +1,14 @@
-import { OwnedElsewhere } from '../../components/common/OwnedElsewhere';
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { AgentsSystemPage } from '../../features/system/AgentsSystemPage';
 
-// Skeleton only: T15 owns the Agents & System body (web/page-specs/agents-system.md).
+export const metadata: Metadata = { title: 'Agents & System' };
+
+// ?runId= is read on the client; the static shell renders without it (web/SPEC.md §4).
 export default function Page() {
-  return <OwnedElsewhere title={{ en: 'Agents & System', fr: 'Agents et système' }} owner="T15" spec="web/page-specs/agents-system.md" />;
+  return (
+    <Suspense fallback={null}>
+      <AgentsSystemPage />
+    </Suspense>
+  );
 }

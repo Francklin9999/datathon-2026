@@ -32,8 +32,16 @@ class RequestParser:
         return parsed
 
     def parse(self, session_id, request):
+        from aplomb.api.errors import ServiceError, unavailable
+
         profile = self.profiles.get(session_id, request.profile_id) if self.profiles else None
-        return self.parse_request(profile, request.text, request.lang)
+        try:
+            return self.parse_request(profile, request.text, request.lang)
+        except ServiceError:
+            raise
+        except Exception as exc:
+            # api.md 4.1: a model failure or unusable output answers 503; the manual form stays usable.
+            raise unavailable("Request parser model") from exc
 
 
 def parse_request(profile, text, lang, *, gateway):

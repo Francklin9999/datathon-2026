@@ -10,8 +10,8 @@ _factory = None
 
 def configure(factory):
     """Application composition injects a lazy AgentServices factory once at startup."""
-    global _factory
-    _factory = factory
+    global _factory, _services
+    _factory, _services = factory, None
 
 
 def make_handler(services: AgentServices):
@@ -42,10 +42,18 @@ def make_handler(services: AgentServices):
     return worker
 
 
-def handler(event, context=None):
-    if _factory is None:
-        from aplomb.api.settings import Settings
+_services = None
 
-        from .runtime import make_worker_services
-        configure(lambda: make_worker_services(Settings.from_env()))
-    return make_handler(_factory())(event, context)
+
+def handler(event, context=None):
+    """Lambda entry point. Uses the configured factory, else the default application composition
+    (built lazily on the first invocation, from the process environment)."""
+    global _services
+    if _services is None:
+        if _factory is not None:
+            _services = _factory()
+        else:
+            from aplomb.api.runtime import default_agent_services
+
+            _services = default_agent_services()
+    return make_handler(_services)(event, context)

@@ -14,7 +14,7 @@ import json
 import math
 import re
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 
 from aplomb.contracts.models import PortfolioSnapshot
 from aplomb.datastore import TemporalGate, UnknownTicker
@@ -92,6 +92,7 @@ class QuantEngine:
         p_passport = gate.describe("prices_daily")
         f_passport = gate.describe("fx_usdcad_daily")
         self._src = {"prices_daily": p_passport, "fx_usdcad_daily": f_passport}
+        self._universe_avail: dict[str, str] | None = None
 
     # Windows ----------------------------------------------------------------------------------
 
@@ -130,7 +131,12 @@ class QuantEngine:
         return WindowRange(code, spec, i0, i1, {"start": dates[i0], "end": dates[i1]})
 
     def _named_range(self, start: str, end: str) -> tuple[int, int]:
-        if self.ctx.as_of < end:
+        # The master calendar holds no weekend day: once only weekend days remain before ``end``
+        # the window is complete. Calendar arithmetic only, no row after the cutoff is read.
+        last = date.fromisoformat(end)
+        while last.weekday() >= 5:
+            last -= timedelta(days=1)
+        if self.ctx.as_of < last.isoformat():
             raise Unavailable("not_visible_at_asof", f"the window ends {end}, after as_of {self.ctx.as_of}")
         i0 = self.market.last_index_on_or_before(start)
         i1 = self.market.last_index_on_or_before(end)
@@ -184,6 +190,19 @@ class QuantEngine:
             out.append(self._source("fx_usdcad_daily", n_fx))
         return out
 
+    def universe_provenance(self, tickers) -> tuple[list[dict], str | None]:
+        """Source reference and latest availability of the universe rows of listed ``tickers``.
+
+        ``([], None)`` when none is listed (cash only): nothing was read from the dataset."""
+        if self._universe_avail is None:
+            rows = self.gate.dataset("assets_universe", {}).rows
+            self._universe_avail = {r["ticker"]: r["available_at"] for r in rows}
+            self._src["assets_universe"] = self.gate.describe("assets_universe")
+        stamps = [self._universe_avail[t] for t in tickers if self._universe_avail.get(t)]
+        if not stamps:
+            return [], None
+        return [self._source("assets_universe", len(stamps))], max(stamps)
+
     def _source(self, dataset_id: str, rows: int) -> dict:
         p = self._src[dataset_id]
         return {"datasetId": dataset_id, "dataVersion": self.ctx.data_version, "sourceName": p["source"],
@@ -210,11 +229,11 @@ class QuantEngine:
                         tickers, i0: int, i1: int, method_id: str, label: dict, kind: str = "computed",
                         window_spec: dict | None = None, unit: str = "pct", currency: str | None = None,
                         params: dict | None = None, inputs: list[str] | None = None, base_lims=PORTFOLIO_LIMITATIONS,
-                        extra_lims: tuple[str, ...] = ()) -> str:
+                        extra_lims: tuple[str, ...] = (), created_by: str = "quant") -> str:
         key = fact_key(metric, subject["type"], subject["id"], variant_key, window_code)
         fact = make_fact(
             self.ctx, key=key, kind=kind, metric=metric, label=label, value=value, unit=unit, currency=currency,
-            subject=subject, method_id=method_id, created_by="quant",
+            subject=subject, method_id=method_id, created_by=created_by,
             period={"start": self.market.dates[i0], "end": self.market.dates[i1]}, window=window_spec,
             available_at=self.market.latest_avail(tickers, i1), params=params,
             inputs=[*self.series_inputs(tickers, i0, i1), *(inputs or [])],
@@ -267,7 +286,8 @@ class QuantEngine:
         except Unavailable as exc:
             return {m: Measurement(None, None, nee_reason=exc.reason, detail=exc.detail)
                     for m in ("return.period", "vol.annualized", "drawdown.max", "return.worst_12m")}
-        subject = {"type": "asset", "id": ticker, "variant": "na"}
+        variant = f"na:currency:{self.currency}"
+        subject = {"type": "asset", "id": ticker, "variant": variant}
         name = self._name(ticker)
         values = {
             "return.period": (mx.period_return_pct(levels), "M_RET_SIMPLE", "return"),
@@ -282,7 +302,7 @@ class QuantEngine:
                 out[metric] = Measurement(None, None, nee_reason="short_history")
                 continue
             fid = self.add_series_fact(
-                metric=metric, value=value, subject=subject, variant_key=f"na:currency:{self.currency}",
+                metric=metric, value=value, subject=subject, variant_key=variant,
                 window_code=wr.code, tickers=[ticker], i0=wr.i0, i1=wr.i1, method_id=method, window_spec=wr.spec,
                 label={"en": f"{name} ({ticker}) {what}, {self.currency}", "fr": f"{name} ({ticker}), {fr_names[what]}, {self.currency}"},
                 base_lims=("LIM_SAMPLE_WINDOW", "LIM_YAHOO_NOT_CERTIFIED", "LIM_CALENDAR_INTERSECTION", "LIM_PAST_NOT_FUTURE"),
@@ -328,12 +348,13 @@ class QuantEngine:
             if ticker == "CNQ.TO" and a["date"] < CNQ_FACTOR_DATE <= b["date"]:
                 lims.append("LIM_CNQ_FACTOR")
             value = (pb / pa - 1.0) * 100.0
-            key = fact_key("return.calendar_year", "asset", ticker, f"na:currency:{ccy}", str(year))
+            variant = f"na:currency:{ccy}:year:{year}"
+            key = fact_key("return.calendar_year", "asset", ticker, variant, str(year))
             fact = make_fact(
                 self.ctx, key=key, kind="computed", metric="return.calendar_year",
                 label={"en": f"{name} ({ticker}) return, calendar {year}, {ccy}",
                        "fr": f"{name} ({ticker}), rendement, année civile {year}, {ccy}"},
-                value=value, unit="pct", currency=ccy, subject={"type": "asset", "id": ticker, "variant": "na"},
+                value=value, unit="pct", currency=ccy, subject={"type": "asset", "id": ticker, "variant": variant},
                 method_id="M_RET_CALENDAR_YEAR", created_by="quant", period=period, window=None, available_at=avail,
                 params={"year": year, "baseDate": a["date"], "endDate": b["date"]}, n_obs=2, sources=sources,
                 limitations=lims, checks=[{"code": "gated_inputs", "ok": True, "detail": f"Own-calendar rows read through the gate as of {self.ctx.as_of}."}],
@@ -343,6 +364,7 @@ class QuantEngine:
 
     def correlation(self, tickers: list[str], window: dict | None = None) -> dict[tuple[str, str], Measurement]:
         wr = self.window(window)
+        variant = f"na:currency:{self.currency}"
         out = {}
         for i, a in enumerate(tickers):
             for b in tickers[i + 1:]:
@@ -356,8 +378,8 @@ class QuantEngine:
                     out[(a, b)] = Measurement(None, None, unit="ratio", nee_reason="short_history", detail="zero variance")
                     continue
                 fid = self.add_series_fact(
-                    metric="corr.pair", value=value, subject={"type": "asset", "id": f"{a}~{b}", "variant": "na"},
-                    variant_key=f"na:currency:{self.currency}", window_code=wr.code, tickers=[a, b], i0=wr.i0, i1=wr.i1,
+                    metric="corr.pair", value=value, subject={"type": "asset", "id": f"{a}~{b}", "variant": variant},
+                    variant_key=variant, window_code=wr.code, tickers=[a, b], i0=wr.i0, i1=wr.i1,
                     method_id="M_CORR_PEARSON", window_spec=wr.spec, unit="ratio",
                     label={"en": f"Correlation of daily returns, {a} and {b}", "fr": f"Corrélation des rendements quotidiens, {a} et {b}"},
                     base_lims=("LIM_SAMPLE_WINDOW", "LIM_CALENDAR_INTERSECTION", "LIM_PAST_NOT_FUTURE"),
@@ -378,9 +400,10 @@ class QuantEngine:
         except Unavailable as exc:
             return Measurement(None, None, nee_reason=exc.reason)
         value = mx.period_return_pct(levels)
+        variant = f"event:{event_date}:n{n_days}:currency:{self.currency}"
         fid = self.add_series_fact(
-            metric="return.period", value=value, subject={"type": "asset", "id": ticker, "variant": f"event:{event_date}"},
-            variant_key=f"event:{event_date}:n{n_days}:currency:{self.currency}", window_code=f"after{n_days}",
+            metric="return.period", value=value, subject={"type": "asset", "id": ticker, "variant": variant},
+            variant_key=variant, window_code=f"after{n_days}",
             tickers=[ticker], i0=i0, i1=i1, method_id="M_PRICE_MOVE_AFTER_EVENT",
             params={"eventDate": event_date, "nDays": n_days},
             label={"en": f"{self._name(ticker)} ({ticker}) return over {n_days} trading days after {event_date}",
@@ -418,12 +441,35 @@ class PortfolioView:
         self.assets = {t: engine.universe.get(t) for t in self.weights}  # raises UnknownTicker
         self._cache: dict[tuple, Measurement] = {}
         self._metrics: PortfolioMetrics | None = None
+        self._composition: str | None = None
 
     # Weight measurements ----------------------------------------------------------------------
 
     @property
     def subject(self) -> dict:
         return {"type": "portfolio", "id": self.engine.subject_id, "variant": self.variant}
+
+    def composition_fact(self) -> str | None:
+        """The stipulated holdings every weight figure of this variant derives from.
+
+        The fictional portfolio (or the hypothetical mix after a move) is an assumption, not an
+        observation; registering it gives weight and concentration facts a verifiable input."""
+        if not self.record:
+            return None
+        if self._composition is None:
+            name = self.engine.subject_id
+            unit = self.engine.currency.lower()
+            ordered = sorted(self.weights, key=lambda t: (-self.weights[t], t))
+            positions = "; ".join(f"{t} {self.weights[t] * 100:.4g}%" for t in ordered)
+            what = ("Hypothetical portfolio after the move", "Portefeuille hypothétique après le mouvement") if self.after_move                 else ("Fictional portfolio holdings", "Titres du portefeuille fictif")
+            self._composition = self.engine.ledger.add_fact(make_fact(
+                self.engine.ctx, key=fact_key("value.portfolio", "portfolio", name, self.variant, "weights"), kind="assumption",
+                metric="value.portfolio", label={"en": f"{what[0]}, {name} ({self.variant})", "fr": f"{what[1]}, {name} ({self.variant})"},
+                value=float(self.total_value), unit=unit, currency=self.engine.currency, subject=self.subject,
+                method_id="M_WEIGHTS_AFTER_MOVE" if self.after_move else "M_PROFILE_ASSUMPTION", created_by="quant",
+                params={"profile": name, "positions": positions}, limitations=["LIM_SIMULATION_ONLY"],
+                checks=[{"code": "weights_sum", "ok": True, "detail": "Position weights sum to 100%."}]))
+        return self._composition
 
     def _weight_fact(self, metric: str, value: float, *, subject: dict | None = None, key_suffix: str = "",
                      label: dict, lims: tuple[str, ...] = ()) -> str | None:
@@ -432,8 +478,12 @@ class PortfolioView:
         subject = subject or self.subject
         method = "M_WEIGHTS_AFTER_MOVE" if self.after_move else "M_PROFILE_ASSUMPTION"
         key = fact_key(metric, subject["type"], subject["id"] + key_suffix, self.variant, "weights")
+        # A single position weight is arithmetic on the stipulated holdings. Every other weight
+        # groups holdings by a universe label (class, group, sector, theme), which is dataset data.
+        sources, available_at = ([], None) if metric == "weight.position" else self.engine.universe_provenance(self.weights)
         fact = make_fact(self.engine.ctx, key=key, kind="computed", metric=metric, label=label, value=value, unit="pct",
                          currency=None, subject=subject, method_id=method, created_by="quant",
+                         sources=sources, available_at=available_at,
                          params={"profile": self.engine.subject_id}, limitations=list(lims), inputs=self._weight_inputs(),
                          checks=[{"code": "weights_sum", "ok": True, "detail": "Position weights sum to 100%."}])
         return self.engine.ledger.add_fact(fact)
@@ -539,6 +589,9 @@ class PortfolioView:
                                     label={"en": f"Weight of {key}, {name} ({self.variant})", "fr": f"Poids de {key}, {name} ({self.variant})"})
             return Measurement(value, fid, worst={"type": "asset", "id": key} if value > 0 else None)
         if metric == "weight.theme":
+            if self.engine.gate.mode == "historical" and not any(a.themes for a in self.engine.universe.all()):
+                return Measurement(None, None, nee_reason="not_visible_at_asof",
+                                   detail="theme tags are not visible at this as-of date")
             value = self.theme_weight(key or "")
             fid = self._weight_fact(metric, value, subject={"type": "theme", "id": key or "", "variant": self.variant},
                                     label={"en": f"Positions tagged {key}, {name} ({self.variant})",
@@ -563,7 +616,8 @@ class PortfolioView:
     def _holds_funds(self) -> bool:
         return any(a.asset_class.startswith("etf_") for a in self.assets.values())
 
-    def _replay(self, metric: str, start: str, end: str, label: tuple[str, str]) -> Measurement:
+    def _replay(self, metric: str, start: str, end: str, label: tuple[str, str], custom: bool = False) -> Measurement:
+        """``custom`` marks a caller-chosen period: its dates enter the fact window, hence the key."""
         eng = self.engine
         try:
             i0, i1 = eng._named_range(start, end)
@@ -573,7 +627,9 @@ class PortfolioView:
         if not self.record:
             return Measurement(value, None)
         fid = eng.add_series_fact(
-            metric=metric, value=value, subject=self.subject, variant_key=self.variant, window_code=metric.split(".")[1],
+            metric=metric, value=value, subject=self.subject, variant_key=self.variant,
+            window_code=f"custom:{start}..{end}" if custom else metric.split(".")[1],
+            window_spec={"code": "custom", "start": start, "end": end} if custom else None,
             tickers=list(self.weights), i0=i0, i1=i1, method_id="M_STRESS_REPLAY", kind="scenario",
             params={"windowStart": start, "windowEnd": end}, inputs=self._weight_inputs(),
             label={"en": f"Portfolio return with these weights, {label[0]} ({eng.market.dates[i0]} to {eng.market.dates[i1]}), {eng.currency}",

@@ -1,0 +1,119 @@
+{
+ "builtAt": "2026-11-15T00:32:58Z",
+ "events": {
+  "byCategory": {
+   "macro_release": 58,
+   "monetary_policy": 22,
+   "natural_disaster": 668,
+   "other": 3
+  },
+  "byOrigin": {
+   "official": 83,
+   "usgs": 668
+  },
+  "count": 751,
+  "coverage": {
+   "end": "2026-11-12",
+   "start": "2021-11-14"
+  }
+ },
+ "files": {
+  "events.json": {
+   "sha256": "b012348d0d6f112154fffe85f32f1187bc9b1c2c9b5bd1d2d82c85887abbdda9"
+  },
+  "hazards.json": {
+   "sha256": "475663ae95a48a6e62f64524256fa60e1bd1f7b1808046b8948ba714b2004bbf"
+  }
+ },
+ "hazards": {
+  "count": 668,
+  "coverage": {
+   "end": "2026-11-09",
+   "start": "2021-11-14"
+  }
+ },
+ "method": {
+  "eventId": "evt_ + first 12 hex of SHA-1 of the canonical source URL",
+  "importance": "min(1, 0.45*official + 0.35*min(distinctPublishers,5)/5 + 0.20*max(0, 1-ageDays/30)) at builtAt",
+  "trackingParamsRemoved": [
+   "dclid",
+   "fbclid",
+   "gclid",
+   "igshid",
+   "mc_cid",
+   "mc_eid",
+   "msclkid",
+   "utm_campaign",
+   "utm_content",
+   "utm_id",
+   "utm_medium",
+   "utm_source",
+   "utm_term"
+  ]
+ },
+ "notIngested": [
+  {
+   "reason": "Article index returned no usable batch on the build date and its items carry no source-supported event location; not loaded (O-07).",
+   "source": "GDELT"
+  },
+  {
+   "reason": "Facility layer not loaded (cut-list item 2).",
+   "source": "ECCC / EPA facility emissions"
+  },
+  {
+   "reason": "Requires a key; not loaded.",
+   "source": "NASA FIRMS wildfires"
+  }
+ ],
+ "requestedWindow": {
+  "end": "2026-11-12",
+  "start": "2021-11-12"
+ },
+ "sources": [
+  {
+   "filter": "magnitude >= 6.0",
+   "id": "usgs_earthquakes",
+   "items": 668,
+   "name": "USGS Earthquake Catalog (FDSN event service)",
+   "rejected": 0,
+   "retrievedAt": "2026-11-15T00:32:58Z",
+   "status": "ok",
+   "terms": "U.S. Government work, public domain; https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
+   "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&starttime=2021-11-12&endtime=2026-11-12T23:59:59&minmagnitude=6.0&orderby=time-asc"
+  },
+  {
+   "id": "boc_press",
+   "items": 10,
+   "name": "Bank of Canada press releases (RSS)",
+   "note": "feed lists recent releases only",
+   "rejected": 0,
+   "retrievedAt": "2026-11-15T00:32:59Z",
+   "status": "ok",
+   "terms": "https://www.bankofcanada.ca/terms/",
+   "url": "https://www.bankofcanada.ca/content_type/press-releases/feed/"
+  },
+  {
+   "id": "fed_monetary",
+   "items": 15,
+   "name": "Federal Reserve Board monetary policy press releases (RSS)",
+   "note": "feed lists recent releases only",
+   "rejected": 0,
+   "retrievedAt": "2026-11-15T00:32:59Z",
+   "status": "ok",
+   "terms": "U.S. Government work; https://www.federalreserve.gov/disclaimer.htm",
+   "url": "https://www.federalreserve.gov/feeds/press_monetary.xml"
+  },
+  {
+   "id": "statcan_daily",
+   "items": 58,
+   "name": "Statistics Canada, The Daily (Consumer Price Index releases)",
+   "note": "release dates from data/metadata/macro_release_dates.csv (T04)",
+   "rejected": 0,
+   "retrievedAt": "2026-11-15T00:32:59Z",
+   "status": "ok",
+   "terms": "Statistics Canada Open Licence; https://www.statcan.gc.ca/en/terms-conditions/open-licence",
+   "url": "https://www.statcan.gc.ca/dai-quo/index-eng.htm"
+  }
+ ],
+ "worldVersion": "snap-20261115-world"
+}

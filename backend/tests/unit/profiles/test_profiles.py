@@ -131,9 +131,10 @@ class Edits(unittest.TestCase):
         with self.assertRaises(ServiceError) as ctx:
             svc.create(A, a.CreateProfileRequest.model_validate(bad))
         self.assertIn("99.00", ctx.exception.message)
-        with self.assertRaises(NotFound):
+        with self.assertRaises(ServiceError) as ctx:
             svc.create(A, a.CreateProfileRequest.model_validate(create_request(
                 portfolio={"totalValue": 1000, "positions": [{"ticker": "NOPE", "weightPct": 100}]})))
+        self.assertEqual((ctx.exception.code, ctx.exception.details["unknown"]), ("validation_error", ["NOPE"]))  # api.md §3.3
         with self.assertRaises(ServiceError):
             svc.create(A, a.CreateProfileRequest.model_validate(create_request(rules=None)))  # no deriver injected yet
 

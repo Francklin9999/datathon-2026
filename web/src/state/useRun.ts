@@ -2,111 +2,70 @@
 /**
  * Run polling (contracts/run-events.md §3, web/SPEC.md §3): 1 s while queued/running, 5 s while
  * waiting_input, delta fetches with the contiguous-completed watermark, one full fetch at terminal
- * status, pause while the tab is hidden and a full refetch when it is shown again, exponential
- * backoff on network/rate-limit failures. Nothing here fabricates progress.
+ * status (retried with backoff, then reported as an error), pause while the tab is hidden and a
+ * full refetch when it is shown again, exponential backoff on network/rate-limit failures.
+ * The rules live in lib/runPoller.ts; nothing here fabricates progress.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Run } from '../contracts/types';
 import { getApiClient } from '../api/index';
-import { asApiError, isAbort, type ApiRequestError } from '../api/errors';
-import { contiguousCompletedSeq, isTerminal, mergeRunDelta, nextPollDelay } from '../lib/runs';
+import type { ApiRequestError } from '../api/errors';
+import { createRunPoller, type RunPollerView } from '../lib/runPoller';
 
 export interface RunState {
   run: Run | null;
+  /** The run cannot be read, or its complete terminal payload could not be fetched; `reload` retries. */
   error: ApiRequestError | null;
-  /** Transient polling problem while a previous payload is still shown. */
+  /** Transient polling problem while a previous payload is still shown; a retry is scheduled. */
   pollError: ApiRequestError | null;
   loading: boolean;
   reload: () => void;
 }
 
-const FATAL = new Set(['not_found', 'validation_error', 'feature_disabled', 'invalid_response']);
+const IDLE: RunPollerView = { run: null, error: null, pollError: null, loading: false };
+const LOADING: RunPollerView = { run: null, error: null, pollError: null, loading: true };
 
+interface Internal { runId: string | null; nonce: number; view: RunPollerView }
+
+/**
+ * `onTerminal` is called once per run ID, when the complete terminal run is shown (also when the
+ * run was already finished on the first fetch). A reload of the same run does not call it again.
+ */
 export function useRun(runId: string | null, onTerminal?: (run: Run) => void): RunState {
-  const [run, setRun] = useState<Run | null>(null);
-  const [error, setError] = useState<ApiRequestError | null>(null);
-  const [pollError, setPollError] = useState<ApiRequestError | null>(null);
-  const [loading, setLoading] = useState(false);
   const [nonce, setNonce] = useState(0);
+  const [state, setState] = useState<Internal>(() => ({ runId, nonce: 0, view: runId ? LOADING : IDLE }));
   const onTerminalRef = useRef(onTerminal);
   useEffect(() => { onTerminalRef.current = onTerminal; });
+  const announcedFor = useRef<string | null>(null);
 
   useEffect(() => {
-    setRun(null); setError(null); setPollError(null);
-    if (!runId) { setLoading(false); return undefined; }
-    setLoading(true);
+    if (!runId) {
+      setState(prev => (prev.runId === null && prev.view === IDLE ? prev : { runId: null, nonce, view: IDLE }));
+      return undefined;
+    }
+    setState({ runId, nonce, view: LOADING });
     const client = getApiClient();
-    let current: Run | null = null;
-    let failures = 0;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    let controller: AbortController | null = null;
-    let stopped = false;
-
-    const hidden = () => typeof document !== 'undefined' && document.visibilityState === 'hidden';
-
-    const schedule = (delay: number | null) => {
-      if (stopped || delay === null || hidden()) return;
-      timer = setTimeout(() => { void tick(false); }, delay);
-    };
-
-    const tick = async (forceFull: boolean): Promise<void> => {
-      if (stopped) return;
-      controller?.abort();
-      controller = new AbortController();
-      const since = !forceFull && current ? contiguousCompletedSeq(current.steps) : 0;
-      try {
-        const payload = await client.run(runId, since > 0 ? since : null, controller.signal);
-        if (stopped) return;
-        failures = 0;
-        setPollError(null);
-        setError(null);
-        const wasTerminal = current ? isTerminal(current.status) : false;
-        const merged: Run = current && since > 0 ? mergeRunDelta(current, payload) : payload;
-        if (isTerminal(merged.status) && since > 0) {
-          // Terminal reached through a delta: fetch the complete run once before showing a signed result.
-          current = merged;
-          return tick(true);
-        }
-        current = merged;
-        setRun(merged);
-        setLoading(false);
-        if (isTerminal(merged.status)) {
-          if (!wasTerminal) onTerminalRef.current?.(merged);
-          return;
-        }
-        schedule(nextPollDelay(merged.status, 0));
-      } catch (caught) {
-        if (stopped || isAbort(caught)) return;
-        const apiError = asApiError(caught);
-        if (FATAL.has(apiError.code)) {
-          setError(apiError);
-          setLoading(false);
-          return;
-        }
-        if (current) setPollError(apiError);
-        else { setError(apiError); setLoading(false); }
-        failures += 1;
-        schedule(nextPollDelay(current?.status ?? 'queued', failures, apiError.retryAfterMs));
-      }
-    };
-
-    const onVisibility = () => {
-      if (stopped) return;
-      if (timer) clearTimeout(timer);
-      timer = null;
-      if (!hidden() && (!current || !isTerminal(current.status))) void tick(true);
-    };
-
+    const poller = createRunPoller({
+      fetchRun: (since, signal) => client.run(runId, since, signal),
+      onChange: view => setState({ runId, nonce, view }),
+      onTerminal: finished => {
+        if (announcedFor.current === runId) return;
+        announcedFor.current = runId;
+        onTerminalRef.current?.(finished);
+      },
+      isHidden: () => typeof document !== 'undefined' && document.visibilityState === 'hidden',
+    });
+    const onVisibility = () => poller.visibilityChanged();
     document.addEventListener('visibilitychange', onVisibility);
-    void tick(true);
+    poller.start();
     return () => {
-      stopped = true;
-      if (timer) clearTimeout(timer);
-      controller?.abort();
+      poller.stop();
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [runId, nonce]);
 
   const reload = useCallback(() => setNonce(n => n + 1), []);
-  return { run, error, pollError, loading, reload };
+  // Never expose a payload that belongs to a previous run ID (or to a request being reloaded).
+  const view = state.runId === runId && (runId === null || state.nonce === nonce) ? state.view : (runId ? LOADING : IDLE);
+  return { run: view.run, error: view.error, pollError: view.pollError, loading: view.loading, reload };
 }

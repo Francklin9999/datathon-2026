@@ -43,6 +43,35 @@ def run_verdict(run: m.Run):
     return None
 
 
+def run_title(run: m.Run) -> m.I18nText:
+    """Bilingual link text for a run, built by code from its pinned input (never model text)."""
+    data = run.input
+    if run.kind in {"decision", "replay"}:
+        if data.request.type == "move":
+            move = data.request.move
+            en = fr = f"{move.ticker} +{move.size_pct:g} pts"
+        else:
+            goal = data.request.goal
+            what = ", ".join([*goal.themes, *goal.asset_classes, *goal.tickers]) or "exposure"
+            en, fr = f"Goal: {what}", f"Objectif : {what}"
+        if run.kind == "replay":
+            en, fr = f"{en}, as of {run.as_of}", f"{fr}, en date du {run.as_of}"
+        return m.I18nText(en=en, fr=fr)
+    if run.kind == "event_brief":
+        result = run.result
+        if result is not None and result.kind == "event_brief":
+            title = result.event_brief.event.title
+            return m.I18nText(en=f"Event brief: {title}", fr=f"Note d'événement : {title}")
+        return m.I18nText(en="Event brief", fr="Note d'événement")
+    labels = {
+        "portfolio_brief": ("Portfolio brief", "Note de portefeuille"),
+        "profile_draft": ("Profile draft", "Ébauche de profil"),
+        "sabotage": ("Audit demonstration", "Démonstration d'audit"),
+    }
+    en, fr = labels.get(run.kind, (run.kind, run.kind))
+    return m.I18nText(en=en, fr=fr)
+
+
 def create_app(settings: Settings | None = None, services: Services | None = None) -> FastAPI:
     settings = settings if settings is not None else Settings.from_env()
     services = services if services is not None else Services()
@@ -452,7 +481,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
                 status=run.status,
                 profile_id=run.profile_id,
                 created_at=run.created_at,
-                title=m.I18nText(en=run.kind.replace("_", " "), fr=run.kind.replace("_", " ")),
+                title=run_title(run),
                 verdict=run_verdict(run),
                 duration_ms=run.usage.duration_ms
                 if run.status in {"succeeded", "failed", "cancelled"}
