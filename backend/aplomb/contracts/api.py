@@ -40,6 +40,7 @@ from .models import (
     HoldingExposure,
     HorizonYears,
     I18nText,
+    InvestorContext,
     Lang,
     Objective,
     PartialProfile,
@@ -75,6 +76,22 @@ class AssetsResponse(WireModel):
     total: Count
 
 
+class AssetMeasurement(WireModel):
+    value: Number | None
+    fact_id: FactId | None
+    unavailable_reason: String | None
+
+
+class AssetAnalyticsResponse(WireModel):
+    asset: Asset
+    currency: Currency
+    data_version: DataVersion
+    as_of: ISODate
+    window: WindowSpec
+    metrics: dict[str, AssetMeasurement]
+    facts: dict[str, Fact]
+
+
 class FetchAssetResponse(WireModel):
     asset: Asset
     accepted: Boolean
@@ -92,6 +109,16 @@ class AttentionResponse(WireModel):
     fact: Fact | None
     evidence: Evidence | None
     series: list[PageviewsPoint]
+
+
+class RiskDiagnosticsResponse(WireModel):
+    profile_id: ProfileId
+    currency: Currency
+    data_version: DataVersion
+    window: WindowSpec
+    metrics: dict[str, AssetMeasurement]
+    contributions: dict[str, AssetMeasurement]
+    facts: dict[str, Fact]
 
 
 class ProfilesResponse(WireModel):
@@ -115,6 +142,7 @@ class CreateProfileRequest(WireModel):
     portfolio: InitialPortfolio | None
     rules: list[PolicyRule] | None
     from_draft_run_id: RunId | None
+    investor_context: InvestorContext | None = None
 
 
 class UpdateProfileRequest(CreateProfileRequest):
@@ -149,6 +177,16 @@ class DeriveRulesResponse(WireModel):
     rules: list[PolicyRule]
     facts: dict[FactId, Fact]
     profile_version: Count
+
+
+class CreateAccountRequest(WireModel):
+    name: Annotated[String, Field(min_length=1, max_length=80)]
+    version: Annotated[int, Field(strict=True, ge=1)]
+    portfolio: InitialPortfolio
+
+
+class SelectAccountRequest(WireModel):
+    version: Annotated[int, Field(strict=True, ge=1)]
 
 
 class UpdatePortfolioRequest(InitialPortfolio):

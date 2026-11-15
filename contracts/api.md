@@ -42,6 +42,10 @@ Every non-2xx response has the body `ApiError`:
 | 1.1 | GET `/health` | P0 | Liveness |
 | 1.2 | GET `/meta` | P0 | Versions, flags, disclaimer |
 | 2.1 | GET `/assets` | P0 | Search the universe |
+| 2.5 | GET `/assets/{ticker}/analytics` | P1 | Deterministic asset metrics and their facts; `currency`, `window`, optional `start`/`end` |
+| 3.16 | POST `/profiles/{profileId}/accounts` | P1 | Create an explicit fictional account with name, portfolio, expected version; requires profile_creator |
+| 3.17 | POST `/profiles/{profileId}/accounts/{accountId}/select` | P1 | Select owned account or `aggregate`; expected version required |
+| 3.15 | GET `/profiles/{profileId}/risk` | P1 | Historical daily VaR/ES and signed variance shares with facts; `window`, optional `start`/`end` |
 | 2.2 | GET `/assets/{ticker}` | P0 | One asset with history summary |
 | 2.3 | POST `/assets/{ticker}/fetch` | P1 | Fetch a ticker on demand |
 | 2.4 | GET `/assets/{ticker}/attention` | P1 | Hype meter |
@@ -93,7 +97,7 @@ Every non-2xx response has the body `ApiError`:
 
 ```json
 {
-  "contractVersion": "1.1.0",
+  "contractVersion": "1.2.0",
   "dataVersion": "snap-20261113-starter",
   "dataAsOf": "2026-11-12",
   "environment": "aws",
@@ -556,3 +560,29 @@ GET /world/layers → GET /world/events?from&to → click → GET /world/events/
 ```text
 GET /replay/presets → POST /runs kind=replay (asOf) → poll → POST /runs/{id}/reveal
 ```
+
+
+### Global profile and analytics additions (1.2.0)
+
+Create/replace profile requests accept optional `investorContext`: country code (two uppercase
+letters), investorType, language, up to 20 objectives (name, horizonYears > 0, priority 1–100,
+optional targetAmount in reporting currency, optional deadline, and origin), liquidityNotes and
+riskCapacityNotes. These are user statements, not regulatory policies or verified financial
+facts. Existing profiles require no migration. Reporting calculations still support CAD/USD;
+country context does not enable additional FX or tax coverage.
+
+`GET /assets/{ticker}/analytics` accepts the same preset/custom window semantics as portfolio
+reads and `currency=CAD|USD`. It returns AssetAnalyticsResponse with four measurements and a
+local claims ledger. Missing history returns null values with reasons, never zero risk.
+
+`GET /profiles/{profileId}/risk` returns RiskDiagnosticsResponse with daily historical 95% VaR,
+ES, signed variance contributions and their local facts. Tail estimates require 100 returns;
+shares are undefined for zero variance. These analytics do not automatically change policy.
+
+Account creation requires explicit portfolio/value, name and expected profile version; the
+original portfolio becomes the Primary account on first creation. At most 20 accounts and 40
+positions per analyzed portfolio are supported. Selection preserves unsaved-in-account active
+holdings and increments the profile version. `accountId=aggregate` combines value-weighted
+positions in the common reporting currency, deduplicates securities and prohibits holdings
+edits. Cross-currency aggregation requires a sourced FX implementation and is unavailable.
+All account operations require session ownership, optimistic version and profile_creator.

@@ -5,6 +5,7 @@
  * when its data version differs from the fact's snapshot (SRC-04).
  */
 import Link from 'next/link';
+import { SourceDirectory } from './SourceDirectory';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import type { DatasetPassport, DatasetsResponse } from '../../contracts/types';
@@ -68,6 +69,7 @@ export function SourcesPage() {
         </div>
       )}
 
+      <SourceDirectory />
       {list.loading && <Loading />}
       {list.error && <ErrorState error={list.error} onRetry={list.reload}
         title={tr({ en: 'Dataset passports are unavailable. No source health is implied.', fr: 'Les passeports sont indisponibles. Aucun état des sources n’est supposé.' })} />}

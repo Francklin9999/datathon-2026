@@ -1,17 +1,18 @@
 {
- "builtAt": "2026-11-15T00:32:58Z",
+ "builtAt": "2026-11-15T07:20:44Z",
  "events": {
   "byCategory": {
    "macro_release": 58,
    "monetary_policy": 22,
-   "natural_disaster": 668,
+   "natural_disaster": 1147,
    "other": 3
   },
   "byOrigin": {
+   "eonet": 479,
    "official": 83,
    "usgs": 668
   },
-  "count": 751,
+  "count": 1230,
   "coverage": {
    "end": "2026-11-12",
    "start": "2021-11-14"
@@ -19,7 +20,7 @@
  },
  "files": {
   "events.json": {
-   "sha256": "b012348d0d6f112154fffe85f32f1187bc9b1c2c9b5bd1d2d82c85887abbdda9"
+   "sha256": "c96e42936db661e5e0372ef3b1b2bd2029de59e89110de1b377856635516be41"
   },
   "hazards.json": {
    "sha256": "475663ae95a48a6e62f64524256fa60e1bd1f7b1808046b8948ba714b2004bbf"
@@ -113,7 +114,19 @@
    "status": "ok",
    "terms": "Statistics Canada Open Licence; https://www.statcan.gc.ca/en/terms-conditions/open-licence",
    "url": "https://www.statcan.gc.ca/dai-quo/index-eng.htm"
+  },
+  {
+   "id": "nasa_eonet",
+   "items": 480,
+   "name": "NASA EONET v3 natural events",
+   "note": "Bounded first 500 records; completeness not established. Observation is not publication.",
+   "payloadSha256": "570970dd5645ce6279fffb6f311546b214c2330ade37af616300355b2a38d0a4",
+   "rejected": 20,
+   "retrievedAt": "2026-11-15T07:20:44Z",
+   "status": "ok",
+   "terms": "https://eonet.gsfc.nasa.gov/what-is-eonet; linked third-party content has separate terms",
+   "url": "https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start=2026-10-15&end=2026-11-12&limit=500"
   }
  ],
- "worldVersion": "snap-20261115-world"
+ "worldVersion": "snap-20261115-world-eonet-570970dd"
 }

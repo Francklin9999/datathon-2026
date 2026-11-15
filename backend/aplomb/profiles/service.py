@@ -122,6 +122,9 @@ class ProfileServiceImpl:
         data["rules"] = [copy.deepcopy(changed.get(r["ruleId"], r)) for r in data["rules"]]
         if ov.get("portfolio") is not None:
             data["portfolio"] = copy.deepcopy(ov["portfolio"])
+        for field in ("accounts", "activeAccountId"):
+            if field in ov:
+                data[field] = copy.deepcopy(ov[field])
         data["version"] = 1 + overlay["revision"]
         data["updatedAt"] = ov.get("updatedAt", data["updatedAt"])
         return m.Profile.model_validate(data)
@@ -130,6 +133,10 @@ class ProfileServiceImpl:
 
     def _save(self, session_id: str, profile: m.Profile, stored: dict | None) -> m.Profile:
         data = profile.to_wire()
+        if data.get("activeAccountId") != "aggregate":
+            for account in data.get("accounts", []):
+                if account["accountId"] == data.get("activeAccountId"):
+                    account["portfolio"] = copy.deepcopy(data["portfolio"])
         if profile.is_default:
             # Overlay = only what differs from the shipped default (profiles SPEC §2 "Storage").
             base = self._defaults[profile.profile_id].to_wire()
@@ -137,6 +144,9 @@ class ProfileServiceImpl:
             value = {"rules": {r["ruleId"]: r for r in data["rules"] if r != base_rules.get(r["ruleId"])},
                      "portfolio": data["portfolio"] if data["portfolio"] != base["portfolio"] else None,
                      "updatedAt": data["updatedAt"]}
+            for field in ("accounts", "activeAccountId"):
+                if field in data:
+                    value[field] = copy.deepcopy(data[field])
             revision = stored["revision"] if stored else None
             saved = self.repo.save(session_id, profile.profile_id, value, revision, overlay=True)
             data["version"] = 1 + saved["revision"]
@@ -177,6 +187,8 @@ class ProfileServiceImpl:
         profile, stored = self._load(session_id, profile_id)
         if profile.version != version:
             raise Conflict()
+        if profile.active_account_id == "aggregate":
+            raise Conflict("Select an individual account before editing holdings")
         positions = [p.to_wire() for p in portfolio.positions]
         self._validate_portfolio(portfolio.total_value, positions)
         now = _now(self.clock)
@@ -200,8 +212,18 @@ class ProfileServiceImpl:
         profile, stored = self._load(session_id, profile_id)
         if profile.version != version:
             raise Conflict()
+        if profile.active_account_id == "aggregate":
+            raise Conflict("Select an individual account before replacing a profile")
         now = _now(self.clock)
         data = self._custom_body(request, profile_id, now, created_at=profile.created_at)
+        if profile.accounts:
+            if request.reporting_currency != profile.reporting_currency:
+                raise Conflict("Account values require explicit FX conversion before changing reporting currency")
+            data["accounts"] = [x.to_wire() for x in profile.accounts]
+            data["activeAccountId"] = profile.active_account_id
+            for account in data["accounts"]:
+                if account["accountId"] == profile.active_account_id:
+                    account["portfolio"] = copy.deepcopy(data["portfolio"])
         data["version"] = stored["revision"] + 1
         self.repo.save(session_id, profile_id, data, stored["revision"])
         return m.Profile.model_validate(data)
@@ -211,6 +233,72 @@ class ProfileServiceImpl:
             raise Conflict("Default profiles cannot be deleted")
         _, stored = self._load(session_id, profile_id)
         self.repo.delete(session_id, profile_id, stored["revision"])
+
+    def create_account(self, session_id: str, profile_id: str, request: a.CreateAccountRequest) -> m.Profile:
+        profile, stored = self._load(session_id, profile_id)
+        if profile.version != request.version:
+            raise Conflict()
+        if not request.name.strip():
+            raise validation("Account name must contain a visible character")
+        data = profile.to_wire()
+        accounts = copy.deepcopy(data.get("accounts", []))
+        # Materialize the original account once. Existing profiles need no migration.
+        if not accounts:
+            primary = "acct_" + secrets.token_hex(6)
+            accounts.append({"accountId": primary, "name": "Primary", "portfolio": data["portfolio"]})
+            data["activeAccountId"] = primary
+        elif data.get("activeAccountId") != "aggregate":
+            for account in accounts:
+                if account["accountId"] == data.get("activeAccountId"):
+                    account["portfolio"] = copy.deepcopy(data["portfolio"])
+        if len(accounts) >= 20:
+            raise validation("At most 20 accounts per profile")
+        portfolio = request.portfolio
+        if portfolio is None:
+            raise validation("A new account requires explicit holdings and value; existing assets are not duplicated implicitly")
+        positions = [p.to_wire() for p in portfolio.positions]
+        self._validate_portfolio(portfolio.total_value, positions)
+        now = _now(self.clock)
+        account_id = "acct_" + secrets.token_hex(6)
+        saved_portfolio = {"isFictional": True, "currency": profile.reporting_currency,
+                           "totalValue": portfolio.total_value, "positions": positions, "updatedAt": now}
+        accounts.append({"accountId": account_id, "name": request.name.strip(), "portfolio": saved_portfolio})
+        data.update(accounts=accounts, activeAccountId=account_id, portfolio=saved_portfolio, updatedAt=now)
+        return self._save(session_id, m.Profile.model_validate(data), stored)
+
+    def select_account(self, session_id: str, profile_id: str, account_id: str, version: int) -> m.Profile:
+        profile, stored = self._load(session_id, profile_id)
+        if profile.version != version:
+            raise Conflict()
+        data = profile.to_wire()
+        accounts = copy.deepcopy(data.get("accounts", []))
+        if not accounts:
+            raise NotFound("No named accounts exist for this profile")
+        if data.get("activeAccountId") != "aggregate":
+            for account in accounts:
+                if account["accountId"] == data.get("activeAccountId"):
+                    account["portfolio"] = copy.deepcopy(data["portfolio"])
+        if account_id == "aggregate":
+            if any(x["portfolio"]["currency"] != profile.reporting_currency for x in accounts):
+                raise unavailable("Cross-currency account aggregation needs sourced FX conversion")
+            total = math.fsum(x["portfolio"]["totalValue"] for x in accounts)
+            values = {}
+            for account in accounts:
+                portfolio = account["portfolio"]
+                for position in portfolio["positions"]:
+                    ticker = position["ticker"]
+                    values[ticker] = values.get(ticker, 0) + portfolio["totalValue"] * position["weightPct"] / 100
+            positions = [{"ticker": ticker, "weightPct": value / total * 100} for ticker, value in values.items()]
+            self._validate_portfolio(total, positions)
+            portfolio = {"isFictional": True, "currency": profile.reporting_currency, "totalValue": total,
+                         "positions": positions, "updatedAt": _now(self.clock)}
+        else:
+            account = next((x for x in accounts if x["accountId"] == account_id), None)
+            if account is None:
+                raise NotFound("Unknown account in this session-owned profile")
+            portfolio = account["portfolio"]
+        data.update(accounts=accounts, activeAccountId=account_id, portfolio=portfolio, updatedAt=_now(self.clock))
+        return self._save(session_id, m.Profile.model_validate(data), stored)
 
     def rederive_rules(self, session_id: str, profile_id: str, reset: bool, window: m.WindowSpec | None):
         if self.deriver is None:
@@ -260,6 +348,8 @@ class ProfileServiceImpl:
                       "fr": f"Profil fictif personnalisé, risque {request.risk_level.replace('_', ' ')}."},
             "personaTest": None, "portfolio": portfolio, "rules": [], "version": 1, "createdAt": created_at, "updatedAt": now,
         }
+        if request.investor_context is not None:
+            body["investorContext"] = request.investor_context.model_dump(mode="json", by_alias=True)
         if request.rules is not None:
             body["rules"] = renumber([r.to_wire() for r in request.rules])
         else:
@@ -367,6 +457,48 @@ class ProfileServiceImpl:
     @staticmethod
     def _weights(profile: m.Profile) -> dict[str, float]:
         return {p.ticker: p.weight_pct / 100.0 for p in profile.portfolio.positions if p.weight_pct > 0}
+
+    def risk_diagnostics(self, session_id: str, profile_id: str, query: dict) -> a.RiskDiagnosticsResponse:
+        profile = self.get(session_id, profile_id)
+        ledger = LocalLedger()
+        engine, window = self._engine(profile, query, ledger)
+        weights = self._weights(profile)
+        metrics, contributions = {}, {}
+        try:
+            wr = engine.window(window)
+            tickers = list(weights)
+            series = [engine.asset_returns(t, wr.i0, wr.i1) for t in tickers]
+            portfolio = mx.portfolio_returns(list(weights.values()), series)
+            tail = mx.historical_tail_pct(portfolio)
+            shares = mx.variance_shares_pct(list(weights.values()), series)
+            composition = engine.view(weights, "before", profile.portfolio.total_value).composition_fact()
+
+            def record(metric, value, method, label, variant="before", missing_reason="short_history"):
+                if value is None:
+                    return {"value": None, "factId": None, "unavailableReason": missing_reason}
+                fid = engine.add_series_fact(
+                    metric=metric, value=value, subject={"type": "portfolio", "id": profile_id, "variant": variant},
+                    variant_key=variant, window_code=wr.code, tickers=tickers, i0=wr.i0, i1=wr.i1,
+                    method_id=method, label={"en": label, "fr": label}, window_spec=wr.spec,
+                    params={"weights": json.dumps(weights, sort_keys=True), "reportingCurrency": profile.reporting_currency,
+                            "confidence": .95, "holdingPeriodDays": 1, "minimumTailSample": 100},
+                    inputs=[composition] if composition else None)
+                return {"value": value, "factId": fid, "unavailableReason": None}
+
+            for i, (metric, label) in enumerate((("risk.var95", "Historical daily VaR 95% / VaR historique journalière"),
+                                                ("risk.es95", "Historical daily ES 95% / ES historique journalière"))):
+                metrics[metric] = record(metric, tail[i] if tail else None, "M_HISTORICAL_TAIL", label)
+            for i, ticker in enumerate(tickers):
+                contributions[ticker] = record("risk.variance_share", shares[i] if shares else None,
+                                               "M_VARIANCE_SHARE", f"{ticker}: variance contribution / contribution à la variance",
+                                               variant=f"before:holding:{ticker}",
+                                               missing_reason="zero_variance" if len(portfolio) >= 2 else "short_history")
+        except Unavailable as exc:
+            metrics = {key: {"value": None, "factId": None, "unavailableReason": exc.reason}
+                       for key in ("risk.var95", "risk.es95")}
+        return a.RiskDiagnosticsResponse.model_validate({"profileId": profile_id, "currency": profile.reporting_currency,
+            "dataVersion": engine.gate.data_version, "window": window, "metrics": metrics,
+            "contributions": contributions, "facts": ledger.wire()})
 
     def overview(self, session_id: str, profile_id: str, query: dict) -> a.OverviewResponse:
         profile = self.get(session_id, profile_id)

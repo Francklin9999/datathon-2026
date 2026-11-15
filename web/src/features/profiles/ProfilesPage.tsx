@@ -198,10 +198,10 @@ function ProfilesContent() {
               </select>
             </Field>
             <Field id="pf-hmin" text={`${label('horizonMin', tr)} (${tr({ en: 'years', fr: 'ans' })})`} issues={fieldIssues('horizonMin')}>
-              <input id="pf-hmin" type="number" min={0} value={form.horizonMin} onChange={e => set({ horizonMin: e.target.value })} />
+              <input id="pf-hmin" type="number" min={0} step="any" value={form.horizonMin} onChange={e => set({ horizonMin: e.target.value })} />
             </Field>
             <Field id="pf-hmax" text={`${label('horizonMax', tr)} (${tr({ en: 'empty = open-ended', fr: 'vide = sans fin' })})`} issues={fieldIssues('horizonMax')}>
-              <input id="pf-hmax" type="number" min={0} value={form.horizonMax} onChange={e => set({ horizonMax: e.target.value })} />
+              <input id="pf-hmax" type="number" min={0} step="any" value={form.horizonMax} onChange={e => set({ horizonMax: e.target.value })} />
             </Field>
             <Field id="pf-obj" text={label('objective', tr)} issues={fieldIssues('objective')}>
               <select id="pf-obj" value={form.objective} onChange={e => set({ objective: e.target.value as ProfileForm['objective'] })}>
@@ -221,6 +221,25 @@ function ProfilesContent() {
               </select>
             </Field>
           </div>
+
+          <fieldset style={{ marginTop: 16 }}>
+            <legend>{tr({ en: 'Investor context and multiple objectives', fr: 'Contexte et objectifs multiples' })}</legend>
+            <div className="form-grid">
+              <div className="field"><label htmlFor="pf-country">{tr({ en: 'Country (ISO two-letter code, optional)', fr: 'Pays (code ISO à deux lettres, facultatif)' })}</label>
+                <input id="pf-country" maxLength={2} pattern="[A-Z]{2}" value={form.investorContext?.country ?? ''} onChange={e => set({ investorContext: { ...form.investorContext, country: e.target.value.toUpperCase() || null } })} /></div>
+              <div className="field"><label htmlFor="pf-type">{tr({ en: 'Investor type', fr: 'Type d’investisseur' })}</label>
+                <select id="pf-type" value={form.investorContext?.investorType ?? 'individual'} onChange={e => set({ investorContext: { ...form.investorContext, investorType: e.target.value as NonNullable<NonNullable<Profile['investorContext']>['investorType']> } })}>
+                  {['individual', 'retirement', 'income', 'crypto', 'institutional', 'family_office', 'endowment', 'pension', 'wealth_manager', 'advisor', 'custom'].map(t => <option key={t} value={t}>{t.replaceAll('_', ' ')}</option>)}
+                </select></div>
+            </div>
+            <p className="small muted">{tr({ en: 'Jurisdiction does not imply tax or regulatory coverage. Goal amounts use the reporting currency; feasibility is not established.', fr: 'Le pays n’implique aucune couverture fiscale ou réglementaire. Les montants utilisent la devise de présentation; leur faisabilité n’est pas établie.' })}</p>
+            {(form.investorContext?.objectives ?? []).map((goal, i) => <div className="form-grid" key={i}>
+              <div className="field"><label htmlFor={`goal-name-${i}`}>{tr({ en: 'Goal', fr: 'Objectif' })} {i + 1}</label><input id={`goal-name-${i}`} maxLength={120} value={goal.name} onChange={e => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.map((g, j) => j === i ? { ...g, name: e.target.value } : g) } })} /></div>
+              <div className="field"><label htmlFor={`goal-years-${i}`}>{tr({ en: 'Years', fr: 'Années' })}</label><input id={`goal-years-${i}`} type="number" min={0.01} max={150} step="any" value={goal.horizonYears} onChange={e => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.map((g, j) => j === i ? { ...g, horizonYears: Number(e.target.value) } : g) } })} /></div>
+              <button type="button" className="btn ghost" onClick={() => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.filter((_, j) => j !== i) } })}>{tr({ en: 'Remove goal', fr: 'Retirer l’objectif' })}</button>
+            </div>)}
+            <button type="button" className="btn ghost" disabled={(form.investorContext?.objectives?.length ?? 0) >= 20} onClick={() => set({ investorContext: { ...form.investorContext, objectives: [...(form.investorContext?.objectives ?? []), { name: '', horizonYears: 1, priority: (form.investorContext?.objectives?.length ?? 0) + 1, origin: 'user' }] } })}>{tr({ en: 'Add objective', fr: 'Ajouter un objectif' })}</button>
+          </fieldset>
 
           <fieldset style={{ marginTop: 16 }}>
             <legend>{tr({ en: 'Preferences', fr: 'Préférences' })}</legend>

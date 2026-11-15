@@ -5,6 +5,7 @@
  * (PORT-02). Previews go through /check with overrides and are never saved implicitly.
  */
 import { useMemo, useState } from 'react';
+import { Accounts } from './Accounts';
 import type {
   CheckResult, DeriveRulesResponse, FrontierResponse, Lang, OverviewResponse, PolicyRule, Profile,
 } from '../../contracts/types';
@@ -44,6 +45,7 @@ function PortfolioContent({ profile }: { profile: Profile }) {
           {tr({ en: 'All values are in', fr: 'Toutes les valeurs sont en' })} {profile.portfolio.currency} · {fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} {tr({ en: 'fictional capital', fr: 'de capital fictif' })} · {tr({ en: 'profile version', fr: 'version du profil' })} {profile.version}
         </p>
       </PageHeader>
+      <Accounts key={`${profile.profileId}|${profile.version}`} profile={profile} />
       {overview.loading && <Loading />}
       {overview.error && <ErrorState error={overview.error} onRetry={overview.reload}
         title={tr({ en: 'The portfolio overview is unavailable. No figures are shown.', fr: 'L’aperçu du portefeuille est indisponible. Aucun chiffre n’est affiché.' })} />}
@@ -136,7 +138,7 @@ function Allocation({ overview }: { overview: OverviewResponse }) {
   );
 }
 
-function Risk({ overview }: { overview: OverviewResponse }) {
+export function Risk({ overview }: { overview: OverviewResponse }) {
   const { tr, lang } = useApp();
   const { risk, concentration, correlation } = overview;
   const cell = (value: number | null, key: string, signed = false) => {

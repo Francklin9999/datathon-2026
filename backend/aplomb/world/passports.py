@@ -30,7 +30,7 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
             "status": "in_use", "source": "; ".join(loaded), "sourceUrl": None,
             "accessMethod": "HTTPS public feeds, no key; one batch fetch at build time",
             "licence": "Per source: U.S. Government works (USGS, Federal Reserve); Bank of Canada terms; "
-                       "Statistics Canada Open Licence",
+                       "Statistics Canada Open Licence; NASA EONET metadata disclaimer (when loaded), linked content separate",
             "licenceUrl": None, "retrievedOn": built[:10], "coverage": ds.coverage, "frequency": "batch",
             "rowCount": len(ds.events), "dataVersion": ds.version,
             "schema": [{"name": "event", "type": "object", "description": "WorldEvent wire fields (contracts/schemas.md §10)"}],
@@ -43,9 +43,11 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
                    "L'identité d'un événement est une empreinte de l'URL canonique; les éléments de même URL sont fusionnés, "
                    "jamais sur le seul titre."),
                 _t("Official releases are placed at the issuing country's centroid (country precision); earthquakes use the "
-                   "catalog epicentre (point precision).",
+                   "catalog epicentre (point precision); EONET uses the first source-reported point, with no inferred country.",
                    "Les communiqués officiels sont placés au centroïde du pays émetteur (précision pays); les séismes "
                    "utilisent l'épicentre du catalogue (précision point)."),
+                _t("NASA EONET metadata is for visualization/general information. Spatial and temporal extents are approximations, not official event boundaries; original linked publishers have separate rights.",
+                   "Les métadonnées NASA EONET servent à la visualisation et à l'information générale. Les emprises spatiales et temporelles sont approximatives, sans valeur officielle; les éditeurs liés ont leurs propres droits."),
                 _t("Importance is a display priority fixed at build time; it is not a market-impact estimate.",
                    "L'importance est une priorité d'affichage fixée à la construction; ce n'est pas une estimation "
                    "d'incidence sur les marchés."),

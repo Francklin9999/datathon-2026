@@ -47,6 +47,7 @@ class DomainPolicy:
 
 
 POLICIES = tuple(DomainPolicy(*row) for row in [
+    ("eonet.gsfc.nasa.gov", "NASA EONET", 1, "Curated natural event metadata, not official event extents", "https://eonet.gsfc.nasa.gov/what-is-eonet", "EONET metadata: visualization and general information only; spatial and temporal extents approximate; linked source rights separate"),
     ("www.bankofcanada.ca", "Bank of Canada", 1, "Official monetary policy releases", "https://www.bankofcanada.ca/terms/", "Bank of Canada website terms; attribution required; third-party exceptions apply"),
     ("www.federalreserve.gov", "Federal Reserve Board", 1, "Official monetary policy releases", "https://www.federalreserve.gov/disclaimer.htm", "Federal Reserve Board website disclaimer; third-party rights may apply"),
     ("www.statcan.gc.ca", "Statistics Canada", 1, "Official statistical releases", "https://www.statcan.gc.ca/en/terms-conditions/open-licence", "Statistics Canada Open Licence; required source and adaptation notices; third-party exceptions apply"),
@@ -294,7 +295,7 @@ class ResearchService:
                 if response.status != 200:
                     raise ResearchError("source_unavailable")
                 content_type = response.headers.get("content-type", "").split(";")[0].lower()
-                if content_type not in {"application/json", "text/html", "text/plain", "text/csv", "application/xml", "text/xml"}:
+                if content_type not in {"application/json", "text/html", "text/plain", "text/csv", "application/xml", "text/xml", "application/rss+xml", "application/atom+xml"}:
                     raise ResearchError("unsupported_content_type")
                 if len(response.body) > 4_000_000:
                     raise ResearchError("response_too_large")

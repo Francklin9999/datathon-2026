@@ -1,4 +1,4 @@
-"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.1.0.
+"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.2.0.
 
 Boundary types only: numerical calculations, temporal gates, workflow transitions,
 and cross-resource checks remain with their owning services.
@@ -249,6 +249,32 @@ class HorizonYears(WireModel):
     max: NonNegative | None
 
 
+class InvestmentGoal(WireModel):
+    """User-stated objective, never a promise of an achievable return."""
+
+    name: Annotated[String, Field(min_length=1, max_length=120)]
+    horizon_years: Annotated[Number, Field(gt=0, le=150)]
+    priority: Annotated[Integer, Field(ge=1, le=100)]
+    target_amount: NonNegative | None = None
+    deadline: ISODate | None = None
+    origin: Literal["user", "imported", "assumption"] = "user"
+
+
+class InvestorContext(WireModel):
+    """Optional global context. Jurisdiction is context, not a sourced tax policy."""
+
+    country: Annotated[String, Field(pattern=r"^[A-Z]{2}$")] | None = None
+    investor_type: Literal[
+        "individual", "retirement", "income", "crypto", "institutional", "family_office",
+        "endowment", "pension", "wealth_manager", "advisor", "custom"
+    ] = "individual"
+    language: Lang = "en"
+    objectives: list[InvestmentGoal] = Field(default_factory=list, max_length=20,
+        json_schema_extra={"tsType": "InvestmentGoal[]"})
+    liquidity_notes: Annotated[String, Field(max_length=2000)] = ""
+    risk_capacity_notes: Annotated[String, Field(max_length=2000)] = ""
+
+
 class RuleTarget(WireModel):
     dimension: Literal[
         "position", "sector", "asset_class", "asset_group", "theme", "portfolio", "none"
@@ -291,6 +317,12 @@ class PolicyRule(WireModel):
     updated_at: ISODateTime
 
 
+class PortfolioAccount(WireModel):
+    account_id: Annotated[String, Field(pattern=r"^acct_[0-9a-f]{12}$")]
+    name: Annotated[String, Field(min_length=1, max_length=80)]
+    portfolio: Portfolio
+
+
 class Profile(WireModel):
     profile_id: ProfileId
     is_default: Boolean
@@ -308,6 +340,9 @@ class Profile(WireModel):
     preferences: Preferences
     blurb: I18nText
     persona_test: I18nText | None
+    investor_context: InvestorContext | None = None
+    accounts: list[PortfolioAccount] = Field(default_factory=list)
+    active_account_id: String | None = None
     portfolio: Portfolio
     rules: list[PolicyRule]
     version: Annotated[Integer, Field(ge=1)]
@@ -941,7 +976,7 @@ class WorldEvent(WireModel):
     occurred_at: ISODate
     published_at: ISODateTime | None
     location: EventLocation
-    origin: Literal["gdelt", "official", "curated", "usgs", "firms", "live"]
+    origin: Literal["gdelt", "official", "curated", "usgs", "firms", "live", "eonet"]
     sources: Annotated[list[EventSource], Field(min_length=1)]
     source_count: Annotated[Integer, Field(ge=1)]
     importance: Annotated[Number, Field(ge=0, le=1)]

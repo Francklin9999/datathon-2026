@@ -153,6 +153,48 @@
       "title": "Asset",
       "type": "object"
     },
+    "AssetAnalyticsResponse": {
+      "properties": {
+        "asset": {
+          "$ref": "#/$defs/Asset"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "asOf": {
+          "$ref": "#/$defs/ISODate"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "$ref": "#/$defs/AssetMeasurement"
+          },
+          "type": "object"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "asset",
+        "currency",
+        "dataVersion",
+        "asOf",
+        "window",
+        "metrics",
+        "facts"
+      ],
+      "title": "AssetAnalyticsResponse",
+      "type": "object"
+    },
     "AssetClass": {
       "enum": [
         "equity",
@@ -211,6 +253,47 @@
         "nObsMaster"
       ],
       "title": "AssetHistory",
+      "type": "object"
+    },
+    "AssetMeasurement": {
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "factId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FactId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unavailableReason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "factId",
+        "unavailableReason"
+      ],
+      "title": "AssetMeasurement",
       "type": "object"
     },
     "AssetsResponse": {
@@ -895,6 +978,29 @@
       "title": "CountryExposure",
       "type": "object"
     },
+    "CreateAccountRequest": {
+      "properties": {
+        "name": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "portfolio": {
+          "$ref": "#/$defs/InitialPortfolio"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "portfolio"
+      ],
+      "title": "CreateAccountRequest",
+      "type": "object"
+    },
     "CreateDecisionRunRequest": {
       "properties": {
         "kind": {
@@ -1075,6 +1181,17 @@
               "type": "null"
             }
           ]
+        },
+        "investorContext": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InvestorContext"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3275,6 +3392,123 @@
       "title": "InitialPortfolio",
       "type": "object"
     },
+    "InvestmentGoal": {
+      "description": "User-stated objective, never a promise of an achievable return.",
+      "properties": {
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
+        },
+        "horizonYears": {
+          "exclusiveMinimum": 0,
+          "maximum": 150,
+          "type": "number"
+        },
+        "priority": {
+          "ge": 1,
+          "le": 100,
+          "type": "integer"
+        },
+        "targetAmount": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "deadline": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "origin": {
+          "default": "user",
+          "enum": [
+            "user",
+            "imported",
+            "assumption"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "horizonYears",
+        "priority"
+      ],
+      "title": "InvestmentGoal",
+      "type": "object"
+    },
+    "InvestorContext": {
+      "description": "Optional global context. Jurisdiction is context, not a sourced tax policy.",
+      "properties": {
+        "country": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "investorType": {
+          "default": "individual",
+          "enum": [
+            "individual",
+            "retirement",
+            "income",
+            "crypto",
+            "institutional",
+            "family_office",
+            "endowment",
+            "pension",
+            "wealth_manager",
+            "advisor",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "language": {
+          "$ref": "#/$defs/Lang",
+          "default": "en"
+        },
+        "objectives": {
+          "items": {
+            "$ref": "#/$defs/InvestmentGoal"
+          },
+          "maxItems": 20,
+          "tsType": "InvestmentGoal[]",
+          "type": "array"
+        },
+        "liquidityNotes": {
+          "default": "",
+          "maxLength": 2000,
+          "type": "string"
+        },
+        "riskCapacityNotes": {
+          "default": "",
+          "maxLength": 2000,
+          "type": "string"
+        }
+      },
+      "title": "InvestorContext",
+      "type": "object"
+    },
     "LabelWeight": {
       "properties": {
         "key": {
@@ -3491,6 +3725,8 @@
         "M_RET_SIMPLE",
         "M_RET_CALENDAR_YEAR",
         "M_VOL_STDEV_252",
+        "M_HISTORICAL_TAIL",
+        "M_VARIANCE_SHARE",
         "M_MDD_PEAK_TROUGH",
         "M_WORST_ROLLING_252",
         "M_CORR_PEARSON",
@@ -3530,6 +3766,9 @@
         "return.trailing",
         "return.worst_12m",
         "vol.annualized",
+        "risk.var95",
+        "risk.es95",
+        "risk.variance_share",
         "drawdown.max",
         "corr.pair",
         "value.portfolio",
@@ -4050,6 +4289,35 @@
           ],
           "default": null
         },
+        "investorContext": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InvestorContext"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "accounts": {
+          "default": null,
+          "items": {
+            "$ref": "#/$defs/PortfolioAccount"
+          },
+          "type": "array"
+        },
+        "activeAccountId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "portfolio": {
           "$ref": "#/$defs/Portfolio",
           "default": null
@@ -4282,6 +4550,29 @@
         "updatedAt"
       ],
       "title": "Portfolio",
+      "type": "object"
+    },
+    "PortfolioAccount": {
+      "properties": {
+        "accountId": {
+          "pattern": "^acct_[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        },
+        "portfolio": {
+          "$ref": "#/$defs/Portfolio"
+        }
+      },
+      "required": [
+        "accountId",
+        "name",
+        "portfolio"
+      ],
+      "title": "PortfolioAccount",
       "type": "object"
     },
     "PortfolioBriefInput": {
@@ -4574,6 +4865,34 @@
               "type": "null"
             }
           ]
+        },
+        "investorContext": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InvestorContext"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "accounts": {
+          "items": {
+            "$ref": "#/$defs/PortfolioAccount"
+          },
+          "type": "array"
+        },
+        "activeAccountId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "portfolio": {
           "$ref": "#/$defs/Portfolio"
@@ -5011,6 +5330,51 @@
         "code"
       ],
       "title": "ReviewFinding",
+      "type": "object"
+    },
+    "RiskDiagnosticsResponse": {
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/ProfileId"
+        },
+        "currency": {
+          "$ref": "#/$defs/Currency"
+        },
+        "dataVersion": {
+          "$ref": "#/$defs/DataVersion"
+        },
+        "window": {
+          "$ref": "#/$defs/WindowSpec"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "$ref": "#/$defs/AssetMeasurement"
+          },
+          "type": "object"
+        },
+        "contributions": {
+          "additionalProperties": {
+            "$ref": "#/$defs/AssetMeasurement"
+          },
+          "type": "object"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "profileId",
+        "currency",
+        "dataVersion",
+        "window",
+        "metrics",
+        "contributions",
+        "facts"
+      ],
+      "title": "RiskDiagnosticsResponse",
       "type": "object"
     },
     "RiskLevel": {
@@ -5940,6 +6304,19 @@
         }
       ]
     },
+    "SelectAccountRequest": {
+      "properties": {
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "title": "SelectAccountRequest",
+      "type": "object"
+    },
     "Sentence": {
       "properties": {
         "id": {
@@ -6706,6 +7083,17 @@
             }
           ]
         },
+        "investorContext": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InvestorContext"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "version": {
           "minimum": 1,
           "type": "integer"
@@ -6933,7 +7321,8 @@
             "curated",
             "usgs",
             "firms",
-            "live"
+            "live",
+            "eonet"
           ],
           "type": "string"
         },
@@ -7032,7 +7421,8 @@
             "curated",
             "usgs",
             "firms",
-            "live"
+            "live",
+            "eonet"
           ],
           "type": "string"
         },
@@ -7327,6 +7717,9 @@
     "Asset": {
       "$ref": "#/$defs/Asset"
     },
+    "AssetAnalyticsResponse": {
+      "$ref": "#/$defs/AssetAnalyticsResponse"
+    },
     "AssetClass": {
       "$ref": "#/$defs/AssetClass"
     },
@@ -7338,6 +7731,9 @@
     },
     "AssetHistory": {
       "$ref": "#/$defs/AssetHistory"
+    },
+    "AssetMeasurement": {
+      "$ref": "#/$defs/AssetMeasurement"
     },
     "AssetsResponse": {
       "$ref": "#/$defs/AssetsResponse"
@@ -7404,6 +7800,9 @@
     },
     "CountryExposure": {
       "$ref": "#/$defs/CountryExposure"
+    },
+    "CreateAccountRequest": {
+      "$ref": "#/$defs/CreateAccountRequest"
     },
     "CreateDecisionRunRequest": {
       "$ref": "#/$defs/CreateDecisionRunRequest"
@@ -7633,6 +8032,12 @@
     "InitialPortfolio": {
       "$ref": "#/$defs/InitialPortfolio"
     },
+    "InvestmentGoal": {
+      "$ref": "#/$defs/InvestmentGoal"
+    },
+    "InvestorContext": {
+      "$ref": "#/$defs/InvestorContext"
+    },
     "LabelWeight": {
       "$ref": "#/$defs/LabelWeight"
     },
@@ -7704,6 +8109,9 @@
     },
     "Portfolio": {
       "$ref": "#/$defs/Portfolio"
+    },
+    "PortfolioAccount": {
+      "$ref": "#/$defs/PortfolioAccount"
     },
     "PortfolioBriefInput": {
       "$ref": "#/$defs/PortfolioBriefInput"
@@ -7779,6 +8187,9 @@
     },
     "ReviewFinding": {
       "$ref": "#/$defs/ReviewFinding"
+    },
+    "RiskDiagnosticsResponse": {
+      "$ref": "#/$defs/RiskDiagnosticsResponse"
     },
     "RiskLevel": {
       "$ref": "#/$defs/RiskLevel"
@@ -7878,6 +8289,9 @@
     },
     "Segment": {
       "$ref": "#/$defs/Segment"
+    },
+    "SelectAccountRequest": {
+      "$ref": "#/$defs/SelectAccountRequest"
     },
     "Sentence": {
       "$ref": "#/$defs/Sentence"
@@ -8003,10 +8417,12 @@
     "AnswerResponse",
     "ApiError",
     "Asset",
+    "AssetAnalyticsResponse",
     "AssetClass",
     "AssetFlag",
     "AssetGroup",
     "AssetHistory",
+    "AssetMeasurement",
     "AssetsResponse",
     "AttentionResponse",
     "AttentionSignal",
@@ -8029,6 +8445,7 @@
     "Concentration",
     "Correlation",
     "CountryExposure",
+    "CreateAccountRequest",
     "CreateDecisionRunRequest",
     "CreateEventBriefRunRequest",
     "CreatePortfolioBriefRunRequest",
@@ -8105,6 +8522,8 @@
     "ISODate",
     "ISODateTime",
     "InitialPortfolio",
+    "InvestmentGoal",
+    "InvestorContext",
     "LabelWeight",
     "Lang",
     "LegendItem",
@@ -8129,6 +8548,7 @@
     "Period",
     "PolicyRule",
     "Portfolio",
+    "PortfolioAccount",
     "PortfolioBriefInput",
     "PortfolioBriefResult",
     "PortfolioBriefRunResult",
@@ -8154,6 +8574,7 @@
     "RevealRequest",
     "RevealResult",
     "ReviewFinding",
+    "RiskDiagnosticsResponse",
     "RiskLevel",
     "RuleBounds",
     "RuleCheck",
@@ -8187,6 +8608,7 @@
     "ScenarioId",
     "ScenarioKind",
     "Segment",
+    "SelectAccountRequest",
     "Sentence",
     "SentenceAudit",
     "SeriesPoint",
@@ -8230,12 +8652,12 @@
   "title": "AplombContracts",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aplomb.local/contracts/1.1.0/schema.json",
-  "x-contract-version": "1.1.0",
+  "$id": "https://aplomb.local/contracts/1.2.0/schema.json",
+  "x-contract-version": "1.2.0",
   "x-spec-sha256": {
-    "schemas.md": "557f5095b285d5632b9be0921f728bb4f1d2ea855a6230fe71ffd52e7e3917c7",
-    "catalog.md": "bbb2dc5a3d14f79db60dcb72d12306501fee14f6101749d87dbce4b9a8d0c3be",
-    "api.md": "f2e28fa469e59cc747895e5391ca537179faa41abd800dbfae26b0e9327878e2",
+    "schemas.md": "3a0218a590fa47e41fa39464825b6d46bd059c7463bb66a1afe6b46a93dcf77c",
+    "catalog.md": "4de3c105f2d7c728471a9f998337e24fd607a6b1ab33a710ded916e105b19b36",
+    "api.md": "a206cea0e09a531b47b0656144c8f41e156549b3772c122a6d93663023a159e6",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
   }

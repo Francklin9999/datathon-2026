@@ -1,0 +1,12 @@
+{
+  "id": "nasa_eonet",
+  "items": 480,
+  "name": "NASA EONET v3 natural events",
+  "note": "Bounded first 500 records; completeness not established. Observation is not publication.",
+  "payloadSha256": "570970dd5645ce6279fffb6f311546b214c2330ade37af616300355b2a38d0a4",
+  "rejected": 20,
+  "retrievedAt": "2026-11-15T07:20:44Z",
+  "status": "ok",
+  "terms": "https://eonet.gsfc.nasa.gov/what-is-eonet; linked third-party content has separate terms",
+  "url": "https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start=2026-10-15&end=2026-11-12&limit=500"
+}

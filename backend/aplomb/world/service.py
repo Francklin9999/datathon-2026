@@ -46,7 +46,7 @@ COUNTRY_MACRO = {
 LINK_ORDER = ("named_in_source", "theme", "listing_country")
 # Manifest source record of an event, by the publisher of its primary source.
 SOURCE_BY_PUBLISHER = {"U.S. Geological Survey": "usgs_earthquakes", "Bank of Canada": "boc_press",
-                       "Federal Reserve Board": "fed_monetary", "Statistics Canada": "statcan_daily"}
+                       "Federal Reserve Board": "fed_monetary", "Statistics Canada": "statcan_daily", "NASA EONET": "nasa_eonet"}
 
 
 def _t(en: str, fr: str) -> dict:
@@ -163,7 +163,7 @@ class WorldServiceImpl:
         categories = set(query.get("category") or [])
         countries = set(query.get("country") or [])
         origins = set(query.get("origin") or [])
-        allowed = {"gdelt", "official", "curated", "usgs", "firms", "live"}
+        allowed = {"gdelt", "official", "curated", "usgs", "firms", "live", "eonet"}
         if origins - allowed:
             raise _invalid("origin must be one of " + ", ".join(sorted(allowed)), "origin")
         needle = (query.get("q") or "").strip().casefold()

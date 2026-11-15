@@ -150,6 +150,49 @@ def parse_usgs(payload: bytes) -> tuple[list[dict], list[dict], int]:
     return events, hazards, rejected
 
 
+def parse_eonet(payload: bytes) -> tuple[list[dict], int]:
+    """NASA EONET v3 point observations. Never infer a country or publication date.
+
+    Polygon-only records are skipped rather than assigning an invented centroid. Each event's
+    first valid point is used, preserving its observation date; later track points are not
+    presented as simultaneous locations. Original source links are discovery references.
+    """
+    events, rejected = [], 0
+    for item in json.loads(payload).get("events", []):
+        try:
+            url = item["link"]
+            parts = urlsplit(url)
+            if parts.scheme != "https" or parts.hostname != "eonet.gsfc.nasa.gov":
+                raise ValueError("invalid EONET identity URL")
+            points = []
+            for geometry in item.get("geometry", []):
+                if geometry.get("type") != "Point":
+                    continue
+                lon, lat = geometry["coordinates"]
+                if isinstance(lon, bool) or isinstance(lat, bool):
+                    continue
+                lon, lat = float(lon), float(lat)
+                stamp = datetime.fromisoformat(geometry["date"].replace("Z", "+00:00"))
+                if stamp.tzinfo is None or not (-90 <= lat <= 90 and -180 <= lon <= 180):
+                    continue
+                points.append((stamp, lon, lat))
+            if not points:
+                raise ValueError("no source-supported point geometry")
+            when, lon, lat = min(points)
+            event = _event(url=url, title=item["title"], category="natural_disaster",
+                           occurred=when.date().isoformat(), published=None,
+                           location={"lat": lat, "lon": lon, "countryIso3": None,
+                                     "placeName": None, "precision": "point"},
+                           origin="eonet", publisher="NASA EONET", source_type="data")
+            # NASA's record is the primary source. Linked publishers are not counted as
+            # independently corroborating the title without retrieving their contents.
+            event["relatedTickers"] = []
+            events.append(event)
+        except (KeyError, TypeError, ValueError, OverflowError):
+            rejected += 1
+    return events, rejected
+
+
 def _text(node, *names: str) -> str | None:
     for child in node:
         if child.tag.rsplit("}", 1)[-1] in names and child.text and child.text.strip():
@@ -251,9 +294,9 @@ def dump(value) -> str:
     return json.dumps(value, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
 
 
-def build_bundle(events: list[dict], hazards: list[dict], sources: list[dict], *, built_at: datetime, start: str, end: str) -> dict[str, str]:
+def build_bundle(events: list[dict], hazards: list[dict], sources: list[dict], *, built_at: datetime, start: str, end: str, version_suffix: str = "") -> dict[str, str]:
     """File name -> content of an immutable bundle. Deterministic for the same inputs and clock."""
-    version = f"snap-{built_at.strftime('%Y%m%d')}-world"
+    version = f"snap-{built_at.strftime('%Y%m%d')}-world{version_suffix}"
     events = [e for e in merge_events(events) if start <= e["occurredAt"] <= end]
     for ev in events:
         ev["importance"] = importance(ev, built_at.date())

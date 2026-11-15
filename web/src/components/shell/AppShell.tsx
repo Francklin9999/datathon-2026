@@ -31,8 +31,10 @@ interface NavItem { href: string; label: I18NText; icon: LucideIcon; flag?: stri
 export const NAV: readonly NavItem[] = [
   { href: '/', label: { en: 'Home', fr: 'Accueil' }, icon: LayoutDashboard },
   { href: '/portfolio/', label: { en: 'Portfolio', fr: 'Portefeuille' }, icon: PieChart },
+  { href: '/markets/', label: { en: 'Markets & Stocks', fr: 'Marchés et titres' }, icon: BookOpen },
   { href: '/decision-desk/', label: { en: 'Decision Desk', fr: 'Pupitre de décision' }, icon: Scale },
   { href: '/world-explorer/', label: { en: 'World Explorer', fr: 'Explorateur mondial' }, icon: Earth, flag: 'world_explorer' },
+  { href: '/risk-intelligence/', label: { en: 'Risk Intelligence', fr: 'Analyse des risques' }, icon: ShieldCheck },
   { href: '/evidence-audit/', label: { en: 'Evidence & Audit', fr: 'Preuves et audit' }, icon: ShieldCheck },
   { href: '/time-machine/', label: { en: 'Time Machine', fr: 'Machine à remonter le temps' }, icon: History, flag: 'time_machine' },
   { href: '/agents-system/', label: { en: 'Agents & System', fr: 'Agents et système' }, icon: Cpu },

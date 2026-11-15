@@ -16,6 +16,9 @@ Every code used in a payload is listed here. Adding a value is an additive contr
 | `return.trailing` | Return over a trailing window (1y, 3y, 5y) | pct | quant |
 | `return.worst_12m` | Worst rolling 252-observation return in the window | pct | quant |
 | `vol.annualized` | Annualized volatility of daily returns | pct | quant |
+| `risk.var95` | Historical daily 95% Value at Risk, loss convention | pct | quant |
+| `risk.es95` | Historical daily 95% Expected Shortfall, loss convention | pct | quant |
+| `risk.variance_share` | Signed contribution to portfolio variance | pct | quant |
 | `drawdown.max` | Maximum peak-to-trough decline in the window (reported as a positive number) | pct | quant |
 | `corr.pair` | Correlation of daily returns between two assets | ratio | quant |
 | `value.portfolio` | Total portfolio value | cad / usd | quant |
@@ -66,6 +69,8 @@ Each method is described once, with its formula, in the spec of the module that 
 | `M_RET_SIMPLE` | `P_end ÷ P_start − 1` on adjusted prices | quant §5 |
 | `M_RET_CALENDAR_YEAR` | Simple return from the last observation of year Y−1 to the last observation of year Y | quant §5 |
 | `M_VOL_STDEV_252` | Sample standard deviation (n−1) of daily simple returns × √252 | quant §6 |
+| `M_HISTORICAL_TAIL` | Largest ceil(0.05 × n) daily losses; VaR is tail minimum, ES is tail mean, floored at zero | quant §11 |
+| `M_VARIANCE_SHARE` | 100 × w_i (Σw)_i / (wᵀΣw), sample daily-return covariance | quant §11 |
 | `M_MDD_PEAK_TROUGH` | Minimum of `value ÷ running maximum − 1` | quant §6 |
 | `M_WORST_ROLLING_252` | Minimum 252-observation simple return | quant §6 |
 | `M_CORR_PEARSON` | Pearson correlation of daily simple returns on the master calendar | quant §6 |

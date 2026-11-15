@@ -159,15 +159,23 @@ export function createApiClient(config: ClientConfig) {
       call('AssetsResponse', 'GET', '/assets', { query, signal }),
     asset: (ticker: string, signal?: AbortSignal) =>
       call('Asset', 'GET', `/assets/${enc(ticker)}`, { signal }),
+    assetAnalytics: (ticker: string, currency: string, window: WindowCode | WindowSpec, signal?: AbortSignal) =>
+      call('AssetAnalyticsResponse', 'GET', `/assets/${enc(ticker)}/analytics`, { query: { ...windowQuery(window), currency }, signal }),
     fetchAsset: (ticker: string) =>
       call('FetchAssetResponse', 'POST', `/assets/${enc(ticker)}/fetch`, { body: {} }),
 
+    riskDiagnostics: (profileId: string, window: WindowCode | WindowSpec, signal?: AbortSignal) =>
+      call('RiskDiagnosticsResponse', 'GET', `/profiles/${enc(profileId)}/risk`, { query: windowQuery(window), signal }),
     profiles: (signal?: AbortSignal) => call('ProfilesResponse', 'GET', '/profiles', { signal }),
     profile: (profileId: string, signal?: AbortSignal) =>
       call('Profile', 'GET', `/profiles/${enc(profileId)}`, { signal }),
     createProfile: (body: CreateProfileRequest) => call('Profile', 'POST', '/profiles', { body }),
     updateProfile: (profileId: string, body: UpdateProfileRequest) =>
       call('Profile', 'PUT', `/profiles/${enc(profileId)}`, { body }),
+    createAccount: (profileId: string, name: string, version: number, portfolio: { totalValue: number; positions: { ticker: string; weightPct: number }[] }) =>
+      call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts`, { body: { name, version, portfolio } }),
+    selectAccount: (profileId: string, accountId: string, version: number) =>
+      call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts/${enc(accountId)}/select`, { body: { version } }),
     deleteProfile: async (profileId: string): Promise<void> => {
       await raw('DELETE', `/profiles/${enc(profileId)}`);
     },

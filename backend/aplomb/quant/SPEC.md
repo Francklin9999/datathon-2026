@@ -70,3 +70,18 @@ Implemented in `backend/aplomb/quant/` (no AWS, model or network imports):
 `measure()` returns `Measurement(value, fact_id, unit, worst, nee_reason)`; unavailable figures carry a catalog NeeReason (`short_history`, `not_visible_at_asof`, `asset_unknown`). A-21 (252 master observations) gates risk metrics per asset. Ties for the largest position/sector follow portfolio order (controls list NVDA for Amira). Facts with the same key and value are reused; a different value under one key is rejected, so callers must give each portfolio its own variant. Stress 2022 and the rate cycle are unavailable until `asOf` reaches the window end.
 
 Verification: `uv run pytest backend/tests/unit/quant` reproduces every value of controls §4, §6, §8 (volatility, drawdown, 2022, total, YTD, 1y, rate cycle) and the §9 scenario risk figures, plus QNT-04…QNT-08 with synthetic snapshots. Tool wrappers (`quant.*` with `ToolContext`) wait for T08's registry.
+
+
+## 11. Historical tail and variance diagnostics (contract 1.2.0)
+
+`historical_tail_pct` uses aligned constant-weight portfolio daily returns. With n >= 100,
+select k = ceil(0.05*n) largest losses (-100*r). Historical daily VaR95 is max(0, the smallest
+selected loss); ES95 is max(0, the selected mean). Confidence is 95%, holding period one
+master-calendar day. No interpolation, annualization or square-root horizon extrapolation.
+This is the empirical equal-weight discrete-tail convention, not a calibrated future-loss model.
+
+`variance_shares_pct` computes 100*w_i*Cov(r_i,r_p)/Var(r_p), using sample covariance and variance
+on the same aligned observations. Defined shares sum to 100%; negative contributions are
+possible. A zero-variance sample returns undefined contributions rather than dividing by zero.
+The API attaches price/FX source receipts, composition input, calculation method, reporting
+currency and window to each defined diagnostic. Existing financial policy rules are unchanged.

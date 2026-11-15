@@ -124,6 +124,9 @@ interface Profile {
   reportingCurrency: Currency;
   preferences: Preferences;
   blurb: I18nText;                       // one or two sentences shown on the persona card
+  investorContext?: InvestorContext | null;
+  accounts?: PortfolioAccount[];
+  activeAccountId?: string | null;
   personaTest: I18nText | null;          // "what this persona tests", defaults only
   portfolio: Portfolio;
   rules: PolicyRule[];
@@ -591,7 +594,7 @@ interface WorldEvent {
   occurredAt: ISODate;
   publishedAt: ISODateTime | null;
   location: { lat: number; lon: number; countryIso3: string | null; placeName: string | null; precision: "point" | "city" | "country" };
-  origin: "gdelt" | "official" | "curated" | "usgs" | "firms" | "live";
+  origin: "gdelt" | "official" | "curated" | "usgs" | "firms" | "live" | "eonet";
   sources: EventSource[];                // at least one
   sourceCount: number;
   importance: number;                    // 0–1, formula in backend/aplomb/world/SPEC.md

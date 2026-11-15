@@ -238,7 +238,7 @@ def test_layers_report_what_is_loaded(world):
 
 
 def test_default_feed_is_the_last_thirty_days_of_the_dataset(world):
-    page = world.events(SID, {})
+    page = world.events(SID, {"limit": 1000})
     coverage = world.dataset().coverage
     assert page.coverage.to_wire() == coverage and page.data_version == world.dataset().version
     assert page.total == len(page.items) > 0

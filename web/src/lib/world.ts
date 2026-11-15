@@ -12,7 +12,7 @@ export const EVENT_CATEGORIES: readonly EventCategory[] = [
   'monetary_policy', 'macro_release', 'geopolitical', 'trade_regulation', 'corporate',
   'energy_commodities', 'markets', 'natural_disaster', 'other',
 ];
-export const EVENT_ORIGINS: readonly WorldEvent['origin'][] = ['official', 'curated', 'gdelt', 'usgs', 'firms', 'live'];
+export const EVENT_ORIGINS: readonly WorldEvent['origin'][] = ['official', 'curated', 'gdelt', 'usgs', 'firms', 'live', 'eonet'];
 
 /** api.md 6.2: "range ≤ 366 days". Enforced as at most 366 calendar dates, both ends included. */
 export const MAX_RANGE_DAYS = 366;

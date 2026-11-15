@@ -7,6 +7,8 @@ const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  // Separate local verification from another developer's running Next server.
+  distDir: process.env.APLOMB_NEXT_DIST_DIR || '.next',
   trailingSlash: true,
   images: { unoptimized: true },
   reactStrictMode: true,

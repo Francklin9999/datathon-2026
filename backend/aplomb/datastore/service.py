@@ -128,6 +128,30 @@ class DatastoreService:
         except UnknownTicker as exc:
             raise NotFound(str(exc)) from exc
 
+    def analytics(self, session_id: str, ticker: str, query: dict) -> a.AssetAnalyticsResponse:
+        from aplomb.profiles.service import _window_spec
+        from aplomb.quant import LocalLedger, QuantEngine
+
+        snap = self.snapshot()
+        gate = snap.gate(snap.data_as_of, "current")
+        try:
+            asset = m.Asset.model_validate(gate.universe().get(ticker).to_wire())
+        except UnknownTicker as exc:
+            raise NotFound(str(exc)) from exc
+        window = _window_spec(query)
+        currency = query.get("currency", "CAD")
+        ledger = LocalLedger()
+        engine = QuantEngine(gate, ledger, currency=currency, subject_id=ticker,
+                             created_at=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        metrics = engine.asset_metrics(ticker, window)
+        return a.AssetAnalyticsResponse.model_validate({
+            "asset": asset, "currency": currency, "dataVersion": snap.data_version,
+            "asOf": snap.data_as_of, "window": window,
+            "metrics": {key: {"value": x.value, "factId": x.fact_id, "unavailableReason": x.nee_reason}
+                        for key, x in metrics.items()},
+            "facts": {key: fact.to_wire() for key, fact in ledger.facts().items()},
+        })
+
     def fetch(self, session_id: str, ticker: str) -> a.FetchAssetResponse:
         if self.on_demand is None:
             raise unavailable("On-demand price provider (configure APLOMB_TIINGO_TOKEN with a writable local data directory)")

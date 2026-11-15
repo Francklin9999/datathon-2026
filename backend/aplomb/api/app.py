@@ -246,6 +246,11 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     def asset(ticker: str, sid: Session):
         return require(services.datastore, "Asset datastore").asset(sid, ticker)
 
+    @app.get("/v1/assets/{ticker}/analytics", response_model=a.AssetAnalyticsResponse, response_model_exclude_unset=True)
+    def asset_analytics(ticker: str, request: Request, sid: Session):
+        provider = require(services.datastore, "Asset datastore")
+        return require(getattr(provider, "analytics", None), "Asset analytics")(sid, ticker, parameters(request, "asset_analytics"))
+
     @app.post(
         "/v1/assets/{ticker}/fetch",
         response_model=a.FetchAssetResponse,
@@ -266,6 +271,23 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     @app.get("/v1/profiles", response_model=a.ProfilesResponse, response_model_exclude_unset=True)
     def profiles(sid: Session):
         return a.ProfilesResponse(items=require(services.profiles, "Profile service").list(sid))
+
+    @app.post("/v1/profiles/{profile_id}/accounts", response_model=m.Profile, response_model_exclude_unset=True, status_code=201)
+    def create_account(profile_id: ProfileId, body: a.CreateAccountRequest, sid: Session):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "create_account", None), "Portfolio accounts")(sid, profile_id, body)
+
+    @app.post("/v1/profiles/{profile_id}/accounts/{account_id}/select", response_model=m.Profile, response_model_exclude_unset=True)
+    def select_account(profile_id: ProfileId, account_id: str, body: a.SelectAccountRequest, sid: Session):
+        feature("profile_creator")
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "select_account", None), "Portfolio accounts")(sid, profile_id, account_id, body.version)
+
+    @app.get("/v1/profiles/{profile_id}/risk", response_model=a.RiskDiagnosticsResponse, response_model_exclude_unset=True)
+    def risk_diagnostics(profile_id: ProfileId, request: Request, sid: Session):
+        provider = require(services.profiles, "Profile service")
+        return require(getattr(provider, "risk_diagnostics", None), "Risk diagnostics")(sid, profile_id, parameters(request, "risk"))
 
     @app.get(
         "/v1/profiles/{profile_id}", response_model=m.Profile, response_model_exclude_unset=True
