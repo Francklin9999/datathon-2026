@@ -39,7 +39,7 @@ Instrument Sans (variable weight and width, local `@fontsource-variable/instrume
 
 ## Layout
 
-- **Top bar** (floating, sticky): investor switcher, **Ask Aplomb** (text sent to Decide as `?q=`, interpreted once; `/` focuses it), the simulation note (short on the bar, full text for assistive technology), Help (tutorials) and Settings (language, theme, profiles, data date).
+- **Top bar** (floating, sticky): investor switcher, **Ask Aplomb** (text sent to Decide as `?q=`, interpreted once; `/` focuses it; where the browser has speech recognition a microphone dictates into the field, one utterance per press, cobalt while listening, Escape cancels; the words are only filled in, never sent on their own), the simulation note (short on the bar, full text for assistive technology), Help (tutorials) and Settings (language, theme, profiles, data date).
 - **Rail** (floating, left): the seven pages and Sources as icons with tooltips; the bottom arrow shows labels (`aplomb.pref.sidebar`, `html[data-sidebar='expanded']`). Phones use the menu drawer instead.
 - **Page panel:** title and one sentence on the left, the period control and main action on the right (`PageHeader actions`).
 - **Section dock** (floating, bottom): every element in `<main>` with `data-section` and an `id` (via `Card section=…` or a dashboard widget's `section`), shown from three sections, with scroll spy; the cobalt + tests a move. Hidden on phones.

@@ -1,22 +1,24 @@
 'use client';
 /**
- * Floating top bar: the fictional investor, "Ask Aplomb" (free text handed to Decision Desk), the
- * simulation note (always visible), help and settings.
+ * Floating top bar: the fictional investor, "Ask Aplomb" (free text handed to Decision Desk, typed or
+ * dictated), the simulation note (always visible), help and settings.
  */
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowUp, ChevronsUpDown, Info, Menu, Settings2, UserRound } from 'lucide-react';
-import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { ArrowUp, ChevronsUpDown, Info, Menu, Mic, Settings2, UserRound } from 'lucide-react';
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
 import type { I18NText, WindowCode } from '../../contracts/types';
 import { useApp, WINDOW_CODES } from '../../state/app';
 import { WINDOW, labelOf } from '../../lib/labels';
 import { fmtDate } from '../../lib/format';
+import { withDictation } from '../../lib/dictation';
 import { windowShortLabel } from '../../lib/ui/segmented';
 import { ANIM_PREF_KEY, DEFAULT_ANIM, isAnimPref, type AnimPref, type ThemePref } from '../../lib/ui/theme';
 import { readPref, writePref } from '../../lib/session';
 import { Listbox } from '../ui/Listbox';
 import { SegmentedControl } from '../ui/SegmentedControl';
 import { useTheme } from '../ui/ThemeProvider';
+import { useDictation } from '../ui/useDictation';
 
 export const FALLBACK_DISCLAIMER: I18NText = {
   en: 'Simulation only. Fictional profiles. Not financial advice.',
@@ -72,13 +74,37 @@ export function PersonaSwitcher() {
   );
 }
 
-/** "Ask Aplomb": typed requests open Decision Desk, which interprets them (nothing runs before confirmation). */
+/** Longest request the bar accepts, typed or dictated. */
+const ASK_MAX = 600;
+/** A dictation error note stays this long unless the person acts first. */
+const NOTE_MS = 8000;
+
+/**
+ * "Ask Aplomb": typed or dictated requests open Decision Desk, which interprets them (nothing runs before
+ * confirmation). Dictation only fills the field; the person checks the words and sends them.
+ */
 export function CommandBar() {
-  const { tr } = useApp();
+  const { tr, lang } = useApp();
   const router = useRouter();
   const [text, setText] = useState('');
+  const form = useRef<HTMLFormElement | null>(null);
   const input = useRef<HTMLInputElement | null>(null);
+  const typed = useRef('');
   const id = useId();
+  const dictation = useDictation(lang, heard => setText(withDictation(typed.current, heard, ASK_MAX)), () => {
+    // Back to the field to check and send, unless focus went elsewhere meanwhile (or never came: iOS taps).
+    const field = input.current;
+    if (!field || !field.value || !form.current?.contains(document.activeElement)) return;
+    field.focus();
+    field.setSelectionRange(field.value.length, field.value.length);
+  });
+  const { message, dismiss } = dictation;
+
+  useEffect(() => {
+    if (!message) return undefined;
+    const timer = setTimeout(dismiss, NOTE_MS);
+    return () => clearTimeout(timer);
+  }, [message, dismiss]);
 
   useEffect(() => {
     // "/" focuses the bar from anywhere, except while typing in another field.
@@ -95,26 +121,59 @@ export function CommandBar() {
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    dictation.cancel();
+    dismiss();
     const value = text.trim();
     if (!value) return;
-    router.push(`/decision-desk/?q=${encodeURIComponent(value.slice(0, 600))}`);
+    router.push(`/decision-desk/?q=${encodeURIComponent(value.slice(0, ASK_MAX))}`);
     setText('');
     input.current?.blur();
   };
 
+  const toggleDictation = () => {
+    if (dictation.listening) { dictation.stop(); return; }
+    typed.current = text;
+    dictation.start();
+  };
+
+  const onKeyDown = (event: ReactKeyboardEvent) => {
+    if (event.key !== 'Escape' || (!dictation.listening && !message)) return;
+    event.preventDefault();
+    dictation.cancel();
+    dismiss();
+  };
+
   return (
-    <form className="command" role="search" onSubmit={submit} data-tour="command">
+    <form ref={form} className="command" role="search" onSubmit={submit} onKeyDown={onKeyDown} data-tour="command">
       <label htmlFor={id} className="sr-only">{tr({ en: 'Ask Aplomb to test a move', fr: 'Demander à Aplomb de tester un mouvement' })}</label>
-      <div className="command-field">
+      <div className="command-field" data-listening={dictation.listening || undefined}>
         <span className="command-orb" aria-hidden="true" />
-        <input ref={input} id={id} className="command-input" type="text" value={text} maxLength={600} autoComplete="off"
-          placeholder={tr({ en: 'Ask: add 5% of NVDA, funded from bonds', fr: 'Demander : ajouter 5 % de NVDA, financé par les obligations' })}
-          onChange={event => setText(event.target.value)} />
+        <input ref={input} id={id} className="command-input" type="text" value={text} maxLength={ASK_MAX} autoComplete="off"
+          placeholder={dictation.listening
+            ? tr({ en: 'Listening… say a move, then check it', fr: 'À l’écoute… dites un mouvement, puis vérifiez-le' })
+            : tr({ en: 'Ask: add 5% of NVDA, funded from bonds', fr: 'Demander : ajouter 5 % de NVDA, financé par les obligations' })}
+          onChange={event => {
+            // Typing takes over from dictation.
+            dictation.cancel();
+            dismiss();
+            setText(event.target.value);
+          }} />
         <kbd className="command-kbd" aria-hidden="true">/</kbd>
+        {dictation.supported && (
+          <button type="button" className="command-mic" aria-pressed={dictation.listening} onClick={toggleDictation}
+            aria-label={tr({ en: 'Dictate a request', fr: 'Dicter une demande' })}
+            title={dictation.listening
+              ? tr({ en: 'Stop dictation', fr: 'Arrêter la dictée' })
+              : tr({ en: 'Dictate a request. Your browser’s speech service turns your voice into text', fr: 'Dicter une demande. Le service vocal de votre navigateur transcrit votre voix' })}>
+            <Mic aria-hidden="true" size={17} strokeWidth={1.9} />
+          </button>
+        )}
         <button type="submit" className="command-submit" disabled={!text.trim()} aria-label={tr({ en: 'Send to Decide', fr: 'Envoyer vers Décider' })}>
           <ArrowUp aria-hidden="true" size={18} strokeWidth={2} />
         </button>
       </div>
+      {message && <p className="command-note glass-pop" aria-hidden="true">{tr(message)}</p>}
+      <span className="sr-only" role="status">{message ? tr(message) : ''}</span>
     </form>
   );
 }

@@ -38,7 +38,7 @@ html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
 .persona-link { display: flex; align-items: center; gap: 8px; min-height: 40px; margin: 4px 0 0; padding: 0 10px; border-top: 1px solid var(--line); border-radius: 0 0 8px 8px; font-size: 13px; text-decoration: none; }
 
 /* Ask Aplomb: the command bar in the middle of the top bar */
-.command { flex: 1 1 320px; min-width: 0; max-width: 620px; margin: 0 auto; }
+.command { position: relative; flex: 1 1 320px; min-width: 0; max-width: 620px; margin: 0 auto; }
 .command-field { position: relative; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 5px 0 8px; border-radius: var(--r-pill);
   background: var(--chrome-field); box-shadow: inset 0 0 0 1px var(--chrome-line); transition: box-shadow var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
 .command-field:focus-within { background: rgba(255, 255, 255, .12); box-shadow: inset 0 0 0 1px rgba(157, 178, 255, .6), 0 0 0 4px rgba(47, 91, 255, .18); }
@@ -55,6 +55,20 @@ html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
 .command-submit::after { content: ''; position: absolute; inset: -5px; }
 .command-submit:disabled { opacity: .35; cursor: default; }
 .command-submit:active:not(:disabled) { transform: scale(.94); }
+/* Dictation: shown only where the browser has speech recognition. While listening the microphone is
+   cobalt and the field keeps its focus ring; nothing pulses. */
+.command-mic { position: relative; flex: none; width: 34px; height: 34px; border: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--chrome-text-2); transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
+.command-mic::after { content: ''; position: absolute; inset: -5px; }
+.command-mic:hover { background: var(--chrome-hover); color: var(--chrome-text); }
+.command-mic[aria-pressed='true'] { background: var(--accent); color: var(--accent-contrast); }
+.command-field[data-listening] { background: rgba(255, 255, 255, .12); box-shadow: inset 0 0 0 1px rgba(157, 178, 255, .6), 0 0 0 4px rgba(47, 91, 255, .18); }
+/* Why dictation stopped early: a note under the bar (screen readers get it from the status region). */
+.command-note { position: absolute; top: calc(100% + 10px); left: 0; right: 0; z-index: 60; margin: 0; padding: 10px 14px; border-radius: var(--r-card);
+  color: var(--text); font-size: 13px; line-height: 1.45; animation: pop-in var(--dur-menu) var(--ease) backwards; }
+@media (forced-colors: active) {
+  .command-mic[aria-pressed='true'] { outline: 2px solid Highlight; outline-offset: 2px; }
+}
 
 /* Simulation note: always visible, full text for assistive tech and on hover */
 .sim-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px; border-radius: var(--r-pill); flex: none;
@@ -144,9 +158,9 @@ html[data-sidebar='expanded'] .nav-tip { display: none; }
 .mobile-nav .nav-pill, .mobile-nav .nav-tip { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-anim='on']) :is(.nav-link, .segment, .persona-trigger, .nav-pill, .segment-pill, .dock-pill, .rail, .page, .dock, .nav-tip, .chrome-btn, .command-field, .rail-toggle-icon) { transition: none !important; }
+  html:not([data-anim='on']) :is(.nav-link, .segment, .persona-trigger, .nav-pill, .segment-pill, .dock-pill, .rail, .page, .dock, .nav-tip, .chrome-btn, .command-field, .command-mic, .rail-toggle-icon) { transition: none !important; }
   html[data-sidebar='expanded']:not([data-anim='on']) .rail .nav-text { animation: none; }
-  .settings-pop { animation: none; }
+  .settings-pop, .command-note { animation: none; }
 }
 @media (max-width: 1180px) {
   .sim-pill .sim-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
