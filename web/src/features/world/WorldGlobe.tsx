@@ -15,7 +15,7 @@ import type { EventCategory, WorldEvent, WorldExposureResponse } from '../../con
 import { useApp } from '../../state/app';
 import { EVENT_CATEGORY, labelOf } from '../../lib/labels';
 import { fmtDate, fmtPct } from '../../lib/format';
-import { countryLabel, decodeCountries, isKnownIso3, type CountryFeature, type Topology } from '../../lib/geo';
+import { countryLabel, decodeCountries, isKnownIso3, regionIso3, type CountryFeature, type Topology } from '../../lib/geo';
 import { CATEGORY_COLORS, EXPOSURE_BREAKS, EXPOSURE_COLORS, PIN_COLORS, type GlobePin } from './globeStyle';
 import type { GlobeViewProps, MapCommand } from './GlobeView';
 import type { GeographicArea } from '../../lib/world';
@@ -180,7 +180,7 @@ export function WorldGlobe({
   const rows = [...exposureRows].filter(row => isKnownIso3(row.countryIso3)).sort((a, b) => b.weightPct - a.weightPct);
   const maxWeight = Math.max(1, ...rows.map(row => row.weightPct));
   const categories = [...new Set(pins.filter(p => p.kind === 'event' && p.category).map(p => p.category as EventCategory))];
-  const selectedRow = selectedCountry ? rows.find(row => row.countryIso3 === selectedCountry) : undefined;
+  const selectedRow = selectedCountry ? rows.find(row => regionIso3(row.countryIso3) === selectedCountry) : undefined;
 
   const globe = webgl === null ? <GlobeLoading /> : !webgl ? (
     <p className="globe-fallback">{tr({ en: 'This browser has no WebGL, so the globe is off. The list beside it and the feed below show the same events and countries.', fr: 'Ce navigateur n’a pas WebGL : le globe est désactivé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>
@@ -271,7 +271,7 @@ export function WorldGlobe({
             <ul className="stage-exposure">
               {rows.slice(0, 6).map(row => (
                 <li key={row.countryIso3}>
-                  <button type="button" className="stage-row" aria-pressed={row.countryIso3 === selectedCountry} onClick={() => onCountry(row.countryIso3)}>
+                  <button type="button" className="stage-row" aria-pressed={regionIso3(row.countryIso3) === selectedCountry} onClick={() => onCountry(row.countryIso3)}>
                     <span className="stage-row-name">{countryLabel(row.countryIso3, lang)}</span>
                     <span className="stage-bar" aria-hidden="true"><span style={{ width: `${(row.weightPct / maxWeight) * 100}%` }} /></span>
                     <span className="stage-row-value">{fmtPct(row.weightPct, lang)}</span>

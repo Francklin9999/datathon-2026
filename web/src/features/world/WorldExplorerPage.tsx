@@ -28,7 +28,7 @@ import {
   WORLD_LAYER, labelOf,
 } from '../../lib/labels';
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct } from '../../lib/format';
-import { countryLabel, isKnownIso3 } from '../../lib/geo';
+import { countryLabel, isKnownIso3, regionIso3 } from '../../lib/geo';
 import {
   EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, GEOGRAPHIC_AREAS, WORLD_MODES, validBbox, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, spatialReferencePins, buildEventsQuery, clampRange,
   defaultRange, eventSelectionPatch, exposureFactId, filtersKey, insideBbox, isResidualExposure, layerState, mergeEventPages, mergeSelection,
@@ -113,7 +113,8 @@ function WorldContent({ profile }: { profile: Profile }) {
   const params = useSearchParams();
   const router = useRouter();
   const eventId = params.get('eventId');
-  const countryIso3 = params.get('country');
+  // An old link to ISR opens its region (Palestine, PSE).
+  const countryIso3 = regionIso3(params.get('country'));
   const runId = params.get('runId');
 
   // A change is merged into the latest selection, not into the values of the render that created the
@@ -255,7 +256,14 @@ function WorldContent({ profile }: { profile: Profile }) {
     signal => getApiClient().worldExposure(profile.profileId, signal));
   const exposureByIso3 = useMemo(() => {
     if (!exposure.data) return null;
-    return new Map(exposure.data.items.filter(row => isKnownIso3(row.countryIso3)).map(row => [row.countryIso3, row.weightPct]));
+    // Keyed by region (ISR is drawn as PSE): two codes of one region add up.
+    const map = new Map<string, number>();
+    for (const row of exposure.data.items) {
+      if (!isKnownIso3(row.countryIso3)) continue;
+      const key = regionIso3(row.countryIso3);
+      map.set(key, (map.get(key) ?? 0) + row.weightPct);
+    }
+    return map;
   }, [exposure.data]);
 
   const facilitiesOn = isOn('facilities');
@@ -342,8 +350,8 @@ function WorldContent({ profile }: { profile: Profile }) {
   };
   const countryOptions = useMemo(() => {
     const codes = new Set<string>();
-    for (const row of exposure.data?.items ?? []) if (isKnownIso3(row.countryIso3)) codes.add(row.countryIso3);
-    for (const event of loaded) if (event.location.countryIso3) codes.add(event.location.countryIso3);
+    for (const row of exposure.data?.items ?? []) if (isKnownIso3(row.countryIso3)) codes.add(regionIso3(row.countryIso3));
+    for (const event of loaded) if (event.location.countryIso3) codes.add(regionIso3(event.location.countryIso3));
     return [...codes].sort();
   }, [exposure.data, loaded]);
 
@@ -363,7 +371,7 @@ function WorldContent({ profile }: { profile: Profile }) {
         bbox={draft.bbox ?? ''} onBbox={bbox => { setArea(''); setDraft(value => ({ ...value, bbox })); }} />
       {!layers.loading && WORLD_MODES.find(item => item.id === mode)!.layers.filter(id => !layerStates[id as LayerId]?.enabled).map(id =>
         <p key={id} className="small" role="status">{labelOf(WORLD_LAYER, id, lang)}: {tr(LAYER_REASON[layerStates[id as LayerId]?.reason ?? 'not_listed'])}</p>)}
-      <WorldGlobe pins={pins} selectedId={observationId ?? eventId} selectedGeometry={observationGeometry} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : null}
+      <WorldGlobe pins={pins} selectedId={observationId ?? eventId} selectedGeometry={observationGeometry} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? regionIso3(countryIso3) : null}
         selectedEvent={selectedEvent} exposure={isOn('exposure') ? exposureByIso3 : null} exposureRows={exposure.data?.items ?? []}
         counts={{ shown: visible.length, total: feed.total, linked: relevantCount }} showHazards={hazardsOn} hazardsLabel={hazardsTitle}
         onPin={onPin} onCountry={selectCountry} onOpenDetails={openDetails} area={GEOGRAPHIC_AREAS.find(item => item.id === area) ?? null} onViewport={queryViewport} />

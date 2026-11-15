@@ -18,7 +18,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { Lang } from '../../contracts/types';
-import { countryCentroid, countryName, hexReadyCountries, outlineLabel, type CountryFeature } from '../../lib/geo';
+import { countryCentroid, countryName, hexReadyCountries, outlineLabel, regionIso3, type CountryFeature } from '../../lib/geo';
 import { islandHexes } from '../../lib/geoHex';
 import { insideBbox, viewportBounds, type GeographicArea } from '../../lib/world';
 import {
@@ -178,7 +178,7 @@ export default function GlobeView({
     if (!exposure) return [];
     const out: Arc[] = [];
     for (const pin of events) {
-      for (const iso3 of pin.related ?? []) {
+      for (const iso3 of (pin.related ?? []).map(code => regionIso3(code))) {
         const end = exposure.has(iso3) ? centroids.get(iso3) : undefined;
         if (!end || (Math.abs(end.lat - pin.lat) < 2 && Math.abs(end.lng - pin.lng) < 2)) continue;
         const color = CATEGORY_COLORS[pin.category ?? 'other'];

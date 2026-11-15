@@ -96,6 +96,12 @@ def test_place_resolves_only_to_a_named_unambiguous_country(place, expected):
     assert resolve_place_country(place) == expected
 
 
+@pytest.mark.parametrize("place", ["20 km N of Haifa, Israel", "Ramallah, Palestine", "Khan Younis, Gaza Strip", "Jenin, West Bank"])
+def test_places_of_one_region_resolve_to_palestine(place):
+    assert resolve_place_country(place) == "PSE"
+    assert country_name("PSE") == {"en": "Palestine", "fr": "Palestine"}
+
+
 @pytest.mark.parametrize("title,expected", [
     ("Apple harvest hits record in Ontario", []), ("Apple Inc. reports quarterly results", ["AAPL"]),
     ("Amazon rainforest fires spread", []), ("Regulator fines Amazon.com over warehouse rules", ["AMZN"]),
