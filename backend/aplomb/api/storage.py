@@ -6,18 +6,57 @@ Documents are JSON, so DynamoDB decimal conversion cannot alter wire numbers.
 """
 
 import copy
-import fcntl
 import hashlib
 import json
 import os
 import tempfile
 import threading
+import time
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
 from .errors import Conflict
+
+try:  # POSIX advisory lock; Windows development machines use a byte-range lock instead.
+    import fcntl
+except ModuleNotFoundError:  # pragma: no cover - exercised on Windows only
+    fcntl = None
+    import msvcrt
+
+
+def _lock_file(stream) -> None:
+    if fcntl is not None:
+        fcntl.flock(stream, fcntl.LOCK_EX)
+        return
+    stream.seek(0)
+    while True:
+        try:
+            # LK_LOCK retries for about ten seconds, then raises; keep waiting like flock.
+            msvcrt.locking(stream.fileno(), msvcrt.LK_LOCK, 1)
+            return
+        except OSError:
+            continue
+
+
+def _unlock_file(stream) -> None:
+    if fcntl is not None:
+        fcntl.flock(stream, fcntl.LOCK_UN)
+        return
+    stream.seek(0)
+    msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+
+
+def _sync_directory(path: Path) -> None:
+    flag = getattr(os, "O_DIRECTORY", None)
+    if flag is None:  # Windows cannot open a directory handle this way; rename is still atomic.
+        return
+    directory = os.open(path, flag)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
 
 
 def canonical(value: object) -> bytes:
@@ -104,6 +143,10 @@ class FileStore(MemoryStore):
 
     The lock file has a stable inode while the data file is replaced. This is
     appropriate for local development on a local filesystem, not NFS/Lambda.
+
+    The parsed file is kept between calls and re-read only when the file changed
+    (another FileStore or process committed). A commit re-encodes only the rows
+    it changed; the file is still written whole, fsynced and renamed.
     """
 
     def __init__(self, path: str | Path):
@@ -111,32 +154,68 @@ class FileStore(MemoryStore):
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.lock_path = self.path.with_suffix(self.path.suffix + ".lock")
+        # Signature of the file version held in _items; None forces a reload.
+        self._loaded: tuple | None = None
+        # key -> (row object, its encoded bytes); valid while that object is still the stored row.
+        self._encoded: dict[str, tuple[dict, bytes]] = {}
+
+    def _signature(self) -> tuple:
+        try:
+            stat = os.stat(self.path)
+        except FileNotFoundError:
+            return ()
+        return (stat.st_ino, stat.st_mtime_ns, stat.st_size)
 
     @contextmanager
     def _access(self, write: bool = False):
         with self._lock, self.lock_path.open("a+") as lock:
-            fcntl.flock(lock, fcntl.LOCK_EX)
+            _lock_file(lock)
             try:
-                self._items = json.loads(self.path.read_text()) if self.path.exists() else {}
-                yield
-                if write:
-                    fd, temp = tempfile.mkstemp(dir=self.path.parent, prefix=".aplomb-")
-                    try:
-                        with os.fdopen(fd, "wb") as stream:
-                            stream.write(canonical(self._items))
-                            stream.flush()
-                            os.fsync(stream.fileno())
-                        os.replace(temp, self.path)
-                        directory = os.open(self.path.parent, os.O_DIRECTORY)
-                        try:
-                            os.fsync(directory)
-                        finally:
-                            os.close(directory)
-                    finally:
-                        if os.path.exists(temp):
-                            os.unlink(temp)
+                signature = self._signature()
+                if signature != self._loaded:
+                    self._loaded, self._encoded = None, {}
+                    self._items = json.loads(self.path.read_bytes()) if signature else {}
+                    self._loaded = signature
+                try:
+                    yield
+                    if write:
+                        self._commit(signature)
+                except Conflict:
+                    # Preconditions fail before any row changes: memory still matches the file.
+                    raise
+                except BaseException:
+                    # Rows changed in memory may not have reached the file: never serve them.
+                    self._loaded = None
+                    raise
             finally:
-                fcntl.flock(lock, fcntl.LOCK_UN)
+                _unlock_file(lock)
+
+    def _commit(self, previous: tuple) -> None:
+        encoded = {}
+        for key in sorted(self._items):
+            item = self._items[key]
+            entry = self._encoded.get(key)
+            if entry is None or entry[0] is not item:
+                entry = (item, canonical(key) + b":" + canonical(item))
+            encoded[key] = entry
+        fd, temp = tempfile.mkstemp(dir=self.path.parent, prefix=".aplomb-")
+        try:
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(b"{")
+                stream.write(b",".join([data for _, data in encoded.values()]))
+                stream.write(b"}")
+                stream.flush()
+                os.fsync(stream.fileno())
+            # Every commit gets a later mtime than the version it replaces, whatever the clock
+            # resolution, so another FileStore never mistakes a new version for the one it holds.
+            stamp = max(time.time_ns(), previous[1] + 1000) if previous else time.time_ns()
+            os.utime(temp, ns=(stamp, stamp))
+            os.replace(temp, self.path)
+            _sync_directory(self.path.parent)
+        finally:
+            if os.path.exists(temp):
+                os.unlink(temp)
+        self._encoded, self._loaded = encoded, self._signature()
 
 
 class BlobStore(Protocol):

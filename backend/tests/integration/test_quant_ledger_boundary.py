@@ -30,3 +30,22 @@ def test_repeated_actual_quant_facts_keep_identity_and_honest_verification():
     assert receipt.sources and len(receipt.method.params["inputSha256"]) == 64
     assert receipt.n_obs > 1000
     assert first.facts[vol.inputs[1]].kind == "assumption"
+
+
+def test_a_declared_verified_flag_without_lineage_is_still_unverified():
+    ledger = Ledger("quant-integration", "2026-11-12", clock=lambda: "2026-11-14T23:00:00Z")
+    engine = QuantEngine(
+        starter_snapshot().gate("2026-11-12"),
+        ledger,
+        currency="CAD",
+        subject_id="integration",
+        created_at="2026-11-14T23:00:00Z",
+    )
+    engine.view({"SPY": 0.5, "XBB.TO": 0.5}, "before", 1000).metrics()
+    template = next(f for f in ledger.export().facts.values() if f.metric == "vol.annualized").to_wire()
+    # Without input facts, a computed figure is verified only by dated sources of its own.
+    for strip in ({"inputs": [], "sources": []}, {"inputs": [], "availableAt": None}):
+        orphan = {**template, **strip, "subject": {**template["subject"], "variant": "orphan:" + "-".join(strip)},
+                  "verification": {"status": "verified", "checks": []}}
+        orphan.pop("id"), orphan.pop("key")
+        assert ledger.get_fact(ledger.add_fact(orphan)).verification.status == "unverified"

@@ -16,11 +16,17 @@ import { Drawer } from './Drawer';
 import { ErrorState, Loading, Unavailable } from './States';
 import { EVIDENCE_TYPE, FACT_KIND, LIMITATION, VERIFICATION, WINDOW, labelOf } from '../../lib/labels';
 import { fmtDate, fmtDateTime } from '../../lib/format';
+import { splitLimitations } from '../../lib/ui/limitations';
 import { ExternalLink } from './ExternalLink';
 
 export type FactScope =
   | { kind: 'run'; runId: string; facts: Record<string, Fact>; evidence: Record<string, Evidence> }
-  | { kind: 'local'; label: I18NText; facts: Record<string, Fact> };
+  | { kind: 'local'; label: I18NText; facts: Record<string, Fact> }
+  /**
+   * Time Machine reveal ledger (POST /runs/{id}/reveal). A namespace of its own: a reveal fact ID is
+   * resolved only in `RevealResult.facts`, never in the run's signed ledger (WEB-06, TMUI-03).
+   */
+  | { kind: 'reveal'; runId: string; until: string; facts: Record<string, Fact> };
 
 export interface DrawerTarget { scope: FactScope; type: 'fact' | 'evidence'; id: string }
 
@@ -63,7 +69,8 @@ export function FactDrawerProvider({ children }: { children: ReactNode }) {
 }
 
 /** Clickable proof chip showing the backend-formatted value. */
-export function FactChip({ factId, display, scope: explicit }: { factId: string; display?: string; scope?: FactScope }) {
+/** `children` may restyle the visible value (e.g. RollingText); the accessible name always uses `display`. */
+export function FactChip({ factId, display, scope: explicit, children }: { factId: string; display?: string; scope?: FactScope; children?: ReactNode }) {
   const contextual = useFactScope();
   const scope = explicit ?? contextual;
   const { openFact } = useFactDrawer();
@@ -75,7 +82,7 @@ export function FactChip({ factId, display, scope: explicit }: { factId: string;
   return (
     <button type="button" className="chip" onClick={() => openFact(scope, factId)}
       aria-label={`${tr({ en: 'Show source for', fr: 'Voir la source de' })} ${label}: ${text}`}>
-      {text}
+      {children ?? text}
     </button>
   );
 }
@@ -93,15 +100,28 @@ export function EvidenceChip({ evidenceId, display }: { evidenceId: string; disp
   );
 }
 
-export function LimitationList({ codes, title }: { codes: readonly string[]; title?: string }) {
+export function LimitationList({ codes, title, compactAfter }: { codes: readonly string[]; title?: string; compactAfter?: number }) {
   const { lang, tr } = useApp();
   if (codes.length === 0) return null;
+  const { shown, folded } = splitLimitations(codes, compactAfter);
   return (
     <div className="limitations">
       <p className="eyebrow">{title ?? tr({ en: 'Limitations', fr: 'Limites' })}</p>
-      <ul className="bullets small">
-        {[...new Set(codes)].map(code => <li key={code}>{labelOf(LIMITATION, code, lang)}</li>)}
-      </ul>
+      {shown.length > 0 && (
+        <ul className="bullets small">
+          {shown.map(code => <li key={code}>{labelOf(LIMITATION, code, lang)}</li>)}
+        </ul>
+      )}
+      {folded.length > 0 && (
+        <details className="limitations-more small">
+          <summary>{shown.length > 0
+            ? tr({ en: `${folded.length} more limitations`, fr: `${folded.length} autres limites` })
+            : tr({ en: `Show ${folded.length} limitations`, fr: `Afficher ${folded.length} limites` })}</summary>
+          <ul className="bullets">
+            {folded.map(code => <li key={code}>{labelOf(LIMITATION, code, lang)}</li>)}
+          </ul>
+        </details>
+      )}
     </div>
   );
 }
@@ -112,10 +132,12 @@ function FactDrawerView({ target, onClose, onOpenFact }: {
   const { tr } = useApp();
   const title = target?.type === 'evidence'
     ? `${tr({ en: 'Evidence', fr: 'Preuve' })} ${target.id}`
-    : `${tr({ en: 'Fact', fr: 'Fait' })} ${target?.id ?? ''}`;
+    : target?.scope.kind === 'reveal'
+      ? `${tr({ en: 'Reveal fact', fr: 'Fait de révélation' })} ${target.id}`
+      : `${tr({ en: 'Fact', fr: 'Fait' })} ${target?.id ?? ''}`;
   return (
     <Drawer open={target !== null} title={title} onClose={onClose}>
-      {target?.type === 'fact' && <FactBody key={`${target.id}`} scope={target.scope} factId={target.id} onOpenFact={onOpenFact} />}
+      {target?.type === 'fact' && <FactBody key={`${target.scope.kind}|${target.id}`} scope={target.scope} factId={target.id} onOpenFact={onOpenFact} />}
       {target?.type === 'evidence' && <EvidenceBody scope={target.scope} evidenceId={target.id} />}
     </Drawer>
   );
@@ -125,9 +147,14 @@ function ScopeNote({ scope }: { scope: FactScope }) {
   const { tr } = useApp();
   return (
     <p className="scope-note small">
-      {scope.kind === 'run'
-        ? <>{tr({ en: 'Ledger of run', fr: 'Registre de l’exécution' })} <span className="mono">{scope.runId}</span></>
-        : tr(scope.label)}
+      {scope.kind === 'run' && <>{tr({ en: 'Ledger of run', fr: 'Registre de l’exécution' })} <span className="mono">{scope.runId}</span></>}
+      {scope.kind === 'reveal' && (
+        <>
+          {tr({ en: 'Reveal ledger (outcomes observed up to', fr: 'Registre de révélation (résultats observés jusqu’au' })} {scope.until}) {tr({ en: 'for run', fr: 'pour l’exécution' })}{' '}
+          <span className="mono">{scope.runId}</span>. {tr({ en: 'Separate from the run’s signed ledger: these facts were not available to the decision.', fr: 'Distinct du registre signé de l’exécution : ces faits n’étaient pas disponibles pour la décision.' })}
+        </>
+      )}
+      {scope.kind === 'local' && tr(scope.label)}
     </p>
   );
 }
@@ -166,7 +193,9 @@ function FactBody({ scope, factId, onOpenFact }: {
     return (
       <>
         <ScopeNote scope={scope} />
-        <Unavailable title={tr({ en: 'This fact is not in this response.', fr: 'Ce fait n’est pas dans cette réponse.' })} />
+        <Unavailable title={scope.kind === 'reveal'
+          ? tr({ en: 'This fact is not in the reveal ledger. It is not looked up in the run’s ledger.', fr: 'Ce fait n’est pas dans le registre de révélation. Il n’est pas recherché dans le registre de l’exécution.' })
+          : tr({ en: 'This fact is not in this response.', fr: 'Ce fait n’est pas dans cette réponse.' })} />
       </>
     );
   }

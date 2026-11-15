@@ -27,6 +27,22 @@ class DocumentRef:
         return hashlib.sha256(self.text.encode("utf-8")).hexdigest()
 
 
+# Methods that are arithmetic or a comparison on stipulated values only. A derived fact produced
+# by any other method must state when its data became available.
+TIMELESS_METHODS = frozenset({"M_PROFILE_ASSUMPTION", "M_WEIGHTS_AFTER_MOVE", "M_USER_INPUT", "M_RULE_COMPARE"})
+
+
+def is_timeless(fact, facts) -> bool:
+    """True when a fact carries no dated source: a user input, a stated assumption, or a figure
+    derived only from such facts (a weight of the stipulated portfolio, a rule status comparing
+    it with a threshold). A fact that read dataset rows is never timeless; it needs ``availableAt``."""
+    if fact.kind in ("input", "assumption"):
+        return True
+    if fact.sources or not fact.inputs or fact.method.id not in TIMELESS_METHODS:
+        return False
+    return all(i in facts and is_timeless(facts[i], facts) for i in fact.inputs)
+
+
 @dataclass(frozen=True)
 class LedgerView:
     facts: dict[str, Fact]
@@ -58,7 +74,13 @@ def format_value(value, unit: str, currency=None, period=None) -> I18nText:
         elif isinstance(value, bool):
             result = ("Yes" if value else "No") if lang == "en" else ("Oui" if value else "Non")
         elif isinstance(value, (int, float)):
-            result = f"{value:,.1f}"
+            if unit in ("cad", "usd") or (unit in ("count", "days") and float(value).is_integer()):
+                decimals = 0
+            elif unit == "pts":
+                decimals = 1
+            else:  # percentages, ratios and other measures keep two decimals (0.25% stays 0.25%)
+                decimals = 2
+            result = f"{value:,.{decimals}f}"
             if lang == "fr":
                 result = result.replace(",", "\u202f").replace(".", ",")
             result = result.replace("-", "−")
@@ -165,9 +187,7 @@ class Ledger:
             candidate.available_at = max(
                 dates, key=lambda t: datetime.fromisoformat(t.replace("Z", "+00:00"))
             )
-        if any(
-            f.available_at is None and f.kind not in ("input", "assumption") for f in dependencies
-        ):
+        if any(f.available_at is None and not is_timeless(f, self._facts) for f in dependencies):
             candidate.available_at = None
         provenance = bool(candidate.method.description.en and candidate.method.description.fr)
         if candidate.kind in ("observed", "evidence"):
@@ -175,11 +195,14 @@ class Ledger:
                 provenance and bool(candidate.sources) and candidate.available_at is not None
             )
         elif candidate.kind in ("computed", "scenario", "rule_check"):
-            provenance = (
-                provenance
-                and bool(dependencies)
-                and all(f.verification.status == "verified" for f in dependencies)
-            )
+            # Lineage is either verified input facts or, for a figure computed straight from
+            # gated dataset rows, the same structure required of an observed fact (dated sources).
+            # A producer's own "verified" declaration is never part of this decision.
+            if dependencies:
+                anchored = all(f.verification.status == "verified" for f in dependencies)
+            else:
+                anchored = bool(candidate.sources) and candidate.available_at is not None
+            provenance = provenance and anchored
         # Incoming model declarations never count as evidence that a check ran.
         candidate.verification = Verification.model_validate(
             {

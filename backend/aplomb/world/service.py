@@ -1,0 +1,412 @@
+"""``WorldService`` for the HTTP API (api.md §6): cached events, exposure by listing country,
+country panel, hazards and layers. Reads only the immutable world bundle and the pinned price
+snapshot; no request ever reaches a third-party source (world SPEC §1).
+
+Every link between an event and a holding is a documented match (company named in the source
+title, theme-tag proxy, listing country). Financial impact is never estimated here.
+"""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import json
+from datetime import date, datetime, timedelta, timezone
+from typing import Callable
+
+from aplomb.api.errors import NotFound, ServiceError, unavailable
+from aplomb.contracts import api as a
+from aplomb.datastore import Snapshot
+from aplomb.quant.facts import FactContext, LocalLedger, fact_key, make_fact
+
+from .dataset import WorldDataError, WorldDataset
+from .geo import UNKNOWN_COUNTRY, country_name, in_bbox
+
+DEFAULT_FEED_DAYS = 30
+MAX_RANGE_DAYS = 366
+CATEGORY_COLORS = {
+    "monetary_policy": "#1F6F8B", "macro_release": "#2E8B8B", "geopolitical": "#8B3A3A", "trade_regulation": "#6B5B95",
+    "corporate": "#B8860B", "energy_commodities": "#8B5A2B", "markets": "#3B6EA5", "natural_disaster": "#A04000",
+    "other": "#6C757D",
+}
+CATEGORY_LABELS = {
+    "monetary_policy": ("Monetary policy", "Politique monétaire"), "macro_release": ("Macro release", "Publication macroéconomique"),
+    "geopolitical": ("Geopolitical", "Géopolitique"), "trade_regulation": ("Trade and regulation", "Commerce et réglementation"),
+    "corporate": ("Corporate", "Entreprises"), "energy_commodities": ("Energy and commodities", "Énergie et matières premières"),
+    "markets": ("Markets", "Marchés"), "natural_disaster": ("Natural disaster", "Catastrophe naturelle"), "other": ("Other", "Autre"),
+}
+# Policy rate first, then inflation (api.md §6.5: "policy rate, CPI where the country is CAN or USA").
+COUNTRY_MACRO = {
+    "CAN": (("V39079", "pct", 2, "Taux cible du financement à un jour de la Banque du Canada"),
+            ("STATIC_TOTALCPICHANGE", "pct", 1, "IPC global du Canada, variation sur douze mois (non désaisonnalisé)")),
+    "USA": (("DFF", "pct", 2, "Taux effectif des fonds fédéraux américains"),
+            # An index level has no unit in the catalog: it is shown as text with its base.
+            ("CPIAUCSL", "text", 1, "IPC des États-Unis, tous consommateurs urbains (indice 1982-84 = 100, désaisonnalisé)")),
+}
+LINK_ORDER = ("named_in_source", "theme", "listing_country")
+# Manifest source record of an event, by the publisher of its primary source.
+SOURCE_BY_PUBLISHER = {"U.S. Geological Survey": "usgs_earthquakes", "Bank of Canada": "boc_press",
+                       "Federal Reserve Board": "fed_monetary", "Statistics Canada": "statcan_daily"}
+
+
+def _t(en: str, fr: str) -> dict:
+    return {"en": en, "fr": fr}
+
+
+def _invalid(message: str, field: str) -> ServiceError:
+    return ServiceError("validation_error", message, {"fields": [{"path": field, "problem": message}]})
+
+
+class WorldServiceImpl:
+    def __init__(self, profiles, snapshot: Callable[[], Snapshot], dataset: Callable[[], WorldDataset],
+                 clock: Callable[[], datetime] | None = None) -> None:
+        self.profiles = profiles
+        self.snapshot = snapshot
+        self._dataset = dataset
+        self.clock = clock or (lambda: datetime.now(timezone.utc))
+
+    # Shared helpers ---------------------------------------------------------------------------
+
+    def dataset(self) -> WorldDataset:
+        try:
+            return self._dataset()
+        except WorldDataError as exc:
+            raise unavailable("World events dataset") from exc
+
+    def _now(self) -> str:
+        return self.clock().astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def _universe(self):
+        snap = self.snapshot()
+        return snap.gate(snap.data_as_of, "current").universe()
+
+    def _holdings(self, session_id: str, profile_id: str) -> list[tuple[object, float]]:
+        """(asset record, weight in percent) for each position of the session's effective profile."""
+        profile = self.profiles.get(session_id, profile_id)
+        universe = self._universe()
+        return [(universe.get(p.ticker), p.weight_pct) for p in profile.portfolio.positions if p.weight_pct > 0]
+
+    @staticmethod
+    def _country_weights(holdings) -> dict[str, list[tuple[str, float]]]:
+        out: dict[str, list[tuple[str, float]]] = {}
+        for asset, weight in holdings:
+            out.setdefault(asset.country or UNKNOWN_COUNTRY, []).append((asset.ticker, weight))
+        return out
+
+    def _range(self, ds: WorldDataset, query: dict, default_days: int) -> tuple[str, str]:
+        coverage = ds.coverage
+        if coverage is None:
+            raise unavailable("World events dataset")
+        start, end = query.get("from"), query.get("to")
+        # A single bound outside the dataset selects nothing; it is kept as a one-day range so no
+        # date arithmetic runs on it (year 0001 or 9999 would overflow).
+        if end is None and start is not None and start > coverage["end"]:
+            end = start
+        if start is None and end is not None and end < coverage["start"]:
+            start = end
+        if end is None:
+            end = coverage["end"] if start is None else min(
+                coverage["end"], (date.fromisoformat(start) + timedelta(days=MAX_RANGE_DAYS)).isoformat())
+            end = max(end, start) if start else end
+        if start is None:
+            start = (date.fromisoformat(end) - timedelta(days=default_days - 1)).isoformat()
+        days = (date.fromisoformat(end) - date.fromisoformat(start)).days
+        if not 0 <= days <= MAX_RANGE_DAYS:
+            raise _invalid("date range must contain 0 to 366 days", "from")
+        return start, end
+
+    @staticmethod
+    def _wire_event(event: dict) -> dict:
+        return dict(event)
+
+    def provenance(self, event: dict) -> dict:
+        """When and under which terms the event row was retrieved, from the bundle manifest."""
+        ds = self.dataset()
+        wanted = SOURCE_BY_PUBLISHER.get(event["sources"][0]["publisher"])
+        record = next((s for s in ds.manifest["sources"] if s["id"] == wanted), {})
+        return {"builtAt": ds.built_at, "retrievedAt": record.get("retrievedAt", ds.built_at),
+                "licence": record.get("terms", "unknown"), "sourceName": record.get("name", event["sources"][0]["publisher"])}
+
+    # 6.1 layers -------------------------------------------------------------------------------
+
+    def layers(self, session_id: str, query: dict) -> a.WorldLayersResponse:
+        try:
+            ds: WorldDataset | None = self._dataset()
+        except WorldDataError:
+            ds = None
+        events_ok = ds is not None and bool(ds.events)
+        hazards_ok = ds is not None and bool(ds.hazards)
+        categories = sorted(ds.manifest["events"]["byCategory"]) if events_ok else []
+        items = [
+            {"layerId": "events", "title": _t("Events", "Événements"), "tier": "P1", "available": events_ok,
+             "datasetIds": ["world_events"],
+             "legend": [{"label": _t(*CATEGORY_LABELS[c]), "color": CATEGORY_COLORS[c]} for c in categories],
+             "count": len(ds.events) if events_ok else None, "coverage": ds.coverage if events_ok else None},
+            {"layerId": "exposure", "title": _t("Portfolio weight by listing country", "Poids du portefeuille par pays de cotation"),
+             "tier": "P1", "available": True, "datasetIds": ["assets_universe"],
+             "legend": [{"label": _t("Share of the portfolio listed in the country", "Part du portefeuille cotée dans le pays"),
+                         "color": "#1F6F8B"}],
+             "count": None, "coverage": None},
+            {"layerId": "facilities", "title": _t("Emissions facilities", "Installations émettrices"), "tier": "P2",
+             "available": False, "datasetIds": ["emissions_facilities"], "legend": [], "count": None, "coverage": None},
+            {"layerId": "hazards", "title": _t("Earthquakes (USGS)", "Séismes (USGS)"), "tier": "P2", "available": hazards_ok,
+             "datasetIds": ["natural_hazards"],
+             "legend": [{"label": _t("Earthquake, magnitude 6 or more", "Séisme de magnitude 6 ou plus"), "color": "#A04000"}],
+             "count": len(ds.hazards) if hazards_ok else None,
+             "coverage": ds.manifest["hazards"]["coverage"] if hazards_ok else None},
+        ]
+        return a.WorldLayersResponse.model_validate({"items": items})
+
+    # 6.2 events -------------------------------------------------------------------------------
+
+    def _filter(self, ds: WorldDataset, query: dict, start: str, end: str) -> list[dict]:
+        categories = set(query.get("category") or [])
+        countries = set(query.get("country") or [])
+        origins = set(query.get("origin") or [])
+        allowed = {"gdelt", "official", "curated", "usgs", "firms", "live"}
+        if origins - allowed:
+            raise _invalid("origin must be one of " + ", ".join(sorted(allowed)), "origin")
+        needle = (query.get("q") or "").strip().casefold()
+        ticker, theme = query.get("ticker"), query.get("theme")
+        bbox = tuple(float(v) for v in query["bbox"].split(",")) if query.get("bbox") else None
+        out = []
+        for ev in ds.events:
+            if not start <= ev["occurredAt"] <= end:
+                continue
+            if categories and ev["category"] not in categories:
+                continue
+            if origins and ev["origin"] not in origins:
+                continue
+            if countries and not (countries & set(ev["relatedCountries"])):
+                continue
+            if ticker and ticker not in ev["relatedTickers"]:
+                continue
+            if theme and theme not in ev["relatedThemes"]:
+                continue
+            if bbox and not in_bbox(ev["location"]["lat"], ev["location"]["lon"], bbox):
+                continue
+            if needle and needle not in ev["title"].casefold() and not any(
+                    needle in s["publisher"].casefold() for s in ev["sources"]):
+                continue
+            out.append(ev)
+        return out
+
+    @staticmethod
+    def _sorted(events: list[dict], sort: str) -> list[dict]:
+        if sort == "date":
+            return sorted(events, key=lambda e: (e["occurredAt"], e["eventId"]), reverse=True)
+        return sorted(events, key=lambda e: (-e["importance"], _neg_date(e["occurredAt"]), e["eventId"]))
+
+    def events(self, session_id: str, query: dict) -> a.WorldEventsResponse:
+        ds = self.dataset()
+        start, end = self._range(ds, query, DEFAULT_FEED_DAYS)
+        sort = query.get("sort", "importance")
+        matches = self._sorted(self._filter(ds, query, start, end), sort)
+        limit = int(query.get("limit", 300))
+        # The cursor is bound to the filter set, so a cursor cannot be replayed on another query.
+        signature = hashlib.sha256(json.dumps(
+            {k: query.get(k) for k in ("category", "country", "origin", "q", "ticker", "theme", "bbox")}
+            | {"from": start, "to": end, "sort": sort, "v": ds.version}, sort_keys=True).encode()).hexdigest()[:16]
+        offset = 0
+        if query.get("cursor"):
+            try:
+                decoded = json.loads(base64.urlsafe_b64decode(query["cursor"].encode()))
+                if decoded["k"] != signature or type(decoded["o"]) is not int or decoded["o"] < 0:
+                    raise ValueError
+                offset = decoded["o"]
+            except Exception as exc:
+                raise _invalid("cursor is invalid for this query", "cursor") from exc
+        page = matches[offset:offset + limit]
+        next_cursor = None
+        if offset + limit < len(matches):
+            next_cursor = base64.urlsafe_b64encode(json.dumps({"k": signature, "o": offset + limit}).encode()).decode()
+        relevant = None
+        if query.get("profileId"):
+            holdings = self._holdings(session_id, query["profileId"])
+            held = {asset.ticker for asset, _ in holdings}
+            exposed = {c for c in self._country_weights(holdings) if c != UNKNOWN_COUNTRY}
+            relevant = (held, exposed)
+        items = []
+        for ev in page:
+            item = self._wire_event(ev)
+            if relevant is not None:
+                item["portfolioRelevant"] = bool(relevant[0] & set(ev["relatedTickers"]) or relevant[1] & set(ev["relatedCountries"]))
+            items.append(item)
+        return a.WorldEventsResponse.model_validate({
+            "items": items, "nextCursor": next_cursor, "total": len(matches), "coverage": ds.coverage, "dataVersion": ds.version})
+
+    # 6.3 one event ----------------------------------------------------------------------------
+
+    def link_candidates(self, event: dict, holdings) -> list[dict]:
+        """Code-only matches, strongest link per holding; never ``documented_exposure`` (api.md §6.3)."""
+        rows = []
+        for asset, weight in holdings:
+            links = []
+            if asset.ticker in event["relatedTickers"]:
+                links.append(("named_in_source", _t(
+                    f"{asset.name} is named in the source title. Financial impact not established.",
+                    f"{asset.name} est nommée dans le titre de la source. Incidence financière non établie.")))
+            shared = sorted(set(asset.themes) & set(event["relatedThemes"]))
+            if shared:
+                tags = ", ".join(shared)
+                links.append(("theme", _t(
+                    f"Proxy link (team assumption): the holding carries the theme tag {tags}, which this kind of event is "
+                    "tagged with. Financial impact not established.",
+                    f"Lien indirect (hypothèse de l'équipe) : le titre porte l'étiquette thématique {tags}, associée à ce type "
+                    "d'événement. Incidence financière non établie.")))
+            if asset.country and asset.country in event["relatedCountries"]:
+                place = country_name(asset.country)
+                links.append(("listing_country", _t(
+                    f"Proxy link: listed on an exchange in {place['en']}. A listing location is not revenue or operational "
+                    "exposure. Financial impact not established.",
+                    f"Lien indirect : coté sur une bourse du pays suivant : {place['fr']}. Un lieu de cotation n'est pas une "
+                    "exposition aux revenus ou aux activités. Incidence financière non établie.")))
+            if links:
+                link, note = min(links, key=lambda item: LINK_ORDER.index(item[0]))
+                rows.append({"ticker": asset.ticker, "weightPct": min(weight, 100.0), "linkType": link, "evidenceIds": [],
+                             "impact": "not_established", "impactFactId": None, "note": note})
+        rows.sort(key=lambda r: (LINK_ORDER.index(r["linkType"]), -r["weightPct"], r["ticker"]))
+        return rows
+
+    def event(self, session_id: str, event_id: str, query: dict) -> a.WorldEventResponse:
+        ds = self.dataset()
+        event = ds.event(event_id)
+        if event is None:
+            raise NotFound(f"Unknown event {event_id}")
+        related = []
+        if event["relatedCountries"]:
+            day = date.fromisoformat(event["occurredAt"])
+            lo, hi = (day - timedelta(days=7)).isoformat(), (day + timedelta(days=7)).isoformat()
+            related = [e for e in ds.events if e["eventId"] != event_id and lo <= e["occurredAt"] <= hi
+                       and set(e["relatedCountries"]) & set(event["relatedCountries"])]
+            related = self._sorted(related, "importance")[:10]
+        exposures = []
+        if query.get("profileId"):
+            exposures = self.link_candidates(event, self._holdings(session_id, query["profileId"]))
+        return a.WorldEventResponse.model_validate({
+            "event": self._wire_event(event), "related": [self._wire_event(e) for e in related], "exposures": exposures})
+
+    # 6.4 exposure -----------------------------------------------------------------------------
+
+    def _exposures(self, session_id: str, profile_id: str) -> tuple[list[dict], dict]:
+        snap = self.snapshot()
+        gate = snap.gate(snap.data_as_of, "current")
+        passport = gate.describe("assets_universe")
+        ctx = FactContext(snap.data_as_of, self._now(), snap.data_version)
+        ledger = LocalLedger()
+        weights = self._country_weights(self._holdings(session_id, profile_id))
+        items = []
+        ordered = sorted(weights.items(), key=lambda kv: (kv[0] == UNKNOWN_COUNTRY, -sum(w for _, w in kv[1]), kv[0]))
+        for iso3, rows in ordered:
+            total = min(sum(w for _, w in rows), 100.0)
+            name = country_name(iso3)
+            ledger.add_fact(make_fact(
+                ctx, key=fact_key("weight.country", "country", iso3, "before", "weights"), kind="computed", metric="weight.country",
+                label=_t(f"Portfolio weight listed in: {name['en']}", f"Poids du portefeuille coté : {name['fr']}"),
+                value=total, unit="pct", currency=None, subject={"type": "country", "id": iso3, "variant": "before"},
+                method_id="M_PROFILE_ASSUMPTION", created_by="world",
+                params={"profile": profile_id, "basis": "listing_country", "holdings": ", ".join(t for t, _ in rows)},
+                sources=[{"datasetId": "assets_universe", "dataVersion": snap.data_version, "sourceName": passport["source"],
+                          "sourceUrl": passport["sourceUrl"], "retrievedOn": passport["retrievedOn"] or snap.data_as_of,
+                          "licence": passport["licence"], "rowsRead": len(rows)}],
+                limitations=["LIM_ETF_NO_LOOKTHROUGH"],
+                checks=[{"code": "listing_country_sum", "ok": True,
+                         "detail": "Sum of the profile's position weights whose listing market is in this country; "
+                                   "funds count at their own listing, crypto and cash have no country."}]))
+            items.append({"countryIso3": iso3, "weightPct": total, "basis": "listing_country",
+                          "holdings": [{"ticker": t, "weightPct": min(w, 100.0)} for t, w in sorted(rows, key=lambda r: (-r[1], r[0]))]})
+        return items, ledger.wire()
+
+    def exposure(self, session_id: str, query: dict) -> a.WorldExposureResponse:
+        items, facts = self._exposures(session_id, query["profileId"])
+        return a.WorldExposureResponse.model_validate({
+            "items": items,
+            "basisNote": _t(
+                "Weights by the country of the exchange where each holding is listed. A fund counts at its own listing "
+                f"(no look-through). Crypto and cash have no listing country and are shown under {UNKNOWN_COUNTRY}. "
+                "A listing country is not revenue or operational exposure.",
+                "Poids selon le pays de la bourse où chaque titre est coté. Un fonds compte à son propre lieu de cotation "
+                f"(sans transparence). Les cryptoactifs et les liquidités n'ont pas de pays de cotation et figurent sous {UNKNOWN_COUNTRY}. "
+                "Un pays de cotation n'est pas une exposition aux revenus ou aux activités."),
+            "limitations": ["LIM_ETF_NO_LOOKTHROUGH", "LIM_IMPACT_NOT_ESTABLISHED"], "facts": facts})
+
+    # 6.5 country panel ------------------------------------------------------------------------
+
+    def _macro_facts(self, iso3: str) -> list[dict]:
+        snap = self.snapshot()
+        gate = snap.gate(snap.data_as_of, "current")
+        passport = gate.describe("macro_rates")
+        ctx = FactContext(snap.data_as_of, self._now(), snap.data_version)
+        ledger = LocalLedger()
+        for series_id, unit, decimals, label_fr in COUNTRY_MACRO.get(iso3, ()):
+            sl = gate.macro(series_id, None, None)
+            if not sl.rows:
+                continue
+            row = sl.rows[-1]
+            value = float(row["value"]) if unit != "text" else f"{float(row['value']):.{decimals}f}"
+            ledger.add_fact(make_fact(
+                ctx, key=fact_key("macro.level", "macro", series_id, "na", "latest"), kind="observed", metric="macro.level",
+                label=_t(row["label"], label_fr), value=value, unit=unit, currency=None,
+                subject={"type": "macro", "id": series_id, "variant": "na"}, method_id="M_OBSERVED_ROW", created_by="world",
+                period={"start": row["date"], "end": row["date"]}, available_at=row.get("available_at"),
+                params={"seriesId": series_id, "referenceDate": row["date"], "sourceUnit": row["unit"]}, n_obs=1,
+                sources=[{"datasetId": "macro_rates", "dataVersion": snap.data_version, "sourceName": row["source"],
+                          "sourceUrl": passport["sourceUrl"], "retrievedOn": passport["retrievedOn"] or snap.data_as_of,
+                          "licence": passport["licence"], "rowsRead": 1}],
+                limitations=list(sl.limitations), decimals=decimals,
+                checks=[{"code": "gated_inputs", "ok": True,
+                         "detail": f"Latest row visible through the temporal gate (current, as of {snap.data_as_of}); "
+                                   f"{sl.rows_withheld} later row(s) withheld."}]))
+        return list(ledger.wire().values())
+
+    def country(self, session_id: str, iso3: str, query: dict) -> a.WorldCountryResponse:
+        if len(iso3) != 3 or not iso3.isascii() or not iso3.isalpha() or not iso3.isupper():
+            raise _invalid("country must be an uppercase ISO 3166-1 alpha-3 code", "iso3")
+        ds = self.dataset()
+        start, end = self._range(ds, query, MAX_RANGE_DAYS)
+        exposure = None
+        if query.get("profileId"):
+            exposure = next((item for item in self._exposures(session_id, query["profileId"])[0]
+                             if item["countryIso3"] == iso3), None)
+        events = [e for e in ds.events if start <= e["occurredAt"] <= end and iso3 in e["relatedCountries"]]
+        return a.WorldCountryResponse.model_validate({
+            "countryIso3": iso3, "name": country_name(iso3), "exposure": exposure,
+            "events": [self._wire_event(e) for e in self._sorted(events, "importance")[:20]],
+            "macro": self._macro_facts(iso3)})
+
+    # 6.6 / 6.7 optional layers ----------------------------------------------------------------
+
+    def facilities(self, session_id: str, query: dict) -> a.FacilitiesResponse:
+        # No facility registry is loaded (cut-list item 2); the layer reports available = false.
+        raise unavailable("Emissions facilities dataset")
+
+    def hazards(self, session_id: str, query: dict) -> a.HazardsResponse:
+        ds = self.dataset()
+        if not ds.hazards:
+            raise unavailable("Natural hazards dataset")
+        kind = query.get("type")
+        if kind is not None and kind not in ("earthquake", "wildfire"):
+            raise _invalid("type must be earthquake or wildfire", "type")
+        start, end = query.get("from"), query.get("to")
+        bbox = tuple(float(v) for v in query["bbox"].split(",")) if query.get("bbox") else None
+        out = [h for h in ds.hazards
+               if (kind is None or h["type"] == kind)
+               and (start is None or h["occurredAt"][:10] >= start) and (end is None or h["occurredAt"][:10] <= end)
+               and (bbox is None or in_bbox(h["lat"], h["lon"], bbox))]
+        out.sort(key=lambda h: (h["occurredAt"], h["hazardId"]), reverse=True)
+        return a.HazardsResponse.model_validate({"items": out[:int(query.get("limit", 500))], "total": len(out)})
+
+    # Research tool (contracts/tools.md §5: world.search_events) --------------------------------
+
+    def search_events(self, q: str | None = None, country: str | None = None, ticker: str | None = None,
+                      start: str | None = None, end: str | None = None, limit: int = 20, as_of: str | None = None) -> list[dict]:
+        """Events from our own dataset; nothing after ``as_of`` is returned."""
+        ds = self.dataset()
+        query = {"q": q, "country": [country] if country else None, "ticker": ticker}
+        hi = min(x for x in (end, as_of, ds.coverage["end"]) if x)
+        lo = start or ds.coverage["start"]
+        return self._sorted(self._filter(ds, query, lo, hi), "importance")[:max(1, min(int(limit), 50))]
+
+
+def _neg_date(iso: str) -> int:
+    return -date.fromisoformat(iso).toordinal()
