@@ -16,7 +16,7 @@ import { Card, PageHeader } from '../../components/common/Page';
 import { ErrorState, Loading, Unavailable } from '../../components/common/States';
 import { RunStatusBadge } from '../../components/common/Badges';
 import { RunTimeline } from '../../components/run/RunTimeline';
-import { ASSET_CLASS, EXPERIENCE, OBJECTIVE, RISK_LEVEL, labelOf } from '../../lib/labels';
+import { ASSET_CLASS, EXPERIENCE, OBJECTIVE, RISK_LEVEL, labelOf, THEME_TAG } from '../../lib/labels';
 import { fmtMoney } from '../../lib/format';
 import { MAX_POSITIONS, weightSum } from '../../lib/holdings';
 import {
@@ -32,7 +32,7 @@ const ASSET_CLASSES = Object.keys(ASSET_CLASS) as AssetClass[];
 const THEME_TAGS = Object.values(THEMES) as ThemeTag[];
 
 const FIELD_LABEL: Record<string, I18NText> = {
-  name: { en: 'Display label', fr: 'Libellé' },
+  name: { en: 'Name', fr: 'Nom' },
   age: { en: 'Age', fr: 'Âge' },
   riskLevel: { en: 'Risk level', fr: 'Niveau de risque' },
   horizonMin: { en: 'Horizon minimum', fr: 'Horizon minimum' },
@@ -144,8 +144,8 @@ function ProfilesContent() {
 
   return (
     <>
-      <PageHeader eyebrow={tr({ en: 'Fictional profiles', fr: 'Profils fictifs' })} title={tr({ en: 'Create or edit a fictional profile', fr: 'Créer ou modifier un profil fictif' })}>
-        <p className="page-sub">{tr({ en: 'For simulation only. Do not enter real personal, contact or account information. This is not an advisory onboarding.', fr: 'Pour la simulation seulement. N’entrez aucune information personnelle, de contact ou de compte réelle. Ceci n’est pas une ouverture de compte-conseil.' })}</p>
+      <PageHeader tour="profiles-header" title={tr({ en: 'Fictional profiles', fr: 'Profils fictifs' })}>
+        <p className="page-sub">{tr({ en: 'Fictional profiles only: don’t enter real personal details.', fr: 'Profils fictifs seulement : n’entrez aucune donnée personnelle réelle.' })}</p>
       </PageHeader>
 
       <Card title={tr({ en: 'Profiles in this session', fr: 'Profils de cette session' })}>
@@ -172,7 +172,7 @@ function ProfilesContent() {
       }} />
 
       <Card id="profile-form" title={editing.mode === 'update'
-        ? tr({ en: `Edit custom profile (version ${editing.version})`, fr: `Modifier le profil (version ${editing.version})` })
+        ? tr({ en: 'Edit custom profile', fr: 'Modifier le profil' })
         : tr({ en: 'New fictional profile', fr: 'Nouveau profil fictif' })}>
         <form noValidate onSubmit={e => { e.preventDefault(); void save(); }}>
           {submitted && issues.length > 0 && (
@@ -239,7 +239,7 @@ function ProfilesContent() {
                 </select>
               </div>
               <div className="field">
-                <label htmlFor="pf-sectors">{tr({ en: 'Excluded sectors (comma-separated labels)', fr: 'Secteurs exclus (libellés séparés par des virgules)' })}</label>
+                <label htmlFor="pf-sectors">{tr({ en: 'Excluded sectors, separated by commas', fr: 'Secteurs exclus, séparés par des virgules' })}</label>
                 <input id="pf-sectors" type="text" value={form.excludedSectors} onChange={e => set({ excludedSectors: e.target.value })} />
               </div>
             </div>
@@ -248,7 +248,7 @@ function ProfilesContent() {
               <div className="checks">
                 {THEME_TAGS.map(theme => (
                   <label key={theme}><input type="checkbox" checked={form.themesOfInterest.includes(theme)}
-                    onChange={e => set({ themesOfInterest: e.target.checked ? [...form.themesOfInterest, theme] : form.themesOfInterest.filter(t => t !== theme) })} /> <span className="mono small">{theme}</span></label>
+                    onChange={e => set({ themesOfInterest: e.target.checked ? [...form.themesOfInterest, theme] : form.themesOfInterest.filter(t => t !== theme) })} /> {labelOf(THEME_TAG, theme, lang)}</label>
                 ))}
               </div>
               <div className="checks" style={{ marginTop: 8 }}>
@@ -259,7 +259,7 @@ function ProfilesContent() {
               </div>
             </details>
             <div className="field" style={{ marginTop: 8 }}>
-              <label htmlFor="pf-notes">{tr({ en: 'Notes (kept verbatim, never interpreted by code)', fr: 'Notes (conservées telles quelles, jamais interprétées)' })}</label>
+              <label htmlFor="pf-notes">{tr({ en: 'Notes', fr: 'Notes' })}</label>
               <textarea id="pf-notes" value={form.notes} onChange={e => set({ notes: e.target.value })} />
             </div>
           </fieldset>
@@ -303,7 +303,7 @@ function ProfilesContent() {
           {unresolved.length > 0 && (
             <div className="state" style={{ marginTop: 12 }}>
               <p className="state-title">{tr({ en: 'Questions the draft could not resolve', fr: 'Questions que le brouillon n’a pas pu résoudre' })}</p>
-              <ul className="bullets small">{unresolved.map(u => <li key={u.field}><span className="mono">{u.field}</span>: {tr(u.question)}</li>)}</ul>
+              <ul className="bullets small">{unresolved.map(u => <li key={u.field}>{FIELD_LABEL[u.field] ? `${tr(FIELD_LABEL[u.field]!)}: ` : ''}{tr(u.question)}</li>)}</ul>
             </div>
           )}
           {needsConfirmation && (
@@ -361,7 +361,7 @@ function DraftFromText({ onApply }: { onApply: (run: Run, draft: ProfileDraftRes
       <div className="field">
         <label htmlFor="draft-text">{tr({ en: 'Description', fr: 'Description' })}</label>
         <textarea id="draft-text" value={text} maxLength={2000} onChange={e => setText(e.target.value)} />
-        <span className="hint">{tr({ en: 'A draft run proposes fields with explanations. Nothing is saved until you confirm in the form.', fr: 'Une exécution de brouillon propose des champs avec explications. Rien n’est enregistré avant votre confirmation.' })}</span>
+        <span className="hint">{tr({ en: 'Fields are proposed for review; nothing is saved until you confirm.', fr: 'Les champs sont proposés pour révision ; rien n’est enregistré sans confirmation.' })}</span>
       </div>
       <div className="row-actions"><button type="button" className="btn ghost" disabled={!text.trim() || busy} onClick={() => void start()}>{tr({ en: 'Draft a profile', fr: 'Rédiger un brouillon' })}</button></div>
       {error && <ErrorState error={error} />}
@@ -376,7 +376,7 @@ function DraftFromText({ onApply }: { onApply: (run: Run, draft: ProfileDraftRes
       {run && draft && (
         <div className="state">
           <p className="state-title">{tr({ en: 'Draft ready — review before applying', fr: 'Brouillon prêt — vérifiez avant de l’appliquer' })}</p>
-          <ul className="bullets small">{draft.explanations.map(e => <li key={e.field}><span className="mono">{e.field}</span>: {tr(e.text)}</li>)}</ul>
+          <ul className="bullets small">{draft.explanations.map(e => <li key={e.field}>{FIELD_LABEL[e.field] ? `${tr(FIELD_LABEL[e.field]!)}: ` : ''}{tr(e.text)}</li>)}</ul>
           {draft.unresolved.length > 0 && <p className="small">{tr({ en: `${draft.unresolved.length} question(s) remain open.`, fr: `${draft.unresolved.length} question(s) restent ouvertes.` })}</p>}
           <button type="button" className="btn btn-sm" onClick={() => onApply(run, draft)}>{tr({ en: 'Apply draft to the form (provisional)', fr: 'Appliquer le brouillon au formulaire (provisoire)' })}</button>
         </div>

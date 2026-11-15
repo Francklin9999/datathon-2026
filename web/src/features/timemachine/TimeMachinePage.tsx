@@ -30,13 +30,15 @@ import { RUN_STATUS, labelOf } from '../../lib/labels';
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct, fmtSignedPct } from '../../lib/format';
 import { describeRequest, moveOf, roundSize, validateMoveForm, type MoveForm } from '../../lib/move';
 import { isTerminal } from '../../lib/runs';
+import { readPref, writePref } from '../../lib/session';
 import {
   AS_OF_ISSUE, UNTIL_ISSUE, asOfIssue, factForValue, replayRefusal, revealBounds, revealRequest, revealSeries,
   revealableReplay, signedLedgerHash, untilIssue,
 } from '../../lib/replay';
 
 const EMPTY_FORM: MoveForm = { ticker: '', sizePct: 0, fundingMode: 'auto', fromTickers: [] };
-const TITLE = { en: 'Time Machine', fr: 'Machine à remonter le temps' };
+const TITLE = { en: 'Replay a move at a past date', fr: 'Rejouer un mouvement à une date passée' };
+const WARNING_SEEN = 'timemachine.warning.seen';
 
 export function TimeMachinePage() {
   const { tr, feature, meta } = useApp();
@@ -53,19 +55,23 @@ export function TimeMachinePage() {
   return <ProfileGate>{profile => <TimeMachineContent profile={profile} />}</ProfileGate>;
 }
 
-/** Fixed wording (page spec): shown before analysis and next to every result. */
+/** Fixed wording (page spec): shown before analysis. Open on the first visit, folded afterwards. */
 function FixedWarning() {
   const { tr } = useApp();
+  const [open] = useState(() => readPref(WARNING_SEEN) !== 'true');
+  useEffect(() => { writePref(WARNING_SEEN, 'true'); }, []);
   return (
-    <div className="state tm-warning" role="note">
-      <p className="state-title">{tr({ en: 'What this replay can and cannot show', fr: 'Ce que ce rejeu peut et ne peut pas montrer' })}</p>
+    <details className="fold tm-warning" role="note" open={open} data-tour="tm-warning">
+      <summary>{tr({ en: 'What this replay can and cannot show', fr: 'Ce que ce rejeu peut et ne peut pas montrer' })}</summary>
+      <div className="fold-body">
       <ul className="bullets small">
         <li>{tr({ en: 'The language model’s knowledge is not erased. Figures come from date-filtered data, but wording may reflect what happened later.', fr: 'Les connaissances du modèle de langage ne sont pas effacées. Les chiffres viennent de données filtrées par date, mais la formulation peut refléter ce qui s’est passé ensuite.' })}</li>
         <li>{tr({ en: 'Prices are adjusted and macro series are revised: this is not the data as originally published on that date.', fr: 'Les prix sont ajustés et les séries macro révisées : ce ne sont pas les données telles que publiées à cette date.' })}</li>
         <li>{tr({ en: 'The asset universe was selected later, among names that are large today.', fr: 'L’univers d’actifs a été choisi plus tard, parmi des titres importants aujourd’hui.' })}</li>
         <li>{tr({ en: 'This is a historical simulation, not a validation of any forecast and not an offline replay of a real decision.', fr: 'C’est une simulation historique, pas la validation d’une prévision ni le rejeu hors ligne d’une décision réelle.' })}</li>
       </ul>
-    </div>
+      </div>
+    </details>
   );
 }
 
@@ -132,16 +138,16 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
 
   return (
     <>
-      <PageHeader eyebrow={tr(TITLE)}
-        title={tr({ en: `Replay a hypothetical move for ${profile.name} with an information cutoff`, fr: `Rejouer un mouvement hypothétique pour ${profile.name} avec une date limite d’information` })}>
-        <p className="page-sub">{tr({ en: 'Choose a past date. The rule checks and figures use only data rows available on that date. What happened afterwards stays hidden until you ask to reveal it.', fr: 'Choisissez une date passée. Les vérifications et les chiffres n’utilisent que les lignes de données disponibles à cette date. La suite reste masquée jusqu’à ce que vous demandiez de la révéler.' })}</p>
+      <PageHeader tour="tm-header"
+        title={tr(TITLE)}>
+        <p className="page-sub">{tr({ en: `Pick a date, a move for ${profile.name}, then reveal what happened next.`, fr: `Choisissez une date, un mouvement pour ${profile.name}, puis révélez la suite.` })}</p>
       </PageHeader>
 
       <FixedWarning />
 
       <div className="cols">
         <div>
-          <Card id="cutoff" title={tr({ en: 'Information cutoff', fr: 'Date limite d’information' })}>
+          <Card id="cutoff" section={tr({ en: 'Date', fr: 'Date' })} tour="tm-cutoff" title={tr({ en: 'Information cutoff', fr: 'Date limite d’information' })}>
             {presets.loading && <Loading label={tr({ en: 'Loading the dates the data supports…', fr: 'Chargement des dates prises en charge par les données…' })} />}
             {presets.error && (
               <ErrorState error={presets.error} onRetry={presets.reload}
@@ -152,7 +158,7 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
                 <p className="small">
                   {tr({ en: 'Supported cutoff dates', fr: 'Dates limites prises en charge' })}:{' '}
                   <strong>{fmtDate(presets.data.earliestAsOf, lang)}</strong> → <strong>{fmtDate(presets.data.latestAsOf, lang)}</strong>.{' '}
-                  {tr({ en: 'Earlier dates lack the history the calculations need; later dates leave too little data to reveal.', fr: 'Les dates antérieures manquent de l’historique nécessaire aux calculs ; les dates postérieures laissent trop peu de données à révéler.' })}
+                  {tr({ en: 'Earlier dates lack history; later ones leave nothing to reveal.', fr: 'Avant : historique insuffisant ; après : rien à révéler.' })}
                 </p>
                 {presets.data.presets.length === 0 ? (
                   <p className="small muted">{tr({ en: 'No preset date was computed from the loaded data. Enter a date in the supported range.', fr: 'Aucune date prédéfinie n’a été calculée à partir des données chargées. Saisissez une date dans la plage prise en charge.' })}</p>
@@ -162,7 +168,6 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
                       <li key={`${preset.asOf}-${preset.label.en}`}>
                         <button type="button" className="preset" aria-pressed={asOf === preset.asOf} onClick={() => chooseAsOf(preset.asOf)}>
                           <span className="preset-label">{tr(preset.label)}</span>
-                          <span className="mono small">{preset.asOf}</span>
                           <span className="small preset-why">{tr(preset.why)}</span>
                         </button>
                       </li>
@@ -174,34 +179,33 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
                   <input id="tm-asof" type="date" value={asOf} min={presets.data.earliestAsOf} max={presets.data.latestAsOf}
                     onChange={e => chooseAsOf(e.target.value)} aria-invalid={Boolean(asOf && dateIssue)} aria-describedby="tm-asof-hint" />
                   <span id="tm-asof-hint" className="hint">
-                    {tr({ en: 'End of that day (UTC). The API refuses dates it cannot support.', fr: 'Fin de cette journée (UTC). L’API refuse les dates qu’elle ne peut pas prendre en charge.' })}
+                    {tr({ en: 'End of day (UTC).', fr: 'Fin de journée (UTC).' })}
                   </span>
                   {asOf && dateIssue && <span className="field-error" role="alert">{tr(AS_OF_ISSUE[dateIssue])}</span>}
                 </div>
-                <LimitationList codes={presets.data.notices} title={tr({ en: 'Notices from the API', fr: 'Avis de l’API' })} />
+                <LimitationList codes={presets.data.notices} compactAfter={0} title={tr({ en: 'Notes', fr: 'Remarques' })} />
               </>
             )}
           </Card>
         </div>
         <div>
           <MoveFormCard profile={profile} form={form} update={update} maxSize={maxSize} currentWeight={currentWeight} issues={shownIssues} goal={null} />
-          <Card title={tr({ en: 'Run the replay', fr: 'Lancer le rejeu' })}>
+          <Card id="tm-start" section={tr({ en: 'Start', fr: 'Lancer' })} tour="tm-start" title={tr({ en: 'Run the replay', fr: 'Lancer le rejeu' })}>
             <p className="small">
               {move
-                ? `${describeRequest({ type: 'move', move }, lang)} · ${fundingLabel(move.funding, lang)}`
+                ? `${describeRequest({ type: 'move', move }, lang)}, ${fundingLabel(move.funding, lang)}`
                 : tr({ en: 'No move set yet: choose an asset and a size above 0.', fr: 'Aucun mouvement défini : choisissez un actif et une taille supérieure à 0.' })}
-              {' · '}
+              {', '}
               {asOf && !dateIssue
                 ? <>{tr({ en: 'cutoff', fr: 'date limite' })} <strong>{fmtDate(asOf, lang)}</strong></>
                 : tr({ en: 'no cutoff chosen', fr: 'aucune date limite choisie' })}
             </p>
             <div className="row-actions">
-              <button type="button" className="btn gold" disabled={!canStart} onClick={() => void start()}>
+              <button type="button" className="btn" disabled={!canStart} onClick={() => void start()}>
                 {tr({ en: 'Run historical replay', fr: 'Lancer le rejeu historique' })}
               </button>
-              <span className="small muted">{tr({ en: 'No live research and no on-demand fetch: only the date-gated datasets.', fr: 'Aucune recherche en direct ni récupération à la demande : seulement les jeux de données filtrés par date.' })}</span>
             </div>
-            {creating && <Loading label={tr({ en: 'Creating the run…', fr: 'Création de l’exécution…' })} />}
+            {creating && <Loading label={tr({ en: 'Starting…', fr: 'Lancement…' })} />}
             {createError && (
               <ErrorState error={createError}
                 {...(createError.code === 'upstream_unavailable' ? { title: tr({ en: 'The replay could not be started: the run service is unavailable. Nothing was computed.', fr: 'Le rejeu n’a pas pu être lancé : le service d’exécution est indisponible. Rien n’a été calculé.' }) } : {})}>
@@ -213,16 +217,16 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
       </div>
 
       {runId && (
-        <Card id="replay-run" title={tr({ en: 'Historical replay run', fr: 'Exécution du rejeu historique' })}>
+        <Card id="replay-run" section={tr({ en: 'Result', fr: 'Résultat' })} tour="tm-result" title={tr({ en: 'Replay', fr: 'Rejeu' })}>
           {polled.loading && !run && <Loading />}
           {polled.error && <ErrorState error={polled.error} onRetry={polled.reload}
-            {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This run does not exist or belongs to another session.', fr: 'Cette exécution n’existe pas ou appartient à une autre session.' }) } : {})} />}
+            {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This replay does not exist or belongs to another session.', fr: 'Ce rejeu n’existe pas ou appartient à une autre session.' }) } : {})} />}
           {polled.pollError && (
-            <p className="small muted" role="status">{tr({ en: 'Polling paused after an error; retrying with backoff.', fr: 'Interrogation suspendue après une erreur ; nouvel essai progressif.' })} ({polled.pollError.code})</p>
+            <p className="small muted" role="status">{tr({ en: 'Connection lost, retrying…', fr: 'Connexion perdue, nouvel essai…' })}</p>
           )}
           {otherProfileId && (
             <p className="stale-note">
-              {tr({ en: 'This run belongs to another fictional profile.', fr: 'Cette exécution concerne un autre profil fictif.' })}{' '}
+              {tr({ en: 'This replay belongs to another fictional profile.', fr: 'Ce rejeu concerne un autre profil fictif.' })}{' '}
               <button type="button" className="linklike" onClick={() => selectProfile(otherProfileId)}>
                 {tr({ en: 'Switch to', fr: 'Basculer vers' })} {profiles.find(p => p.profileId === otherProfileId)?.name ?? otherProfileId}
               </button>
@@ -265,8 +269,8 @@ function CutoffBanner({ asOf }: { asOf: string }) {
   const { tr, lang } = useApp();
   return (
     <div className="cutoff-banner" role="note">
-      <p className="cutoff-title">{tr({ en: 'Information cutoff', fr: 'Date limite d’information' })}: <strong>{fmtDate(asOf, lang)}</strong> <span className="mono small">({asOf})</span></p>
-      <p className="small">{tr({ en: 'Every figure and rule check below uses only data rows available on this date, over the whole history visible then (the page window selector does not apply here). Nothing after it is shown before an explicit reveal.', fr: 'Chaque chiffre et chaque vérification ci-dessous n’utilise que les lignes de données disponibles à cette date, sur tout l’historique visible alors (le sélecteur de fenêtre de la page ne s’applique pas ici). Rien de postérieur n’est affiché avant une révélation explicite.' })}</p>
+      <p className="cutoff-title">{tr({ en: 'Information cutoff', fr: 'Date limite d’information' })}: <strong>{fmtDate(asOf, lang)}</strong></p>
+      <p className="small">{tr({ en: 'Only data available on this date is used. Later outcomes stay hidden until you reveal them.', fr: 'Seules les données disponibles à cette date sont utilisées. La suite reste masquée jusqu’à la révélation.' })}</p>
     </div>
   );
 }
@@ -275,8 +279,9 @@ function GatePanel({ replay }: { replay: ReplayResult }) {
   const { tr, lang } = useApp();
   const datasets = replay.gate.datasets;
   return (
-    <section aria-labelledby="gate-title">
-      <h3 className="h4" id="gate-title">{tr({ en: 'Date gate: what the run could and could not read', fr: 'Filtre de date : ce que l’exécution a pu lire ou non' })}</h3>
+    <details className="fold">
+      <summary id="gate-title">{tr({ en: 'Date gate: what the run could and could not read', fr: 'Filtre de date : ce que l’exécution a pu lire ou non' })}</summary>
+      <div className="fold-body">
       {datasets.length === 0 ? (
         <p className="small muted">{tr({ en: 'The run reported no gated dataset.', fr: 'L’exécution n’a signalé aucun jeu de données filtré.' })}</p>
       ) : (
@@ -306,7 +311,8 @@ function GatePanel({ replay }: { replay: ReplayResult }) {
         </div>
       )}
       <p className="small muted">{tr({ en: 'Withheld rows are dated after the cutoff. A check that needs them is reported as not enough evidence; it is never hidden.', fr: 'Les lignes retenues sont postérieures à la date limite. Une vérification qui en a besoin est signalée comme preuves insuffisantes ; elle n’est jamais masquée.' })}</p>
-    </section>
+      </div>
+    </details>
   );
 }
 
@@ -314,14 +320,16 @@ function SignedLedger({ run, replay }: { run: Run; replay: ReplayResult }) {
   const { tr, lang } = useApp();
   const audit = replay.decision.brief.audit;
   return (
-    <div className="ledger">
-      <p className="eyebrow">{tr({ en: 'Signed decision ledger', fr: 'Registre signé de la décision' })}</p>
+    <details className="fold">
+      <summary>{tr({ en: 'Signed decision ledger', fr: 'Registre signé de la décision' })}</summary>
+      <div className="fold-body">
       <p className="mono small break">{audit.ledgerHash}</p>
       <p className="small muted">
-        {tr({ en: 'Signed', fr: 'Signé' })} {fmtDateTime(audit.signedAt, lang)} · {tr({ en: 'data', fr: 'données' })} <span className="mono">{run.dataVersion}</span> ·{' '}
+        {tr({ en: 'Signed', fr: 'Signé le' })} {fmtDateTime(audit.signedAt, lang)}, {tr({ en: 'data', fr: 'données' })} <span className="mono">{run.dataVersion}</span>.{' '}
         {tr({ en: 'The hash identifies this ledger; it is not proof that its contents are true.', fr: 'L’empreinte identifie ce registre ; elle ne prouve pas que son contenu est vrai.' })}
       </p>
-    </div>
+      </div>
+    </details>
   );
 }
 
@@ -338,7 +346,6 @@ function ReplayRun({ run, profile }: { run: Run; profile: Profile | null }) {
     <>
       <CutoffBanner asOf={asOf} />
       <FactScopeProvider scope={scope}>
-        {run.flags.fixture && <p className="banner banner-fixture">{tr({ en: 'Development fixture — no agents executed.', fr: 'Jeu d’essai — aucun agent exécuté.' })}</p>}
         {original && (
           <p className="small">
             {tr({ en: 'Request', fr: 'Requête' })}: <strong>{describeRequest(original, lang)}</strong>
@@ -346,7 +353,7 @@ function ReplayRun({ run, profile }: { run: Run; profile: Profile | null }) {
           </p>
         )}
         {!isTerminal(run.status) && run.status !== 'waiting_input' && (
-          <p className="small"><RunStatusBadge status={run.status} /> {tr({ en: 'Steps appear only as they actually execute. Research is not run in a replay.', fr: 'Les étapes apparaissent seulement quand elles s’exécutent réellement. Aucune recherche n’est lancée dans un rejeu.' })}</p>
+          <p className="small"><RunStatusBadge status={run.status} /></p>
         )}
         {run.status === 'waiting_input' && run.question && <QuestionForm run={run} />}
         {run.status === 'cancelled' && (
@@ -369,7 +376,7 @@ function ReplayRun({ run, profile }: { run: Run; profile: Profile | null }) {
                 <SnapshotCompare before={decision.portfolioBefore} after={selected.portfolioAfter} />
               </>
             )}
-            <h3 className="h4">{tr({ en: 'Scenarios', fr: 'Scénarios' })}</h3>
+            <h3 className="h4">{tr({ en: 'Hypothetical scenarios', fr: 'Scénarios hypothétiques' })}</h3>
             <ScenarioCards scenarios={decision.scenarios} selectedId={decision.selectedScenarioId} />
             <FundingOptions options={decision.fundingOptions} />
             <h3 className="h4">{tr({ en: 'Audited brief (written with the cutoff data)', fr: 'Note auditée (rédigée avec les données de la date limite)' })}</h3>
@@ -377,15 +384,14 @@ function ReplayRun({ run, profile }: { run: Run; profile: Profile | null }) {
             <LimitationList codes={decision.limitations} />
             <SignedLedger run={run} replay={replay} />
             <p className="row-actions small">
-              <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'Open Evidence & Audit for this run', fr: 'Ouvrir Preuves et audit pour cette exécution' })}</Link>
+              <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'See the evidence and audit', fr: 'Voir les preuves et l’audit' })}</Link>
             </p>
           </>
         )}
 
-        <details open={!decision}>
-          <summary className="h4">{tr({ en: 'Execution trace', fr: 'Trace d’exécution' })} · {labelOf(RUN_STATUS, run.status, lang)}</summary>
+        <details className="fold" open={!decision}>
+          <summary>{tr({ en: 'Steps', fr: 'Étapes' })}, {labelOf(RUN_STATUS, run.status, lang).toLowerCase()}</summary>
           <RunTimeline run={run} />
-          {run.error?.requestId && <p className="small mono muted">{tr({ en: 'Request', fr: 'Requête' })} {run.error.requestId}</p>}
         </details>
         {!isTerminal(run.status) && <CancelButton runId={run.runId} />}
       </FactScopeProvider>
@@ -518,7 +524,7 @@ function RevealView({ run, replay, reveal, hashCheck, hashBefore, headingRef }: 
               const last = outcome.series[outcome.series.length - 1];
               return (
                 <article key={outcome.scenarioId} className="scenario" aria-label={tr(outcome.label)}>
-                  <p className="eyebrow">{tr({ en: 'Fixed scenario', fr: 'Scénario figé' })} · <span className="mono">{outcome.scenarioId}</span></p>
+                  <p className="eyebrow">{tr({ en: 'Fixed scenario', fr: 'Scénario figé' })}</p>
                   <h4 className="h4">{tr(outcome.label)}</h4>
                   <dl>
                     <div className="kv">
@@ -549,7 +555,7 @@ function RevealView({ run, replay, reveal, hashCheck, hashBefore, headingRef }: 
             })}
           </div>
           <LineChart series={series} lang={lang} unitLabel={unit} caption={caption} digits={1} />
-          <details open>
+          <details className="fold">
             <summary className="small">{tr({ en: 'Same series as a table (month-ends and both endpoints)', fr: 'Mêmes séries en tableau (fins de mois et les deux extrémités)' })}</summary>
             <SeriesTable series={series} lang={lang} unitLabel={unit} caption={caption} digits={1} />
           </details>

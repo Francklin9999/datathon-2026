@@ -40,7 +40,7 @@ export function SourcesPage() {
 
   return (
     <>
-      <PageHeader eyebrow={tr({ en: 'Data room', fr: 'Salle des données' })} title={tr({ en: 'Sources and dataset passports', fr: 'Sources et passeports des jeux de données' })}>
+      <PageHeader tour="sources-header" title={tr({ en: 'Data sources', fr: 'Sources de données' })}>
         <p className="page-sub">{tr({ en: 'What each dataset is, where it comes from, how it is processed and what it cannot tell you.', fr: 'Ce qu’est chaque jeu de données, sa provenance, son traitement et ce qu’il ne peut pas dire.' })}</p>
       </PageHeader>
 
@@ -76,7 +76,7 @@ export function SourcesPage() {
           <Card id="datasets" title={tr({ en: 'Datasets', fr: 'Jeux de données' })}>
             {list.data.items.length === 0 ? <Empty>{tr({ en: 'No dataset passport was returned.', fr: 'Aucun passeport n’a été retourné.' })}</Empty> : (
               <div className="table-scroll" role="region" aria-label={tr({ en: 'Dataset passports', fr: 'Passeports des jeux de données' })} tabIndex={0}>
-                <table className="data-table" style={{ minWidth: 960 }}>
+                <table className="data-table">
                   <thead>
                     <tr>
                       <th scope="col">{tr({ en: 'Dataset', fr: 'Jeu de données' })}</th>
@@ -84,9 +84,6 @@ export function SourcesPage() {
                       <th scope="col">{tr({ en: 'Provider', fr: 'Fournisseur' })}</th>
                       <th scope="col">{tr({ en: 'Retrieved', fr: 'Récupéré' })}</th>
                       <th scope="col">{tr({ en: 'Coverage', fr: 'Couverture' })}</th>
-                      <th scope="col">{tr({ en: 'Frequency', fr: 'Fréquence' })}</th>
-                      <th scope="col" className="num-col">{tr({ en: 'Rows', fr: 'Lignes' })}</th>
-                      <th scope="col">{tr({ en: 'Version', fr: 'Version' })}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -102,10 +99,7 @@ export function SourcesPage() {
                         </td>
                         <td className="break">{p.source}<span className="block small muted">{licenceText(p, unknown)}</span></td>
                         <td>{p.retrievedOn ? fmtDate(p.retrievedOn, lang) : <span className="muted">{tr({ en: 'Not retrieved', fr: 'Non récupéré' })}</span>}</td>
-                        <td>{p.coverage ? `${p.coverage.start} → ${p.coverage.end}` : '—'}</td>
-                        <td>{p.frequency}</td>
-                        <td className="num-col num">{p.rowCount === null ? '—' : fmtNumber(p.rowCount, lang, 0)}</td>
-                        <td className="mono small">{p.dataVersion ?? '—'}</td>
+                        <td>{p.coverage ? `${fmtDate(p.coverage.start, lang)} → ${fmtDate(p.coverage.end, lang)}` : '—'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -114,20 +108,19 @@ export function SourcesPage() {
             )}
           </Card>
 
-          <Card id="traps" title={tr({ en: 'Known dataset traps and how they are treated', fr: 'Pièges connus des données et leur traitement' })}>
+          <Card id="traps" section={tr({ en: 'Traps', fr: 'Pièges' })} title={tr({ en: 'Known data traps and how they are treated', fr: 'Pièges connus des données et leur traitement' })}
+            info={tr({ en: '“Handled” means an implemented, tested treatment; “disclosed” means the limitation is shown but not corrected.', fr: '« Traité » signifie un traitement implémenté et testé ; « signalé » signifie que la limite est affichée sans être corrigée.' })}>
             {list.data.traps.length === 0 ? <Empty>{tr({ en: 'No trap mapping was returned.', fr: 'Aucune correspondance de pièges n’a été retournée.' })}</Empty> : (
               <ul className="list-plain">
                 {list.data.traps.map(trap => (
                   <li key={trap.code}>
                     <span className={`pill s-${trap.status === 'handled' ? 'pass' : trap.status === 'disclosed' ? 'tension' : 'conflict'}`}>{labelOf(TRAP_STATUS, trap.status, lang)}</span>{' '}
-                    <span className="mono small">{trap.code}</span>
                     <span className="block">{labelOf(LIMITATION, trap.code, lang)}</span>
                     <span className="block small muted">{tr({ en: 'Treatment', fr: 'Traitement' })}: {trap.handledBy}</span>
                   </li>
                 ))}
               </ul>
             )}
-            <p className="small muted">{tr({ en: '“Handled” is the API’s claim of an implemented, tested treatment; “disclosed” means the limitation is shown but not corrected.', fr: '« Traité » est l’affirmation de l’API d’un traitement implémenté et testé ; « divulgué » signifie que la limite est affichée sans être corrigée.' })}</p>
           </Card>
         </>
       )}
@@ -152,7 +145,7 @@ function PassportDetail({ passport, unknown }: { passport: DatasetPassport; unkn
         <div className="kv"><dt className="k">{tr({ en: 'Rows · version', fr: 'Lignes · version' })}</dt><dd className="v">{passport.rowCount === null ? '—' : fmtNumber(passport.rowCount, lang, 0)} · <span className="mono">{passport.dataVersion ?? '—'}</span></dd></div>
         <div className="kv"><dt className="k">{tr({ en: 'Availability rule', fr: 'Règle de disponibilité' })}</dt><dd className="v">{tr(passport.availabilityRule)}</dd></div>
       </dl>
-      <h3 className="h4">{tr({ en: 'Schema', fr: 'Schéma' })}</h3>
+      <details className="fold"><summary>{tr({ en: 'Schema and processing', fr: 'Schéma et traitement' })}</summary><div className="fold-body">
       {passport.schema.length === 0 ? <p className="small muted">—</p> : (
         <div className="table-scroll" role="region" aria-label={tr({ en: 'Schema', fr: 'Schéma' })} tabIndex={0}>
           <table className="data-table">
@@ -163,6 +156,7 @@ function PassportDetail({ passport, unknown }: { passport: DatasetPassport; unkn
       )}
       <h3 className="h4">{tr({ en: 'Processing', fr: 'Traitement' })}</h3>
       {passport.processing.length === 0 ? <p className="small muted">—</p> : <ol className="bullets">{passport.processing.map((step, i) => <li key={i}>{tr(step)}</li>)}</ol>}
+      </div></details>
       <h3 className="h4">{tr({ en: 'Quality checks', fr: 'Contrôles de qualité' })}</h3>
       {passport.checks.length === 0
         ? <p className="small muted">{tr({ en: 'No check results recorded.', fr: 'Aucun résultat de contrôle enregistré.' })}</p>
