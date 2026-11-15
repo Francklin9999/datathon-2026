@@ -24,7 +24,15 @@ PROVIDER_DATASET_IDS = frozenset({
     "trade_unctad_concentration",
     "world_geoboundaries_fra_adm1", "world_ucdp_ged_ukraine_2025",
     "world_fda_drug_enforcement_counts", "world_crossref_climate_bibliography",
-    "world_ted_published_notice_metadata",
+    "world_ted_published_notice_metadata", "world_bls_us_cpi_2024",
+    "world_wgi_political_stability_2024",
+    "world_ecb_eurosystem_assets_2024", "world_bis_us_debt_service_2024", "world_fed_chargeoffs_2024",
+    "world_gdelt_event_metadata", "world_gdelt_gkg_locations", "world_gdelt_geographic_mentions",
+    "world_wikimedia_topic_pageviews",
+    "world_wikipedia_recent_changes",
+    "world_ilo_unemployment_2024",
+    "world_nasa_cmr_modis_granules",
+    "world_openflights_airport_reference",
 })
 
 

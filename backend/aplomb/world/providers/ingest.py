@@ -15,16 +15,22 @@ from . import (
     audit_extra,
     climate_trace_extra,
     crossref_extra,
+    earthdata_extra,
     fda_extra,
     feeds_extra,
     geodata_extra,
+    ilo_extra,
     minerals,
+    official_macro,
+    openflights_extra,
     public,
     quake_feed,
+    recent_changes_extra,
     ted_extra,
     trade_extra,
     trade_followon,
     ucdp_static,
+    wgi_extra,
 )
 from .snapshot import DIRECTORY, publish
 from .transport import Transport
@@ -131,7 +137,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument("--source", choices=sorted(SOURCES) + ["ecb", "minerals", "quake", "statcan_cpi", "trade",
                                                                "uk_sanctions", "unctad", "wits", "geoboundaries", "ucdp", "climate_trace",
-                                                               "fda", "crossref", "ted"],
+                                                               "fda", "crossref", "ted", "wgi", "earthdata", "openflights",
+                                                               "ecb_sdmx", "bis_sdmx", "fed_chargeoffs", "wikipedia_recent_changes", "ilo"],
                         action="append", required=True)
     parser.add_argument("--directory", type=Path, default=DIRECTORY)
     args = parser.parse_args()
@@ -144,6 +151,8 @@ def main() -> int:
                 manifest = minerals.collect(args.directory, fetch=Transport(max_bytes=5_000_000))
             elif name == "quake":
                 manifest = quake_feed.collect(args.directory)
+            elif name == "ilo":
+                manifest = ilo_extra.collect(directory=args.directory)
             elif name == "statcan_cpi":
                 manifest = audit_extra.collect(args.directory)
             elif name == "trade":
@@ -162,6 +171,19 @@ def main() -> int:
                 manifest = crossref_extra.collect(directory=args.directory)
             elif name == "ted":
                 manifest = ted_extra.collect(directory=args.directory)
+            elif name == "wgi":
+                manifest = wgi_extra.collect(directory=args.directory)
+            elif name in {"ecb_sdmx", "bis_sdmx", "fed_chargeoffs"}:
+                manifest = official_macro.collect(
+                    {"ecb_sdmx": "ecb", "bis_sdmx": "bis", "fed_chargeoffs": "fed"}[name],
+                    directory=args.directory,
+                )
+            elif name == "earthdata":
+                manifest = earthdata_extra.collect(directory=args.directory)
+            elif name == "openflights":
+                manifest = openflights_extra.collect(directory=args.directory)
+            elif name == "wikipedia_recent_changes":
+                manifest = recent_changes_extra.collect(directory=args.directory)
             elif name == "ucdp":
                 manifest = ucdp_static.collect(
                     args.directory,

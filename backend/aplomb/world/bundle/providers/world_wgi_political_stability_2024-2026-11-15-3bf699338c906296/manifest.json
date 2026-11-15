@@ -1,0 +1,51 @@
+{
+ "attribution": "Source: World Bank, Worldwide Governance Indicators; adapted by Aplomb.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_wgi_political_stability_2024-2026-11-15-3bf699338c906296",
+ "datasetId": "world_wgi_political_stability_2024",
+ "frequency": "Annual reference year; manual capture",
+ "historicalReplay": false,
+ "licence": "World Bank-produced open data default CC BY 4.0; attribution and modifications disclosed",
+ "licenceUrl": "https://datacatalog.worldbank.org/public-licenses",
+ "limitations": [
+  "One 2024 political stability score indicator, not the complete WGI source or a current stability event.",
+  "Governance scores are composite estimates derived from source surveys and assessments; they are not observed incidents or a financial risk model.",
+  "World Bank source update date is not an original historical publication vintage; capture-time availability gate applies.",
+  "Country/territory reporting area only; no point, issuer, security or portfolio relationship is established."
+ ],
+ "name": "World Bank WGI political stability governance score, 2024",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "2362d963b0522279a220709d1c61c862fd78262bf6795dd412c673c78fab3cac",
+   "url": "https://api.worldbank.org/v2/source/3?format=json"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "87172a1178807d744392aa7038ebb72209fa5aede26b98c5de5374497e1a2020",
+   "url": "https://api.worldbank.org/v2/indicator/GOV_WGI_PV.SC?format=json"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "37759b0de79e58327ea63092ba526e781f6609cb157d98eced9a0c2bd55b2354",
+   "url": "https://api.worldbank.org/v2/country/all/indicator/GOV_WGI_PV.SC?format=json&date=2024&per_page=400&source=3"
+  },
+  {
+   "file": "raw-003.bin",
+   "sha256": "f7106582fe705d8ea31c2bd7ef726636942b870104a88d882563b16bcece3910",
+   "url": "https://datacatalog.worldbank.org/public-licenses"
+  }
+ ],
+ "rejected": 9,
+ "retrievedAt": "2026-11-15T17:40:35Z",
+ "rowCount": 207,
+ "scope": "2024 political stability governance score for countries/territories with source ISO3 and numeric value; single WGI indicator and year.",
+ "sha256": "3bf699338c906296404b84d5d302a2a74806f2710f1291f935df11795ca49b71",
+ "sourceIds": [
+  "SRC-147"
+ ],
+ "sourceLastUpdated": "2026-09-25",
+ "sourceRows": 216,
+ "sourceUrl": "https://api.worldbank.org/v2/country/all/indicator/GOV_WGI_PV.SC?format=json&date=2024&per_page=400&source=3"
+}

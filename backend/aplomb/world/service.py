@@ -61,11 +61,14 @@ EVENT_MODES = {
     "corporate": "news", "markets": "news", "other": "news",
 }
 PROVIDER_MODES = {
+    "world_wikimedia_topic_pageviews": "news",
+    "world_wikipedia_recent_changes": "news",
     "world_fda_drug_enforcement_counts": "news", "world_crossref_climate_bibliography": "news",
     "world_ted_published_notice_metadata": "trade",
     "world_climate_trace_canada_electricity_co2": "environment",
     "world_ecb_press": "macro", "world_uk_sanctions_updates": "conflicts",
     "world_geoboundaries_fra_adm1": "infrastructure", "world_ucdp_ged_ukraine_2025": "conflicts",
+    "world_nasa_cmr_modis_granules": "environment",
 }
 
 
@@ -264,7 +267,7 @@ class WorldServiceImpl:
         if bbox:
             rows = [r for r in rows if (
                 geometry_intersects_bbox(r.get("geometry"), bbox)
-                if r["datasetId"] == "world_geoboundaries_fra_adm1"
+                if r["datasetId"] in {"world_geoboundaries_fra_adm1", "world_nasa_cmr_modis_granules"}
                 else r["location"] and in_bbox(r["location"]["lat"], r["location"]["lon"], bbox)
             )]
         if start:
@@ -689,6 +692,22 @@ def _utc_stamp(value: str) -> str:
 def _observation_summary(row: dict) -> str:
     """Short code-owned description of recorded fields, never an AI summary."""
     props = row.get("properties") or {}
+    if row["sourceId"] == "world_openflights_airport_reference":
+        return (f"OpenFlights static airport reference {props['iata']} in "
+                f"{props['sourceCity']}, {props['sourceCountry']}. "
+                "Source reference coordinates; no aircraft movement, current operational status "
+                f"or issuer relationship is established. {props['attribution']}")
+    if row["sourceId"] == "world_nasa_cmr_modis_granules":
+        return (f"NASA MODIS Terra {props['producerGranuleId']} metadata; "
+                f"product coverage {props['observationPeriodStart']} to {props['observationPeriodEnd']}. "
+                "Polygon shows granule coverage, not a fire detection. No imagery or scientific pixels loaded. "
+                "First five granules intersecting a European search region; capture availability applies. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_wikimedia_topic_pageviews":
+        return (f"Wikimedia English Wikipedia {props['article']} article: {props['views']:,} "
+                f"user-classified pageviews on {props['referenceDate']} across all access types. "
+                "Topic attention count; does not identify reader location, unique people, sentiment "
+                f"or a confirmed event. {props['attribution']}")
     if row["sourceId"] == "world_ted_published_notice_metadata":
         return (f"TED published procurement notice {props['publicationNumber']}; "
                 f"source publication date {props['publicationDate']} (day precision); "
@@ -724,6 +743,11 @@ def _observation_summary(row: dict) -> str:
                 "Midnight UTC represents the earliest possible date, not an exact event time.")
     if row["sourceId"] == "world_ecb_press":
         return "ECB press release metadata from the current RSS feed."
+    if row["sourceId"] == "world_wikipedia_recent_changes":
+        return (f"English Wikipedia {props['changeType']} to article {props['articleTitle']}; "
+                f"revision {props['revisionId']}; {props['oldBytes']:,} to {props['newBytes']:,} bytes. "
+                "Edit activity does not confirm a real-world event or establish geography or issuer relevance. "
+                f"{props['attribution']}")
     if row["sourceId"] == "world_uk_sanctions_updates":
         return "UK Sanctions List publication update note. Consult the current official list and applicable law."
     if row["sourceId"] == "world_usgs_minerals":
@@ -732,9 +756,29 @@ def _observation_summary(row: dict) -> str:
     if row["sourceId"] == "world_usgs_geojson":
         return (f"USGS reported magnitude {props['magnitude']:g} earthquake epicenter. "
                 "Affected area, damage and issuer exposure are not established.")
+    if row["sourceId"] == "world_ilo_unemployment_2024":
+        return (f"ILOSTAT {props['referenceYear']} unemployment rate for {props['sourceCountry']}: "
+                f"{props['unemploymentRate']:g}% of the labor force, total sex, ages 15 and over. "
+                f"Source survey code {props['sourceSurveyCode']}. Annual national statistic; "
+                f"not a current labor-market signal. {props['attribution']}")
+    if row["sourceId"] == "world_bls_us_cpi_2024":
+        return (f"U.S. CPI-U all-items city average in {props['referenceMonth']}: {props['index']:g} "
+                f"({props['unit']}), not seasonally adjusted. This is an index, not an inflation rate. "
+                f"{props['attribution']}")
     if row["sourceId"] == "world_statcan_cpi":
         return (f"Canada all-items CPI in {props['referenceMonth']}: {props['index']:g} "
                 f"({props['unit']}), not seasonally adjusted. {props['attribution']}")
+    if row["sourceId"] == "world_wgi_political_stability_2024":
+        return (f"World Bank WGI 2024 political stability governance score for {props['sourceCountry']}: "
+                f"{props['score']:.1f} / 100. Composite estimate for an annual reference period, "
+                f"not a current event or financial risk measure. {props['attribution']}")
+    if row["sourceId"] == "world_gdelt_event_metadata":
+        return (f"GDELT machine-coded Event {props['globalEventId']} lists an action location at "
+                f"{props['sourceLocationName']}. The location and event coding are unverified; "
+                "the linked publisher content was not fetched or confirmed.")
+    if row["sourceId"] in {"world_gdelt_gkg_locations", "world_gdelt_geographic_mentions"}:
+        return (f"GDELT machine-extracted article location mention: {props['sourceLocationName']}. "
+                "A mention is not an event location or verified article claim; publisher content was not fetched.")
     if row["sourceId"] == "trade_un_comtrade_exports":
         return (f"Source: UN Comtrade. {props['referenceYear']} merchandise exports from {props['reporterName']} "
                 f"to the world: US${props['valueUsd']:,.0f}. Country total; conditional reuse applies.")

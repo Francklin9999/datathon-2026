@@ -1,0 +1,47 @@
+{
+ "attribution": "NASA Terra MODIS / LP DAAC; metadata via NASA CMR",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_nasa_cmr_modis_granules-2026-11-15-870a7104c7fdbe5e",
+ "datasetId": "world_nasa_cmr_modis_granules",
+ "frequency": "Eight-day source products; manually captured metadata snapshot",
+ "historicalReplay": false,
+ "licence": "NASA data-use guidance: NASA metadata generally not copyrighted; NASA-led mission data CC0; NASA attribution provided",
+ "licenceUrl": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+ "limitations": [
+  "Granule coverage does not establish fire presence, intensity, damage or issuer exposure.",
+  "Eight-day start and end are product coverage dates; start is the display time anchor.",
+  "One first page intersecting a European bounding box; not complete global or regional coverage.",
+  "Anonymous CMR metadata only; downloading underlying imagery may require Earthdata login and is set aside.",
+  "No imagery, third-party media or scientific pixel measurements are captured.",
+  "Metadata revision time is not an original publication date; availability is gated at capture."
+ ],
+ "modifications": [
+  "Five source metadata records normalized into coverage observations.",
+  "CMR latitude-longitude polygon pairs converted to GeoJSON longitude-latitude.",
+  "No representative point, country assignment, imagery, fire pixels or download credentials retained."
+ ],
+ "name": "NASA CMR MODIS Terra granule coverage metadata",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "5482de48f4bbdf40c8a874f653af1611d6eb991ba4a7d625714394e8ed0bd41c",
+   "url": "https://cmr.earthdata.nasa.gov/search/collections.json?concept_id=C2565791013-LPCLOUD"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "00707ade877586c176a5153c16fc3693e13caba7a5b55f671ea85843e40b7c5d",
+   "url": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2565791013-LPCLOUD&page_size=5&sort_key=-start_date&bounding_box=-5,40,5,50"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:39:52Z",
+ "rowCount": 5,
+ "scope": "First five latest-start-date MOD14A1.061 granules intersecting longitude -5..5 and latitude 40..50; metadata only.",
+ "sha256": "870a7104c7fdbe5ef65144488d4490729ceafd7f3e588ea930f369d063d0d4d0",
+ "sourceIds": [
+  "SRC-158"
+ ],
+ "sourceRows": 5,
+ "sourceUrl": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C2565791013-LPCLOUD&page_size=5&sort_key=-start_date&bounding_box=-5,40,5,50"
+}

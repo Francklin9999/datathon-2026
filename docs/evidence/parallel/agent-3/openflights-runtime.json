@@ -1,0 +1,552 @@
+{
+  "http": {
+    "aviation": {
+      "items": [
+        {
+          "id": "world_openflights_airport_reference:9905",
+          "mode": "aviation",
+          "title": "RAAF Base Curtin (DCN) \u00b7 static airport reference",
+          "summary": "OpenFlights static airport reference DCN in Derby, Australia. Source reference coordinates; no aircraft movement, current operational status or issuer relationship is established. Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+          "occurredAt": "2026-11-15T17:45:32Z",
+          "timeBasis": "capture_only",
+          "publishedAt": null,
+          "retrievedAt": "2026-11-15T17:45:32Z",
+          "location": {
+            "lat": -17.5813999176,
+            "lon": 123.82800293,
+            "countryIso3": "AUS",
+            "precision": "point",
+            "geometry": null
+          },
+          "geometry": null,
+          "countryIso3": "AUS",
+          "source": {
+            "name": "OpenFlights static airport reference \u00b7 six-country sample",
+            "url": "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat"
+          },
+          "datasetId": "world_openflights_airport_reference",
+          "limitations": [
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+            "Current captured source record; no verified historical vintage.",
+            "A point or displayed polygon anchor does not establish issuer exposure or financial effect.",
+            "Static airport reference only; no aircraft tracking, flight schedule, current operational status or traffic.",
+            "Selected six countries and IATA-coded airport facilities; incomplete worldwide coverage.",
+            "Coordinates and identifiers are provider reference values; country codes map exact source country labels.",
+            "Source publication/update dates are unknown; capture time is first proven availability, excluded from earlier replay.",
+            "No issuer, operating-company, security, portfolio exposure or financial-impact relationship is established.",
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0."
+          ]
+        },
+        {
+          "id": "world_openflights_airport_reference:9904",
+          "mode": "aviation",
+          "title": "Richmond Airport (RCM) \u00b7 static airport reference",
+          "summary": "OpenFlights static airport reference RCM in Richmond, Australia. Source reference coordinates; no aircraft movement, current operational status or issuer relationship is established. Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+          "occurredAt": "2026-11-15T17:45:32Z",
+          "timeBasis": "capture_only",
+          "publishedAt": null,
+          "retrievedAt": "2026-11-15T17:45:32Z",
+          "location": {
+            "lat": -20.701900482177734,
+            "lon": 143.11500549316406,
+            "countryIso3": "AUS",
+            "precision": "point",
+            "geometry": null
+          },
+          "geometry": null,
+          "countryIso3": "AUS",
+          "source": {
+            "name": "OpenFlights static airport reference \u00b7 six-country sample",
+            "url": "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat"
+          },
+          "datasetId": "world_openflights_airport_reference",
+          "limitations": [
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+            "Current captured source record; no verified historical vintage.",
+            "A point or displayed polygon anchor does not establish issuer exposure or financial effect.",
+            "Static airport reference only; no aircraft tracking, flight schedule, current operational status or traffic.",
+            "Selected six countries and IATA-coded airport facilities; incomplete worldwide coverage.",
+            "Coordinates and identifiers are provider reference values; country codes map exact source country labels.",
+            "Source publication/update dates are unknown; capture time is first proven availability, excluded from earlier replay.",
+            "No issuer, operating-company, security, portfolio exposure or financial-impact relationship is established.",
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0."
+          ]
+        },
+        {
+          "id": "world_openflights_airport_reference:9902",
+          "mode": "aviation",
+          "title": "Warrnambool Airport (WMB) \u00b7 static airport reference",
+          "summary": "OpenFlights static airport reference WMB in Warrnambool, Australia. Source reference coordinates; no aircraft movement, current operational status or issuer relationship is established. Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+          "occurredAt": "2026-11-15T17:45:32Z",
+          "timeBasis": "capture_only",
+          "publishedAt": null,
+          "retrievedAt": "2026-11-15T17:45:32Z",
+          "location": {
+            "lat": -38.2952995300293,
+            "lon": 142.44700622558594,
+            "countryIso3": "AUS",
+            "precision": "point",
+            "geometry": null
+          },
+          "geometry": null,
+          "countryIso3": "AUS",
+          "source": {
+            "name": "OpenFlights static airport reference \u00b7 six-country sample",
+            "url": "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat"
+          },
+          "datasetId": "world_openflights_airport_reference",
+          "limitations": [
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+            "Current captured source record; no verified historical vintage.",
+            "A point or displayed polygon anchor does not establish issuer exposure or financial effect.",
+            "Static airport reference only; no aircraft tracking, flight schedule, current operational status or traffic.",
+            "Selected six countries and IATA-coded airport facilities; incomplete worldwide coverage.",
+            "Coordinates and identifiers are provider reference values; country codes map exact source country labels.",
+            "Source publication/update dates are unknown; capture time is first proven availability, excluded from earlier replay.",
+            "No issuer, operating-company, security, portfolio exposure or financial-impact relationship is established.",
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0."
+          ]
+        }
+      ],
+      "total": 678,
+      "nextCursor": "eyJrZXkiOiAiMWYzNWI3OTM4OTY4ZmJiYyIsICJvZmZzZXQiOiAzfQ==",
+      "dataVersion": "2ea47795d5a249fa",
+      "capturedAt": "2026-11-15T17:46:57Z",
+      "modes": [
+        {
+          "mode": "news",
+          "available": true,
+          "count": 803,
+          "reason": null
+        },
+        {
+          "mode": "macro",
+          "available": true,
+          "count": 375,
+          "reason": null
+        },
+        {
+          "mode": "trade",
+          "available": true,
+          "count": 13,
+          "reason": null
+        },
+        {
+          "mode": "energy",
+          "available": true,
+          "count": 35010,
+          "reason": null
+        },
+        {
+          "mode": "hazards",
+          "available": true,
+          "count": 1367,
+          "reason": null
+        },
+        {
+          "mode": "conflicts",
+          "available": true,
+          "count": 150,
+          "reason": null
+        },
+        {
+          "mode": "aviation",
+          "available": true,
+          "count": 684,
+          "reason": null
+        },
+        {
+          "mode": "environment",
+          "available": true,
+          "count": 641,
+          "reason": null
+        },
+        {
+          "mode": "infrastructure",
+          "available": true,
+          "count": 13,
+          "reason": null
+        }
+      ]
+    },
+    "japan": {
+      "items": [
+        {
+          "id": "world_openflights_airport_reference:9148",
+          "mode": "aviation",
+          "title": "Kerama Airport (KJP) \u00b7 static airport reference",
+          "summary": "OpenFlights static airport reference KJP in Kerama, Japan. Source reference coordinates; no aircraft movement, current operational status or issuer relationship is established. Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+          "occurredAt": "2026-11-15T17:45:32Z",
+          "timeBasis": "capture_only",
+          "publishedAt": null,
+          "retrievedAt": "2026-11-15T17:45:32Z",
+          "location": {
+            "lat": 26.168300628699996,
+            "lon": 127.292999268,
+            "countryIso3": "JPN",
+            "precision": "point",
+            "geometry": null
+          },
+          "geometry": null,
+          "countryIso3": "JPN",
+          "source": {
+            "name": "OpenFlights static airport reference \u00b7 six-country sample",
+            "url": "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat"
+          },
+          "datasetId": "world_openflights_airport_reference",
+          "limitations": [
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+            "Current captured source record; no verified historical vintage.",
+            "A point or displayed polygon anchor does not establish issuer exposure or financial effect.",
+            "Static airport reference only; no aircraft tracking, flight schedule, current operational status or traffic.",
+            "Selected six countries and IATA-coded airport facilities; incomplete worldwide coverage.",
+            "Coordinates and identifiers are provider reference values; country codes map exact source country labels.",
+            "Source publication/update dates are unknown; capture time is first proven availability, excluded from earlier replay.",
+            "No issuer, operating-company, security, portfolio exposure or financial-impact relationship is established.",
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0."
+          ]
+        },
+        {
+          "id": "world_openflights_airport_reference:8469",
+          "mode": "aviation",
+          "title": "Hiroshimanishi Airport (HIW) \u00b7 static airport reference",
+          "summary": "OpenFlights static airport reference HIW in Hiroshima, Japan. Source reference coordinates; no aircraft movement, current operational status or issuer relationship is established. Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+          "occurredAt": "2026-11-15T17:45:32Z",
+          "timeBasis": "capture_only",
+          "publishedAt": null,
+          "retrievedAt": "2026-11-15T17:45:32Z",
+          "location": {
+            "lat": 34.36690139770508,
+            "lon": 132.41400146484375,
+            "countryIso3": "JPN",
+            "precision": "point",
+            "geometry": null
+          },
+          "geometry": null,
+          "countryIso3": "JPN",
+          "source": {
+            "name": "OpenFlights static airport reference \u00b7 six-country sample",
+            "url": "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat"
+          },
+          "datasetId": "world_openflights_airport_reference",
+          "limitations": [
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+            "Current captured source record; no verified historical vintage.",
+            "A point or displayed polygon anchor does not establish issuer exposure or financial effect.",
+            "Static airport reference only; no aircraft tracking, flight schedule, current operational status or traffic.",
+            "Selected six countries and IATA-coded airport facilities; incomplete worldwide coverage.",
+            "Coordinates and identifiers are provider reference values; country codes map exact source country labels.",
+            "Source publication/update dates are unknown; capture time is first proven availability, excluded from earlier replay.",
+            "No issuer, operating-company, security, portfolio exposure or financial-impact relationship is established.",
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0."
+          ]
+        },
+        {
+          "id": "world_openflights_airport_reference:7552",
+          "mode": "aviation",
+          "title": "Aguni Airport (AGJ) \u00b7 static airport reference",
+          "summary": "OpenFlights static airport reference AGJ in Aguni, Japan. Source reference coordinates; no aircraft movement, current operational status or issuer relationship is established. Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+          "occurredAt": "2026-11-15T17:45:32Z",
+          "timeBasis": "capture_only",
+          "publishedAt": null,
+          "retrievedAt": "2026-11-15T17:45:32Z",
+          "location": {
+            "lat": 26.5925006866,
+            "lon": 127.240997314,
+            "countryIso3": "JPN",
+            "precision": "point",
+            "geometry": null
+          },
+          "geometry": null,
+          "countryIso3": "JPN",
+          "source": {
+            "name": "OpenFlights static airport reference \u00b7 six-country sample",
+            "url": "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat"
+          },
+          "datasetId": "world_openflights_airport_reference",
+          "limitations": [
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+            "Current captured source record; no verified historical vintage.",
+            "A point or displayed polygon anchor does not establish issuer exposure or financial effect.",
+            "Static airport reference only; no aircraft tracking, flight schedule, current operational status or traffic.",
+            "Selected six countries and IATA-coded airport facilities; incomplete worldwide coverage.",
+            "Coordinates and identifiers are provider reference values; country codes map exact source country labels.",
+            "Source publication/update dates are unknown; capture time is first proven availability, excluded from earlier replay.",
+            "No issuer, operating-company, security, portfolio exposure or financial-impact relationship is established.",
+            "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0."
+          ]
+        }
+      ],
+      "total": 94,
+      "nextCursor": "eyJrZXkiOiAiYzY3NWE5ODQ1ZDY0YmViYyIsICJvZmZzZXQiOiAzfQ==",
+      "dataVersion": "2ea47795d5a249fa",
+      "capturedAt": "2026-11-15T17:46:57Z",
+      "modes": [
+        {
+          "mode": "news",
+          "available": true,
+          "count": 803,
+          "reason": null
+        },
+        {
+          "mode": "macro",
+          "available": true,
+          "count": 375,
+          "reason": null
+        },
+        {
+          "mode": "trade",
+          "available": true,
+          "count": 13,
+          "reason": null
+        },
+        {
+          "mode": "energy",
+          "available": true,
+          "count": 35010,
+          "reason": null
+        },
+        {
+          "mode": "hazards",
+          "available": true,
+          "count": 1367,
+          "reason": null
+        },
+        {
+          "mode": "conflicts",
+          "available": true,
+          "count": 150,
+          "reason": null
+        },
+        {
+          "mode": "aviation",
+          "available": true,
+          "count": 684,
+          "reason": null
+        },
+        {
+          "mode": "environment",
+          "available": true,
+          "count": 641,
+          "reason": null
+        },
+        {
+          "mode": "infrastructure",
+          "available": true,
+          "count": 13,
+          "reason": null
+        }
+      ]
+    },
+    "historical": {
+      "items": [],
+      "total": 0,
+      "nextCursor": null,
+      "dataVersion": "2ea47795d5a249fa",
+      "capturedAt": "2026-11-15T17:46:57Z",
+      "modes": [
+        {
+          "mode": "news",
+          "available": false,
+          "count": 0,
+          "reason": "No geolocated authorized capture is loaded."
+        },
+        {
+          "mode": "macro",
+          "available": false,
+          "count": 0,
+          "reason": "No geolocated authorized capture is loaded."
+        },
+        {
+          "mode": "trade",
+          "available": false,
+          "count": 0,
+          "reason": "No geolocated authorized capture is loaded."
+        },
+        {
+          "mode": "energy",
+          "available": false,
+          "count": 0,
+          "reason": "No geolocated authorized capture is loaded."
+        },
+        {
+          "mode": "hazards",
+          "available": false,
+          "count": 0,
+          "reason": "No geolocated authorized capture is loaded."
+        },
+        {
+          "mode": "conflicts",
+          "available": false,
+          "count": 0,
+          "reason": "No geolocated authorized capture is loaded."
+        },
+        {
+          "mode": "aviation",
+          "available": false,
+          "count": 0,
+          "reason": "No geolocated authorized capture is loaded."
+        },
+        {
+          "mode": "environment",
+          "available": false,
+          "count": 0,
+          "reason": "No geolocated authorized capture is loaded."
+        },
+        {
+          "mode": "infrastructure",
+          "available": false,
+          "count": 0,
+          "reason": "No geolocated authorized capture is loaded."
+        }
+      ]
+    },
+    "passport": {
+      "datasetId": "world_openflights_airport_reference",
+      "name": {
+        "en": "OpenFlights static airport reference \u00b7 six-country sample",
+        "fr": "OpenFlights static airport reference \u00b7 six-country sample"
+      },
+      "role": {
+        "en": "Static airport references with IATA codes in GBR, FRA, JPN, AUS, ZAF and ARE; not global airport or aviation coverage.",
+        "fr": "Static airport references with IATA codes in GBR, FRA, JPN, AUS, ZAF and ARE; not global airport or aviation coverage."
+      },
+      "status": "in_use",
+      "source": "OpenFlights static airport reference \u00b7 six-country sample",
+      "sourceUrl": "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat",
+      "accessMethod": "Bounded public HTTPS batch capture; no runtime source request",
+      "licence": "Derived database ODbL 1.0; individual contents DbCL 1.0",
+      "licenceUrl": "https://opendatacommons.org/licenses/odbl/1-0/",
+      "retrievedOn": "2026-11-15",
+      "coverage": null,
+      "frequency": "Sporadically updated static repository snapshot; manual capture",
+      "rowCount": 678,
+      "dataVersion": "snap-20261115-world_openflights_airport_reference-7198f95df5",
+      "schema": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Provider-stable source observation ID"
+        },
+        {
+          "name": "location",
+          "type": "object",
+          "description": "Validated source coordinates when provided; may be absent"
+        },
+        {
+          "name": "geometry",
+          "type": "object",
+          "description": "Source polygon or line geometry when provided; a polygon may have no point coordinates"
+        },
+        {
+          "name": "retrievedAt",
+          "type": "timestamp",
+          "description": "First proven availability of this captured version"
+        }
+      ],
+      "processing": [
+        {
+          "en": "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+          "fr": "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0."
+        },
+        {
+          "en": "Static airport reference only; no aircraft tracking, flight schedule, current operational status or traffic.",
+          "fr": "Static airport reference only; no aircraft tracking, flight schedule, current operational status or traffic."
+        },
+        {
+          "en": "Selected six countries and IATA-coded airport facilities; incomplete worldwide coverage.",
+          "fr": "Selected six countries and IATA-coded airport facilities; incomplete worldwide coverage."
+        },
+        {
+          "en": "Coordinates and identifiers are provider reference values; country codes map exact source country labels.",
+          "fr": "Coordinates and identifiers are provider reference values; country codes map exact source country labels."
+        },
+        {
+          "en": "Source publication/update dates are unknown; capture time is first proven availability, excluded from earlier replay.",
+          "fr": "Source publication/update dates are unknown; capture time is first proven availability, excluded from earlier replay."
+        },
+        {
+          "en": "No issuer, operating-company, security, portfolio exposure or financial-impact relationship is established.",
+          "fr": "No issuer, operating-company, security, portfolio exposure or financial-impact relationship is established."
+        },
+        {
+          "en": "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+          "fr": "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0."
+        }
+      ],
+      "limitations": [
+        "LIM_IMPACT_NOT_ESTABLISHED"
+      ],
+      "availabilityRule": {
+        "en": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+        "fr": "Latest captured values; original historical availability is unproven. Gate at retrievedAt."
+      },
+      "checks": [
+        {
+          "name": "normalized_checksum",
+          "ok": true,
+          "detail": "678 normalized rows match 7198f95df5aefbb62a6365aaf7a060d073e750cf46f971ee63b88862a4d4aa72; raw captures also passed SHA-256 verification.",
+          "checkedAt": "2026-11-15T17:45:32Z"
+        },
+        {
+          "name": "pagination_coverage",
+          "ok": false,
+          "detail": "Static airport references with IATA codes in GBR, FRA, JPN, AUS, ZAF and ARE; not global airport or aviation coverage.",
+          "checkedAt": "2026-11-15T17:45:32Z"
+        }
+      ],
+      "rejectedReason": null
+    }
+  },
+  "manifest": {
+    "attribution": "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0.",
+    "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+    "coverageComplete": false,
+    "dataVersion": "world_openflights_airport_reference-2026-11-15-7198f95df5aefbb6",
+    "datasetId": "world_openflights_airport_reference",
+    "frequency": "Sporadically updated static repository snapshot; manual capture",
+    "historicalReplay": false,
+    "licence": "Derived database ODbL 1.0; individual contents DbCL 1.0",
+    "licenceUrl": "https://opendatacommons.org/licenses/odbl/1-0/",
+    "limitations": [
+      "Static airport reference only; no aircraft tracking, flight schedule, current operational status or traffic.",
+      "Selected six countries and IATA-coded airport facilities; incomplete worldwide coverage.",
+      "Coordinates and identifiers are provider reference values; country codes map exact source country labels.",
+      "Source publication/update dates are unknown; capture time is first proven availability, excluded from earlier replay.",
+      "No issuer, operating-company, security, portfolio exposure or financial-impact relationship is established.",
+      "Contains information from OpenFlights, https://openflights.org/data.php, made available under the Open Database License (ODbL) 1.0. Individual database contents: Database Contents License (DbCL) 1.0. Adapted by Aplomb: selected six countries, airport facilities with IATA identifiers, validated coordinates and normalized fields. This derived database is ODbL 1.0."
+    ],
+    "name": "OpenFlights static airport reference \u00b7 six-country sample",
+    "rawCaptures": [
+      {
+        "file": "raw-000.bin",
+        "sha256": "9387cdb38df5bd664da823f8ccb69fdd9b33a1888f5b7cca09c34a3cd9ff59f9",
+        "url": "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat"
+      },
+      {
+        "file": "raw-001.bin",
+        "sha256": "122ef40826eca4c9d288da6b46c9c091be4b67f2b639fcfdee119102a4a10e44",
+        "url": "https://raw.githubusercontent.com/jpatokal/openflights/master/data.php"
+      }
+    ],
+    "rejected": 0,
+    "retrievedAt": "2026-11-15T17:45:32Z",
+    "rowCount": 678,
+    "scope": "Static airport references with IATA codes in GBR, FRA, JPN, AUS, ZAF and ARE; not global airport or aviation coverage.",
+    "selectedSourceRows": 678,
+    "sha256": "7198f95df5aefbb62a6365aaf7a060d073e750cf46f971ee63b88862a4d4aa72",
+    "sourceIds": [
+      "SRC-217"
+    ],
+    "sourceRows": 7698,
+    "sourceUrl": "https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat"
+  },
+  "countryCounts": {
+    "AUS": 282,
+    "JPN": 94,
+    "GBR": 108,
+    "ZAF": 59,
+    "FRA": 124,
+    "ARE": 11
+  }
+}

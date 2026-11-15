@@ -1,0 +1,69 @@
+{
+  "reviewedAt": "2026-11-15T18:02:33.278514+00:00",
+  "scope": "Anonymous bounded global social/food source access and rights; no paid/login routes",
+  "providers": [
+    {
+      "sourceIds": [
+        "SRC-107"
+      ],
+      "provider": "UNICEF",
+      "dataUrl": "https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/data/UNICEF,GLOBAL_DATAFLOW,1.0/CAN.CME_MRY0T4._T?startPeriod=2023&endPeriod=2023&format=csv",
+      "dataHttpStatus": 200,
+      "dataRows": 1,
+      "dedicatedLegalUrl": "https://data.unicef.org/legal/",
+      "dedicatedLegalHttpStatus": 403,
+      "generalTermsUrl": "https://www.unicef.org/legal",
+      "termsHttpStatus": 200,
+      "state": "rights_unestablished_no_runtime_capture",
+      "rightsPageSha256": "3933f873293a85d58560d86bf651bc183337e246267f16844d620c2ca4c61967",
+      "rightsExcerpts": [
+        "d be sent to us using the copyright permission option our&nbsp; feedback form .   The UNICEF Web Site   The UNICEF Web Site is provided by UNICEF for personal use and educational purposes only. Any other use, including reproduction or translation of anything more than a de minimis portion of the Content of the UNICEF Web Site, or any use other than for personal or educational purposes, requires the express prior written permission of UNICEF. Requests for permission should be sent to us u",
+        "ything more than a de minimis portion of the Content of the UNICEF Web Site, or any use other than for personal or educational purposes, requires the express prior written permission of UNICEF. Requests for permission should be sent to us using the copyright permission option on our&nbsp; feedback form , specifying full details of the proposed use. All Content of the UNICEF Web Site is protected by law including, as applicable,&nbsp; copyright laws .  The Content of the UNICEF "
+      ]
+    },
+    {
+      "sourceIds": [
+        "SRC-108"
+      ],
+      "provider": "ILO",
+      "dataUrls": "see immutable capture manifest",
+      "state": "implemented_official_csv_transport",
+      "catalogSdmxTransport": "not implemented",
+      "rightsUrl": "https://www.ilo.org/rights-and-permissions",
+      "rightsHttpStatus": 200
+    },
+    {
+      "sourceIds": [
+        "SRC-109"
+      ],
+      "provider": "WHO",
+      "rightsUrl": "https://www.who.int/about/policies/publishing/data-policy/terms-and-conditions",
+      "rightsHttpStatus": 200,
+      "state": "rights_blocked_public_health_purpose_and_adaptation_limits",
+      "rightsPageSha256": "03b28f1ca91c134ac48d3a11fa465c170b351bb4d117faff6bc38c5b409967ab",
+      "rightsExcerpts": [
+        "-exclusive right to use, reproduce, extract, download, copy, distribute, display or include the Datasets and data contained therein in other products for public health purposes.   Retained Rights . Copyright in the Datasets remains vested in WHO, and WHO retains all rights not specifically granted hereunder.   Acknowledgement and Disclaimer . By using the Datasets, you agree to appropriately acknowledge and provide attribution to WHO and the country or countries having pr"
+      ]
+    },
+    {
+      "sourceIds": [
+        "SRC-110",
+        "SRC-200",
+        "MASTER-087"
+      ],
+      "provider": "FAOSTAT",
+      "dataUrl": "https://fenixservices.fao.org/faostat/api/v1/en/data/QCL?area_code=33&item_code=15&element_code=5510&year=2023&page_number=1&page_size=100",
+      "dataHttpStatus": 521,
+      "bulkUrl": "https://bulks-faostat.fao.org/production/Prices_E_All_Data_NOFLAG.zip",
+      "bulkHttpStatus": 403,
+      "rightsUrl": "https://www.fao.org/contact-us/terms/en/",
+      "rightsHttpStatus": 200,
+      "state": "access_blocked_and_dataset_specific_rights_unestablished",
+      "rightsPageSha256": "8d7d8a31fc61634675acf16480910ce6dc9326701c4044dbe5a25e9d3428a541",
+      "rightsExcerpts": [
+        "O website (except where otherwise indicated), may be copied, printed and downloaded for private study, research and teaching purposes, and for use in non-commercial products or services, provided that appropriate acknowledgement of FAO as the source and copyright holder is given and that FAO's endorsement of users' views, products or services is not stated or implied in any way. FAO encourages unrestricted use of news releases provided on the FAO website; no formal permission is r",
+        "website; no formal permission is required to reproduce these materials.  All requests for translation and adaptation rights, and for resale and other commercial use rights should be addressed to&nbsp;   [email&#160;protected]   &nbsp;or submitted via the online&nbsp;  Licence Request Form  &nbsp;when downloading.   RECOMMENDED CITATION:   [\u00a9 FAO] [Year of publication] [Title of content] [Page number (for publications)] [Location on FAO website] [Date accessed and/or "
+      ]
+    }
+  ]
+}

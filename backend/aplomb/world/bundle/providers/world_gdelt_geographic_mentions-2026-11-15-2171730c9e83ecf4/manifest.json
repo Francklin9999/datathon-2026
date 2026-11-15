@@ -1,0 +1,48 @@
+{
+ "attribution": "Source: The GDELT Project, Global Geographic Graph; selected metadata adapted by Aplomb.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_gdelt_geographic_mentions-2026-11-15-2171730c9e83ecf4",
+ "datasetId": "world_gdelt_geographic_mentions",
+ "frequency": "One completed daily archive; bounded manual capture",
+ "historicalReplay": false,
+ "licence": "GDELT released datasets: unlimited unrestricted use without fee; retained metadata projection excludes publisher contextual snippets and images",
+ "licenceUrl": "https://www.gdeltproject.org/about.html",
+ "limitations": [
+  "Daily English-language source sample; no complete global coverage or continuous monitoring.",
+  "Machine-geocoded article mentions are not independently verified event locations or publisher locations.",
+  "GDELT FIPS10-4 country codes are retained without an unverified ISO or issuer crosswalk.",
+  "Publisher titles, snippets, images and full text are omitted from the retained capture and runtime.",
+  "DateTime is retained as source metadata; no article publication timestamp is asserted.",
+  "Current capture only; first proven application availability is retrieval, not historical replay.",
+  "No company linkage, documented exposure or modeled financial impact."
+ ],
+ "name": "GDELT Geographic Graph English news location mentions",
+ "originalBytes": 545407,
+ "originalSha256": "5cca3f76110584b876520cd2e7bcff5a9bbe8f7f2bd5fe389f49a27e703ee8fc",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "2337a8338552cba98b6dd388625f34b8cde7b86b72fac04b357e680f94688ea3",
+   "url": "https://data.gdeltproject.org/gdeltv3/ggg/MASTERFILELIST.TXT"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "d614e3330dc24ef9cbcc5d53cb73cc2154b1f7a23341ebeef0c38bc5df70e609",
+   "url": "https://data.gdeltproject.org/gdeltv3/ggg/20261114.ggg.v1.english.json.gz"
+  }
+ ],
+ "rejected": 0,
+ "retainedProjection": true,
+ "retrievedAt": "2026-11-15T17:46:57Z",
+ "rowCount": 250,
+ "scope": "First 250 valid unique city/landmark mentions in the 20261114 English daily archive.",
+ "sha256": "2171730c9e83ecf43a02a599da2e3201ee376b91f8905a2d3b8c54c167069423",
+ "skipped": 3813,
+ "sourceIds": [
+  "MASTER-044"
+ ],
+ "sourceRows": 4705,
+ "sourceUrl": "https://data.gdeltproject.org/gdeltv3/ggg/20261114.ggg.v1.english.json.gz",
+ "truncated": 642
+}

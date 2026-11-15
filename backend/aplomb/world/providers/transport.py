@@ -11,6 +11,7 @@ HOSTS = frozenset({
     "raw.githubusercontent.com", "services9.arcgis.com", "ucdpapi.pcr.uu.se",
     "www.gdacs.org", "ghoapi.azureedge.net", "ec.europa.eu", "power.larc.nasa.gov",
     "data.epa.gov", "www.sciencebase.gov", "earthquake.usgs.gov",
+    "api.worldbank.org", "datacatalog.worldbank.org",
 })
 
 

@@ -1,0 +1,54 @@
+{
+ "attribution": "Source: International Labour Organization (ILO), ILOSTAT. CC BY 4.0. Selected 2024 national unemployment observations normalized by Aplomb. This is an adaptation of a copyrighted work of the International Labour Organization (ILO). This adaptation has not been prepared, reviewed or endorsed by the ILO and should not be considered an official ILO adaptation. The ILO disclaims all responsibility for its content and accuracy. Responsibility rests solely with Aplomb.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_ilo_unemployment_2024-2026-11-15-1cb0e3dc60f581d7",
+ "datasetId": "world_ilo_unemployment_2024",
+ "frequency": "Annual observations; manual bounded fixed-year capture",
+ "historicalReplay": false,
+ "licence": "CC BY 4.0; ILO datasets published after 3 May 2023",
+ "licenceUrl": "https://www.ilo.org/rights-and-permissions",
+ "limitations": [
+  "Three national annual observations only; no complete ILO or current labor-market coverage.",
+  "Official ILOSTAT CSV API acquisition; SDMX transport integration is not established.",
+  "Source survey codes and notes are retained; national survey methods need not be identical.",
+  "Percent unemployed among the labor force, not a share of the entire population.",
+  "Annual first-day display anchors are not exact observation or publication dates.",
+  "2024 completed-year statistical values necessarily became available after the ILO open-data policy began.",
+  "Original vintage availability is unproven; historical replay is excluded before retrieval.",
+  "National statistical areas have no point coordinates, issuer linkage or modeled financial impact."
+ ],
+ "name": "ILOSTAT 2024 national unemployment rates, three-country sample",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "dbdac66e43ed4af896890044aa99a2e40222adaa132bc9e5403d8401dbe1ad0e",
+   "url": "https://www.ilo.org/rights-and-permissions"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "2ce1f5d0d41d26900a62826111a3bca5a8f33277117414da5ed888df726d4f40",
+   "url": "https://rplumber.ilo.org/data/indicator/?id=UNE_DEAP_SEX_AGE_RT_A&ref_area=CAN&sex=SEX_T&classif1=AGE_YTHADULT_YGE15&timefrom=2024&timeto=2024"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "42cdcc98d95312d50f995964ed552436c558841db282b3d348dc8a8789a0f54f",
+   "url": "https://rplumber.ilo.org/data/indicator/?id=UNE_DEAP_SEX_AGE_RT_A&ref_area=JPN&sex=SEX_T&classif1=AGE_YTHADULT_YGE15&timefrom=2024&timeto=2024"
+  },
+  {
+   "file": "raw-003.bin",
+   "sha256": "cd70691f0e4a40cc973bac9010ba63bb3de217675deecc9cd51e2bbea3935396",
+   "url": "https://rplumber.ilo.org/data/indicator/?id=UNE_DEAP_SEX_AGE_RT_A&ref_area=BRA&sex=SEX_T&classif1=AGE_YTHADULT_YGE15&timefrom=2024&timeto=2024"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:52:43Z",
+ "rowCount": 3,
+ "scope": "Canada, Japan, Brazil; 2024; total sex; ages 15+",
+ "sha256": "1cb0e3dc60f581d723f16b498715a05de4768265413364ab06f80495fe645439",
+ "sourceIds": [
+  "SRC-108"
+ ],
+ "sourceRows": 3,
+ "sourceUrl": "https://rplumber.ilo.org/data/indicator/"
+}

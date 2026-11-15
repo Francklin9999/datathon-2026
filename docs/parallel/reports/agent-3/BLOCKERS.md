@@ -38,7 +38,7 @@ unpublished; the observed feed and terms are recorded in
 Paid or billing dependent integrations are excluded from this branch, and sources
 requiring login, an account, a key, a token or approval are set aside. The source
 ledger retains these assigned rows for audit and marks them `excluded_paid_plan`
-or `deferred_login`. Six paid or billing dependent rows and 55 login gated rows
+or `deferred_login`. Six paid or billing dependent rows and 56 login gated rows
 are affected; some rows name the same underlying provider. No enabled new
 provider capture requires a paid plan or login.
 
@@ -64,7 +64,7 @@ permitted authorization. The independent official versioned ZIP was acquired ano
 a bounded cited sample was enabled; see `UCDP-STATIC.md`.
 Eurostat's live HICP endpoint returned old-series observations ending 2025-12, while the
 copyright reference tried returned 404; use the replacement series and current reuse notice.
-IMF/OECD/BIS and other accessible sources remain unimplemented where marked
+IMF/OECD SDMX and other accessible sources remain unimplemented where marked
 as such in SOURCES.csv. GDELT DOC remains baseline unavailable; its article location cannot be
 invented from publisher location.
 
@@ -96,3 +96,24 @@ NOAA NHC's three current basin GIS feeds and `CurrentStorms.json` were checked a
 OFAC's Sanctions List Service and recent-actions pages were reachable anonymously. The reviewed Treasury notices did not provide an affirmative reuse licence for the chosen sanctions dataset, and a linked static sanctions application returned 403. `OFAC-EXTRA.md` records the exact access and rights evidence. No list data, named-person identity link or sanctions-screening feature was enabled; verify the applicable dataset reuse basis and actual file endpoint before implementation.
 
 ClinicalTrials.gov's anonymous API supplied a checksum-verified three-study, six-Canadian-location sample, but its distribution guidance asks published extracts to be kept current. The immutable manual sample is staged in evidence and not served. `TRIALS-EXTRA.md` records exact fields, source processing timestamp, rights, third-party caveat and missing facility coordinate precision. A compliant refresh path and rights review of any expanded fields are needed before publication.
+
+Open Power System Data SRC-194 was checked at a selected anonymous renewable-plants package. Its package metadata lacked a data licence declaration; the page's CC BY statement applies to text, and the package combines multiple upstream owners. `EARTHDATA-EXTRA.md` records the check. The selected data are withheld until field-level and upstream redistribution rights are established. OpenAlex SRC-235 has current documentation directing users to a key and is set aside under the user's login rule.
+
+GDELT's released Event, GKG and Geographic Graph metadata were captured and enabled as three bounded location samples. Its separate DOC TimelineVol endpoint returned HTTP 429 and the documented GEO PointData endpoint returned HTTP 404 under bounded anonymous requests. `GDELT-EXTRA.md` records exact URLs, rights and responses. These API rows remain checked endpoint unavailable; bulk captures do not substitute for those API products. Machine-coded locations are unverified and publisher article content is not copied.
+
+JODI oil CSVs are freely downloadable but the reviewed copyright notice and missing applicable data terms did not establish redistribution rights for the selected product. IMF PortWatch links copyright terms whose official response had an empty body; its ports/chokepoint ArcGIS access is likewise insufficient to establish redistribution rights. `OPENFLIGHTS-ENERGY-BATCH.md` gives exact source URLs and evidence. These sources remain unpublished pending applicable rights. BIS statistical rows are included in this local free demo; its terms disallow an additional charge for including BIS data. ECB source and free-access notices must stay visible if this product is sold.
+
+Wikipedia Recent Changes serves a ten-record factual edit metadata sample, not
+event or issuer claims. The Canada Gazette RSS feeds responded, but their linked
+Canada.ca terms require permission for commercial redistribution. EUR-Lex web
+services require a registered account. The accessible UN sanctions XML is withheld
+because the reviewed general UN terms restrict redistribution and derivatives.
+`POLICY-PUBLIC-BATCH.md` records the exact requests and rights basis.
+
+ILO's official CSV API supplied three 2024 unemployment rates under the ILO
+CC BY 4.0 open-data terms; SDMX transport remains separate work. UNICEF's
+SDMX values were accessible, but a suitable redistribution grant was not
+established. WHO GHO's retrieved terms limit purpose and adaptations. FAOSTAT
+Fenix and bulk payload requests returned HTTP 521 and 403. These are held from
+runtime until their respective rights or endpoint blockers are resolved; see
+`GLOBAL-SOCIAL-STATS.md`.

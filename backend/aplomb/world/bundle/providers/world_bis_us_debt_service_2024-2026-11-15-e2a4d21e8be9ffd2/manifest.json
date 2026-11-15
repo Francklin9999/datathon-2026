@@ -1,0 +1,36 @@
+{
+ "attribution": "Source: Bank for International Settlements (BIS), WS_DSR Q.US.P. Selected normalized records by Aplomb. No BIS endorsement. Any translation is not an official BIS translation.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_bis_us_debt_service_2024-2026-11-15-e2a4d21e8be9ffd2",
+ "datasetId": "world_bis_us_debt_service_2024",
+ "frequency": "Quarterly",
+ "historicalReplay": false,
+ "licence": "BIS statistics terms: credit BIS, no misleading endorsement, no additional charge for data inclusion",
+ "licenceUrl": "https://data.bis.org/help/legal",
+ "limitations": [
+  "One 2024 series only. National or supranational aggregate; no point coordinates, issuer links or financial impact.",
+  "Period start is a display anchor; source publication time and historical vintage are unproven.",
+  "Latest captured values may be revised; excluded before retrieval, unavailable for original historical replay.",
+  "BIS statistics inclusion must cause no additional charge to users. Any translation is not an official BIS translation. No BIS endorsement."
+ ],
+ "name": "BIS 2024 United States private nonfinancial debt-service ratio",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "36a4184e52173f1a58167fb851d68ceb8bb67d3292fd171365a44e9e5942cc3d",
+   "url": "https://stats.bis.org/api/v1/data/WS_DSR/Q.US.P?startPeriod=2024-Q1&endPeriod=2024-Q4"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:45:23Z",
+ "rowCount": 4,
+ "scope": "One selected 2024 official macro series; incomplete provider and history coverage.",
+ "sha256": "e2a4d21e8be9ffd2cc0398d6883bff87594c014dd6b6672ea62456eb2569f528",
+ "sourceIds": [
+  "SRC-094",
+  "MASTER-036"
+ ],
+ "sourceRows": 4,
+ "sourceUrl": "https://stats.bis.org/api/v1/data/WS_DSR/Q.US.P?startPeriod=2024-Q1&endPeriod=2024-Q4"
+}

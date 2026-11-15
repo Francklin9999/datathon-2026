@@ -1,0 +1,49 @@
+{
+  "world_gdelt_event_metadata": {
+    "dataVersion": "world_gdelt_event_metadata-2026-11-15-5ee806000fe9d6e7",
+    "rowCount": 250,
+    "sha256": "5ee806000fe9d6e79dfd945df50750c744d272368284b3b2831ea247102fe018",
+    "sourceRows": 1021,
+    "rejected": 0,
+    "skipped": 379,
+    "truncated": 392,
+    "retrievedAt": "2026-11-15T17:46:07Z",
+    "historicalBeforeCaptureRows": 0,
+    "northernRows": 232,
+    "southernRows": 18,
+    "easternRows": 166,
+    "westernRows": 84
+  },
+  "world_gdelt_geographic_mentions": {
+    "dataVersion": "world_gdelt_geographic_mentions-2026-11-15-2171730c9e83ecf4",
+    "rowCount": 250,
+    "sha256": "2171730c9e83ecf43a02a599da2e3201ee376b91f8905a2d3b8c54c167069423",
+    "sourceRows": 4705,
+    "rejected": 0,
+    "skipped": 3813,
+    "truncated": 642,
+    "retrievedAt": "2026-11-15T17:46:57Z",
+    "historicalBeforeCaptureRows": 0,
+    "northernRows": 232,
+    "southernRows": 18,
+    "easternRows": 97,
+    "westernRows": 153
+  },
+  "world_gdelt_gkg_locations": {
+    "dataVersion": "world_gdelt_gkg_locations-2026-11-15-f3e5ab8973c1bd55",
+    "rowCount": 250,
+    "sha256": "f3e5ab8973c1bd55410299002a465a7ec17272e1bfabcfc8cd3ce6243b9cb97b",
+    "sourceRows": 712,
+    "rejected": 0,
+    "skipped": 258,
+    "truncated": 204,
+    "retrievedAt": "2026-11-15T17:46:07Z",
+    "historicalBeforeCaptureRows": 0,
+    "northernRows": 240,
+    "southernRows": 10,
+    "easternRows": 115,
+    "westernRows": 135
+  },
+  "identicalRepublication": "idempotent",
+  "rawAndNormalizedIntegrity": "verified by load_provider_snapshots"
+}

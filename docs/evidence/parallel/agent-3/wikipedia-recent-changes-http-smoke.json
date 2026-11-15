@@ -1,0 +1,74 @@
+{
+  "current": {
+    "httpStatus": 200,
+    "total": 10,
+    "sample": {
+      "id": "world_wikipedia_recent_changes:2090675369",
+      "mode": "news",
+      "title": "Wikipedia edit activity: 400 mawozo",
+      "summary": "English Wikipedia new to article 400 mawozo; revision 1385866793; 0 to 23 bytes. Edit activity does not confirm a real-world event or establish geography or issuer relevance. Source: English Wikipedia / Wikimedia; factual edit metadata adapted by Aplomb.",
+      "occurredAt": "2026-11-15T17:50:08Z",
+      "timeBasis": "source_observation",
+      "publishedAt": null,
+      "retrievedAt": "2026-11-15T17:50:10Z",
+      "location": null,
+      "geometry": null,
+      "countryIso3": null,
+      "source": {
+        "name": "English Wikipedia Recent Changes edit metadata",
+        "url": "https://en.wikipedia.org/w/index.php?oldid=1385866793"
+      },
+      "datasetId": "world_wikipedia_recent_changes",
+      "limitations": [
+        "Source: English Wikipedia / Wikimedia; factual edit metadata adapted by Aplomb.",
+        "Current captured source record; no verified historical vintage.",
+        "A point or displayed polygon anchor does not establish issuer exposure or financial effect.",
+        "Ten newest article edits/new pages only; continuation is deliberately not followed.",
+        "Edit activity is not confirmation of a news event, sentiment, popularity or investment relevance.",
+        "No article text, edit comments, editor identities or IP addresses are requested or stored.",
+        "An article title does not establish event location, issuer identity or a holding relationship.",
+        "Edit timestamp is not the publication or observation time of a real-world event.",
+        "Current capture only; original historical availability is unproven and gated at retrieval."
+      ]
+    }
+  },
+  "historical": {
+    "httpStatus": 200,
+    "total": 0
+  },
+  "viewport": {
+    "httpStatus": 200,
+    "total": 0
+  },
+  "passport": {
+    "status": "in_use",
+    "rowCount": 10,
+    "licence": "Factual edit metadata; Wikimedia Terms of Use \u00a77 permits free reuse of contributed facts; article text excluded"
+  },
+  "manifest": {
+    "dataVersion": "world_wikipedia_recent_changes-2026-11-15-1fe961c5e3f741b0",
+    "sha256": "1fe961c5e3f741b0f1da521e17821938816346b74452d73ea04699addb84f45f",
+    "rowCount": 10,
+    "quality": {
+      "acceptedRows": 10,
+      "continuationAvailable": true,
+      "inputRows": 10,
+      "paginationFollowed": false,
+      "rejectedRows": 0
+    },
+    "historicalReplay": false,
+    "retrievedAt": "2026-11-15T17:50:10Z",
+    "rawCaptures": [
+      {
+        "file": "raw-000.bin",
+        "sha256": "1889933ba467095adb20b0f34582e27ec2077e773b15b015201c135bc37bf184",
+        "url": "https://en.wikipedia.org/w/api.php?action=query&list=recentchanges&rcprop=title%7Ctimestamp%7Cids%7Csizes&rclimit=10&rcnamespace=0&rctype=edit%7Cnew&format=json"
+      },
+      {
+        "file": "raw-001.bin",
+        "sha256": "ac9095f87dea80da9a8d03873c718c1ac80e82ba57b9c8e1b94e3a404dc7e257",
+        "url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use"
+      }
+    ]
+  }
+}

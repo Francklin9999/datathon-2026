@@ -1,0 +1,36 @@
+{
+ "attribution": "Source: U.S. Bureau of Labor Statistics, CPI-U series CUUR0000SA0; adapted by Aplomb. No government endorsement.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_bls_us_cpi_2024-2026-11-15-d1125216db8921e5",
+ "datasetId": "world_bls_us_cpi_2024",
+ "frequency": "Monthly series; manual fixed-year capture",
+ "historicalReplay": false,
+ "licence": "U.S. federal government statistical data, public domain; attribution provided",
+ "licenceUrl": "https://www.bls.gov/bls/linksite.htm",
+ "limitations": [
+  "One 2024 series; no complete BLS, world, or current-month coverage.",
+  "CPI-U is an index, 1982-84=100, not an inflation rate; U.S. city average, not seasonally adjusted.",
+  "Monthly dates use the first day only as a display anchor; source publication time is not established.",
+  "Original vintage availability is unproven; current capture is excluded before retrieval and is not historical replay.",
+  "No point coordinates, issuer linkage, or modeled financial impact."
+ ],
+ "name": "BLS 2024 U.S. monthly consumer price index",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "6e3de5084469638142802771ec9b3b181cf044fa9eacfb1e642500f30a3215e2",
+   "url": "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0?startyear=2024&endyear=2024"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:38:58Z",
+ "rowCount": 12,
+ "scope": "2024 monthly CPI-U all-items U.S. city average only; bounded single-series capture.",
+ "sha256": "d1125216db8921e58d22f56924c92921f7406521b3d80fc5c3705615da8b4ca9",
+ "sourceIds": [
+  "SRC-098"
+ ],
+ "sourceRows": 12,
+ "sourceUrl": "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0?startyear=2024&endyear=2024"
+}
