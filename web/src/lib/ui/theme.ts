@@ -44,16 +44,18 @@ s();document.addEventListener('visibilitychange',function(){if(document.visibili
 /**
  * Animation preference: `auto` follows the system "reduce motion" setting, `on` keeps the load
  * animations (counting figures, drawing charts, the rail) even when the system asks to reduce them,
- * `off` removes them. Applied before paint as html[data-anim] (absent for `auto`).
+ * `off` removes them. `on` is the default (product decision, 2026-11-15); a person who reduces motion
+ * picks Auto or Off in Settings. Applied before paint as html[data-anim] (absent for `auto`).
  */
 export type AnimPref = 'auto' | 'on' | 'off';
 export const ANIM_PREF_KEY = 'anim';
+export const DEFAULT_ANIM: AnimPref = 'on';
 
 export function isAnimPref(value: unknown): value is AnimPref {
   return value === 'auto' || value === 'on' || value === 'off';
 }
 
-export const ANIM_BOOT_SCRIPT = `(function(){try{var a=window.localStorage.getItem('aplomb.pref.anim');if(a==='on'||a==='off'){document.documentElement.setAttribute('data-anim',a);}}catch(e){}})();`;
+export const ANIM_BOOT_SCRIPT = `(function(){var a=null;try{a=window.localStorage.getItem('aplomb.pref.anim');}catch(e){}if(a!=='auto'&&a!=='off'){a='on';}if(a!=='auto'){document.documentElement.setAttribute('data-anim',a);}})();`;
 
 /** Whether load animations should play now (preference, system setting, hidden page). */
 export function animationsAllowed(pref: string | undefined, systemReduce: boolean, pageHidden: boolean): boolean {

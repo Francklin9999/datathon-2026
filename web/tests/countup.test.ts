@@ -62,3 +62,20 @@ test('count-up: dates, labels and identifiers are left alone', () => {
   assert.equal(parseFigure('6.09% (2021-11-12 – 2026-11-12)', 'en')?.value, 6.09);
   assert.equal(parseFigure('$1.2', 'en')?.value, 1.2);
 });
+
+test('animations: on by default, before paint, unless Auto or Off was chosen', async () => {
+  const { ANIM_BOOT_SCRIPT, DEFAULT_ANIM } = await import('../src/lib/ui/theme');
+  assert.equal(DEFAULT_ANIM, 'on');
+  const run = (stored: string | null) => {
+    const attrs: Record<string, string> = {};
+    const fakeWindow = { localStorage: { getItem: () => stored } };
+    const fakeDocument = { documentElement: { setAttribute: (k: string, v: string) => { attrs[k] = v; } } };
+    new Function('window', 'document', ANIM_BOOT_SCRIPT)(fakeWindow, fakeDocument);
+    return attrs['data-anim'];
+  };
+  assert.equal(run(null), 'on');
+  assert.equal(run('on'), 'on');
+  assert.equal(run('off'), 'off');
+  assert.equal(run('auto'), undefined);
+  assert.equal(run('garbage'), 'on');
+});

@@ -12,7 +12,7 @@ import { useApp, WINDOW_CODES } from '../../state/app';
 import { WINDOW, labelOf } from '../../lib/labels';
 import { fmtDate } from '../../lib/format';
 import { windowShortLabel } from '../../lib/ui/segmented';
-import { ANIM_PREF_KEY, isAnimPref, type AnimPref, type ThemePref } from '../../lib/ui/theme';
+import { ANIM_PREF_KEY, DEFAULT_ANIM, isAnimPref, type AnimPref, type ThemePref } from '../../lib/ui/theme';
 import { readPref, writePref } from '../../lib/session';
 import { Listbox } from '../ui/Listbox';
 import { SegmentedControl } from '../ui/SegmentedControl';
@@ -170,7 +170,7 @@ const ANIM_OPTIONS: readonly { value: AnimPref; label: I18NText }[] = [
 
 /** Animation preference, stored and applied to <html> (the boot script applied it before paint). */
 function useAnimPref(): [AnimPref, (pref: AnimPref) => void] {
-  const [anim, setAnimState] = useState<AnimPref>('auto');
+  const [anim, setAnimState] = useState<AnimPref>(DEFAULT_ANIM);
   useEffect(() => { const stored = readPref(ANIM_PREF_KEY); if (isAnimPref(stored)) setAnimState(stored); }, []);
   const setAnim = (next: AnimPref) => {
     setAnimState(next);
