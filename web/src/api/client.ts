@@ -7,7 +7,7 @@ import type {
   AplombContracts, ApiError, BatchCheckRequest, CheckRequest, CreateProfileRequest,
   CreateRunRequest, DeriveRulesRequest, Lang, ParseRequest, RulePatchRequest,
   SabotageRequest, UpdatePortfolioRequest, UpdateProfileRequest, WindowCode, AnswerRequest,
-  RunKind, RevealRequest,
+  RunKind, RevealRequest, WindowSpec,
 } from '../contracts/types';
 import { ApiRequestError } from './errors';
 
@@ -43,6 +43,14 @@ export interface WorldFacilitiesQuery { bbox?: string; country?: readonly string
 export interface WorldHazardsQuery { from?: string; to?: string; type?: 'earthquake' | 'wildfire'; bbox?: string; limit?: number }
 
 export interface ResponseMeta { requestId: string | null; dataVersion: string | null; status: number }
+
+/** Read-endpoint window query: a preset code, or `custom` with its ISO start and end (api.md 3.9/3.10). */
+export function windowQuery(window: WindowCode | WindowSpec): Record<string, string> {
+  const spec = typeof window === 'string' ? { code: window } : window;
+  return spec.code === 'custom' && spec.start && spec.end
+    ? { window: 'custom', start: spec.start, end: spec.end }
+    : { window: spec.code === 'custom' ? 'full' : spec.code };
+}
 
 export function buildUrl(base: string, path: string, query?: Query): string {
   const url = `${base}${path}`;
@@ -169,12 +177,14 @@ export function createApiClient(config: ClientConfig) {
       call('DeriveRulesResponse', 'POST', `/profiles/${enc(profileId)}/rules/derive`, { body }),
     updatePortfolio: (profileId: string, body: UpdatePortfolioRequest) =>
       call('Profile', 'PUT', `/profiles/${enc(profileId)}/portfolio`, { body }),
-    overview: (profileId: string, window: WindowCode, signal?: AbortSignal) =>
-      call('OverviewResponse', 'GET', `/profiles/${enc(profileId)}/overview`, { query: { window }, signal }),
-    performance: (profileId: string, window: WindowCode, signal?: AbortSignal) =>
-      call('PerformanceResponse', 'GET', `/profiles/${enc(profileId)}/performance`, { query: { window }, signal }),
-    frontier: (profileId: string, window: WindowCode, signal?: AbortSignal) =>
-      call('FrontierResponse', 'GET', `/profiles/${enc(profileId)}/frontier`, { query: { window }, signal }),
+    overview: (profileId: string, window: WindowCode | WindowSpec, signal?: AbortSignal) =>
+      call('OverviewResponse', 'GET', `/profiles/${enc(profileId)}/overview`, { query: windowQuery(window), signal }),
+    performance: (profileId: string, window: WindowCode | WindowSpec, signal?: AbortSignal, benchmark?: string | null) =>
+      call('PerformanceResponse', 'GET', `/profiles/${enc(profileId)}/performance`, {
+        query: { ...windowQuery(window), ...(benchmark ? { benchmark } : {}) }, signal,
+      }),
+    frontier: (profileId: string, window: WindowCode | WindowSpec, signal?: AbortSignal) =>
+      call('FrontierResponse', 'GET', `/profiles/${enc(profileId)}/frontier`, { query: windowQuery(window), signal }),
     brief: (profileId: string, lang: Lang, signal?: AbortSignal) =>
       call('CachedBriefResponse', 'GET', `/profiles/${enc(profileId)}/brief`, { query: { lang }, signal }),
 

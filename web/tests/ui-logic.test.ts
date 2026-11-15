@@ -141,12 +141,46 @@ test('splitLimitations dedupes, keeps order and folds after n', () => {
 });
 
 test('browser theme-color follows the resolved theme, not only the OS', () => {
-  assert.equal(themeColorFor('light'), '#E3E9EE');
-  assert.equal(themeColorFor('dark'), '#050E17');
+  assert.equal(themeColorFor('light'), '#FAFAFA');
+  assert.equal(themeColorFor('dark'), '#141415');
 });
 
 test('motion boot script pauses entrance motion while the page is hidden', () => {
   assert.match(MOTION_BOOT_SCRIPT, /visibilityState/);
   assert.match(MOTION_BOOT_SCRIPT, /data-motion/);
   assert.match(MOTION_BOOT_SCRIPT, /visibilitychange/);
+});
+
+import { listboxNext, typeaheadIndex } from '../src/lib/ui/listbox';
+
+test('listboxNext moves within bounds (no wrap) and supports Home/End', () => {
+  assert.equal(listboxNext(0, 'ArrowDown', 3), 1);
+  assert.equal(listboxNext(2, 'ArrowDown', 3), 2);
+  assert.equal(listboxNext(0, 'ArrowUp', 3), 0);
+  assert.equal(listboxNext(-1, 'ArrowDown', 3), 0);
+  assert.equal(listboxNext(1, 'Home', 3), 0);
+  assert.equal(listboxNext(1, 'End', 3), 2);
+  assert.equal(listboxNext(1, 'a', 3), null);
+  assert.equal(listboxNext(0, 'ArrowDown', 0), null);
+});
+
+test('typeaheadIndex finds the next label by prefix, case-insensitive, wrapping', () => {
+  const labels = ['Robert', 'Amira', 'Mateo', 'Rachel'];
+  assert.equal(typeaheadIndex(labels, 'r', 0), 3);
+  assert.equal(typeaheadIndex(labels, 'r', 3), 0);
+  assert.equal(typeaheadIndex(labels, 'AM', 0), 1);
+  assert.equal(typeaheadIndex(labels, 'z', 0), -1);
+  assert.equal(typeaheadIndex(labels, '', 0), -1);
+});
+
+import { SIDEBAR_BOOT_SCRIPT, SIDEBAR_PREF_KEY, isSidebarState } from '../src/lib/ui/theme';
+
+test('sidebar state is a stored preference applied before first paint', () => {
+  assert.equal(SIDEBAR_PREF_KEY, 'sidebar');
+  assert.match(SIDEBAR_BOOT_SCRIPT, /aplomb\.pref\.sidebar/);
+  assert.match(SIDEBAR_BOOT_SCRIPT, /data-sidebar/);
+  assert.match(SIDEBAR_BOOT_SCRIPT, /try/);
+  assert.equal(isSidebarState('collapsed'), true);
+  assert.equal(isSidebarState('expanded'), true);
+  assert.equal(isSidebarState('wide'), false);
 });

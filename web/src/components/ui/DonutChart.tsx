@@ -1,8 +1,8 @@
 'use client';
 /**
- * Part-to-whole donut with a meter-list legend. The legend carries every label and value (the
- * accessible alternative and the precise reading); the ring gives the at-a-glance shape. Hovering
- * a slice or a legend row highlights the pair. Colours come from the caller (fixed per entity).
+ * Part-to-whole donut with a legend list. The legend carries every label and value (the accessible
+ * alternative and the precise reading); the ring gives the at-a-glance shape. Hovering a slice or a
+ * legend row highlights the pair. Colours come from the caller (fixed per entity).
  */
 import { useEffect, useMemo, useState } from 'react';
 import { donutArcs } from '../../lib/ui/donut';
@@ -49,10 +49,6 @@ export function DonutChart({ items, centerValue, centerLabel, label, format }: {
               onPointerEnter={() => setActive(item.key)}>
               <span className="meter-dot" style={{ background: item.color }} aria-hidden="true" />
               <span className="meter-name">{item.label}</span>
-              <span className="meter-track" aria-hidden="true">
-                {/* Bar length matches the printed value (share of the whole portfolio). */}
-                <span className="meter-fill" style={{ width: `${Math.max(0, Math.min(100, item.value))}%`, background: item.color }} />
-              </span>
               <span className="meter-value num">{format(item.value)}</span>
             </li>
           );

@@ -91,10 +91,10 @@ export default function GlobeView({
           ref={globe}
           width={width}
           height={height}
-          backgroundColor="#0F2233"
+          backgroundColor="#141415"
           globeImageUrl={ocean}
           showAtmosphere
-          atmosphereColor="#8FB8C8"
+          atmosphereColor="#A1A1A6"
           atmosphereAltitude={0.12}
           // Init-only prop: no spin-and-zoom intro under prefers-reduced-motion (resolved before this mounts).
           animateIn={!reducedMotion}
@@ -102,7 +102,7 @@ export default function GlobeView({
           polygonsData={countries as unknown as object[]}
           polygonCapColor={feature => exposureColor(exposure?.get((feature as CountryFeature).iso3 ?? '') ?? undefined)}
           polygonSideColor={() => 'rgba(0,0,0,0)'}
-          polygonStrokeColor={() => '#0F2233'}
+          polygonStrokeColor={() => '#141415'}
           polygonAltitude={0.006}
           polygonsTransitionDuration={0}
           onPolygonClick={feature => { const iso3 = (feature as CountryFeature).iso3; if (iso3) onCountry(iso3); }}

@@ -18,9 +18,10 @@ export interface GlobePin {
 export const PIN_COLORS = {
   event: '#E3A53B', eventCountry: '#F6E3B4', facility: '#6FD0C5', hazard: '#F2907F', selected: '#FFFFFF',
 } as const;
-export const LAND_COLOR = '#4A6880';
-export const OCEAN_COLOR = '#14304A';
-export const EXPOSURE_COLORS = ['#2E8F87', '#48B5AA', '#8ADFD2'] as const;
+// Graphite globe with one sequential cobalt ramp for exposure (app accent); events keep a warm hue of their own.
+export const LAND_COLOR = '#333338';
+export const OCEAN_COLOR = '#1C1C1F';
+export const EXPOSURE_COLORS = ['#4C6EF5', '#7F9CFF', '#B9C8FF'] as const;
 /** Upper bounds (percent of the portfolio) of the first two exposure shades. */
 export const EXPOSURE_BREAKS = [5, 20] as const;
 
