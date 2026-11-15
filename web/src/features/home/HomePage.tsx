@@ -15,7 +15,7 @@ import type {
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
 import { profileKey, useApp } from '../../state/app';
-import { useQuery, type QueryState } from '../../state/useQuery';
+import { prefetchQuery, useQuery, type QueryState } from '../../state/useQuery';
 import { useRun } from '../../state/useRun';
 import { Card, ProfileGate } from '../../components/common/Page';
 import { ErrorState, Loading, Unavailable } from '../../components/common/States';
@@ -74,6 +74,10 @@ export function HomePage() {
   return <ProfileGate>{profile => <HomeContent key={profile.profileId} profile={profile} />}</ProfileGate>;
 }
 
+function briefKey(base: string, windowCode: WindowCode, lang: string): string {
+  return `brief|${base}|${windowCode}|${lang}`;
+}
+
 /** Where the brief's figures come from: the whole portfolio and the global window, not the dashboard scope. */
 function briefScope(windowCode: WindowCode, tr: (t: I18NText) => string): string {
   return tr({
@@ -100,6 +104,10 @@ function HomeContent({ profile }: { profile: Profile }) {
     signal => client.overview(profile.profileId, windowSpec, signal));
   const performance = useQuery<PerformanceResponse>(base && `performance|${base}|${windowKey}|${scope.benchmark ?? '-'}`,
     signal => client.performance(profile.profileId, windowSpec, signal, scope.benchmark));
+  // The brief lookup starts with the overview instead of waiting for its widget to mount.
+  useEffect(() => {
+    prefetchQuery(base && briefKey(base, windowCode, lang), signal => client.brief(profile.profileId, lang, signal));
+  }, [base, windowCode, lang, client, profile.profileId]);
   const assets = useQuery<AssetsResponse>(base && `assets|${meta?.dataVersion ?? ''}`, signal => client.assets({ limit: 200 }, signal));
   const overviewScope = useMemo<FactScope | null>(() => (overview.data
     ? { kind: 'local', label: { en: 'Deterministic overview response (no model).', fr: 'Réponse d’aperçu déterministe (aucun modèle).' }, facts: overview.data.facts }
@@ -314,7 +322,7 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
   const app = useApp();
   const { tr, lang, windowCode, announce, sessionId, meta } = app;
   const base = profileKey(app);
-  const cacheKey = base && `brief|${base}|${windowCode}|${lang}`;
+  const cacheKey = base && briefKey(base, windowCode, lang);
   const cached = useQuery<CachedBriefResponse>(cacheKey, signal => getApiClient().brief(profile.profileId, lang, signal));
   // The run started for a key outlives this component: coming back to a persona, window, language
   // or to Home shows that run (or its progress) again instead of an empty card (HOME-02).

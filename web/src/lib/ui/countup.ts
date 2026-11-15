@@ -83,4 +83,4 @@ export function easeOutCubic(t: number): number {
   return 1 - (1 - c) ** 3;
 }
 
-export const COUNT_UP_MS = 1100;
+export const COUNT_UP_MS = 750;
