@@ -1,0 +1,33 @@
+{
+  "release": "1307604e96303251eadc199e3aaa1663ead8884f",
+  "deployedAt": "2026-11-15T23:48:08Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "version": "13",
+  "contents": "main at 1307604: Aymenead's standing strategies (contract 1.5.0, POST /profiles/{profileId}/strategies/simulate) and Palestine region display, the local search suggestions, on top of release 4f42460. Snapshot and flags unchanged.",
+  "reason": "The site deployed 57dbaa0 (Strategies page) while the API was still 1.4.0, so simulate answered 404.",
+  "method": "Same as release 4f42460. Full gate on 1307604 in a clean worktree (1048 Python tests and 16 subtests, 253 web tests, 7 infra tests and synth, static build). Artifact packaged by infra/scripts/package-backend.sh in a clean WSL clone at 1307604 with the Lambda Python 3.12 import check: deployments/1307604/lambda.zip, S3 version z0cO4r8yN9.M2Dx2zMpARAfPdvPAEdNL, sha256 7a1734c7af64ddb5d435ecf64e36f9531717de62688111828e05ee812d5364fd, Lambda CodeSha256 ehc0x69k3bXUNez2Tjb5UxcX3mJogRGCjgXugS1TZP0= (matches on API and worker). The live template was identical to the 4f42460 deployment; the release config changed only revision and artifact. Change set release-1307604 reviewed before execution: per-release roles, policies, versions and async config replaced (previous ones Retain), both functions and the HTTP integration modified, invoke permission replaced; permission statements identical; no table, bucket, distribution, alarm or queue change.",
+  "liveChecks": {
+    "meta": "contract 1.5.0, snap-20261115-globalfx, the same ten flags on, X-Aplomb-Build 1307604",
+    "strategies": "simulate answered 200 for rebalance (calendar), contribute (monthly, underweight) and risk_guard on Robert: 1228 points each, M_STRATEGY_SIM",
+    "endpoints": "profiles, robert overview, world observations and datasets answered 200",
+    "decision": {
+      "runId": "run_01M7GSTBBV7H87Z8Z1X6KQP1BF",
+      "request": "Robert TSLA +25, pro rata, English",
+      "status": "succeeded",
+      "seconds": 56,
+      "steps": "plan, research, quant, risk_check, write, audit, sign",
+      "counts": "1 pass, 1 tension, 6 conflict, 3 info",
+      "audit": "passed_with_strikes",
+      "signed": true
+    },
+    "isolation": "another session -> 404"
+  },
+  "limits": [
+    "main moved on to 3054df5 during the release (expanded globe data and per-marker assessments); those backend changes are not in this release. Their contract additions are optional fields, so the site at 3054df5 works against this API without the new assessments."
+  ],
+  "notVerified": [
+    "Event brief with web.browse, replay, goal and sabotage runs were not repeated on this release."
+  ],
+  "rollback": "Update to the 4f42460 template (artifact deployments/4f42460/lambda.zip version H9zEcE0mB0ut6NCTdRhWWQc5fG982Mzr); its roles, policies, versions and async config were retained."
+}
