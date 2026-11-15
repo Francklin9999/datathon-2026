@@ -273,7 +273,9 @@ export default function GlobeView({
           polygonsData={land as unknown as object[]}
           polygonCapColor={hitColor}
           polygonSideColor={noSide}
-          polygonAltitude={0.002}
+          polygonAltitude={0.003}
+          // Small cap triangles: large flat ones would sag under the globe surface and miss the pointer
+          polygonCapCurvatureResolution={2}
           polygonsTransitionDuration={0}
           polygonLabel={noLabel}
           onPolygonClick={clickCountry}
