@@ -1,0 +1,61 @@
+{
+  "release": "4a9c98eff68895fd3b76df26d5e3d77f03aa287d",
+  "deployedAt": "2026-11-15T18:01:27Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "releasesToday": [
+    {"revision": "8b0e373", "version": "9", "change": "web.browse through AgentCore Browser; research_open_web switched on (worker granted StartBrowserSession, StopBrowserSession, ConnectBrowserAutomationStream on aws.browser.v1 only)"},
+    {"revision": "d7d9fba", "version": "10", "change": "event briefs add a code-owned research question on their allow-listed official source"},
+    {"revision": "4a9c98e", "version": "11", "change": "meta and worker share one contact user agent rule; operator config sourceUserAgent given its https:// scheme"}
+  ],
+  "method": "Same as earlier releases (AWS CLI, WSParticipantRole profile, change set reviewed before execution). Full CI passed before each release in a clean WSL clone (815 Python, 202 web, 7 infra tests and synth for 4a9c98e). Artifact for 4a9c98e: deployments/4a9c98e/lambda.zip, S3 version wbWA82oqDeIsh_DfX6eB6CmaBRYLpszq, sha256 ab9326f76a3fa88e2f9300d03d4222f9d6eaa41addc7075ee74e9e1fdb92793b, Lambda CodeSha256 q5Mm92o/qI4vkwDQPUIi+dbqpBrdxwde506eH9uSeTs= (matches).",
+  "findings": {
+    "beforeFix": "On version 9, eight live event briefs (Robert, Amira, Mateo; EN and FR; Fed, Bank of Canada and Statistics Canada events) ran no research step: the planner proposed no research question. Version 10 added the source question but research tools were still absent: the configured sourceUserAgent had no https:// or email, so the worker never registered any research tool, while /meta advertised research_open_web because it only checked that the agent was non-empty.",
+    "afterFix": "Version 11: the researcher chose web.browse on its own and AgentCore Browser ran inside the deployed worker."
+  },
+  "liveChecks": {
+    "meta": "ten flags on, including research_open_web and sabotage_demo; contract 1.1.0; X-Aplomb-Build 4a9c98e",
+    "eventBriefBankOfCanada": {
+      "runId": "run_01M7G6264CBRSC9ATRYKK7PGHX",
+      "request": "Robert, 'Bank of Canada raises the policy rate by 25 basis points to 2½%', English",
+      "status": "succeeded", "seconds": 81,
+      "webBrowse": {"startUrl": "https://www.bankofcanada.ca/2026/10/fad-press-release-2026-10-28/", "ok": true, "seconds": 8.2, "pages": 2},
+      "rejectedByAllowlist": ["www.blackrock.com (web.browse x2, web.fetch x2)", "www.bmoetfs.ca (web.browse, web.fetch)"],
+      "otherToolFailures": ["edgar.find_company: source_unavailable", "etf.holdings: issuer_file_not_configured"],
+      "evidenceSaved": 3, "evidenceVerified": 3, "sentencesCitingEvidence": 4,
+      "audit": "passed, 0 of 11 struck", "toolCalls": 12, "llmCalls": 8
+    },
+    "eventBriefFed": {
+      "runId": "run_01M7G62646WJR769YGRKP59NJV",
+      "request": "Amira, 'Federal Reserve issues FOMC statement', French",
+      "status": "succeeded", "seconds": 91,
+      "webBrowse": {"startUrl": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm", "ok": true, "seconds": 8.1, "pages": 2},
+      "rejectedByAllowlist": ["www.jpmorganchase.com (web.browse)", "www.ssga.com (web.browse)", "www.microsoft.com (web.fetch)"],
+      "evidenceSaved": 2, "evidenceVerified": 2, "sentencesCitingEvidence": 2,
+      "audit": "passed_with_strikes, 1 of 9 struck", "toolCalls": 9, "llmCalls": 8
+    },
+    "regression": {
+      "decision": "run_01M7G65KKDQFMXRSM6VA55VZ7H Robert TSLA +25 succeeded in 40 s, now with a research step; counts 1 pass, 1 tension, 6 conflict; audit passed",
+      "goal": "run_01M7G66V57PSG1NT9Q10A8Q94B Amira AI 15% no-change, 47 s",
+      "replay": "run_01M7G689D6WH1PXPTWYYDW5PAS replay and reveal, parent hash unchanged, 46 s",
+      "isolation": "another session -> 404"
+    }
+  },
+  "limits": [
+    "Allow-list of nine exact hosts (Bank of Canada, Federal Reserve Board, Statistics Canada x2, SEC x2, Wikimedia, iShares, GDELT). The agent repeatedly tried issuer and company sites (BlackRock, BMO ETFs, JPMorgan, SSGA, Microsoft); each was refused in about a millisecond and left an evidence gap.",
+    "A start URL is required: web.browse cannot search; it reads a page the agent already knows.",
+    "Links are followed only when their text or path contains a task word (4+ letters, no stemming); fragile across languages and synonyms.",
+    "PDF and other non-HTML documents are skipped; many official releases are PDFs.",
+    "Up to 5 pages, 12 s per page, 36 s per call; a session is opened per call. Event briefs with research take about 80-90 s instead of about 40 s.",
+    "An unknown HTTP status (0) is accepted as a page.",
+    "Cookie banners are not dismissed; their text can be captured.",
+    "Cache is in process memory, per Lambda instance, one day.",
+    "Worker reserved concurrency is 2: a third concurrent analysis waited and was failed by the watchdog after 61 s (run_01M7G2MYP15T0M9XX5S2Q14QBF on version 9).",
+    "SEC (EDGAR) answered source_unavailable and etf.holdings has no issuer file configured, so those research tools add calls but no evidence."
+  ],
+  "notVerified": [
+    "Session stop on AWS was not listed after the runs: the Workshop Studio credentials expired before list-browser-sessions could run (sessions expire on their own after 120 s).",
+    "Browser use from a decision run (the decision checked here researched without web.browse)."
+  ],
+  "rollback": "Remove research_open_web from features (no browser grant, no flag) and redeploy; or update to the 42e2023 template (artifact deployments/42e2023/lambda.zip version wfF6tVWNvio3vTJy.J0nud82zaTsF7_3)."
+}
