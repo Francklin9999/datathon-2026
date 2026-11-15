@@ -1,0 +1,19 @@
+{
+  "scope": "Owner-selected account adapters and removal of other pending providers; no production deployment",
+  "supplied_distinct_accounts": 15,
+  "accounts_with_demonstrated_supported_live_operations": 14,
+  "sole_selected_permission_blocker": "FRED/ALFRED, supplied key stored; no fetch under incompatible current terms",
+  "catalogue_counts": {
+    "working": 31,
+    "removed": 62,
+    "aside": 4
+  },
+  "tests": {
+    "focused": 20,
+    "ruff": "passed",
+    "typecheck": "passed",
+    "static_export": "passed"
+  },
+  "removed_provider_rows_retained": "Audit traceability only, not active coverage",
+  "evidence": "Actual live source captures/status reports; HTTP probes label isolated fixed test session explicitly."
+}

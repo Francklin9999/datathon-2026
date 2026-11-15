@@ -68,6 +68,27 @@
     "docs/evidence/parallel/agent-2/credentialed-live/esma-complete-result.json": "7677f1478ce5c990da91fd0ff364b6d5144ed9f74ab51283b502c75e374a439b",
     "docs/evidence/parallel/agent-2/tiingo-live-status.json": "0f6a29d0ecfa1f19d48e720bd2ff2ba989b71288f4cdb60990e9a4b0515a5c46",
     "docs/evidence/parallel/agent-2/tiingo/msft-source-0.json": "59912649099b9f228bebc60d6ec65af1f8f8d2b07a8b33bb01e5ec513a8a874b",
-    "docs/evidence/parallel/agent-2/tiingo/msft-source-1.json": "ee4e9b35e55b2e03102cc3b22429d3d1de6bfede650ce4e25337086c7ae4413c"
+    "docs/evidence/parallel/agent-2/tiingo/msft-source-1.json": "ee4e9b35e55b2e03102cc3b22429d3d1de6bfede650ce4e25337086c7ae4413c",
+    "docs/evidence/parallel/agent-2/supplied-accounts/jquants-company.json": "bfecf1c83ce15d880ca23fb8856775c6ef36309406f03588da77f636d1cef156",
+    "docs/evidence/parallel/agent-2/supplied-accounts/jquants-financials.json": "42d7b3ee64174bb3d4bca269176f428837029e7ef6c5792d87cf47735c9ae551",
+    "docs/evidence/parallel/agent-2/supplied-accounts/jquants-prices.json": "7d951037f468f43eaa8734b591e12ecbe90883317ac6f2f2fe035d92217740c7",
+    "docs/evidence/parallel/agent-2/supplied-accounts/jquants-status.json": "6417fd1212bc45c1e9d7aa9b17defed5c0a007ed0622e680930e2b9c1e90a5fb",
+    "docs/evidence/parallel/agent-2/supplied-accounts/stock-fmp.json": "1965b107c8a57ba18871d1ff082bfbf5b4a4be58a4f8190c51ad2ac01fb1842f",
+    "docs/evidence/parallel/agent-2/supplied-accounts/stock-eodhd.json": "7abee2217c77ef5a65326fea4c4ff429ba66f718822f7222c0b7582c715444d0",
+    "docs/evidence/parallel/agent-2/supplied-accounts/stock-massive.json": "6d38f2db694c508402a59430c67d05837e2c544b5ec1bab567e93dee09598ca8",
+    "docs/evidence/parallel/agent-2/supplied-accounts/stock-marketstack.json": "a445d3581f6e104a75cd26f36524547fccdf77c68a453dcb008903c9675156f2",
+    "docs/evidence/parallel/agent-2/supplied-accounts/chain-goldrush-chains.json": "735b75c515aed2a274a217a64440cd1fddac82a1248e70c6515e2adb1d9ccef2",
+    "docs/evidence/parallel/agent-2/supplied-accounts/chain-alchemy.json": "0869ab15575c1f7e8d6549ae76b77c0561e99bbb0f7db3e93f777044ad35d302",
+    "docs/evidence/parallel/agent-2/supplied-accounts/chain-blockscout.json": "6c246d5bc98701ef0d1428e8371091b527c6d270919e4e2c1b133bb31882b09f",
+    "docs/evidence/parallel/agent-2/supplied-accounts/chain-status.json": "03f2480b4e89276695b70569b11620121975d84bde2ee6158931eae52e013b69",
+    "docs/evidence/parallel/agent-2/supplied-accounts/chain-coinmarketcap.json": "0369615a7352b2eb7429d34dc8fe4a1639ce13ef97862b30054ca472dbd920f8",
+    "docs/evidence/parallel/agent-2/supplied-accounts/focused-tests.log": "c66ef7936b32d2201bf6eb901cf69cbc8e71996669c38afe1f70ad40098e04a3",
+    "docs/evidence/parallel/agent-2/supplied-accounts/http-fmp.json": "92f0273cc973fb741e10f7d59e7127d2806a0dddf2215aa4f38cf7d50b473bcf",
+    "docs/evidence/parallel/agent-2/supplied-accounts/http-coinmarketcap.json": "6393e3c84a2bc0b3b3250aec99a2f174a51874b16ad255e450fa54530c07378d",
+    "docs/evidence/parallel/agent-2/supplied-accounts/http-status.json": "9b9ae0aa951fc32bf4224daf57bc4ac448be74b18bed9644940761dfa33c06f2",
+    "docs/evidence/parallel/agent-2/supplied-accounts/typecheck.log": "9e2b0518bdd95936d3b3d7030bb7b24584d35298e93c592985d7dfc255c3a9e7",
+    "docs/evidence/parallel/agent-2/supplied-accounts/static-build.log": "baa00c2726ef72da73d5d09a51a99d3ff8ef4cbe9fe2a19f060543b7ad8e8deb",
+    "docs/evidence/parallel/agent-2/supplied-accounts/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "docs/evidence/parallel/agent-2/supplied-accounts/verification-summary.json": "2d20ab1ea4b6dfc4f7c9a1597c5b988ccbf3b2794ac2bb5e73095e7385ffa1f3"
   }
 }

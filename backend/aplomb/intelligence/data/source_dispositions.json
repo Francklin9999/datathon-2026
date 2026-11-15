@@ -37,40 +37,40 @@
       "provider": "Financial Modeling Prep",
       "source_url": "https://site.financialmodelingprep.com/developer/docs",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "FMP quote by exact returned provider ticker",
+      "implementation_test_evidence": "backend/aplomb/research/stock_accounts.py; docs/evidence/parallel/agent-2/supplied-accounts/stock-fmp.json",
+      "remaining_work_or_external_blocker": "Supplied account verified with real data for the stated bounded operation. Account quotas/terms and original-availability limitations apply; no universal global identity or redistribution rights asserted."
     },
     {
       "id": "SRC-005",
       "provider": "EOD Historical Data",
       "source_url": "https://eodhd.com/financial-apis/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "EODHD dated daily history by CODE.EXCHANGE; response does not echo instrument identity",
+      "implementation_test_evidence": "backend/aplomb/research/stock_accounts.py; docs/evidence/parallel/agent-2/supplied-accounts/stock-eodhd.json",
+      "remaining_work_or_external_blocker": "Supplied account verified with real data for the stated bounded operation. Account quotas/terms and original-availability limitations apply; no universal global identity or redistribution rights asserted."
     },
     {
       "id": "SRC-006",
       "provider": "Massive (Polygon)",
       "source_url": "https://massive.com/docs",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "Massive listing detail with exact returned ticker",
+      "implementation_test_evidence": "backend/aplomb/research/stock_accounts.py; docs/evidence/parallel/agent-2/supplied-accounts/stock-massive.json",
+      "remaining_work_or_external_blocker": "Supplied account verified with real data for the stated bounded operation. Account quotas/terms and original-availability limitations apply; no universal global identity or redistribution rights asserted."
     },
     {
       "id": "SRC-007",
       "provider": "Alpaca Market Data",
       "source_url": "https://docs.alpaca.markets/docs/market-data",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-008",
@@ -87,20 +87,20 @@
       "provider": "Marketstack",
       "source_url": "https://marketstack.com/documentation",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "Marketstack daily history with exact returned ticker",
+      "implementation_test_evidence": "backend/aplomb/research/stock_accounts.py; docs/evidence/parallel/agent-2/supplied-accounts/stock-marketstack.json",
+      "remaining_work_or_external_blocker": "Supplied account verified with real data for the stated bounded operation. Account quotas/terms and original-availability limitations apply; no universal global identity or redistribution rights asserted."
     },
     {
       "id": "SRC-010",
       "provider": "Nasdaq Data Link",
       "source_url": "https://docs.data.nasdaq.com/",
       "catalog_access": "M",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-011",
@@ -117,20 +117,20 @@
       "provider": "Tradier",
       "source_url": "https://documentation.tradier.com/",
       "catalog_access": "S",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-014",
       "provider": "Interactive Brokers Client Portal",
       "source_url": "https://www.interactivebrokers.com/campus/ibkr-api-page/",
       "catalog_access": "S",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-015",
@@ -147,10 +147,10 @@
       "provider": "Finazon",
       "source_url": "https://finazon.io/",
       "catalog_access": "S",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-017",
@@ -167,40 +167,40 @@
       "provider": "Stooq",
       "source_url": "https://stooq.com/dbh/",
       "catalog_access": "D",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Robots and verification access review; no source acquisition adapter.",
       "implementation_test_evidence": "backend/aplomb/intelligence/stooq.py",
-      "remaining_work_or_external_blocker": "Published access restrictions prevent automated capture; terms and approved access require verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-019",
       "provider": "Yahoo Finance / yfinance",
       "source_url": "https://github.com/ranaroussi/yfinance",
       "catalog_access": "U",
-      "status": "aside: supported access/rights required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter not implemented; access or reuse rights require review; no bypass or unofficial substitution."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-020",
       "provider": "J-Quants (Japan)",
       "source_url": "https://jpx-jquants.com/en/spec/quickstart",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "J-Quants v2 daily OHLC for exact TSE code, bounded Japan-only API and Markets UI; no ISIN inferred; retrieval time defines availability.",
-      "implementation_test_evidence": "backend/aplomb/research/regional.py; tests synthetic only; session capture per history handoff",
-      "remaining_work_or_external_blocker": "Requires APLOMB_JQUANTS_KEY and explicit APLOMB_JQUANTS_RIGHTS_CONFIRMED=true; source access not live verified. Adjusted prices can be revised and omit dividends; pagination incomplete."
+      "status": "working",
+      "feature_and_capture": "J-Quants V2 daily prices, listing and financial summaries with complete bounded cursor pagination",
+      "implementation_test_evidence": "backend/aplomb/research/regional.py; docs/evidence/parallel/agent-2/supplied-accounts/jquants-status.json",
+      "remaining_work_or_external_blocker": "Supplied account verified with real data for the stated bounded operation. Account quotas/terms and original-availability limitations apply; no universal global identity or redistribution rights asserted."
     },
     {
       "id": "SRC-021",
       "provider": "KOSIS Korea",
       "source_url": "https://kosis.kr/openapi/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-034",
@@ -317,20 +317,20 @@
       "provider": "UK Companies House API",
       "source_url": "https://developer.company-information.service.gov.uk/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-046",
       "provider": "OpenCorporates API",
       "source_url": "https://api.opencorporates.com/documentation/API-Reference",
       "catalog_access": "M",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-047",
@@ -347,20 +347,20 @@
       "provider": "SEDAR+",
       "source_url": "https://www.sedarplus.ca/",
       "catalog_access": "R",
-      "status": "aside: portal access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Public searches do not require login according to official help. Automated acquisition/approved export and integration remain unresolved; do not request portal passwords. SEDAR+: https://systems.securities-administrators.ca/onlinehelp/general-help/getting-started/general-public-access/ ; SEDI: https://www.sedi.ca/sedi/new_help/english/public/PDF_en/Viewing_Public_Reports-SEDI_%28FINAL%29.pdf"
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-049",
       "provider": "SEDI",
       "source_url": "https://www.sedi.ca/",
       "catalog_access": "R",
-      "status": "aside: portal access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Public searches do not require login according to official help. Automated acquisition/approved export and integration remain unresolved; do not request portal passwords. SEDAR+: https://systems.securities-administrators.ca/onlinehelp/general-help/getting-started/general-public-access/ ; SEDI: https://www.sedi.ca/sedi/new_help/english/public/PDF_en/Viewing_Public_Reports-SEDI_%28FINAL%29.pdf"
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-050",
@@ -377,10 +377,10 @@
       "provider": "Australian Business Register ABN Lookup",
       "source_url": "https://abr.business.gov.au/Tools/AbnLookup",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-052",
@@ -407,30 +407,30 @@
       "provider": "iShares Holdings",
       "source_url": "https://www.ishares.com/",
       "catalog_access": "D",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Rights-reviewed issuer daily holdings; no automated issuer acquisition.",
       "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
-      "remaining_work_or_external_blocker": "BlackRock terms require permission covering automated copying, storage and redistribution; SEC N-PORT is a separate delayed source."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-055",
       "provider": "Vanguard Fund Holdings",
       "source_url": "https://investor.vanguard.com/investment-products/etfs",
       "catalog_access": "D",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Vanguard terms reviewed; no automated issuer acquisition.",
       "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
-      "remaining_work_or_external_blocker": "Provider permission required for automated acquisition/storage/display."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-056",
       "provider": "State Street SPDR Holdings",
       "source_url": "https://www.ssga.com/",
       "catalog_access": "D",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "State Street SPDR terms reviewed; no automated issuer acquisition.",
       "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
-      "remaining_work_or_external_blocker": "Provider permission required for automated acquisition/storage/display."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-057",
@@ -457,50 +457,50 @@
       "provider": "CoinGecko API",
       "source_url": "https://docs.coingecko.com/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-060",
       "provider": "CoinMarketCap API",
       "source_url": "https://coinmarketcap.com/api/documentation/v1/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "CoinMarketCap latest USD quote by numeric asset ID",
+      "implementation_test_evidence": "backend/aplomb/research/chain_accounts.py; docs/evidence/parallel/agent-2/supplied-accounts/chain-coinmarketcap.json",
+      "remaining_work_or_external_blocker": "Supplied account verified with real data for the stated bounded operation. Account quotas/terms and original-availability limitations apply; no universal global identity or redistribution rights asserted."
     },
     {
       "id": "SRC-061",
       "provider": "CoinPaprika API",
       "source_url": "https://api.coinpaprika.com/",
       "catalog_access": "F",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Official CoinPaprika ticker API has an unauthenticated free plan. General terms restrict copying/storage/third-party redistribution; no adapter built.",
       "implementation_test_evidence": "https://docs.coinpaprika.com/api-reference/tickers/get-ticker-for-a-specific-coin; https://coinpaprika.com/terms",
-      "remaining_work_or_external_blocker": "Clarify API-specific rights for storage and display; no live capture or integration."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-062",
       "provider": "CryptoCompare API",
       "source_url": "https://min-api.cryptocompare.com/documentation",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-063",
       "provider": "CoinLore API",
       "source_url": "https://www.coinlore.com/cryptocurrency-data-api",
       "catalog_access": "A",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Rights review found terms restricting automated data mining and redistribution; no acquisition adapter.",
       "implementation_test_evidence": "backend/aplomb/intelligence/crypto_markets.py:BLOCKED",
-      "remaining_work_or_external_blocker": "Provider permission is required for automated access and redistribution."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-064",
@@ -517,10 +517,10 @@
       "provider": "DefiLlama API",
       "source_url": "https://api-docs.defillama.com/",
       "catalog_access": "A",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Exact provider slug/ID DefiLlama TVL adapter and Markets UI implemented with synthetic example; no live capture.",
       "implementation_test_evidence": "backend/aplomb/intelligence/defi_sources.py; docs/parallel/reports/agent-2/CONT-defi-public.md",
-      "remaining_work_or_external_blocker": "Written rights needed for copying, retention and display per provider terms; default disabled."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-066",
@@ -547,10 +547,10 @@
       "provider": "Binance public market API",
       "source_url": "https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints",
       "catalog_access": "A",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Binance venue-specific 24-hour ticker, bounded OHLC and order book; no quote currency conflation.",
       "implementation_test_evidence": "backend/aplomb/intelligence/crypto_markets.py",
-      "remaining_work_or_external_blocker": "Runtime disabled without operator terms review and noncommercial configuration; actual rights and app UI require verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-069",
@@ -567,90 +567,90 @@
       "provider": "Coinbase Exchange API",
       "source_url": "https://docs.cdp.coinbase.com/exchange/reference/exchangerestapi_getproductbook",
       "catalog_access": "A",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Rights review reports Coinbase market data restrictions; no adapter built.",
       "implementation_test_evidence": "backend/aplomb/intelligence/crypto_markets.py",
-      "remaining_work_or_external_blocker": "Permission needed for end-user display and automated/AI systems under Coinbase terms."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-071",
       "provider": "Kraken REST API",
       "source_url": "https://docs.kraken.com/api/",
       "catalog_access": "A",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Rights review reports Kraken terms restrictions; no adapter built.",
       "implementation_test_evidence": "backend/aplomb/intelligence/crypto_markets.py",
-      "remaining_work_or_external_blocker": "Provider permission needed for automated access and redistribution."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-072",
       "provider": "Bitstamp API",
       "source_url": "https://www.bitstamp.net/api/",
       "catalog_access": "A",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Bitstamp venue-specific ticker, OHLC and order book with bounded retrieval.",
       "implementation_test_evidence": "backend/aplomb/intelligence/crypto_markets.py",
-      "remaining_work_or_external_blocker": "Operator terms review and noncommercial configuration needed; commercial use requires separate data license; UI/live not verified."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-073",
       "provider": "Etherscan API",
       "source_url": "https://docs.etherscan.io/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-074",
       "provider": "Blockscout API",
       "source_url": "https://docs.blockscout.com/devs/apis",
       "catalog_access": "A",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "Current multichain Blockscout API documented as requiring account/key; no connector or live capture.",
-      "implementation_test_evidence": "https://docs.blockscout.com/devs/blockscout-api; docs/parallel/reports/agent-2/CONT-chain-public.md",
-      "remaining_work_or_external_blocker": "Owner deferred sources requiring account/API key; other independent explorer deployments not treated as equivalent."
+      "status": "working",
+      "feature_and_capture": "Blockscout native balance for exact Ethereum address",
+      "implementation_test_evidence": "backend/aplomb/research/chain_accounts.py; docs/evidence/parallel/agent-2/supplied-accounts/chain-blockscout.json",
+      "remaining_work_or_external_blocker": "Supplied account verified with real data for the stated bounded operation. Account quotas/terms and original-availability limitations apply; no universal global identity or redistribution rights asserted."
     },
     {
       "id": "SRC-075",
       "provider": "mempool.space API",
       "source_url": "https://mempool.space/docs/api/rest",
       "catalog_access": "A",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Bitcoin mainnet fee estimates, mempool state and tip adapter with session capture and UI; live probes without retention.",
       "implementation_test_evidence": "backend/aplomb/intelligence/chain_public.py; docs/parallel/reports/agent-2/CONT-chain-public.md",
-      "remaining_work_or_external_blocker": "Hosted public API terms and reuse rights require review; runtime disabled pending operator confirmation; no retained live capture."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-076",
       "provider": "Blockchain.com Data API",
       "source_url": "https://www.blockchain.com/explorer/api",
       "catalog_access": "A",
-      "status": "aside: engineering/access review required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Blockchain.com API terms require account/key and limit caching/display; no connector or live capture.",
       "implementation_test_evidence": "https://www.blockchain.com/legal/api-terms; docs/parallel/reports/agent-2/CONT-chain-public.md",
-      "remaining_work_or_external_blocker": "Official current OpenAPI documents free /public endpoints without a key. Adapter implementation, access and applicable reuse review remain our work, not an owner signup dependency. https://api.blockchain.info/explorer-gateway-kt/openapi.json"
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-077",
       "provider": "Blockchair API",
       "source_url": "https://blockchair.com/api/docs",
       "catalog_access": "F",
-      "status": "aside: engineering/access review required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Official Blockchair API guide allows bounded personal/testing/noncommercial calls without a key; adapter/access and reuse work remains. Commercial/high-volume access differs. https://github.com/Blockchair/Blockchair.Support/blob/master/API_DOCUMENTATION_EN.md"
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-078",
       "provider": "Dune API",
       "source_url": "https://docs.dune.com/api-reference/overview/introduction",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-079",
@@ -667,50 +667,50 @@
       "provider": "Alchemy",
       "source_url": "https://www.alchemy.com/docs",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "Alchemy Ethereum mainnet block head via fixed read-only JSON-RPC method",
+      "implementation_test_evidence": "backend/aplomb/research/chain_accounts.py; docs/evidence/parallel/agent-2/supplied-accounts/chain-alchemy.json",
+      "remaining_work_or_external_blocker": "Supplied account verified with real data for the stated bounded operation. Account quotas/terms and original-availability limitations apply; no universal global identity or redistribution rights asserted."
     },
     {
       "id": "SRC-081",
       "provider": "Infura",
       "source_url": "https://docs.metamask.io/services/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-082",
       "provider": "QuickNode",
       "source_url": "https://www.quicknode.com/docs",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-083",
       "provider": "Covalent GoldRush API",
       "source_url": "https://goldrush.dev/docs/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
-      "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
-      "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "status": "working",
+      "feature_and_capture": "GoldRush directory of 44 chains; bounded Ethereum balance operation implemented",
+      "implementation_test_evidence": "backend/aplomb/research/chain_accounts.py; docs/evidence/parallel/agent-2/supplied-accounts/chain-goldrush-chains.json",
+      "remaining_work_or_external_blocker": "Supplied account verified with real data for the stated bounded operation. Account quotas/terms and original-availability limitations apply; no universal global identity or redistribution rights asserted."
     },
     {
       "id": "SRC-084",
       "provider": "The Graph",
       "source_url": "https://thegraph.com/docs/en/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Adapter and consumption not implemented; provider credentials/subscription/terms need independent verification."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "SRC-085",
@@ -727,20 +727,20 @@
       "provider": "FRED API",
       "source_url": "https://fred.stlouisfed.org/docs/api/fred/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "aside: supplied key; data-use permission unresolved",
       "feature_and_capture": "See historical agent handoff for implementation and tests.",
       "implementation_test_evidence": "Historical integration tracked in agent-2 HANDOFF.md",
-      "remaining_work_or_external_blocker": "FRED terms require applicable rights for AI development: https://fred.stlouisfed.org/legal/"
+      "remaining_work_or_external_blocker": "Supplied FRED key stored locally. Current FRED API terms restrict AI use and storage/caching required by this capture workflow. No live fetch performed, no signup/key request remains. https://fred.stlouisfed.org/legal/"
     },
     {
       "id": "SRC-087",
       "provider": "ALFRED vintages",
       "source_url": "https://fred.stlouisfed.org/docs/api/fred/",
       "catalog_access": "F",
-      "status": "aside: signup/API key required",
+      "status": "aside: supplied key; data-use permission unresolved",
       "feature_and_capture": "See historical agent handoff for implementation and tests.",
       "implementation_test_evidence": "Historical integration tracked in agent-2 HANDOFF.md",
-      "remaining_work_or_external_blocker": "FRED terms require applicable rights for AI development: https://fred.stlouisfed.org/legal/"
+      "remaining_work_or_external_blocker": "Supplied FRED key stored locally. Current FRED API terms restrict AI use and storage/caching required by this capture workflow. No live fetch performed, no signup/key request remains. https://fred.stlouisfed.org/legal/"
     },
     {
       "id": "MASTER-002",
@@ -767,20 +767,20 @@
       "provider": "Nasdaq Data Link",
       "source_url": "https://docs.data.nasdaq.com/v1.0",
       "catalog_access": "master catalogue",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Engineering work remains; provider access/terms not verified."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "MASTER-005",
       "provider": "CoinGecko",
       "source_url": "https://www.coingecko.com/en/api/pricing",
       "catalog_access": "master catalogue",
-      "status": "aside: signup/API key required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Engineering work remains; provider access/terms not verified."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "MASTER-006",
@@ -797,10 +797,10 @@
       "provider": "DefiLlama",
       "source_url": "https://github.com/DefiLlama/api-docs",
       "catalog_access": "master catalogue",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Exact provider slug/ID DefiLlama TVL adapter and Markets UI implemented with synthetic example; no live capture.",
       "implementation_test_evidence": "backend/aplomb/intelligence/defi_sources.py; docs/parallel/reports/agent-2/CONT-defi-public.md",
-      "remaining_work_or_external_blocker": "Written rights needed for copying, retention and display per provider terms; default disabled."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "MASTER-008",
@@ -907,50 +907,50 @@
       "provider": "iShares",
       "source_url": "https://www.ishares.com/",
       "catalog_access": "master catalogue",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Rights-reviewed issuer daily holdings; no automated issuer acquisition.",
       "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
-      "remaining_work_or_external_blocker": "BlackRock terms require permission covering automated copying, storage and redistribution; SEC N-PORT is a separate delayed source."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "MASTER-026",
       "provider": "State Street SPDR",
       "source_url": "https://www.ssga.com/",
       "catalog_access": "master catalogue",
-      "status": "aside: permission/access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "State Street SPDR terms reviewed; no automated issuer acquisition.",
       "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
-      "remaining_work_or_external_blocker": "Provider permission required for automated acquisition/storage/display."
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "MASTER-027",
       "provider": "SEDAR+",
       "source_url": "https://www.sedarplus.ca/",
       "catalog_access": "master catalogue",
-      "status": "aside: portal access required",
+      "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "No source acquisition, versioned capture, and consumption pipeline verified.",
       "implementation_test_evidence": "",
-      "remaining_work_or_external_blocker": "Public searches do not require login according to official help. Automated acquisition/approved export and integration remain unresolved; do not request portal passwords. SEDAR+: https://systems.securities-administrators.ca/onlinehelp/general-help/getting-started/general-public-access/ ; SEDI: https://www.sedi.ca/sedi/new_help/english/public/PDF_en/Viewing_Public_Reports-SEDI_%28FINAL%29.pdf"
+      "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
       "id": "MASTER-028",
       "provider": "FRED",
       "source_url": "https://fred.stlouisfed.org/docs/api/fred/",
       "catalog_access": "master catalogue",
-      "status": "aside: signup/API key required",
+      "status": "aside: supplied key; data-use permission unresolved",
       "feature_and_capture": "See historical agent handoff for implementation and tests.",
       "implementation_test_evidence": "Historical integration tracked in agent-2 HANDOFF.md",
-      "remaining_work_or_external_blocker": "FRED terms require applicable rights for AI development: https://fred.stlouisfed.org/legal/"
+      "remaining_work_or_external_blocker": "Supplied FRED key stored locally. Current FRED API terms restrict AI use and storage/caching required by this capture workflow. No live fetch performed, no signup/key request remains. https://fred.stlouisfed.org/legal/"
     },
     {
       "id": "MASTER-029",
       "provider": "ALFRED",
       "source_url": "https://fred.stlouisfed.org/",
       "catalog_access": "master catalogue",
-      "status": "aside: signup/API key required",
+      "status": "aside: supplied key; data-use permission unresolved",
       "feature_and_capture": "See historical agent handoff for implementation and tests.",
       "implementation_test_evidence": "Historical integration tracked in agent-2 HANDOFF.md",
-      "remaining_work_or_external_blocker": "FRED terms require applicable rights for AI development: https://fred.stlouisfed.org/legal/"
+      "remaining_work_or_external_blocker": "Supplied FRED key stored locally. Current FRED API terms restrict AI use and storage/caching required by this capture workflow. No live fetch performed, no signup/key request remains. https://fred.stlouisfed.org/legal/"
     },
     {
       "id": "MASTER-045",

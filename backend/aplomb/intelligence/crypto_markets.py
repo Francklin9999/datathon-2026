@@ -129,7 +129,7 @@ INTERVALS = {'1h': 3600, '4h': 14400, '1d': 86400}
 
 
 def permitted(venue: str) -> bool:
-    return os.getenv(VENUES[venue]['flag']) == '1'
+    return venue == 'binance_vision' and os.getenv(VENUES[venue]['flag']) == '1'
 
 
 def market_identity(venue: str, symbol: str) -> dict:
@@ -147,12 +147,14 @@ def market_identity(venue: str, symbol: str) -> dict:
 def venue_catalog() -> dict:
     venues = []
     for key, info in VENUES.items():
+        if key != 'binance_vision':
+            continue
         venues.append({'venue': key, 'name': info['name'], 'source_id': info['source_id'],
                        'status': 'enabled' if permitted(key) else 'licence_not_enabled',
                        'docs_url': info['docs_url'], 'terms_url': info['terms_url'],
                        'licence': info['licence'], 'limitations': info['limitations'],
                        'markets': [market_identity(key, s) for s in MARKETS[key]]})
-    blocked = [{'venue': key, 'status': 'blocked_by_terms', **info} for key, info in BLOCKED.items()]
+    blocked = []  # Other pending venues were excluded by the owner.
     return {'venues': venues, 'blocked': blocked, 'assets': list(ASSETS),
             'intervals': list(INTERVALS), 'note': COMPARISON_NOTE}
 

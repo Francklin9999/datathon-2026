@@ -4,6 +4,9 @@ import { API_BASE } from '../../api/index';
 import { Card } from '../../components/common/Page';
 import { useApp } from '../../state/app';
 
+const chainProviders=new Set(['coinmarketcap','blockscout','alchemy','goldrush']);
+const identifierHints:Record<string,string>={coinmarketcap:'Numeric asset ID, e.g. 1 for Bitcoin',blockscout:'Exact Ethereum address: 0x…',alchemy:'ethereum',goldrush:'chains or an exact Ethereum address',eodhd:'Provider code and exchange, e.g. AAPL.US'};
+
 type Connection = { id: string; credential_present: boolean; rights_confirmed: boolean; signup_url: string; supported_operation: string };
 type Result = { status: string; provider: string; observation: Record<string, unknown>; source_url?: string; source_sha256?: string; retrieved_at?: string; sources?: {url:string;sha256:string;retrieved_at:string}[]; limitations:string[] };
 
@@ -30,7 +33,8 @@ export function KeyedMarkets() {
   const ready=connections.filter(item=>item.credential_present&&item.rights_confirmed);
   async function load(event:React.FormEvent){
     event.preventDefault();const current=++generation.current;setBusy(true);setMessage('');setResult(null);
-    const query=new URLSearchParams({symbol:symbol.trim().toUpperCase()});
+    const identifier=chainProviders.has(provider)?symbol.trim():symbol.trim().toUpperCase();
+    const query=new URLSearchParams({symbol:identifier});
     if(provider==='alpha-vantage')query.set('kind',kind);
     if(provider==='twelve-data')query.set('mic',mic.trim().toUpperCase());
     const end=new Date().toISOString().slice(0,10);
@@ -54,16 +58,18 @@ export function KeyedMarkets() {
   return <Card title={tr({en:'Connected market data',fr:'Données de marché connectées'})}>
     <p>{tr({en:'Use your configured provider accounts. Provider symbols remain source-specific; Twelve Data also requires an exact exchange MIC. Prices and company reports retain source attribution and capture times.',fr:'Utilisez vos comptes configurés. Les symboles restent propres à chaque fournisseur; Twelve Data exige aussi un MIC exact. Les résultats conservent leurs sources et dates de capture.'})}</p>
     <form onSubmit={load}>
-      <label htmlFor="keyed-provider">{tr({en:'Provider',fr:'Fournisseur'})}</label><select id="keyed-provider" value={selected?provider:''} disabled={busy} onChange={e=>{setProvider(e.target.value);reset();}}><option value="" disabled>{tr({en:'Choose a connected source',fr:'Choisir une source connectée'})}</option>{ready.map(item=><option key={item.id} value={item.id}>{item.id} — {item.supported_operation}</option>)}</select>
+      <label htmlFor="keyed-provider">{tr({en:'Provider',fr:'Fournisseur'})}</label><select id="keyed-provider" value={selected?provider:''} disabled={busy} onChange={e=>{setProvider(e.target.value);setSymbol(e.target.value==='alchemy'?'ethereum':e.target.value==='goldrush'?'chains':'');reset();}}><option value="" disabled>{tr({en:'Choose a connected source',fr:'Choisir une source connectée'})}</option>{ready.map(item=><option key={item.id} value={item.id}>{item.id} — {item.supported_operation}</option>)}</select>
       {provider==='alpha-vantage'&&<><label htmlFor="keyed-kind">{tr({en:'Report',fr:'Rapport'})}</label><select id="keyed-kind" value={kind} disabled={busy} onChange={e=>{setKind(e.target.value);reset();}}>{[['quote','Quote'],['overview','Company overview'],['income','Income statement'],['balance','Balance sheet'],['cashflow','Cash flow']].map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></>}
-      <label htmlFor="keyed-symbol">{tr({en:'Exact provider symbol',fr:'Symbole exact du fournisseur'})}</label><input id="keyed-symbol" value={symbol} maxLength={40} disabled={busy} required onChange={e=>{setSymbol(e.target.value);reset();}} />
+      <label htmlFor="keyed-symbol">{tr({en:'Provider symbol or exact identifier',fr:'Symbole ou identifiant exact du fournisseur'})}</label><input id="keyed-symbol" value={symbol} placeholder={identifierHints[provider]} maxLength={120} disabled={busy} required onChange={e=>{setSymbol(e.target.value);reset();}} />
       {provider==='twelve-data'&&<><label htmlFor="keyed-mic">MIC</label><input id="keyed-mic" value={mic} minLength={4} maxLength={4} required disabled={busy} onChange={e=>{setMic(e.target.value);reset();}} /></>}
       <button className="btn" disabled={!sessionId||busy||!selected}>{busy?tr({en:'Loading…',fr:'Chargement…'}):tr({en:'Fetch from provider',fr:'Charger depuis la source'})}</button>
     </form>
     {message&&<p role="alert">{tr({en:'Provider response',fr:'Réponse du fournisseur'})}: {message.replaceAll('_',' ')}</p>}
     {result&&<div aria-live="polite">
       <p>{result.provider} — {result.status}</p>
-      {result.observation.price!=null&&<p>{scalar('provider_symbol')}: {scalar('price')} · {scalar('price_unit')} · {scalar('observed_date')}</p>}
+      <dl className="kv-list">{Object.entries(result.observation).filter(([key,value])=>key!=='price'&&key!=='method'&&(typeof value==='string'||typeof value==='number')).map(([key,value])=><div className="kv" key={key}><dt>{key.replaceAll('_',' ')}</dt><dd>{String(value)}</dd></div>)}</dl>
+      {['chains','balances'].map(key=>{const rows=result.observation[key];return Array.isArray(rows)&&rows.length>0?<div className="table-scroll" tabIndex={0} role="region" aria-label={key} key={key}><table className="data-table"><thead><tr><th scope="col">{key}</th><th scope="col">Details</th></tr></thead><tbody>{rows.map((row:Record<string,unknown>,i:number)=><tr key={i}><th scope="row">{String(row.name??row.contract_name??row.chain_id??i+1)}</th><td>{Object.entries(row).filter(([name,value])=>name!=='name'&&value!=null&&typeof value!=='object').map(([name,value])=><span className="block" key={name}>{name.replaceAll('_',' ')}: {String(value)}</span>)}</td></tr>)}</tbody></table></div>:null;})}
+      {result.observation.price!=null&&<p>{String(result.observation.provider_symbol??result.observation.asset_symbol??'')}: {scalar('price')} · {scalar('price_unit')} · {String(result.observation.observed_date??result.observation.last_updated??result.retrieved_at??'')}</p>}
       {company!=null&&typeof company==='object'&&<dl className="kv-list">{Object.entries(company).map(([key,value])=><div className="kv" key={key}><dt>{key}</dt><dd>{typeof value==='string'?value:'—'}</dd></div>)}</dl>}
       {Array.isArray(bars)&&<div className="table-scroll" tabIndex={0} role="region" aria-label={tr({en:'Provider daily bars',fr:'Cours quotidiens de la source'})}><table className="data-table"><thead><tr><th scope="col">{tr({en:'Date',fr:'Date'})}</th><th scope="col">{tr({en:'Close',fr:'Clôture'})}</th><th scope="col">{tr({en:'Adjusted close',fr:'Clôture ajustée'})}</th><th scope="col">{tr({en:'Volume',fr:'Volume'})}</th></tr></thead><tbody>{bars.map((bar:Record<string,unknown>,i:number)=><tr key={String(bar.date??i)}><th scope="row">{String(bar.date??'—')}</th><td>{String(bar.close??'—')} {scalar('currency')}</td><td>{String(bar.adj_close??'—')}</td><td>{String(bar.volume??'—')}</td></tr>)}</tbody></table></div>}
       {Array.isArray(statements)&&<div className="table-scroll" tabIndex={0} role="region" aria-label={tr({en:'Financial statements',fr:'États financiers'})}><table className="data-table"><thead><tr><th scope="col">Period</th><th scope="col">Frequency</th><th scope="col">Concept</th><th scope="col">Value</th></tr></thead><tbody>{statements.map((row:Record<string,unknown>,i:number)=><tr key={i}><th scope="row">{String(row.period_end)}</th><td>{String(row.frequency)}</td><td>{String(row.concept)}</td><td>{row.value==null?'—':String(row.value)} {String(row.unit)}</td></tr>)}</tbody></table></div>}

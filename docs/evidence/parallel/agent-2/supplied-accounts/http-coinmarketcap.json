@@ -1,0 +1,27 @@
+{
+  "status": "available",
+  "provider": "coinmarketcap",
+  "observation": {
+    "asset_id": "1",
+    "asset_name": "Bitcoin",
+    "asset_symbol": "BTC",
+    "price": "64568.64025472361",
+    "price_unit": "USD",
+    "market_cap": "1298635356613.043",
+    "last_updated": "2026-11-15T18:52:05.000Z",
+    "classification": "Provider quote; numeric asset ID is not an exchange listing identity."
+  },
+  "source_url": "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/latest?id=1&convert=USD",
+  "source_sha256": "699da7ac98a1d43583e128d1e2a0e866f2983f61d153bba03e48dcd7667ccc16",
+  "dataset_version": "chain-coinmarketcap-699da7ac98a1d435",
+  "retrieved_at": "2026-11-15T18:53:47.774874+00:00",
+  "available_at": "2026-11-15T18:53:47.774874+00:00",
+  "published_at": null,
+  "documentation_url": "https://coinmarketcap.com/api/documentation/pro-api-reference/cryptocurrency",
+  "licence": "Configured account terms; no blanket redistribution licence asserted",
+  "limitations": [
+    "Source data is provider-reported and current as captured.",
+    "Original publication and revision availability before capture are unknown.",
+    "Account entitlements and allowed reuse must be respected."
+  ]
+}

@@ -179,6 +179,7 @@ def normalize(provider, symbol, mic, body, as_of, kind="quote"):
 
 
 def connection_status():
+    from . import chain_accounts, stock_accounts
     result = {'providers': [{'id': provider, 'signup_url': info['signup'], 'documentation_url': info['docs'],
                            'credential_variable': info['key'], 'credential_present': bool(os.getenv(info['key'])),
                            'rights_confirmed': os.getenv(info['key'].removesuffix('_KEY') + '_RIGHTS_CONFIRMED') == 'true',
@@ -187,10 +188,22 @@ def connection_status():
                                                    'finnhub': 'company profile by exact provider symbol'}[provider]}
                           for provider,info in PROVIDERS.items()]}
     result['providers'].append({'id':'tiingo','signup_url':'https://www.tiingo.com/account/api/token', 'credential_variable':'APLOMB_TIINGO_TOKEN','credential_present':bool(os.getenv('APLOMB_TIINGO_TOKEN')), 'rights_confirmed':True,'supported_operation':'US non-fund equity daily history, internal account use'})
+    result['providers'].extend(stock_accounts.connection_status())
+    result['providers'].extend(chain_accounts.connection_status())
     return result
 
 
 def capture(store, sid, provider, symbol, mic=None, *, kind="quote", get=fetch, now=None):
+    from . import chain_accounts, stock_accounts
+    if provider in stock_accounts.PROVIDERS or provider in chain_accounts.PROVIDERS:
+        if mic or kind != 'quote':
+            raise KeyedSourceError('unsupported_source_operation')
+        if provider in stock_accounts.PROVIDERS:
+            return stock_accounts.capture(store, sid, provider, symbol, now=now)
+        try:
+            return chain_accounts.capture(store, sid, provider, symbol, now=now)
+        except chain_accounts.ChainSourceError as exc:
+            raise KeyedSourceError(str(exc)) from None
     params = request_spec(provider,symbol,mic,kind)
     info=PROVIDERS[provider]
     secret=os.getenv(info['key'],'')
@@ -252,14 +265,14 @@ def keyed_market_router(store,session_dependency):
         return connection_status()
 
     @router.get('/v1/research/market-provider/{provider}')
-    def observation(provider:str,symbol:str=Query(min_length=1,max_length=40),
+    def observation(provider:str,symbol:str=Query(min_length=1,max_length=120),
                     mic:str|None=Query(default=None,min_length=4,max_length=4),kind:str=Query(default='quote',pattern=r'^(quote|overview|income|balance|cashflow)$'),sid:str=Depends(session_dependency)):
         limiter.take(sid,'keyed-market',4,60)
         try:
             return capture(store,sid,provider,symbol,mic,kind=kind)
         except KeyedSourceError as exc:
             code=str(exc)
-            validation=code in {'invalid_provider_or_symbol','invalid_mic','exact_mic_required','provider_does_not_verify_mic','unsupported_source_operation'}
+            validation=code in {'invalid_provider_or_symbol','invalid_mic','exact_mic_required','provider_does_not_verify_mic','unsupported_source_operation','numeric_asset_id_required','ethereum_head_only','exact_ethereum_address_required','provider_exchange_suffix_required'}
             raise ServiceError('validation_error' if validation else 'upstream_unavailable',
                                'Market source request rejected' if validation else 'Market source unavailable',
                                {'reason':code}) from None

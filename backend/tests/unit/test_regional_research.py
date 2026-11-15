@@ -28,18 +28,26 @@ def test_region_never_falls_back_and_rights_are_required():
         provider.query('KR', '005930', '2026-10-01', '2026-11-01')
 
 
-def test_japan_exact_issue_delayed_capture_and_partial_pagination():
+def test_japan_exact_issue_and_complete_pagination():
     calls = []
     def fetch(url, headers):
         calls.append((url, headers))
-        return encode({'data': [{'Date': '2026-10-02', 'Code': '86970', 'C': 102, 'AdjC': 100}], 'pagination_key': 'next'})
+        page = parse_qs(urlparse(url).query).get('pagination_key')
+        if not page:
+            return encode({'data': [{'Date': '2026-10-02', 'Code': '86970', 'C': 102, 'AdjC': 100}], 'pagination_key': 'next'})
+        return encode({'data': [{'Date': '2026-10-05', 'Code': '86970', 'C': 103, 'AdjC': 101}]})
     service = RegionalResearch(fetch=fetch, env={'APLOMB_JQUANTS_KEY': 'secret',
         'APLOMB_JQUANTS_RIGHTS_CONFIRMED': 'true'}, clock=NOW)
     result = service.query('JP', '86970', '2026-10-01', '2026-11-01')
-    assert result['prices'][0]['close'] == 102 and result['partial']
+    assert result['prices'][0]['close'] == 102 and not result['partial']
+    assert len(result['prices']) == result['pagesInspected'] == 2
+    assert parse_qs(urlparse(calls[1][0]).query)['pagination_key'] == ['next']
     assert result['availableAt'] == result['retrievedAt'] and result['publicationAt'] is None
     assert calls[0][1]['x-api-key'] == 'secret' and 'secret' not in json.dumps(result)
     assert result['sourceUrl'].startswith('https://api.jquants.com/')
+    looping = RegionalResearch(fetch=lambda *_: encode({'data': [], 'pagination_key': 'next'}), env=service.env, clock=NOW)
+    with pytest.raises(RegionalError, match='invalid_pagination'):
+        looping.query('JP', '86970', '2026-10-01', '2026-11-01')
     mismatch = RegionalResearch(fetch=lambda *_: encode({'data': [{'Code': '12340'}]}), env=service.env, clock=NOW)
     with pytest.raises(RegionalError, match='identifier_mismatch'):
         mismatch.query('JP', '86970', '2026-10-01', '2026-11-01')
