@@ -11596,7 +11596,7 @@
   "$id": "https://aplomb.local/contracts/1.4.0/schema.json",
   "x-contract-version": "1.4.0",
   "x-spec-sha256": {
-    "schemas.md": "265d9314275affd762f8834145813f612112216bb2b6b9615d009f6cef88cb37",
+    "schemas.md": "1f2fd02ff96f37a98c8dfc6c2db588b2c2bb4a34cfd6e1f2663daf9b15bf5662",
     "catalog.md": "9c05df6ba1da06cabbc28f7b683dd7d37b8edad5da05ddc619eff49fa44db4c2",
     "api.md": "6dfd751872e68ae86cc06bd04b7115a315ab6e193c8a7ca1c81b649efa0cbc23",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",

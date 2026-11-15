@@ -439,7 +439,7 @@ interface Brief {
 ## 9. Runs
 
 ```ts
-type RunKind = "decision" | "portfolio_brief" | "event_brief" | "replay" | "profile_draft" | "sabotage";
+type RunKind = "decision" | "rebalance" | "portfolio_brief" | "event_brief" | "replay" | "profile_draft" | "sabotage";
 type RunStatus = "queued" | "running" | "waiting_input" | "succeeded" | "failed" | "cancelled";
 type StepType = "plan" | "research" | "quant" | "risk_check" | "revise" | "write" | "audit" | "sign";
 type AgentRole = "planner" | "researcher" | "quant" | "risk_officer" | "writer" | "auditor";
@@ -510,6 +510,7 @@ type SabotageMode = "invented_number" | "false_comparison" | "unsupported_interp
 
 type RunInput =
   | { kind: "decision"; request: DecisionRequest; originalText: string | null; window: WindowSpec }
+  | { kind: "rebalance"; profileVersion: number; positions: Position[]; window: WindowSpec }   // complete target, 1–40 positions
   | { kind: "portfolio_brief"; window: WindowSpec }
   | { kind: "event_brief"; eventId: EventId }
   | { kind: "replay"; request: DecisionRequest; asOf: ISODate; window: WindowSpec }
@@ -518,6 +519,7 @@ type RunInput =
 
 type RunResult =
   | { kind: "decision"; decision: DecisionResult }
+  | { kind: "rebalance"; rebalance: ReviewedRebalance }
   | { kind: "portfolio_brief"; portfolioBrief: PortfolioBriefResult }
   | { kind: "event_brief"; eventBrief: EventBriefResult }
   | { kind: "replay"; replay: ReplayResult }
@@ -553,6 +555,26 @@ interface AttentionSignal {
   evidenceId: EvidenceId | null;
 }
 
+interface ReviewedRebalance {            // read-only comparison at constant modeled capital; no orders
+  profileId: ProfileId;
+  profileVersion: number;
+  currency: Currency;
+  totalValue: number;
+  asOf: ISODate;
+  dataVersion: DataVersion;
+  window: WindowSpec;
+  changes: RebalanceChange[];
+  portfolioBefore: PortfolioSnapshot;
+  portfolioAfter: PortfolioSnapshot;
+  verdictBefore: Verdict; verdictAfter: Verdict;
+  countsBefore: VerdictCounts; countsAfter: VerdictCounts;
+  ruleChecksBefore: RuleCheck[]; ruleChecksAfter: RuleCheck[];
+  assumptions: I18nText[];
+  brief: Brief;
+}
+
+interface RebalanceChange { ticker: Ticker; beforePct: number; targetPct: number; changePct: number }
+
 interface PortfolioBriefResult {
   snapshot: PortfolioSnapshot;           // variant "before"
   ruleChecks: RuleCheck[]; verdict: Verdict; counts: VerdictCounts;
@@ -562,7 +584,7 @@ interface PortfolioBriefResult {
 }
 
 interface FocusDetail {                  // code-owned; the score is a visible heuristic, never a forecast
-  priority: 1 | 2 | 3;
+  priority: number;                      // 1–3
   topic: "risk" | "concentration" | "plan" | "fixed_income" | "objective";
   score: number;                         // 0–100, deterministic ranking input
   basis: "built_in" | "candidate_provider";   // provider findings must cite verified same-run facts
