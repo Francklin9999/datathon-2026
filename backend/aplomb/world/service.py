@@ -673,4 +673,7 @@ def _observation_summary(row: dict) -> str:
     if row["sourceId"] == "world_nasa_power":
         return (f"NASA POWER gridded daily 2 m temperature: {props['temperatureC']} °C "
                 f"for {props['date']} in local solar time. This is a modeled grid value, not a station measurement.")
+    if row["sourceId"] == "world_epa_sems_sites":
+        return (f"EPA SEMS site reference in {props['state']}. Source NPL status: "
+                f"{props.get('sourceNplStatus') or 'not stated'}. No emissions or company relationship is established.")
     return "Source record. Open the original source for details and publication context."

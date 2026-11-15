@@ -59,14 +59,15 @@ invented from publisher location.
 
 ## Work completed without these dependencies
 
-Six real new content addressed datasets were captured and schema/coordinate validated:
+Seven real new content addressed datasets were captured and schema/coordinate validated:
 WRI power plants (34,936), NOAA AviationWeather (six selected international stations), NOAA
 active weather alerts with valid polygons (three; 335 without supported geometry excluded), and
 Federal Register recent policy metadata (20; publication dates bounded at capture), and GDACS
-disaster alert metadata (100; newest page across six event types), and NASA POWER
-daily gridded temperatures (186 across six locations for October 2026). Raw bytes,
+disaster alert metadata (100; newest page across six event types), NASA POWER
+daily gridded temperatures (186 across six locations for October 2026), and EPA
+Envirofacts SEMS sites (438 source-geocoded entries from 1,200 sampled rows). Raw bytes,
 normalized checksums, quality reports, rights, scope and conservative temporal availability are
 preserved. Baseline WDI, EONET, USGS catalog, OurAirports, ECCC and Natural Earth remain separate.
 
 All 153 assigned SRC rows and 65 assigned MASTER rows are dispositioned in SOURCES.csv.
-Most rows remain unimplemented. Six capture pipelines alone do not complete the full assignment.
+Most rows remain unimplemented. Seven capture pipelines alone do not complete the full assignment.

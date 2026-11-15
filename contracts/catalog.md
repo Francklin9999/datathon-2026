@@ -255,6 +255,7 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `world_noaa_alerts` | NOAA weather alert observations with source geometry | P2 |
 | `world_gdacs_alerts` | GDACS bounded global disaster alert observations | P2 |
 | `world_nasa_power` | NASA POWER bounded gridded daily temperature observations | P2 |
+| `world_epa_sems_sites` | EPA Envirofacts bounded geolocated SEMS site references | P2 |
 | `world_federal_register` | Federal Register policy observations | P2 |
 | `energy_wri_plants` | WRI power plant reference observations | P2 |
 | `trade_portwatch_ports` | IMF PortWatch port reference observations | P2 |

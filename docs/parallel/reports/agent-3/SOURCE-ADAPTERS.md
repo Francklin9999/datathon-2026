@@ -68,3 +68,8 @@ requested locations. The October 2026 period is fixed and bounded. Its `LST`
 calendar dates are rendered as day anchors, without inventing an exact UTC
 measurement time or claiming a station observation. Its six public requests
 are captured separately with checksums.
+
+EPA Envirofacts SEMS captures the first 200 site records in each of six
+US states. Of 1,200 sampled rows, 438 retained valid source coordinates; 762
+were excluded. Status labels are source fields and carry no inferred emissions,
+current contamination, company, or financial conclusion.

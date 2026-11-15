@@ -38,6 +38,7 @@ export type DatasetId =
   | "world_noaa_alerts"
   | "world_gdacs_alerts"
   | "world_nasa_power"
+  | "world_epa_sems_sites"
   | "world_federal_register"
   | "energy_wri_plants"
   | "trade_portwatch_ports"

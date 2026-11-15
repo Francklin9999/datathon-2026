@@ -300,6 +300,15 @@ DESCRIPTORS: dict[str, Descriptor] = {
         ("LIM_IMPACT_NOT_ESTABLISHED",),
         t("Capture time establishes availability.", "La capture établit la disponibilité."),
         planned_source="NASA POWER; separate verified world capture"),
+    "world_epa_sems_sites": Descriptor(
+        t("EPA SEMS sites", "Sites SEMS de l'EPA"),
+        t("Bounded official site location references in six US states.", "Références officielles bornées de sites dans six États américains."),
+        "batch", "versioned public API capture",
+        (t("A site listing does not establish current contamination, emissions, or an issuer link.",
+           "Une inscription de site ne démontre ni contamination actuelle, ni émissions, ni lien avec un émetteur."),),
+        ("LIM_IMPACT_NOT_ESTABLISHED",),
+        t("Capture time establishes availability.", "La capture établit la disponibilité."),
+        planned_source="EPA Envirofacts SEMS; separate verified world capture"),
     "world_federal_register": Descriptor(
         t("Federal Register documents", "Documents du Federal Register"),
         t("United States policy publication observations.", "Observations de publications réglementaires des États-Unis."),

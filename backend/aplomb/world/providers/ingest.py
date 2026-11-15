@@ -77,6 +77,18 @@ SOURCES = {
                         "Temperature comes from the source model; no historical publication vintage is known."],
         "parser": public.power,
     },
+    "epa": {
+        "datasetId": "world_epa_sems_sites", "sourceIds": ["SRC-219", "MASTER-092"],
+        "name": "EPA Envirofacts SEMS site reference sample", "sourceUrl": public.EPA_BASE,
+        "licence": "EPA-produced geospatial data generally public domain unless otherwise specified; EPA attribution",
+        "licenceUrl": "https://www.epa.gov/web-policies-and-procedures/epa-disclaimers",
+        "frequency": "first 200 site records per selected state; manual capture",
+        "limitations": ["Only six US states and the first 200 source rows in each; not full registry coverage.",
+                        "Records without source coordinates are excluded. Site status is retained as source text.",
+                        "A SEMS listing is not an emissions measurement, current contamination finding, or issuer relationship.",
+                        "No source observation timestamp or historical vintage; capture time is first proven availability."],
+        "parser": public.epa,
+    },
 }
 
 
@@ -89,12 +101,14 @@ def collect(name: str, fetch, stamp: str | None = None, directory: Path = DIRECT
     if name == "power":
         captures = [(public.power_url(lat, lon), fetch(public.power_url(lat, lon)))
                     for _, lat, lon, _ in public.POWER_POINTS]
+    elif name == "epa":
+        captures = [(public.epa_url(state), fetch(public.epa_url(state))) for state in public.EPA_STATES]
     else:
         payload = fetch(url)
         captures = [(url, payload)]
     if stamp is None:
         stamp = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
-    rows, quality = source["parser"](captures if name == "power" else payload, stamp)
+    rows, quality = source["parser"](captures if name in {"power", "epa"} else payload, stamp)
     metadata = {key: value for key, value in source.items() if key != "parser"}
     return publish(directory, rows, {**metadata, **quality, "sourceUrl": url, "retrievedAt": stamp}, captures)
 

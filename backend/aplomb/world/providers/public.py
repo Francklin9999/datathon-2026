@@ -25,6 +25,8 @@ POWER_POINTS = (
     ("Sao Paulo", -23.5505, -46.6333, "BRA"),
 )
 POWER_PERIOD = ("20261001", "20261031")
+EPA_BASE = "https://data.epa.gov/dmapservice/sems.envirofacts_site/fk_ref_state_code/equals"
+EPA_STATES = ("CA", "FL", "IL", "NY", "TX", "WA")
 PORTS_BASE = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/ArcGIS/rest/services/PortWatch_ports_database/FeatureServer/0/query"
 STATION_COUNTRY_CODES = {"GB": "GBR", "ZA": "ZAF", "FR": "FRA", "AE": "ARE", "JP": "JPN", "AU": "AUS"}
 
@@ -239,6 +241,44 @@ def power(captures: list[tuple[str, bytes]], stamp: str) -> tuple[list[dict], di
     rows, rejected = _accepted(candidates)
     return rows, {"sourceRows": count, "rejected": rejected, "coverageComplete": False,
                   "scope": "October 2026 daily gridded 2 m temperatures at six requested world locations; not global coverage."}
+
+
+def epa_url(state: str) -> str:
+    if state not in EPA_STATES:
+        raise ValueError("Unapproved EPA state")
+    return f"{EPA_BASE}/{state}/0:200"
+
+
+def epa(captures: list[tuple[str, bytes]], stamp: str) -> tuple[list[dict], dict]:
+    if len(captures) != len(EPA_STATES):
+        raise ValueError("Incomplete EPA state sample")
+    candidates = []
+    count = 0
+    for state, (url, payload) in zip(EPA_STATES, captures, strict=True):
+        if url != epa_url(state):
+            raise ValueError("Unexpected EPA query URL")
+        body = json.loads(payload)
+        if not isinstance(body, list) or len(body) > 200:
+            raise ValueError("EPA site response is not a bounded list")
+        count += len(body)
+        for item in body:
+            def parse(item=item, state=state, url=url):
+                if item["fk_ref_state_code"] != state or not item["epa_id"] or not item["name"]:
+                    raise ValueError("EPA site identity/state mismatch")
+                lat = float(item["primary_latitude_decimal_val"])
+                lon = float(item["primary_longitude_decimal_val"])
+                return base("world_epa_sems_sites", item["epa_id"], "environment", item["name"],
+                            url, stamp, latitude=lat, longitude=lon, countryIso3="USA",
+                            properties={"epaId": item["epa_id"], "state": state,
+                                        "city": item.get("city_name"),
+                                        "sourceNplStatus": item.get("npl_status_name"),
+                                        "sourceArchiveIndicator": item.get("archived_ind"),
+                                        "geographicRole": "epa_sems_site_reference",
+                                        "relationshipToIssuer": None, "emissionsMeasurement": None})
+            candidates.append(parse)
+    rows, rejected = _accepted(candidates)
+    return rows, {"sourceRows": count, "rejected": rejected, "coverageComplete": False,
+                  "scope": "First 200 SEMS site records in each of six US states; only source-geocoded records retained."}
 
 
 def ports(payloads: list[bytes], stamp: str) -> tuple[list[dict], dict]:
