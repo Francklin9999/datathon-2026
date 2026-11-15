@@ -1,0 +1,70 @@
+{
+  "release": "42e2023fc82fa00be13c9c5b898df75b975a9a21",
+  "deployedAt": "2026-11-15T15:53:51Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "previousRelease": "f098339",
+  "purpose": "Make the sabotage demonstration presentable: the false sentence is built by code from the parent's verified facts, then the unchanged real audit runs. sabotage_demo switched on.",
+  "whyTheChange": {
+    "flagOnAt": "2026-11-15T14:48:52Z (code f098339, API/worker version 6)",
+    "liveAttempt": "Robert TSLA +25 decision run_01M7FV13AGJW36MGNATF2JSPRQ; children run_01M7FV288W25BZ1304YWZCRCNJ (invented_number), run_01M7FV2JVV9YA3WK82PJHVXB9E (false_comparison), run_01M7FV2T6V9F3GKJXYCDYM5V8F (unsupported_interpretation) all succeeded with no S-INJECTED sentence: the real writer declined to lie, so caught=false.",
+    "flagOffAgain": "version 7, same f098339 code, until this fix"
+  },
+  "method": "Same as earlier releases (AWS CLI, WSParticipantRole profile, change set reviewed before execution). Full CI passed on 42e2023 in a clean WSL clone: 796 Python tests, 202 web tests, 6 infra tests and synth. Candidate sentences were checked against the production guardrail before implementation; a 'guaranteed ... from any loss' wording was blocked by it and was not used.",
+  "artifact": {
+    "key": "deployments/42e2023/lambda.zip",
+    "s3VersionId": "wfF6tVWNvio3vTJy.J0nud82zaTsF7_3",
+    "bytes": 30372349,
+    "sha256": "38032bb0f37a172f5a3e47e10b8f8ffb7e21ec096fe32f0b51d0f8f37f911eab",
+    "files": 4284,
+    "packaging": "infra/scripts/package-backend.sh at 42e2023 in a clean WSL clone; Lambda Python 3.12 image import check passed; uploaded bytes downloaded back and compared"
+  },
+  "configurationChange": {
+    "revision": "full SHA 42e2023",
+    "flags": "sabotage_demo added; the eight existing flags unchanged"
+  },
+  "changeSet": {
+    "name": "release-42e2023",
+    "changes": [
+      "Modify ApiF70053CD and Worker11F36D0F: Code, Environment (APLOMB_BUILD_REVISION, APLOMB_FEATURE_SABOTAGE_DEMO true, worker version reference), Role, Metadata",
+      "Add API and worker version 8; previous versions leave the stack (DeletionPolicy Retain)",
+      "Per-release roles, policies and EventInvokeConfig rotate with the release hash only",
+      "No replacement of functions, buckets, distribution or API"
+    ]
+  },
+  "result": {
+    "stackStatus": "UPDATE_COMPLETE",
+    "failedEvents": 0,
+    "lambdaVersions": {"api": "8", "worker": "8"},
+    "lambdaCodeSha256": "OAMrsPN6Fy9aPkfhC4+P+34h7Alv4y8LUdD483+RHqs=",
+    "lambdaCodeSha256MatchesArtifact": true
+  },
+  "liveChecks": {
+    "meta": "sabotage_demo true; contract 1.1.0",
+    "sabotageEn": {
+      "parent": "run_01M7FYX9NQD7V3JEFYWTP9C5VR (Robert TSLA +25, succeeded in 34 s)",
+      "runs": [
+        {"mode": "invented_number", "runId": "run_01M7FYYBDHCFFE8CGHB39S8FVW", "seconds": 7, "caught": true, "injectedStatus": "struck", "failedChecks": ["A02", "A03"]},
+        {"mode": "false_comparison", "runId": "run_01M7FYYJVNT1GYE8QCBK6YC5PA", "seconds": 10, "caught": true, "injectedStatus": "struck", "failedChecks": ["A03", "A09"]},
+        {"mode": "unsupported_interpretation", "runId": "run_01M7FYYXDCQFQQKBMRYG3JHC57", "seconds": 10, "caught": true, "injectedStatus": "struck", "failedChecks": ["A03", "A14"]}
+      ]
+    },
+    "sabotageFr": {
+      "parent": "run_01M7FYTYWJJAGB3TCGA949PWV4 (Robert TSLA +25, French, succeeded in 34 s)",
+      "runs": [
+        {"mode": "invented_number", "runId": "run_01M7FYW0XR1J8D1GR7V8THD2NE", "seconds": 10, "caught": true, "injectedStatus": "struck", "failedChecks": ["A02", "A03"]},
+        {"mode": "false_comparison", "runId": "run_01M7FYWBPD4STKFN8PE73NWWZ3", "seconds": 7, "caught": true, "injectedStatus": "struck", "failedChecks": ["A03"]},
+        {"mode": "unsupported_interpretation", "runId": "run_01M7FYWJYM1CGJD9QC6RWQH2VF", "seconds": 7, "caught": true, "injectedStatus": "struck", "failedChecks": ["A03", "A14"]}
+      ]
+    },
+    "parentLedgerHashUnchanged": true,
+    "otherSession": "404",
+    "languageMismatch": "409",
+    "browser": "CloudFront frontend 42e2023: the Evidence page of a succeeded decision shows the sabotage card; 'False comparison' started from its button produced run_01M7FZ1PQGZAZGS5K0BKHXNEN5 showing 'Caught: the auditor struck the false sentence', the inserted sentence struck, and A03/A14 explained."
+  },
+  "notes": [
+    "Extra failed checks (A03 on non-comparison sentences, A09) come from the real model review in addition to the deterministic code check.",
+    "The browser check was read from page text while the browser pane was hidden; count-up figures stay at their start value when animation frames are paused, which is an artefact of the hidden pane."
+  ],
+  "rollback": "Update the stack with the f098339 template and sabotage_demo off (artifact deployments/f098339/lambda.zip version XYd2qtxRCEsbs4LmW2yUkKSpjLFQQT3P is retained)."
+}

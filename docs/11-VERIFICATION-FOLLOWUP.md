@@ -79,7 +79,7 @@ This table supplements the frozen [delivery acceptance report](deliverables/acce
 | AT-11 | Live Sources page and dataset/trap content; full datastore tests | No new source-quality certification is implied |
 | AT-12 | Original live UI run now correlated with DynamoDB, S3 and CloudWatch | Fresh latest-release UI decision if the release gate requires that exact frontend revision |
 | AT-13 | Local form-driven replay/reveal plus recovered date-gating evidence | Deployed real-model replay; feature remains off |
-| AT-14 | Existing sabotage helper coverage only | Integrated sabotage service/UI remains unavailable |
+| AT-14 | Live AWS sabotage (release `42e2023`): all three modes inserted and caught in EN and FR; parent unchanged; other session 404 | Human review of the result card on a visible screen |
 | AT-15 | World pages hydrate locally; recovered local event-brief composition | Pin/feed/brief journey with a real model on AWS; feature remains off |
 | AT-16 | Local validation, copy/save, stale-edit UI verified | Agent-draft confirmation journey with a real model |
 | AT-17 | Local signed goals with no target; Portfolio/Frontier pages load | Fix already-met goal, test no-feasible outcome, real-model goal/frontier journey |
