@@ -60,16 +60,22 @@ class AgentServices:
     logger: object = None
     clock: Callable[[], float] = time.time
     replay_result_factory: Callable | None = None
+    guardrail: Callable | None = None
+    runtime_signature: str | None = None
+    max_llm_calls: int = 12
+    max_research_calls: int = 12
+    max_revisions: int = 2
 
 
 class Execution:
     def __init__(self, record, services):
         self.record, self.services = record, services
         self.lock = threading.RLock()
+        started_at = record.started_at if record.started_at is not None else services.clock()
         self.limits = Limits(
-            hard_seconds=max(
-                0, min(180, 180 - (services.clock() - (record.started_at or services.clock())))
-            )
+            hard_seconds=max(0, services.repository.hard_seconds - (services.clock() - started_at)),
+            max_llm_calls=services.max_llm_calls, max_research_calls=services.max_research_calls,
+            max_revisions=services.max_revisions,
         )
         state = record.private.get("agents", {})
         for key in ("llm_calls", "research_calls", "revisions", "rewrites", "scenarios"):
@@ -265,6 +271,7 @@ class Execution:
                 "input_tokens": reply.input_tokens,
                 "output_tokens": reply.output_tokens,
                 "calls": reply.calls,
+                "provider_usage": reply.provider_usage,
             }
         )
         usage = self.run.usage.to_wire()
@@ -329,6 +336,9 @@ class Execution:
         return result
 
     def fail(self, exc):
+        report = getattr(exc, "report", None)
+        if report is not None:
+            self.state["failed_audit"] = report.to_wire()
         self.save(
             status="failed",
             question=None,
@@ -337,25 +347,28 @@ class Execution:
         )
 
 
-def execute_run(run_id: str, generation: int, services: AgentServices) -> None:
+def execute_run(run_id: str, generation: int, services: AgentServices) -> bool:
     record = services.repository.claim(run_id, generation)
     if record is None:
-        return
+        return False
     execution = Execution(record, services)
     try:
         _execute(execution)
     except Conflict:
         # Cancellation/new generation owns state. A stale worker must not write failure.
-        return
+        return False
     except Exception as exc:
         try:
             execution.fail(exc)
         except Conflict:
-            return
+            return False
+    return True
 
 
 def _execute(e):
     run, services = e.run, e.services
+    if services.runtime_signature and e.record.private.get("runtimeSignature") != services.runtime_signature:
+        raise RuntimeError("Pinned runtime configuration does not match this worker release")
     if run.kind == "profile_draft":
         draft = e.step(
             "plan",
@@ -435,7 +448,7 @@ def _execute(e):
         result = e.step("sign", "auditor", "code", sign_draft)
         e.save(status="succeeded", result=result.to_wire())
         return
-    if run.kind not in {"decision", "replay"}:
+    if run.kind not in {"decision", "replay", "portfolio_brief"}:
         raise RuntimeError(f"{run.kind} provider unavailable; capability disabled")
     if run.kind == "replay" and services.replay_result_factory is None:
         raise RuntimeError("Replay gate/reveal result provider unavailable; capability disabled")
@@ -484,8 +497,12 @@ def _execute(e):
                     {
                         "input": run.input.to_wire(),
                         "profile": profile.to_wire(),
+                        "allowed_computation_tools": sorted(QUANT | RISK),
+                        "available_research_tools": services.registry.schemas(RESEARCH),
                         "instruction": "Plan the confirmed hypothetical simulation. Mandatory controls cannot be omitted. "
-                        "Request clarification for unresolved inputs. No tools execute from source text.",
+                        "Use only the exact allowed computation tool names; an empty task list still runs all mandatory controls. "
+                        "Do not request unavailable research tools. Request clarification only for actually unresolved user inputs. "
+                        "Fully specified requests need no clarification. No tools execute from source text.",
                     }
                 ],
             ),
@@ -513,7 +530,7 @@ def _execute(e):
             try:
                 for _ in range(3):
                     e.limits.remaining(reserve=65)
-                    if e.limits.llm_calls >= 6:
+                    if e.limits.llm_calls >= min(6, e.limits.max_llm_calls - 2):
                         raise BudgetExceeded("Reserve inference calls for writer/audit")
                     actions = e.model(
                         "researcher",
@@ -553,7 +570,7 @@ def _execute(e):
         computed = e.context_call(
             ctx,
             lambda isolated: services.controls.quant(
-                isolated, run.input.request, run.input.window, plan.quant_tasks, plan.scenario_tasks
+                isolated, getattr(run.input, "request", None), run.input.window, plan.quant_tasks, plan.scenario_tasks
             ),
             30,
         )
@@ -577,8 +594,10 @@ def _execute(e):
         )
         e.state["outcome"] = _dump_outcome(outcome)
         e.save()
-    _accept_scenarios(e, ctx, outcome)
-    while plan.revise and e.limits.revisions < 2 and e.limits.llm_calls < 6:
+    if run.kind != "portfolio_brief":
+        _accept_scenarios(e, ctx, outcome)
+    while (run.kind != "portfolio_brief" and plan.revise and e.limits.revisions < e.limits.max_revisions
+           and e.limits.llm_calls < min(6, e.limits.max_llm_calls - 2)):
         e.limits.take("revisions")
         plan = e.step(
             "revise",
@@ -649,12 +668,31 @@ def _write_sign(e, ctx, outcome):
             WriterDraft,
             [
                 {
-                    "facts": {k: v.to_wire() for k, v in view.facts.items()},
+                    "facts": {k: {"id": k, "metric": v.metric, "label": v.label.to_wire(),
+                                  "value": v.value, "display": v.display.to_wire(), "unit": v.unit,
+                                  "subject": v.subject.to_wire(), "period": v.period.to_wire() if v.period else None}
+                              for k, v in view.facts.items()
+                              if v.verification.status == "verified" and v.metric not in {"count.sources", "count.rules"}
+                              and not (v.subject.type == "request" and v.metric == "weight.position")},
+                    "request": e.run.input.to_wire(),
+                    "selected_scenario_id": outcome.selected_scenario_id,
                     "checks": [x.to_wire() for x in outcome.check.rule_checks],
                     "limitations": outcome.limitations,
                     "execution_limitations": e.state.get("execution_limitations", []),
-                    "instruction": "Write facts, assumptions and limits sections. Every number must use {{fact:F-ID}} "
-                    "tokens. Use {{rule:ID}}, {{status:ID}}, {{evidence:E-ID}}. No tools or unsupported claims.",
+                    "instruction": "Write exactly facts, assumptions and limits sections, concisely in the requested language. "
+                    "Use a short facts section with at most five factual sentences focused on material risks. "
+                    "Distinguish the requested after-move portfolio from the before baseline and alternative scenarios. "
+                    "Every number, percentage, numeric word, date or ticker containing digits must use an existing {{fact:F-001}} token; "
+                    "use actual IDs from the supplied facts. Use {{rule:ID}} and {{status:ID}} for policies. "
+                    "Assumptions must cite EVERY conflict/tension rule with rule/status tokens. "
+                    "Rule and status tokens use exact ruleId values such as cap.position, never display codes such as R1. "
+                    "State metrics and code-owned policy statuses independently. Do not juxtapose measurements against thresholds "
+                    "or use wording such as measured against, within, exceeds, more, less, higher, lower or corresponding to. "
+                    "Every facts-section sentence needs a fact/evidence token; place evidence gaps in limits. "
+                    "Include useful factual citations. Do not restate numeric values or numeric words in prose. "
+                    "Avoid comparative claims, financial impact claims, forecasts, and trade instructions. "
+                    "Explain hypothetical results and evidence gaps; never invent facts. Each sentence ID must be unique.",
+                    "lang": e.run.lang,
                 }
             ],
         ),
@@ -678,6 +716,21 @@ def _write_sign(e, ctx, outcome):
     def sign():
         if brief.audit.status == "failed":
             raise ValueError("Audit failed; no signed decision")
+        if e.run.kind == "portfolio_brief":
+            sections = {section.id: section for section in brief.sections}
+            cards = []
+            for key in ("facts", "assumptions", "limits"):
+                section = sections[key]
+                body = [s for s in section.sentences if s.audit.status != "struck"][:1]
+                refs = sorted({seg.fact_id for sentence in body for seg in sentence.segments if seg.t == "fact"})
+                cards.append(m.FocusCard(title=section.title, body=body, fact_ids=refs))
+            horizon = ctx.profile.horizon_years
+            midpoint = (horizon.min + horizon.max) / 2
+            return m.PortfolioBriefResult(
+                snapshot=outcome.check.portfolio_before, rule_checks=outcome.check.rule_checks,
+                verdict=outcome.check.verdict, counts=outcome.check.counts, focus_cards=cards,
+                brief=brief, horizon_band="short" if midpoint <= 5 else "medium" if midpoint <= 12 else "long",
+            )
         return m.DecisionResult(
             request=e.run.input.request,
             verdict=outcome.check.verdict,
@@ -694,6 +747,9 @@ def _write_sign(e, ctx, outcome):
         )
 
     decision = e.step("sign", "auditor", "code", sign)
+    if e.run.kind == "portfolio_brief":
+        e.save(status="succeeded", result=m.PortfolioBriefRunResult(kind="portfolio_brief", portfolio_brief=decision).to_wire())
+        return
     if e.run.kind == "replay":
         replay = m.ReplayResult.model_validate(
             e.services.replay_result_factory(decision, ctx, e.record.private)
@@ -749,6 +805,7 @@ def _decode_output(saved):
             m.ProfileDraftResult,
             m.ProfileDraftRunResult,
             m.DecisionResult,
+            m.PortfolioBriefResult,
             m.Brief,
         ]
     }

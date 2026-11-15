@@ -24,7 +24,7 @@ class RequestParser:
                 }
             ],
             [],
-            Limits(),
+            Limits(hard_seconds=20),
         )
         parsed = m.ParsedRequest.model_validate(reply.output)
         if parsed.refused is not None or parsed.missing or parsed.confidence == "low":

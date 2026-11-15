@@ -2,6 +2,7 @@
 
 import json
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -9,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from aplomb.contracts import models as m
 
 from .limits import Limits
+from .registry import QUANT, RISK
 
 
 class InternalModel(BaseModel):
@@ -26,6 +28,13 @@ class Task(InternalModel):
     args: dict = Field(default_factory=dict)
 
 
+ComputationTool = StrEnum("ComputationTool", {name.replace(".", "_").upper(): name for name in sorted(QUANT | RISK)})
+
+
+class ComputationTask(Task):
+    tool: ComputationTool
+
+
 class ResearchQuestion(InternalModel):
     id: str
     subject: str
@@ -36,7 +45,7 @@ class ResearchQuestion(InternalModel):
 class AnalysisPlan(InternalModel):
     interpretation: str
     scenario_tasks: list[ScenarioTask] = Field(default_factory=list, max_length=6)
-    quant_tasks: list[Task] = Field(default_factory=list, max_length=12)
+    quant_tasks: list[ComputationTask] = Field(default_factory=list, max_length=12)
     research_questions: list[ResearchQuestion] = Field(default_factory=list, max_length=12)
     clarification: m.ClarifyingQuestion | None = None
     revise: bool = False
@@ -49,6 +58,15 @@ class Generation:
     input_tokens: int
     output_tokens: int
     calls: int = 1
+    provider_usage: list[dict] | None = None
+
+
+def prompt_token_count(usage):
+    """Follow the pinned SDK's cache accounting without counting cached input twice."""
+    count = usage.get("inputTokens", 0)
+    if usage.get("totalTokens") != count + usage.get("outputTokens", 0):
+        count += usage.get("cacheReadInputTokens", 0) + usage.get("cacheWriteInputTokens", 0)
+    return count
 
 
 class ModelGateway(Protocol):
@@ -86,6 +104,7 @@ class StrandsBedrockGateway:
             self.fast_model if role in {"writer", "parser", "profile_draft"} else self.strong_model
         )
         total_in = total_out = attempts = 0
+        provider_usage = []
         prompt = json.dumps(
             {"messages": messages, "output_schema": _generation_schema(schema)},
             ensure_ascii=False,
@@ -119,13 +138,14 @@ class StrandsBedrockGateway:
             try:
                 result = agent(prompt, limits={"turns": 1})
                 usage = result.metrics.accumulated_usage
-                total_in += usage.get("inputTokens", 0)
+                provider_usage.append(dict(usage))
+                total_in += prompt_token_count(usage)
                 total_out += usage.get("outputTokens", 0)
                 body = "".join(x.get("text", "") for x in result.message.get("content", []))
                 if body.startswith("```json") and body.endswith("```"):
                     body = body[7:-3].strip()
                 output = schema.model_validate_json(body)
-                return Generation(output, model_id, total_in, total_out, attempts)
+                return Generation(output, model_id, total_in, total_out, attempts, provider_usage)
             except (ClientError, EndpointConnectionError, ReadTimeoutError) as exc:
                 transient = not isinstance(exc, ClientError) or exc.response["Error"]["Code"] in {
                     "ThrottlingException",
@@ -138,6 +158,7 @@ class StrandsBedrockGateway:
                         "input_tokens": total_in,
                         "output_tokens": total_out,
                         "calls": attempts,
+                        "provider_usage": provider_usage,
                     }
                     raise
             except (ValueError, json.JSONDecodeError) as exc:
@@ -147,9 +168,10 @@ class StrandsBedrockGateway:
                         "input_tokens": total_in,
                         "output_tokens": total_out,
                         "calls": attempts,
+                        "provider_usage": provider_usage,
                     }
                     raise
-                prompt += "\nPrevious response failed schema validation. Return strict JSON only."
+                prompt += f"\nPrevious response failed schema validation: {str(exc)[:1500]}. Return strict JSON only."
         raise RuntimeError("Inference attempts exhausted")
 
 

@@ -20,7 +20,13 @@ def test_repeated_actual_quant_facts_keep_identity_and_honest_verification():
     assert metrics.fact_ids == again.fact_ids
     assert ledger.export().digest() == first.digest()
     assert abs(metrics.volatility_pct - 9.52506016903674) < 1e-9
-    # The calculation is real, but its current producer does not register input
-    # facts. A caller-supplied verified flag must not bypass T10's lineage check.
+    # Real calculations now carry gated-series receipts and allocation assumptions.
+    # Ledger verification follows those dependencies; no producer flag bypasses it.
     assert first.facts
-    assert all(fact.verification.status == "unverified" for fact in first.facts.values())
+    assert all(fact.verification.status == "verified" for fact in first.facts.values())
+    vol = first.facts[metrics.fact_ids["vol.annualized"]]
+    assert len(vol.inputs) == 2
+    receipt = first.facts[vol.inputs[0]]
+    assert receipt.sources and len(receipt.method.params["inputSha256"]) == 64
+    assert receipt.n_obs > 1000
+    assert first.facts[vol.inputs[1]].kind == "assumption"

@@ -126,7 +126,16 @@ class RunRepository:
             ]
         )
         if len(writes) > 99:
-            raise ValueError("Checkpoint exceeds 97 changed children; persist smaller checkpoints")
+            # Atomically publish a large ledger as one document (S3-spilled by DynamoStore).
+            # This retains the same revision fence and immutability checks above instead
+            # of exposing partially written batches or exceeding DynamoDB's item limit.
+            old_bundle = self.store.get("runs", pk, "LEDGER")
+            writes = [w for w in writes if w.value["type"] not in {"FACT", "EVID"}]
+            writes.append(Write("runs", pk, "LEDGER", {
+                "revision": record.revision, "type": "LEDGER",
+                "facts": {k: v.to_wire() for k, v in record.run.facts.items()},
+                "evidence": {k: v.to_wire() for k, v in record.run.evidence.items()},
+            }, old_bundle["revision"] if old_bundle else None))
         return writes
 
     def _read(self, run_id: str, session_id: str | None = None) -> RunRecord:
@@ -156,6 +165,10 @@ class RunRepository:
             payload["evidence"] = {
                 i["value"]["id"]: i["value"] for i in children if i["type"] == "EVID"
             }
+            for item in children:
+                if item["type"] == "LEDGER":
+                    payload["facts"].update(item["facts"])
+                    payload["evidence"].update(item["evidence"])
             return RunRecord(
                 Run.model_validate(payload),
                 meta["revision"],
@@ -342,6 +355,11 @@ class RunRepository:
         now = self.clock()
         if record.generation != generation or record.run.status in TERMINAL | {"waiting_input"}:
             return None
+        if record.run.status == "queued":
+            # Apply the same queued-start deadline whether or not a browser polls.
+            record = self.get(record.run.session_id, run_id)
+            if record.run.status in TERMINAL:
+                return None
         if record.run.status == "running" and record.lease_until > now:
             return None
         if record.run.status == "running":

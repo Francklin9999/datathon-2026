@@ -2,13 +2,31 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 from aplomb.api.errors import Conflict, NotFound
-from aplomb.api.repositories import CacheRepository, ProfileRepository, RunRepository
+from aplomb.api.repositories import CacheRepository, ProfileRepository, RunRepository, timestamp
 from aplomb.api.services import RunCoordinator, new_run_id
 from aplomb.api.storage import FileStore, MemoryStore
 from aplomb.contracts import api as a
 from aplomb.contracts.models import Run
 
 from .conftest import OTHER_SID, SID
+
+
+def test_large_ledger_checkpoint_is_atomic_and_still_immutable(queued_run, fixture_payload, clock):
+    store = MemoryStore()
+    repo = RunRepository(store, clock)
+    repo.create(queued_run, {}, 1)
+    claimed = repo.claim(queued_run.run_id, 1)
+    source = fixture_payload["facts"]["F-001"]
+    facts = {f"F-{i:03d}": {**source, "id": f"F-{i:03d}", "inputs": []} for i in range(1, 151)}
+    updated = mutate(claimed.run, facts=facts)
+    record = repo.checkpoint(updated.run_id, claimed.generation, claimed.owner, claimed.revision, updated)
+    assert repo.get(SID, updated.run_id).run.facts == updated.facts
+    assert store.get("runs", f"RUN#{updated.run_id}", "LEDGER") is not None
+    changed = dict(facts)
+    changed["F-001"] = {**changed["F-001"], "value": 999}
+    with pytest.raises(Conflict, match="immutable"):
+        repo.checkpoint(updated.run_id, record.generation, record.owner, record.revision,
+                        mutate(record.run, facts=changed))
 
 
 def mutate(run, **changes):
@@ -186,7 +204,7 @@ def test_queued_crash_window_and_running_hard_budget(queued_run, clock):
     assert repo.get(SID, queued_run.run_id).run.status == "queued"
     clock.advance(1)
     assert repo.get(SID, queued_run.run_id).run.status == "failed"
-    other = mutate(queued_run, runId=new_run_id(clock()))
+    other = mutate(queued_run, runId=new_run_id(clock()), createdAt=timestamp(clock()), updatedAt=timestamp(clock()))
     repo.create(other, {}, 1)
     claimed = repo.claim(other.run_id, 1)
     clock.advance(61)
@@ -197,6 +215,14 @@ def test_queued_crash_window_and_running_hard_budget(queued_run, clock):
     assert repo.get(SID, other.run_id).run.status == "failed"
     with pytest.raises(Conflict):
         repo.heartbeat(claimed)
+
+
+def test_delayed_queued_delivery_expires_without_a_browser_poll(queued_run, clock):
+    repo = RunRepository(MemoryStore(), clock)
+    repo.create(queued_run, {}, 1)
+    clock.advance(61)
+    assert repo.claim(queued_run.run_id, 1) is None
+    assert repo.get(SID, queued_run.run_id).run.status == "failed"
 
 
 def test_steps_delta_keeps_running_update_and_full_ledger(queued_run, fixture_payload, clock):

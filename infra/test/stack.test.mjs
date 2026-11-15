@@ -17,7 +17,16 @@ function artifact() {
     'pydantic_core/__init__.py','mangum/__init__.py','boto3/__init__.py']) {
     fs.mkdirSync(path.dirname(path.join(dir,f)),{recursive:true}); fs.writeFileSync(path.join(dir,f),'');
   }
-  fs.writeFileSync(path.join(dir,'aplomb-artifact.json'),JSON.stringify({runtime:'python3.12',architecture:'x86_64',lambdaRuntimeImportCheck:true,files:{'aplomb/api/lambda_handler.py':createHash('sha256').update('').digest('hex')}}));
+  const files = {};
+  const visit = (directory,prefix='') => {
+    for (const entry of fs.readdirSync(directory,{withFileTypes:true})) {
+      const relative=`${prefix}${entry.name}`;
+      if(entry.isDirectory()) visit(path.join(directory,entry.name),`${relative}/`);
+      else files[relative]=createHash('sha256').update(fs.readFileSync(path.join(directory,entry.name))).digest('hex');
+    }
+  };
+  visit(dir);
+  fs.writeFileSync(path.join(dir,'aplomb-artifact.json'),JSON.stringify({runtime:'python3.12',architecture:'x86_64',lambdaRuntimeImportCheck:true,files}));
   return dir;
 }
 const appConfig = artifact => ({artifact,dataVersion:'snap-20261114-test',dataPrefix:'snapshots/test/',
@@ -53,6 +62,9 @@ test('real handlers/artifacts and bounded model IAM are required',()=>{
     const invalid=appConfig(dir); invalid.dataVersion='test'; assert.throws(()=>validateApplication(invalid),/dataVersion/);
     const missing=appConfig(dir); missing.modelResourceArns=missing.modelResourceArns.slice(0,2);
     assert.throws(()=>validateApplication(missing),/foundation ARN required/);
+    fs.writeFileSync(path.join(dir,'shadow.py'),'unverified');
+    assert.throws(()=>validateApplication(appConfig(dir)),/unlisted/);
+    fs.rmSync(path.join(dir,'shadow.py'));
   }
   finally {fs.rmSync(dir,{recursive:true});}
 });
@@ -71,13 +83,21 @@ test('application has exact handlers, finite concurrency and least privilege',()
     t.hasResourceProperties('AWS::DynamoDB::Table',{GlobalSecondaryIndexes:Match.arrayWith([
       Match.objectLike({IndexName:'bySession',KeySchema:[{AttributeName:'sessionKey',KeyType:'HASH'},
         {AttributeName:'sessionSort',KeyType:'RANGE'}]})])});
-    t.hasResourceProperties('AWS::Lambda::EventInvokeConfig',{MaximumRetryAttempts:1,MaximumEventAgeInSeconds:300});
+    t.resourceCountIs('AWS::Lambda::Version',2);
+    t.hasResourceProperties('AWS::Lambda::EventInvokeConfig',{MaximumRetryAttempts:1,MaximumEventAgeInSeconds:60,
+      Qualifier:Match.not('$LATEST')});
+    t.resourceCountIs('AWS::SQS::Queue',1);
+    t.hasResourceProperties('AWS::SQS::Queue',{SqsManagedSseEnabled:true,MessageRetentionPeriod:1209600});
+    t.hasResourceProperties('AWS::Lambda::EventInvokeConfig',{DestinationConfig:{OnFailure:{Destination:Match.anyValue()}}});
+    t.resourceCountIs('AWS::CloudWatch::Dashboard',1);
     const raw=t.toJSON();
     for(const role of Object.values(raw.Resources).filter(r=>r.Type==='AWS::IAM::Role')) {
       assert.equal(role.Properties.ManagedPolicyArns,undefined,'Lambda roles must not inherit broad managed policies');
+      assert.equal(role.DeletionPolicy,'Retain','A retained version must retain its execution role');
     }
     assert.ok(!JSON.stringify(raw).includes('AWSLambdaBasicExecutionRole'));
     for(const policy of Object.values(raw.Resources).filter(r=>r.Type==='AWS::IAM::Policy')) {
+      assert.equal(policy.DeletionPolicy,'Retain','A retained execution role must retain its grants');
       for(const statement of policy.Properties.PolicyDocument.Statement) {
         const actions=Array.isArray(statement.Action)?statement.Action:[statement.Action];
         if(actions.some(action=>action.startsWith('logs:'))) {
@@ -94,5 +114,21 @@ test('application has exact handlers, finite concurrency and least privilege',()
         ].includes(a)));
       }
     }
+  } finally {fs.rmSync(dir,{recursive:true});}
+});
+
+test('release changes publish new isolated IAM and retain old version delivery configuration',()=>{
+  const dir=artifact();
+  try {
+    const first=Template.fromStack(new AplombStack(new App(),'Release',{application:appConfig(dir)})).toJSON();
+    const next=Template.fromStack(new AplombStack(new App(),'Release',{application:{...appConfig(dir),revision:'next'}})).toJSON();
+    const ids=(t,type)=>Object.entries(t.Resources).filter(([,r])=>r.Type===type).map(([id])=>id);
+    assert.ok(ids(first,'AWS::IAM::Role').every(id=>!ids(next,'AWS::IAM::Role').includes(id)));
+    const delivery=Object.values(next.Resources).find(r=>r.Type==='AWS::Lambda::EventInvokeConfig');
+    assert.equal(delivery.DeletionPolicy,'Retain');
+    const qualifier=delivery.Properties.Qualifier['Fn::GetAtt'];
+    assert.equal(qualifier[1],'Version');
+    assert.equal(next.Resources[qualifier[0]].Type,'AWS::Lambda::Version');
+    for(const v of Object.values(next.Resources).filter(r=>r.Type==='AWS::Lambda::Version')) assert.equal(v.DeletionPolicy,'Retain');
   } finally {fs.rmSync(dir,{recursive:true});}
 });
