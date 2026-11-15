@@ -6,15 +6,15 @@
 
 | Static route | Owner | Page spec |
 |---|---|---|
-| `/` | T13 | [Home](pages/home.md) |
-| `/portfolio/` | T13 | [Portfolio](pages/portfolio.md) |
-| `/decision-desk/` | T14 | [Decision Desk](pages/decision-desk.md) |
-| `/world-explorer/` | T15 | [World Explorer](pages/world-explorer.md) |
-| `/evidence-audit/` | T14 | [Evidence & Audit](pages/evidence-audit.md) |
-| `/time-machine/` | T15 | [Time Machine](pages/time-machine.md) |
-| `/agents-system/` | T15 | [Agents & System](pages/agents-system.md) |
-| `/profiles/` | T13 | [Profile creator](pages/profile-creator.md) |
-| `/sources/` | T13 | [Sources](pages/sources.md) |
+| `/` | T13 | [Home](page-specs/home.md) |
+| `/portfolio/` | T13 | [Portfolio](page-specs/portfolio.md) |
+| `/decision-desk/` | T14 | [Decision Desk](page-specs/decision-desk.md) |
+| `/world-explorer/` | T15 | [World Explorer](page-specs/world-explorer.md) |
+| `/evidence-audit/` | T14 | [Evidence & Audit](page-specs/evidence-audit.md) |
+| `/time-machine/` | T15 | [Time Machine](page-specs/time-machine.md) |
+| `/agents-system/` | T15 | [Agents & System](page-specs/agents-system.md) |
+| `/profiles/` | T13 | [Profile creator](page-specs/profile-creator.md) |
+| `/sources/` | T13 | [Sources](page-specs/sources.md) |
 
 Seven primary sidebar pages; profiles via persona menu and Sources via evidence/footer link. Run IDs/profile IDs/fact IDs use query parameters on fixed routes; static export must not require unknown runtime dynamic routes.
 

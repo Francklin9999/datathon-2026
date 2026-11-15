@@ -1,0 +1,335 @@
+'use client';
+/**
+ * Fact/evidence drill-down. Every chip carries the scope it was produced in (a run, a /check
+ * preview, an overview response) so a reference always resolves inside its own namespace
+ * (WEB-06, AT-07). Run facts use GET /runs/{id}/facts/{factId} for exact provenance and usage.
+ */
+import Link from 'next/link';
+import {
+  createContext, useCallback, useContext, useMemo, useState, type ReactNode,
+} from 'react';
+import type { Evidence, Fact, FactResponse, I18NText } from '../../contracts/types';
+import { getApiClient } from '../../api/index';
+import { useQuery } from '../../state/useQuery';
+import { useApp } from '../../state/app';
+import { Drawer } from './Drawer';
+import { ErrorState, Loading, Unavailable } from './States';
+import { EVIDENCE_TYPE, FACT_KIND, LIMITATION, VERIFICATION, WINDOW, labelOf } from '../../lib/labels';
+import { fmtDate, fmtDateTime } from '../../lib/format';
+import { ExternalLink } from './ExternalLink';
+
+export type FactScope =
+  | { kind: 'run'; runId: string; facts: Record<string, Fact>; evidence: Record<string, Evidence> }
+  | { kind: 'local'; label: I18NText; facts: Record<string, Fact> };
+
+export interface DrawerTarget { scope: FactScope; type: 'fact' | 'evidence'; id: string }
+
+interface DrawerApi {
+  current: DrawerTarget | null;
+  openFact: (scope: FactScope, factId: string) => void;
+  openEvidence: (scope: FactScope, evidenceId: string) => void;
+  close: () => void;
+}
+
+const DrawerContext = createContext<DrawerApi | null>(null);
+const ScopeContext = createContext<FactScope | null>(null);
+
+export function useFactDrawer(): DrawerApi {
+  const value = useContext(DrawerContext);
+  if (!value) throw new Error('useFactDrawer outside FactDrawerProvider');
+  return value;
+}
+
+export function FactScopeProvider({ scope, children }: { scope: FactScope; children: ReactNode }) {
+  return <ScopeContext.Provider value={scope}>{children}</ScopeContext.Provider>;
+}
+
+export function useFactScope(): FactScope | null {
+  return useContext(ScopeContext);
+}
+
+export function FactDrawerProvider({ children }: { children: ReactNode }) {
+  const [current, setCurrent] = useState<DrawerTarget | null>(null);
+  const openFact = useCallback((scope: FactScope, id: string) => setCurrent({ scope, type: 'fact', id }), []);
+  const openEvidence = useCallback((scope: FactScope, id: string) => setCurrent({ scope, type: 'evidence', id }), []);
+  const close = useCallback(() => setCurrent(null), []);
+  const api = useMemo(() => ({ current, openFact, openEvidence, close }), [current, openFact, openEvidence, close]);
+  return (
+    <DrawerContext.Provider value={api}>
+      {children}
+      <FactDrawerView target={current} onClose={close} onOpenFact={openFact} />
+    </DrawerContext.Provider>
+  );
+}
+
+/** Clickable proof chip showing the backend-formatted value. */
+export function FactChip({ factId, display, scope: explicit }: { factId: string; display?: string; scope?: FactScope }) {
+  const contextual = useFactScope();
+  const scope = explicit ?? contextual;
+  const { openFact } = useFactDrawer();
+  const { tr } = useApp();
+  const fact = scope?.facts[factId];
+  const text = display ?? (fact ? tr(fact.display) : factId);
+  if (!scope) return <span className="mono">{text}</span>;
+  const label = fact ? tr(fact.label) : factId;
+  return (
+    <button type="button" className="chip" onClick={() => openFact(scope, factId)}
+      aria-label={`${tr({ en: 'Show source for', fr: 'Voir la source de' })} ${label}: ${text}`}>
+      {text}
+    </button>
+  );
+}
+
+export function EvidenceChip({ evidenceId, display }: { evidenceId: string; display: string }) {
+  const scope = useFactScope();
+  const { openEvidence } = useFactDrawer();
+  const { tr } = useApp();
+  if (!scope) return <span>{display}</span>;
+  return (
+    <button type="button" className="chip chip-evidence" onClick={() => openEvidence(scope, evidenceId)}
+      aria-label={`${tr({ en: 'Show evidence', fr: 'Voir la preuve' })} ${evidenceId}: ${display}`}>
+      {display}
+    </button>
+  );
+}
+
+export function LimitationList({ codes, title }: { codes: readonly string[]; title?: string }) {
+  const { lang, tr } = useApp();
+  if (codes.length === 0) return null;
+  return (
+    <div className="limitations">
+      <p className="eyebrow">{title ?? tr({ en: 'Limitations', fr: 'Limites' })}</p>
+      <ul className="bullets small">
+        {[...new Set(codes)].map(code => <li key={code}>{labelOf(LIMITATION, code, lang)}</li>)}
+      </ul>
+    </div>
+  );
+}
+
+function FactDrawerView({ target, onClose, onOpenFact }: {
+  target: DrawerTarget | null; onClose: () => void; onOpenFact: (scope: FactScope, id: string) => void;
+}) {
+  const { tr } = useApp();
+  const title = target?.type === 'evidence'
+    ? `${tr({ en: 'Evidence', fr: 'Preuve' })} ${target.id}`
+    : `${tr({ en: 'Fact', fr: 'Fait' })} ${target?.id ?? ''}`;
+  return (
+    <Drawer open={target !== null} title={title} onClose={onClose}>
+      {target?.type === 'fact' && <FactBody key={`${target.id}`} scope={target.scope} factId={target.id} onOpenFact={onOpenFact} />}
+      {target?.type === 'evidence' && <EvidenceBody scope={target.scope} evidenceId={target.id} />}
+    </Drawer>
+  );
+}
+
+function ScopeNote({ scope }: { scope: FactScope }) {
+  const { tr } = useApp();
+  return (
+    <p className="scope-note small">
+      {scope.kind === 'run'
+        ? <>{tr({ en: 'Ledger of run', fr: 'Registre de l’exécution' })} <span className="mono">{scope.runId}</span></>
+        : tr(scope.label)}
+    </p>
+  );
+}
+
+function FactBody({ scope, factId, onOpenFact }: {
+  scope: FactScope; factId: string; onOpenFact: (scope: FactScope, id: string) => void;
+}) {
+  const { tr } = useApp();
+  const runId = scope.kind === 'run' ? scope.runId : null;
+  const remote = useQuery<FactResponse>(
+    runId ? `fact|${runId}|${factId}` : null,
+    signal => getApiClient().fact(runId ?? '', factId, signal),
+  );
+  if (scope.kind === 'run') {
+    if (remote.error) {
+      return (
+        <>
+          <ScopeNote scope={scope} />
+          <ErrorState error={remote.error} onRetry={remote.reload}
+            {...(remote.error.code === 'not_found'
+              ? { title: tr({ en: 'This fact is not in this run’s ledger.', fr: 'Ce fait n’est pas dans le registre de cette exécution.' }) }
+              : {})} />
+        </>
+      );
+    }
+    if (!remote.data) return <><ScopeNote scope={scope} /><Loading /></>;
+    return (
+      <>
+        <ScopeNote scope={scope} />
+        <FactDetail response={remote.data} showUsage onOpenInput={id => onOpenFact(scope, id)} />
+      </>
+    );
+  }
+  const fact = scope.facts[factId];
+  if (!fact) {
+    return (
+      <>
+        <ScopeNote scope={scope} />
+        <Unavailable title={tr({ en: 'This fact is not in this response.', fr: 'Ce fait n’est pas dans cette réponse.' })} />
+      </>
+    );
+  }
+  const response: FactResponse = {
+    fact,
+    inputs: fact.inputs.flatMap(id => (scope.facts[id] ? [scope.facts[id]] : [])),
+    usedBy: { sentenceIds: [], ruleIds: [] },
+  };
+  return (
+    <>
+      <ScopeNote scope={scope} />
+      <FactDetail response={response} showUsage={false} onOpenInput={id => onOpenFact(scope, id)} />
+    </>
+  );
+}
+
+function Row({ k, children }: { k: string; children: ReactNode }) {
+  return <div className="kv"><dt className="k">{k}</dt><dd className="v">{children}</dd></div>;
+}
+
+export function FactDetail({ response, showUsage, onOpenInput }: {
+  response: FactResponse; showUsage: boolean; onOpenInput: (id: string) => void;
+}) {
+  const { tr, lang } = useApp();
+  const { fact } = response;
+  const params = Object.entries(fact.method.params);
+  return (
+    <div>
+      <p className="fact-label">{tr(fact.label)}</p>
+      <p className="fact-value serif">{tr(fact.display)}</p>
+      <dl>
+        <Row k={tr({ en: 'Kind', fr: 'Nature' })}>{labelOf(FACT_KIND, fact.kind, lang)}</Row>
+        <Row k={tr({ en: 'Unit', fr: 'Unité' })}>{fact.unit}{fact.currency ? ` · ${fact.currency}` : ''}</Row>
+        <Row k={tr({ en: 'Subject', fr: 'Sujet' })}>
+          <span className="mono">{fact.subject.type}:{fact.subject.id}</span> · {fact.subject.variant}
+        </Row>
+        <Row k={tr({ en: 'Window', fr: 'Fenêtre' })}>
+          {fact.window ? labelOf(WINDOW, fact.window.code, lang) : '—'}
+          {fact.period && <> · {fmtDate(fact.period.start, lang)} → {fmtDate(fact.period.end, lang)}</>}
+        </Row>
+        <Row k={tr({ en: 'Information date', fr: 'Date d’information' })}>{fmtDate(fact.asOf, lang)}</Row>
+        <Row k={tr({ en: 'Available at', fr: 'Disponible le' })}>{fact.availableAt ? fmtDateTime(fact.availableAt, lang) : '—'}</Row>
+        <Row k={tr({ en: 'Method', fr: 'Méthode' })}>
+          <span className="mono">{fact.method.id}</span>
+          <span className="block small">{tr(fact.method.description)}</span>
+          {params.length > 0 && (
+            <span className="block small mono">{params.map(([k, v]) => `${k}=${String(v)}`).join(', ')}</span>
+          )}
+        </Row>
+        <Row k={tr({ en: 'Observations', fr: 'Observations' })}>{fact.nObs ?? '—'}</Row>
+        <Row k={tr({ en: 'Key', fr: 'Clé' })}><span className="mono small break">{fact.key}</span></Row>
+        <Row k={tr({ en: 'Verification', fr: 'Vérification' })}>
+          {labelOf(VERIFICATION, fact.verification.status, lang)}
+          {fact.verification.checks.length > 0 && (
+            <ul className="small">
+              {fact.verification.checks.map((c, i) => (
+                <li key={`${c.code}-${i}`}><span aria-hidden="true">{c.ok ? '✓ ' : '✕ '}</span>
+                  <span className="mono">{c.code}</span> {c.ok ? tr({ en: 'passed', fr: 'réussi' }) : tr({ en: 'failed', fr: 'échoué' })} — {c.detail}</li>
+              ))}
+            </ul>
+          )}
+        </Row>
+      </dl>
+
+      <h3 className="h4">{tr({ en: 'Sources', fr: 'Sources' })}</h3>
+      {fact.sources.length === 0
+        ? <p className="muted small">{tr({ en: 'No dataset source (input or assumption).', fr: 'Aucune source de données (saisie ou hypothèse).' })}</p>
+        : (
+          <ul className="source-list">
+            {fact.sources.map((s, i) => (
+              <li key={`${s.datasetId}-${i}`} className="small">
+                <strong>{s.sourceName}</strong> · <span className="mono">{s.datasetId}</span> · <span className="mono">{s.dataVersion}</span>
+                <span className="block">{tr({ en: 'Retrieved', fr: 'Récupéré' })} {fmtDate(s.retrievedOn, lang)} · {tr({ en: 'Licence', fr: 'Licence' })}: {s.licence}
+                  {s.rowsRead !== null && <> · {s.rowsRead} {tr({ en: 'rows', fr: 'lignes' })}</>}</span>
+                <span className="block">
+                  <Link href={`/sources/?datasetId=${encodeURIComponent(s.datasetId)}&dataVersion=${encodeURIComponent(s.dataVersion)}`}>
+                    {tr({ en: 'Open dataset passport', fr: 'Ouvrir le passeport du jeu de données' })}
+                  </Link>
+                  {s.sourceUrl && <> · <ExternalLink href={s.sourceUrl}>{tr({ en: 'Provider', fr: 'Fournisseur' })}</ExternalLink></>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+      <LimitationList codes={fact.limitations} />
+
+      <h3 className="h4">{tr({ en: 'Inputs (one level)', fr: 'Intrants (un niveau)' })}</h3>
+      {fact.inputs.length === 0
+        ? <p className="muted small">{tr({ en: 'None.', fr: 'Aucun.' })}</p>
+        : (
+          <ul className="input-list">
+            {fact.inputs.map(id => {
+              const input = response.inputs.find(f => f.id === id);
+              return (
+                <li key={id}>
+                  <button type="button" className="linklike" onClick={() => onOpenInput(id)}>
+                    <span className="mono">{id}</span>{' '}
+                    {input ? `${tr(input.label)} — ${tr(input.display)}` : tr({ en: '(not returned)', fr: '(non retourné)' })}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+      {showUsage && (
+        <>
+          <h3 className="h4">{tr({ en: 'Used by', fr: 'Utilisé par' })}</h3>
+          <p className="small">
+            {tr({ en: 'Sentences', fr: 'Phrases' })}: <span className="mono">{response.usedBy.sentenceIds.join(', ') || '—'}</span>
+            <br />
+            {tr({ en: 'Rules', fr: 'Règles' })}: <span className="mono">{response.usedBy.ruleIds.join(', ') || '—'}</span>
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
+function EvidenceBody({ scope, evidenceId }: { scope: FactScope; evidenceId: string }) {
+  const { tr, lang } = useApp();
+  const evidence = scope.kind === 'run' ? scope.evidence[evidenceId] : undefined;
+  if (!evidence) {
+    return (
+      <>
+        <ScopeNote scope={scope} />
+        <Unavailable title={tr({ en: 'This evidence item is not in this run.', fr: 'Cette preuve n’est pas dans cette exécution.' })} />
+      </>
+    );
+  }
+  const quoteVerified = evidence.verification.checks.some(c => c.code === 'A08' && c.ok);
+  return (
+    <div>
+      <ScopeNote scope={scope} />
+      <p className="fact-label">{tr(evidence.claim)}</p>
+      {evidence.quote !== null && (
+        <blockquote className="quote">
+          {evidence.quote}
+          <footer className="small muted">
+            {quoteVerified
+              ? tr({ en: 'Quote found in the cached source document (A08).', fr: 'Citation retrouvée dans le document source en cache (A08).' })
+              : tr({ en: 'Quote not verified against the cached document.', fr: 'Citation non vérifiée dans le document en cache.' })}
+          </footer>
+        </blockquote>
+      )}
+      <dl>
+        <Row k={tr({ en: 'Title', fr: 'Titre' })}>{evidence.title}</Row>
+        <Row k={tr({ en: 'Publisher', fr: 'Éditeur' })}>{evidence.publisher}</Row>
+        <Row k={tr({ en: 'Type', fr: 'Type' })}>{labelOf(EVIDENCE_TYPE, evidence.type, lang)} · {tr({ en: 'tier', fr: 'niveau' })} {evidence.tier}</Row>
+        <Row k={tr({ en: 'Published', fr: 'Publié' })}>{evidence.publishedAt ? fmtDate(evidence.publishedAt, lang) : tr({ en: 'Date not stated', fr: 'Date non indiquée' })}</Row>
+        <Row k={tr({ en: 'Retrieved', fr: 'Récupéré' })}>{fmtDateTime(evidence.retrievedAt, lang)}</Row>
+        <Row k={tr({ en: 'Licence', fr: 'Licence' })}>{evidence.licence}</Row>
+        <Row k={tr({ en: 'Verification', fr: 'Vérification' })}>
+          {labelOf(VERIFICATION, evidence.verification.status, lang)}
+          <ul className="small">
+            {evidence.verification.checks.map((c, i) => (
+              <li key={`${c.code}-${i}`}><span aria-hidden="true">{c.ok ? '✓ ' : '✕ '}</span><span className="mono">{c.code}</span> — {c.detail}</li>
+            ))}
+          </ul>
+        </Row>
+        <Row k="URL"><ExternalLink href={evidence.url}>{evidence.url}</ExternalLink></Row>
+      </dl>
+    </div>
+  );
+}
