@@ -1,6 +1,10 @@
 # Verification strategy and implementation gates
 
-**Track:** T16 integrates; module owners implement relevant tests. [Acceptance matrix](../docs/07-ACCEPTANCE.md) is the release checklist; this file explains how to test it. Shared contracts, API/persistence boundaries, API Gateway composition and infrastructure synthesis have implemented deterministic checks. Domain execution and deployed application acceptance still await their owning tracks.
+**Track:** T16 integrates; module owners implement relevant tests. [Acceptance matrix](../docs/07-ACCEPTANCE.md) is the release checklist; this file explains how to test it. The [T16 delivery pack](../docs/deliverables/README.md) records executed offline checks, per-row acceptance status and remaining browser/cloud evidence.
+
+Run `uv run python scripts/qa_smoke.py --output .artifacts/t16-new` for the retained cross-track gate (root CI check, static build/deep links/assets/disclaimers, HTTP numeric controls and twenty-sample read/check latency). Run `uv run python -m unittest discover -s tests -p test_qa_smoke.py` for the harness failure/timeout/overwrite regressions. Lint the T16 files with `uv run ruff check scripts/qa_smoke.py tests/test_qa_smoke.py`. The root specification check also validates delivery artifact hashes and coverage of all twenty acceptance rows. See the pack for clean-checkout prerequisites and limits; passing this gate does not certify release readiness.
+
+After building the static client, `uv run python tests/run_browser_smoke.py .artifacts/t16-browser-new` runs the optional headless Chrome smoke against temporary real starter-data services. It checks all app pages at three widths and the primary TSLA preview/compare journey. It uses Node's native WebSocket/CDP without an npm dependency. See the pack for ports, required browser and remaining accessibility/model-run limits.
 
 ## Test layers
 

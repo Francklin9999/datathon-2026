@@ -1,0 +1,532 @@
+{
+  "startedAt": "2026-11-15T04:48:04.901Z",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/157.0.8103.50",
+    "revision": "@049750111b1e5c11565c792b2aeed5541f332bad",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "jsVersion": "15.7.112.23"
+  },
+  "site": "http://127.0.0.1:8765",
+  "scope": "Headless Chrome hydration, direct routes, page overflow, disclaimer and Tab focus only; no completed model run or full keyboard journey",
+  "results": [
+    {
+      "width": 375,
+      "route": "/",
+      "passed": true,
+      "title": "Robert",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 375,
+      "pageWidth": 375,
+      "loading": false,
+      "main": "Portfolio analyst brief\n\nRobert\n\n59, healthcare professional. Low-to-moderate risk over 3 to 5 years; values stability and quality, little interest in crypto.\n\nHorizon\n3–5 years\nObjective\nPreserve capital\nTest a move\nInspect plan\nFictional value\nCAD 600,000\nC\nA\nD\n \n6\n0\n0\n,\n0\n0\n0\n\nCAD\n\nYear to date (historical)\n+10.3%\n+\n1\n0\n.\n3\n%\nTrailing 1 year (historical)\n+10.6%\n+\n1\n0\n.\n6\n%\nAnnualized volatility\n6.1%\n6\n.\n1\n%\nMaximum drawdown\n9.6%\n9\n.\n6\n%\n\nPeak-to-trough fall, shown as a positive number\n\nConstant-weight historical figures for today’s fictional holdings, not account gains. Measured risk category: Low to moderate.\n\nHypothetical constant-weight history\nShow table\n536,926\n727,934\n918,942\nNov 12, 2021\nNov 12, 2026\nFull sample, Nov 12, 2021 → Nov 12, 2026 (CAD)\nFictional portfolio, today’s weig",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 375,
+      "route": "/portfolio/",
+      "passed": true,
+      "title": "Robert: holdings, rules and risk",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 375,
+      "pageWidth": 375,
+      "loading": false,
+      "main": "Fictional portfolio\n\nRobert: holdings, rules and risk\n\nAll values are in CAD · CAD 600,000 fictional capital · profile version 1\n\nHoldings\nAsset\tClass\tSector label\tWeight\tMarket value (CAD)\t1-year return (historical)\nXBB.TO\niShares Core Canadian Universe Bond Index ETF\n\tBond ETF\tBonds (Canada aggregate)\t30.0%\tCAD 180,000\t−0.4%\nXIU.TO\niShares S&P/TSX 60 Index ETF\n\tEquity ETF\tBroad market (Canada)\t15.0%\tCAD 90,000\t+21.4%\nZST.TO\nBMO Ultra Short-Term Bond ETF\n\tBond ETF\tBonds (Canada ultra short-term)\t15.0%\tCAD 90,000\t+2.5%\nSPY\nSPDR S&P 500 ETF Trust\n\tEquity ETF\tBroad market (U.S.)\t10.0%\tCAD 60,000\t+14.0%\nAGG\niShares Core U.S. Aggregate Bond ETF\n\tBond ETF\tBonds (U.S. aggregate)\t5.0%\tCAD 30,000\t+0.5%\nFTS.TO\nFortis\n\tSingle stock\tUtilities\t5.0%\tCAD 30,000\t—\nRY.TO\nRoyal Bank of Canada\n\tSingle stock",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 375,
+      "route": "/profiles/",
+      "passed": true,
+      "title": "Create or edit a fictional profile",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 375,
+      "pageWidth": 375,
+      "loading": false,
+      "main": "Fictional profiles\n\nCreate or edit a fictional profile\n\nFor simulation only. Do not enter real personal, contact or account information. This is not an advisory onboarding.\n\nProfiles in this session\nRobert · default (read-only; copy to change) · Low to moderate · 3–5 years · CAD 600,000\nCopy\nAmira · default (read-only; copy to change) · High · 15+ years · CAD 60,000\nCopy\nMateo · default (read-only; copy to change) · Moderate · 8–12 years · CAD 250,000\nCopy\nOr describe the fictional investor in words\nDescription\nA draft run proposes fields with explanations. Nothing is saved until you confirm in the form.\nDraft a profile\nNew fictional profile\nDisplay label\nAge (optional)\nRisk level\n—\nLow\nLow to moderate\nModerate\nModerate to high\nHigh\nHorizon minimum (years)\nHorizon maximum (empty = open-end",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 375,
+      "route": "/decision-desk/",
+      "passed": true,
+      "title": "Test a hypothetical move for Robert",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 375,
+      "pageWidth": 375,
+      "loading": false,
+      "main": "Decision Desk\n\nTest a hypothetical move for Robert\n\nDescribe a move or fill the form. Rule checks are deterministic; the evidence analysis is an audited agent run. Nothing is ever executed.\n\nDescribe the move\nIn your own words\n0/600 · The interpretation is shown for your confirmation; nothing runs until you confirm.\nInterpret\nStructured request (manual form)\nAsset (ticker)\nCurrent weight: 0.0%\nFunding\nCompare funding options\nPro-rata from all holdings\nFrom cash\nFrom named holdings\nNew money\nFunded from the current portfolio value.\nAdded size (points of current portfolio value)\nAn added amount, not a target weight. 0 previews the current portfolio.\nDeterministic preview\n\nBaseline: current portfolio, no move (size 0).\n\n✓\nFits the rules\n\n0 conflict\n0 tension\n8 fit\n0 not enough evidence\n3 info",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 375,
+      "route": "/evidence-audit/",
+      "passed": true,
+      "title": "Runs in this session",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 375,
+      "pageWidth": 375,
+      "loading": false,
+      "main": "Evidence & Audit\n\nRuns in this session\n\nPick a run to inspect its ledger, audit and execution trace. Runs of other sessions are not accessible.\n\nNo runs yet. Start one from the Decision Desk or Home.",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 375,
+      "route": "/sources/",
+      "passed": true,
+      "title": "Sources and dataset passports",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 375,
+      "pageWidth": 375,
+      "loading": false,
+      "main": "Data room\n\nSources and dataset passports\n\nWhat each dataset is, where it comes from, how it is processed and what it cannot tell you.\n\nDatasets\nDataset\tStatus\tProvider\tRetrieved\tCoverage\tFrequency\tRows\tVersion\nAsset universe\nList of assets Aplomb can analyse, with class, listing market, currency and sector.\n\tIn use\tCompiled by organizers; sector labels follow GICS sector names\nFree to use within the datathon\n\tNov 13, 2026\t—\tstatic\t31\tsnap-20261113-starter\nDaily prices\nAdjusted closes used for every return, volatility, drawdown and stress figure.\n\tIn use\tYahoo Finance via the open-source yfinance Python library\nYahoo terms: https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html (retrieved 2026-11-13)\n\tNov 13, 2026\t2021-11-12 → 2026-11-12\tdaily (trading days per market; crypto 7 days/week",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 375,
+      "route": "/world-explorer/",
+      "passed": true,
+      "title": "Sourced events and the exposure of Robert",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 375,
+      "pageWidth": 375,
+      "loading": false,
+      "main": "World Explorer\n\nSourced events and the exposure of Robert\n\nEvents come from the loaded dataset, each with its source. A link to a holding states its basis; the financial impact is not established unless a measured observation says otherwise. This is not a feed of all worldwide news.\n\nFilters\nFrom\nTo\nCountry (ISO code)\nTicker named in the event\nTheme\nAll themes\nArtificial intelligence\nSemiconductors\nSoftware\nCloud\nE-commerce\nElectric vehicles\nBig tech\nBanks\nInsurance\nFossil energy\nPipelines\nUtilities\nRail transport\nConsumer staples\nHealthcare\nRetail\nBroad Canadian market\nBroad US market\nNasdaq growth\nESG-screened\nCanadian bonds\nUS bonds\nLong US Treasuries\nCash-like\nGold\nCrypto\nDividend payers\nText in title or publisher\nSort by\nRanking score\nDate (most recent first)\n\nDataset coverage: Nov 14",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 375,
+      "route": "/time-machine/",
+      "passed": true,
+      "title": "Replay a hypothetical move for Robert with an information cutoff",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 375,
+      "pageWidth": 375,
+      "loading": false,
+      "main": "Time Machine\n\nReplay a hypothetical move for Robert with an information cutoff\n\nChoose a past date. The rule checks and figures use only data rows available on that date. What happened afterwards stays hidden until you ask to reveal it.\n\nWhat this replay can and cannot show\n\nThe language model’s knowledge is not erased. Figures come from date-filtered data, but wording may reflect what happened later.\nPrices are adjusted and macro series are revised: this is not the data as originally published on that date.\nThe asset universe was selected later, among names that are large today.\nThis is a historical simulation, not a validation of any forecast and not an offline replay of a real decision.\nInformation cutoff\n\nSupported cutoff dates: Nov 22, 2022 → Aug 18, 2026. Earlier dates lack the histo",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 375,
+      "route": "/agents-system/",
+      "passed": true,
+      "title": "What actually ran",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 375,
+      "pageWidth": 375,
+      "loading": false,
+      "main": "Agents & System\n\nWhat actually ran\n\nCode computes every figure and verdict; models plan, research and explain. This page separates what is configured from what a run recorded.\n\nRoles: who may do what\n\nA static description of the design. It is not a claim that any of these ran; the selected run below shows that.\n\nPlanner\n\nModel work\n\nReads the request and the profile, then names the scenarios, calculations and research questions to run, or asks one clarifying question. After an objection from the rule check it decides what else to test.\n\nSteps Plan, Revision\n\nAllowed tools\n\nuniverse.search\nuniverse.get\nprofile.get\ndata.describe\nmacro.series\n\nRead-only lookups. It names quant, rule, optimizer and research tasks in its plan; it does not run them and cannot decide whether the controls run.\n\nRe",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 768,
+      "route": "/",
+      "passed": true,
+      "title": "Robert",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 768,
+      "pageWidth": 753,
+      "loading": false,
+      "main": "Portfolio analyst brief\n\nRobert\n\n59, healthcare professional. Low-to-moderate risk over 3 to 5 years; values stability and quality, little interest in crypto.\n\nHorizon\n3–5 years\nObjective\nPreserve capital\nTest a move\nInspect plan\nFictional value\nCAD 600,000\nC\nA\nD\n \n6\n0\n0\n,\n0\n0\n0\n\nCAD\n\nYear to date (historical)\n+10.3%\n+\n1\n0\n.\n3\n%\nTrailing 1 year (historical)\n+10.6%\n+\n1\n0\n.\n6\n%\nAnnualized volatility\n6.1%\n6\n.\n1\n%\nMaximum drawdown\n9.6%\n9\n.\n6\n%\n\nPeak-to-trough fall, shown as a positive number\n\nConstant-weight historical figures for today’s fictional holdings, not account gains. Measured risk category: Low to moderate.\n\nHypothetical constant-weight history\nShow table\n536,926\n727,934\n918,942\nNov 12, 2021\nNov 12, 2026\nFull sample, Nov 12, 2021 → Nov 12, 2026 (CAD)\nFictional portfolio, today’s weig",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 768,
+      "route": "/portfolio/",
+      "passed": true,
+      "title": "Robert: holdings, rules and risk",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 768,
+      "pageWidth": 753,
+      "loading": false,
+      "main": "Fictional portfolio\n\nRobert: holdings, rules and risk\n\nAll values are in CAD · CAD 600,000 fictional capital · profile version 1\n\nHoldings\nAsset\tClass\tSector label\tWeight\tMarket value (CAD)\t1-year return (historical)\nXBB.TO\niShares Core Canadian Universe Bond Index ETF\n\tBond ETF\tBonds (Canada aggregate)\t30.0%\tCAD 180,000\t−0.4%\nXIU.TO\niShares S&P/TSX 60 Index ETF\n\tEquity ETF\tBroad market (Canada)\t15.0%\tCAD 90,000\t+21.4%\nZST.TO\nBMO Ultra Short-Term Bond ETF\n\tBond ETF\tBonds (Canada ultra short-term)\t15.0%\tCAD 90,000\t+2.5%\nSPY\nSPDR S&P 500 ETF Trust\n\tEquity ETF\tBroad market (U.S.)\t10.0%\tCAD 60,000\t+14.0%\nAGG\niShares Core U.S. Aggregate Bond ETF\n\tBond ETF\tBonds (U.S. aggregate)\t5.0%\tCAD 30,000\t+0.5%\nFTS.TO\nFortis\n\tSingle stock\tUtilities\t5.0%\tCAD 30,000\t—\nRY.TO\nRoyal Bank of Canada\n\tSingle stock",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 768,
+      "route": "/profiles/",
+      "passed": true,
+      "title": "Create or edit a fictional profile",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 768,
+      "pageWidth": 753,
+      "loading": false,
+      "main": "Fictional profiles\n\nCreate or edit a fictional profile\n\nFor simulation only. Do not enter real personal, contact or account information. This is not an advisory onboarding.\n\nProfiles in this session\nRobert · default (read-only; copy to change) · Low to moderate · 3–5 years · CAD 600,000\nCopy\nAmira · default (read-only; copy to change) · High · 15+ years · CAD 60,000\nCopy\nMateo · default (read-only; copy to change) · Moderate · 8–12 years · CAD 250,000\nCopy\nOr describe the fictional investor in words\nDescription\nA draft run proposes fields with explanations. Nothing is saved until you confirm in the form.\nDraft a profile\nNew fictional profile\nDisplay label\nAge (optional)\nRisk level\n—\nLow\nLow to moderate\nModerate\nModerate to high\nHigh\nHorizon minimum (years)\nHorizon maximum (empty = open-end",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 768,
+      "route": "/decision-desk/",
+      "passed": true,
+      "title": "Test a hypothetical move for Robert",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 768,
+      "pageWidth": 753,
+      "loading": false,
+      "main": "Decision Desk\n\nTest a hypothetical move for Robert\n\nDescribe a move or fill the form. Rule checks are deterministic; the evidence analysis is an audited agent run. Nothing is ever executed.\n\nDescribe the move\nIn your own words\n0/600 · The interpretation is shown for your confirmation; nothing runs until you confirm.\nInterpret\nStructured request (manual form)\nAsset (ticker)\nCurrent weight: 0.0%\nFunding\nCompare funding options\nPro-rata from all holdings\nFrom cash\nFrom named holdings\nNew money\nFunded from the current portfolio value.\nAdded size (points of current portfolio value)\nAn added amount, not a target weight. 0 previews the current portfolio.\nDeterministic preview\n\nBaseline: current portfolio, no move (size 0).\n\n✓\nFits the rules\n\n0 conflict\n0 tension\n8 fit\n0 not enough evidence\n3 info",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 768,
+      "route": "/evidence-audit/",
+      "passed": true,
+      "title": "Runs in this session",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 768,
+      "pageWidth": 768,
+      "loading": false,
+      "main": "Evidence & Audit\n\nRuns in this session\n\nPick a run to inspect its ledger, audit and execution trace. Runs of other sessions are not accessible.\n\nNo runs yet. Start one from the Decision Desk or Home.",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 768,
+      "route": "/sources/",
+      "passed": true,
+      "title": "Sources and dataset passports",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 768,
+      "pageWidth": 753,
+      "loading": false,
+      "main": "Data room\n\nSources and dataset passports\n\nWhat each dataset is, where it comes from, how it is processed and what it cannot tell you.\n\nDatasets\nDataset\tStatus\tProvider\tRetrieved\tCoverage\tFrequency\tRows\tVersion\nAsset universe\nList of assets Aplomb can analyse, with class, listing market, currency and sector.\n\tIn use\tCompiled by organizers; sector labels follow GICS sector names\nFree to use within the datathon\n\tNov 13, 2026\t—\tstatic\t31\tsnap-20261113-starter\nDaily prices\nAdjusted closes used for every return, volatility, drawdown and stress figure.\n\tIn use\tYahoo Finance via the open-source yfinance Python library\nYahoo terms: https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html (retrieved 2026-11-13)\n\tNov 13, 2026\t2021-11-12 → 2026-11-12\tdaily (trading days per market; crypto 7 days/week",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 768,
+      "route": "/world-explorer/",
+      "passed": true,
+      "title": "Sourced events and the exposure of Robert",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 768,
+      "pageWidth": 753,
+      "loading": false,
+      "main": "World Explorer\n\nSourced events and the exposure of Robert\n\nEvents come from the loaded dataset, each with its source. A link to a holding states its basis; the financial impact is not established unless a measured observation says otherwise. This is not a feed of all worldwide news.\n\nFilters\nFrom\nTo\nCountry (ISO code)\nTicker named in the event\nTheme\nAll themes\nArtificial intelligence\nSemiconductors\nSoftware\nCloud\nE-commerce\nElectric vehicles\nBig tech\nBanks\nInsurance\nFossil energy\nPipelines\nUtilities\nRail transport\nConsumer staples\nHealthcare\nRetail\nBroad Canadian market\nBroad US market\nNasdaq growth\nESG-screened\nCanadian bonds\nUS bonds\nLong US Treasuries\nCash-like\nGold\nCrypto\nDividend payers\nText in title or publisher\nSort by\nRanking score\nDate (most recent first)\n\nDataset coverage: Nov 14",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 768,
+      "route": "/time-machine/",
+      "passed": true,
+      "title": "Replay a hypothetical move for Robert with an information cutoff",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 768,
+      "pageWidth": 753,
+      "loading": false,
+      "main": "Time Machine\n\nReplay a hypothetical move for Robert with an information cutoff\n\nChoose a past date. The rule checks and figures use only data rows available on that date. What happened afterwards stays hidden until you ask to reveal it.\n\nWhat this replay can and cannot show\n\nThe language model’s knowledge is not erased. Figures come from date-filtered data, but wording may reflect what happened later.\nPrices are adjusted and macro series are revised: this is not the data as originally published on that date.\nThe asset universe was selected later, among names that are large today.\nThis is a historical simulation, not a validation of any forecast and not an offline replay of a real decision.\nInformation cutoff\n\nSupported cutoff dates: Nov 22, 2022 → Aug 18, 2026. Earlier dates lack the histo",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 768,
+      "route": "/agents-system/",
+      "passed": true,
+      "title": "What actually ran",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 768,
+      "pageWidth": 753,
+      "loading": false,
+      "main": "Agents & System\n\nWhat actually ran\n\nCode computes every figure and verdict; models plan, research and explain. This page separates what is configured from what a run recorded.\n\nRoles: who may do what\n\nA static description of the design. It is not a claim that any of these ran; the selected run below shows that.\n\nPlanner\n\nModel work\n\nReads the request and the profile, then names the scenarios, calculations and research questions to run, or asks one clarifying question. After an objection from the rule check it decides what else to test.\n\nSteps Plan, Revision\n\nAllowed tools\n\nuniverse.search\nuniverse.get\nprofile.get\ndata.describe\nmacro.series\n\nRead-only lookups. It names quant, rule, optimizer and research tasks in its plan; it does not run them and cannot decide whether the controls run.\n\nRe",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 1440,
+      "route": "/",
+      "passed": true,
+      "title": "Robert",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 1440,
+      "pageWidth": 1425,
+      "loading": false,
+      "main": "Portfolio analyst brief\n\nRobert\n\n59, healthcare professional. Low-to-moderate risk over 3 to 5 years; values stability and quality, little interest in crypto.\n\nHorizon\n3–5 years\nObjective\nPreserve capital\nTest a move\nInspect plan\nFictional value\nCAD 600,000\nC\nA\nD\n \n6\n0\n0\n,\n0\n0\n0\n\nCAD\n\nYear to date (historical)\n+10.3%\n+\n1\n0\n.\n3\n%\nTrailing 1 year (historical)\n+10.6%\n+\n1\n0\n.\n6\n%\nAnnualized volatility\n6.1%\n6\n.\n1\n%\nMaximum drawdown\n9.6%\n9\n.\n6\n%\n\nPeak-to-trough fall, shown as a positive number\n\nConstant-weight historical figures for today’s fictional holdings, not account gains. Measured risk category: Low to moderate.\n\nHypothetical constant-weight history\nShow table\n536,926\n727,934\n918,942\nNov 12, 2021\nNov 12, 2026\nFull sample, Nov 12, 2021 → Nov 12, 2026 (CAD)\nFictional portfolio, today’s weig",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 1440,
+      "route": "/portfolio/",
+      "passed": true,
+      "title": "Robert: holdings, rules and risk",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 1440,
+      "pageWidth": 1425,
+      "loading": false,
+      "main": "Fictional portfolio\n\nRobert: holdings, rules and risk\n\nAll values are in CAD · CAD 600,000 fictional capital · profile version 1\n\nHoldings\nAsset\tClass\tSector label\tWeight\tMarket value (CAD)\t1-year return (historical)\nXBB.TO\niShares Core Canadian Universe Bond Index ETF\n\tBond ETF\tBonds (Canada aggregate)\t30.0%\tCAD 180,000\t−0.4%\nXIU.TO\niShares S&P/TSX 60 Index ETF\n\tEquity ETF\tBroad market (Canada)\t15.0%\tCAD 90,000\t+21.4%\nZST.TO\nBMO Ultra Short-Term Bond ETF\n\tBond ETF\tBonds (Canada ultra short-term)\t15.0%\tCAD 90,000\t+2.5%\nSPY\nSPDR S&P 500 ETF Trust\n\tEquity ETF\tBroad market (U.S.)\t10.0%\tCAD 60,000\t+14.0%\nAGG\niShares Core U.S. Aggregate Bond ETF\n\tBond ETF\tBonds (U.S. aggregate)\t5.0%\tCAD 30,000\t+0.5%\nFTS.TO\nFortis\n\tSingle stock\tUtilities\t5.0%\tCAD 30,000\t—\nRY.TO\nRoyal Bank of Canada\n\tSingle stock",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 1440,
+      "route": "/profiles/",
+      "passed": true,
+      "title": "Create or edit a fictional profile",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 1440,
+      "pageWidth": 1425,
+      "loading": false,
+      "main": "Fictional profiles\n\nCreate or edit a fictional profile\n\nFor simulation only. Do not enter real personal, contact or account information. This is not an advisory onboarding.\n\nProfiles in this session\nRobert · default (read-only; copy to change) · Low to moderate · 3–5 years · CAD 600,000\nCopy\nAmira · default (read-only; copy to change) · High · 15+ years · CAD 60,000\nCopy\nMateo · default (read-only; copy to change) · Moderate · 8–12 years · CAD 250,000\nCopy\nOr describe the fictional investor in words\nDescription\nA draft run proposes fields with explanations. Nothing is saved until you confirm in the form.\nDraft a profile\nNew fictional profile\nDisplay label\nAge (optional)\nRisk level\n—\nLow\nLow to moderate\nModerate\nModerate to high\nHigh\nHorizon minimum (years)\nHorizon maximum (empty = open-end",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 1440,
+      "route": "/decision-desk/",
+      "passed": true,
+      "title": "Test a hypothetical move for Robert",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 1440,
+      "pageWidth": 1425,
+      "loading": false,
+      "main": "Decision Desk\n\nTest a hypothetical move for Robert\n\nDescribe a move or fill the form. Rule checks are deterministic; the evidence analysis is an audited agent run. Nothing is ever executed.\n\nDescribe the move\nIn your own words\n0/600 · The interpretation is shown for your confirmation; nothing runs until you confirm.\nInterpret\nStructured request (manual form)\nAsset (ticker)\nCurrent weight: 0.0%\nFunding\nCompare funding options\nPro-rata from all holdings\nFrom cash\nFrom named holdings\nNew money\nFunded from the current portfolio value.\nAdded size (points of current portfolio value)\nAn added amount, not a target weight. 0 previews the current portfolio.\nDeterministic preview\n\nBaseline: current portfolio, no move (size 0).\n\n✓\nFits the rules\n\n0 conflict\n0 tension\n8 fit\n0 not enough evidence\n3 info",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 1440,
+      "route": "/evidence-audit/",
+      "passed": true,
+      "title": "Runs in this session",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 1440,
+      "pageWidth": 1440,
+      "loading": false,
+      "main": "Evidence & Audit\n\nRuns in this session\n\nPick a run to inspect its ledger, audit and execution trace. Runs of other sessions are not accessible.\n\nNo runs yet. Start one from the Decision Desk or Home.",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 1440,
+      "route": "/sources/",
+      "passed": true,
+      "title": "Sources and dataset passports",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 1440,
+      "pageWidth": 1425,
+      "loading": false,
+      "main": "Data room\n\nSources and dataset passports\n\nWhat each dataset is, where it comes from, how it is processed and what it cannot tell you.\n\nDatasets\nDataset\tStatus\tProvider\tRetrieved\tCoverage\tFrequency\tRows\tVersion\nAsset universe\nList of assets Aplomb can analyse, with class, listing market, currency and sector.\n\tIn use\tCompiled by organizers; sector labels follow GICS sector names\nFree to use within the datathon\n\tNov 13, 2026\t—\tstatic\t31\tsnap-20261113-starter\nDaily prices\nAdjusted closes used for every return, volatility, drawdown and stress figure.\n\tIn use\tYahoo Finance via the open-source yfinance Python library\nYahoo terms: https://legal.yahoo.com/us/en/yahoo/terms/otos/index.html (retrieved 2026-11-13)\n\tNov 13, 2026\t2021-11-12 → 2026-11-12\tdaily (trading days per market; crypto 7 days/week",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 1440,
+      "route": "/world-explorer/",
+      "passed": true,
+      "title": "Sourced events and the exposure of Robert",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 1440,
+      "pageWidth": 1425,
+      "loading": false,
+      "main": "World Explorer\n\nSourced events and the exposure of Robert\n\nEvents come from the loaded dataset, each with its source. A link to a holding states its basis; the financial impact is not established unless a measured observation says otherwise. This is not a feed of all worldwide news.\n\nFilters\nFrom\nTo\nCountry (ISO code)\nTicker named in the event\nTheme\nAll themes\nArtificial intelligence\nSemiconductors\nSoftware\nCloud\nE-commerce\nElectric vehicles\nBig tech\nBanks\nInsurance\nFossil energy\nPipelines\nUtilities\nRail transport\nConsumer staples\nHealthcare\nRetail\nBroad Canadian market\nBroad US market\nNasdaq growth\nESG-screened\nCanadian bonds\nUS bonds\nLong US Treasuries\nCash-like\nGold\nCrypto\nDividend payers\nText in title or publisher\nSort by\nRanking score\nDate (most recent first)\n\nDataset coverage: Nov 14",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 1440,
+      "route": "/time-machine/",
+      "passed": true,
+      "title": "Replay a hypothetical move for Robert with an information cutoff",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 1440,
+      "pageWidth": 1425,
+      "loading": false,
+      "main": "Time Machine\n\nReplay a hypothetical move for Robert with an information cutoff\n\nChoose a past date. The rule checks and figures use only data rows available on that date. What happened afterwards stays hidden until you ask to reveal it.\n\nWhat this replay can and cannot show\n\nThe language model’s knowledge is not erased. Figures come from date-filtered data, but wording may reflect what happened later.\nPrices are adjusted and macro series are revised: this is not the data as originally published on that date.\nThe asset universe was selected later, among names that are large today.\nThis is a historical simulation, not a validation of any forecast and not an offline replay of a real decision.\nInformation cutoff\n\nSupported cutoff dates: Nov 22, 2022 → Aug 18, 2026. Earlier dates lack the histo",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    },
+    {
+      "width": 1440,
+      "route": "/agents-system/",
+      "passed": true,
+      "title": "What actually ran",
+      "hydrated": true,
+      "personaLoaded": true,
+      "disclaimer": true,
+      "viewport": 1440,
+      "pageWidth": 1425,
+      "loading": false,
+      "main": "Agents & System\n\nWhat actually ran\n\nCode computes every figure and verdict; models plan, research and explain. This page separates what is configured from what a run recorded.\n\nRoles: who may do what\n\nA static description of the design. It is not a claim that any of these ran; the selected run below shows that.\n\nPlanner\n\nModel work\n\nReads the request and the profile, then names the scenarios, calculations and research questions to run, or asks one clarifying question. After an objection from the rule check it decides what else to test.\n\nSteps Plan, Revision\n\nAllowed tools\n\nuniverse.search\nuniverse.get\nprofile.get\ndata.describe\nmacro.series\n\nRead-only lookups. It names quant, rule, optimizer and research tasks in its plan; it does not run them and cannot decide whether the controls run.\n\nRe",
+      "tabFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "exceptions": []
+    }
+  ],
+  "decisionChecks": [
+    {
+      "size": 25,
+      "passed": true,
+      "verdicts": [
+        "✕\nConflict",
+        "✕\nConflict"
+      ],
+      "counts": "6 conflict\n1 tension\n1 fit\n0 not enough evidence\n3 information",
+      "panes": [
+        "Robert\n✕\nConflict\n\n6 conflict\n1 tension\n1 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n6.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 1 tension, 0 not enough evidence.\n\nCompared rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 10.0% of the portfolio\nrule assumption\nLargest single position would be TSLA at 25.00%, above the 10.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t25.0%\t≤ 10.0%\t-15.0%\t\n✕\nConflict\nR2\t\nNo sector above 20.0% of the portfolio (directly held stocks)\nrule assumption\nConsumer Discretionary would reach 25.00% of the portfolio, above the 20.00% sector cap.\nDriven by Consumer Discretionary\nHow the threshold was derived\n\t25.0%\t≤ 20.0%\t-5.0%\t\n✕\nConflict\nR3\t\nStocks, equity funds and crypto together at most 55.0%\nrule assumption\nStocks, equity funds and crypto would be 60.25%, above the 55.00% cap.\nHow the threshold was derived\n\t60.3%\t≤ 55.0%\t-5.3%\t\n✕\nConflict\nR4\t\nKeep bonds and cash at 35.0% or more\nrule assumption\nBonds and cash would be 37.50%, close to the 35.00% floor.\nHow the threshold was derived\n\t37.5%\t≥ 35.0%\t2.5%\t\n!\nTension\nR5\t\nPortfolio volatility at most 9.0% a year\nrule assumption\nPortfolio volatility would be 16.96% a year, above the 9.00% budget.\nHow the threshold was derived\n\t17.0%\t≤ 9.0%\t-8.0%\t\n✕\nConflict\nR6\t\nA repeat of 2022 may cost at most 9.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 21.88%, above the 9.00% limit.\nHow the threshold was derived\n\t21.9%\t≤ 9.0%\t-12.9%\t\n✕\nConflict\nR7\t\nLargest historical peak-to-trough fall at most 18.0%\nrule assumption\nThe largest fall in the window would have been 25.31%, above the 18.00% ceiling.\nHow the threshold was derived\n\t25.3%\t≤ 18.0%\t-7.3%\t\n✕\nConflict\nR8\t\nNo crypto assets\nrule assumption\nNo holding belongs to the excluded category (asset class crypto).\n\t0.0%\t= 0.0%\t—\t\n✓\nFit\nR9\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR10\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 4.07% (informational).\n\t4.1%\t—\t—\t\ni\nInformation\nR11\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation",
+        "Amira\n✕\nConflict\n\n3 conflict\n2 tension\n2 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n11.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 2 tension, 0 not enough evidence.\n\nCompared rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 25.0% of the portfolio\nrule assumption\nLargest single position would be TSLA at 25.00%, close to the 25.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t25.0%\t≤ 25.0%\t0.0%\t\n!\nTension\nR2\t\nNo sector above 40.0% of the portfolio (directly held stocks)\nrule assumption\nThe largest sector is Consumer Discretionary at 28.75%, inside the 40.00% sector cap.\nDriven by Consumer Discretionary\nHow the threshold was derived\n\t28.8%\t≤ 40.0%\t11.3%\t\n✓\nFit\nR3\t\nCrypto assets at most 15.0%\nrule assumption\nCrypto: 6.75%, inside the 15.00% cap.\nDriven by BTC-USD\nHow the threshold was derived\n\t6.8%\t≤ 15.0%\t8.3%\t\n✓\nFit\nR4\t\nKeep bonds, cash and gold together at 8.0% or more\nrule assumption\nBonds, cash and gold would fall to 7.50%, below the 8.00% floor.\n\t7.5%\t≥ 8.0%\t-0.5%\t\n✕\nConflict\nR5\t\nPortfolio volatility at most 22.0% a year\nrule assumption\nPortfolio volatility would be 26.30% a year, above the 22.00% budget.\nHow the threshold was derived\n\t26.3%\t≤ 22.0%\t-4.3%\t\n✕\nConflict\nR6\t\nA repeat of 2022 may cost at most 33.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 35.69%, above the 33.00% limit.\nHow the threshold was derived\n\t35.7%\t≤ 33.0%\t-2.7%\t\n✕\nConflict\nR7\t\nLargest historical peak-to-trough fall at most 44.0%\nrule assumption\nThe largest fall in the window would have been 40.56%, close to the 44.00% ceiling.\nHow the threshold was derived\n\t40.6%\t≤ 44.0%\t3.4%\t\n!\nTension\nR8\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR9\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 14.32% (informational).\n\t14.3%\t—\t—\t\ni\nInformation\nR10\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation"
+      ],
+      "visibleText": "Decision Desk\n\nTest a hypothetical move for Robert\n\nDescribe a move or fill the form. Rule checks are deterministic; the evidence analysis is an audited agent run. Nothing is ever executed.\n\nDescribe the move\nIn your own words\n0/600 · The interpretation is shown for your confirmation; nothing runs until you confirm.\nInterpret\nStructured request (manual form)\nAsset (ticker)\nCurrent weight: 0.0%\nFunding\nCompare funding options\nPro-rata from all holdings\nFrom cash\nFrom named holdings\nNew money\nFunded from the current portfolio value.\nAdded size (points of current portfolio value)\nAn added amount, not a target weight. 0 previews the current portfolio.\nDeterministic preview\n\n+25 points of TSLA · Pro-rata from all holdings\n\n✕\nConflict\n\n6 conflict\n1 tension\n1 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n6.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 1 tension, 0 not enough evidence.\n\nFunding used: Pro-rata from all holdings · snap-20261113-starter · 2026-11-12\n\nAnalyze evidence\nStarts an audited agent run with the confirmed request.\nPreview details\nMetric (CAD)\tBefore\tAfter (hypothetical)\nAnnualized volatility (historical)\t6.1%\t17.0%\nMaximum drawdown (positive loss)\t9.6%\t25.3%\n2022 replay return (signed)\t−4.7%\t−21.9%\nFictional portfolio value\tCAD 600,000\tCAD 600,000\nHolding\tBefore\tAfter\nXBB.TO\t30.0%\t22.5%\nXIU.TO\t15.0%\t11.2%\nZST.TO\t15.0%\t11.2%\nSPY\t10.0%\t7.5%\nAGG\t5.0%\t3.8%\nFTS.TO\t5.0%\t3.8%\nRY.TO\t5.0%\t3.8%\nENB.TO\t4.0%\t3.0%\nJNJ\t4.0%\t3.0%\nPG\t4.0%\t3.0%\nGLD\t3.0%\t2.3%\nTSLA\t—\t25.0%\nRule checks\nPreview rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 10.0% of the portfolio\nrule assumption\nLargest single position would be TSLA at 25.00%, above the 10.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t25.0%\t≤ 10.0%\t-15.0%\t\n✕\nConflict\nR2\t\nNo sector above 20.0% of the portfolio (directly held stocks)\nrule assumption\nConsumer Discretionary would reach 25.00% of the portfolio, above the 20.00% sector cap.\nDriven by Consumer Discretionary\nHow the threshold was derived\n\t25.0%\t≤ 20.0%\t-5.0%\t\n✕\nConflict\nR3\t\nStocks, equity funds and crypto together at most 55.0%\nrule assumption\nStocks, equity funds and crypto would be 60.25%, above the 55.00% cap.\nHow the threshold was derived\n\t60.3%\t≤ 55.0%\t-5.3%\t\n✕\nConflict\nR4\t\nKeep bonds and cash at 35.0% or more\nrule assumption\nBonds and cash would be 37.50%, close to the 35.00% floor.\nHow the threshold was derived\n\t37.5%\t≥ 35.0%\t2.5%\t\n!\nTension\nR5\t\nPortfolio volatility at most 9.0% a year\nrule assumption\nPortfolio volatility would be 16.96% a year, above the 9.00% budget.\nHow the threshold was derived\n\t17.0%\t≤ 9.0%\t-8.0%\t\n✕\nConflict\nR6\t\nA repeat of 2022 may cost at most 9.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 21.88%, above the 9.00% limit.\nHow the threshold was derived\n\t21.9%\t≤ 9.0%\t-12.9%\t\n✕\nConflict\nR7\t\nLargest historical peak-to-trough fall at most 18.0%\nrule assumption\nThe largest fall in the window would have been 25.31%, above the 18.00% ceiling.\nHow the threshold was derived\n\t25.3%\t≤ 18.0%\t-7.3%\t\n✕\nConflict\nR8\t\nNo crypto assets\nrule assumption\nNo holding belongs to the excluded category (asset class crypto).\n\t0.0%\t= 0.0%\t—\t\n✓\nFit\nR9\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR10\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 4.07% (informational).\n\t4.1%\t—\t—\t\ni\nInformation\nR11\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation\nCompare two profiles\nCompare with\nAmira\nMateo\n\nSame request for both: +25 points of TSLA, Pro-rata from all holdings, same window.\n\nCompare\nRobert\n✕\nConflict\n\n6 conflict\n1 tension\n1 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n6.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 1 tension, 0 not enough evidence.\n\nCompared rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 10.0% of the portfolio\nrule assumption\nLargest single position would be TSLA at 25.00%, above the 10.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t25.0%\t≤ 10.0%\t-15.0%\t\n✕\nConflict\nR2\t\nNo sector above 20.0% of the portfolio (directly held stocks)\nrule assumption\nConsumer Discretionary would reach 25.00% of the portfolio, above the 20.00% sector cap.\nDriven by Consumer Discretionary\nHow the threshold was derived\n\t25.0%\t≤ 20.0%\t-5.0%\t\n✕\nConflict\nR3\t\nStocks, equity funds and crypto together at most 55.0%\nrule assumption\nStocks, equity funds and crypto would be 60.25%, above the 55.00% cap.\nHow the threshold was derived\n\t60.3%\t≤ 55.0%\t-5.3%\t\n✕\nConflict\nR4\t\nKeep bonds and cash at 35.0% or more\nrule assumption\nBonds and cash would be 37.50%, close to the 35.00% floor.\nHow the threshold was derived\n\t37.5%\t≥ 35.0%\t2.5%\t\n!\nTension\nR5\t\nPortfolio volatility at most 9.0% a year\nrule assumption\nPortfolio volatility would be 16.96% a year, above the 9.00% budget.\nHow the threshold was derived\n\t17.0%\t≤ 9.0%\t-8.0%\t\n✕\nConflict\nR6\t\nA repeat of 2022 may cost at most 9.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 21.88%, above the 9.00% limit.\nHow the threshold was derived\n\t21.9%\t≤ 9.0%\t-12.9%\t\n✕\nConflict\nR7\t\nLargest historical peak-to-trough fall at most 18.0%\nrule assumption\nThe largest fall in the window would have been 25.31%, above the 18.00% ceiling.\nHow the threshold was derived\n\t25.3%\t≤ 18.0%\t-7.3%\t\n✕\nConflict\nR8\t\nNo crypto assets\nrule assumption\nNo holding belongs to the excluded category (asset class crypto).\n\t0.0%\t= 0.0%\t—\t\n✓\nFit\nR9\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR10\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 4.07% (informational).\n\t4.1%\t—\t—\t\ni\nInformation\nR11\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation\nAmira\n✕\nConflict\n\n3 conflict\n2 tension\n2 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n11.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 2 tension, 0 not enough evidence.\n\nCompared rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 25.0% of the portfolio\nrule assumption\nLargest single position would be TSLA at 25.00%, close to the 25.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t25.0%\t≤ 25.0%\t0.0%\t\n!\nTension\nR2\t\nNo sector above 40.0% of the portfolio (directly held stocks)\nrule assumption\nThe largest sector is Consumer Discretionary at 28.75%, inside the 40.00% sector cap.\nDriven by Consumer Discretionary\nHow the threshold was derived\n\t28.8%\t≤ 40.0%\t11.3%\t\n✓\nFit\nR3\t\nCrypto assets at most 15.0%\nrule assumption\nCrypto: 6.75%, inside the 15.00% cap.\nDriven by BTC-USD\nHow the threshold was derived\n\t6.8%\t≤ 15.0%\t8.3%\t\n✓\nFit\nR4\t\nKeep bonds, cash and gold together at 8.0% or more\nrule assumption\nBonds, cash and gold would fall to 7.50%, below the 8.00% floor.\n\t7.5%\t≥ 8.0%\t-0.5%\t\n✕\nConflict\nR5\t\nPortfolio volatility at most 22.0% a year\nrule assumption\nPortfolio volatility would be 26.30% a year, above the 22.00% budget.\nHow the threshold was derived\n\t26.3%\t≤ 22.0%\t-4.3%\t\n✕\nConflict\nR6\t\nA repeat of 2022 may cost at most 33.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 35.69%, above the 33.00% limit.\nHow the threshold was derived\n\t35.7%\t≤ 33.0%\t-2.7%\t\n✕\nConflict\nR7\t\nLargest historical peak-to-trough fall at most 44.0%\nrule assumption\nThe largest fall in the window would have been 40.56%, close to the 44.00% ceiling.\nHow the threshold was derived\n\t40.6%\t≤ 44.0%\t3.4%\t\n!\nTension\nR8\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR9\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 14.32% (informational).\n\t14.3%\t—\t—\t\ni\nInformation\nR10\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation\n\nDifferent thresholds and holdings can produce the same verdict; read the checks, not only the headline."
+    },
+    {
+      "size": 10,
+      "passed": true,
+      "verdicts": [
+        "✕\nConflict",
+        "!\nTension"
+      ],
+      "counts": "2 conflict\n2 tension\n4 fit\n0 not enough evidence\n3 information",
+      "panes": [
+        "Robert\n✕\nConflict\n\n2 conflict\n2 tension\n4 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n6.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 2 tension, 0 not enough evidence.\n\nCompared rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 10.0% of the portfolio\nrule assumption\nLargest single position would be TSLA at 10.00%, close to the 10.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t10.0%\t≤ 10.0%\t0.0%\t\n!\nTension\nR2\t\nNo sector above 20.0% of the portfolio (directly held stocks)\nrule assumption\nThe largest sector is Consumer Discretionary at 10.00%, inside the 20.00% sector cap.\nDriven by Consumer Discretionary\nHow the threshold was derived\n\t10.0%\t≤ 20.0%\t10.0%\t\n✓\nFit\nR3\t\nStocks, equity funds and crypto together at most 55.0%\nrule assumption\nStocks, equity funds and crypto would be 52.30%, close to the 55.00% cap.\nHow the threshold was derived\n\t52.3%\t≤ 55.0%\t2.7%\t\n!\nTension\nR4\t\nKeep bonds and cash at 35.0% or more\nrule assumption\nBonds and cash: 45.00%, above the 35.00% floor.\nHow the threshold was derived\n\t45.0%\t≥ 35.0%\t10.0%\t\n✓\nFit\nR5\t\nPortfolio volatility at most 9.0% a year\nrule assumption\nPortfolio volatility would be 9.36% a year, above the 9.00% budget.\nHow the threshold was derived\n\t9.4%\t≤ 9.0%\t-0.4%\t\n✕\nConflict\nR6\t\nA repeat of 2022 may cost at most 9.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 11.74%, above the 9.00% limit.\nHow the threshold was derived\n\t11.7%\t≤ 9.0%\t-2.7%\t\n✕\nConflict\nR7\t\nLargest historical peak-to-trough fall at most 18.0%\nrule assumption\nThe largest fall in the window was 13.25%, inside the 18.00% ceiling.\nHow the threshold was derived\n\t13.3%\t≤ 18.0%\t4.7%\t\n✓\nFit\nR8\t\nNo crypto assets\nrule assumption\nNo holding belongs to the excluded category (asset class crypto).\n\t0.0%\t= 0.0%\t—\t\n✓\nFit\nR9\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR10\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 1.96% (informational).\n\t2.0%\t—\t—\t\ni\nInformation\nR11\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation",
+        "Amira\n!\nTension\n\n0 conflict\n1 tension\n6 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n11.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 1 tension, 0 not enough evidence.\n\nCompared rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 25.0% of the portfolio\nrule assumption\nLargest single position is TSLA at 10.00%, inside the 25.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t10.0%\t≤ 25.0%\t15.0%\t\n✓\nFit\nR2\t\nNo sector above 40.0% of the portfolio (directly held stocks)\nrule assumption\nThe largest sector is Information Technology at 18.90%, inside the 40.00% sector cap.\nDriven by Information Technology\nHow the threshold was derived\n\t18.9%\t≤ 40.0%\t21.1%\t\n✓\nFit\nR3\t\nCrypto assets at most 15.0%\nrule assumption\nCrypto: 8.10%, inside the 15.00% cap.\nDriven by BTC-USD\nHow the threshold was derived\n\t8.1%\t≤ 15.0%\t6.9%\t\n✓\nFit\nR4\t\nKeep bonds, cash and gold together at 8.0% or more\nrule assumption\nBonds, cash and gold: 9.00%, above the 8.00% floor.\n\t9.0%\t≥ 8.0%\t1.0%\t\n✓\nFit\nR5\t\nPortfolio volatility at most 22.0% a year\nrule assumption\nPortfolio volatility would be 21.62% a year, close to the 22.00% budget.\nHow the threshold was derived\n\t21.6%\t≤ 22.0%\t0.4%\t\n!\nTension\nR6\t\nA repeat of 2022 may cost at most 33.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 29.49%, inside the 33.00% limit.\nHow the threshold was derived\n\t29.5%\t≤ 33.0%\t3.5%\t\n✓\nFit\nR7\t\nLargest historical peak-to-trough fall at most 44.0%\nrule assumption\nThe largest fall in the window was 33.88%, inside the 44.00% ceiling.\nHow the threshold was derived\n\t33.9%\t≤ 44.0%\t10.1%\t\n✓\nFit\nR8\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR9\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 15.18% (informational).\n\t15.2%\t—\t—\t\ni\nInformation\nR10\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation"
+      ],
+      "visibleText": "Decision Desk\n\nTest a hypothetical move for Robert\n\nDescribe a move or fill the form. Rule checks are deterministic; the evidence analysis is an audited agent run. Nothing is ever executed.\n\nDescribe the move\nIn your own words\n0/600 · The interpretation is shown for your confirmation; nothing runs until you confirm.\nInterpret\nStructured request (manual form)\nAsset (ticker)\nCurrent weight: 0.0%\nFunding\nCompare funding options\nPro-rata from all holdings\nFrom cash\nFrom named holdings\nNew money\nFunded from the current portfolio value.\nAdded size (points of current portfolio value)\nAn added amount, not a target weight. 0 previews the current portfolio.\nDeterministic preview\n\n+10 points of TSLA · Pro-rata from all holdings\n\n✕\nConflict\n\n2 conflict\n2 tension\n4 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n6.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 2 tension, 0 not enough evidence.\n\nFunding used: Pro-rata from all holdings · snap-20261113-starter · 2026-11-12\n\nAnalyze evidence\nStarts an audited agent run with the confirmed request.\nPreview details\nMetric (CAD)\tBefore\tAfter (hypothetical)\nAnnualized volatility (historical)\t6.1%\t9.4%\nMaximum drawdown (positive loss)\t9.6%\t13.3%\n2022 replay return (signed)\t−4.7%\t−11.7%\nFictional portfolio value\tCAD 600,000\tCAD 600,000\nHolding\tBefore\tAfter\nXBB.TO\t30.0%\t27.0%\nXIU.TO\t15.0%\t13.5%\nZST.TO\t15.0%\t13.5%\nSPY\t10.0%\t9.0%\nAGG\t5.0%\t4.5%\nFTS.TO\t5.0%\t4.5%\nRY.TO\t5.0%\t4.5%\nENB.TO\t4.0%\t3.6%\nJNJ\t4.0%\t3.6%\nPG\t4.0%\t3.6%\nGLD\t3.0%\t2.7%\nTSLA\t—\t10.0%\nRule checks\nPreview rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 10.0% of the portfolio\nrule assumption\nLargest single position would be TSLA at 10.00%, close to the 10.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t10.0%\t≤ 10.0%\t0.0%\t\n!\nTension\nR2\t\nNo sector above 20.0% of the portfolio (directly held stocks)\nrule assumption\nThe largest sector is Consumer Discretionary at 10.00%, inside the 20.00% sector cap.\nDriven by Consumer Discretionary\nHow the threshold was derived\n\t10.0%\t≤ 20.0%\t10.0%\t\n✓\nFit\nR3\t\nStocks, equity funds and crypto together at most 55.0%\nrule assumption\nStocks, equity funds and crypto would be 52.30%, close to the 55.00% cap.\nHow the threshold was derived\n\t52.3%\t≤ 55.0%\t2.7%\t\n!\nTension\nR4\t\nKeep bonds and cash at 35.0% or more\nrule assumption\nBonds and cash: 45.00%, above the 35.00% floor.\nHow the threshold was derived\n\t45.0%\t≥ 35.0%\t10.0%\t\n✓\nFit\nR5\t\nPortfolio volatility at most 9.0% a year\nrule assumption\nPortfolio volatility would be 9.36% a year, above the 9.00% budget.\nHow the threshold was derived\n\t9.4%\t≤ 9.0%\t-0.4%\t\n✕\nConflict\nR6\t\nA repeat of 2022 may cost at most 9.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 11.74%, above the 9.00% limit.\nHow the threshold was derived\n\t11.7%\t≤ 9.0%\t-2.7%\t\n✕\nConflict\nR7\t\nLargest historical peak-to-trough fall at most 18.0%\nrule assumption\nThe largest fall in the window was 13.25%, inside the 18.00% ceiling.\nHow the threshold was derived\n\t13.3%\t≤ 18.0%\t4.7%\t\n✓\nFit\nR8\t\nNo crypto assets\nrule assumption\nNo holding belongs to the excluded category (asset class crypto).\n\t0.0%\t= 0.0%\t—\t\n✓\nFit\nR9\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR10\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 1.96% (informational).\n\t2.0%\t—\t—\t\ni\nInformation\nR11\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation\nCompare two profiles\nCompare with\nAmira\nMateo\n\nSame request for both: +10 points of TSLA, Pro-rata from all holdings, same window.\n\nCompare\nRobert\n✕\nConflict\n\n2 conflict\n2 tension\n4 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n6.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 2 tension, 0 not enough evidence.\n\nCompared rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 10.0% of the portfolio\nrule assumption\nLargest single position would be TSLA at 10.00%, close to the 10.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t10.0%\t≤ 10.0%\t0.0%\t\n!\nTension\nR2\t\nNo sector above 20.0% of the portfolio (directly held stocks)\nrule assumption\nThe largest sector is Consumer Discretionary at 10.00%, inside the 20.00% sector cap.\nDriven by Consumer Discretionary\nHow the threshold was derived\n\t10.0%\t≤ 20.0%\t10.0%\t\n✓\nFit\nR3\t\nStocks, equity funds and crypto together at most 55.0%\nrule assumption\nStocks, equity funds and crypto would be 52.30%, close to the 55.00% cap.\nHow the threshold was derived\n\t52.3%\t≤ 55.0%\t2.7%\t\n!\nTension\nR4\t\nKeep bonds and cash at 35.0% or more\nrule assumption\nBonds and cash: 45.00%, above the 35.00% floor.\nHow the threshold was derived\n\t45.0%\t≥ 35.0%\t10.0%\t\n✓\nFit\nR5\t\nPortfolio volatility at most 9.0% a year\nrule assumption\nPortfolio volatility would be 9.36% a year, above the 9.00% budget.\nHow the threshold was derived\n\t9.4%\t≤ 9.0%\t-0.4%\t\n✕\nConflict\nR6\t\nA repeat of 2022 may cost at most 9.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 11.74%, above the 9.00% limit.\nHow the threshold was derived\n\t11.7%\t≤ 9.0%\t-2.7%\t\n✕\nConflict\nR7\t\nLargest historical peak-to-trough fall at most 18.0%\nrule assumption\nThe largest fall in the window was 13.25%, inside the 18.00% ceiling.\nHow the threshold was derived\n\t13.3%\t≤ 18.0%\t4.7%\t\n✓\nFit\nR8\t\nNo crypto assets\nrule assumption\nNo holding belongs to the excluded category (asset class crypto).\n\t0.0%\t= 0.0%\t—\t\n✓\nFit\nR9\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR10\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 1.96% (informational).\n\t2.0%\t—\t—\t\ni\nInformation\nR11\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation\nAmira\n!\nTension\n\n0 conflict\n1 tension\n6 fit\n0 not enough evidence\n3 information\n\nLargest size before the first rule conflict\n11.0 pts\nA grid boundary, not a certification: tension and evidence gaps can remain at this size. At the requested size: 1 tension, 0 not enough evidence.\n\nCompared rule checks\nRule\tRule assumption\tValue\tThreshold\tHeadroom\tStatus\nR1\t\nNo single stock or crypto asset above 25.0% of the portfolio\nrule assumption\nLargest single position is TSLA at 10.00%, inside the 25.00% cap.\nDriven by TSLA\nHow the threshold was derived\n\t10.0%\t≤ 25.0%\t15.0%\t\n✓\nFit\nR2\t\nNo sector above 40.0% of the portfolio (directly held stocks)\nrule assumption\nThe largest sector is Information Technology at 18.90%, inside the 40.00% sector cap.\nDriven by Information Technology\nHow the threshold was derived\n\t18.9%\t≤ 40.0%\t21.1%\t\n✓\nFit\nR3\t\nCrypto assets at most 15.0%\nrule assumption\nCrypto: 8.10%, inside the 15.00% cap.\nDriven by BTC-USD\nHow the threshold was derived\n\t8.1%\t≤ 15.0%\t6.9%\t\n✓\nFit\nR4\t\nKeep bonds, cash and gold together at 8.0% or more\nrule assumption\nBonds, cash and gold: 9.00%, above the 8.00% floor.\n\t9.0%\t≥ 8.0%\t1.0%\t\n✓\nFit\nR5\t\nPortfolio volatility at most 22.0% a year\nrule assumption\nPortfolio volatility would be 21.62% a year, close to the 22.00% budget.\nHow the threshold was derived\n\t21.6%\t≤ 22.0%\t0.4%\t\n!\nTension\nR6\t\nA repeat of 2022 may cost at most 33.0% of the portfolio\nrule assumption\nWith these weights, calendar 2022 would have cost 29.49%, inside the 33.00% limit.\nHow the threshold was derived\n\t29.5%\t≤ 33.0%\t3.5%\t\n✓\nFit\nR7\t\nLargest historical peak-to-trough fall at most 44.0%\nrule assumption\nThe largest fall in the window was 33.88%, inside the 44.00% ceiling.\nHow the threshold was derived\n\t33.9%\t≤ 44.0%\t10.1%\t\n✓\nFit\nR8\t\nShow when the requested asset is drawing unusual public attention\nrule assumption\nNo page-view data is loaded for TSLA; attention is not shown.\nDriven by TSLA\n\t—\t—\t—\t\ni\nInformation\nR9\t\nShow how the portfolio behaved while interest rates rose\nrule assumption\nDuring the 2022–2023 rate-hiking cycle these weights returned 15.18% (informational).\n\t15.2%\t—\t—\t\ni\nInformation\nR10\t\nSimulation only: no order is ever placed\nSimulation only: no order is ever placed.\n\t—\t—\t—\t\ni\nInformation\n\nDifferent thresholds and holdings can produce the same verdict; read the checks, not only the headline."
+    }
+  ],
+  "passed": true,
+  "finishedAt": "2026-11-15T04:48:49.271Z"
+}

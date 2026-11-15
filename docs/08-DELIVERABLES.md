@@ -2,6 +2,8 @@
 
 **Owner:** T16, with T02 for AWS proof and all owners for method validation. Language default: English (A-26). Actual names and submission destination must be confirmed by the team. Dates come from team logistics, not verified organizer files in this repository.
 
+The [T16 delivery pack](deliverables/README.md) now contains the acceptance report, retained offline evidence, technical note, one-pager, timed demo script and artifact manifest. It explicitly records outstanding browser, current deployed-release capture and submission actions.
+
 | Deliverable | Due EST | Content / completion condition |
 |---|---|---|
 | Code and repository | Sun Nov 15, 23:59 | Runnable implementation, pinned dependencies, setup/env/data/reproduction instructions, licenses and passing P0 report |
