@@ -119,8 +119,12 @@ def test_world_endpoints_validate_against_the_contract(client):
     assert historical_observations["total"] == 0
     aviation = ok(client.get("/v1/world/observations", params={"mode": "aviation", "limit": 20},
                              headers=headers), "WorldObservationsResponse")
-    assert aviation["total"] == 6
-    assert any(row["location"]["countryIso3"] == "JPN" for row in aviation["items"])
+    # 6 airport weather reports, 678 OpenFlights airport references and 49 ADS-B positions.
+    assert aviation["total"] == 733
+    japan = ok(client.get("/v1/world/observations", params={"mode": "aviation", "country": "JPN", "limit": 200},
+                          headers=headers), "WorldObservationsResponse")
+    assert any(row["datasetId"] == "world_aviation_weather" and row["location"]["countryIso3"] == "JPN"
+               for row in japan["items"])
     policy = ok(client.get("/v1/world/observations", params={"mode": "news", "q": "Federal Register"},
                            headers=headers), "WorldObservationsResponse")
     assert policy["total"] == 20
@@ -128,7 +132,8 @@ def test_world_endpoints_validate_against_the_contract(client):
                for row in policy["items"])
     energy = ok(client.get("/v1/world/observations", params={"mode": "energy", "limit": 1},
                            headers=headers), "WorldObservationsResponse")
-    assert energy["total"] == 34936 and energy["items"][0]["datasetId"] == "energy_wri_plants"
+    # 34,936 WRI power plants, 74 USGS mineral sites, 384 Energy-Charts and 693 Ember generation rows.
+    assert energy["total"] == 36087 and energy["items"][0]["datasetId"] == "world_usgs_minerals"
     exposure = ok(client.get("/v1/world/exposure", params={"profileId": "amira"}, headers=headers), "WorldExposureResponse")
     assert sum(i["weightPct"] for i in exposure["items"]) == pytest.approx(100)
     country = ok(client.get("/v1/world/countries/CAN", params={"profileId": "robert"}, headers=headers), "WorldCountryResponse")
