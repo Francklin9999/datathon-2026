@@ -81,7 +81,8 @@ export function BriefView({ brief, mode = 'normal', headingLevel = 3 }: { brief:
       })}
       <p className="brief-disclaimer small">{tr(brief.disclaimer)}</p>
       <p className="small muted">
-        {tr({ en: 'Written', fr: 'Rédigé' })} {fmtDateTime(brief.generatedAt, lang)} · {tr({ en: 'model', fr: 'modèle' })} <span className="mono">{brief.model}</span>
+        {tr({ en: 'Written', fr: 'Rédigé le' })} {fmtDateTime(brief.generatedAt, lang)}
+        {mode !== 'normal' && <>, {tr({ en: 'model', fr: 'modèle' })} <span className="mono">{brief.model}</span></>}
       </p>
     </div>
   );
