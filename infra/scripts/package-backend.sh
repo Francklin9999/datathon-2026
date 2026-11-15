@@ -18,7 +18,7 @@ find "$artifact" -type d -name __pycache__ -prune -exec rm -rf {} +
 # Pin this image to a reviewed digest for release reproducibility.
 docker run --rm --platform linux/amd64 --entrypoint python \
   -v "$artifact:/var/task:ro" public.ecr.aws/lambda/python:3.12 \
-  -c 'import pydantic_core, numpy, scipy, mangum, boto3; from aplomb.api.lambda_handler import handler; from aplomb.agents.worker import handler as worker; assert callable(handler) and callable(worker)'
+  -c 'import pydantic_core, mangum, boto3, strands; from aplomb.api.lambda_handler import handler; from aplomb.agents.worker import handler as worker; from aplomb.world import load_bundle; assert callable(handler) and callable(worker) and load_bundle().events'
 python3 - "$artifact" <<'PY'
 import hashlib, json, pathlib, sys
 root = pathlib.Path(sys.argv[1])

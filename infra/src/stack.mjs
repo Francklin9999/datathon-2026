@@ -80,7 +80,9 @@ export class AplombStack extends Stack {
       APLOMB_SOURCE_USER_AGENT:application.sourceUserAgent,
       APLOMB_RUN_TARGET_SECONDS:'90',APLOMB_RUN_HARD_SECONDS:'180',
       APLOMB_MAX_REVISE:'2',APLOMB_MAX_LLM_CALLS:'12',APLOMB_MAX_RESEARCH_CALLS:'12',
-      ...Object.fromEntries(flags.map(f=>[`APLOMB_FEATURE_${f.toUpperCase()}`,'false'])) };
+      // Every flag is false unless the reviewed deployment config lists it in application.features.
+      ...Object.fromEntries(flags.map(f=>[`APLOMB_FEATURE_${f.toUpperCase()}`,
+        String((application.features ?? []).includes(f))])) };
     const code = lambda.Code.fromAsset(application.artifact);
     const makeFunction = (name, handler, timeout, concurrency) => {
       const logGroup = new logs.LogGroup(this, `${name}Logs`, {
@@ -152,6 +154,9 @@ export function validateApplication(a) {
     if (typeof a[key] !== 'string' || !a[key].trim()) throw new Error(`application.${key} required`);
   }
   if (!/^snap-\d{8}-[a-z0-9][a-z0-9-]*$/.test(a.dataVersion)) throw new Error('dataVersion must be snap-YYYYMMDD-label');
+  if (a.features !== undefined && (!Array.isArray(a.features) || a.features.some(f => !flags.includes(f)))) {
+    throw new Error(`application.features must list catalog flags: ${flags.join(', ')}`);
+  }
   if (!a.dataPrefix.endsWith('/') || a.dataPrefix.startsWith('/') || a.dataPrefix.includes('..')) {
     throw new Error('dataPrefix must be a relative immutable prefix ending /');
   }

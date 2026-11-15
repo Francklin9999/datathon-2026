@@ -1,21 +1,22 @@
 'use client';
 /**
- * RuleTable (T14, reused by Portfolio/Home/World): one row per rule check with the rule's
+ * RuleTable (T14, reused by Portfolio/Home/World/Time Machine): one row per rule check with the rule's
  * assumption label, measured value, threshold, headroom, status, missing-evidence reason and
  * source chips. Horizontally scrollable on narrow screens with real table headers.
+ *
+ * The rows come from the checks of the result, not from the profile: `rules` only supplies the label
+ * wording, the assumption tag and the derivation method. Every figure, including the threshold inside
+ * the sentence, is the one the check was evaluated with (lib/format.ts::ruleSentence).
  */
 import type { ReactNode } from 'react';
-import type { Lang, PolicyRule, RuleCheck } from '../../contracts/types';
+import type { PolicyRule, RuleCheck } from '../../contracts/types';
 import { NEE_REASON, labelOf } from '../../lib/labels';
-import { comparatorSymbol, fillThreshold, fmtUnit } from '../../lib/format';
+import { comparatorSymbol, fmtUnit, ruleSentence } from '../../lib/format';
 import { useApp } from '../../state/app';
 import { StatusBadge } from '../common/Badges';
 import { FactChip } from '../common/FactDrawer';
 
-export function ruleSentence(rule: PolicyRule | undefined, check: RuleCheck | null, lang: Lang): string {
-  if (!rule) return check ? (check.detail[lang] || check.detail.en) : '';
-  return fillThreshold(rule.label[lang] || rule.label.en, rule.threshold, rule.unit, lang);
-}
+export { ruleSentence };
 
 export function RuleTable({ checks, rules, caption, renderEdit }: {
   checks: readonly RuleCheck[];
@@ -52,8 +53,9 @@ export function RuleTable({ checks, rules, caption, renderEdit }: {
                 <td className="rule-cell">
                   <span className="block">{ruleSentence(rule, check, lang)}</span>
                   {rule?.isAssumption && <span className="tag">{tr({ en: 'rule assumption', fr: 'hypothèse de règle' })}</span>}
-                  {rule && !rule.enabled && <span className="tag tag-muted">{tr({ en: 'disabled', fr: 'désactivée' })}</span>}
-                  <span className="block small muted">{tr(check.detail)}</span>
+                  {rule && !rule.enabled && <span className="tag tag-muted">{tr({ en: 'disabled in the current plan', fr: 'désactivée dans le plan actuel' })}</span>}
+                  {/* Without a profile rule the sentence above already is the check's detail. */}
+                  {rule && <span className="block small muted">{tr(check.detail)}</span>}
                   {check.neeReason && (
                     <span className="block small nee-reason">{labelOf(NEE_REASON, check.neeReason, lang)}</span>
                   )}

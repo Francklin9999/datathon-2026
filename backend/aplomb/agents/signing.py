@@ -5,7 +5,7 @@ from aplomb.ledger import Relation, ReviewResult, audit_and_sign
 from .models import ReviewOutput, WriterDraft
 
 
-def sign_decision(*, ledger, draft, lang, model, rule_checks, historical, execution):
+def sign_decision(*, ledger, draft, lang, model, rule_checks, historical, execution, measured_impact_fact_ids=()):
     def review(sections, view):
         output = execution.model(
             "auditor",
@@ -52,4 +52,5 @@ def sign_decision(*, ledger, draft, lang, model, rule_checks, historical, execut
         review=review,
         rewrite=rewrite,
         historical=historical,
+        measured_impact_fact_ids=tuple(measured_impact_fact_ids),
     )

@@ -14,8 +14,8 @@ const H = 240;
 const PAD = { l: 64, r: 16, t: 12, b: 28 };
 const time = (date: string) => Date.parse(`${date}T00:00:00Z`);
 
-export function LineChart({ series, lang, unitLabel, caption }: {
-  series: readonly Series[]; lang: Lang; unitLabel: string; caption: string;
+export function LineChart({ series, lang, unitLabel, caption, digits = 0 }: {
+  series: readonly Series[]; lang: Lang; unitLabel: string; caption: string; digits?: number;
 }) {
   const id = useId();
   const all = series.flatMap(s => s.points);
@@ -41,7 +41,7 @@ export function LineChart({ series, lang, unitLabel, caption }: {
         {ticks.map((tick, i) => (
           <g key={i}>
             <line x1={PAD.l} x2={W - PAD.r} y1={y(tick)} y2={y(tick)} stroke="#E6EBEF" />
-            <text x={PAD.l - 6} y={y(tick) + 4} textAnchor="end" className="chart-axis">{fmtNumber(tick, lang, 0)}</text>
+            <text x={PAD.l - 6} y={y(tick) + 4} textAnchor="end" className="chart-axis">{fmtNumber(tick, lang, digits)}</text>
           </g>
         ))}
         {first && <text x={PAD.l} y={H - 8} className="chart-axis">{fmtDate(first.date, lang)}</text>}
@@ -63,8 +63,8 @@ export function LineChart({ series, lang, unitLabel, caption }: {
 }
 
 /** Table alternative; long series are sampled to month-ends to stay readable, endpoints kept. */
-export function SeriesTable({ series, lang, unitLabel, caption }: {
-  series: readonly Series[]; lang: Lang; unitLabel: string; caption: string;
+export function SeriesTable({ series, lang, unitLabel, caption, digits = 0 }: {
+  series: readonly Series[]; lang: Lang; unitLabel: string; caption: string; digits?: number;
 }) {
   const base = series[0]?.points ?? [];
   const rows = base.filter((point, i) => {
@@ -89,7 +89,7 @@ export function SeriesTable({ series, lang, unitLabel, caption }: {
               <th scope="row">{row.date}</th>
               {lookups.map((lookup, i) => {
                 const value = lookup.get(row.date);
-                return <td key={i} className="num-col num">{value === undefined ? '—' : fmtNumber(value, lang, 0)}</td>;
+                return <td key={i} className="num-col num">{value === undefined ? '—' : fmtNumber(value, lang, digits)}</td>;
               })}
             </tr>
           ))}

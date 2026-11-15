@@ -5,11 +5,12 @@
 
 Every read goes through ``ctx.gate``; every number returned to the model sits next to the ID of
 the fact registered in ``ctx.ledger``. Portfolio variants created by ``quant.apply_move`` live
-for the run (keyed by its ledger). Tools never raise to the model: the registry wraps errors.
+for the run (keyed by its run ID). Tools never raise to the model: the registry wraps errors.
 """
 
 from __future__ import annotations
 
+from collections import OrderedDict
 from typing import Any, Literal
 from weakref import WeakKeyDictionary
 
@@ -129,14 +130,21 @@ class DeriveArgs(Args):
 
 # --- Run state ---------------------------------------------------------------------------------
 
-_STATE: "WeakKeyDictionary[object, dict]" = WeakKeyDictionary()
+# The workflow hands every tool call a copy of the run ledger, so variants are kept per run ID.
+# An engine writes into the ledger it was built with and is therefore kept per ledger object.
+_RUNS: "OrderedDict[str, dict]" = OrderedDict()
+_MAX_RUNS = 256
+_ENGINES: "WeakKeyDictionary[object, dict]" = WeakKeyDictionary()
 
 
 def _state(ctx) -> dict:
-    st = _STATE.get(ctx.ledger)
+    st = _RUNS.get(ctx.run_id)
     if st is None:
-        st = {"variants": {}, "engines": {}, "counter": 0}
-        _STATE[ctx.ledger] = st
+        st = _RUNS[ctx.run_id] = {"variants": {}, "counter": 0}
+        while len(_RUNS) > _MAX_RUNS:
+            _RUNS.popitem(last=False)
+    else:
+        _RUNS.move_to_end(ctx.run_id)
     return st
 
 
@@ -154,11 +162,11 @@ def _profile(ctx) -> m.Profile:
 def _engine(ctx, currency: str | None = None) -> QuantEngine:
     profile = _profile(ctx)
     ccy = currency or profile.reporting_currency
-    st = _state(ctx)
-    eng = st["engines"].get(ccy)
+    engines = _ENGINES.setdefault(ctx.ledger, {})
+    eng = engines.get(ccy)
     if eng is None or eng.gate is not ctx.gate:
         eng = QuantEngine(ctx.gate, ctx.ledger, currency=ccy, subject_id=profile.profile_id, created_at=_created_at(ctx))
-        st["engines"][ccy] = eng
+        engines[ccy] = eng
     return eng
 
 
@@ -259,19 +267,24 @@ def macro_series(ctx, series_id, start=None, end=None):
              "max": max(sl.rows, key=lambda r: (r["value"], r["date"]))}
     data, ids = {"seriesId": series_id, "label": sl.rows[0]["label"], "unit": sl.rows[0]["unit"]}, []
     for name, row in picks.items():
-        unit = "pct" if row["unit"] == "percent" else "ratio"
+        # The Unit catalog has no index unit: a level that is not a percentage is registered as
+        # text (its label states the base), never as a ratio, which would display as a multiple.
+        percent = row["unit"] == "percent"
+        unit = "pct" if percent else "text"
         fid = ctx.ledger.add_fact(make_fact(
             eng_ctx, key=fact_key("macro.level", "macro", series_id, row["date"], "na"), kind="observed", metric="macro.level",
             label={"en": f"{row['label']} ({series_id}), {row['date']}", "fr": f"{row['label']} ({series_id}), {row['date']}"},
-            value=row["value"], unit=unit, currency=None, subject={"type": "macro", "id": series_id, "variant": row["date"]},
+            value=row["value"] if percent else str(row["value"]), unit=unit, currency=None,
+            subject={"type": "macro", "id": series_id, "variant": row["date"]},
             method_id="M_OBSERVED_ROW", created_by="quant", period={"start": row["date"], "end": row["date"]},
-            available_at=row["available_at"], params={"referenceDate": row["date"], "availabilityBasis": row["availability_basis"]},
+            available_at=row["available_at"],
+            params={"referenceDate": row["date"], "availabilityBasis": row["availability_basis"], "sourceUnit": row["unit"]},
             n_obs=1, sources=[{"datasetId": "macro_rates", "dataVersion": ctx.gate.data_version, "sourceName": passport["source"],
                                "sourceUrl": passport["sourceUrl"], "retrievedOn": passport["retrievedOn"] or str(ctx.as_of),
                                "licence": passport["licence"], "rowsRead": 1}],
             limitations=list(sl.limitations), checks=[{"code": "gated_row", "ok": True, "detail": "Row read through the temporal gate."}]))
         ids.append(fid)
-        data[name] = {"date": row["date"], "value": row["value"], "unit": unit, "factId": fid}
+        data[name] = {"date": row["date"], "value": row["value"], "unit": "pct" if percent else row["unit"], "factId": fid}
     return _result(f"{series_id}: first, last, min and max visible values", data, ids,
                    [m.DatasetRead.model_validate(sl.dataset_read().to_wire())])
 
@@ -301,9 +314,11 @@ def quant_calendar_year_return(ctx, ticker, year, variant="before", currency=Non
         value = (eng.portfolio_levels(weights, i0, i1)[-1] - 1.0) * 100.0
     except Unavailable as exc:
         return _result(f"Portfolio calendar {year} return unavailable", {"neeReason": exc.reason})
+    qualified = variant if eng.currency == _profile(ctx).reporting_currency else f"{variant}:currency:{eng.currency}"
+    qualified = f"{qualified}:year:{year}"
     fid = eng.add_series_fact(
-        metric="return.calendar_year", value=value, subject={"type": "portfolio", "id": eng.subject_id, "variant": variant},
-        variant_key=variant, window_code=str(year), tickers=list(weights), i0=i0, i1=i1, method_id="M_RET_CALENDAR_YEAR",
+        metric="return.calendar_year", value=value, subject={"type": "portfolio", "id": eng.subject_id, "variant": qualified},
+        variant_key=qualified, window_code=str(year), tickers=list(weights), i0=i0, i1=i1, method_id="M_RET_CALENDAR_YEAR",
         label={"en": f"Portfolio return, calendar {year}, {eng.currency}", "fr": f"Rendement du portefeuille, année civile {year}, {eng.currency}"})
     return _result(f"Portfolio calendar {year} return", {"year": year, "value": {"value": value, "unit": "pct", "factId": fid}}, [fid], _reads(eng, n))
 
@@ -313,13 +328,9 @@ def quant_portfolio_snapshot(ctx, variant="before"):
     n = len(eng.market.reads)
     weights, factor = _weights(ctx, variant)
     profile = _profile(ctx)
-    snap = eng.view(weights, variant, profile.portfolio.total_value * factor).snapshot().to_wire()
-    fid = ctx.ledger.add_fact(make_fact(
-        eng.ctx, key=fact_key("value.portfolio", "portfolio", profile.profile_id, variant, "na"), kind="assumption", metric="value.portfolio",
-        label={"en": f"Fictional portfolio value ({variant})", "fr": f"Valeur du portefeuille fictif ({variant})"},
-        value=float(profile.portfolio.total_value * factor), unit=profile.reporting_currency.lower(), currency=profile.reporting_currency,
-        subject={"type": "portfolio", "id": profile.profile_id, "variant": variant}, method_id="M_PROFILE_ASSUMPTION", created_by="quant",
-        limitations=["LIM_SIMULATION_ONLY"], checks=[{"code": "profile_value", "ok": True, "detail": "Fictional value from the profile."}]))
+    view = eng.view(weights, variant, profile.portfolio.total_value * factor)
+    snap = view.snapshot().to_wire()
+    fid = view.composition_fact()  # the one value.portfolio fact of this variant
     return _result(f"Snapshot of {variant}", {"snapshot": snap, "value": {"value": snap["totalValue"], "factId": fid}},
                    _ids(snap) + [fid], _reads(eng, n))
 
@@ -384,7 +395,8 @@ def quant_stress_replay(ctx, variant="before", window_id="2022"):
         meas = view.measure("stress.rate_cycle")
     else:
         period = m.Period.model_validate(window_id)
-        meas = view._replay("return.period", period.start, period.end, (f"{period.start} to {period.end}", f"{period.start} au {period.end}"))
+        meas = view._replay("return.period", period.start, period.end, (f"{period.start} to {period.end}", f"{period.start} au {period.end}"),
+                            custom=True)
     return _result(f"Replay {window_id if isinstance(window_id, str) else 'custom'} for {variant}", {"value": _num(meas)}, [meas.fact_id])
 
 

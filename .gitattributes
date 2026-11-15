@@ -1,0 +1,9 @@
+# Hash-based checks (contract digests, snapshot manifests, generated-file drift) need identical bytes
+# on every checkout, so text files are always LF regardless of core.autocrlf.
+* text=auto eol=lf
+*.pdf binary
+*.pptx binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

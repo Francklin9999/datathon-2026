@@ -117,10 +117,15 @@ class DecisionControls:
         return obj.to_wire() if hasattr(obj, "to_wire") else dict(obj)
 
     def quant(self, ctx, request, window, tasks, scenarios) -> dict:
-        req = self._wire(request)
         win = self._wire(window) if window is not None else {"code": "full"}
         engine = self._engine(ctx, win)
         profile = ctx.profile
+        if request is None:
+            # Portfolio brief: the current portfolio against its rules, no move (agents SPEC §5).
+            prepared = prepare(engine, profile, profile.rules, None, False)
+            engine.view(prepared["weightsBefore"], "before", profile.portfolio.total_value, window=win).snapshot()
+            return {"kind": "baseline", "window": win, "prepared": prepared}
+        req = self._wire(request)
         if req.get("type") == "goal":
             goal = m.ExposureGoal.model_validate(req["goal"])
             engine.view(prepare(engine, profile, profile.rules, None, False)["weightsBefore"], "before",
@@ -141,6 +146,15 @@ class DecisionControls:
         win = computed["window"]
         engine = self._engine(ctx, win)
         profile = ctx.profile
+        # Evidence saved by the researcher in this run's ledger; the rule engine keeps only verified
+        # tier 1-2 items about the assets the move adds or increases.
+        export = getattr(ctx.ledger, "export", None)
+        evidence = tuple(export().evidence.values()) if callable(export) else ()
+        if computed["kind"] == "baseline":
+            check = assess(engine, profile, profile.rules, computed["prepared"], window=win, evidence=evidence)
+            facts = engine.ledger.export().facts if hasattr(engine.ledger, "export") else engine.ledger.facts()
+            limitations = sorted({lim for f in facts.values() for lim in f.limitations} | {"LIM_SIMULATION_ONLY"})
+            return ControlOutcome(check=check, scenarios=[], selected_scenario_id="", limitations=limitations)
         if computed["kind"] == "goal":
             found = goal_candidates(engine, profile, m.ExposureGoal.model_validate(computed["goal"]))
             if not found.scenarios:
@@ -148,12 +162,12 @@ class DecisionControls:
                 raise RuntimeError(f"No goal candidate: {reason}")
             best = found.scenarios[0]
             prepared = prepare(engine, profile, profile.rules, m.ProposedMove.model_validate(best["moves"][0]), compare=True)
-            check = assess(engine, profile, profile.rules, prepared, window=win)
+            check = assess(engine, profile, profile.rules, prepared, window=win, evidence=evidence)
             scenarios = list(found.scenarios)
             selected = best["scenarioId"]
         else:
             prepared = computed["prepared"]
-            check = assess(engine, profile, profile.rules, prepared, window=win)
+            check = assess(engine, profile, profile.rules, prepared, window=win, evidence=evidence)
             scenarios = [self._scenario("sc_requested", "requested", prepared["move"], check.verdict, check.counts.to_wire(),
                                         [c.to_wire() for c in check.rule_checks], check.portfolio_after.to_wire(), 1, True)]
             size = check.max_compatible_size_pct

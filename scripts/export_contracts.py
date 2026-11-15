@@ -27,7 +27,7 @@ CATALOG_SECTIONS = {
 
 
 def catalog_values():
-    text = (ROOT / "contracts/catalog.md").read_text()
+    text = (ROOT / "contracts/catalog.md").read_text(encoding="utf-8")
     sections = dict(re.findall(r"## (\d+)\.[^\n]*\n(.*?)(?=\n## |\Z)", text, re.S))
     values = {}
     for name, number in CATALOG_SECTIONS.items():
@@ -65,7 +65,7 @@ def outputs(values):
             + " as const;",
             "",
         ]
-    text = (ROOT / "contracts/catalog.md").read_text()
+    text = (ROOT / "contracts/catalog.md").read_text(encoding="utf-8")
     errors = dict(re.findall(r"^\| `([a-z_]+)` \| (\d{3}) \|", text, re.M))
     defaults = dict(
         (code, value == "true")
@@ -100,13 +100,13 @@ def outputs(values):
 
 def write_or_check(path, content, check):
     if check:
-        if not path.exists() or path.read_text() != content:
+        if not path.exists() or path.read_text(encoding="utf-8") != content:
             raise SystemExit(
                 f"Generated file is stale: {path.relative_to(ROOT)}; run npm run generate:contracts"
             )
     else:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content)
+        path.write_text(content, encoding="utf-8", newline="\n")
 
 
 def main():

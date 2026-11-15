@@ -4,9 +4,10 @@
  * compiler reject a missing code; tests/labels.test.ts checks against the runtime catalog too.
  */
 import type {
-  AgentRole, AssetClass, AssetGroup, AuditCheckCode, ErrorCode, EvidenceType, Experience,
-  FactKind, FundingMode, I18NText, Lang, LimitationCode, NeeReason, Objective, RiskLevel,
-  RuleStatus, RunKind, RunStatus, SabotageMode, ScenarioKind, StepType, Verdict, WindowCode,
+  AgentRole, AssetClass, AssetGroup, AuditCheckCode, CountryExposure, ErrorCode, EventCategory, EventLocation,
+  EventSource, EvidenceType, Experience, Facility, FactKind, FeatureFlag, FundingMode, Hazard, HoldingExposure,
+  I18NText, Lang, LimitationCode, NeeReason, Objective, RiskLevel, RuleStatus, RunKind, RunStatus, SabotageMode,
+  ScenarioKind, StepType, ThemeTag, Verdict, WindowCode, WorldEvent, WorldLayer,
 } from '../contracts/types';
 
 export type Labels<K extends string> = Record<K, I18NText>;
@@ -283,6 +284,135 @@ export const SENTENCE_AUDIT: Labels<'verified' | 'struck' | 'repaired'> = {
   verified: l('Verified', 'Vérifiée'),
   struck: l('Struck by the auditor', 'Rayée par l’auditeur'),
   repaired: l('Repaired', 'Corrigée'),
+};
+
+// ----- World Explorer (T15, contracts/schemas.md §10) -----
+
+export const EVENT_CATEGORY: Labels<EventCategory> = {
+  monetary_policy: l('Monetary policy', 'Politique monétaire'),
+  macro_release: l('Macro data release', 'Publication macroéconomique'),
+  geopolitical: l('Geopolitics', 'Géopolitique'),
+  trade_regulation: l('Trade and regulation', 'Commerce et réglementation'),
+  corporate: l('Corporate', 'Entreprises'),
+  energy_commodities: l('Energy and commodities', 'Énergie et matières premières'),
+  markets: l('Markets', 'Marchés'),
+  natural_disaster: l('Natural disaster', 'Catastrophe naturelle'),
+  other: l('Other', 'Autre'),
+};
+
+export const EVENT_ORIGIN: Labels<WorldEvent['origin']> = {
+  gdelt: l('GDELT news index (cached batch)', 'Index de nouvelles GDELT (lot en cache)'),
+  official: l('Official source', 'Source officielle'),
+  curated: l('Curated from loaded datasets', 'Sélection tirée des jeux de données chargés'),
+  usgs: l('USGS earthquake feed', 'Flux sismique USGS'),
+  firms: l('NASA FIRMS fire detections', 'Détections d’incendies NASA FIRMS'),
+  live: l('Live lookup', 'Recherche en direct'),
+};
+
+export const SOURCE_TYPE: Labels<EventSource['sourceType']> = {
+  news: l('News', 'Presse'),
+  official: l('Official', 'Officielle'),
+  filing: l('Regulatory filing', 'Dépôt réglementaire'),
+  data: l('Data series', 'Série de données'),
+};
+
+export const LOCATION_PRECISION: Labels<EventLocation['precision']> = {
+  point: l('Exact point', 'Point exact'),
+  city: l('City-level location', 'Localisation à l’échelle de la ville'),
+  country: l('Country-level location (country centroid, not an exact place)', 'Localisation à l’échelle du pays (centroïde du pays, pas un lieu exact)'),
+};
+
+/** Why a holding is listed next to an event: the documented basis of the link, never an impact. */
+export const LINK_TYPE: Labels<HoldingExposure['linkType']> = {
+  named_in_source: l('Named in the source', 'Nommé dans la source'),
+  listing_country: l('Listed in the event’s country (proxy)', 'Coté dans le pays de l’événement (approximation)'),
+  sector: l('Same sector (proxy)', 'Même secteur (approximation)'),
+  theme: l('Shared theme tag (team assumption)', 'Thème partagé (hypothèse de l’équipe)'),
+  documented_exposure: l('Exposure documented by evidence', 'Exposition documentée par une preuve'),
+  etf_lookthrough: l('Through a fund’s published holdings', 'Par les titres publiés d’un fonds'),
+};
+
+export const EXPOSURE_IMPACT: Labels<HoldingExposure['impact']> = {
+  not_established: l('Financial impact not established', 'Impact financier non établi'),
+  measured_price_move: l('Price change observed after the event (not proof of cause)', 'Variation de prix observée après l’événement (pas une preuve de cause)'),
+};
+
+export const EXPOSURE_BASIS: Labels<CountryExposure['basis']> = {
+  listing_country: l('Listing country (proxy)', 'Pays de cotation (approximation)'),
+  etf_lookthrough: l('Fund look-through', 'Transparence des fonds'),
+  mixed: l('Listing country and fund look-through', 'Pays de cotation et transparence des fonds'),
+};
+
+export const WORLD_LAYER: Labels<WorldLayer['layerId']> = {
+  events: l('Events', 'Événements'),
+  exposure: l('Portfolio exposure by country', 'Exposition du portefeuille par pays'),
+  facilities: l('Emissions facilities', 'Installations émettrices'),
+  // Fallback only: the page shows the API's own layer title, which says what is loaded (earthquakes
+  // today). This label must not name a hazard type the dataset may not contain.
+  hazards: l('Natural hazards', 'Aléas naturels'),
+};
+
+export const MATCH_CONFIDENCE: Labels<Facility['matchConfidence']> = {
+  exact: l('Exact issuer match', 'Correspondance exacte avec l’émetteur'),
+  probable: l('Probable match (uncertain)', 'Correspondance probable (incertaine)'),
+  none: l('No issuer matched', 'Aucun émetteur associé'),
+};
+
+export const HAZARD_TYPE: Labels<Hazard['type']> = {
+  earthquake: l('Earthquake', 'Séisme'),
+  wildfire: l('Wildfire', 'Incendie de forêt'),
+};
+
+export const REGISTRY: Labels<Facility['registry']> = {
+  eccc_ghgrp: l('Canada GHGRP (ECCC)', 'PDGES du Canada (ECCC)'),
+  epa_ghgrp: l('US EPA GHGRP', 'GHGRP de l’EPA (États-Unis)'),
+};
+
+export const THEME_TAG: Labels<ThemeTag> = {
+  ai: l('Artificial intelligence', 'Intelligence artificielle'),
+  semiconductors: l('Semiconductors', 'Semi-conducteurs'),
+  software: l('Software', 'Logiciels'),
+  cloud: l('Cloud', 'Infonuagique'),
+  ecommerce: l('E-commerce', 'Commerce en ligne'),
+  electric_vehicles: l('Electric vehicles', 'Véhicules électriques'),
+  big_tech: l('Big tech', 'Géants technologiques'),
+  banks: l('Banks', 'Banques'),
+  insurance: l('Insurance', 'Assurance'),
+  fossil_energy: l('Fossil energy', 'Énergies fossiles'),
+  pipelines: l('Pipelines', 'Pipelines'),
+  utilities: l('Utilities', 'Services publics'),
+  rail_transport: l('Rail transport', 'Transport ferroviaire'),
+  consumer_staples: l('Consumer staples', 'Biens de consommation de base'),
+  healthcare: l('Healthcare', 'Santé'),
+  retail: l('Retail', 'Commerce de détail'),
+  broad_canada: l('Broad Canadian market', 'Marché canadien élargi'),
+  broad_us: l('Broad US market', 'Marché américain élargi'),
+  nasdaq_growth: l('Nasdaq growth', 'Croissance Nasdaq'),
+  esg_screened: l('ESG-screened', 'Filtré ESG'),
+  bonds_canada: l('Canadian bonds', 'Obligations canadiennes'),
+  bonds_us: l('US bonds', 'Obligations américaines'),
+  long_treasuries: l('Long US Treasuries', 'Bons du Trésor américain à long terme'),
+  cash_like: l('Cash-like', 'Quasi-espèces'),
+  gold: l('Gold', 'Or'),
+  crypto: l('Crypto', 'Crypto'),
+  dividend_payers: l('Dividend payers', 'Titres à dividendes'),
+};
+
+// ----- Agents & System (T15) -----
+
+export const FEATURE_FLAG: Labels<FeatureFlag> = {
+  bilingual: l('English and French', 'Anglais et français'),
+  world_explorer: l('World Explorer', 'Explorateur mondial'),
+  world_layer_facilities: l('World layer: emissions facilities', 'Couche mondiale : installations émettrices'),
+  world_layer_hazards: l('World layer: natural hazards', 'Couche mondiale : aléas naturels'),
+  time_machine: l('Time Machine', 'Machine à remonter le temps'),
+  profile_creator: l('Profile creator', 'Création de profils'),
+  goal_requests: l('Goal requests', 'Requêtes par objectif'),
+  sabotage_demo: l('Sabotage demonstration', 'Démonstration de sabotage'),
+  research_open_web: l('Open-web research', 'Recherche sur le Web ouvert'),
+  guardrails: l('Bedrock Guardrails', 'Garde-fous Bedrock'),
+  on_demand_tickers: l('On-demand tickers', 'Symboles à la demande'),
+  frontier_chart: l('Frontier chart', 'Graphique de frontière'),
 };
 
 export function pick(text: I18NText, lang: Lang): string {

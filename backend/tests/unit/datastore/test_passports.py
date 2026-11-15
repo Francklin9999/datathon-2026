@@ -68,8 +68,9 @@ class Passports(unittest.TestCase):
 
     def test_loaded_vs_planned(self):
         in_use = {p["datasetId"] for p in self.items if p["status"] == "in_use"}
+        # default_profiles is not in the snapshot: its passport follows the personas file shipped with the app.
         self.assertEqual(in_use, {"assets_universe", "prices_daily", "corporate_actions", "fx_usdcad_daily",
-                                  "macro_rates", "asset_themes"})
+                                  "macro_rates", "asset_themes", "default_profiles"})
         for p in self.items:
             if p["status"] == "planned":
                 self.assertIsNone(p["rowCount"])
@@ -92,7 +93,8 @@ class Passports(unittest.TestCase):
         for p in self.items:
             for c in p["checks"]:
                 self.assertEqual(set(c), {"name", "ok", "detail", "checkedAt"})
-                self.assertEqual(c["checkedAt"], "2026-11-14T22:00:00Z")
+                if p["datasetId"] != "default_profiles":  # checked when the passport is built, not at ingestion
+                    self.assertEqual(c["checkedAt"], "2026-11-14T22:00:00Z")
         names = [c["name"] for c in prices["checks"]]
         self.assertIn("No zero-volume observations", names)
         zero = next(c for c in prices["checks"] if c["name"] == "No zero-volume observations")

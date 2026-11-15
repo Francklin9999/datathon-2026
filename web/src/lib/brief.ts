@@ -1,5 +1,8 @@
 /** Pure helpers over Brief / Sentence / Segment (contracts/schemas.md §8). */
-import type { Brief, BriefSection, Sentence, Run, RuleCheck, RunResult } from '../contracts/types';
+import type {
+  Brief, BriefSection, BriefSectionId, I18NText, Lang, LimitationCode, RuleStatus, Sentence, Run, RuleCheck, RunResult,
+} from '../contracts/types';
+import { LIMITATION, RULE_STATUS, pick } from './labels';
 
 export type BriefMode = 'normal' | 'audit';
 
@@ -74,4 +77,53 @@ export function danglingReferences(run: Run): string[] {
     }
   }
   return missing;
+}
+
+// ----- Display of code-owned brief content (web/DESIGN.md: never show raw enum identifiers) -----
+
+/** Section headings by section id (contracts/schemas.md §8: BriefSectionId). */
+export const BRIEF_SECTION: Record<BriefSectionId, I18NText> = {
+  summary: { en: 'Summary', fr: 'Résumé' },
+  facts: { en: 'Facts', fr: 'Faits' },
+  assumptions: { en: 'Assumptions', fr: 'Hypothèses' },
+  limits: { en: 'Limits', fr: 'Limites' },
+  scenarios: { en: 'Scenarios', fr: 'Scénarios' },
+  next_checks: { en: 'Next checks', fr: 'Prochaines vérifications' },
+};
+
+const spelled = (text: string) => text.replace(/[_s]+/g, ' ').trim().toLowerCase();
+
+/**
+ * Heading of a brief section. The auditor derives titles from the section id (en "Facts", fr "facts"),
+ * so a title that only spells out the id is replaced by the bilingual heading for that id. A title
+ * that says something else (the refusal brief: id "limits", title "Refusal" / "Refus") is deliberate
+ * and kept, as is the title of an id this table does not know.
+ */
+export function sectionTitle(section: Pick<BriefSection, 'id' | 'title'>, lang: Lang): string {
+  const derived = spelled(section.title.en) === spelled(section.id);
+  if (derived && Object.hasOwn(BRIEF_SECTION, section.id)) return pick(BRIEF_SECTION[section.id], lang);
+  return pick(section.title, lang);
+}
+
+/**
+ * The limitation code a sentence consists of, or null. The auditor appends one sentence per cited
+ * limitation whose only segment is the code itself (catalog A13); the web holds the text of each code.
+ * Only an exact, known code matches, so a sentence written by the model is never rewritten.
+ */
+export function limitationCodeOf(sentence: Pick<Sentence, 'segments'>): LimitationCode | null {
+  const [only, ...rest] = sentence.segments;
+  if (!only || rest.length > 0 || only.t !== 'text') return null;
+  const code = only.text.trim();
+  return Object.hasOwn(LIMITATION, code) ? (code as LimitationCode) : null;
+}
+
+/**
+ * Text of a status segment. A display that is a raw status value ("nee", "pass") is written as the
+ * status word of the display language, in lower case because it sits inside a sentence; any other
+ * display is the writer's own wording and is returned unchanged.
+ */
+export function statusWord(display: string, lang: Lang): string {
+  const key = display.trim().toLowerCase();
+  if (!Object.hasOwn(RULE_STATUS, key)) return display;
+  return pick(RULE_STATUS[key as RuleStatus], lang).toLocaleLowerCase(lang);
 }

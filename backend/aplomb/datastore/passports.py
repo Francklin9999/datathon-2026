@@ -4,13 +4,18 @@ Passports are built from the snapshot manifest: row counts, coverage, checks and
 ``checkedAt`` come from the ingestion that actually ran. Static text below describes roles,
 processing and availability rules. Datasets in the catalog that are not loaded are ``planned``
 (data SPEC: "Register all optional datasets from the catalog as planned until loaded and
-checked"). A passport is wire-shaped (camelCase dict) so T01's Pydantic model can validate it.
+checked"). ``default_profiles`` is not part of a snapshot: its passport is built from the personas
+file shipped with the application, read and checked when the passport is built.
+A passport is wire-shaped (camelCase dict) so T01's Pydantic model can validate it.
 """
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
 
 from .constants import (
     DATASET_IDS,
@@ -28,6 +33,7 @@ from .constants import (
     LIM_YAHOO_NOT_CERTIFIED,
 )
 from .schemas import NORMALIZED, PLANNED_COLUMNS, Column
+from .timeutil import utc_now_iso
 
 PASSPORT_KEYS: tuple[str, ...] = (
     "datasetId", "name", "role", "status", "source", "sourceUrl", "accessMethod", "licence", "licenceUrl",
@@ -52,6 +58,9 @@ class Descriptor:
     # For planned datasets only (loaded ones take these from the organizer metadata).
     planned_source: str = "Not selected yet"
     planned_owner: str = ""
+    # Set where the text above describes the loaded dataset; a planned passport shows these instead.
+    planned_access_method: str | None = None
+    planned_processing: tuple[dict, ...] | None = None
 
 
 _STARTER_FILE = {
@@ -176,24 +185,39 @@ DESCRIPTORS: dict[str, Descriptor] = {
         t("The three fictional investors (Amira, Mateo, Robert), their portfolios and rules.",
           "Les trois investisseurs fictifs (Amira, Mateo, Robert), leurs portefeuilles et leurs règles."),
         "static",
-        "provided by the profiles module (T06)",
-        (t("Registered by T06; not ingested by the datastore.", "Enregistré par T06; non ingéré par le magasin de données."),),
+        "local JSON shipped with the application (backend/aplomb/profiles/defaults.json)",
+        (
+            t("Read from the personas file shipped with the application; not part of the data snapshot, so it carries no data version.",
+              "Lu dans le fichier de personas livré avec l'application; hors de l'instantané de données, donc sans version de données."),
+            t("Persona descriptions follow the organizer brief (pages 5 to 7); portfolios, capital amounts and rule thresholds are fictional team assumptions (A-13).",
+              "Les descriptions des personas suivent l'énoncé des organisateurs (pages 5 à 7); les portefeuilles, les capitaux et les seuils des règles sont des hypothèses fictives de l'équipe (A-13)."),
+        ),
         ("LIM_SIMULATION_ONLY",),
         t("Fictional assumptions; not time-gated.", "Hypothèses fictives; non filtrées dans le temps."),
         planned_source="backend/aplomb/profiles (T06), fictional personas (A-13)",
         planned_owner="T06",
+        planned_access_method="provided by the profiles module (T06)",
+        planned_processing=(t("Personas file not readable; nothing is ingested by the datastore.",
+                              "Fichier de personas illisible; rien n'est ingéré par le magasin de données."),),
     ),
     "macro_release_dates": Descriptor(
         t("Macro release dates", "Dates de publication macro"),
         t("Actual publication and vintage times of monthly macro values, needed for point-in-time Time Machine runs.",
           "Heures réelles de publication et de millésime des valeurs macro mensuelles, nécessaires aux exécutions historiques."),
         "event",
-        "planned: official release calendars and vintage archives (O-05)",
-        (t("Not loaded: no source selected yet (O-05).", "Non chargé : aucune source choisie (O-05)."),),
+        "local CSV (team metadata, data/metadata/macro_release_dates.csv)",
+        (
+            t("One row per (series, reference month) with the release date and the URL of the release; each row must match a macro_rates observation and cannot precede its reference date.",
+              "Une ligne par (série, mois de référence) avec la date de publication et l'URL de la publication; chaque ligne doit correspondre à une observation de macro_rates et ne peut précéder sa date de référence."),
+            t("A monthly series without a row here has no real release date: current runs use the assumed lag (A-22) and historical runs withhold its values.",
+              "Une série mensuelle sans ligne ici n'a pas de vraie date de publication : les exécutions courantes utilisent le délai supposé (A-22) et les exécutions historiques retiennent ses valeurs."),
+        ),
         (LIM_MACRO_LAG_ASSUMED,),
         t("A record is available from its publication time.", "Un enregistrement est disponible à partir de son heure de publication."),
         planned_source="Not selected yet (open item O-05)",
         planned_owner="T04",
+        planned_access_method="planned: official release calendars and vintage archives (O-05)",
+        planned_processing=(t("Not loaded: no source selected yet (O-05).", "Non chargé : aucune source choisie (O-05)."),),
     ),
     "etf_holdings": Descriptor(
         t("ETF holdings", "Composition des FNB"),
@@ -277,6 +301,12 @@ DESCRIPTORS: dict[str, Descriptor] = {
 
 _URL = re.compile(r"https?://[^\s;,)]+")
 
+DEFAULT_PROFILES_PATH = Path(__file__).resolve().parents[1] / "profiles" / "defaults.json"
+# The release-date file has no retrieval column. data/SOURCES.md records the day each published file
+# was read, keyed here by the file's manifest SHA-256 so another file never inherits the date.
+_RELEASE_DATES_READ_ON = {"fc82fd354db4fe9d6d0c57d827eda272418dd8270e4a1acf2572d6f0e636969b": "2026-11-14"}
+_UNSOURCED_THEMES = re.compile(r"^(\d+) of (\d+) rest on the organizer universe file only")
+
 
 def _schema(columns: tuple[Column, ...]) -> list[dict]:
     return [{"name": c.name, "type": c.type, "description": c.description} for c in columns if not c.name.startswith("available_at")]
@@ -288,17 +318,37 @@ def build_passport(dataset_id: str, manifest: dict | None) -> dict:
     loaded = manifest is not None and dataset_id in manifest.get("datasets", {})
     if not loaded:
         columns = PLANNED_COLUMNS.get(dataset_id, ())
-        return {
+        planned = {
             "datasetId": dataset_id, "name": desc.name, "role": desc.role, "status": "planned",
-            "source": desc.planned_source, "sourceUrl": None, "accessMethod": desc.access_method,
+            "source": desc.planned_source, "sourceUrl": None, "accessMethod": desc.planned_access_method or desc.access_method,
             "licence": "unknown (not yet reviewed)", "licenceUrl": None, "retrievedOn": None, "coverage": None,
             "frequency": desc.frequency, "rowCount": None, "dataVersion": None, "schema": _schema(columns),
-            "processing": list(desc.processing), "limitations": list(desc.limitations),
+            "processing": list(desc.planned_processing or desc.processing), "limitations": list(desc.limitations),
             "availabilityRule": desc.availability_rule, "checks": [], "rejectedReason": None,
+        }
+        personas = _default_personas() if dataset_id == "default_profiles" else None
+        if personas is None:
+            return planned
+        return {
+            **planned, "status": "in_use",
+            "source": "Aplomb team: fictional personas; descriptions follow the organizer brief, portfolios, capital and rule thresholds are team assumptions (A-13)",
+            "accessMethod": desc.access_method, "licence": "Team-authored, fictional (persona descriptions follow the organizer brief)",
+            "rowCount": len(personas), "processing": list(desc.processing),
+            "checks": [{"name": "Personas file read; each persona is a default with a fictional portfolio whose weights sum to 100%",
+                        "ok": True, "detail": f"{len(personas)} personas: {', '.join(personas)}",
+                        "checkedAt": utc_now_iso(datetime.now(timezone.utc))}],
         }
     meta = manifest["datasets"][dataset_id]
     source, source_url, licence, licence_url, retrieved = _provenance(dataset_id, manifest)
     processing = list(desc.processing)
+    if dataset_id == "asset_themes" and _theme_sourcing(meta):
+        processing[1] = t(
+            "Where a row cites an issuer or project page, the assignment rests on that page (short quotation or summary in the justification); otherwise on the organizer universe file (names and sectors) and team judgement. All are assumptions, not an official classification.",
+            "Lorsqu'une ligne cite une page de l'émetteur ou du projet, l'attribution repose sur cette page (courte citation ou résumé dans la justification); sinon sur le fichier d'univers des organisateurs (noms et secteurs) et le jugement de l'équipe. Ce sont toutes des hypothèses, pas une classification officielle.")
+    if dataset_id == "macro_release_dates" and _statcan_only(meta):
+        processing.insert(1, t(
+            "Canada CPI: the release date is the 'Released' date of each article of The Daily (date only, no time of day); the 12-month change in each article was compared with the stored value when the dates were collected.",
+            "IPC du Canada : la date de publication est la date de diffusion de chaque article du Quotidien (date seulement, sans heure); la variation sur 12 mois de chaque article a été comparée à la valeur stockée lors de la collecte des dates."))
     if manifest.get("onDemand") and dataset_id in ("assets_universe", "prices_daily"):
         for od in manifest["onDemand"]:
             processing.append(t(
@@ -318,20 +368,60 @@ def build_passport(dataset_id: str, manifest: dict | None) -> dict:
     }
 
 
+def _default_personas() -> list[str] | None:
+    """Ids of the personas shipped with the application, or ``None`` when the file fails the check."""
+    try:
+        personas = json.loads(DEFAULT_PROFILES_PATH.read_text(encoding="utf-8"))
+        ids = [p["profileId"] for p in personas]
+        ok = bool(ids) and len(set(ids)) == len(ids) and all(
+            p["isDefault"] is True and p["portfolio"]["isFictional"] is True
+            and abs(sum(pos["weightPct"] for pos in p["portfolio"]["positions"]) - 100.0) < 1e-6 for p in personas)
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    return sorted(ids) if ok else None
+
+
+def _theme_sourcing(meta: dict) -> tuple[int, int] | None:
+    """(rows citing a page, all rows) when at least one assignment cites a page, from the ingestion check."""
+    for check in meta["checks"]:
+        found = _UNSOURCED_THEMES.match(check["detail"]) if check["name"] == "Assignments backed by a source URL" else None
+        if found:
+            unsourced, total = int(found.group(1)), int(found.group(2))
+            return (total - unsourced, total) if unsourced < total else None
+    return None
+
+
+def _statcan_only(meta: dict) -> bool:
+    hosts = meta.get("details", {}).get("sourceHosts", [])
+    return bool(hosts) and all(h.endswith("statcan.gc.ca") for h in hosts)
+
+
 def _provenance(dataset_id: str, manifest: dict) -> tuple[str, str | None, str, str | None, str | None]:
     if dataset_id == "asset_themes":
-        dates = manifest["datasets"]["asset_themes"].get("details", {}).get("assignedAt", [])
+        meta = manifest["datasets"]["asset_themes"]
+        dates = meta.get("details", {}).get("assignedAt", [])
+        retrieved = max(dates) if dates else None
+        themes = _theme_sourcing(meta)
+        if themes:
+            return (f"Aplomb team assignment (assumptions); {themes[0]} of {themes[1]} supported by an issuer or project page "
+                    "cited per row, the others by the organizer universe file", None,
+                    "Team-authored tags; short quotations from the third-party pages cited per row (terms of those pages not reviewed)",
+                    None, retrieved)
         return ("Aplomb team assignment (assumptions) based on the organizer universe file", None,
-                "Team-authored metadata; no third-party content", None, max(dates) if dates else None)
+                "Team-authored metadata; no third-party content", None, retrieved)
     if dataset_id == "macro_release_dates":
-        details = manifest["datasets"]["macro_release_dates"].get("details", {})
+        meta = manifest["datasets"]["macro_release_dates"]
+        details = meta.get("details", {})
         hosts = details.get("sourceHosts", [])
         series = ", ".join(details.get("series", []))
-        if hosts and all(h.endswith("statcan.gc.ca") for h in hosts):
+        # Never the manifest build time: a date nobody recorded stays unknown.
+        retrieved = details.get("retrievedOn") or next(
+            (_RELEASE_DATES_READ_ON.get(src["sha256"]) for src in manifest.get("sources", []) if src["file"] == "macro_release_dates.csv"), None)
+        if _statcan_only(meta):
             return (f"Statistics Canada, The Daily: official release date of each reference month ({series}); URL per row",
                     "https://www.statcan.gc.ca/dai-quo/index-eng.htm", "Statistics Canada Open Licence",
-                    "https://www.statcan.gc.ca/en/terms-conditions/open-licence", manifest["createdAt"][:10])
-        return (f"Release calendars cited per row ({', '.join(hosts)})", None, "see the source of each row", None, manifest["createdAt"][:10])
+                    "https://www.statcan.gc.ca/en/terms-conditions/open-licence", retrieved)
+        return (f"Release calendars cited per row ({', '.join(hosts)})", None, "see the source of each row", None, retrieved)
     rows = manifest.get("sourceMetadata", {}).get(_STARTER_FILE[dataset_id], [])
     if not rows:
         return ("unknown", None, "unknown", None, None)
@@ -359,11 +449,11 @@ def build_passports(manifest: dict | None) -> list[dict]:
 
 
 # Starter pitfalls (data/SOURCES.md "Pitfalls mapped to implementation"), for GET /datasets.
-# Statuses reflect what this repository has verified: "handled" only where a datastore test
-# covers the treatment. Owners flip "open" to "handled" when their listed tests pass.
+# Statuses reflect what this repository has verified: "handled" only where the tests named in
+# ``handledBy`` cover the treatment. Owners flip "open" to "handled" when their listed tests pass.
 TRAPS: tuple[dict, ...] = (
-    {"code": LIM_FX_FFILL, "status": "open",
-     "handledBy": "CAD/USD mismatch and FX holiday gaps: the datastore returns only the last rate published on or before a day, never a later one (tested); conversion of every USD figure is quant M_FX_BOC_FFILL (T05), pending QNT-01/QNT-06."},
+    {"code": LIM_FX_FFILL, "status": "handled",
+     "handledBy": "CAD/USD mismatch and FX holiday gaps: the datastore returns only the last rate published on or before a day, never a later one (datastore tests: days without a same-day rate, no prior rate); every USD figure is converted by quant M_FX_BOC_FFILL (T05), checked against the CAD control values (QNT-02) and the no-prior-rate case (QNT-06)."},
     {"code": LIM_CALENDAR_INTERSECTION, "status": "handled",
      "handledBy": "Master calendar XIU.TO ∩ SPY with crypto sampled on those days and no price fill (datastore DS-02, DS-07)."},
     {"code": LIM_YAHOO_NOT_CERTIFIED, "status": "disclosed",

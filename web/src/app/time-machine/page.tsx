@@ -1,6 +1,11 @@
-import { OwnedElsewhere } from '../../components/common/OwnedElsewhere';
+import { Suspense } from 'react';
+import { TimeMachinePage } from '../../features/timemachine/TimeMachinePage';
 
-// Skeleton only: T15 owns the Time Machine body (web/page-specs/time-machine.md).
+// ?runId= is read on the client; the static shell renders without it (web/SPEC.md §4).
 export default function Page() {
-  return <OwnedElsewhere title={{ en: 'Time Machine', fr: 'Machine à remonter le temps' }} flag="time_machine" owner="T15" spec="web/page-specs/time-machine.md" />;
+  return (
+    <Suspense fallback={null}>
+      <TimeMachinePage />
+    </Suspense>
+  );
 }

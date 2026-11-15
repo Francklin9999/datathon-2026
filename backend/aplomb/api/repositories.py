@@ -22,6 +22,25 @@ def timestamp(epoch: float) -> str:
     )
 
 
+def _close_running_steps(payload: dict, now: float) -> None:
+    """A terminal run keeps no step in progress: the stale worker can no longer close it."""
+    from datetime import datetime
+
+    for step in payload["steps"]:
+        if step["status"] != "running":
+            continue
+        started = datetime.fromisoformat(step["startedAt"].replace("Z", "+00:00")).timestamp()
+        step.update(
+            status="failed",
+            endedAt=timestamp(now),
+            durationMs=max(0, (now - started) * 1000),
+            summary={
+                "en": f"Step {step['type']} interrupted before completion.",
+                "fr": f"Étape {step['type']} interrompue avant la fin.",
+            },
+        )
+
+
 @dataclass
 class RunRecord:
     run: Run
@@ -268,6 +287,7 @@ class RunRepository:
                     .envelope("worker-watchdog")
                     .error.to_wire()
                 )
+            _close_running_steps(payload, now)
             updated = RunRecord(
                 Run.model_validate(payload),
                 record.revision + 1,
@@ -446,14 +466,16 @@ class RunRepository:
             record = self.get(session_id, run_id)
             if record.run.status in TERMINAL:
                 raise Conflict("A terminal run is immutable")
+            now = self.clock()
             payload = record.run.to_wire()
             payload.update(
                 status="cancelled",
                 question=None,
                 result=None,
                 error=None,
-                updatedAt=timestamp(self.clock()),
+                updatedAt=timestamp(now),
             )
+            _close_running_steps(payload, now)
             updated = RunRecord(
                 Run.model_validate(payload),
                 record.revision + 1,
@@ -509,14 +531,16 @@ class RunRepository:
         # A worker that already claimed the run owns its fate even if invoke timed out.
         if record.owner is not None:
             return
+        now = self.clock()
         payload = record.run.to_wire()
         payload.update(
             status="failed",
             question=None,
             result=None,
             error=unavailable("Worker dispatch").envelope("worker-dispatch").error.to_wire(),
-            updatedAt=timestamp(self.clock()),
+            updatedAt=timestamp(now),
         )
+        _close_running_steps(payload, now)
         updated = RunRecord(
             Run.model_validate(payload),
             record.revision + 1,

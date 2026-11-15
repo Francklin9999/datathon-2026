@@ -93,7 +93,8 @@ test('generated types remain assignable to every documented schema', () => {
   const checks = names.map(name =>
     `type Check_${name} = Assert<Generated.${name} extends Documented.${name} ? true : false>;`,
   ).join('\n');
-  const filename = path.join(root, 'web/tests/documented-contracts.virtual.ts');
+  // TypeScript asks the host for forward-slash paths on every platform.
+  const filename = path.join(root, 'web/tests/documented-contracts.virtual.ts').replace(/\\/g, '/');
   const content = `import type * as Generated from '../src/contracts/types.js';
     namespace Documented { ${aliases}\n${source} }
     type Assert<T extends true> = T;\n${checks}`;

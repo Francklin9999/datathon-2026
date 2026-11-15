@@ -2,11 +2,13 @@
 import copy
 import json
 import math
+from collections import OrderedDict
 from contextlib import nullcontext
 from datetime import date
-from weakref import WeakKeyDictionary
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+from aplomb.contracts import models as m
 
 from .adapters import AttentionAdapter, EdgarAdapter, ETFAdapter, GdeltAdapter
 from .core import ResearchContext, ResearchError
@@ -68,14 +70,17 @@ class HoldingsArgs(PageviewsArgs):
 
 
 class SaveEvidenceArgs(Args):
-    type: str
-    title: str = Field(max_length=300)
-    publisher: str = Field(max_length=200)
-    url: str = Field(max_length=2000)
-    published_at: date | None = None
-    quote: str = Field(min_length=1, max_length=400)
-    claim: dict[str, str]
-    subject: dict[str, str]
+    """Save one verbatim quote from a page already fetched in this run (schemas.md Evidence)."""
+
+    type: m.EvidenceType = Field(description="Kind of source document.")
+    title: str = Field(max_length=300, description="Title of the source document.")
+    publisher: str = Field(max_length=200, description="Publisher as named by the source; the stored publisher comes from the reviewed domain registry.")
+    url: str = Field(max_length=2000, description="The url returned by web.fetch or edgar.filing_text earlier in this run.")
+    published_at: date | None = Field(default=None, description="Publication date stated by the source (YYYY-MM-DD), if any.")
+    quote: str = Field(min_length=1, max_length=400, description="Passage copied verbatim from that page, at most 400 characters.")
+    claim: m.I18nText = Field(description="What the quote supports, in English (en) and in French (fr).")
+    subject: m.EvidenceSubject = Field(description="What the evidence is about: id is the ticker for an asset, the ISO3 code for a country, "
+                                                   "the event ID for an event, or the sector or theme name.")
 
 
 def passages(document, query=None, max_chars=6000):
@@ -105,7 +110,9 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
             raise ResearchError("research_unavailable_in_replay")
         rc = getattr(ctx, "research_context", None)
         if rc is None:
-            rc = ResearchContext(ctx.run_id, date.fromisoformat(str(ctx.as_of)))
+            # Research facts cite the snapshot the run is pinned to, as stated by its gate.
+            pinned = getattr(getattr(ctx, "gate", None), "data_version", None)
+            rc = ResearchContext(ctx.run_id, date.fromisoformat(str(ctx.as_of)), **({"data_version": pinned} if pinned else {}))
         if rc.run_id != ctx.run_id or str(rc.as_of) != str(ctx.as_of):
             raise ResearchError("research_context_mismatch")
         rc.allow()
@@ -229,7 +236,11 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
         "etf.holdings": (HoldingsArgs, holdings), "research.save_evidence": (SaveEvidenceArgs, save),
     }
 
-    completed = WeakKeyDictionary()
+    # Results per run ID: the workflow hands every tool call a copy of the run ledger, so the
+    # ledger object cannot be the key. Each entry keeps the facts and evidence it registered; a
+    # hit requires the ledger at hand to hold exactly those, which rejects an entry written by a
+    # timed-out call whose ledger copy was discarded.
+    completed: OrderedDict = OrderedDict()
 
     def guarded(name, fn):
         def run(ctx, **kw):
@@ -238,20 +249,32 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None):
                 ledger = getattr(ctx, "ledger", None)
                 cache_key = (name, rc.run_id, str(rc.as_of), rc.mode, rc.data_version,
                              str(service.clock().date()), json.dumps(kw, sort_keys=True, default=str))
-                prior = completed.get(ledger, {}) if ledger is not None else {}
+                prior = completed.get(rc.run_id, {}) if ledger is not None else {}
                 if cache_key in prior:
-                    cached = prior[cache_key]
+                    cached, facts, evidence = prior[cache_key]
                     view = ledger.export()
-                    if all(fid in view.facts for fid in cached.fact_ids) and all(
-                        eid in view.evidence for eid in cached.evidence_ids
+                    if all(view.facts.get(fid) == fact for fid, fact in facts.items()) and all(
+                        view.evidence.get(eid) == item for eid, item in evidence.items()
                     ):
                         return copy.deepcopy(cached)
                 # Source/document caches may survive failure; ledger facts/evidence are atomic.
                 with ledger.transaction() if ledger is not None else nullcontext():
                     result = fn(ctx, **kw)
                 if result.ok and ledger is not None:
-                    completed.setdefault(ledger, {})[cache_key] = copy.deepcopy(result)
+                    view = ledger.export()
+                    completed.setdefault(rc.run_id, {})[cache_key] = (
+                        copy.deepcopy(result), {fid: view.facts[fid] for fid in result.fact_ids},
+                        {eid: view.evidence[eid] for eid in result.evidence_ids})
+                    completed.move_to_end(rc.run_id)
+                    while len(completed) > 256:
+                        completed.popitem(last=False)
                 return result
+            except ValidationError as exc:
+                # A malformed shape is the caller's to correct; it is not a source outage.
+                first = exc.errors()[0]
+                where = ".".join(str(part) for part in first["loc"])
+                return ToolResult(False, "Invalid research tool arguments; nothing was saved",
+                                  error=f"validation_error: {where}: {first['msg']}"[:300])
             except Exception as exc:
                 reason = str(exc) if isinstance(exc, ResearchError) else "source_unavailable"
                 return ToolResult(False, "Research unavailable; evidence gap remains", error=reason)

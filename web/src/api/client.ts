@@ -7,7 +7,7 @@ import type {
   AplombContracts, ApiError, BatchCheckRequest, CheckRequest, CreateProfileRequest,
   CreateRunRequest, DeriveRulesRequest, Lang, ParseRequest, RulePatchRequest,
   SabotageRequest, UpdatePortfolioRequest, UpdateProfileRequest, WindowCode, AnswerRequest,
-  RunKind,
+  RunKind, RevealRequest,
 } from '../contracts/types';
 import { ApiRequestError } from './errors';
 
@@ -30,6 +30,17 @@ interface CallOptions {
   anonymous?: boolean;
   headers?: Record<string, string>;
 }
+
+/** Query of GET /world/events (api.md 6.2). Array values are sent as repeated keys. */
+export interface WorldEventsQuery {
+  from?: string; to?: string;
+  category?: readonly string[]; country?: readonly string[]; origin?: readonly string[];
+  bbox?: string; q?: string; ticker?: string; theme?: string; profileId?: string;
+  sort?: 'importance' | 'date'; limit?: number; cursor?: string;
+}
+export interface WorldCountryQuery { profileId?: string; from?: string; to?: string }
+export interface WorldFacilitiesQuery { bbox?: string; country?: readonly string[]; ticker?: string; minEmissions?: number; limit?: number }
+export interface WorldHazardsQuery { from?: string; to?: string; type?: 'earthquake' | 'wildfire'; bbox?: string; limit?: number }
 
 export interface ResponseMeta { requestId: string | null; dataVersion: string | null; status: number }
 
@@ -200,6 +211,26 @@ export function createApiClient(config: ClientConfig) {
       call('FactResponse', 'GET', `/runs/${enc(runId)}/facts/${enc(factId)}`, { signal }),
     sabotage: (runId: string, body: SabotageRequest) =>
       call('QueuedRunResponse', 'POST', `/runs/${enc(runId)}/sabotage`, { body }),
+
+    /** Deterministic Time Machine reveal (api.md 5.8). `until` omitted = last date in the snapshot. */
+    reveal: (runId: string, body: RevealRequest = {}, signal?: AbortSignal) =>
+      call('RevealResult', 'POST', `/runs/${enc(runId)}/reveal`, { body, signal }),
+
+    worldLayers: (signal?: AbortSignal) => call('WorldLayersResponse', 'GET', '/world/layers', { signal }),
+    worldEvents: (query: WorldEventsQuery, signal?: AbortSignal) =>
+      call('WorldEventsResponse', 'GET', '/world/events', { query: { ...query }, signal }),
+    worldEvent: (eventId: string, profileId?: string, signal?: AbortSignal) =>
+      call('WorldEventResponse', 'GET', `/world/events/${enc(eventId)}`, { query: { profileId }, signal }),
+    worldExposure: (profileId: string, signal?: AbortSignal) =>
+      call('WorldExposureResponse', 'GET', '/world/exposure', { query: { profileId }, signal }),
+    worldCountry: (iso3: string, query: WorldCountryQuery = {}, signal?: AbortSignal) =>
+      call('WorldCountryResponse', 'GET', `/world/countries/${enc(iso3)}`, { query: { ...query }, signal }),
+    worldFacilities: (query: WorldFacilitiesQuery = {}, signal?: AbortSignal) =>
+      call('FacilitiesResponse', 'GET', '/world/facilities', { query: { ...query }, signal }),
+    worldHazards: (query: WorldHazardsQuery = {}, signal?: AbortSignal) =>
+      call('HazardsResponse', 'GET', '/world/hazards', { query: { ...query }, signal }),
+
+    replayPresets: (signal?: AbortSignal) => call('ReplayPresetsResponse', 'GET', '/replay/presets', { signal }),
 
     datasets: (signal?: AbortSignal) => call('DatasetsResponse', 'GET', '/datasets', { signal }),
     dataset: (datasetId: string, signal?: AbortSignal) =>

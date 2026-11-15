@@ -6,7 +6,7 @@
  */
 import { useMemo, useState } from 'react';
 import type {
-  CheckResult, DeriveRulesResponse, FrontierResponse, Lang, OverviewResponse, PolicyRule, Profile, RuleCheck,
+  CheckResult, DeriveRulesResponse, FrontierResponse, Lang, OverviewResponse, PolicyRule, Profile,
 } from '../../contracts/types';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
@@ -20,6 +20,7 @@ import { RuleTable } from '../../components/run/RuleTable';
 import { GroupBars } from '../../components/run/Results';
 import { ASSET_CLASS, labelOf } from '../../lib/labels';
 import { factIdFor, fmtMoney, fmtNumber, fmtPct, fmtSignedPct, fmtUnit } from '../../lib/format';
+import { disabledRules, planRuleRows } from '../../lib/planRules';
 
 export function PortfolioPage() {
   return <ProfileGate>{profile => <PortfolioContent key={profile.profileId} profile={profile} />}</ProfileGate>;
@@ -280,11 +281,10 @@ function Rules({ profile, overview, scope }: { profile: Profile; overview: Overv
     ? { kind: 'local', label: { en: 'Rule derivation inputs.', fr: 'Intrants de dérivation des règles.' }, facts: derived.facts }
     : null), [derived]);
 
-  const checks: RuleCheck[] = overview?.ruleChecks ?? profile.rules.map(rule => ({
-    ruleId: rule.ruleId, code: rule.code, status: 'info', value: null, threshold: rule.threshold, unit: rule.unit,
-    comparator: rule.comparator, headroom: null, worst: null, valueFactId: null, thresholdFactId: null,
-    detail: { en: 'Not evaluated: overview unavailable.', fr: 'Non évaluée : aperçu indisponible.' }, neeReason: null, evidenceIds: [],
-  }));
+  // One row per profile rule: the overview has no check for a disabled rule, which must stay
+  // listed (marked disabled, with its toggle) so it can be enabled again.
+  const checks = planRuleRows(profile.rules, overview ? overview.ruleChecks : null);
+  const disabled = disabledRules(profile.rules);
 
   const table = (
     <RuleTable checks={checks} rules={profile.rules} caption={tr({ en: 'Rules of this plan', fr: 'Règles de ce plan' })}
@@ -311,6 +311,13 @@ function Rules({ profile, overview, scope }: { profile: Profile; overview: Overv
         </FactScopeProvider>
       )}
       {overview === null && <p className="small muted">{tr({ en: 'Statuses need the overview; rule definitions are shown from the profile.', fr: 'Les statuts nécessitent l’aperçu ; les définitions viennent du profil.' })}</p>}
+      {disabled.length > 0 && (
+        <p className="small muted">
+          {tr({ en: 'Disabled, not counted in the plan verdict:', fr: 'Désactivées, non comptées dans le verdict du plan :' })}{' '}
+          <span className="mono">{disabled.map(rule => rule.code).join(', ')}</span>.{' '}
+          {tr({ en: 'Each stays listed below and can be enabled again.', fr: 'Chacune reste listée ci-dessous et peut être réactivée.' })}
+        </p>
+      )}
       {scope ? <FactScopeProvider scope={scope}>{table}</FactScopeProvider> : table}
       {preview && (
         <div className="card" style={{ marginTop: 16 }} aria-live="polite">

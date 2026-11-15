@@ -147,6 +147,14 @@ def max_size_fact(engine: QuantEngine, profile: m.Profile, ticker: str, funding:
     """``size.max_compatible`` fact for a grid search (inputs: the requested size, when there is one)."""
     ctx = engine.ctx
     move = {"ticker": ticker, "funding": funding}
+    tickers = sorted({p.ticker for p in profile.portfolio.positions if p.weight_pct > 0} | {ticker})
+    try:
+        wr = engine.window()
+        sources, available_at = engine._sources(tickers, wr.i0, wr.i1), engine.market.latest_avail(tickers, wr.i1)
+    except Unavailable:
+        sources, available_at = [], None
+    if available_at is None:
+        sources = []
     return engine.ledger.add_fact(make_fact(
         ctx, key=fact_key("size.max_compatible", "portfolio", profile.profile_id, f"after:{move['ticker']}:{move['funding']['mode']}", "na"),
         kind="scenario", metric="size.max_compatible",
@@ -156,7 +164,8 @@ def max_size_fact(engine: QuantEngine, profile: m.Profile, ticker: str, funding:
         subject={"type": "portfolio", "id": profile.profile_id, "variant": "after"}, method_id="M_MAXSIZE_GRID", created_by="optimizer",
         params={"step": 0.5, "stoppedBy": search.stopped_by, "firstConflictPct": search.first_conflict_pct if search.first_conflict_pct is not None else "none",
                 "remainingAtBoundary": "; ".join(search.remaining_at_max) or "none", "baselineConflict": search.baseline_conflict},
-        inputs=inputs, limitations=["LIM_THRESHOLDS_ASSUMED", "LIM_PAST_NOT_FUTURE"],
+        inputs=inputs, sources=sources, available_at=available_at,
+        limitations=["LIM_THRESHOLDS_ASSUMED", "LIM_PAST_NOT_FUTURE"],
         checks=[{"code": "grid_prefix", "ok": True, "detail": "Contiguous 0.5-point scan from zero, stopped at the first conflict; tension or missing evidence may remain."}]))
 
 
@@ -173,9 +182,11 @@ class CheckServiceImpl:
     def check(self, session_id: str, request: a.CheckRequest) -> m.CheckResult:
         started = time.perf_counter()
         profile = self.profiles.get(session_id, request.profile_id)
-        rules = apply_overrides(profile, request.rule_overrides)
         snap = self.snapshot()
         as_of = request.as_of or snap.data_as_of
+        if as_of > snap.data_as_of:
+            problem = f"asOf must be on or before the data date {snap.data_as_of}"
+            raise ServiceError("validation_error", problem, {"fields": [{"path": "asOf", "problem": problem}]})
         mode = "historical" if as_of < snap.data_as_of else "current"
         window = request.window.to_wire() if request.window else {"code": "full"}
         gate = snap.gate(as_of, mode)
@@ -185,6 +196,13 @@ class CheckServiceImpl:
                 raise NotFound(f"Unknown ticker {ticker}")
             if ticker not in gate.universe():
                 raise ServiceError("insufficient_data", f"{ticker} has no price on or before {as_of}", {"ticker": ticker})
+        if mode == "historical":
+            # Imported here: timemachine.service loads optimizer.derive, and with it this package.
+            from aplomb.timemachine.service import rederive_at
+
+            # Same rule set as a replay of that date; the stored one was derived from later data.
+            profile = rederive_at(profile, snap, as_of, _now(self.clock))
+        rules = apply_overrides(profile, request.rule_overrides)
         engine = QuantEngine(gate, self.ledger_factory(), currency=profile.reporting_currency, subject_id=profile.profile_id,
                              created_at=_now(self.clock), window=window)
         try:

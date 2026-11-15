@@ -135,7 +135,16 @@ function DeskContent({ profile }: { profile: Profile }) {
     } finally { setCreating(false); }
   };
 
-  const staleRun = Boolean(runInput && confirmedRequest && !sameDecisionRequest(runInput.request, confirmedRequest));
+  // AT-20: the signed brief is stale once the request, the window or a rule threshold on screen
+  // differs from what the run was computed with. Old sentences are never rewritten, only marked.
+  const runChecks = run?.result?.kind === 'decision' ? run.result.decision.scenarios[0]?.ruleChecks ?? [] : [];
+  const thresholdChanged = runChecks.some(check => {
+    const rule = profile.rules.find(r => r.ruleId === check.ruleId);
+    return rule !== undefined && (rule.threshold !== check.threshold || (!rule.enabled && check.status !== 'info'));
+  });
+  const windowChanged = Boolean(runInput && runInput.window.code !== windowCode);
+  const staleRun = Boolean(runInput && run?.profileId === profile.profileId
+    && ((confirmedRequest && !sameDecisionRequest(runInput.request, confirmedRequest)) || windowChanged || thresholdChanged));
   const otherProfileId = run?.profileId && run.profileId !== profile.profileId ? run.profileId : null;
 
   return (
@@ -175,7 +184,7 @@ function DeskContent({ profile }: { profile: Profile }) {
                 {preview.result && previewScope && !preview.loading && (
                   <FactScopeProvider scope={previewScope}>
                     <VerdictHeader verdict={preview.result.verdict} counts={preview.result.counts} />
-                    <BoundaryNote sizePct={preview.result.maxCompatibleSizePct} counts={preview.result.counts} baselineConflict={preview.result.baselineConflict} />
+                    {move && <BoundaryNote sizePct={preview.result.maxCompatibleSizePct} counts={preview.result.counts} baselineConflict={preview.result.baselineConflict} />}
                     <p className="small muted">{tr({ en: 'Funding used', fr: 'Financement utilisé' })}: {fundingLabel(preview.result.fundingUsed, lang)} · <span className="mono">{preview.result.dataVersion}</span> · {preview.result.asOf}</p>
                   </FactScopeProvider>
                 )}
@@ -323,7 +332,8 @@ function FreeText({ profile, onUse }: { profile: Profile; onUse: (parsed: Parsed
   );
 }
 
-function MoveFormCard({ profile, form, update, maxSize, currentWeight, issues, goal }: {
+/** Structured move form. Also used by the Time Machine (T15) so both pages build the same request. */
+export function MoveFormCard({ profile, form, update, maxSize, currentWeight, issues, goal }: {
   profile: Profile; form: MoveForm; update: (patch: Partial<MoveForm>) => void; maxSize: number; currentWeight: number;
   issues: MoveFormIssue[]; goal: DecisionRequest | null;
 }) {
@@ -497,7 +507,12 @@ function DecisionRun({ run, stale }: { run: Run; stale: boolean }) {
       {decision && (
         <>
           <VerdictHeader verdict={decision.verdict} counts={decision.counts} />
-          {decision.request.type === 'move' && <BoundaryNote sizePct={decision.maxCompatibleSizePct} counts={decision.counts} />}
+          {decision.request.type === 'move' && (() => {
+            const boundary = decision.scenarios.find(s => s.kind === 'max_compatible');
+            return boundary
+              ? <BoundaryNote sizePct={decision.maxCompatibleSizePct} counts={boundary.counts} countsAt="boundary" />
+              : <BoundaryNote sizePct={decision.maxCompatibleSizePct} counts={decision.counts} />;
+          })()}
           <h3 className="h4">{tr({ en: 'Scenarios', fr: 'Scénarios' })}</h3>
           <ScenarioCards scenarios={decision.scenarios} selectedId={decision.selectedScenarioId} />
           {selected && (
@@ -524,7 +539,7 @@ function DecisionRun({ run, stale }: { run: Run; stale: boolean }) {
   );
 }
 
-function QuestionForm({ run }: { run: Run }) {
+export function QuestionForm({ run }: { run: Run }) {
   const { tr } = useApp();
   const question = run.question;
   const [value, setValue] = useState(question?.options?.[0]?.value ?? '');
@@ -563,7 +578,7 @@ function QuestionForm({ run }: { run: Run }) {
   );
 }
 
-function CancelButton({ runId }: { runId: string }) {
+export function CancelButton({ runId }: { runId: string }) {
   const { tr } = useApp();
   const [error, setError] = useState<ApiRequestError | null>(null);
   return (

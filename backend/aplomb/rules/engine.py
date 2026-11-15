@@ -97,7 +97,22 @@ class RuleEngine:
         )
         return self.ledger.add_fact(fact)
 
+    def _definition_fact(self, rule: PolicyRule) -> str:
+        """The rule as set in the profile, for outcomes that rest on the definition alone
+        (simulation notice, missing evidence, informational flags without a figure)."""
+        fact = make_fact(
+            self.ctx, key=fact_key("threshold.rule", "rule", rule.rule_id, "definition", "na"),
+            kind="assumption", metric="threshold.rule",
+            label={"en": f"Definition of rule {rule.code} ({rule.rule_id})", "fr": f"Définition de la règle {rule.code} ({rule.rule_id})"},
+            value=rule.type, unit="text", currency=None, subject={"type": "rule", "id": rule.rule_id, "variant": "definition"},
+            method_id="M_USER_INPUT" if rule.origin == "user" else "M_PROFILE_ASSUMPTION", created_by="profile",
+            params={"origin": rule.origin, "enabled": rule.enabled}, limitations=["LIM_THRESHOLDS_ASSUMED"],
+            checks=[{"code": "rule_definition", "ok": True, "detail": f"Rule {rule.rule_id} read from the profile."}],
+        )
+        return self.ledger.add_fact(fact)
+
     def _status_fact(self, rule: PolicyRule, variant: str, status: str, inputs: list[str]) -> str:
+        inputs = [i for i in inputs if i] or [self._definition_fact(rule)]
         fact = make_fact(
             self.ctx, key=fact_key("count.rules", "rule", rule.rule_id, f"{variant}:status:{status}", "na"),
             kind="rule_check", metric="count.rules",
