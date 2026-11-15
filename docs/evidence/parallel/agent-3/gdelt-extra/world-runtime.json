@@ -1,0 +1,45 @@
+{
+  "worldServiceValidated": true,
+  "scope": "Full saved optional-provider collection (37,826 rows) through the actual WorldServiceImpl and baseline world bundle; search selects all 750 GDELT rows. A separate GDELT-only captured-source smoke also passed.",
+  "newsRows": 750,
+  "pageRows": 250,
+  "allPaginatedUniqueRows": 750,
+  "historicalBeforeCaptureRows": 0,
+  "easternHemisphereViewportRows": 378,
+  "sample": {
+    "id": "world_gdelt_geographic_mentions:ffdfb7673207df114591ea3b",
+    "mode": "news",
+    "title": "GDELT Geographic Graph location mention: White House, District Of Columbia, United States",
+    "summary": "GDELT machine-extracted article location mention: White House, District Of Columbia, United States. A mention is not an event location or verified article claim; publisher content was not fetched.",
+    "occurredAt": "2026-11-15T17:46:57Z",
+    "timeBasis": "capture_only",
+    "publishedAt": null,
+    "retrievedAt": "2026-11-15T17:46:57Z",
+    "location": {
+      "lat": 38.8951,
+      "lon": -77.0364,
+      "countryIso3": null,
+      "precision": "point",
+      "geometry": null
+    },
+    "geometry": null,
+    "countryIso3": null,
+    "source": {
+      "name": "GDELT Geographic Graph English news location mentions",
+      "url": "https://data.gdeltproject.org/gdeltv3/ggg/20261114.ggg.v1.english.json.gz"
+    },
+    "datasetId": "world_gdelt_geographic_mentions",
+    "limitations": [
+      "Source: The GDELT Project, Global Geographic Graph; selected metadata adapted by Aplomb.",
+      "Current captured source record; no verified historical vintage.",
+      "A point or displayed polygon anchor does not establish issuer exposure or financial effect.",
+      "Daily English-language source sample; no complete global coverage or continuous monitoring.",
+      "Machine-geocoded article mentions are not independently verified event locations or publisher locations.",
+      "GDELT FIPS10-4 country codes are retained without an unverified ISO or issuer crosswalk.",
+      "Publisher titles, snippets, images and full text are omitted from the retained capture and runtime.",
+      "DateTime is retained as source metadata; no article publication timestamp is asserted.",
+      "Current capture only; first proven application availability is retrieval, not historical replay.",
+      "No company linkage, documented exposure or modeled financial impact."
+    ]
+  }
+}

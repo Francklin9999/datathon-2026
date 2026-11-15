@@ -1,0 +1,26 @@
+{
+  "url": "https://docs.openaq.org/about/terms",
+  "sha256": "e2c532def6e61eb7f9a8f9c6d421542c3f82caea4ee7c52fef7790626b105fa3",
+  "excerpts": [
+    {
+      "term": "third-party",
+      "excerpt": "roughout the world. However, we provide\nno assurance that the data provided may be used free of any third-party claims.\nIn some jurisdictions, copyright and/or laws and regulations may apply to OpenAQ\nsource data. \n We provide attribution to the source of data wherever required and whenever\npossible via our web interface and APIs. Users of the OpenAQ platform are solely\nresponsible for their use of the data and for compliance with any applicable\nlaws and third-party terms. OpenAQ users must therefore review and comply with\nany terms published by data providers. \n A number of our sources provide their air quality data under terms that require\nsource attribution\u2014sometimes under Creative Commons licenses or open government\nlicenses, and sometimes under bespoke terms. Regardless of such requirements, we\nbelieve in the importance of attributing data sources. For this reason, OpenAQ\nprovides a"
+    },
+    {
+      "term": "third party",
+      "excerpt": "API with or without notice at any time. You agree that OpenAQ shall\nnot be liable to your or to any third party for any modification, suspension or\ndiscontinuance of the OpenAQ API. \n Code of Conduct Section titled \u201cCode of Conduct\u201d \n By using the OpenAQ Platform you acknowledge and agree to abide by the\nprinciples in our\n Code of Conduct . \n Violation of Terms of Use for Users Section titled \u201cViolation of Terms of Use for Users\u201d \n If a user is found to be in violation of the Terms of Use, OpenAQ reserves the\nright to suspend or terminate access to the platform. \n OpenAQ Terms and Conditions for Data Publishers Section titled \u201cOpenAQ Terms and Conditions for Data Publishers\u201d \n OpenAQ aggregates third-party air quality data that is in the public domain or\nhas been shared freely by data publishers who choose to share their data with\nOpenAQ to redistribute via the OpenAQ Platform. \n In the "
+    },
+    {
+      "term": "license",
+      "excerpt": "ezones Geospatial queries Client libraries Examples Examples Resources Countries Instruments Latest Licenses Locations Manufacturers Measurements Owners Parameters Providers Sensors Errors About 401 - Unauthorized 403 - Forbidden 404 - Not Found 405 - Method Not Allowed 408 - Request Timeout 410 - Gone 422 - Unprocessable Content 429 - Too Many Requests API Reference Overview v3 Get an instrument by ID Get instruments Get instruments by manufacturer ID Get a location by ID Get locations Get a license by ID Get licenses Get a parameter by ID Get a parameters Get a country by ID Get countries Get a manufacturer by ID Get manufacturers Get measurements by sensor ID Get measurements aggregated to hours by sensor ID Get measurements aggregated to days by sensor ID Get precomputed hourly measurements by sensor ID Get measurements aggregated from hour to day by sensor ID Get measurements aggreg"
+    },
+    {
+      "term": "licensing",
+      "excerpt": "not found"
+    },
+    {
+      "term": "attribution",
+      "excerpt": "Introduction OpenAQ Terms of Use for Data Users Using the OpenAQ Platform Intellectual Property and Attribution Considerate Use Access to Higher Rate Limits Disclaimer Code of Conduct Violation of Terms of Use for Users OpenAQ Terms and Conditions for Data Publishers On this page Overview Introduction OpenAQ Terms of Use for Data Users Using the OpenAQ Platform Intellectual Property and Attribution Considerate Use Access to Higher Rate Limits Disclaimer Code of Conduct Violation of Terms of Use for Users OpenAQ Terms and Conditions for Data Publishers Terms of use Introduction Section titled \u201cIntroduction\u201d \n Welcome to OpenAQ, a data repository of open air quality data aggregated from\nsources across the globe. This page explains the terms for using data on the\nOpenAQ Platform (Terms of Use for Data Users) and the terms for sharing data on\nthe OpenAQ Platform (Terms and Conditions for Dat"
+    }
+  ]
+}

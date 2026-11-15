@@ -1,0 +1,60 @@
+{
+ "attribution": "Source: World Bank, World Development Indicators, NY.GDP.MKTP.CD, CC BY 4.0 with World Bank additional dataset terms. Underlying sources: national statistical organizations and central banks, OECD national accounts files, and World Bank staff estimates. Aplomb selected and normalized three annual observations; numerical values unchanged. No World Bank endorsement.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_bank_sdmx_gdp_2024-2026-11-15-ee998b9bcb10ebf6",
+ "datasetId": "world_bank_sdmx_gdp_2024",
+ "frequency": "Annual; manual bounded capture",
+ "historicalReplay": false,
+ "indicatorLicenceUrl": "https://datacatalog.worldbank.org/public-licenses#cc-by",
+ "licence": "CC BY 4.0 with World Bank additional dataset terms",
+ "licenceUrl": "https://www.worldbank.org/ext/en/legal/terms-conditions/datasets",
+ "limitations": [
+  "Three annual national observations only; incomplete World Bank SDMX country and series coverage.",
+  "GDP at current prices in US dollars; not real growth, purchasing power parity or a forecast.",
+  "National compilation methods can differ and annual estimates may be revised.",
+  "Reference-year start is a display anchor; publication time is not supplied per observation.",
+  "SDMX Prepared/Extracted timestamps are response generation times, not observation publication.",
+  "Original vintage availability is unproven; historical replay is excluded before retrieval.",
+  "National aggregates have no point coordinates, documented issuer links or modeled financial impact.",
+  "World Bank CC BY 4.0 dataset terms include attribution, additional dispute terms and no endorsement."
+ ],
+ "name": "World Bank SDMX 2024 GDP, three-country sample",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "bf7646ed7077968b0652c8ab2a7b91893275ab282dc9a2b769bd85d21b6ce828",
+   "url": "https://www.worldbank.org/ext/en/legal/terms-conditions/datasets"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "9654175273a367641961d2ece60b10cf746566b48587d0929a35c4dd13f4ec76",
+   "url": "https://api.worldbank.org/v2/sources/2/series/NY.GDP.MKTP.CD/metadata?format=json"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "15a01690ba2f7d5fc2014d5daf02a9edb94e2c593a58fde2d7b19110f8f5eb6b",
+   "url": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.CAN/?startperiod=2024&endPeriod=2024"
+  },
+  {
+   "file": "raw-003.bin",
+   "sha256": "587def4d1813111b1eb609b06793b469a307d673908b727c9fcbeee9479fc0f0",
+   "url": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.JPN/?startperiod=2024&endPeriod=2024"
+  },
+  {
+   "file": "raw-004.bin",
+   "sha256": "e6d37697ee899ad80906fbcf8190e65c6422388fa820bc8fac47b7156db75fd9",
+   "url": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.BRA/?startperiod=2024&endPeriod=2024"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T18:04:03Z",
+ "rowCount": 3,
+ "scope": "Canada, Japan, Brazil; NY.GDP.MKTP.CD; calendar year 2024; current US dollars",
+ "sha256": "ee998b9bcb10ebf66f23b6d95fe5aac9b1b2f4d20a4ff389f682a63c288f1f44",
+ "sourceIds": [
+  "SRC-090"
+ ],
+ "sourceRows": 3,
+ "sourceUrl": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/"
+}

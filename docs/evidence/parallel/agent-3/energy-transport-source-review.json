@@ -1,0 +1,37 @@
+[
+  {
+    "source": "JODI Oil",
+    "url": "https://www.jodidata.org/oil/database/data-downloads.aspx",
+    "bytes": 32660,
+    "sha256": "f2c0d26e9550c618b7daffb0d70ba3b2cb6b838b3dd77c5669d1ee700eddff78",
+    "result": "Accessible public annual CSV links and copyright notice; no redistribution licence established."
+  },
+  {
+    "source": "PortWatch",
+    "url": "https://portwatch.imf.org/",
+    "bytes": 218875,
+    "sha256": "b89c63632b0e6cc77c06db7855b4002335b765edb31754c870b07e2bf0735fa4",
+    "result": "Official site links IMF Copyright & Usage terms."
+  },
+  {
+    "source": "IMF terms",
+    "url": "https://www.imf.org/external/terms.htm",
+    "bytes": 392,
+    "sha256": "0ea652968bee21d392164f66298e93981c00fb4a47592697cbbc44b584d42ce2",
+    "result": "HTTP 200 returned an empty HTML body; no usable usage terms retrieved."
+  },
+  {
+    "source": "Ember yearly",
+    "url": "https://ember-energy.org/data/yearly-electricity-data/",
+    "result": "HTTP 403; no download/schema/licence evidence from this public endpoint."
+  },
+  {
+    "source": "Ember API",
+    "result": "Existing catalogue audit deferred login/account/API key. Deferred by user instruction."
+  },
+  {
+    "source": "OpenFlights",
+    "url": "https://openflights.org/data.html",
+    "result": "Existing audit HTTP 404; canonical /data.php is documented by official repository README and source data.php. Public /data.php returned HTTP 403; official repository evidence used."
+  }
+]

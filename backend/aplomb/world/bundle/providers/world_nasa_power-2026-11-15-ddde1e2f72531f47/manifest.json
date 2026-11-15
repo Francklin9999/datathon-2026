@@ -1,0 +1,58 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_nasa_power-2026-11-15-ddde1e2f72531f47",
+ "datasetId": "world_nasa_power",
+ "frequency": "fixed October 2026 daily period; manually captured",
+ "historicalReplay": false,
+ "licence": "NASA United States Government data; source attribution NASA POWER",
+ "licenceUrl": "https://power.larc.nasa.gov/docs/services/api/",
+ "limitations": [
+  "Six requested grid points only; not worldwide spatial coverage or station measurements.",
+  "Daily API dates use local solar time; rendered midnight UTC is a date anchor, not an exact measurement time.",
+  "Temperature comes from the source model; no historical publication vintage is known."
+ ],
+ "name": "NASA POWER daily gridded temperature sample",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "9fc9ea51d1ddc057d8168282783f655767eaf8c6d8cfd9ba7f3cd6d58ea0338c",
+   "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=51.5074&longitude=-0.1278&start=20261001&end=20261031&format=JSON"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "394e4ca457cce474f557033ff1de6c308cf178d29e433cc6d6e9b612a7d4255d",
+   "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-26.2041&longitude=28.0473&start=20261001&end=20261031&format=JSON"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "0b6cfa823ca2238ad730eab390724dd1829fef587f45b652bb33ea0ff14d23fb",
+   "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=35.6762&longitude=139.6503&start=20261001&end=20261031&format=JSON"
+  },
+  {
+   "file": "raw-003.bin",
+   "sha256": "952ccbba36574fc75fd3a4acc3152accd150f9c1db5ce047ba259752db85b20d",
+   "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-33.8688&longitude=151.2093&start=20261001&end=20261031&format=JSON"
+  },
+  {
+   "file": "raw-004.bin",
+   "sha256": "f48eb190c241c5becf71d7ae53c9bc5354fd17e1b110f35938e7502daa80d0ce",
+   "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=25.2048&longitude=55.2708&start=20261001&end=20261031&format=JSON"
+  },
+  {
+   "file": "raw-005.bin",
+   "sha256": "9a2e292c7d30dc0892342ce57e07a8cf2944ce2cd597fd935dc4a06d969d6de3",
+   "url": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&latitude=-23.5505&longitude=-46.6333&start=20261001&end=20261031&format=JSON"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:02:04Z",
+ "rowCount": 186,
+ "scope": "October 2026 daily gridded 2 m temperatures at six requested world locations; not global coverage.",
+ "sha256": "ddde1e2f72531f47f5bc352ecff6db44b86a6a3843a96cdaee83a6773f8b3522",
+ "sourceIds": [
+  "SRC-185"
+ ],
+ "sourceRows": 186,
+ "sourceUrl": "https://power.larc.nasa.gov/api/temporal/daily/point"
+}

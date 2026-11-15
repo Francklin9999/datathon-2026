@@ -12,6 +12,7 @@ import base64
 import hashlib
 import json
 from datetime import date, datetime, timedelta, timezone
+from functools import cached_property
 from typing import Callable
 
 from aplomb.api.errors import NotFound, ServiceError, unavailable
@@ -24,6 +25,8 @@ from .country_macro import INDICATORS
 from .dataset import WorldDataError, WorldDataset
 from .facilities import filter_facilities, load_facilities
 from .geo import UNKNOWN_COUNTRY, country_name, in_bbox
+from .geo_boundaries import geometry_intersects_bbox
+from .relationships import event_geography
 
 DEFAULT_FEED_DAYS = 30
 MAX_RANGE_DAYS = 366
@@ -50,6 +53,30 @@ LINK_ORDER = ("named_in_source", "theme", "listing_country")
 # Manifest source record of an event, by the publisher of its primary source.
 SOURCE_BY_PUBLISHER = {"U.S. Geological Survey": "usgs_earthquakes", "Bank of Canada": "boc_press",
                        "Federal Reserve Board": "fed_monetary", "Statistics Canada": "statcan_daily", "NASA EONET": "nasa_eonet"}
+OBSERVATION_MODES = ("news", "macro", "trade", "energy", "hazards", "conflicts",
+                     "aviation", "environment", "infrastructure")
+EVENT_MODES = {
+    "monetary_policy": "macro", "macro_release": "macro", "geopolitical": "conflicts",
+    "trade_regulation": "trade", "energy_commodities": "energy", "natural_disaster": "hazards",
+    "corporate": "news", "markets": "news", "other": "news",
+}
+PROVIDER_MODES = {
+    "world_wikimedia_topic_pageviews": "news",
+    "world_wikipedia_recent_changes": "news",
+    "world_fda_drug_enforcement_counts": "news", "world_crossref_climate_bibliography": "news",
+    "world_ted_published_notice_metadata": "trade",
+    "world_climate_trace_canada_electricity_co2": "environment",
+    "world_ecb_press": "macro", "world_uk_sanctions_updates": "conflicts",
+    "world_geoboundaries_fra_adm1": "infrastructure", "world_ucdp_ged_ukraine_2025": "conflicts",
+    "world_nasa_cmr_modis_granules": "environment",
+    "world_nasa_gibs_modis_tile": "environment",
+    "world_osm_eiffel_tower": "infrastructure",
+    "world_nominatim_eiffel_lookup": "infrastructure",
+    "world_global_carbon_budget_2026": "environment",
+    "world_copernicus_activation_centroids": "hazards",
+    "world_firms_modis_europe": "hazards",
+    "world_geofabrik_monaco_transport": "infrastructure",
+}
 
 
 def _t(en: str, fr: str) -> dict:
@@ -78,6 +105,16 @@ class WorldServiceImpl:
 
     def _now(self) -> str:
         return self.clock().astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    @staticmethod
+    def _capture_visible(ds: WorldDataset, query: dict) -> bool:
+        """The packaged bundle has no archived vintages before its build.
+
+        An old occurrence date is not evidence that this captured row was known
+        on that date. Explicit historical queries must respect the capture date.
+        """
+        as_of = query.get("asOf")
+        return as_of is None or as_of >= ds.built_at[:10]
 
     def _universe(self):
         snap = self.snapshot()
@@ -129,6 +166,148 @@ class WorldServiceImpl:
         record = next((s for s in ds.manifest["sources"] if s["id"] == wanted), {})
         return {"builtAt": ds.built_at, "retrievedAt": record.get("retrievedAt", ds.built_at),
                 "licence": record.get("terms", "unknown"), "sourceName": record.get("name", event["sources"][0]["publisher"])}
+
+    @cached_property
+    def _provider_capture(self) -> tuple[tuple[dict, ...], tuple[dict, ...]]:
+        from .providers import load_provider_snapshots
+
+        return load_provider_snapshots()
+
+    def observations(self, session_id: str, query: dict) -> a.WorldObservationsResponse:
+        """Bounded, source-backed world observations for mode and viewport exploration.
+
+        Static airport and facility references stay on their own endpoints: they
+        have no valid observation timestamp. Optional provider corruption only
+        disables those providers; it does not break the core event feed.
+        """
+        ds = self.dataset()
+        try:
+            provider_rows, provider_meta = self._provider_capture
+            provider_error = None
+        except (ValueError, OSError, KeyError, TypeError):
+            provider_rows, provider_meta = (), ()
+            provider_error = "Provider capture failed integrity validation."
+
+        mode = query.get("mode")
+        if mode is not None and mode not in OBSERVATION_MODES:
+            raise _invalid("mode must be a supported world observation mode", "mode")
+        bbox = tuple(float(v) for v in query["bbox"].split(",")) if query.get("bbox") else None
+        countries = set(query.get("country") or [])
+        needle = (query.get("q") or "").strip().casefold()
+        if len(needle) > 200:
+            raise _invalid("search must contain at most 200 characters", "q")
+        start, end = query.get("from"), query.get("to")
+        as_of = query.get("asOf")
+        rows: list[dict] = []
+        provider_countries: dict[str, str] = {}
+        if self._capture_visible(ds, query):
+            for event in ds.events:
+                source = event["sources"][0]
+                provenance = self.provenance(event)
+                rows.append({
+                    "id": event["eventId"], "mode": EVENT_MODES[event["category"]],
+                    "title": event["title"], "summary": "Source event; financial effect is not established.",
+                    "occurredAt": event["occurredAt"] + "T00:00:00Z",
+                    "timeBasis": "event_date",
+                    "publishedAt": event["publishedAt"], "retrievedAt": provenance["retrievedAt"],
+                    "location": dict(event["location"], geometry=None), "source": {
+                        "name": source["publisher"], "url": source["url"]},
+                    "countryIso3": event["location"].get("countryIso3"),
+                    "datasetId": event["datasetId"],
+                    "limitations": ["Occurrence time is known only to the calendar day in this event record.",
+                                    "Geographic overlap does not establish issuer exposure or financial effect."],
+                })
+        for item in provider_rows:
+            lat, lon = item.get("latitude"), item.get("longitude")
+            if as_of is not None and item["retrievedAt"][:10] > as_of:
+                continue
+            category = item["category"]
+            item_mode = PROVIDER_MODES.get(item["sourceId"], category if category in OBSERVATION_MODES else "news")
+            props = item.get("properties") or {}
+            manifest = next((m for m in provider_meta if m.get("datasetId") == item["sourceId"]), {})
+            attribution = manifest.get("attribution") or props.get("attribution")
+            reference_month = (props.get("period") if item["sourceId"] == "world_climate_trace_canada_electricity_co2"
+                               and props.get("periodResolution") == "month" else None)
+            role = props.get("geographicRole")
+            precision = "polygon_anchor" if role == "alert_polygon_representative_anchor" else "point"
+            observed = item.get("observedAt") or item.get("publishedAt") or item["retrievedAt"]
+            if reference_month:
+                observed = reference_month + "-01"
+            published = item.get("publishedAt")
+            if item.get("countryIso3"):
+                provider_countries[item["id"]] = item["countryIso3"]
+            rows.append({
+                "id": item["id"], "mode": item_mode, "title": item["title"],
+                "summary": _observation_summary(item),
+                "occurredAt": _utc_stamp(observed), "publishedAt": _utc_stamp(published) if published else None,
+                "timeBasis": ("reference_period" if reference_month else
+                             (("event_date" if item["sourceId"] == "world_ucdp_ged_ukraine_2025"
+                              else "reference_period" if props.get("temporalPrecision") else "source_observation")
+                             if item.get("observedAt") else
+                             ("event_date" if published else "capture_only"))),
+                "retrievedAt": _utc_stamp(item["retrievedAt"]),
+                "location": ({"lat": lat, "lon": lon, "countryIso3": item.get("countryIso3"),
+                              "precision": precision, "geometry": props.get("geometry")}
+                             if lat is not None and lon is not None else None),
+                "countryIso3": item.get("countryIso3"),
+                "geometry": props.get("geometry"),
+                "source": {"name": manifest.get("name", item["sourceId"]),
+                           "url": item["sourceUrl"]},
+                "datasetId": item["sourceId"],
+                "limitations": ([attribution] if isinstance(attribution, str) else [])
+                               + ["Current captured source record; no verified historical vintage.",
+                                "A point or displayed polygon anchor does not establish issuer exposure or financial effect."]
+                               + manifest.get("limitations", []),
+            })
+
+        counts = {key: 0 for key in OBSERVATION_MODES}
+        for row in rows:
+            counts[row["mode"]] += 1
+        statuses = [{"mode": key, "available": counts[key] > 0, "count": counts[key],
+                     "reason": None if counts[key] else (provider_error or "No geolocated authorized capture is loaded.")}
+                    for key in OBSERVATION_MODES]
+        if mode:
+            rows = [r for r in rows if r["mode"] == mode]
+        if countries:
+            rows = [r for r in rows if (r["location"]["countryIso3"] if r["location"]
+                                        else provider_countries.get(r["id"])) in countries]
+        if bbox:
+            rows = [r for r in rows if (
+                geometry_intersects_bbox(r.get("geometry"), bbox)
+                if r["datasetId"] in {"world_geoboundaries_fra_adm1", "world_nasa_cmr_modis_granules",
+                                      "world_osm_eiffel_tower", "world_nasa_gibs_modis_tile"}
+                else r["location"] and in_bbox(r["location"]["lat"], r["location"]["lon"], bbox)
+            )]
+        if start:
+            rows = [r for r in rows if r["occurredAt"][:10] >= start]
+        if end:
+            rows = [r for r in rows if r["occurredAt"][:10] <= end]
+        if needle:
+            rows = [r for r in rows if needle in r["title"].casefold() or needle in r["source"]["name"].casefold()]
+        rows.sort(key=lambda r: (r["occurredAt"], r["id"]), reverse=True)
+        version_parts = [ds.version] + [m["dataVersion"] for m in provider_meta]
+        version = hashlib.sha256("|".join(sorted(version_parts)).encode()).hexdigest()[:16]
+        signature = hashlib.sha256(json.dumps(
+            {"version": version, "mode": mode, "bbox": bbox, "country": sorted(countries),
+             "q": needle, "from": start, "to": end, "asOf": as_of}, sort_keys=True).encode()).hexdigest()[:16]
+        offset = 0
+        if query.get("cursor"):
+            try:
+                token = json.loads(base64.urlsafe_b64decode(query["cursor"].encode()))
+                if token["key"] != signature or type(token["offset"]) is not int or token["offset"] < 0:
+                    raise ValueError
+                offset = token["offset"]
+            except Exception as exc:
+                raise _invalid("cursor is invalid for this query", "cursor") from exc
+        limit = int(query.get("limit", 250))
+        page = rows[offset:offset + limit]
+        next_cursor = (base64.urlsafe_b64encode(json.dumps({"key": signature, "offset": offset + limit}).encode()).decode()
+                       if offset + limit < len(rows) else None)
+        return a.WorldObservationsResponse.model_validate({
+            "items": page, "total": len(rows), "nextCursor": next_cursor,
+            "dataVersion": version, "capturedAt": max([ds.built_at] + [m["retrievedAt"] for m in provider_meta]),
+            "modes": statuses,
+        })
 
     # 6.1 layers -------------------------------------------------------------------------------
 
@@ -237,11 +416,11 @@ class WorldServiceImpl:
         ds = self.dataset()
         start, end = self._range(ds, query, DEFAULT_FEED_DAYS)
         sort = query.get("sort", "importance")
-        matches = self._sorted(self._filter(ds, query, start, end), sort)
+        matches = self._sorted(self._filter(ds, query, start, end), sort) if self._capture_visible(ds, query) else []
         limit = int(query.get("limit", 300))
         # The cursor is bound to the filter set, so a cursor cannot be replayed on another query.
         signature = hashlib.sha256(json.dumps(
-            {k: query.get(k) for k in ("category", "country", "origin", "q", "ticker", "theme", "bbox")}
+            {k: query.get(k) for k in ("category", "country", "origin", "q", "ticker", "theme", "bbox", "asOf")}
             | {"from": start, "to": end, "sort": sort, "v": ds.version}, sort_keys=True).encode()).hexdigest()[:16]
         offset = 0
         if query.get("cursor"):
@@ -306,6 +485,8 @@ class WorldServiceImpl:
 
     def event(self, session_id: str, event_id: str, query: dict) -> a.WorldEventResponse:
         ds = self.dataset()
+        if not self._capture_visible(ds, query):
+            raise NotFound(f"Event {event_id} is unavailable at the requested historical date")
         event = ds.event(event_id)
         if event is None:
             raise NotFound(f"Unknown event {event_id}")
@@ -319,8 +500,21 @@ class WorldServiceImpl:
         exposures = []
         if query.get("profileId"):
             exposures = self.link_candidates(event, self._holdings(session_id, query["profileId"]))
+        relation = event_geography(event, self.provenance(event))
+        geographic_relationships = []
+        if relation is not None:
+            geographic_relationships.append({
+                "relationshipId": relation.relationship_id, "relation": relation.relation,
+                "subjectId": relation.subject_id, "objectId": relation.object_id,
+                "evidenceClass": relation.evidence_class, "sourceId": relation.evidence.source_id,
+                "sourceUrl": relation.evidence.url,
+                "normalizedRecordSha256": relation.evidence.content_sha256,
+                "retrievedAt": relation.evidence.retrieved_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "limitations": list(relation.evidence.limitations),
+            })
         return a.WorldEventResponse.model_validate({
-            "event": self._wire_event(event), "related": [self._wire_event(e) for e in related], "exposures": exposures})
+            "event": self._wire_event(event), "related": [self._wire_event(e) for e in related],
+            "exposures": exposures, "geographicRelationships": geographic_relationships})
 
     # 6.4 exposure -----------------------------------------------------------------------------
 
@@ -434,7 +628,8 @@ class WorldServiceImpl:
         if query.get("profileId"):
             exposure = next((item for item in self._exposures(session_id, query["profileId"])[0]
                              if item["countryIso3"] == iso3), None)
-        events = [e for e in ds.events if start <= e["occurredAt"] <= end and iso3 in e["relatedCountries"]]
+        events = ([e for e in ds.events if start <= e["occurredAt"] <= end and iso3 in e["relatedCountries"]]
+                  if self._capture_visible(ds, query) else [])
         return a.WorldCountryResponse.model_validate({
             "countryIso3": iso3, "name": country_name(iso3), "exposure": exposure,
             "events": [self._wire_event(e) for e in self._sorted(events, "importance")[:20]],
@@ -460,6 +655,8 @@ class WorldServiceImpl:
         ds = self.dataset()
         if not ds.hazards:
             raise unavailable("Natural hazards dataset")
+        if not self._capture_visible(ds, query):
+            return a.HazardsResponse.model_validate({"items": [], "total": 0})
         kind = query.get("type")
         if kind is not None and kind not in ("earthquake", "wildfire"):
             raise _invalid("type must be earthquake or wildfire", "type")
@@ -475,9 +672,12 @@ class WorldServiceImpl:
     # Research tool (contracts/tools.md §5: world.search_events) --------------------------------
 
     def search_events(self, q: str | None = None, country: str | None = None, ticker: str | None = None,
-                      start: str | None = None, end: str | None = None, limit: int = 20, as_of: str | None = None) -> list[dict]:
+                      start: str | None = None, end: str | None = None, limit: int = 20, as_of: str | None = None,
+                      historical: bool = False) -> list[dict]:
         """Events from our own dataset; nothing after ``as_of`` is returned."""
         ds = self.dataset()
+        if historical and not self._capture_visible(ds, {"asOf": as_of}):
+            return []
         query = {"q": q, "country": [country] if country else None, "ticker": ticker}
         hi = min(x for x in (end, as_of, ds.coverage["end"]) if x)
         lo = start or ds.coverage["start"]
@@ -486,3 +686,196 @@ class WorldServiceImpl:
 
 def _neg_date(iso: str) -> int:
     return -date.fromisoformat(iso).toordinal()
+
+
+def _utc_stamp(value: str) -> str:
+    if len(value) == 10:
+        value += "T00:00:00Z"
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError("Source timestamp has no timezone")
+    return parsed.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _observation_summary(row: dict) -> str:
+    """Short code-owned description of recorded fields, never an AI summary."""
+    props = row.get("properties") or {}
+    if row["sourceId"] == "world_ember_monthly_generation_2026":
+        return (f"Ember {props['referenceMonth']} {props['electricitySource']}: "
+                f"{props['generationTWh']:g} TWh. Country electricity generation is "
+                "a monthly aggregate, not current plant output or issuer exposure. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_geofabrik_monaco_transport":
+        return (f"Geofabrik Monaco extract OpenStreetMap {props['featureClass']} "
+                f"point {props['osmId']}. The extract can include neighboring France; "
+                "the point does not establish an operating company or current service. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_copernicus_activation_centroids":
+        return (f"Copernicus EMS activation {props['activationCode']}: {props['event']}. "
+                "The point is the source activation-area centroid, not the disaster epicenter "
+                "or damage boundary. Products and imagery are not loaded.")
+    if row["sourceId"] == "world_firms_modis_europe":
+        return (f"NASA FIRMS {props['satellite']} MODIS thermal anomaly: "
+                f"{props['fireRadiativePowerMw']:g} MW radiative power. "
+                "The point is a satellite pixel center, not a confirmed wildfire, "
+                "fire perimeter or loss estimate.")
+    if row["sourceId"] == "world_nyfed_sce_inflation_2024":
+        return (f"{props['seriesTitle']}, United States, {props['referenceMonth']}: "
+                f"{props['value']:g} {props['unit']}. Household survey expectation, "
+                "not measured CPI inflation. Date is a monthly display anchor. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_adsblol_heathrow_positions":
+        return (f"ADS-B.lol captured aircraft report {props['sourceHex']}; "
+                f"source position type {props.get('positionType') or 'unspecified'}, "
+                f"position age {props['positionAgeSeconds']:g} seconds at the source snapshot. "
+                "One Heathrow-area snapshot; no continuous tracking, verified operator "
+                f"or issuer relationship. {props['attribution']}")
+    if row["sourceId"] == "trade_marinecadastre_ais_2024_samples":
+        return (f"NOAA MarineCadastre {props['referenceYear']} annual AIS raster sample: "
+                f"{props['vesselTransitCount']:,} grid-cell transits. "
+                "This point is a selected raster query anchor, not a vessel position "
+                "or port boundary. Annual counts do not measure current traffic, "
+                f"distinct vessels or cargo volume. {props['attribution']}")
+    if row["sourceId"] == "world_osm_eiffel_tower":
+        return (f"OpenStreetMap way {props['osmId']} mapped Eiffel Tower footprint. "
+                "A map feature does not establish its operator or any issuer relationship. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_nominatim_eiffel_lookup":
+        return (f"One permanently cached Nominatim lookup for {props['displayName']}. "
+                "The source point is a geocoder result, not an event location or ownership assertion. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_nasa_gibs_modis_tile":
+        return (f"NASA Terra MODIS true-color overview tile dated {props['imageDay']}. "
+                "Its polygon is the tile footprint, not guaranteed observed or cloud-free coverage. "
+                "A full satellite raster overlay is not implemented. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_bank_sdmx_gdp_2024":
+        return (f"World Bank WDI SDMX {props['referenceYear']} GDP: "
+                f"{props['value']:,.2f} {props['unit']}. "
+                "Annual nominal national level; not real growth, an issuer metric or a live market signal. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_energy_charts_de_power":
+        return (f"Fraunhofer Energy-Charts Germany {props['productionType']}: "
+                f"{props['value']:,.1f} {props['unit']} at a 15-minute source interval. "
+                "National power is not energy production in MWh or a specific plant's output. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_global_carbon_budget_2026":
+        return (f"Global Carbon Budget 2026 {props['referenceYear']} "
+                f"{props['component']}: {props['value']:g} {props['unit']}. "
+                "Revised global carbon estimate; no country, facility or issuer attribution. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_openflights_airport_reference":
+        return (f"OpenFlights static airport reference {props['iata']} in "
+                f"{props['sourceCity']}, {props['sourceCountry']}. "
+                "Source reference coordinates; no aircraft movement, current operational status "
+                f"or issuer relationship is established. {props['attribution']}")
+    if row["sourceId"] == "world_nasa_cmr_modis_granules":
+        return (f"NASA MODIS Terra {props['producerGranuleId']} metadata; "
+                f"product coverage {props['observationPeriodStart']} to {props['observationPeriodEnd']}. "
+                "Polygon shows granule coverage, not a fire detection. No imagery or scientific pixels loaded. "
+                "First five granules intersecting a European search region; capture availability applies. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_wikimedia_topic_pageviews":
+        return (f"Wikimedia English Wikipedia {props['article']} article: {props['views']:,} "
+                f"user-classified pageviews on {props['referenceDate']} across all access types. "
+                "Topic attention count; does not identify reader location, unique people, sentiment "
+                f"or a confirmed event. {props['attribution']}")
+    if row["sourceId"] == "world_ted_published_notice_metadata":
+        return (f"TED published procurement notice {props['publicationNumber']}; "
+                f"source publication date {props['publicationDate']} (day precision); "
+                f"reported buyer countries: {', '.join(props['buyerCountries'])}. "
+                "Five-notice first-page sample; buyer country is not contract performance geography. "
+                "Publication does not establish an award or realized spending. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_fda_drug_enforcement_counts":
+        return (f"FDA {props['classification']}: {props['recordCount']:,} matching drug enforcement records "
+                f"with report dates {props['queryPeriodStart']} to {props['queryPeriodEnd']}; "
+                f"source last updated {props['sourceLastUpdated']}. "
+                "Counts are not unique recalls or current recall alerts. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_crossref_climate_bibliography":
+        publication_date = "-".join(str(part).zfill(2) for part in props["publicationDateParts"])
+        return (f"Crossref bibliographic metadata: {props['workType']}; DOI {props['doi']}; "
+                f"deposited publication date {publication_date} ({props['publicationDateResolution']} precision). "
+                "Five-record title-query sample; relevance does not establish scientific validity or geography.")
+    if row["sourceId"] == "world_climate_trace_canada_electricity_co2":
+        return (f"Climate TRACE modeled Canada electricity-generation CO2 in {props['period']}: "
+                f"{props['emissionsQuantity']:,.0f} {props['unit']} (release {props['dataRelease']}). "
+                "National estimate; may be revised. First-of-month midnight UTC is a display anchor "
+                "for the monthly reference period, not a measurement or publication time.")
+    if row["sourceId"] == "world_geoboundaries_fra_adm1":
+        return (f"geoBoundaries simplified {props['representedYear']} France ADM1 administrative boundary. "
+                "Metropolitan France sample; source polygon has no point coordinates.")
+    if row["sourceId"] == "world_ucdp_ged_ukraine_2025":
+        return (f"UCDP GED 26.1 Ukraine event {props['eventId']}, possible dates "
+                f"{props['dateStart']} to {props['dateEnd']}. Estimated fatalities: "
+                f"{props['fatalitiesBest']} best, {props['fatalitiesLow']}–{props['fatalitiesHigh']} range. "
+                f"Source location precision code {props['locationPrecision']}; "
+                f"date precision code {props['datePrecision']}. "
+                "Midnight UTC represents the earliest possible date, not an exact event time.")
+    if row["sourceId"] == "world_ecb_press":
+        return "ECB press release metadata from the current RSS feed."
+    if row["sourceId"] == "world_wikipedia_recent_changes":
+        return (f"English Wikipedia {props['changeType']} to article {props['articleTitle']}; "
+                f"revision {props['revisionId']}; {props['oldBytes']:,} to {props['newBytes']:,} bytes. "
+                "Edit activity does not confirm a real-world event or establish geography or issuer relevance. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_uk_sanctions_updates":
+        return "UK Sanctions List publication update note. Consult the current official list and applicable law."
+    if row["sourceId"] == "world_usgs_minerals":
+        return (f"USGS estimated {props['commodity']} mine production in {props['country']} for "
+                f"{props['referenceYear']}: {props['value']:g} {props['unit']}. Country total, not a mine location.")
+    if row["sourceId"] == "world_usgs_geojson":
+        return (f"USGS reported magnitude {props['magnitude']:g} earthquake epicenter. "
+                "Affected area, damage and issuer exposure are not established.")
+    if row["sourceId"] == "world_ilo_unemployment_2024":
+        return (f"ILOSTAT {props['referenceYear']} unemployment rate for {props['sourceCountry']}: "
+                f"{props['unemploymentRate']:g}% of the labor force, total sex, ages 15 and over. "
+                f"Source survey code {props['sourceSurveyCode']}. Annual national statistic; "
+                f"not a current labor-market signal. {props['attribution']}")
+    if row["sourceId"] == "world_bls_us_cpi_2024":
+        return (f"U.S. CPI-U all-items city average in {props['referenceMonth']}: {props['index']:g} "
+                f"({props['unit']}), not seasonally adjusted. This is an index, not an inflation rate. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_statcan_cpi":
+        return (f"Canada all-items CPI in {props['referenceMonth']}: {props['index']:g} "
+                f"({props['unit']}), not seasonally adjusted. {props['attribution']}")
+    if row["sourceId"] == "world_wgi_political_stability_2024":
+        return (f"World Bank WGI 2024 political stability governance score for {props['sourceCountry']}: "
+                f"{props['score']:.1f} / 100. Composite estimate for an annual reference period, "
+                f"not a current event or financial risk measure. {props['attribution']}")
+    if row["sourceId"] == "world_gdelt_event_metadata":
+        return (f"GDELT machine-coded Event {props['globalEventId']} lists an action location at "
+                f"{props['sourceLocationName']}. The location and event coding are unverified; "
+                "the linked publisher content was not fetched or confirmed.")
+    if row["sourceId"] in {"world_gdelt_gkg_locations", "world_gdelt_geographic_mentions"}:
+        return (f"GDELT machine-extracted article location mention: {props['sourceLocationName']}. "
+                "A mention is not an event location or verified article claim; publisher content was not fetched.")
+    if row["sourceId"] == "trade_un_comtrade_exports":
+        return (f"Source: UN Comtrade. {props['referenceYear']} merchandise exports from {props['reporterName']} "
+                f"to the world: US${props['valueUsd']:,.0f}. Country total; conditional reuse applies.")
+    if row["sourceId"] == "trade_wits_fuel_exports":
+        return (f"WITS, Source: UN Comtrade. {props['referenceYear']} fuel exports from Canada to the world: "
+                f"US${props['valueUsdThousands']:,.0f} thousand. Country total; conditional reuse applies.")
+    if row["sourceId"] == "trade_unctad_concentration":
+        return (f"United Nations Trade and Development Data Hub (UNCTAD), adapted by Aplomb: "
+                f"{props['referenceYear']} global export market concentration for "
+                f"{props['productLabel']}: {props['concentrationIndex']:.6f}. "
+                "Normalized index, not trade value or port activity.")
+    if row["category"] == "aviation":
+        return f"Airport weather observation at {props.get('stationId', 'station')}: {props.get('metar', 'report unavailable')}."
+    if row["category"] == "energy":
+        fuel = props.get("primaryFuel")
+        capacity = props.get("capacityMw")
+        return f"Power plant reference: {capacity} MW of {fuel} generation capacity." if fuel and capacity is not None else "Power plant reference."
+    if row["category"] == "trade":
+        return "Port location reference. Port activity and issuer exposure are not established."
+    if row["category"] == "hazards":
+        return f"Official alert: {props.get('event', 'hazard')}; severity {props.get('severity', 'not stated')}."
+    if row["sourceId"] == "world_nasa_power":
+        return (f"NASA POWER gridded daily 2 m temperature: {props['temperatureC']} °C "
+                f"for {props['date']} in local solar time. This is a modeled grid value, not a station measurement.")
+    if row["sourceId"] == "world_epa_sems_sites":
+        return (f"EPA SEMS site reference in {props['state']}. Source NPL status: "
+                f"{props.get('sourceNplStatus') or 'not stated'}. No emissions or company relationship is established.")
+    return "Source record. Open the original source for details and publication context."

@@ -1,0 +1,45 @@
+{
+ "attribution": "Source: The GDELT Project; filtered metadata adapted by Aplomb.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_gdelt_event_metadata-2026-11-15-5ee806000fe9d6e7",
+ "datasetId": "world_gdelt_event_metadata",
+ "frequency": "One manually captured 15-minute update",
+ "historicalReplay": false,
+ "licence": "GDELT released datasets: unlimited unrestricted academic, commercial and governmental use without fee; publisher content separate",
+ "licenceUrl": "https://www.gdeltproject.org/about.html",
+ "limitations": [
+  "Bounded single-update sample; no continuous monitoring, complete world coverage or historical replay.",
+  "Machine extraction can be wrong; these are reported event codes or article location mentions, not independently verified events.",
+  "Only source city/landmark coordinates are mapped; no country/state centroid is treated as an event point.",
+  "GDELT country codes are FIPS10-4, not ISO; no unverified country or issuer crosswalk is inferred.",
+  "No publisher text, images, contextual snippets, personal-name matching or financial impact is presented.",
+  "The source DATEADDED is indexing time, not article publication time; first proven application availability is retrieval."
+ ],
+ "name": "GDELT 2.0 machine-coded Event metadata",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "81a652772434b66de6557b0f467a5b6e7854988e760e345a462ca8284bba2344",
+   "url": "https://data.gdeltproject.org/gdeltv2/lastupdate.txt"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "81342daad13e87069f1bd572f1ac9acf4d6c0e40c0e9c68a0db32e8c96bc594e",
+   "url": "https://data.gdeltproject.org/gdeltv2/20261115174500.export.CSV.zip"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:46:07Z",
+ "rowCount": 250,
+ "scope": "One 15-minute 20261115174500 GDELT update; first 250 valid city/landmark records. Action locations only.",
+ "sha256": "5ee806000fe9d6e79dfd945df50750c744d272368284b3b2831ea247102fe018",
+ "skipped": 379,
+ "sourceIds": [
+  "SRC-116",
+  "MASTER-043"
+ ],
+ "sourceRows": 1021,
+ "sourceUrl": "https://data.gdeltproject.org/gdeltv2/20261115174500.export.CSV.zip",
+ "truncated": 392
+}

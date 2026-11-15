@@ -1,0 +1,48 @@
+[
+ {
+  "availableAt": "2026-11-15T18:09:33.352Z",
+  "category": "trade",
+  "countryIso3": "USA",
+  "id": "trade_marinecadastre_ais_2024_samples:la_harbor",
+  "latitude": 33.7,
+  "longitude": -118.25,
+  "observedAt": null,
+  "properties": {
+   "attribution": "NOAA Office for Coastal Management, BOEM and U.S. Coast Guard, MarineCadastre AIS Vessel Transit Counts 2024. Repository content CC0 1.0. Adapted by Aplomb: three fixed raster queries; sample locations are query anchors and do not identify vessel positions or named facilities.",
+   "geographicRole": "raster_query_point",
+   "locationIsVesselPosition": false,
+   "referencePeriod": "2024-01-01/2024-12-31",
+   "referenceYear": 2024,
+   "unit": "annual raster cell transits",
+   "vesselTransitCount": 8
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:09:33.352Z",
+  "sourceId": "trade_marinecadastre_ais_2024_samples",
+  "sourceUrl": "https://coast.noaa.gov/arcgis/rest/services/MarineCadastre/AISVesselTransitCounts2024/MapServer/identify?f=json&geometry=-118.25%2C33.7&geometryType=esriGeometryPoint&sr=4326&layers=all%3A0&tolerance=0&mapExtent=-118.45%2C33.550000000000004%2C-118.05%2C33.85&imageDisplay=1000%2C1000%2C96&returnGeometry=true",
+  "title": "NOAA AIS 2024 raster sample · la_harbor · 8 transits"
+ },
+ {
+  "availableAt": "2026-11-15T18:09:33.352Z",
+  "category": "trade",
+  "countryIso3": "USA",
+  "id": "trade_marinecadastre_ais_2024_samples:ny_harbor",
+  "latitude": 40.65,
+  "longitude": -74.035,
+  "observedAt": null,
+  "properties": {
+   "attribution": "NOAA Office for Coastal Management, BOEM and U.S. Coast Guard, MarineCadastre AIS Vessel Transit Counts 2024. Repository content CC0 1.0. Adapted by Aplomb: three fixed raster queries; sample locations are query anchors and do not identify vessel positions or named facilities.",
+   "geographicRole": "raster_query_point",
+   "locationIsVesselPosition": false,
+   "referencePeriod": "2024-01-01/2024-12-31",
+   "referenceYear": 2024,
+   "unit": "annual raster cell transits",
+   "vesselTransitCount": 9
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:09:33.352Z",
+  "sourceId": "trade_marinecadastre_ais_2024_samples",
+  "sourceUrl": "https://coast.noaa.gov/arcgis/rest/services/MarineCadastre/AISVesselTransitCounts2024/MapServer/identify?f=json&geometry=-74.035%2C40.65&geometryType=esriGeometryPoint&sr=4326&layers=all%3A0&tolerance=0&mapExtent=-74.235%2C40.5%2C-73.835%2C40.8&imageDisplay=1000%2C1000%2C96&returnGeometry=true",
+  "title": "NOAA AIS 2024 raster sample · ny_harbor · 9 transits"
+ }
+]

@@ -45,6 +45,7 @@ export interface WorldEventsQuery {
 export interface WorldCountryQuery { profileId?: string; from?: string; to?: string }
 export interface WorldFacilitiesQuery { bbox?: string; country?: readonly string[]; ticker?: string; minEmissions?: number; limit?: number }
 export interface WorldHazardsQuery { from?: string; to?: string; type?: 'earthquake' | 'wildfire'; bbox?: string; limit?: number }
+export interface WorldObservationsQuery { mode?: string; bbox?: string; country?: readonly string[]; q?: string; from?: string; to?: string; asOf?: string; limit?: number; cursor?: string }
 
 export interface ResponseMeta { requestId: string | null; dataVersion: string | null; status: number }
 
@@ -340,6 +341,8 @@ export function createApiClient(config: ClientConfig) {
       call('RevealResult', 'POST', `/runs/${enc(runId)}/reveal`, { body, signal }),
 
     worldLayers: (signal?: AbortSignal) => call('WorldLayersResponse', 'GET', '/world/layers', { signal }),
+    worldObservations: (query: WorldObservationsQuery = {}, signal?: AbortSignal) =>
+      call('WorldObservationsResponse', 'GET', '/world/observations', { query: { ...query }, signal }),
     worldEvents: (query: WorldEventsQuery, signal?: AbortSignal) =>
       call('WorldEventsResponse', 'GET', '/world/events', { query: { ...query }, signal }),
     worldEvent: (eventId: string, profileId?: string, signal?: AbortSignal) =>

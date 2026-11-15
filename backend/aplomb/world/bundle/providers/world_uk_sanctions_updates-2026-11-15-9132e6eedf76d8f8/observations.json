@@ -1,0 +1,1002 @@
+[
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:02c666db91b8319d735fd087",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-08-17T11:02:16Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 4 variations under the ISIL (Da'esh) and Al-Qaeda sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:035b61d3507044daeef80de8",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-09-11T14:00:17Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:07ed4cea3a1f95798ff3c047",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-16T10:59:21Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 11 new designations under the Sudan sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:14a4e018acc728fa1d5efe01",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-15T10:55:54Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:169f3e5a7008388e188f61a6",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-12T14:35:30Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 2 new designations under the Iran sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:1c88f807aa2f03fea5712ae6",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-07T09:29:00Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 delisting under the Iraq sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:2a6df45d9ba1d4ed51a5af1c",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-08T10:32:03Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 26 designations, 12 specifications and made 2 variations under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:2ec139968e565847184bb278",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-31T14:28:54Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 5 variations under the Afghanistan sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:32c90e43adbbc44581061295",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-09-03T10:45:10Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 amendment under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:33c7ea40cec95e5266c8c996",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-17T11:01:31Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 revocation (de-listing) under the Libya sanctions regime and added 8 new designations under the Democratic Republic of the Congo sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:3a14b0fb220c808794d61eb4",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-06-26T11:00:19Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 revocation (de-listing) under the Libya sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:3a1abda27845805e72377805",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-06-09T11:01:37Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 8 new designations under the Global Human Rights sanctions regime and made 5 variations under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:3c4eec87c66a945a75f6e1b4",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-08-27T10:16:37Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 2 variations under the Afghanistan sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:3c9fce034fb113a980fcf51f",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-06-24T15:07:36Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:4036e9fab101400c72696466",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-23T10:56:13Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 2 variations and 1 correction under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:45fbcbe024bd137bc5aa438e",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-09-09T14:06:05Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Global Human Rights sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:4b94b74fac163db27b55cefc",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-14T11:01:22Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:4cba8ce8de8558b3f66a3582",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-09-08T12:25:29Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 5 new designations under the Global Human Rights sanctions regime and 1 new designation under the Counter-Terrorism (International) sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:4d6936e7239f31d92293a236",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-11-12T13:38:54Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 11 new designations, 9 new specifications and made 1 variation under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:5211d9ad3b1a9ab4e1a37ef2",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-08-14T11:07:44Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 4 variations under the ISIL (Da'esh) and Al-Qaeda sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:5691cc7dce4c373151dc1f88",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-09-29T10:15:29Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the ISIL (Da'esh) & Al-Qaeda sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:5706ca9269a6b78cee03475a",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-24T09:20:05Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 1 new specification under the Libya sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:5f642523cb30e89d966f9e7c",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-08-06T07:59:43Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 13 new designations and 6 new specifications under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:787c1cf8fdcdd4b81775448e",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-09-21T12:53:15Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 revocation under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:84166cdb35603675b4eba57c",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-11-10T15:01:29Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 3 variations under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:863358be2becf6681916a52d",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-27T12:05:23Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 3 variations under the ISIL (Da'esh) & Al-Qaida sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:8e938df34274abf3dfb934a5",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-06T10:55:33Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 9 new designations under the Chemical Weapons sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:9b694f88458d5b82053ab8dc",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-09-02T11:09:46Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 4 amendments under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:9bf8eea4c6cfff6b57e905b5",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-13T08:18:40Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 14 new designations under the Cyber sanctions regime and 10 new designations under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:a2165750ee26b0f24ac4850c",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-16T09:30:50Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 3 variations under the ISIL (Da'esh) & Al-Qaida sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:a34799085025d65115ca7cce",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-11-12T15:42:17Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Democratic Republic of the Congo sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:a4a15ca021263ebd75a35c92",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-06-16T06:57:16Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 43 new designations and 27 new specifications under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:ab9ee621e6a9297f97497988",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-01T09:10:35Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 23 new designations and 8 new specifications under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:ad1e84cf012f49887ed6530d",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-09-10T14:00:29Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Russia sanctions regime, 1 correction under the ISIL (Da'esh) and Al Qaeda sanctions regime and 1 correction under the Global Human Rights sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:adc3f2516623894fb5effb40",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-13T14:50:51Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 1 new designation under the Iran sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:b203b276e294910268c015d1",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-29T11:46:21Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 correction under the ISIL (Da'esh) & Al-Qaida sanctions regime and 1 variation under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:baee0dd55735a336a1547d33",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-10T11:00:22Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Isil (Da'esh) and Al-Qaeda sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:c8095cc62237220f16799ef6",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-08T14:30:01Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 3 corrections under the Russia sanctions regime and 1 correction under the Libya Sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:c9c02dbecbf556f8e67c40cb",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-07T11:56:38Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 2 amendments and 1 revocation (de-listing) under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:d242a8fdd36771a46937bcbd",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-09-07T13:00:16Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made a variation under the ISIL (Da'esh) and Al-Qaeda sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:d2970054e179a0d22c2aeb68",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-07-15T15:01:05Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Global Anti-Corruption sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:d2cb0548b5f59ebafcfe01ee",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-06-04T13:32:02Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 revocation (de-listing) and 1 amendment under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:d4abeb1ee4705a8abe134c38",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-08-28T09:38:58Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 variation under the Afghanistan sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:d7df82c9cf6c635e064b4ad2",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-30T16:07:59Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 5 amendments under the Afghanistan sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:d977b66453bde448e4e86548",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-27T10:17:13Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 3 delistings under the ISIL (Da'esh) & Al-Qaida sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:db026ca5fa4629d5ec1ae4a3",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-11-03T15:57:14Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 correction under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:dfee442db4b1843b4ccbbefc",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-02T08:59:59Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Revoked and remade 2 specifications and made 2 administrative amendments under the Russia sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:e6888a0e010569e6381928f2",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-08-20T11:05:57Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 21 variations under the ISIL (Da'esh) and Al-Qaeda sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:e96020feec50bfd0d23bf858",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-06T10:02:08Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Made 1 revocation under the Syria sanctions regime."
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_uk_sanctions_updates:f446035433a5875afcb72608",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0; adapted by Aplomb.",
+   "geographicRole": "national_jurisdiction",
+   "legalAuthority": "Update note only; consult the current UK Sanctions List and applicable law.",
+   "publisher": "UK Foreign, Commonwealth & Development Office"
+  },
+  "publishedAt": "2026-10-26T10:04:38Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_uk_sanctions_updates",
+  "sourceUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+  "title": "Added 15 new designations under the Sudan sanctions regime."
+ }
+]

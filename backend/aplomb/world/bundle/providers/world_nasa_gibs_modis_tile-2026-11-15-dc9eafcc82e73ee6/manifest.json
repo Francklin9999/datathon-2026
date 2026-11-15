@@ -1,0 +1,50 @@
+{
+ "attribution": "NASA Terra MODIS. We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS). Tile footprint derived from WMTS metadata by Aplomb.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_nasa_gibs_modis_tile-2026-11-15-dc9eafcc82e73ee6",
+ "datasetId": "world_nasa_gibs_modis_tile",
+ "frequency": "Manually pinned immutable sample",
+ "historicalReplay": false,
+ "licence": "NASA Terra MODIS data, CC0 under NASA Earthdata unmarked NASA-led mission data guidance; NASA/GIBS acknowledgement retained",
+ "licenceUrl": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+ "limitations": [
+  "One 512×512 matrix-zero tile for 2026-11-14; overview browse imagery, not native 250m scientific pixels.",
+  "Footprint describes tile extent, not guaranteed observed or cloud-free coverage; other tiles are excluded.",
+  "API exposes imagery reference and footprint; a full satellite raster overlay is not implemented."
+ ],
+ "name": "NASA Terra MODIS true color — one captured overview tile",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "92dd664294e351b25aa0189f39d6ea24b56fa7063d0b6d82134efb919017a6dc",
+   "url": "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/1.0.0/WMTSCapabilities.xml"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "5d38ae41ee3ad7d3166df8a84860448f612297fcbf035812849bea578d85137c",
+   "url": "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/2026-11-14/250m/0/0/0.jpg"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "f218f94ec20213391d273219a50bb6a6d4afe4ea1355ec56d894b25011abcad1",
+   "url": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance"
+  },
+  {
+   "file": "raw-003.bin",
+   "sha256": "07570438a0107a98eea53f6e0fc9ced7a30d4548f3a63491dda69ee58bdc5850",
+   "url": "https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T18:04:53Z",
+ "rowCount": 1,
+ "scope": "One 512×512 matrix-zero tile for 2026-11-14; overview browse imagery, not native 250m scientific pixels.",
+ "sha256": "dc9eafcc82e73ee658b049183705a27ff9b856a2fa4fefdc83be87f2a11443fc",
+ "sourceIds": [
+  "SRC-157",
+  "MASTER-063"
+ ],
+ "sourceRows": 1,
+ "sourceUrl": "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/1.0.0/WMTSCapabilities.xml"
+}

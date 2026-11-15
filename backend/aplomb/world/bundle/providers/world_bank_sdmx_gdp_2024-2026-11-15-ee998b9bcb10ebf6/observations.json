@@ -1,0 +1,80 @@
+[
+ {
+  "availableAt": "2026-11-15T18:04:03Z",
+  "category": "macro",
+  "countryIso3": "BRA",
+  "id": "world_bank_sdmx_gdp_2024:BRA:2024",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-01-01",
+  "properties": {
+   "attribution": "Source: World Bank, World Development Indicators, NY.GDP.MKTP.CD, CC BY 4.0 with World Bank additional dataset terms. Underlying sources: national statistical organizations and central banks, OECD national accounts files, and World Bank staff estimates. Aplomb selected and normalized three annual observations; numerical values unchanged. No World Bank endorsement.",
+   "frequency": "annual",
+   "geographicRole": "national_statistical_area",
+   "indicator": "NY.GDP.MKTP.CD",
+   "referenceYear": 2024,
+   "sdmxSeries": "NY_GDP_MKTP_CD",
+   "temporalPrecision": "annual; first day is only a display anchor",
+   "unit": "current US$",
+   "unitMultiplier": 0,
+   "value": 2185821610689.31
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:04:03Z",
+  "sourceId": "world_bank_sdmx_gdp_2024",
+  "sourceUrl": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.BRA/?startperiod=2024&endPeriod=2024",
+  "title": "World Bank SDMX: Brazil 2024 GDP (current US$): 2,185,821,610,689.31"
+ },
+ {
+  "availableAt": "2026-11-15T18:04:03Z",
+  "category": "macro",
+  "countryIso3": "CAN",
+  "id": "world_bank_sdmx_gdp_2024:CAN:2024",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-01-01",
+  "properties": {
+   "attribution": "Source: World Bank, World Development Indicators, NY.GDP.MKTP.CD, CC BY 4.0 with World Bank additional dataset terms. Underlying sources: national statistical organizations and central banks, OECD national accounts files, and World Bank staff estimates. Aplomb selected and normalized three annual observations; numerical values unchanged. No World Bank endorsement.",
+   "frequency": "annual",
+   "geographicRole": "national_statistical_area",
+   "indicator": "NY.GDP.MKTP.CD",
+   "referenceYear": 2024,
+   "sdmxSeries": "NY_GDP_MKTP_CD",
+   "temporalPrecision": "annual; first day is only a display anchor",
+   "unit": "current US$",
+   "unitMultiplier": 0,
+   "value": 2270076189683.46
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:04:03Z",
+  "sourceId": "world_bank_sdmx_gdp_2024",
+  "sourceUrl": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.CAN/?startperiod=2024&endPeriod=2024",
+  "title": "World Bank SDMX: Canada 2024 GDP (current US$): 2,270,076,189,683.46"
+ },
+ {
+  "availableAt": "2026-11-15T18:04:03Z",
+  "category": "macro",
+  "countryIso3": "JPN",
+  "id": "world_bank_sdmx_gdp_2024:JPN:2024",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-01-01",
+  "properties": {
+   "attribution": "Source: World Bank, World Development Indicators, NY.GDP.MKTP.CD, CC BY 4.0 with World Bank additional dataset terms. Underlying sources: national statistical organizations and central banks, OECD national accounts files, and World Bank staff estimates. Aplomb selected and normalized three annual observations; numerical values unchanged. No World Bank endorsement.",
+   "frequency": "annual",
+   "geographicRole": "national_statistical_area",
+   "indicator": "NY.GDP.MKTP.CD",
+   "referenceYear": 2024,
+   "sdmxSeries": "NY_GDP_MKTP_CD",
+   "temporalPrecision": "annual; first day is only a display anchor",
+   "unit": "current US$",
+   "unitMultiplier": 0,
+   "value": 4190008188358.57
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:04:03Z",
+  "sourceId": "world_bank_sdmx_gdp_2024",
+  "sourceUrl": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.JPN/?startperiod=2024&endPeriod=2024",
+  "title": "World Bank SDMX: Japan 2024 GDP (current US$): 4,190,008,188,358.57"
+ }
+]

@@ -1,0 +1,65 @@
+{
+ "access": "Anonymous HTTPS request; no API key or login used",
+ "attribution": "Data provided by the U.S. Food and Drug Administration (https://open.fda.gov). Adapted by Aplomb; no FDA endorsement.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_fda_drug_enforcement_counts-2026-11-15-098d854b2a80f3d8",
+ "datasetId": "world_fda_drug_enforcement_counts",
+ "frequency": "Source updated weekly; manual capture",
+ "historicalReplay": false,
+ "licence": "Public domain / CC0 1.0 for numeric FDA aggregate counts; openFDA service terms apply",
+ "licenceUrl": "https://open.fda.gov/terms/",
+ "limitations": [
+  "Fixed 2026-01-01 through 2026-11-15 report-date window; incomplete present-day/global coverage.",
+  "Counts represent enforcement records, not unique recall events, affected patients, incidence, safety rates, or public attention.",
+  "No product text, GMDN content, company identities, patient data, distribution geography, or coordinates are captured.",
+  "FDA says this endpoint should not issue public recall alerts or track recall lifecycles; it is unsuitable for medical decisions.",
+  "Source may correct prior records. No historical replay or original availability is established; capture-time gate applies.",
+  "Authentication documentation says keys are required yet lists anonymous limits: 240 requests/minute and 1,000/day/IP. Anonymous capture succeeded.",
+  "No issuer relationship, causation, exposure, or financial impact is established."
+ ],
+ "matchingRecordCount": 738,
+ "name": "openFDA aggregate drug enforcement classification counts",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "1ee83dc116d5be3413b4e45494a75a7075ab0a92f37908b8882bcb91b6d5d880",
+   "url": "https://api.fda.gov/drug/enforcement.json?search=report_date:%5B20260101+TO+20261115%5D&count=classification.exact"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "b11f712bfb11d03319675fc04e6948133a83c57aa2913b7f18d3677d0209f723",
+   "url": "https://open.fda.gov/terms/"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "7fda0041a24f8d7139a1781d4462ae39643a2ee6f3b0f079946c989a8e1982d2",
+   "url": "https://open.fda.gov/license/"
+  },
+  {
+   "file": "raw-003.bin",
+   "sha256": "ecf761a790313637189576d6f3870ccbad6a618e9f91cf494f6d3ea7e49122a4",
+   "url": "https://open.fda.gov/apis/authentication/"
+  },
+  {
+   "file": "raw-004.bin",
+   "sha256": "2173d35e4240000dea08a386a104336236e737cfe88c3f2bb94cd3ac95f99590",
+   "url": "https://open.fda.gov/apis/drug/enforcement/"
+  },
+  {
+   "file": "raw-005.bin",
+   "sha256": "c729858ab14980162029db7a720a10d6830ab793bce6d1e4513232f642a5c40d",
+   "url": "https://open.fda.gov/apis/query-parameters/"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:27:51Z",
+ "rowCount": 4,
+ "scope": "Drug enforcement records grouped by classification within a fixed report-date window; not unique recall events.",
+ "sha256": "098d854b2a80f3d8426e6af70558de91292c496d4792a3057641cf157a303568",
+ "sourceIds": [
+  "SRC-239"
+ ],
+ "sourceRows": 4,
+ "sourceUrl": "https://api.fda.gov/drug/enforcement.json?search=report_date:%5B20260101+TO+20261115%5D&count=classification.exact"
+}

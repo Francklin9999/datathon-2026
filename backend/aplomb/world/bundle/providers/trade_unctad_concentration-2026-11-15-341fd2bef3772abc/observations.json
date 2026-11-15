@@ -1,0 +1,52 @@
+[
+ {
+  "availableAt": "2026-11-15T17:17:25Z",
+  "category": "trade",
+  "countryIso3": null,
+  "id": "trade_unctad_concentration:2025:02:A04",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "concentrationIndex": 0.153919,
+   "flow": "Exports",
+   "geographicRole": "global_aggregate",
+   "metric": "Normalized Herfindahl-Hirschman index of exporter market concentration",
+   "productCode": "A04",
+   "productLabel": "Fuels (SITC 3)",
+   "referenceYear": 2025,
+   "securityRelationship": null,
+   "temporalPrecision": "year"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:17:25Z",
+  "sourceId": "trade_unctad_concentration",
+  "sourceUrl": "https://unctadstat-api.unctad.org/bulkdownload/US.ConcentStructIndices/US_ConcentStructIndices",
+  "title": "Global export market concentration, Fuels (SITC 3), 2025"
+ },
+ {
+  "availableAt": "2026-11-15T17:17:25Z",
+  "category": "trade",
+  "countryIso3": null,
+  "id": "trade_unctad_concentration:2025:02:TOTAL",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "concentrationIndex": 0.155523,
+   "flow": "Exports",
+   "geographicRole": "global_aggregate",
+   "metric": "Normalized Herfindahl-Hirschman index of exporter market concentration",
+   "productCode": "TOTAL",
+   "productLabel": "TOTAL ALL PRODUCTS",
+   "referenceYear": 2025,
+   "securityRelationship": null,
+   "temporalPrecision": "year"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:17:25Z",
+  "sourceId": "trade_unctad_concentration",
+  "sourceUrl": "https://unctadstat-api.unctad.org/bulkdownload/US.ConcentStructIndices/US_ConcentStructIndices",
+  "title": "Global export market concentration, TOTAL ALL PRODUCTS, 2025"
+ }
+]

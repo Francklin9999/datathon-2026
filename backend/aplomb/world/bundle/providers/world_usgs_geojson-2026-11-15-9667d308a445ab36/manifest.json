@@ -1,0 +1,36 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_usgs_geojson-2026-11-15-9667d308a445ab36",
+ "datasetId": "world_usgs_geojson",
+ "excludedMagnitudeOrType": 1,
+ "frequency": "Current weekly feed; manual capture",
+ "historicalReplay": false,
+ "licence": "US Geological Survey, United States Government public domain",
+ "licenceUrl": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
+ "limitations": [
+  "Only the latest weekly M4.5+ feed is requested; M6+ rows are excluded because the baseline catalog covers them.",
+  "Epicenter point and magnitude are source reported and may be revised; affected area and damage are unknown.",
+  "A nearby point does not establish exposure of an issuer, holding, facility or supply chain.",
+  "Original historical feed vintages were not captured; availability is gated at capture time."
+ ],
+ "name": "USGS weekly M4.5-<6 earthquake GeoJSON",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "dec75a87d0d98f8f9e01a06f16d7eb630366dc267f28e9fff708da4991c374ff",
+   "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:21:15Z",
+ "rowCount": 117,
+ "scope": "Current USGS M4.5-<6 earthquake point epicenters from the weekly M4.5+ feed; M6+ excluded to avoid duplication with the baseline catalog.",
+ "sha256": "9667d308a445ab3661e90f2b64180d0362534f4c801577bb150b2a3b199b557d",
+ "sourceIds": [
+  "SRC-171",
+  "MASTER-066"
+ ],
+ "sourceRows": 118,
+ "sourceUrl": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson"
+}

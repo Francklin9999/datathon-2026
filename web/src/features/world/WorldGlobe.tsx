@@ -17,7 +17,8 @@ import { EVENT_CATEGORY, labelOf } from '../../lib/labels';
 import { fmtDate, fmtPct } from '../../lib/format';
 import { countryLabel, decodeCountries, isKnownIso3, type CountryFeature, type Topology } from '../../lib/geo';
 import { CATEGORY_COLORS, EXPOSURE_BREAKS, EXPOSURE_COLORS, PIN_COLORS, type GlobePin } from './globeStyle';
-import type { GlobeViewProps } from './GlobeView';
+import type { GlobeViewProps, MapCommand } from './GlobeView';
+import type { GeographicArea } from '../../lib/world';
 
 function GlobeLoading() {
   const { tr } = useApp();
@@ -65,8 +66,11 @@ class GlobeBoundary extends Component<{ fallback: ReactNode; children: ReactNode
 type Geography = { status: 'loading' } | { status: 'ready'; countries: CountryFeature[] } | { status: 'failed' };
 
 export interface WorldGlobeProps {
+  area: GeographicArea | null;
+  onViewport: (bbox: string) => void;
   pins: readonly GlobePin[];
   selectedId: string | null;
+  selectedGeometry: Record<string, unknown> | null;
   selectedCountry: string | null;
   selectedEvent: WorldEvent | null;
   exposure: ReadonlyMap<string, number> | null;
@@ -81,7 +85,7 @@ export interface WorldGlobeProps {
 }
 
 export function WorldGlobe({
-  pins, selectedId, selectedCountry, selectedEvent, exposure, exposureRows, counts, showHazards, hazardsLabel, onPin, onCountry, onOpenDetails,
+  pins, selectedId, selectedGeometry, selectedCountry, selectedEvent, exposure, exposureRows, counts, showHazards, hazardsLabel, onPin, onCountry, onOpenDetails, area, onViewport,
 }: WorldGlobeProps) {
   const { tr, lang } = useApp();
   const [webgl, setWebgl] = useState<boolean | null>(null);
@@ -89,6 +93,12 @@ export function WorldGlobe({
   const [rotate, setRotate] = useState(true);
   const [hover, setHover] = useState<string | null>(null);
   const [height, setHeight] = useState(520);
+  const [showGlobe, setShowGlobe] = useState(true);
+  const [command, setCommand] = useState<MapCommand | null>(null);
+  const [clusterCount, setClusterCount] = useState(0);
+  const [globeReady, setGlobeReady] = useState(false);
+  const markGlobeReady = useCallback(() => setGlobeReady(true), []);
+  const control = (action: MapCommand['action']) => { setRotate(false); setCommand(previous => ({ action, sequence: (previous?.sequence ?? 0) + 1 })); };
   const reducedMotion = useReducedMotion();
   const stopRotation = useCallback(() => setRotate(false), []);
   const stageRef = useRef<HTMLElement | null>(null);
@@ -103,7 +113,10 @@ export function WorldGlobe({
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, [expanded]);
+  // On mount only: entering or leaving full screen must not hide a globe the visitor chose to show.
+  useEffect(() => { setShowGlobe(window.innerWidth >= 768); }, []);
 
+  // Runs again whenever the globe is shown or hidden: hiding it unmounts the stage element.
   useEffect(() => {
     const stage = stageRef.current;
     const sync = () => setExpanded(current => (document.fullscreenElement && document.fullscreenElement === stage ? 'native' : current === 'native' ? false : current));
@@ -112,7 +125,7 @@ export function WorldGlobe({
       document.removeEventListener('fullscreenchange', sync);
       if (stage && document.fullscreenElement === stage) void document.exitFullscreen().catch(() => undefined);
     };
-  }, []);
+  }, [showGlobe]);
   // The window cover closes with Escape, and the page behind it does not scroll.
   useEffect(() => {
     if (expanded !== 'cover') return undefined;
@@ -173,16 +186,21 @@ export function WorldGlobe({
     <p className="globe-fallback">{tr({ en: 'This browser has no WebGL, so the globe is off. The list beside it and the feed below show the same events and countries.', fr: 'Ce navigateur n’a pas WebGL : le globe est désactivé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>
   ) : (
     <GlobeBoundary fallback={<p className="globe-fallback">{tr({ en: 'The globe could not be loaded. The list beside it and the feed below show the same events and countries.', fr: 'Le globe n’a pas pu être chargé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>}>
-      <GlobeView pins={pins} selectedId={selectedId} selectedCountry={selectedCountry} countries={countries} exposure={exposure}
+      <GlobeView pins={pins} selectedId={selectedId} selectedGeometry={selectedGeometry} selectedCountry={selectedCountry} countries={countries} exposure={exposure}
         rotate={rotate} reducedMotion={reducedMotion} lang={lang} height={height}
-        onPin={onPin} onCountry={onCountry} onHover={setHover} onInteract={stopRotation} />
+        onPin={onPin} onCountry={onCountry} onHover={setHover} onInteract={stopRotation} area={area} command={command} onClusters={setClusterCount} onViewport={onViewport} onReady={markGlobeReady} />
     </GlobeBoundary>
   );
 
   return (
+    <>
+    <button type="button" className="btn ghost btn-sm world-globe-toggle" aria-expanded={showGlobe} aria-controls="world-map-stage" onClick={() => { setCommand(null); setGlobeReady(false); setHover(null); setShowGlobe(value => !value); }}>
+      {showGlobe ? tr({ en: 'Hide globe · use the accessible feed', fr: 'Masquer le globe · utiliser le fil accessible' }) : tr({ en: 'Show optional globe', fr: 'Afficher le globe facultatif' })}
+    </button>
+    {showGlobe &&
     <section ref={stageRef} className="world-stage" data-expanded={expanded || undefined}
       aria-label={tr({ en: 'World map of the events and of the portfolio’s countries', fr: 'Carte du monde des événements et des pays du portefeuille' })}>
-      <div className="stage-globe" aria-hidden="true">
+      <div id="world-map-stage" className="stage-globe" aria-hidden="true">
         {globe}
         <div className="stage-overlay stage-top">
           <span className="stage-chip">
@@ -211,6 +229,17 @@ export function WorldGlobe({
       )}
 
       <div className="stage-side">
+        {webgl && <div className="world-map-controls" role="group" aria-label={tr({ en: 'Globe controls', fr: 'Commandes du globe' })}>
+          {([
+            ['zoom-in', { en: 'Zoom in', fr: 'Agrandir' }], ['zoom-out', { en: 'Zoom out', fr: 'Réduire' }],
+            ['left', { en: 'West', fr: 'Ouest' }], ['right', { en: 'East', fr: 'Est' }],
+            ['up', { en: 'North', fr: 'Nord' }], ['down', { en: 'South', fr: 'Sud' }],
+            ['reset', { en: 'Reset view', fr: 'Réinitialiser la vue' }],
+            ['query', { en: 'Query visible area', fr: 'Interroger la zone visible' }],
+          ] as const).map(([action, label]) => <button key={action} type="button" className="btn ghost btn-sm" disabled={!globeReady} onClick={() => control(action)}>{tr(label)}</button>)}
+          <p className="stage-note" role="status">{tr({ en: `${pins.length} loaded pins; ${clusterCount} geographic clusters at this zoom. Zoom in or click a cluster to inspect individual pins. The feed retains every loaded event.`, fr: `${pins.length} épingles chargées ; ${clusterCount} regroupements à ce zoom. Agrandissez ou cliquez un regroupement pour voir les épingles. Le fil conserve tous les événements chargés.` })}</p>
+          <p className="stage-note">{tr({ en: 'Visible-area queries enclose sampled visible surface points in a geographic box. The box can include areas outside the curved globe view.', fr: 'Les requêtes de zone visible entourent des points échantillonnés de la surface visible dans un rectangle. Ce rectangle peut inclure des zones hors de la vue courbe du globe.' })}</p>
+        </div>}
         {selectedEvent ? (
           <div className="stage-card" aria-live="polite">
             <p className="stage-kicker">
@@ -257,6 +286,7 @@ export function WorldGlobe({
         <div className="stage-block">
           <h2 className="stage-heading">{tr({ en: 'Reading the globe', fr: 'Lire le globe' })}</h2>
           <ul className="stage-legend">
+            {(selectedGeometry || pins.some(pin => pin.kind === 'observation')) && <li><span className="stage-dot" style={{ background: '#6AE0CF' }} aria-hidden="true" />{tr({ en: 'Source observations · selected original polygons or lines use the same color', fr: 'Observations sourcées · polygones ou lignes d’origine sélectionnés de même couleur' })}</li>}
             <li><span className="stage-ramp" aria-hidden="true">{EXPOSURE_COLORS.map(c => <span key={c} style={{ background: c }} />)}</span>
               {tr({ en: `Share of the portfolio (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)`, fr: `Part du portefeuille (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)` })}</li>
             <li><span className="stage-spike" aria-hidden="true" />{tr({ en: 'Event: the taller, the more important', fr: 'Événement : plus il est haut, plus il est important' })}</li>
@@ -266,9 +296,11 @@ export function WorldGlobe({
             ))}
             {showHazards && <li><span className="stage-dot" style={{ background: PIN_COLORS.hazard }} aria-hidden="true" />{hazardsLabel}</li>}
           </ul>
-          <p className="stage-note">{tr({ en: 'A link is a documented match, not proof of impact.', fr: 'Un lien est une correspondance documentée, pas une preuve d’impact.' })}</p>
+          <p className="stage-note">{tr({ en: 'Arcs represent named-country and listing-country matches, including proxies. They do not establish business operations or financial impact.', fr: 'Les arcs représentent des correspondances de pays nommés et de cotation, y compris des approximations. Ils ne prouvent ni activité commerciale ni impact financier.' })}</p>
         </div>
       </div>
     </section>
+    }
+    </>
   );
 }

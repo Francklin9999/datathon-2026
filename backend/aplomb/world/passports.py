@@ -13,6 +13,35 @@ from .airports import load_airports
 from .country_macro import SOURCE_ID
 from .dataset import WorldDataError, WorldDataset
 from .facilities import load_facilities
+from .providers import load_provider_snapshots
+
+PROVIDER_DATASET_IDS = frozenset({
+    "world_aviation_weather", "world_noaa_alerts", "world_usgs_geojson", "world_gdacs_alerts",
+    "world_nasa_power", "world_epa_sems_sites",
+    "world_climate_trace_canada_electricity_co2",
+    "world_federal_register", "world_ecb_press", "world_uk_sanctions_updates", "world_usgs_minerals", "world_statcan_cpi",
+    "energy_wri_plants", "trade_portwatch_ports", "trade_un_comtrade_exports", "trade_wits_fuel_exports",
+    "trade_unctad_concentration",
+    "world_geoboundaries_fra_adm1", "world_ucdp_ged_ukraine_2025",
+    "world_fda_drug_enforcement_counts", "world_crossref_climate_bibliography",
+    "world_ted_published_notice_metadata", "world_bls_us_cpi_2024",
+    "world_wgi_political_stability_2024",
+    "world_ecb_eurosystem_assets_2024", "world_bis_us_debt_service_2024", "world_fed_chargeoffs_2024",
+    "world_gdelt_event_metadata", "world_gdelt_gkg_locations", "world_gdelt_geographic_mentions",
+    "world_wikimedia_topic_pageviews",
+    "world_wikipedia_recent_changes",
+    "world_ilo_unemployment_2024",
+    "world_bank_sdmx_gdp_2024",
+    "world_energy_charts_de_power",
+    "world_nasa_gibs_modis_tile", "world_nominatim_eiffel_lookup", "world_osm_eiffel_tower",
+    "world_global_carbon_budget_2026",
+    "world_adsblol_heathrow_positions", "trade_marinecadastre_ais_2024_samples",
+    "world_copernicus_activation_centroids", "world_firms_modis_europe",
+    "world_nyfed_sce_inflation_2024",
+    "world_ember_monthly_generation_2026", "world_geofabrik_monaco_transport",
+    "world_nasa_cmr_modis_granules",
+    "world_openflights_airport_reference",
+})
 
 
 def _t(en: str, fr: str) -> dict:
@@ -133,6 +162,65 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
     return out
 
 
+def provider_passports() -> dict[str, dict]:
+    """Passports only for checksum-verified optional captures consumed by observations."""
+    rows, manifests = load_provider_snapshots()
+    counts: dict[str, int] = {}
+    for row in rows:
+        counts[row["sourceId"]] = counts.get(row["sourceId"], 0) + 1
+    out = {}
+    for manifest in manifests:
+        source_id = manifest["datasetId"]
+        attribution = manifest.get("attribution") or next(
+            (row.get("properties", {}).get("attribution") for row in rows
+             if row["sourceId"] == source_id and row.get("properties", {}).get("attribution")), None,
+        )
+        retrieved = manifest["retrievedAt"]
+        scope = manifest.get("scope") or (
+            "Five published procurement notice metadata records from the first page of "
+            "2026-11-01 through 2026-11-15; source-reported buyer countries only."
+            if source_id == "world_ted_published_notice_metadata"
+            else manifest["name"]
+        )
+        version = f"snap-{retrieved[:10].replace('-', '')}-{source_id}-{manifest['sha256'][:10]}"
+        out[source_id] = {
+            "datasetId": source_id,
+            "name": _t(manifest["name"], manifest["name"]),
+            "role": _t(scope, scope),
+            "status": "in_use",
+            "source": manifest["name"],
+            "sourceUrl": manifest["sourceUrl"],
+            "accessMethod": "Bounded public HTTPS batch capture; no runtime source request",
+            "licence": manifest["licence"],
+            "licenceUrl": manifest.get("licenceUrl"),
+            "retrievedOn": retrieved[:10],
+            "coverage": None,
+            "frequency": manifest["frequency"],
+            "rowCount": counts[source_id],
+            "dataVersion": version,
+            "schema": [
+                {"name": "id", "type": "string", "description": "Provider-stable source observation ID"},
+                {"name": "location", "type": "object", "description": "Validated source coordinates when provided; may be absent"},
+                {"name": "geometry", "type": "object", "description": "Source polygon or line geometry when provided; a polygon may have no point coordinates"},
+                {"name": "retrievedAt", "type": "timestamp", "description": "First proven availability of this captured version"},
+            ],
+            "processing": [_t(note, note) for note in
+                           ([attribution] if attribution else []) + manifest["limitations"]],
+            "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"],
+            "availabilityRule": _t(manifest["availabilityRule"], manifest["availabilityRule"]),
+            "checks": [
+                {"name": "normalized_checksum", "ok": True,
+                 "detail": f"{counts[source_id]} normalized rows match {manifest['sha256']}; "
+                           "raw captures also passed SHA-256 verification.",
+                 "checkedAt": retrieved},
+                {"name": "pagination_coverage", "ok": bool(manifest.get("coverageComplete")),
+                 "detail": scope, "checkedAt": retrieved},
+            ],
+            "rejectedReason": None,
+        }
+    return out
+
+
 class WorldDatastoreService(DatastoreService):
     """``DataService`` whose passports reflect the loaded world bundle (planned otherwise)."""
 
@@ -183,6 +271,11 @@ class WorldDatastoreService(DatastoreService):
                     "checks": [{"name": "airport_snapshot_checksum", "ok": True,
                                 "detail": "Normalized rows match SHA-256 and row count.", "checkedAt": meta["capturedAt"]}],
                 }
+            try:
+                overrides.update(provider_passports())
+            except (ValueError, OSError, KeyError, TypeError):
+                # Optional provider damage cannot hide the existing world passports.
+                pass
             return overrides
         except WorldDataError:
             return {}
@@ -197,7 +290,7 @@ class WorldDatastoreService(DatastoreService):
 
     def dataset(self, session_id: str, dataset_id: str) -> m.DatasetPassport:
         override = self._overrides().get(dataset_id)
-        if dataset_id == SOURCE_ID and override is not None:
+        if dataset_id in PROVIDER_DATASET_IDS | {SOURCE_ID} and override is not None:
             return m.DatasetPassport.model_validate(override)
         base = super().dataset(session_id, dataset_id)
         if override is None:

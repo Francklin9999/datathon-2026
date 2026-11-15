@@ -1,0 +1,39 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_ecb_press-2026-11-15-1e30427e9fbb2fae",
+ "datasetId": "world_ecb_press",
+ "frequency": "Current bounded RSS page, manually captured",
+ "historicalReplay": false,
+ "licence": "ECB free use with accurate reproduction and attribution; modified information identified; additional conditions apply to sold documents and business links",
+ "licenceUrl": "https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html",
+ "limitations": [
+  "Only press release titles, dates and links; speeches and interviews excluded.",
+  "Feed page is not a complete archive; no proven historical vintage.",
+  "Regional institution; no country coordinates or issuer relationships inferred."
+ ],
+ "name": "European Central Bank press releases",
+ "quality": {
+  "acceptedRows": 4,
+  "examinedRows": 15,
+  "inputRows": 15,
+  "rejectedRows": 11,
+  "truncated": false
+ },
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "1a602fc5e042a4e0de84004e880ecf4bf985836a09beb2da9b22802e13ad09ae",
+   "url": "https://www.ecb.europa.eu/rss/press.html"
+  }
+ ],
+ "retrievedAt": "2026-11-15T17:11:42Z",
+ "rowCount": 4,
+ "scope": "Current ECB RSS press releases only; no complete archive or authored documents.",
+ "sha256": "1e30427e9fbb2faed46d28d4d82222fd5cc1927551b81104f708a2ea65ec810d",
+ "sourceIds": [
+  "SRC-105",
+  "MASTER-047"
+ ],
+ "sourceUrl": "https://www.ecb.europa.eu/rss/press.html"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "key": "events",
+    "url": "https://data.gdeltproject.org/gdeltv2/20261115174500.export.CSV.zip",
+    "status": 200,
+    "bytes": 63568
+  },
+  {
+    "key": "gkg",
+    "url": "https://data.gdeltproject.org/gdeltv2/20261115174500.gkg.csv.zip",
+    "status": 200,
+    "bytes": 3040490
+  },
+  {
+    "key": "events_codebook",
+    "url": "https://data.gdeltproject.org/documentation/GDELT-Event_Codebook-V2.0.pdf",
+    "status": 200,
+    "bytes": 381630
+  },
+  {
+    "key": "gkg_codebook",
+    "url": "https://data.gdeltproject.org/documentation/GDELT-Global_Knowledge_Graph_Codebook-V2.1.pdf",
+    "status": 200,
+    "bytes": 434652
+  }
+]

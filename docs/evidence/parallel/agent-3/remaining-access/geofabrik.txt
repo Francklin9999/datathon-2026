@@ -1,0 +1,242 @@
+
+ 
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ Download OpenStreetMap for Monaco | Geofabrik Download Server 
+     
+     
+        var map, layer, countryLayer;
+        function init()
+        {
+            map = new OpenLayers.Map('map');
+            layer = new OpenLayers.Layer.OSM("",
+                ["https://a.tile.geofabrik.de/5f33d2afc5074c6da1a5c2a8a960d501/${z}/${x}/${y}.png",
+                 "https://b.tile.geofabrik.de/5f33d2afc5074c6da1a5c2a8a960d501/${z}/${x}/${y}.png",
+                 "https://c.tile.geofabrik.de/5f33d2afc5074c6da1a5c2a8a960d501/${z}/${x}/${y}.png",
+                ],
+                { attribution: "", tileOptions : {crossOriginKeyword: null} }
+            ); // attribution in page footer
+            map.addLayer(layer);
+            layer = new OpenLayers.Layer.Vector("KML", {
+            strategies: [new OpenLayers.Strategy.Fixed()],
+            protocol: new OpenLayers.Protocol.HTTP({
+                url: "monaco.kml",
+                format: new OpenLayers.Format.KML({
+                    maxDepth: 2
+                })
+            }),
+            styleMap: new OpenLayers.StyleMap({
+            "default": new OpenLayers.Style({
+                graphicName: "cross",
+                pointRadius: 6,
+                fillOpacity: 0.50,
+                fillColor: "#ffcc66",
+                strokeColor: "#ff9933",
+                strokeWidth: 2
+            })
+            })
+            });
+            layer.events.register("loadend", this, function() { map.zoomToExtent(layer.getDataExtent()); });
+            map.addLayer(layer);
+        }
+        function loadkml(kmlname)
+        {
+            if (countryLayer) map.removeLayer(countryLayer);
+            countryLayer = 
+                new OpenLayers.Layer.Vector("KML", {
+                strategies: [new OpenLayers.Strategy.Fixed()],
+                protocol: new OpenLayers.Protocol.HTTP({
+                    url: kmlname,
+                    format: new OpenLayers.Format.KML({
+                        extractStyles: true,
+                        extractAttributes: true,
+                        maxDepth: 2
+                    })
+                })
+                });
+            map.addLayer(countryLayer);
+        }
+     
+ 
+ 
+Do you find OpenStreetMap data useful? Consider giving something back in the OSMF's  funding campaign! 
+ 
+ 
+    
+       
+    
+ 
+ 
+ Download OpenStreetMap data for this region: 
+ 
+ 
+ Monaco 
+ [one level up]      
+        The OpenStreetMap data files provided on this server do  not  contain the user names, user
+        IDs and changeset IDs of the OSM objects because these fields are assumed to contain personal
+        information about the OpenStreetMap contributors and are therefore subject to data protection regulations
+        in the European Union. 
+         
+         Extracts with full metadata  are available to OpenStreetMap
+        contributors only.
+     
+ Commonly Used Formats 
+ 
+ monaco-latest.osm.pbf , suitable for
+           Osmium, Osmosis, imposm, osm2pgsql, mkgmap, and others. This file was last 
+           modified 15 hours ago and contains all OSM data up to 2026-11-14T21:20:41Z. File size: 691 KB.  
+
+ monaco-latest-free.shp.zip , yields
+               a number of ESRI compatible shape files when unzipped.  (Format description PDF) 
+               This file was last modified 8 hours ago. File size: 730 KB.  
+
+ monaco-latest-free.gpkg.zip , same as
+               shape file but in more modern Geopackage format.
+               This file was last modified 8 hours ago. File size: 740 KB.  
+ Other Formats and Auxiliary Files 
+ 
+ monaco-internal.osh.pbf  The history file
+                contains personal data and is available on the
+                 internal server 
+                only. See notice above for further information.
+                 
+ .poly file  that describes the extent
+               of this region. 
+ experimental   
+               vector tile package  conforming to  Shortbread schema 
+           for use with MapLibre and other MVT capable software 
+ .osc.gz files 
+                that contain all changes in this region, suitable e.g. for
+                Osmosis updates 
+ Taginfo statistics for this region 
+ raw directory index  allowing you to
+            see and download older files file date size monaco-140101-free.shp.zip 2018-04-26 20:59 304042 
+ monaco-140101-free.shp.zip.md5 2018-05-03 15:55 61 
+ monaco-140101.osm.pbf 2014-01-02 02:03 201394 
+ monaco-150101-free.shp.zip 2018-04-26 21:20 318189 
+ monaco-150101-free.shp.zip.md5 2018-05-03 15:53 61 
+ monaco-150101.osm.pbf 2015-01-02 04:07 224700 
+ monaco-160101-free.shp.zip 2018-04-26 21:43 341018 
+ monaco-160101-free.shp.zip.md5 2018-05-03 15:23 61 
+ monaco-160101.osm.pbf 2016-01-02 04:41 250797 
+ monaco-170101-free.shp.zip 2018-04-26 22:08 346768 
+ monaco-170101-free.shp.zip.md5 2018-05-03 15:54 61 
+ monaco-170101.osm.pbf 2017-01-02 04:12 303473 
+ monaco-180101-free.shp.zip 2018-04-26 21:32 716353 
+ monaco-180101-free.shp.zip.md5 2018-05-03 15:29 61 
+ monaco-180101.osm.pbf 2018-01-02 01:03 487644 
+ monaco-190101-free.shp.zip 2019-01-02 00:08 746085 
+ monaco-190101-free.shp.zip.md5 2019-01-02 00:08 61 
+ monaco-190101.osm.pbf 2019-01-02 00:04 512442 
+ monaco-200101-free.shp.zip 2020-05-02 21:34 444001 
+ monaco-200101-free.shp.zip.md5 2020-05-02 21:34 61 
+ monaco-200101.osm.pbf 2020-02-19 15:33 394642 
+ monaco-210101-free.shp.zip 2021-01-02 01:50 488172 
+ monaco-210101-free.shp.zip.md5 2021-01-02 01:50 61 
+ monaco-210101.osm.pbf 2021-01-02 01:14 434238 
+ monaco-220101-free.shp.zip 2022-01-02 03:58 509695 
+ monaco-220101-free.shp.zip.md5 2022-01-02 03:58 61 
+ monaco-220101.osm.pbf 2022-01-02 03:47 458801 
+ monaco-230101-free.shp.zip 2023-01-02 03:34 546114 
+ monaco-230101-free.shp.zip.md5 2023-01-02 03:34 61 
+ monaco-230101.osm.pbf 2023-01-02 03:13 488865 
+ monaco-240101-free.shp.zip 2024-01-02 03:29 583009 
+ monaco-240101-free.shp.zip.md5 2024-01-02 03:29 61 
+ monaco-240101.osm.pbf 2024-01-02 02:48 537890 
+ monaco-250101-free.shp.zip 2025-01-02 05:23 690277 
+ monaco-250101-free.shp.zip.md5 2025-01-02 05:23 61 
+ monaco-250101.osm.pbf 2025-01-02 03:33 626624 
+ monaco-260101-free.shp.zip 2026-01-02 05:18 727320 
+ monaco-260101-free.shp.zip.md5 2026-01-02 05:18 61 
+ monaco-260101.osm.pbf 2026-01-02 03:56 673493 
+ monaco-260101.osm.pbf.md5 2026-01-02 03:56 56 
+ monaco-260901-free.gpkg.zip 2026-09-05 11:00 757362 
+ monaco-260901-free.shp.zip 2026-09-05 11:00 746389 
+ monaco-260901-free.shp.zip.md5 2026-09-05 11:00 61 
+ monaco-260901.osm.pbf 2026-09-04 10:50 690567 
+ monaco-260901.osm.pbf.md5 2026-09-04 10:50 56 
+ monaco-261001-free.gpkg.zip 2026-10-02 17:50 757172 
+ monaco-261001-free.shp.zip 2026-10-02 17:57 746408 
+ monaco-261001.osm.pbf 2026-10-02 18:13 691511 
+ monaco-261001.osm.pbf.md5 2026-10-02 18:13 56 
+ monaco-261101-free.gpkg.zip 2026-11-02 06:12 757274 
+ monaco-261101-free.shp.zip 2026-11-02 05:41 746918 
+ monaco-261101.osm.pbf 2026-11-02 05:47 706895 
+ monaco-261101.osm.pbf.md5 2026-11-02 05:47 56 
+ monaco-261108-free.gpkg.zip 2026-11-09 04:58 758124 
+ monaco-261108-free.shp.zip 2026-11-09 05:02 747890 
+ monaco-261108.osm.pbf 2026-11-09 00:59 707417 
+ monaco-261108.osm.pbf.md5 2026-11-09 00:59 56 
+ monaco-261109-free.gpkg.zip 2026-11-10 10:36 758144 
+ monaco-261109-free.shp.zip 2026-11-10 10:54 747914 
+ monaco-261109.osm.pbf 2026-11-10 10:14 707797 
+ monaco-261109.osm.pbf.md5 2026-11-10 10:14 56 
+ monaco-261110-free.gpkg.zip 2026-11-11 03:28 758144 
+ monaco-261110-free.shp.zip 2026-11-11 03:31 747913 
+ monaco-261110.osm.pbf 2026-11-11 00:15 707797 
+ monaco-261110.osm.pbf.md5 2026-11-11 00:15 56 
+ monaco-261111-free.gpkg.zip 2026-11-12 09:16 758139 
+ monaco-261111-free.shp.zip 2026-11-12 09:19 747913 
+ monaco-261111.osm.pbf 2026-11-12 02:09 707802 
+ monaco-261111.osm.pbf.md5 2026-11-12 02:09 56 
+ monaco-261112-free.gpkg.zip 2026-11-13 01:38 758146 
+ monaco-261112-free.shp.zip 2026-11-13 01:38 747914 
+ monaco-261112.osm.pbf 2026-11-13 01:44 707802 
+ monaco-261112.osm.pbf.md5 2026-11-13 01:44 56 
+ monaco-261113-free.gpkg.zip 2026-11-14 05:26 758145 
+ monaco-261113-free.shp.zip 2026-11-14 05:23 747913 
+ monaco-261113.osm.pbf 2026-11-14 00:10 707985 
+ monaco-261113.osm.pbf.md5 2026-11-14 00:10 56 
+ monaco-261114-free.gpkg.zip 2026-11-15 09:19 758296 
+ monaco-261114-free.shp.zip 2026-11-15 09:22 748067 
+ monaco-261114.osm.pbf 2026-11-15 02:29 708112 
+ monaco-261114.osm.pbf.md5 2026-11-15 02:29 56 
+ monaco-updates 2026-11-15 03:35 4096 
+ monaco.kml 2026-11-15 02:08 798 
+ monaco.poly 2026-11-15 02:15 635 
+ Sub Regions No sub regions are defined for this region. 
+ 
+    
+    
+
+    
+ 
+       
+Not what you were looking for?
+Geofabrik is a consulting and software development firm based in Karlsruhe, Germany
+specializing in OpenStreetMap services. We're happy to help you with data
+preparation, processing, server setup and the like.  Check out our web site 
+and contact us if we can be of service.
+
+       
+    
+   
+    
+       
+       
+      Nicht das Richtige dabei? 
+Die Geofabrik ist ein auf OpenStreetMap spezialisiertes Beratungs- und Softwareentwicklungsunternehmen in Karlsruhe.
+Gern helfen wir Ihnen bei der Datenaufbereitung, Datenkonvertierung, Serverinstallation und ähnlichen Aufgaben.
+ Besuchen Sie unsere Webseite  und sprechen Sie mit uns, wenn wir Ihnen 
+helfen können.
+       
+    
+    
+ 
+ 
+ 
+Data processed by
+ Geofabrik GmbH 
+and created by 
+ OpenStreetMap Contributors 
+|
+ License: ODbL 1.0 
+|
+ Contact 
+|
+ Legal Notice/Privacy Policy 

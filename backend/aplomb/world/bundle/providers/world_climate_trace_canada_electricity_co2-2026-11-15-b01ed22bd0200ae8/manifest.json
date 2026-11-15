@@ -1,0 +1,58 @@
+{
+ "attribution": "Freeman, J., Rouzbeh Kargar, A., Couture, H., Jeyaratnam, J., Lewis, J., Alvara, M., Koenig, H., Nakano, T., Davitt, A., Lewis, C., McCormick, G., Christian, P., and Doctor, Z. (2026). Power sector: Emissions from Electricity Generation. WattTime, Pixel Scientia Labs and Global Energy Monitor, Climate TRACE Emissions Inventory. https://climatetrace.org [accessed 2026-11-15]. Adapted to monthly observations.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_climate_trace_canada_electricity_co2-2026-11-15-b01ed22bd0200ae8",
+ "datasetId": "world_climate_trace_canada_electricity_co2",
+ "frequency": "Monthly estimates; manually captured release",
+ "historicalReplay": false,
+ "licence": "CC BY 4.0 for Climate TRACE emissions and metadata; listed external datasets have separate terms",
+ "licenceUrl": "https://climatetrace.org/terms",
+ "limitations": [
+  "Only Canada electricity-generation CO2 for 2025 is included; it is not total power-sector or national emissions.",
+  "Climate TRACE identifies country-level other-energy-use and other listed subsectors as external dataset exceptions. This query excludes those subsectors; the raw response is checked for the selected subsector.",
+  "Emissions are modeled estimates based on multiple inputs and may be revised; monthly periods are estimates, not direct measurements.",
+  "Release metadata is checked before and after the query; this cannot prove the upstream service was internally consistent during capture.",
+  "Country identity is retained without geographic boundaries or coordinates; no facility or owner relationship is asserted.",
+  "Original historical availability is unproven; capture-time gating applies."
+ ],
+ "name": "Climate TRACE Canada electricity generation CO2, 2025",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "c8a8bfb052d5d5f09b144e3385d75a2bfa0f95be97b5eee7742a5b80e5ca3f6f",
+   "url": "https://api.climatetrace.org/v7/metadata"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "645ef8c5b7dd9bef901b7029be8946a3b130e87c2b92cb6e328a8c2a0f0944ab",
+   "url": "https://api.climatetrace.org/v7/sources/emissions?year=2025&gas=co2&subsectors=electricity-generation&gadmId=CAN"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "c8a8bfb052d5d5f09b144e3385d75a2bfa0f95be97b5eee7742a5b80e5ca3f6f",
+   "url": "https://api.climatetrace.org/v7/metadata"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:24:09Z",
+ "rowCount": 12,
+ "scope": "Canada, monthly 2025 CO2 from electricity-generation only.",
+ "sha256": "b01ed22bd0200ae8ea5d7fbfb544e760ae207967d5b0c211a08e7c19861d89f7",
+ "sourceIds": [
+  "SRC-226"
+ ],
+ "sourceRelease": {
+  "changelogUrl": "https://github.com/climatetracecoalition/methodology-documents/tree/main/2026/CHANGELOG",
+  "dataVersion": "v5.12.0",
+  "lastUpdated": "2026-10-23T23:12:40.308835Z",
+  "releaseDate": "2026-10-28",
+  "temporalCoverage": {
+   "end": "2026-08",
+   "frequency": "monthly",
+   "start": "2015-01"
+  }
+ },
+ "sourceRows": 12,
+ "sourceUrl": "https://api.climatetrace.org/v7/sources/emissions?year=2025&gas=co2&subsectors=electricity-generation&gadmId=CAN"
+}

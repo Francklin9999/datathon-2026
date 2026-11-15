@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+    <meta name="theme-color" content="#064b75">
+    <meta name="apple-itunes-app" content="app-id=6801947441">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
+    <link rel="dns-prefetch" href="https://app.termly.io">
+    <title>Free Live Flight Tracker &amp; Unfiltered ADS-B | Airplanes.live</title>
+    <meta name="description"
+        content="Track any plane in real time on a free, unfiltered ADS-B and MLAT map. See military jets, Air Force One and the aircraft other flight trackers hide." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://airplanes.live/" />
+    <link rel="alternate" hreflang="en" href="https://airplanes.live/" />
+    <link rel="alternate" hreflang="x-default" href="https://airplanes.live/" />
+    <meta property="og:title" content="Free Live Flight Tracker &amp; Unfiltered ADS-B | Airplanes.live" />
+    <meta property="og:description"
+        content="Track any plane in real time on a free, unfiltered ADS-B and MLAT map. See military jets, Air Force One and the aircraft other flight trackers hide." />
+    <meta property="og:url" content="https://airplanes.live/" />
+    <meta name="twitter:title" content="Free Live Flight Tracker &amp; Unfiltered ADS-B | Airplanes.live" />
+    <meta name="twitter:description"
+        content="Track any plane in real time on a free, unfiltered ADS-B and MLAT map. See military jets, Air Force One and the aircraft other flight trackers hide." />
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="airplanes.live">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image" content="https://airplanes.live/img/airplanes-live-map.png">
+    <meta property="og:image:width" content="800">
+    <meta property="og:image:height" content="390">
+    <meta property="og:image:alt" content="airplanes.live unfiltered ADS-B and MLAT live aircraft tracking map">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@live_airplanes">
+    <meta name="twitter:creator" content="@live_airplanes">
+    <meta name="twitter:image" content="https://airplanes.live/img/airplanes-live-map.png">
+    <script
+        type="application/ld+json">{"@context": "https://schema.org","@type": "Organization","name": "airplanes.live","url": "https://airplanes.live/","logo": "https://airplanes.live/img/airplanes-live-logo.png","description": "Independent, community-run unfiltered ADS-B and MLAT aircraft tracking.","sameAs": ["https://twitter.com/live_airplanes","https://github.com/airplanes-live","https://discord.gg/adsb"]}</script>
+    <script
+        type="application/ld+json">{"@context": "https://schema.org","@type": "WebSite","name": "airplanes.live","alternateName": "Airplanes Live Flight Tracker","url": "https://airplanes.live/","potentialAction": {"@type": "SearchAction","target": {"@type": "EntryPoint","urlTemplate": "https://globe.airplanes.live/?callsign={search_term_string}"},"query-input": "required name=search_term_string"}}</script>
+
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://airplanes.live/"}]}</script>
+    <script src="https://app.termly.io/resource-blocker/cf8bc067-0e5c-4231-b564-cebfd5068b29?autoBlock=on"></script>
+
+    <script>(function (w, d, s, l, i) { w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' }); var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f); })(window, document, 'script', 'dataLayer', 'GTM-P56RPGMR');</script>
+
+    <link href="/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-u8+5PZGY1LoUi3ZaTrm8IPhGri6+ypOkP0Hne2uLZ6mUoGQ9VnKOyMD1gu06jsdb" crossorigin="anonymous">
+    <link href="/css/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="/css/site.css" rel="stylesheet">
+    <style>
+        #modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 2px;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 101;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            border: 2px solid #000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4199382483979768"
+        crossorigin="anonymous"></script>
+</head>
+
+<body class="bg-white text-black">  <noscript><iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-P56RPGMR" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <div class="container home-page">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid"> <a class="navbar-brand" href="/"><img width="300"
+                        height="84" src="/img/airplanes-live-logo.png" alt="airplanes.live logo"></a> <button
+                    class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+                    aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation"> <span
+                        class="navbar-toggler-icon"></span> </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link active" aria-current="page"
+                                href="/">Home</a></li>
+                        <li class="nav-item dropdown"><a class="nav-link active dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">Get Started</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/get-started/">Start Here</a>
+                                </li>
+                                <li><a class="dropdown-item" href="/how-to-feed/">Existing
+                                        Install</a></li>
+                                <li><a class="dropdown-item" href="/hardware/">New Install</a>
+                                </li>
+                                <li><a class="dropdown-item" href="/image-guide/">Image Guide</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown"> <a class="nav-link active dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">Tracking</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" target="_blank" rel="noopener" href="https://globe.airplanes.live">Live Map</a></li>
+                                <li><a class="dropdown-item" href="/live/aircrafttype/">Aircraft Types</a></li>
+                                <li><a class="dropdown-item" href="/live/airline/">Airlines</a></li>
+                                <li><a class="dropdown-item" href="/live/airport/">Airports</a></li>
+                                <li class="dropend"> <a class="dropdown-item dropdown-toggle" href="#" role="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">Interesting</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="/military/">Military Live</a></li>
+                                        <li><a class="dropdown-item" href="/helicopters/">Helicopters</a></li>
+                                        <li><a class="dropdown-item" href="/emergency/">Emergency Squawks</a></li>
+                                        <li><a class="dropdown-item" href="/ladd/">LADD Aircraft</a></li>
+                                        <li><a class="dropdown-item" href="/firefighting/">Firefighting Aircraft</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item"><a class="nav-link active" target="_blank" rel="noopener"
+                                href="https://store.airplanes.live">Store</a></li>
+                        <li class="nav-item dropdown"> <a class="nav-link active dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">Data</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/api-docs/">API Docs</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown"> <a class="nav-link active dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false"> About </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/about/">About</a></li>
+                                <li><a class="dropdown-item" href="/faq/">FAQ</a></li>
+                                <li><a class="dropdown-item" href="/what-is-ads-b/">What Is ADS-B?</a></li>
+                                <li><a class="dropdown-item" href="https://github.com/airplanes-live/">Open Source
+                                        Software</a></li>
+                                <li><a class="dropdown-item" href="/partners/">Partners</a></li>
+                                <li><a class="dropdown-item" href="/privacy-policy/">Privacy
+                                        Policy</a></li>
+                                <li><a class="dropdown-item" href="/cookie-policy/">Cookie
+                                        Policy</a></li>
+                                <li><a class="dropdown-item" href="/terms-of-use/">Terms of Use</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+        <section class="home-hero home-bleed" aria-labelledby="home-search-heading">
+            <div class="home-hero-inner">
+                <h1 class="home-hero-title"><span class="home-hero-title-lead">Airplanes.live</span><span class="home-hero-title-sub">Live Flight Tracker: Unfiltered ADS-B and MLAT</span></h1>
+                <p class="lead home-hero-tagline">See every aircraft, including the ones other sites hide.</p>
+
+                <form id="home-search-form" class="home-search home-hero-search" role="search" method="get"
+                    action="https://globe.airplanes.live/" target="_blank">
+                    <label class="visually-hidden" for="home-search-input">Search airports, airlines, aircraft types,
+                        callsigns, or hex codes</label>
+                    <div class="home-search-field">
+                        <input id="home-search-input" class="form-control home-search-input" type="search" name="callsign"
+                            placeholder="Heathrow, British Airways, A320, BAW117, 4008f3" autocomplete="off"
+                            autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-expanded="false"
+                            aria-autocomplete="list" aria-controls="home-search-listbox">
+                        <ul id="home-search-listbox" class="home-search-listbox" role="listbox"
+                            aria-label="Search suggestions" hidden></ul>
+                    </div>
+                    <button class="btn btn-info home-search-submit" type="submit">Search</button>
+                </form>
+                <p class="visually-hidden" id="home-search-status" role="status" aria-live="polite"></p>
+            </div>
+        </section>
+
+        <section class="home-map-band home-bleed" aria-labelledby="home-map-heading">
+            <div class="home-map-inner">
+                <h2 class="home-map-heading" id="home-map-heading">The live map, right now</h2>
+                <p class="home-map-lead">Every aircraft we receive, unfiltered and unobfuscated. That includes the
+                    military and special-interest traffic other trackers hide.</p>
+                <p class="home-map-actions"><a class="btn home-btn-solid" target="_blank" rel="noopener"
+                        href="https://globe.airplanes.live">Open the full live map</a></p>
+            </div>
+        </section>
+
+        <section class="home-band home-bleed" aria-labelledby="home-about-heading">
+            <div class="home-band-inner">
+                <h2 class="home-band-heading" id="home-about-heading">What is Airplanes.live?</h2>
+                <div class="home-band-copy">
+                    <p>Airplanes.live is a community-run ADS-B aggregator. Receivers built and hosted by enthusiasts
+                        pick up ADS-B (Automatic Dependent Surveillance-Broadcast) and MLAT (Multilateration) signals
+                        from the aircraft overhead, and the combined feed shows what is flying in your area right now.
+                        Enthusiasts, researchers and journalists can use that data however they like.</p>
+                    <p>Airplanes.live will never filter or obfuscate aircraft data. Every
+                        <a href="/get-started/">feeder</a> gets the unfiltered MLAT results back.</p>
+                    <p>Whether you're a plane spotter or simply curious about the skies above, the map shows the
+                        traffic as the receivers actually heard it.</p>
+                    <p>Airplanes.live is free to use: follow global air traffic, watch the military aircraft that many
+                        flight radar sites filter out, and track any plane in real time on the live map.</p>
+                </div>
+                <p class="home-band-link"><a href="/military/">Track military aircraft &rarr;</a></p>
+            </div>
+        </section>
+
+        <section class="home-cta home-bleed" aria-labelledby="cta-heading">
+            <div class="home-cta-inner">
+                <h2 id="cta-heading">Ready to see the whole sky?</h2>
+                <p>Open the map, add a receiver to the network, or come talk aircraft with the community.</p>
+                <div class="home-cta-actions">
+                    <a class="btn home-btn-solid" href="/get-started/">Start Feeding</a>
+                    <a class="btn home-btn-outline" href="/hardware/">Get the Hardware</a>
+                    <a class="btn home-btn-outline" target="_blank" rel="noopener"
+                        href="https://discord.gg/adsb">Join the Discord</a>
+                </div>
+            </div>
+        </section>
+
+        <footer class="site-footer">
+            <nav class="footer-nav" aria-label="Site sections">
+                <ul class="footer-nav-list">
+                    <li><a href="/live/airport/">Airports</a></li>
+                    <li><a href="/live/airline/">Airlines</a></li>
+                    <li><a href="/live/aircrafttype/">Aircraft Types</a></li>
+                    <li><a href="/what-is-ads-b/">What Is ADS-B?</a></li>
+                    <li><a href="/get-started/">Start Feeding</a></li>
+                    <li><a href="/faq/">FAQ</a></li>
+                    <li><a href="https://globe.airplanes.live">Live Map</a></li>
+                </ul>
+            </nav>
+            <div class="footer-bottom">
+                <div class="footer-legal"><a href="/privacy-policy/">Privacy</a> | <a href="/terms-of-use/">Terms of Use</a> | <a href="#" class="termly-display-preferences">Consent Preferences</a> | Copyright 2023-2026 airplanes.live</div>
+                <div class="footer-social">
+                    <a href="https://twitter.com/live_airplanes"><img loading="lazy" decoding="async" width="36" height="35" alt="airplanes.live on X (Twitter)" src="/img/x-logo-link.png"></a>
+                    <a href="https://discord.gg/adsb"><img loading="lazy" decoding="async" width="40" height="30" alt="Join the airplanes.live Discord" src="/img/discord-logo-black.png"></a>
+                    <a href="https://github.com/airplanes-live" aria-label="airplanes.live on GitHub"><i class="bi bi-github" aria-hidden="true"></i></a>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"> </script>
+    <script src="/js/home-search.js" defer></script>
+    <script>
+        (function () {
+            'use strict';
+            var input = document.getElementById('home-search-input');
+            if (!input) return;
+            var hints = ['Search for a flight', 'Search for an aircraft', 'Search for an airline', 'Search for an airport'];
+            var i = 0;
+            input.placeholder = hints[0];
+            setInterval(function () {
+                if (document.activeElement === input || input.value) return;
+                i = (i + 1) % hints.length;
+                input.placeholder = hints[i];
+            }, 3000);
+        })();
+    </script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"ad719144ebef4eba93112fbbd22949fa","spa":2}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5b03142997136a9',t:'MTc5NDc2NjAxMw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5b03142997136a9',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+</html>

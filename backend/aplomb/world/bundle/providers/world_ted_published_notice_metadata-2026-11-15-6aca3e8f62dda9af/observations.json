@@ -1,0 +1,132 @@
+[
+ {
+  "availableAt": "2026-11-15T17:30:36Z",
+  "category": "trade",
+  "countryIso3": "SWE",
+  "id": "world_ted_published_notice_metadata:789917-2026",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "European Union, Publications Office, Tenders Electronic Daily (TED). Metadata projected and normalized by Aplomb.",
+   "buyerCountries": [
+    "SWE"
+   ],
+   "geographicRole": "source_reported_buyer_country; not place of performance",
+   "noticeStatus": "published on TED",
+   "publicationDate": "2026-11-13",
+   "publicationDatePrecision": "day; source timezone offset retained",
+   "publicationNumber": "789917-2026",
+   "sourcePublicationDate": "2026-11-13+01:00"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:36Z",
+  "sourceId": "world_ted_published_notice_metadata",
+  "sourceUrl": "https://ted.europa.eu/en/notice/-/detail/789917-2026",
+  "title": "TED published procurement notice 789917-2026"
+ },
+ {
+  "availableAt": "2026-11-15T17:30:36Z",
+  "category": "trade",
+  "countryIso3": "BEL",
+  "id": "world_ted_published_notice_metadata:790513-2026",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "European Union, Publications Office, Tenders Electronic Daily (TED). Metadata projected and normalized by Aplomb.",
+   "buyerCountries": [
+    "BEL"
+   ],
+   "geographicRole": "source_reported_buyer_country; not place of performance",
+   "noticeStatus": "published on TED",
+   "publicationDate": "2026-11-13",
+   "publicationDatePrecision": "day; source timezone offset retained",
+   "publicationNumber": "790513-2026",
+   "sourcePublicationDate": "2026-11-13+01:00"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:36Z",
+  "sourceId": "world_ted_published_notice_metadata",
+  "sourceUrl": "https://ted.europa.eu/en/notice/-/detail/790513-2026",
+  "title": "TED published procurement notice 790513-2026"
+ },
+ {
+  "availableAt": "2026-11-15T17:30:36Z",
+  "category": "trade",
+  "countryIso3": "ESP",
+  "id": "world_ted_published_notice_metadata:791560-2026",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "European Union, Publications Office, Tenders Electronic Daily (TED). Metadata projected and normalized by Aplomb.",
+   "buyerCountries": [
+    "ESP"
+   ],
+   "geographicRole": "source_reported_buyer_country; not place of performance",
+   "noticeStatus": "published on TED",
+   "publicationDate": "2026-11-13",
+   "publicationDatePrecision": "day; source timezone offset retained",
+   "publicationNumber": "791560-2026",
+   "sourcePublicationDate": "2026-11-13+01:00"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:36Z",
+  "sourceId": "world_ted_published_notice_metadata",
+  "sourceUrl": "https://ted.europa.eu/en/notice/-/detail/791560-2026",
+  "title": "TED published procurement notice 791560-2026"
+ },
+ {
+  "availableAt": "2026-11-15T17:30:36Z",
+  "category": "trade",
+  "countryIso3": "DEU",
+  "id": "world_ted_published_notice_metadata:792113-2026",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "European Union, Publications Office, Tenders Electronic Daily (TED). Metadata projected and normalized by Aplomb.",
+   "buyerCountries": [
+    "DEU"
+   ],
+   "geographicRole": "source_reported_buyer_country; not place of performance",
+   "noticeStatus": "published on TED",
+   "publicationDate": "2026-11-13",
+   "publicationDatePrecision": "day; source timezone offset retained",
+   "publicationNumber": "792113-2026",
+   "sourcePublicationDate": "2026-11-13+01:00"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:36Z",
+  "sourceId": "world_ted_published_notice_metadata",
+  "sourceUrl": "https://ted.europa.eu/en/notice/-/detail/792113-2026",
+  "title": "TED published procurement notice 792113-2026"
+ },
+ {
+  "availableAt": "2026-11-15T17:30:36Z",
+  "category": "trade",
+  "countryIso3": "NLD",
+  "id": "world_ted_published_notice_metadata:792498-2026",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "European Union, Publications Office, Tenders Electronic Daily (TED). Metadata projected and normalized by Aplomb.",
+   "buyerCountries": [
+    "NLD"
+   ],
+   "geographicRole": "source_reported_buyer_country; not place of performance",
+   "noticeStatus": "published on TED",
+   "publicationDate": "2026-11-13",
+   "publicationDatePrecision": "day; source timezone offset retained",
+   "publicationNumber": "792498-2026",
+   "sourcePublicationDate": "2026-11-13+01:00"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:30:36Z",
+  "sourceId": "world_ted_published_notice_metadata",
+  "sourceUrl": "https://ted.europa.eu/en/notice/-/detail/792498-2026",
+  "title": "TED published procurement notice 792498-2026"
+ }
+]

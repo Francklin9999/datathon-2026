@@ -1,0 +1,113 @@
+{
+  "selectedCounts": {
+    "world_energy_charts_de_power": 384,
+    "world_global_carbon_budget_2026": 469
+  },
+  "historicalCounts": {},
+  "nullCoordinateCount": 853,
+  "manifests": [
+    {
+      "attribution": "Energy-Charts.info / Fraunhofer ISE; CC BY 4.0. Selected and normalized by Aplomb.",
+      "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+      "coverageComplete": false,
+      "dataVersion": "world_energy_charts_de_power-2026-11-15-4234af144cb40133",
+      "datasetId": "world_energy_charts_de_power",
+      "frequency": "Fixed 2026-11-14 day; manual bounded capture",
+      "historicalReplay": false,
+      "licence": "CC BY 4.0; attribution Energy-Charts.info; Aplomb selects and normalizes four series.",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "limitations": [
+        "Germany only, four production types and one day; no complete electricity mix.",
+        "Power in MW at fifteen-minute source intervals is not energy in MWh.",
+        "National series has no source point; no plant, operator, issuer or financial exposure is inferred.",
+        "Capture gates historical replay; source generation time does not prove original interval publication time."
+      ],
+      "name": "Fraunhofer Energy-Charts Germany selected public net generation",
+      "rawCaptures": [
+        {
+          "file": "raw-000.bin",
+          "sha256": "423ce92a144746348e8a61a929a8c0e7d6a40bb5659bf8a1a9fbffee6d783aca",
+          "url": "https://api.energy-charts.info/v2/public_power?country=de&start=2026-11-14&end=2026-11-14"
+        },
+        {
+          "file": "raw-001.bin",
+          "sha256": "523d3ec0fd82a7f148a94c02ffc08e8251c231d74e74b6019978af1e64b610d4",
+          "url": "https://api.energy-charts.info/openapi.json"
+        }
+      ],
+      "rejected": 0,
+      "retrievedAt": "2026-11-15T18:05:58Z",
+      "rowCount": 384,
+      "selectedSeries": [
+        "fossil_gas",
+        "solar",
+        "wind_offshore",
+        "wind_onshore"
+      ],
+      "sha256": "4234af144cb40133e28b452f252a0e94a87b5a41d6ae604bb6d9761499da3019",
+      "sourceIds": [
+        "SRC-195"
+      ],
+      "sourceIntervals": 96,
+      "sourceSeries": 21,
+      "sourceUrl": "https://api.energy-charts.info/v2/public_power?country=de&start=2026-11-14&end=2026-11-14"
+    },
+    {
+      "attribution": "Global Carbon Project / ICOS RI; Friedlingstein et al. (2026), DOI 10.18160/GCP-2026; CC BY 4.0; selected and normalized by Aplomb.",
+      "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+      "coverageComplete": false,
+      "dataVersion": "world_global_carbon_budget_2026-2026-11-15-b1961f1ded4e66be",
+      "datasetId": "world_global_carbon_budget_2026",
+      "frequency": "Annual revised scientific budget; manual capture",
+      "historicalReplay": false,
+      "licence": "CC BY 4.0 via ICOS RI; cite Global Carbon Project, Friedlingstein et al. (2026), DOI 10.18160/GCP-2026; selected and normalized by Aplomb.",
+      "licenceUrl": "https://www.icos-cp.eu/data-services/data-portal/data-licence",
+      "limitations": [
+        "Seven global annual components, 1959\u20132025; no country, facility or source point.",
+        "Values are gigatonnes of carbon per year, not gigatonnes of CO2; source model estimates and uncertainty apply.",
+        "2026 release version 0.1 may be revised; selected annual estimates are not real-time emissions.",
+        "Latest released estimates are gated at capture; original annual vintages are unavailable.",
+        "No issuer relationship, comprehensive ESG score or financial effect is inferred."
+      ],
+      "name": "Global Carbon Budget 2026 v0.1 selected annual global components",
+      "rawCaptures": [
+        {
+          "file": "raw-000.bin",
+          "sha256": "b46051d3f255eb39f74c60f3c1a20450d36795a34865bb2dfb90949c0bf3e4a2",
+          "url": "https://data.icos-cp.eu/objects/tGBR0_JV6zn3TGDzwaIEUNNn"
+        },
+        {
+          "file": "raw-001.bin",
+          "sha256": "629f64af56d3c749a1921e2334af6624a1884a5d79154a3b126713f7910754a2",
+          "url": "https://meta.icos-cp.eu/objects/tGBR0_JV6zn3TGDzwaIEUNNn"
+        },
+        {
+          "file": "raw-002.bin",
+          "sha256": "23ce8f73449711dfeb7d328363543effa62c0c1cd4036061c2af8bd767a2c57d",
+          "url": "https://www.icos-cp.eu/data-services/data-portal/data-licence"
+        }
+      ],
+      "rejected": 0,
+      "retrievedAt": "2026-11-15T18:07:05Z",
+      "rowCount": 469,
+      "selectedComponents": [
+        "fossil emissions excluding carbonation",
+        "land-use change emissions",
+        "atmospheric growth",
+        "ocean sink",
+        "land sink",
+        "cement carbonation sink",
+        "budget imbalance"
+      ],
+      "selectedYears": [
+        1959,
+        2025
+      ],
+      "sha256": "b1961f1ded4e66be42a681cea2516bd1e3c5d983000b7d5a463a4e0efc534b9a",
+      "sourceIds": [
+        "SRC-224"
+      ],
+      "sourceUrl": "https://meta.icos-cp.eu/objects/tGBR0_JV6zn3TGDzwaIEUNNn"
+    }
+  ]
+}

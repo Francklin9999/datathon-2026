@@ -34,6 +34,54 @@ export type DatasetId =
   | "macro_release_dates"
   | "etf_holdings"
   | "world_events"
+  | "world_aviation_weather"
+  | "world_noaa_alerts"
+  | "world_usgs_geojson"
+  | "world_gdacs_alerts"
+  | "world_nasa_power"
+  | "world_epa_sems_sites"
+  | "world_climate_trace_canada_electricity_co2"
+  | "world_federal_register"
+  | "world_ecb_press"
+  | "world_uk_sanctions_updates"
+  | "world_usgs_minerals"
+  | "world_statcan_cpi"
+  | "world_wgi_political_stability_2024"
+  | "world_ecb_eurosystem_assets_2024"
+  | "world_bis_us_debt_service_2024"
+  | "world_fed_chargeoffs_2024"
+  | "world_gdelt_event_metadata"
+  | "world_gdelt_gkg_locations"
+  | "world_gdelt_geographic_mentions"
+  | "world_fda_drug_enforcement_counts"
+  | "world_crossref_climate_bibliography"
+  | "world_ted_published_notice_metadata"
+  | "world_nasa_cmr_modis_granules"
+  | "world_openflights_airport_reference"
+  | "world_bls_us_cpi_2024"
+  | "world_wikimedia_topic_pageviews"
+  | "world_wikipedia_recent_changes"
+  | "world_ilo_unemployment_2024"
+  | "world_bank_sdmx_gdp_2024"
+  | "world_energy_charts_de_power"
+  | "world_nasa_gibs_modis_tile"
+  | "world_nominatim_eiffel_lookup"
+  | "world_osm_eiffel_tower"
+  | "world_global_carbon_budget_2026"
+  | "world_adsblol_heathrow_positions"
+  | "trade_marinecadastre_ais_2024_samples"
+  | "world_copernicus_activation_centroids"
+  | "world_firms_modis_europe"
+  | "world_nyfed_sce_inflation_2024"
+  | "world_ember_monthly_generation_2026"
+  | "world_geofabrik_monaco_transport"
+  | "world_geoboundaries_fra_adm1"
+  | "world_ucdp_ged_ukraine_2025"
+  | "energy_wri_plants"
+  | "trade_portwatch_ports"
+  | "trade_un_comtrade_exports"
+  | "trade_wits_fuel_exports"
+  | "trade_unctad_concentration"
   | "attention_pageviews"
   | "emissions_facilities"
   | "natural_hazards"
@@ -804,8 +852,14 @@ export interface AplombContracts {
   WorldEventResponse: WorldEventResponse;
   WorldEventsResponse: WorldEventsResponse;
   WorldExposureResponse: WorldExposureResponse;
+  WorldGeographicRelationship: WorldGeographicRelationship;
   WorldLayer: WorldLayer;
   WorldLayersResponse: WorldLayersResponse;
+  WorldModeStatus: WorldModeStatus;
+  WorldObservation: WorldObservation;
+  WorldObservationLocation: WorldObservationLocation;
+  WorldObservationSource: WorldObservationSource;
+  WorldObservationsResponse: WorldObservationsResponse;
   WorstExposure: WorstExposure;
 }
 /**
@@ -3625,6 +3679,23 @@ export interface WorldEventResponse {
   event: WorldEvent;
   related: WorldEvent[];
   exposures: HoldingExposure[];
+  geographicRelationships?: WorldGeographicRelationship[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldGeographicRelationship".
+ */
+export interface WorldGeographicRelationship {
+  relationshipId: string;
+  relation: "EVENT_OCCURRED_AT" | "FACILITY_LOCATED_IN";
+  subjectId: string;
+  objectId: string;
+  evidenceClass: "direct" | "derived" | "candidate" | "model_inferred";
+  sourceId: string;
+  sourceUrl: string;
+  normalizedRecordSha256: string;
+  retrievedAt: ISODateTime;
+  limitations: string[];
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3669,6 +3740,71 @@ export interface WorldLayer {
  */
 export interface WorldLayersResponse {
   items: WorldLayer[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldModeStatus".
+ */
+export interface WorldModeStatus {
+  mode: string;
+  available: boolean;
+  count: number;
+  reason: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldObservation".
+ */
+export interface WorldObservation {
+  id: string;
+  mode: "news" | "macro" | "trade" | "energy" | "hazards" | "conflicts" | "aviation" | "environment" | "infrastructure";
+  title: string;
+  summary: string;
+  occurredAt: ISODateTime;
+  timeBasis: "source_observation" | "reference_period" | "event_date" | "capture_only";
+  publishedAt: ISODateTime | null;
+  retrievedAt: ISODateTime;
+  location: WorldObservationLocation | null;
+  geometry?: {
+    [k: string]: unknown;
+  } | null;
+  countryIso3?: string | null;
+  source: WorldObservationSource;
+  datasetId: string;
+  limitations: string[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldObservationLocation".
+ */
+export interface WorldObservationLocation {
+  lat: number;
+  lon: number;
+  countryIso3: string | null;
+  precision: "point" | "city" | "country" | "polygon_anchor";
+  geometry?: {
+    [k: string]: unknown;
+  } | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldObservationSource".
+ */
+export interface WorldObservationSource {
+  name: string;
+  url: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "WorldObservationsResponse".
+ */
+export interface WorldObservationsResponse {
+  items: WorldObservation[];
+  total: number;
+  nextCursor: string | null;
+  dataVersion: string | null;
+  capturedAt: ISODateTime | null;
+  modes: WorldModeStatus[];
 }
 
 export type I18nText = AplombContracts["I18nText"];

@@ -1,0 +1,36 @@
+{
+ "attribution": "Source: European Central Bank, ILM.W.U2.C.T000000.Z5.Z01. Adapted to selected normalized records by Aplomb; numerical values unchanged. This information is available free of charge from the ECB website.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_ecb_eurosystem_assets_2024-2026-11-15-816cfa0805b73d25",
+ "datasetId": "world_ecb_eurosystem_assets_2024",
+ "frequency": "Weekly",
+ "historicalReplay": false,
+ "licence": "ECB statistics reuse with accurate source credit, modification disclosure and free-source notice",
+ "licenceUrl": "https://www.ecb.europa.eu/services/disclaimer/html/index.en.html",
+ "limitations": [
+  "One 2024 series only. National or supranational aggregate; no point coordinates, issuer links or financial impact.",
+  "Period start is a display anchor; source publication time and historical vintage are unproven.",
+  "Latest captured values may be revised; excluded before retrieval, unavailable for original historical replay.",
+  "ECB information is available free of charge from the original linked ECB source; normalized selection by Aplomb."
+ ],
+ "name": "ECB 2024 Eurosystem total assets/liabilities",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "bc99f6382e523c16def0c5a9f7528186f6011ef4880aec9fce4853f43a636f37",
+   "url": "https://data-api.ecb.europa.eu/service/data/ILM/W.U2.C.T000000.Z5.Z01?startPeriod=2024-01-01&endPeriod=2024-12-31&format=csvdata"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:45:23Z",
+ "rowCount": 52,
+ "scope": "One selected 2024 official macro series; incomplete provider and history coverage.",
+ "sha256": "816cfa0805b73d251ae89e3e3b11fba7da937fa49f064837ba112dfc0f1535b5",
+ "sourceIds": [
+  "SRC-093",
+  "MASTER-035"
+ ],
+ "sourceRows": 52,
+ "sourceUrl": "https://data-api.ecb.europa.eu/service/data/ILM/W.U2.C.T000000.Z5.Z01?startPeriod=2024-01-01&endPeriod=2024-12-31&format=csvdata"
+}

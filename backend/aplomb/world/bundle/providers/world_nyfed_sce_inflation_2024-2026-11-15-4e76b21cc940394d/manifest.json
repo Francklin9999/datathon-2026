@@ -1,0 +1,54 @@
+{
+ "attribution": "Source: Survey of Consumer Expectations, © 2013-2026 Federal Reserve Bank of New York (FRBNY). The SCE data are available without charge at http://www.newyorkfed.org/microeconomics/sce and may be used subject to license terms posted there. FRBNY disclaims any responsibility for this analysis and interpretation of Survey of Consumer Expectations data. Aplomb selected the 2024 monthly observations and normalized dates and storage format. No FRBNY endorsement is implied. Workbook dataset licence and source copyright notices are preserved in the immutable original download.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_nyfed_sce_inflation_2024-2026-11-15-4e76b21cc940394d",
+ "datasetId": "world_nyfed_sce_inflation_2024",
+ "frequency": "Monthly observations; manual bounded completed-year capture",
+ "historicalReplay": false,
+ "licence": "FRBNY SCE dataset-specific royalty-free reuse and derivative licence",
+ "licenceUrl": "https://www.newyorkfed.org/medialibrary/interactives/sce/sce/downloads/data/frbny-sce-data.xlsx",
+ "limitations": [
+  "Twelve selected monthly national household survey expectations; not measured CPI inflation.",
+  "Percent is the expected inflation rate; it is not a probability or an index.",
+  "Original workbook series and sheet titles are retained unchanged.",
+  "Attribution, free source URL, copyright notice and SCE licence accompany every observation.",
+  "Normalized storage and row selection are Aplomb modifications; no FRBNY endorsement.",
+  "Distributed source content remains subject to its original licence and cannot be given more restrictive terms.",
+  "Monthly first-day display anchors are not exact observation or publication dates.",
+  "Current workbook revision captured at retrieval; original vintage availability is unproven.",
+  "No point coordinates, issuer relationships or modeled financial effects."
+ ],
+ "name": "Survey of Consumer Expectations",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "7dddb0eb6d17cd77070c5cafad4c100aefe95dce3c585a9aa15ecdee0462bfa5",
+   "url": "https://www.newyorkfed.org/medialibrary/interactives/sce/sce/downloads/data/frbny-sce-data.xlsx"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "050d025f9eeb2977f28ad96d21f694f438385e0829b82b0fb0fbb8e9e8f5bf1a",
+   "url": "https://www.newyorkfed.org/privacy/termsofuse"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "e9ba57dcadcb82ae1470f3bf438a959230b51973f930317374640ae68bde983c",
+   "url": "https://www.newyorkfed.org/microeconomics/sce"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T18:12:51Z",
+ "rightsEvidence": {
+  "disclaimerText": "© 2013-2026 Federal Reserve Bank of New York.\nThe Survey of Consumer Expectations (the “SCE”) was developed and is owned by the Federal Reserve Bank of New York (“FRBNY”).\nThe subject matter and wording of individual SCE questions are not necessarily unique to the SCE; some SCE questions have been informed by\nor adapted from other public surveys.\nPermission to Use\nFRBNY makes the SCE questions and some data it collects through the SCE available at no charge at \nhttp://www.newyorkfed.org/microeconomics/sce\nThe SCE questions and published data may be used and adapted by others subject to the license posted with them on the FRBNY website.    \nData Attribution \nFRBNY requires the following attribution and disclaimer to be included with any publication or presentation of SCE data:  \n“Source:  Survey of Consumer Expectations, © 2013-2026 Federal Reserve Bank of New York (FRBNY).  \nThe SCE data are available without charge at  http://www.newyorkfed.org/microeconomics/sce and may be used subject to license terms\nposted there.  FRBNY disclaims any responsibility or legal liability for this analysis and interpretation of Survey of Consumer Expectations data.” ",
+  "licenseText": "License for Survey of Consumer Expectations Data and Questions\nThe Survey of Consumer Expectations (the “SCE”) was developed and is owned by the Federal Reserve Bank of New York (“FRBNY”).  \nFRBNY launched the SCE in 2013.  The subject matter and wording of individual SCE questions are not necessarily unique to the SCE; some SCE \nquestions have been informed by or adapted from other public surveys.  \nFRBNY has published the SCE questions and most data it collects through the SCE so that they are widely available at no charge for study, comment, \nand resuse. FRBNY permits use of the SCE questions and FRBNY-published SCE data on the following license terms.  \nLicense Grant\nSubject to the terms and conditions of this license, FRBNY grants users, who may be individuals or entities, a worldwide, royalty-free, nonexclusive\nright to reproduce, use, and distribute the SCE questions and FRBNY-published SCE data, in whole or in part, and to produce, reproduce, and\ndistribute work derived from or based on the SCE questions and the FRBNY-published SCE data.  \nDerivative works include, for example, works that replicate some, but not all, of the SCE questions alone or in combination with new material, \nworks that translate, rearrange, adapt, or otherwise transform or modify the SCE questions as presented by FRBNY, and manipulation, analysis, \nand interpretation of the FRBNY-published SCE data. \nThe license continues through the term of FRBNY’s copyright in the SCE questions and data, but terminates automatically if a user fails to comply \nwith the terms of the license.\nTrademark Use Prohibited\nThis license does not permit users of the SCE questions or data to use any logo, seal, or other trademark of FRBNY or any other Federal Reserve\nentity.\nNo Endorsement\nThis license is not an endorsement by FRBNY of any use of the SCE questions or data by anyone other than FRBNY. \nUsers may not assert or imply that FRBNY participates in, sponsors, endorses, or otherwise supports or contributes to any use, analysis,\ninterpretation, or publication of the SCE questions or data or any derivative works by anyone other than FRBNY.  \nWhile SCE questions may be used or adapted for use in other surveys, such other surveys must not reference or attribute the other survey\nor any individual questions to the Federal Reserve or any Federal Reserve entity, including FRBNY.\nResults Based on SCE Questions\nWhen results of another survey using all or substantially all SCE questions are published or presented, FRBNY asks that the survey publisher\nacknowledge use of the SCE questions but not in such a way as to imply that FRBNY has endorsed the survey. \nFRBNY requires that the following attribution and disclaimer be included with the results:  \n“Some [All] survey questions were taken or adapted from the Survey of Consumer Expectations, © 2013-2026 Federal Reserve Bank of New York\n(FRBNY). The SCE questions are available without charge at http://www.newyorkfed.org/microeconomics/sce and may be used subject to\nlicense terms posted there. FRBNY did not participate in or endorse [identify user’s survey], and FRBNY disclaims any responsibility or legal\nliability for the administration of the survey and the analysis and interpretation of data collected.”  \n(Brackets indicate detail to be completed by the publisher of the other survey.)\nData Attribution\nFRBNY requires the following attribution and disclaimer to be included with any publication or presentation of the SCE data:  \n“Source:  Survey of Consumer Expectations, © 2013-2026 Federal Reserve Bank of New York (FRBNY).  The SCE data are available without \ncharge at http://www.newyorkfed.org/microeconomics/sce and may be used subject to license terms posted there. FRBNY disclaims\nany responsibility for this analysis and interpretation of Survey of Consumer Expectations data.”   \nWhere figures or graphs present SCE data in a publication that generally includes separate attributions for figures and graphs, use the following\nattribution for the figure or graph: “Source: Survey of Consumer Expectations, New York Fed.”\nNo Liability\nFRBNY makes no representations or warranties of any kind regarding the SCE questions or data. The SCE questions and data are published\n“AS IS.” By using the SCE questions or data, users agree they are solely responsible for their own use of the SCE questions and data\nand for use of SCE questions or data and any of the user’s derivative works by any third party, and users agree to indemnify, defend, and hold\nharmless FRBNY, its employees, and agents from any claim, damage, liability, and expense (including legal expenses) arising from the user's use\nof SCE questions or data and any of the user’s derivative works. \nFRBNY disclaims all liability of any kind and under any legal theory for use of the SCE questions or data in any manner by anyone other than\nFRBNY. FRBNY may, at any time in its discretion, change the SCE questions and the terms on which the SCE questions and data are \nmade available and make corrections to the SCE data and other changes to the form and content of the data reports. \nFRBNY may also stop distributing the SCE questions and data at any time in its discretion.  \nInterpretation\nFRBNY will not be bound by any additional or different terms or conditions offered by any user of the SCE questions or data unless FRBNY \nexpressly agrees in writing to them. No term or condition of this license, and no right of FRBNY to enforce this license, will be waived by FRBNY\nunless expressly agreed in writing by FRBNY.  \nThis license is governed by the federal laws of the United States, and in the absence of controlling federal laws, by the law of the State of New York."
+ },
+ "rowCount": 12,
+ "scope": "United States, 2024 monthly median one-year-ahead expected inflation rate",
+ "sha256": "4e76b21cc940394d0c4b07e9391f31a0fa7d633f444353cc4d2c758b556a0d6d",
+ "sourceIds": [
+  "SRC-102"
+ ],
+ "sourceRows": 12,
+ "sourceUrl": "https://www.newyorkfed.org/microeconomics/sce"
+}

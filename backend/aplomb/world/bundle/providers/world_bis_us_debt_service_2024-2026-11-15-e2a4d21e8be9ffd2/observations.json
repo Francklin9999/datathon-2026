@@ -1,0 +1,94 @@
+[
+ {
+  "availableAt": "2026-11-15T17:45:23Z",
+  "category": "macro",
+  "countryIso3": "USA",
+  "id": "world_bis_us_debt_service_2024:2024-Q1",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-01-01",
+  "properties": {
+   "attribution": "Source: Bank for International Settlements (BIS), WS_DSR Q.US.P. Selected normalized records by Aplomb. No BIS endorsement. Any translation is not an official BIS translation.",
+   "geographicRole": "national_statistical_area",
+   "referencePeriod": "2024-Q1",
+   "seasonalAdjustment": "not specified",
+   "temporalPrecision": "reference period; first day is only a display anchor",
+   "unit": "percent of income",
+   "value": 14.5
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:45:23Z",
+  "sourceId": "world_bis_us_debt_service_2024",
+  "sourceUrl": "https://stats.bis.org/api/v1/data/WS_DSR/Q.US.P?startPeriod=2024-Q1&endPeriod=2024-Q4",
+  "title": "BIS 2024 United States private nonfinancial debt-service ratio, 2024-Q1: 14.5 percent of income"
+ },
+ {
+  "availableAt": "2026-11-15T17:45:23Z",
+  "category": "macro",
+  "countryIso3": "USA",
+  "id": "world_bis_us_debt_service_2024:2024-Q2",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-04-01",
+  "properties": {
+   "attribution": "Source: Bank for International Settlements (BIS), WS_DSR Q.US.P. Selected normalized records by Aplomb. No BIS endorsement. Any translation is not an official BIS translation.",
+   "geographicRole": "national_statistical_area",
+   "referencePeriod": "2024-Q2",
+   "seasonalAdjustment": "not specified",
+   "temporalPrecision": "reference period; first day is only a display anchor",
+   "unit": "percent of income",
+   "value": 14.4
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:45:23Z",
+  "sourceId": "world_bis_us_debt_service_2024",
+  "sourceUrl": "https://stats.bis.org/api/v1/data/WS_DSR/Q.US.P?startPeriod=2024-Q1&endPeriod=2024-Q4",
+  "title": "BIS 2024 United States private nonfinancial debt-service ratio, 2024-Q2: 14.4 percent of income"
+ },
+ {
+  "availableAt": "2026-11-15T17:45:23Z",
+  "category": "macro",
+  "countryIso3": "USA",
+  "id": "world_bis_us_debt_service_2024:2024-Q3",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-07-01",
+  "properties": {
+   "attribution": "Source: Bank for International Settlements (BIS), WS_DSR Q.US.P. Selected normalized records by Aplomb. No BIS endorsement. Any translation is not an official BIS translation.",
+   "geographicRole": "national_statistical_area",
+   "referencePeriod": "2024-Q3",
+   "seasonalAdjustment": "not specified",
+   "temporalPrecision": "reference period; first day is only a display anchor",
+   "unit": "percent of income",
+   "value": 14.4
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:45:23Z",
+  "sourceId": "world_bis_us_debt_service_2024",
+  "sourceUrl": "https://stats.bis.org/api/v1/data/WS_DSR/Q.US.P?startPeriod=2024-Q1&endPeriod=2024-Q4",
+  "title": "BIS 2024 United States private nonfinancial debt-service ratio, 2024-Q3: 14.4 percent of income"
+ },
+ {
+  "availableAt": "2026-11-15T17:45:23Z",
+  "category": "macro",
+  "countryIso3": "USA",
+  "id": "world_bis_us_debt_service_2024:2024-Q4",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-10-01",
+  "properties": {
+   "attribution": "Source: Bank for International Settlements (BIS), WS_DSR Q.US.P. Selected normalized records by Aplomb. No BIS endorsement. Any translation is not an official BIS translation.",
+   "geographicRole": "national_statistical_area",
+   "referencePeriod": "2024-Q4",
+   "seasonalAdjustment": "not specified",
+   "temporalPrecision": "reference period; first day is only a display anchor",
+   "unit": "percent of income",
+   "value": 14.2
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:45:23Z",
+  "sourceId": "world_bis_us_debt_service_2024",
+  "sourceUrl": "https://stats.bis.org/api/v1/data/WS_DSR/Q.US.P?startPeriod=2024-Q1&endPeriod=2024-Q4",
+  "title": "BIS 2024 United States private nonfinancial debt-service ratio, 2024-Q4: 14.2 percent of income"
+ }
+]

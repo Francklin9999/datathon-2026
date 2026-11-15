@@ -1,0 +1,59 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_epa_sems_sites-2026-11-15-c2f0e7d3bbf99359",
+ "datasetId": "world_epa_sems_sites",
+ "frequency": "first 200 site records per selected state; manual capture",
+ "historicalReplay": false,
+ "licence": "EPA-produced geospatial data generally public domain unless otherwise specified; EPA attribution",
+ "licenceUrl": "https://www.epa.gov/web-policies-and-procedures/epa-disclaimers",
+ "limitations": [
+  "Only six US states and the first 200 source rows in each; not full registry coverage.",
+  "Records without source coordinates are excluded. Site status is retained as source text.",
+  "A SEMS listing is not an emissions measurement, current contamination finding, or issuer relationship.",
+  "No source observation timestamp or historical vintage; capture time is first proven availability."
+ ],
+ "name": "EPA Envirofacts SEMS site reference sample",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "03caaa6bfd8aa9ca99b8e9bc6c4545c69c93d6169bc0a9e56719e7c87a68ff64",
+   "url": "https://data.epa.gov/dmapservice/sems.envirofacts_site/fk_ref_state_code/equals/CA/0:200"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "1234a1bed9dc80e6560e3fadee3b78b0c88463619f2b56ac2431c42c1bbeddf4",
+   "url": "https://data.epa.gov/dmapservice/sems.envirofacts_site/fk_ref_state_code/equals/FL/0:200"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "1360ac1e5661ca084841a2b254bed309861d9df1afb6906c05ab0aaaa1f6ef79",
+   "url": "https://data.epa.gov/dmapservice/sems.envirofacts_site/fk_ref_state_code/equals/IL/0:200"
+  },
+  {
+   "file": "raw-003.bin",
+   "sha256": "f1604ea7235d8a171ff9750f847c46fdc592a38d14f5f1aaa12daca559959e91",
+   "url": "https://data.epa.gov/dmapservice/sems.envirofacts_site/fk_ref_state_code/equals/NY/0:200"
+  },
+  {
+   "file": "raw-004.bin",
+   "sha256": "10ec074210477626353b2231b73dc94f733694ff817ced1d60cfe7ec32d353fc",
+   "url": "https://data.epa.gov/dmapservice/sems.envirofacts_site/fk_ref_state_code/equals/TX/0:200"
+  },
+  {
+   "file": "raw-005.bin",
+   "sha256": "3898792496aad8d71279bbab79be95ad014089cd430ab0630feb0ad398f2545c",
+   "url": "https://data.epa.gov/dmapservice/sems.envirofacts_site/fk_ref_state_code/equals/WA/0:200"
+  }
+ ],
+ "rejected": 762,
+ "retrievedAt": "2026-11-15T17:08:22Z",
+ "rowCount": 438,
+ "scope": "First 200 SEMS site records in each of six US states; only source-geocoded records retained.",
+ "sha256": "c2f0e7d3bbf99359e989cf54bc4e6321d84d8640646c2540a5a2bc77407d602e",
+ "sourceIds": [
+  "SRC-219"
+ ],
+ "sourceRows": 1200,
+ "sourceUrl": "https://data.epa.gov/dmapservice/sems.envirofacts_site/fk_ref_state_code/equals"
+}

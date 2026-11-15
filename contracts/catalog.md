@@ -251,6 +251,54 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `macro_release_dates` | Publication dates of monthly series | P1 |
 | `etf_holdings` | Constituents and weights of ETFs | P1 |
 | `world_events` | Geolocated events | P1 |
+| `world_aviation_weather` | Aviation weather observations from bounded airport station captures | P2 |
+| `world_noaa_alerts` | NOAA weather alert observations with source geometry | P2 |
+| `world_usgs_geojson` | USGS weekly magnitude 4.5 to below 6 earthquake GeoJSON observations | P2 |
+| `world_gdacs_alerts` | GDACS bounded global disaster alert observations | P2 |
+| `world_nasa_power` | NASA POWER bounded gridded daily temperature observations | P2 |
+| `world_epa_sems_sites` | EPA Envirofacts bounded geolocated SEMS site references | P2 |
+| `world_climate_trace_canada_electricity_co2` | Climate TRACE monthly 2025 Canada electricity-generation CO2 estimates | P2 |
+| `world_federal_register` | Federal Register policy observations | P2 |
+| `world_ecb_press` | ECB press release metadata from the current RSS feed | P2 |
+| `world_uk_sanctions_updates` | UK Sanctions List publication change notes | P2 |
+| `world_usgs_minerals` | USGS selected annual country mine-production estimates | P2 |
+| `world_statcan_cpi` | Statistics Canada bounded monthly all-items CPI index | P2 |
+| `world_wgi_political_stability_2024` | World Bank WGI 2024 political stability governance scores by country | P2 |
+| `world_ecb_eurosystem_assets_2024` | ECB 2024 weekly Eurosystem total assets/liabilities sample | P2 |
+| `world_bis_us_debt_service_2024` | BIS 2024 quarterly United States private nonfinancial debt-service sample | P2 |
+| `world_fed_chargeoffs_2024` | Federal Reserve 2024 quarterly all-bank total-loan charge-off sample | P2 |
+| `world_gdelt_event_metadata` | GDELT bounded Event action-location metadata sample | P2 |
+| `world_gdelt_gkg_locations` | GDELT bounded GKG article-location metadata sample | P2 |
+| `world_gdelt_geographic_mentions` | GDELT bounded Geographic Graph article-location metadata sample | P2 |
+| `world_fda_drug_enforcement_counts` | openFDA bounded drug enforcement record counts by classification | P2 |
+| `world_crossref_climate_bibliography` | Crossref five-record 2024 climate-title bibliographic metadata sample | P2 |
+| `world_ted_published_notice_metadata` | TED five-record published procurement notice metadata sample with reported buyer countries | P2 |
+| `world_nasa_cmr_modis_granules` | NASA CMR MODIS Terra five-granule satellite coverage polygon metadata; no fire detections or imagery | P2 |
+| `world_openflights_airport_reference` | OpenFlights ODbL static airport reference for six countries; no aircraft tracking | P2 |
+| `world_bls_us_cpi_2024` | U.S. BLS monthly 2024 CPI-U all-items index; no location pins | P2 |
+| `world_wikimedia_topic_pageviews` | Wikimedia daily topic article pageview counts; no reader geography | P2 |
+| `world_wikipedia_recent_changes` | English Wikipedia bounded factual edit metadata; no editor details or event location | P2 |
+| `world_ilo_unemployment_2024` | ILOSTAT 2024 national unemployment rate for Canada, Japan and Brazil | P2 |
+| `world_bank_sdmx_gdp_2024` | World Bank SDMX 2024 nominal GDP for Canada, Japan and Brazil | P2 |
+| `world_energy_charts_de_power` | Germany selected 15-minute electricity production power series from Fraunhofer Energy-Charts | P2 |
+| `world_nasa_gibs_modis_tile` | NASA GIBS one Terra MODIS overview browse tile and its footprint | P2 |
+| `world_nominatim_eiffel_lookup` | One cached Nominatim Eiffel Tower place lookup under ODbL | P2 |
+| `world_osm_eiffel_tower` | OpenStreetMap Eiffel Tower mapped landmark footprint under ODbL | P2 |
+| `world_global_carbon_budget_2026` | Global Carbon Budget 2026 v0.1 selected annual global components in GtC/yr | P2 |
+| `world_adsblol_heathrow_positions` | ADS-B.lol one bounded Heathrow-area aircraft report snapshot under ODbL | P2 |
+| `trade_marinecadastre_ais_2024_samples` | NOAA MarineCadastre two annual 2024 AIS raster cell counts; no vessel positions | P2 |
+| `world_copernicus_activation_centroids` | Five public Copernicus EMS mapping activation centroids; no affected boundaries or damage assessment | P2 |
+| `world_firms_modis_europe` | NASA FIRMS MODIS Europe rolling 24-hour thermal anomaly pixel centers | P2 |
+| `world_nyfed_sce_inflation_2024` | New York Fed SCE twelve 2024 monthly household inflation expectation observations | P2 |
+| `world_ember_monthly_generation_2026` | Ember 2026 selected monthly country electricity generation aggregates in TWh | P2 |
+| `world_geofabrik_monaco_transport` | Geofabrik Monaco extract OpenStreetMap transport points under ODbL | P2 |
+| `world_geoboundaries_fra_adm1` | geoBoundaries pinned 2022 metropolitan France ADM1 polygons | P2 |
+| `world_ucdp_ged_ukraine_2025` | UCDP GED 26.1 bounded Ukraine 2025 conflict events | P2 |
+| `energy_wri_plants` | WRI power plant reference observations | P2 |
+| `trade_portwatch_ports` | IMF PortWatch port reference observations | P2 |
+| `trade_un_comtrade_exports` | UN Comtrade selected annual country merchandise exports to the world | P2 |
+| `trade_wits_fuel_exports` | WITS Canada annual fuel exports to the world, sourced from UN Comtrade | P2 |
+| `trade_unctad_concentration` | UNCTAD selected global export concentration indices | P2 |
 | `attention_pageviews` | Wikipedia page views per asset | P1 |
 | `emissions_facilities` | ECCC and EPA facility emissions | P1 (cut item 2) |
 | `natural_hazards` | USGS earthquakes, NASA FIRMS wildfires | P1 (cut item 2) |

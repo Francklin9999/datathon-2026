@@ -1,0 +1,4 @@
+{
+  "url": "https://overpass.private.coffee/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A10%5D%5Bmaxsize%3A1000000%5D%3Bway%285013364%29%3Bout+geom%3B",
+  "error": "The read operation timed out"
+}

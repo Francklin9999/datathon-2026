@@ -1,0 +1,52 @@
+{
+ "attribution": "Source: Wikimedia Analytics API; selected numeric counts adapted by Aplomb.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_wikimedia_topic_pageviews-2026-11-15-5d0fb5273c198afa",
+ "datasetId": "world_wikimedia_topic_pageviews",
+ "frequency": "Daily counts, manual bounded capture",
+ "historicalReplay": false,
+ "licence": "Wikimedia Analytics datasets: CC0 1.0 unless otherwise specified; numeric analytics only",
+ "licenceUrl": "https://dumps.wikimedia.org/legal.html",
+ "limitations": [
+  "Only Canada, Japan and Brazil English Wikipedia article counts, 2026-10-01 through 2026-10-07.",
+  "Counts are pageviews, not unique people, sentiment, event confirmation or investor interest.",
+  "User-agent classification excludes identified spiders and automated requests; classification is imperfect.",
+  "Article topic does not establish reader location or any event location; country and coordinates remain absent.",
+  "Daily midnight UTC is a reporting-period anchor, not a publication or event timestamp.",
+  "No original historical vintage or issuer/exposure relationship is established; gated at capture."
+ ],
+ "name": "Wikimedia English Wikipedia country-topic pageviews",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "932ebf9c7c0c615171e39d03493788fdfdf7ae219a7823a974e0befed9527750",
+   "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Canada/daily/2026100100/2026100700"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "a7752502ddb3cd483d568b3eef4fa3efa801d77249181ab7cf3efdd3280305cd",
+   "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Japan/daily/2026100100/2026100700"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "5dcaeac19e70422a02ae987f3f85fd094c30ea871f4c6c191222adfe7ad93b0e",
+   "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/user/Brazil/daily/2026100100/2026100700"
+  },
+  {
+   "file": "raw-003.bin",
+   "sha256": "3c0d0485455a489af64983a5c13349970718a8f12e056479d40a15311ca7653e",
+   "url": "https://dumps.wikimedia.org/legal.html"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:38:59Z",
+ "rowCount": 21,
+ "scope": "Three English Wikipedia topic pages for seven UTC days.",
+ "sha256": "5d0fb5273c198afa645d2c57a41830c694a314938d627137b0366612c1d75721",
+ "sourceIds": [
+  "SRC-126"
+ ],
+ "sourceRows": 21,
+ "sourceUrl": "https://wikitech.wikimedia.org/wiki/Data_Platform/AQS/Pageviews"
+}

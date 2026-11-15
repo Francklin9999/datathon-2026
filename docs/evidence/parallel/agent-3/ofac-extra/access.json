@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-11-15T17:26:22.809194+00:00",
+  "requests": [
+    {
+      "url": "https://ofac.treasury.gov/sanctions-list-service",
+      "status": 200,
+      "authentication": "none",
+      "file": "sanctions-list-service.html",
+      "sha256": "dc983a45fbc585bea72301328e164b9797eb0aaa0ad458a4a4e1ff38c855dce8",
+      "bytes": 49425
+    },
+    {
+      "url": "https://ofac.treasury.gov/recent-actions",
+      "status": 200,
+      "authentication": "none",
+      "file": "recent-actions.html",
+      "sha256": "b1929b0c11084fcb2198dbb35b1d6ba56f86b3d520c48c5442ed9e32faf7c36d",
+      "bytes": 44186
+    },
+    {
+      "url": "https://ofac.treasury.gov/faqs/11",
+      "status": 200,
+      "authentication": "none",
+      "file": "ofac-faq-11.html",
+      "sha256": "59c09f35b25ad817cbd5abbd5cda212796d0c23276266deea1283ceb5d14e832",
+      "bytes": 36795
+    },
+    {
+      "url": "https://home.treasury.gov/subfooter/site-policies-and-notices",
+      "status": 200,
+      "authentication": "none",
+      "file": "site-policies.html",
+      "sha256": "26e204a838134e294baa5a1affbdb936a34b194904284ea3ede65275f8f6f601",
+      "bytes": 69878
+    },
+    {
+      "url": "https://home.treasury.gov/subfooter/privacy-policy",
+      "status": 200,
+      "authentication": "none",
+      "file": "privacy-policy.html",
+      "sha256": "f363049898577a03b149766571ed7837df585ab59f68ee8ba8ffb24b27041273",
+      "bytes": 123838
+    },
+    {
+      "url": "https://sanctionslist.ofac.treas.gov/Home/SdnList",
+      "status": 200,
+      "authentication": "none",
+      "file": "sdn-download.html",
+      "sha256": "106e250271db3616dbdbb1232f7012a58b1d43e2f3b496cdf14153e410eccbca",
+      "bytes": 2629
+    },
+    {
+      "url": "https://sanctionslist.ofac.treas.gov/static/",
+      "status": 403,
+      "authentication": "none",
+      "capture": "none; failure only"
+    },
+    {
+      "url": "https://www.copyright.gov/title17/92chap1.html",
+      "status": 403,
+      "capture": "none; failure only"
+    },
+    {
+      "url": "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section105&num=0&edition=prelim",
+      "status": 404,
+      "capture": "none; failure only"
+    },
+    {
+      "url": "https://home.treasury.gov/utility/privacy-legal-and-use-policies",
+      "status": 404,
+      "capture": "none; failure only"
+    }
+  ],
+  "rightsEstablished": false,
+  "runtimeCapture": false
+}

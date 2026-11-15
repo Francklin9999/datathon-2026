@@ -1,0 +1,35 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": true,
+ "dataVersion": "energy_wri_plants-2026-11-15-659aca5e95bf33c6",
+ "datasetId": "energy_wri_plants",
+ "frequency": "static; WRI maintenance ended 2022",
+ "historicalReplay": false,
+ "licence": "CC BY 4.0; attribution World Resources Institute Global Power Plant Database, adapted by Aplomb",
+ "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+ "limitations": [
+  "Repository CSV captured by hash; last named release v1.3.0, repository may differ.",
+  "Coordinates and reported owners can contain source matching errors.",
+  "Reported owner names do not establish security relationships.",
+  "No historical vintages."
+ ],
+ "name": "WRI Global Power Plant Database repository snapshot",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "4b1f93e0fd93664f18684d9b05d0a52ed9658c6a8cf0d21ff2520791379ba7fc",
+   "url": "https://raw.githubusercontent.com/wri/global-power-plant-database/master/output_database/global_power_plant_database.csv"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T16:12:26Z",
+ "rowCount": 34936,
+ "scope": "WRI v1.3.0 static plant reference; reported owners are not verified listed issuers.",
+ "sha256": "659aca5e95bf33c67a8fba9465124ef0763070ded501d23f2c0f3499d0a79abc",
+ "sourceIds": [
+  "SRC-196",
+  "MASTER-083"
+ ],
+ "sourceRows": 34936,
+ "sourceUrl": "https://raw.githubusercontent.com/wri/global-power-plant-database/master/output_database/global_power_plant_database.csv"
+}

@@ -7,3 +7,4 @@
 *.jpg binary
 *.ico binary
 *.woff2 binary
+backend/aplomb/world/bundle/providers/**/raw-*.bin binary -eol

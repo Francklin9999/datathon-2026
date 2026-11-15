@@ -1,0 +1,28 @@
+[
+  {
+    "key": "firms-content",
+    "url": "https://firms.modaps.eosdis.nasa.gov/content/active_fire/",
+    "status": 200,
+    "bytes": 7336,
+    "sha256": "83cd0ffe9382d9e885cdbde934e8ec7bc42b61a43914b031303da61b41fa8d2f"
+  },
+  {
+    "key": "copernicus-app",
+    "url": "https://cems-mapping-website.s3.amazonaws.com/static/datastats/assets/main-B_pdTgP9.js",
+    "status": 200,
+    "bytes": 1558414,
+    "sha256": "83d4ab19e5edf3eb3c420ffa4533b3d2a0e069f8f0a82bbc453b4e95a11a3129"
+  },
+  {
+    "key": "copernicus-citation",
+    "url": "https://mapping.emergency.copernicus.eu/about/citations-guidelines/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "key": "flood-ee-catalog",
+    "url": "https://developers.google.com/earth-engine/datasets/catalog/GLOBAL_FLOOD_DB_MODIS_EVENTS_V1",
+    "status": 200,
+    "bytes": 117948,
+    "sha256": "74a0ff76daa37bbfeed36c11bce5d2ac95c2705b655888dd7a34cd1f88834431"
+  }
+]

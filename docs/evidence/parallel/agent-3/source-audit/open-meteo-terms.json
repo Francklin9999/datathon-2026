@@ -1,0 +1,5 @@
+{
+  "checkedAt": "2026-11-15",
+  "terms": "https://open-meteo.com/en/terms",
+  "finding": "The Free API terms say it may only be used for non-commercial purposes. The page lists subscriptions and advertising-supported apps as commercial examples, and lists commercial use as unavailable on the free tier. SRC-179 is excluded from production integration under the user's no-paid-plans instruction."
+}

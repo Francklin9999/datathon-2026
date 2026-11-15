@@ -1,0 +1,78 @@
+[
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_ecb_press:308c455948d25aeb81d7ebcb",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Source: European Central Bank; feed metadata adapted by Aplomb.",
+   "geographicRole": "regional_institution",
+   "publisher": "European Central Bank"
+  },
+  "publishedAt": "2026-11-06T09:00:00Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_ecb_press",
+  "sourceUrl": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr261106~356f2fc73a.en.html",
+  "title": "ECB publishes consolidated banking data for end-June 2026"
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_ecb_press:7b7f5adf10a3b9f7d2f15801",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Source: European Central Bank; feed metadata adapted by Aplomb.",
+   "geographicRole": "regional_institution",
+   "publisher": "European Central Bank"
+  },
+  "publishedAt": "2026-10-29T13:15:00Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_ecb_press",
+  "sourceUrl": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.mp261029~9a493adf17.en.html",
+  "title": "Monetary policy decisions"
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_ecb_press:995a2369a7ff72f62bdb5389",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Source: European Central Bank; feed metadata adapted by Aplomb.",
+   "geographicRole": "regional_institution",
+   "publisher": "European Central Bank"
+  },
+  "publishedAt": "2026-11-04T00:00:00Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_ecb_press",
+  "sourceUrl": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr261104~caf181d7ac.en.html",
+  "title": "ECB wage tracker suggests slightly higher wage growth in first three quarters of 2027 compared with the full year of 2026"
+ },
+ {
+  "availableAt": "2026-11-15T17:11:42Z",
+  "category": "policy",
+  "countryIso3": null,
+  "id": "world_ecb_press:e7ad213e30394acdb954982d",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": null,
+  "properties": {
+   "attribution": "Source: European Central Bank; feed metadata adapted by Aplomb.",
+   "geographicRole": "regional_institution",
+   "publisher": "European Central Bank"
+  },
+  "publishedAt": "2026-10-30T09:00:00Z",
+  "retrievedAt": "2026-11-15T17:11:42Z",
+  "sourceId": "world_ecb_press",
+  "sourceUrl": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr261030~e92c3c838c.en.html",
+  "title": "Results of the ECB Survey of Professional Forecasters for the fourth quarter of 2026"
+ }
+]

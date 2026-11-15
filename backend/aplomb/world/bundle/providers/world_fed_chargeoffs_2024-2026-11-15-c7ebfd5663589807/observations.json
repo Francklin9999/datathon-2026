@@ -1,0 +1,94 @@
+[
+ {
+  "availableAt": "2026-11-15T17:45:23Z",
+  "category": "macro",
+  "countryIso3": "USA",
+  "id": "world_fed_chargeoffs_2024:2024-Q1",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-01-01",
+  "properties": {
+   "attribution": "Source: Board of Governors of the Federal Reserve System, charge-off rates, all banks, seasonally adjusted. Selected normalized records by Aplomb; no government endorsement.",
+   "geographicRole": "national_statistical_area",
+   "referencePeriod": "2024-Q1",
+   "seasonalAdjustment": "seasonally adjusted",
+   "temporalPrecision": "reference period; first day is only a display anchor",
+   "unit": "percent, annualized",
+   "value": 0.62
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:45:23Z",
+  "sourceId": "world_fed_chargeoffs_2024",
+  "sourceUrl": "https://www.federalreserve.gov/releases/chargeoff/chgallsa.htm",
+  "title": "Federal Reserve 2024 all-bank total loan and lease charge-off rate, 2024-Q1: 0.62 percent, annualized"
+ },
+ {
+  "availableAt": "2026-11-15T17:45:23Z",
+  "category": "macro",
+  "countryIso3": "USA",
+  "id": "world_fed_chargeoffs_2024:2024-Q2",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-04-01",
+  "properties": {
+   "attribution": "Source: Board of Governors of the Federal Reserve System, charge-off rates, all banks, seasonally adjusted. Selected normalized records by Aplomb; no government endorsement.",
+   "geographicRole": "national_statistical_area",
+   "referencePeriod": "2024-Q2",
+   "seasonalAdjustment": "seasonally adjusted",
+   "temporalPrecision": "reference period; first day is only a display anchor",
+   "unit": "percent, annualized",
+   "value": 0.66
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:45:23Z",
+  "sourceId": "world_fed_chargeoffs_2024",
+  "sourceUrl": "https://www.federalreserve.gov/releases/chargeoff/chgallsa.htm",
+  "title": "Federal Reserve 2024 all-bank total loan and lease charge-off rate, 2024-Q2: 0.66 percent, annualized"
+ },
+ {
+  "availableAt": "2026-11-15T17:45:23Z",
+  "category": "macro",
+  "countryIso3": "USA",
+  "id": "world_fed_chargeoffs_2024:2024-Q3",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-07-01",
+  "properties": {
+   "attribution": "Source: Board of Governors of the Federal Reserve System, charge-off rates, all banks, seasonally adjusted. Selected normalized records by Aplomb; no government endorsement.",
+   "geographicRole": "national_statistical_area",
+   "referencePeriod": "2024-Q3",
+   "seasonalAdjustment": "seasonally adjusted",
+   "temporalPrecision": "reference period; first day is only a display anchor",
+   "unit": "percent, annualized",
+   "value": 0.68
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:45:23Z",
+  "sourceId": "world_fed_chargeoffs_2024",
+  "sourceUrl": "https://www.federalreserve.gov/releases/chargeoff/chgallsa.htm",
+  "title": "Federal Reserve 2024 all-bank total loan and lease charge-off rate, 2024-Q3: 0.68 percent, annualized"
+ },
+ {
+  "availableAt": "2026-11-15T17:45:23Z",
+  "category": "macro",
+  "countryIso3": "USA",
+  "id": "world_fed_chargeoffs_2024:2024-Q4",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2024-10-01",
+  "properties": {
+   "attribution": "Source: Board of Governors of the Federal Reserve System, charge-off rates, all banks, seasonally adjusted. Selected normalized records by Aplomb; no government endorsement.",
+   "geographicRole": "national_statistical_area",
+   "referencePeriod": "2024-Q4",
+   "seasonalAdjustment": "seasonally adjusted",
+   "temporalPrecision": "reference period; first day is only a display anchor",
+   "unit": "percent, annualized",
+   "value": 0.64
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T17:45:23Z",
+  "sourceId": "world_fed_chargeoffs_2024",
+  "sourceUrl": "https://www.federalreserve.gov/releases/chargeoff/chgallsa.htm",
+  "title": "Federal Reserve 2024 all-bank total loan and lease charge-off rate, 2024-Q4: 0.64 percent, annualized"
+ }
+]

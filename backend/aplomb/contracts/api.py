@@ -622,10 +622,24 @@ class WorldEventsResponse(WireModel):
     data_version: DataVersion
 
 
+class WorldGeographicRelationship(WireModel):
+    relationship_id: String
+    relation: Literal["EVENT_OCCURRED_AT", "FACILITY_LOCATED_IN"]
+    subject_id: String
+    object_id: String
+    evidence_class: Literal["direct", "derived", "candidate", "model_inferred"]
+    source_id: String
+    source_url: String
+    normalized_record_sha256: String
+    retrieved_at: ISODateTime
+    limitations: list[String]
+
+
 class WorldEventResponse(WireModel):
     event: WorldEvent
     related: list[WorldEvent]
     exposures: list[HoldingExposure]
+    geographic_relationships: list[WorldGeographicRelationship] = []
 
 
 class WorldExposureResponse(WireModel):
@@ -641,6 +655,53 @@ class WorldCountryResponse(WireModel):
     exposure: CountryExposure | None
     events: list[WorldEvent]
     macro: list[Fact]
+
+
+class WorldObservationLocation(WireModel):
+    lat: Annotated[Number, Field(ge=-90, le=90)]
+    lon: Annotated[Number, Field(ge=-180, le=180)]
+    country_iso3: String | None
+    precision: Literal["point", "city", "country", "polygon_anchor"]
+    geometry: dict | None = None
+
+
+class WorldObservationSource(WireModel):
+    name: String
+    url: String
+
+
+class WorldObservation(WireModel):
+    id: String
+    mode: Literal["news", "macro", "trade", "energy", "hazards", "conflicts",
+                  "aviation", "environment", "infrastructure"]
+    title: String
+    summary: String
+    occurred_at: ISODateTime
+    time_basis: Literal["source_observation", "reference_period", "event_date", "capture_only"]
+    published_at: ISODateTime | None
+    retrieved_at: ISODateTime
+    location: WorldObservationLocation | None
+    geometry: dict | None = None
+    country_iso3: String | None = None
+    source: WorldObservationSource
+    dataset_id: String
+    limitations: list[String]
+
+
+class WorldModeStatus(WireModel):
+    mode: String
+    available: Boolean
+    count: Count
+    reason: String | None
+
+
+class WorldObservationsResponse(WireModel):
+    items: list[WorldObservation]
+    total: Count
+    next_cursor: String | None
+    data_version: String | None
+    captured_at: ISODateTime | None
+    modes: list[WorldModeStatus]
 
 
 class FacilitiesResponse(WireModel):

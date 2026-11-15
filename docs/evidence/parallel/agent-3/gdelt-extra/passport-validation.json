@@ -1,0 +1,20 @@
+{
+  "world_gdelt_event_metadata": {
+    "status": "in_use",
+    "rows": 250,
+    "dataVersion": "snap-20261115-world_gdelt_event_metadata-5ee806000f",
+    "licence": "GDELT released datasets: unlimited unrestricted academic, commercial and governmental use without fee; publisher content separate"
+  },
+  "world_gdelt_gkg_locations": {
+    "status": "in_use",
+    "rows": 250,
+    "dataVersion": "snap-20261115-world_gdelt_gkg_locations-f3e5ab8973",
+    "licence": "GDELT released datasets: unlimited unrestricted academic, commercial and governmental use without fee; publisher content separate"
+  },
+  "world_gdelt_geographic_mentions": {
+    "status": "in_use",
+    "rows": 250,
+    "dataVersion": "snap-20261115-world_gdelt_geographic_mentions-2171730c9e",
+    "licence": "GDELT released datasets: unlimited unrestricted use without fee; retained metadata projection excludes publisher contextual snippets and images"
+  }
+}

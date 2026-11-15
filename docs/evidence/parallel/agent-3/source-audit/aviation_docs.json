@@ -1,0 +1,7 @@
+{
+  "source": "aviation_docs",
+  "documentSha256": "0878d71049f7d391c5ea8e04b07e7bfdf17e863e898c70dc2e97bbd03eb23a86",
+  "excerpt": "once per hour and TCF is issued every other hour. Wait between consecutive requests &mdash; maximum 100 requests per minute. Exceeding request limits will result in access being blocked. Restrictions All requests are rate limited to 100 requests per minute. Most endpoints return a maximum of 400 entries (please consider using cache files for larger requests). Cross-origin resource sharing is not permitted at this time. Undocumented query paramete",
+  "capturedAt": "2026-11-15T16:12:22.961841+00:00",
+  "url": "https://aviationweather.gov/data/api/"
+}

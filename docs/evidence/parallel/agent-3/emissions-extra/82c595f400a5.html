@@ -1,0 +1,345 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+	<meta charset="utf-8" />
+	<title>EDGAR - The Emissions Database for Global Atmospheric Research</title>
+	<meta content="width=device-width,initial-scale=1" name="viewport" />
+	<meta content="IE=edge" http-equiv="X-UA-Compatible" />
+	<script nonce="77af4fc0b98196747613baa1">
+		var cl = document.querySelector('html').classList;
+		cl.remove('no-js');
+		cl.add('has-js');
+	</script>
+
+	<!-- <script src="https://edgar.jrc.ec.europa.eu/js/pikaday_1.8.2.js"></script> -->
+
+	<link rel="stylesheet" href="https://edgar.jrc.ec.europa.eu/js/ecl-ec-default_4.11.2.css" media="screen" />
+	<link rel="stylesheet" href="https://edgar.jrc.ec.europa.eu/js/ecl-ec_4.11.2.css" media="screen" />
+	<link rel="stylesheet" href="https://edgar.jrc.ec.europa.eu/js/ecl-ec-print_4.11.2.css" media="print" />
+
+
+	<style>
+		.ecl-u-type-paragraph-m {
+			text-align: justify;
+		}
+	</style>
+
+	<script defer src="https://webtools.europa.eu/load.js?globan=1110" type="text/javascript"></script>
+	<script type="application/json" nonce="77af4fc0b98196747613baa1">{"utility" : "cck"}</script>
+
+	<!-- JRC ANALYTICS TOOL -->
+	<script type="application/json" nonce="77af4fc0b98196747613baa1">{"utility":"analytics","siteID":"557","sitePath":["edgar.jrc.ec.europa.eu"],"is404":false,"is403":false,"instance":"ec.europa.eu"}</script>
+
+	<script type="text/javascript" nonce="77af4fc0b98196747613baa1">
+		var baseurl = 'https://edgar.jrc.ec.europa.eu/';
+
+		function getColor(d) {
+			return d > 10000000 ? '#2D828C' :
+				d > 1000000 ? '#23969B' :
+				d > 100000  ? '#41AFAA' :
+				d > 10000  ? '#73BEBE' :
+				d > 1000   ? '#A0D2D2' :
+				'#CDE6E6';
+		}
+
+		function numberFormat(num, dec) {
+				return num.toFixed(dec).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+		}
+
+		function ready(callback){
+			//in case the document is already rendered
+			if (document.readyState!='loading') callback();
+			// modern browsers
+			else if (document.addEventListener) document.addEventListener('DOMContentLoaded', callback);
+			// IE <= 8
+			else document.attachEvent('onreadystatechange', function(){
+				if (document.readyState=='complete') callback();
+			});
+		}
+	</script>
+
+
+	<script src="https://edgar.jrc.ec.europa.eu/js/ecl-ec_4.11.2.js"></script>
+
+</head>
+<body>
+<header class="ecl-site-header ecl-site-header-with-logo-l ecl-site-header--has-menu " data-ecl-auto-init="SiteHeader" >
+	<div class="ecl-site-header__inner">
+		<div class="ecl-site-header__background">
+			<div class="ecl-site-header__header">
+				<div class="ecl-site-header__container ecl-container">
+					<div class="ecl-site-header__top" data-ecl-site-header-top="">
+						<a href="https://ec.europa.eu/" class="ecl-link ecl-link--standalone ecl-site-header__logo-link"><picture class="ecl-picture ecl-site-header__picture"><source srcset="https://edgar.jrc.ec.europa.eu/images/logo/positive/logo-ec--en.svg" media="(min-width: 996px)"><img class="ecl-site-header__logo-image ecl-site-header__logo-image--l" src="https://edgar.jrc.ec.europa.eu/images/logo/logo-ec--mute.svg" alt="European Commission"></picture></a>
+						<div class="ecl-site-header__action"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="ecl-site-header__banner">
+			<div class="ecl-container">
+				<div class="ecl-site-header__site-name">EDGAR - Emissions Database for Global Atmospheric Research</div>
+			</div>
+		</div>
+	</div>
+
+	<nav class="ecl-menu ecl-menu--transition" data-ecl-menu="" data-ecl-menu-max-lines="2" data-ecl-auto-init="Menu" data-ecl-menu-label-open="Menu" data-ecl-menu-label-close="Close" aria-expanded="false" role="navigation" aria-label="Main navigation" >
+		<div class="ecl-menu__overlay"></div>
+		<div class="ecl-container ecl-menu__container">
+			<button class="ecl-button ecl-button--tertiary ecl-menu__open ecl-button--icon-only" type="button" data-ecl-menu-open="" aria-expanded="false"><span class="ecl-button__container"><svg class="ecl-icon ecl-icon--m ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#hamburger"></use></svg><svg class="ecl-icon ecl-icon--m ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#close"></use></svg><span class="ecl-button__label" data-ecl-label="true">Menu</span></span></button>
+			<section class="ecl-menu__inner" data-ecl-menu-inner="" aria-label="Menu">
+				<header class="ecl-menu__inner-header">
+					<button class="ecl-button ecl-button--ghost ecl-menu__close ecl-button--icon-only" type="submit" data-ecl-menu-close=""><span class="ecl-button__container"><span class="ecl-button__label" data-ecl-label="true">Close</span><svg class="ecl-icon ecl-icon--m ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#close"></use></svg></span></button>
+					<div class="ecl-menu__title">Menu</div>
+					<button class="ecl-button ecl-button--ghost ecl-menu__back" type="submit" data-ecl-menu-back=""><span class="ecl-button__container"><svg class="ecl-icon ecl-icon--xs ecl-icon--rotate-270 ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg><span class="ecl-button__label" data-ecl-label="true">Back</span></span></button>
+				</header>
+				<button class="ecl-button ecl-button--ghost ecl-menu__item ecl-menu__items-previous ecl-button--icon-only ecl-menu__item--current" type="button" data-ecl-menu-items-previous="" tabindex="-1" style="display: none;"><span class="ecl-button__container"><svg class="ecl-icon ecl-icon--s ecl-icon--rotate-270 ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg><span class="ecl-button__label" data-ecl-label="true">Previous items</span></span></button>
+				<button class="ecl-button ecl-button--ghost ecl-menu__item ecl-menu__items-next ecl-button--icon-only" type="button" data-ecl-menu-items-next="" tabindex="-1" style="display: none;"><span class="ecl-button__container"><svg class="ecl-icon ecl-icon--s ecl-icon--rotate-90 ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg><span class="ecl-button__label" data-ecl-label="true">Next items</span></span></button>
+
+				<ul class="ecl-menu__list" data-ecl-menu-list="" style="left: 0px;">
+					<li class="ecl-menu__item" data-ecl-menu-item="" id="ecl-menu-item-0" style="align-items: unset;" aria-expanded="false">
+						<a href="https://edgar.jrc.ec.europa.eu/" class="ecl-link ecl-link--standalone ecl-menu__link" data-ecl-menu-link="" id="ecl-menu-item-0-link">Home</a>
+					</li>
+
+					<li class="ecl-menu__item ecl-menu__item--has-children ecl-menu__item--col2" data-ecl-menu-item="" data-ecl-has-children="" aria-haspopup="" aria-expanded="false" id="ecl-menu-item-1" style="align-items: unset;">
+						<a href="https://edgar.jrc.ec.europa.eu/country_profile" class="ecl-link ecl-link--standalone ecl-menu__link" data-ecl-menu-link="" id="ecl-menu-item-1-link">Data Explorer</a>
+						<button class="ecl-button ecl-button--ghost ecl-menu__button-caret ecl-button--icon-only" type="button" data-ecl-menu-caret="" aria-label="Access item's children" aria-describedby="ecl-menu-item-1-link" aria-expanded="false"><span class="ecl-button__container"><svg class="ecl-icon ecl-icon--xs ecl-icon--rotate-180 ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg></span></button>
+						<div class="ecl-menu__mega" data-ecl-menu-mega="">
+							<ul class="ecl-menu__sublist">
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/country_profile" class="ecl-link ecl-link--standalone ecl-menu__sublink">Country Fact Sheet</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/climate_change" class="ecl-link ecl-link--standalone ecl-menu__sublink">GHG Emissions and Climate</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/air_pollutants" class="ecl-link ecl-link--standalone ecl-menu__sublink">Air and Toxic Pollutants</a></li>
+							</ul>
+						</div>
+					</li>
+
+					<li class="ecl-menu__item ecl-menu__item--has-children ecl-menu__item--col1" data-ecl-menu-item="" data-ecl-has-children="" aria-haspopup="" aria-expanded="false" id="ecl-menu-item-2" style="align-items: unset;">
+						<a href="https://edgar.jrc.ec.europa.eu/report_2026" class="ecl-link ecl-link--standalone ecl-menu__link" data-ecl-menu-link="" id="ecl-menu-item-2-link">CO2 and GHG emissions report</a>
+						<button class="ecl-button ecl-button--ghost ecl-menu__button-caret ecl-button--icon-only" type="button" data-ecl-menu-caret="" aria-label="Access item's children" aria-describedby="ecl-menu-item-2-link" aria-expanded="false"><span class="ecl-button__container"><svg class="ecl-icon ecl-icon--xs ecl-icon--rotate-180 ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg></span></button>
+						<div class="ecl-menu__mega" data-ecl-menu-mega="">
+							<ul class="ecl-menu__sublist">
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/report_2026" class="ecl-link ecl-link--standalone ecl-menu__sublink">2026 Report</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/emissions_reports" class="ecl-link ecl-link--standalone ecl-menu__sublink">Previous releases</a></li>
+							</ul>
+						</div>
+					</li>
+
+					<li class="ecl-menu__item ecl-menu__item--has-children ecl-menu__item--col1" data-ecl-menu-item="" data-ecl-has-children="" aria-haspopup="" aria-expanded="false" id="ecl-menu-item-3" style="align-items: unset;">
+						<a href="https://edgar.jrc.ec.europa.eu/emissions_data_and_maps" class="ecl-link ecl-link--standalone ecl-menu__link" data-ecl-menu-link="" id="ecl-menu-item-3-link">Emissions Data and Maps</a>
+						<button class="ecl-button ecl-button--ghost ecl-menu__button-caret ecl-button--icon-only" type="button" data-ecl-menu-caret="" aria-label="Access item's children" aria-describedby="ecl-menu-item-3-link" aria-expanded="false"><span class="ecl-button__container"><svg class="ecl-icon ecl-icon--xs ecl-icon--rotate-180 ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg></span></button>
+						<div class="ecl-menu__mega" data-ecl-menu-mega="">
+							<ul class="ecl-menu__sublist">
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/emissions_data_and_maps" class="ecl-link ecl-link--standalone ecl-menu__sublink">Emissions Data and Maps</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/archived_datasets" class="ecl-link ecl-link--standalone ecl-menu__sublink">Archived datasets</a></li>
+							</ul>
+						</div>
+					</li>
+
+					<li class="ecl-menu__item" data-ecl-menu-item="" id="ecl-menu-item-4" style="align-items: unset;" aria-expanded="false">
+						<a href="https://edgar.jrc.ec.europa.eu/other_activities" class="ecl-link ecl-link--standalone ecl-menu__link" data-ecl-menu-link="" id="ecl-menu-item-4-link">Other activities</a>
+					</li>
+
+					<li class="ecl-menu__item ecl-menu__item--has-children ecl-menu__item--col2" data-ecl-menu-item="" data-ecl-has-children="" aria-haspopup="" aria-expanded="false" id="ecl-menu-item-5" style="align-items: unset;">
+						<a href="https://edgar.jrc.ec.europa.eu/methodology" class="ecl-link ecl-link--standalone ecl-menu__link" data-ecl-menu-link="" id="ecl-menu-item-5-link">About</a>
+						<button class="ecl-button ecl-button--ghost ecl-menu__button-caret ecl-button--icon-only" type="button" data-ecl-menu-caret="" aria-label="Access item's children" aria-describedby="ecl-menu-item-5-link" aria-expanded="false"><span class="ecl-button__container"><svg class="ecl-icon ecl-icon--xs ecl-icon--rotate-180 ecl-button__icon" focusable="false" aria-hidden="true" data-ecl-icon=""><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg></span></button>
+						<div class="ecl-menu__mega" data-ecl-menu-mega="">
+							<ul class="ecl-menu__sublist">
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/contact_us" class="ecl-link ecl-link--standalone ecl-menu__sublink">Contact us</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/disclaimer" class="ecl-link ecl-link--standalone ecl-menu__sublink">Disclaimer</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/methodology" class="ecl-link ecl-link--standalone ecl-menu__sublink">Methodology</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/publications" class="ecl-link ecl-link--standalone ecl-menu__sublink">Publications</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/terms" class="ecl-link ecl-link--standalone ecl-menu__sublink">Terms of use</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/pdf/EDGAR-infographics_2026.pdf" target ="_blank" class="ecl-link ecl-link--standalone ecl-menu__sublink">EDGAR Infographics</a></li>
+								<li class="ecl-menu__subitem" data-ecl-menu-subitem=""><a href="https://edgar.jrc.ec.europa.eu/pdf/EDGAR_FOOD_infographic_2024.pdf" target ="_blank" class="ecl-link ecl-link--standalone ecl-menu__sublink">EDGAR-FOOD Infographics</a></li>
+							</ul>
+						</div>
+					</li>
+
+				</ul>
+			</section>
+		</div>
+	</nav>
+</header>
+<div class="ecl-page-header">
+	<div class="ecl-container">
+		<nav class="ecl-breadcrumb ecl-page-header__breadcrumb ecl-breadcrumb--wrap" aria-label="You are here:" data-ecl-breadcrumb="true" data-ecl-auto-init="Breadcrumb" >
+			<ol class="ecl-breadcrumb__container">
+				<li class="ecl-breadcrumb__segment" data-ecl-breadcrumb-item="static">
+					<a href="https://edgar.jrc.ec.europa.eu/" class="ecl-link ecl-link--standalone ecl-link--no-visited ecl-breadcrumb__link">Home</a>
+					<svg class="ecl-icon ecl-icon--fluid ecl-breadcrumb__icon" focusable="false" aria-hidden="true" role="presentation"><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg>
+				</li>
+
+				<li class="ecl-breadcrumb__segment" data-ecl-breadcrumb-item="static">
+					<!-- <a href="https://edgar.jrc.ec.europa.eu/country_profile" class="ecl-link ecl-link--standalone ecl-link--no-visited ecl-breadcrumb__link">Data Explorer</a> -->About
+					<svg class="ecl-icon ecl-icon--fluid ecl-breadcrumb__icon" focusable="false" aria-hidden="true" role="presentation"><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg>
+				</li>
+				<li class="ecl-breadcrumb__segment ecl-breadcrumb__current-page" data-ecl-breadcrumb-item="static" aria-current="page">Terms of use</li>
+			</ol>
+		</nav>
+
+		<div class="ecl-page-header__info">
+			<h1 class="ecl-page-header__title">Terms of use</h1>
+		</div><!--
+		<div class="ecl-page-header__description-container">
+			<p class="ecl-page-header__description">2024 report</p>
+		</div> -->
+	</div>
+</div>
+
+
+
+
+
+<div class="ecl-container">
+	<div class="ecl-row ecl-u-mt-l" data-ecl-inpage-navigation-container="">
+		<div class="ecl-col-l-3">
+			<nav class="ecl-inpage-navigation" data-ecl-auto-init="InpageNavigation" data-ecl-inpage-navigation="true" aria-labelledby="ecl-inpage-navigation-default" >
+				<div class="ecl-inpage-navigation__title" id="ecl-inpage-navigation-default">Page contents</div>
+				<div class="ecl-inpage-navigation__body">
+					<div class="ecl-inpage-navigation__trigger-wrapper"><button type="button" class="ecl-inpage-navigation__trigger" id="ecl-inpage-navigation-default-trigger" data-ecl-inpage-navigation-trigger="true" aria-controls="ecl-inpage-navigation-list" aria-expanded="false"><span class="ecl-inpage-navigation__trigger-current" data-ecl-inpage-navigation-trigger-current="true">Page contents</span><svg class="ecl-icon ecl-icon--xs ecl-icon--rotate-180 ecl-inpage-navigation__trigger-icon" focusable="false" aria-hidden="false" role="img"><title>Show full page table of contents</title><use xlink:href="https://edgar.jrc.ec.europa.eu/images/icons/sprites/icons.svg#corner-arrow"></use></svg></button></div>
+					<ul class="ecl-inpage-navigation__list" data-ecl-inpage-navigation-list="true" id="ecl-inpage-navigation-default-list" style="max-height: 467px;">
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#terms" class="ecl-inpage-navigation__link ecl-link">Conditions of use and how to cite</a></li>
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#oth" class="ecl-inpage-navigation__link ecl-link">Other references</a></li>
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#p08" class="ecl-inpage-navigation__link ecl-link">EDGARv4.3.1</a></li>
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#p07" class="ecl-inpage-navigation__link ecl-link">CO2 timeseries till year 2014</a></li>
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#p06" class="ecl-inpage-navigation__link ecl-link">CO2 timeseries till year 2013</a></li>
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#p05" class="ecl-inpage-navigation__link ecl-link">EDGARv4.2 FT 2012</a></li>
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#p04" class="ecl-inpage-navigation__link ecl-link">EDGARv4.2 FT 2010</a></li>
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#p03" class="ecl-inpage-navigation__link ecl-link">EDGARv4.2</a></li>
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#p02" class="ecl-inpage-navigation__link ecl-link">EDGARv4.1</a></li>
+						<li class="ecl-inpage-navigation__item"><a data-ecl-inpage-navigation-link="" href="#p01" class="ecl-inpage-navigation__link ecl-link">CoM data sample 2013</a></li>
+					</ul>
+				</div>
+			</nav>
+		</div>
+		<div class="ecl-col-l-9">
+
+
+		<p class="ecl-u-type-paragraph-m">Co-authorship and involvement of the EDGAR Community, which includes the IEA for fossil CO2 emissions, in the emission data analysis is highly appreciated. User's comments and requests can be sent via email to the authors (<a href="mailto:JRC-EDGAR@ec.europa.eu" class="ecl-link--standalone ecl-u-type-family-alt ecl-link">JRC-EDGAR@ec.europa.eu</a>).</p>
+		<p class="ecl-u-type-paragraph-m">For IEA data, please refer to <a href="mailto:emissions@iea.org" class="ecl-link--standalone ecl-u-type-family-alt ecl-link">emissions@iea.org</a>, or <a href="mailto:compliance@iea.org" class="ecl-link--standalone ecl-u-type-family-alt ecl-link">compliance@iea.org</a> for terms questions.</p>
+
+		<p class="ecl-u-type-paragraph-m">Disclaimer on data use (<a href="https://edgar.jrc.ec.europa.eu/disclaimer" class="ecl-link--standalone ecl-u-type-family-alt ecl-link">Link</a>)</p>
+
+
+
+		<h2 class="ecl-u-type-heading-2" id="terms">Conditions of use and how to cite</h2>
+		<p class="ecl-u-type-paragraph-m">Users are obliged to consult and refer to the full citation and conditions of use available on each specific dataset webpage.</p>
+
+
+
+		<h2 class="ecl-u-type-heading-2" id="oth">Other references</h2>
+		<p class="ecl-u-type-paragraph-m">For the following specific datasets, please refer to the citations here below.</p>
+
+		<h4 class="ecl-u-type-heading-4" id="p08">For version EDGARv4.3.1</h4>
+		<p class="ecl-u-type-paragraph-m">"Source: European Commission, Joint Research Centre (JRC)/Netherlands Environmental Assessment Agency (PBL). Emission Database for Global Atmospheric Research (EDGAR), release version 4.3.1 http://edgar.jrc.ec.europa.eu/overview.php?v=431, 2016."</p>
+		<p class="ecl-u-type-paragraph-m">"Reference: Monica Crippa, Greet Janssens-Maenhout, Frank Dentener, Diego Guizzardi, Katerina Sindelarova, Marilena Muntean, Rita Van Dingenen, Claire Granier: Forty years of improvements in European air quality: regional policy-industry interactions with global impacts, Atmos. Chem. Phys., 16, 3825-3841, doi:10.5194/acp-16-3825-2016, 2016."</p>
+
+		<h4 class="ecl-u-type-heading-4" id="p07">For the CO2 timeseries till year 2014</h4>
+		<p class="ecl-u-type-paragraph-m">"Source: European Commission, Joint Research Centre (JRC)/Netherlands Environmental Assessment Agency (PBL). Emission Database for Global Atmospheric Research (EDGAR), release CO2 time series 1970 - 2014, http://edgar.jrc.ec.europa.eu/overview.php?v=CO2ts1990-2014, 2015."</p>
+		<p class="ecl-u-type-paragraph-m">"Reference: Olivier, J.G.J., Janssens-Maenhout, G., Muntean, M. and Peters, J.A.H.W. (2015) Trends in global CO2 emissions: 2015 Report. PBL Netherlands Environmental Assessment Agency, The Hague; European Commission, Joint Research Centre (JRC), Institute for Environment and Sustainability (IES). Internet: http://edgar.jrc.ec.europa.eu/news_docs/jrc-2015-trends-in-global-co2-emissions-2015-report-98184.pdf. JRC report 98184/ PBL report 1803, 2015."</p>
+
+		<h4 class="ecl-u-type-heading-4" id="p06">For the CO2 timeseries till year 2013</h4>
+		<p class="ecl-u-type-paragraph-m">"Source: European Commission, Joint Research Centre (JRC)/Netherlands Environmental Assessment Agency (PBL). Emission Database for Global Atmospheric Research (EDGAR), release CO2 time series 1970 - 2013, http://edgar.jrc.ec.europa.eu, 2014."</p>
+		<p class="ecl-u-type-paragraph-m">"Reference: Olivier, J.G.J., Janssens-Maenhout, G., Muntean, M. and Peters, J.A.H.W. (2014) Trends in global CO2 emissions: 2014 Report. PBL Netherlands Environmental Assessment Agency, The Hague; European Commission, Joint Research Centre (JRC), Institute for Environment and Sustainability (IES). Internet: http://www.pbl.nl/sites/default/files/cms/publicaties/pbl-2014-trends-in-global-co2-emissions-2014-report-93171.pdf. JRC report 93171/ PBL report 1490; ISBN 978-94-91506-87-1."</p>
+
+		<h4 class="ecl-u-type-heading-4" id="p05">For version EDGARv4.2 FT 2012</h4>
+		<p class="ecl-u-type-paragraph-m">"Source: European Commission, Joint Research Centre (JRC)/Netherlands Environmental Assessment Agency (PBL). Emission Database for Global Atmospheric Research (EDGAR), release EDGARv4.2 FT2012, http://edgar.jrc.ec.europa.eu, 2014."</p>
+		<p class="ecl-u-type-paragraph-m">"Reference: Rogelj, J., McCollum, D., Smith, S., The Emissions Gap Report 2014 - a UNEP synthesis report: Chapter 2. 2014. U.N. Environment Programme, Nairobi. Internet: http://www.unep.org/publications/ebooks/emissionsgapreport2014/. ISBN: 978-92-807-3413-3."</p>
+
+		<h4 class="ecl-u-type-heading-4" id="p04">For version EDGARv4.2 FT 2010</h4>
+		<p class="ecl-u-type-paragraph-m">"Source: European Commission, Joint Research Centre (JRC)/Netherlands Environmental Assessment Agency (PBL). Emission Database for Global Atmospheric Research (EDGAR), release EDGARv4.2 FT2010, http://edgar.jrc.ec.europa.eu, 2013."</p>
+		<p class="ecl-u-type-paragraph-m">"Reference: Olivier and G. Janssens-Maenhout, CO2 Emissions from Fuel Combustion -- 2012 Edition, IEA CO2 report 2012, Part III, Greenhouse-Gas Emissions, ISBN 978-92-64-17475-7."</p>
+
+		<h4 class="ecl-u-type-heading-4" id="p03">For version EDGARv4.2</h4>
+		<p class="ecl-u-type-paragraph-m">"Source: European Commission, Joint Research Centre (JRC)/Netherlands Environmental Assessment Agency (PBL). Emission Database for Global Atmospheric Research (EDGAR), release version 4.2. http://edgar.jrc.ec.europa.eu, 2011."</p>
+		<p class="ecl-u-type-paragraph-m">or abbreviated as: "Source: EC-JRC/PBL. EDGAR version 4.2. http://edgar.jrc.ec.europa.eu/, 2011."</p>
+
+		<h4 class="ecl-u-type-heading-4" id="p02">For version EDGARv4.1</h4>
+		<p class="ecl-u-type-paragraph-m">"Source: European Commission, Joint Research Centre (JRC)/Netherlands Environmental Assessment Agency (PBL). Emission Database for Global Atmospheric Research (EDGAR), release version 4.1. http://edgar.jrc.ec.europa.eu, 2010."</p>
+		<p class="ecl-u-type-paragraph-m">or abbreviated as: "Source: EC-JRC/PBL. EDGAR version 4.1. http://edgar.jrc.ec.europa.eu/, 2010."</p>
+
+		<h4 class="ecl-u-type-heading-4" id="p01">For CoM data sample 2013</h4>
+		<p class="ecl-u-type-paragraph-m">"Source: Iancu, A., Martelli, S., Cerutti, A. K., Janssens-Maenhout, G., Melica, G., Rivas-Calvete, S., Kona, A., Zancanella, P., and Bertoldi, P.: Covenant of Mayors Sample 2013, doi:10.2904/EDGARcom2013, 2015."</p>
+		<p class="ecl-u-type-paragraph-m">Reference: Iancu, A., Martelli, S., Cerutti, A. K., Janssens-Maenhout, G., Melica, G., Rivas-Calvete, S., Kona, A., Zancanella, P., and Bertoldi, P., "A harmonised dataset of greenhouse gas emissions inventories from cities under the EU Covenant of Mayors initiative", ESSD, 7, 1-47, 2015.</p>
+
+
+
+		</div>
+	</div>
+</div>
+
+
+<br /><br />
+
+<footer class="ecl-site-footer">
+  <div class="ecl-container ecl-site-footer__container">
+    <div class="ecl-site-footer__row">
+      <div class="ecl-site-footer__column">
+        <div class="ecl-site-footer__section ecl-site-footer__section--site-info">
+          <div class="ecl-site-footer__title"><a href="https://edgar.jrc.ec.europa.eu/" class="ecl-link ecl-link--standalone ecl-site-footer__title-link">EDGAR - Emissions Database for Global Atmospheric Research</a></div>
+          <div class="ecl-site-footer__description">This site is managed by: <br />Joint Research Centre</div>
+          <ul class="ecl-site-footer__list">
+            <li class="ecl-site-footer__list-item"><a href="https://edgar.jrc.ec.europa.eu/accessibility" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Accessibility</a></li>
+            <li class="ecl-site-footer__list-item"><a href="https://edgar.jrc.ec.europa.eu/disclaimer" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="ecl-site-footer__column">
+        <div class="ecl-site-footer__section">
+          <div class="ecl-site-footer__title">Contact us</div>
+          <ul class="ecl-site-footer__list">
+            <li class="ecl-site-footer__list-item"><a href="https://edgar.jrc.ec.europa.eu/contact_us" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Contact information of EDGAR team</a></li>
+            <li class="ecl-site-footer__list-item"><a href="https://ec.europa.eu/info/departments/joint-research-centre#contact" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Contact information of the DG</a></li>
+          </ul>
+        </div>
+
+      </div>
+      <div class="ecl-site-footer__column">
+        <div class="ecl-site-footer__section">
+          <div class="ecl-site-footer__title">About us</div>
+          <ul class="ecl-site-footer__list">
+            <li class="ecl-site-footer__list-item"><a href="https://ec.europa.eu/info/departments/joint-research-centre" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Information about the DG</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="ecl-site-footer__row">
+      <div class="ecl-site-footer__column">
+        <div class="ecl-site-footer__section"><a href="https://commission.europa.eu/index_en" class="ecl-link ecl-link--standalone ecl-site-footer__logo-link">
+            <picture class="ecl-picture ecl-site-footer__picture">
+              <source srcset="https://edgar.jrc.ec.europa.eu/images/logo-ec--en.ce08eba5.svg" media="(min-width: 996px)"><img class="ecl-site-footer__logo-image" src="https://edgar.jrc.ec.europa.eu/images/logo-ec--en.ce08eba5.svg" alt="European Commission">
+            </picture>
+          </a></div>
+      </div>
+      <div class="ecl-site-footer__column">
+        <div class="ecl-site-footer__section ecl-site-footer__section--split-list">
+          <ul class="ecl-site-footer__list">
+            <li class="ecl-site-footer__list-item"><a href="https://commission.europa.eu/about-european-commission/contact_en" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Contact the European Commission</a></li>
+            <li class="ecl-site-footer__list-item"><a href="https://european-union.europa.eu/contact-eu/social-media-channels_en#/search?page=0&institutions=european_commission" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Follow the European Commission on social media</a></li>
+            <li class="ecl-site-footer__list-item"><a href="https://commission.europa.eu/resources-partners_en" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Resources for partners</a></li>
+            <li class="ecl-site-footer__list-item"><a href="https://commission.europa.eu/legal-notice/vulnerability-disclosure-policy_en" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Report an IT vulnerability</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="ecl-site-footer__column">
+        <div class="ecl-site-footer__section ecl-site-footer__section--split-list">
+          <ul class="ecl-site-footer__list">
+            <li class="ecl-site-footer__list-item"><a href="https://commission.europa.eu/language-policy_en" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Languages on our websites</a></li>
+            <li class="ecl-site-footer__list-item"><a href="https://commission.europa.eu/cookies_en" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Cookies</a></li>
+            <li class="ecl-site-footer__list-item"><a href="https://commission.europa.eu/privacy-policy_en" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Privacy policy</a></li>
+            <li class="ecl-site-footer__list-item"><a href="https://commission.europa.eu/legal-notice_en" class="ecl-link ecl-link--standalone ecl-link--inverted ecl-site-footer__link">Legal notice</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script nonce="77af4fc0b98196747613baa1">
+	ECL.autoInit();
+</script>
+
+</body>
+</html>

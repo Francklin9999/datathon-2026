@@ -1,0 +1,1408 @@
+[
+  {
+    "url": "https://acleddata.com/api-documentation/getting-started",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://acleddata.com/api-documentation/getting-started",
+    "first8192BytesSha256": "06c845bc8769d49873c2ecf020af29ee54df806638f96dbdc8a65d1c7c99740e",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://airplanes.live/api-guide/",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 404,
+    "error": "Not Found"
+  },
+  {
+    "url": "https://api-doc.globalfishingwatch.org/our-apis/documentation/",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://api-doc.globalfishingwatch.org/our-apis/documentation/",
+    "first8192BytesSha256": "5f266064146c983b6a4d125bb8fd620915bef57e1b23c6bb11228722b300d2bf",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://api.adsb.lol/docs",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://api.adsb.lol/docs",
+    "first8192BytesSha256": "57410651d51a4bdf5610880f85ed9ddbb984e52b80b01f9ede05ea64883a76c4",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://api.congress.gov/",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://api.congress.gov/",
+    "first8192BytesSha256": "9595d4cea889a689e20c15e4a2e14056999b5babd53bba027d1781079e7fd24a",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://api.energy-charts.info/",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://api.energy-charts.info/",
+    "first8192BytesSha256": "3540ad41eba89d2cd8f6f3c2e56ea1c740faeea2bf1eddc5e1c99ecb23ee143d",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://api.gdeltproject.org/api/v2/tv/tv",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": null,
+    "error": "<urlopen error _ssl.c:1067: The handshake operation timed out>"
+  },
+  {
+    "url": "https://apidoc.reliefweb.int/",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://apidoc.reliefweb.int/",
+    "first8192BytesSha256": "b5d3579be190a7ca30ee4792b63d0c775b7a87b7a3addc6e28a0e369a1d55da3",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://apidocs.geoapify.com/",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://apidocs.geoapify.com/",
+    "first8192BytesSha256": "511ac97f1fc0969868504b91b113f44be5a8471374fd200da13af46e6327e270",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://apiportal.wto.org/",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://apiportal.wto.org/",
+    "first8192BytesSha256": "2073281e67e5c673ac882f2946995eab2b39eda54f0028a19dd0363e89a7c1b7",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://app.electricitymaps.com/docs",
+    "checkedAt": "2026-11-15T16:14:02+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 403,
+    "error": "Forbidden"
+  },
+  {
+    "url": "https://apps.bea.gov/api/signup/",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://apps.bea.gov/api/signup/",
+    "first8192BytesSha256": "864ddd6ec522e44452bc598ec4cb6f817088d8fd4f11f7079b916719ce33eeb3",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://apps.fas.usda.gov/psdonline/",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://apps.fas.usda.gov/psdonline/app/index.html",
+    "first8192BytesSha256": "c510ec44ec26a1f1741114b46e07ccbc1a8bf86cdf0c4b049b452fa3eeea5015",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://aviationweather.gov/data/api/",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://aviationweather.gov/data/api/",
+    "first8192BytesSha256": "5a5cd331a1dd6c1d37cd775d09ed20b312ce633eea4e599580bd55f00faa4be6",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://blog.gdeltproject.org/",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://blog.gdeltproject.org/",
+    "first8192BytesSha256": "18adb3775d8d333e1f5755b0edba6fdd5137cae17156c1d60b560c18301fa666",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/",
+    "first8192BytesSha256": "9d9cd945e520a6eedf89171eda4348891750610849fe318be513e10c21735ebf",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://cds.climate.copernicus.eu/how-to-api",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://cds.climate.copernicus.eu/how-to-api",
+    "first8192BytesSha256": "f75fa1ef3c52c50e14a5fc6c8500a96eef9bedc497759f9c8874826ddda3d258",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://cesium.com/learn/ion/ion-rest-api/",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 404,
+    "error": "Not Found"
+  },
+  {
+    "url": "https://climateknowledgeportal.worldbank.org/download-data",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 403,
+    "error": "Forbidden"
+  },
+  {
+    "url": "https://climatetrace.org/",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://climatetrace.org/",
+    "first8192BytesSha256": "177a6331aad13de2da0a302413e4280da35904b29f77c41352706752c1cec5e8",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://clinicaltrials.gov/data-api/api",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://clinicaltrials.gov/data-api/api",
+    "first8192BytesSha256": "debb780efa552a0ce09e5ba7c98e1fb6ac3b53bba3989380acd75f72c769cb98",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html",
+    "first8192BytesSha256": "f79c591bc2c446207a315629fde2b56d4e2fae7bfe345d8ba17b87bcb74ba7df",
+    "contentType": "text/html;charset=utf-8"
+  },
+  {
+    "url": "https://comtradeplus.un.org/en/api-docs",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://comtradeplus.un.org/en/api-docs",
+    "first8192BytesSha256": "b2aa3bcf052c73f4b13d31c593b56e039ab82ea3fb293262ff43b14dd3293ae1",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://console.cloud.google.com/marketplace/product/patents-public-data/google-patents-public-data",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://console.cloud.google.com/marketplace/product/patents-public-data/google-patents-public-data",
+    "first8192BytesSha256": "9b6f4c53ab3806441c36a17b330363f1101a250bbccd0067cf489d3c76cd33b9",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://currentsapi.services/",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://currentsapi.services/en",
+    "first8192BytesSha256": "fcf2691f644a590b17eb053f83217eed19ed57f03fac0f938bf076e4862e22fd",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://data.ecb.europa.eu/help/getting-data-web-services-sdmx-0",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://data.ecb.europa.eu/help/getting-data-web-services-sdmx-0",
+    "first8192BytesSha256": "c408eadaef7d81be0fb4fa62781002f94ad44510479481d3aed022d43a4dac9f",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://data.imf.org/en/Resource-Pages/IMF-API",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 403,
+    "error": "Forbidden"
+  },
+  {
+    "url": "https://data.nasa.gov/dataset/prediction-of-worldwide-energy-resources-power",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://data.nasa.gov/dataset/prediction-of-worldwide-energy-resources-power",
+    "first8192BytesSha256": "e6fbf5d475d29de358b1fa6f9fb2651d0f99a5cedbe119a71d655aa261218a09",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://data.un.org/Host.aspx?Content=API",
+    "checkedAt": "2026-11-15T16:14:03+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://data.un.org/Host.aspx?Content=API",
+    "first8192BytesSha256": "53296ac4d4759e77016840cc3b1b76588b897769f75b13dec5eb82f4c9f98679",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://data.unicef.org/sdmx-api-documentation/",
+    "checkedAt": "2026-11-15T16:14:04+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 403,
+    "error": "Forbidden"
+  },
+  {
+    "url": "https://datahelpdesk.worldbank.org/knowledgebase/articles/1886701-sdmx-api-queries",
+    "checkedAt": "2026-11-15T16:14:04+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://datahelpdesk.worldbank.org/knowledgebase/articles/1886701-sdmx-api-queries",
+    "first8192BytesSha256": "ed1d89d4a5b712adfd398f145fbaafaa988af3ff8a13270ab932693546fb5dd8",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api",
+    "checkedAt": "2026-11-15T16:14:04+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api",
+    "first8192BytesSha256": "d2ea5e2ff4a9408d0b51725df43acf9256f6b253da2793f0847d0a7d7d7789c3",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://datasets.wri.org/datasets/global-power-plant-database",
+    "checkedAt": "2026-11-15T16:14:04+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://datasets.wri.org/datasets/global-power-plant-database",
+    "first8192BytesSha256": "a8bb5dc10c396956d3cc67d54b1d465ba19f8e6ca94d2bf91136b3a7e8d11cbf",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://dev.meteostat.net/api/",
+    "checkedAt": "2026-11-15T16:14:04+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 404,
+    "error": "Not Found"
+  },
+  {
+    "url": "https://developers.google.com/search/apis/trends",
+    "checkedAt": "2026-11-15T16:14:04+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://developers.google.com/search/apis/trends",
+    "first8192BytesSha256": "79c43994b962988209dd1b4257cbf88e57f51005cc5a283c56d58d5cf535a50f",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/",
+    "checkedAt": "2026-11-15T16:14:04+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/",
+    "first8192BytesSha256": "a4ae0fd536432a2d93d2f97d7adea45a947447bf0413dfe7d9612d963161395a",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://docs.github.com/en/rest",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.github.com/en/rest",
+    "first8192BytesSha256": "aad5af49614fe116ed35d3fcad1be27bea5e6ee3ff6b4d4631d32f8026bf9ef7",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://docs.mapbox.com/api/overview/",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.mapbox.com/api/overview/",
+    "first8192BytesSha256": "7e938164406699f9088c304395735a1dbd6de7b90360d108890385ddc30b40c7",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://docs.maptiler.com/cloud/api/",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.maptiler.com/cloud/api/",
+    "first8192BytesSha256": "693066efdf28316316de6659470faff4e25fd44dce0bd6f8ce64909223353c60",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://docs.openalex.org/",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://help.openalex.org/",
+    "first8192BytesSha256": "4e2e98fc1783b6e7b67ab09bafe00ca41f2b9a484dddd05701fa6928a684b504",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://docs.openaq.org/",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.openaq.org/",
+    "first8192BytesSha256": "44133f7640b31e870b4d0cbc49d6addff73ef2ec15ef19562634813255a0ae18",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://docs.openaq.org/about/about",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.openaq.org/about/about",
+    "first8192BytesSha256": "d71b8d944e3ede476e598a44dd8db8409180858d4a956af8e6acbec79722500a",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://docs.overturemaps.org/",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.overturemaps.org/",
+    "first8192BytesSha256": "1c2de3ab495351fc20dac9264b2d418f79dcef75b5349a956802f4e8cb217a51",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://docs.sentinel-hub.com/api/latest/",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.sentinel-hub.com/api/latest/",
+    "first8192BytesSha256": "a98671a5e21408fa854754deaf4ac34f6e8041436674c7b2d70c7bce80573415",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://docs.ted.europa.eu/api/latest/index.html",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.ted.europa.eu/api/latest/index.html",
+    "first8192BytesSha256": "e4c66d66c6819d62724d08384a57d87b977782d613335db96c9fc422799c6398",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://docs.tomorrow.io/",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.tomorrow.io/reference/welcome",
+    "first8192BytesSha256": "47eca16a3cd861409b841af1d96b34405110fec18f8962d58a05b44456aef6d0",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://documentation.dataspace.copernicus.eu/APIs.html",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://documentation.dataspace.copernicus.eu/APIs.html",
+    "first8192BytesSha256": "1570194ab5fe6e9a78410e5c797a317645f9f2590f8d3959e7852bee27c2d776",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://download.geofabrik.de/",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://download.geofabrik.de/",
+    "first8192BytesSha256": "c830c041232e367ac8314c5662ac4a94e12a9cbf62abd1fd9f8279c57a876fcf",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php",
+    "first8192BytesSha256": "e7288066fc8632913f91d314857e669ea010150248661b2cbe678eff9b5c2465",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/",
+    "checkedAt": "2026-11-15T16:14:05+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://earthquake.usgs.gov/fdsnws/event/1/",
+    "first8192BytesSha256": "609341a11857f184d5661c803d1e70453a353975dc8e157b56968a7ce3ec8fa7",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://ec.europa.eu/eurostat/web/main/data/web-services",
+    "checkedAt": "2026-11-15T16:14:06+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://ec.europa.eu/eurostat/web/main/data/web-services",
+    "first8192BytesSha256": "3eeccb7c8f6c715f8cad348a59d9e04d892aec78e25f368c6bfd942dc1071afd",
+    "contentType": "text/html;charset=UTF-8"
+  },
+  {
+    "url": "https://echo.epa.gov/tools/data-downloads",
+    "checkedAt": "2026-11-15T16:14:06+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://echo.epa.gov/tools/data-downloads",
+    "first8192BytesSha256": "b268df539a0603f19ed3992118e0285b252561a7e497df2d0cff17567571b311",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://edgar.jrc.ec.europa.eu/",
+    "checkedAt": "2026-11-15T16:14:06+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://edgar.jrc.ec.europa.eu/",
+    "first8192BytesSha256": "911920f00a96a800da11ab1e610494c2e5605041fd4d958c0557584259b6d06e",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://ember-energy.org/data/api/",
+    "checkedAt": "2026-11-15T16:14:06+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://ember-energy.org/data/api/",
+    "first8192BytesSha256": "9268da4a50fa7feee4c5978250c898040c12f451fe001efd48f4945e2c547687",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://ember-energy.org/data/monthly-electricity-data/",
+    "checkedAt": "2026-11-15T16:14:06+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://ember-energy.org/data/monthly-electricity-data/",
+    "first8192BytesSha256": "b9a4ace755ac3db0677f4139e2aed181573992030c099093db2eddea4bf91518",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://ember-energy.org/data/yearly-electricity-data/",
+    "checkedAt": "2026-11-15T16:14:06+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://ember-energy.org/data/yearly-electricity-data/",
+    "first8192BytesSha256": "4f7149d1e52b1ec9c12976ce61fbe4331e06d889bdccb85d99ef50be972500ae",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://emergency.copernicus.eu/",
+    "checkedAt": "2026-11-15T16:14:06+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://emergency.copernicus.eu/",
+    "first8192BytesSha256": "0c7e5d21e65936027c0a03a389580a15b2ecab9276923842162b300485d10d48",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://emergency.copernicus.eu/data/",
+    "checkedAt": "2026-11-15T16:14:06+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://emergency.copernicus.eu/data/",
+    "first8192BytesSha256": "9f78dbd391dcd4d4f7114498779fa0635f1c2c240ad5eee2b91597972cbc978b",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://eonet.gsfc.nasa.gov/docs/v3",
+    "checkedAt": "2026-11-15T16:14:06+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://eonet.gsfc.nasa.gov/docs/v3",
+    "first8192BytesSha256": "a84a8a4a5513eb9dc96e9068d27b2793b114d93c532e8abae9feff932407f85d",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://eur-lex.europa.eu/content/help/data-reuse/reuse-contents-eurlex-details.html",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://eur-lex.europa.eu/content/help/data-reuse/reuse-contents-eurlex-details.html",
+    "first8192BytesSha256": "2e042ec21b17991eaf0641cbd416cabc092aeb6ed80e1a98b969174b1d5d7ef3",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://fas.usda.gov/psdonline",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 403,
+    "error": "Forbidden"
+  },
+  {
+    "url": "https://firms.modaps.eosdis.nasa.gov/api/",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://firms.modaps.eosdis.nasa.gov/api/",
+    "first8192BytesSha256": "b64c927eac537148afdfb3b0f2bd26077a7a59b36e0d9887ee998e7b95c1eacf",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://firms.modaps.eosdis.nasa.gov/usfs/api/area/",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://firms.modaps.eosdis.nasa.gov/usfs/api/area/",
+    "first8192BytesSha256": "fa9569e58b4182345109a77cae89c6d5ef796f86148b3986e8ba59eeeab3cac1",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://gazette.gc.ca/rss/sc-rb-eng.html",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://gazette.gc.ca/rss/sc-rb-eng.html",
+    "first8192BytesSha256": "e8e5c9ef45383b83045f5836388ee61d1d30844147a96e0ab2e4b9c5f31c8d52",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://gdeltproject.org/data.html",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://gdeltproject.org/data.html",
+    "first8192BytesSha256": "849ca3db77a680744e0f802b6e05c158752541bbfd0be0d70f26e52249f0f55c",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://github.com/NOAA-OCM/ocm-marinecadastre-ais-vessel-traffic",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://github.com/NOAA-OCM/ocm-marinecadastre-ais-vessel-traffic",
+    "first8192BytesSha256": "ee825a2c48a56c29127a4c069d21fae92898ecb7b67c4a51bf743b5270263452",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://global-flood-database.cloudtostreet.ai/",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://global-flood-database.cloudtostreet.ai/",
+    "first8192BytesSha256": "4b9f27511e9b4912d6a78a5f8a6803c7d5a817b54b071a6e7b5156e2ba38b20d",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://globalcarbonproject.org/",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": null,
+    "error": "<urlopen error [Errno -5] No address associated with hostname>"
+  },
+  {
+    "url": "https://globalenergymonitor.org/",
+    "checkedAt": "2026-11-15T16:14:07+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://globalenergymonitor.org/",
+    "first8192BytesSha256": "002a6a25f94bad5949f956cace42ca94c9bf84b678d6cf731b6536b6ee1760a0",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://globalenergymonitor.org/projects/global-coal-plant-tracker",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://globalenergymonitor.org/projects/global-coal-plant-tracker",
+    "first8192BytesSha256": "c4b825808fdbffc5b9e2378241501c653f22d2e8bc4cf21b9e764ed7ae082044",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker",
+    "first8192BytesSha256": "59a23d34513c0156f190b534d31cbdb8e0b1f44057377474781ffe3a684298b6",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://globalfishingwatch.org/our-apis/",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://globalfishingwatch.org/our-apis/",
+    "first8192BytesSha256": "a0ee07abb1ff1ad9bd547fe22c83ffc90e47fb088ac1986f9054ef04950afb79",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://hdx-hapi.readthedocs.io/en/latest/",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://hdx-hapi.readthedocs.io/en/latest/",
+    "first8192BytesSha256": "61057653ca824f057a968ca140852eab8d3407aa6a1c46db7347dc664315a71b",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://hn.algolia.com/api",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://hn.algolia.com/api",
+    "first8192BytesSha256": "4d0125c5000c4a3edb6784895622c0d3185b8aad8e75c6c2b22098afb37cda22",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://locationiq.com/docs",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.locationiq.com/docs/introduction",
+    "first8192BytesSha256": "e714df0a34cd3db14b8a7d4e2f5ca74c424c66320e9fbe27e18cb84669379a79",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://m2m.cr.usgs.gov/api/docs/json/",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://ers.cr.usgs.gov/login?RET_ADDR=https%3A%2F%2Fm2m.cr.usgs.gov%2Fapi%2Fdocs%2Fjson%2F",
+    "first8192BytesSha256": "de1b843c73443533a5f34d586da67c465cc0d45453dbc87500f8500f65892894",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://main.un.org/securitycouncil/en/sanctions/un-sc-consolidated-list",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 202,
+    "finalUrl": "https://main.un.org/securitycouncil/en/sanctions/un-sc-consolidated-list",
+    "first8192BytesSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://marinecadastre.gov/ais/",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://hub.marinecadastre.gov/pages/vesseltraffic",
+    "first8192BytesSha256": "f2ab4b789a0553d260d7a5bed985118f68511c1b6ea5a13afb5433f91e92e377",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://mediastack.com/documentation",
+    "checkedAt": "2026-11-15T16:14:08+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.apilayer.com/mediastack/docs/api-documentation?utm_source=MediastackHomePage&utm_medium=Referral",
+    "first8192BytesSha256": "492ca0e6e11fa400937dc2b676ea1eca3ebea5974ea841bf3a7b0e22b0517b92",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://nasa-gibs.github.io/gibs-api-docs/access-basics/",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://nasa-gibs.github.io/gibs-api-docs/access-basics/",
+    "first8192BytesSha256": "043971af8f6deff65377451e118de82601fd65a96af60467cc845d13f4ecaa56",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://news.google.com/rss",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://news.google.com/rss?hl=en-CA&gl=CA&ceid=CA:en",
+    "first8192BytesSha256": "b60cdfb9ec99f384d59509c066084ab0c79d0ed6f3f57a243b6096ee4de1f333",
+    "contentType": "application/xml; charset=utf-8"
+  },
+  {
+    "url": "https://newsapi.org/pricing",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://newsapi.org/pricing",
+    "first8192BytesSha256": "63b871faad7c584e4fa1134a425ddf7ea4d67b40028d535bb108a381d746776c",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://newsdata.io/documentation",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://newsdata.io/documentation",
+    "first8192BytesSha256": "fd3008807a9eebca32125d583111b8a0776f169eb60e7fd237c716da704cbb60",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://nominatim.org/release-docs/latest/api/Overview/",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://nominatim.org/release-docs/latest/api/Overview/",
+    "first8192BytesSha256": "206f82a64be1feb79e89053bc58a246566c3137803b95ccfdeb145e0a13566e0",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://ofac.treasury.gov/sanctions-list-service",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://ofac.treasury.gov/sanctions-list-service",
+    "first8192BytesSha256": "54539c536432817e90140240092a2ee1e90bfb5b41eae0d4044cfec28facab13",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://open-meteo.com/en/docs",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://open-meteo.com/en/docs",
+    "first8192BytesSha256": "d248d2a351508d1c672130827b4479dae511100383ee95bcffb049049d716d93",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://open-platform.theguardian.com/access/",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://open-platform.theguardian.com/access/",
+    "first8192BytesSha256": "bb5aa160bd8b777494bb4fed42c116187b133a3a60865d56f8cba9729f056f05",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://open-power-system-data.org/",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://open-power-system-data.org/",
+    "first8192BytesSha256": "9691d298ea05c2cdaaaf9edc7df6b34dfe676fe6e65e15804647b1c5ddb61fee",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://open.canada.ca/data/en/dataset/a8ba14b7-7f23-462a-bdbb-83b0ef629823",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://open.canada.ca/data/en/dataset/a8ba14b7-7f23-462a-bdbb-83b0ef629823",
+    "first8192BytesSha256": "8ad387160b76771153db25588496f75ef7a7c4c77d392ab95f25ffdb2376d7c6",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://open.fda.gov/apis/",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://open.fda.gov/apis/",
+    "first8192BytesSha256": "8d210d4715e1c0570d3d3304c5d610da85275b91cc86c183e7d045481ec5ab57",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://open.gsa.gov/api/regulationsgov/",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://open.gsa.gov/api/regulationsgov/",
+    "first8192BytesSha256": "a0541c44304001418213f76ce66e84a725e79fdc6e78ff68d7081f2ab4fbd02b",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://openaddresses.io/",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://openaddresses.io/",
+    "first8192BytesSha256": "2886967ceebd161363f818f9fd7a6e678f58edbda1353f3424c658921fb4628c",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://opencagedata.com/api",
+    "checkedAt": "2026-11-15T16:14:09+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://opencagedata.com/api",
+    "first8192BytesSha256": "a6cf58e41c400704e16a26374a56d6230333f72412e14a06445b7c165147dbc3",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://openflights.org/data.html",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 404,
+    "error": "Not Found"
+  },
+  {
+    "url": "https://openrouteservice.org/dev/",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://playground.heigit.org/",
+    "first8192BytesSha256": "5aa0156968c177a53885bae0cd0770ecc5e5cad1774f634693c70fdee5f5d64d",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://opensky-network.org/about/faq",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 403,
+    "error": "Forbidden"
+  },
+  {
+    "url": "https://openskynetwork.github.io/opensky-api/rest.html",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://openskynetwork.github.io/opensky-api/rest.html",
+    "first8192BytesSha256": "1220d7480b83e7bbf9e1669c3cb52ebb118e84737d2389a42d7a544872fadb86",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://opentopography.org/developers",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://opentopography.org/developers",
+    "first8192BytesSha256": "43305e05870f2a69e403d8c50ea094c78a6ac71556e4d1dd125df54ecf40826d",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://openweathermap.org/api",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://openweathermap.org/api",
+    "first8192BytesSha256": "4249fc741f66e04878b4142cee71f533bc9176077a92d332b8c02633e102be92",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://operations.osmfoundation.org/policies/nominatim/",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://operations.osmfoundation.org/policies/nominatim/",
+    "first8192BytesSha256": "ea0109ffe98d716970a5697f9fd6415d1153be1b73e20e09fab06c1c37064c7e",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://ourairports.com/data/",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": null,
+    "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1085)>"
+  },
+  {
+    "url": "https://patentsview.org/apis/purpose",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://data.uspto.gov/support/transition-guide/patentsview",
+    "first8192BytesSha256": "89c4a60862840dfd15f32c0f518f11e9e11de250945fd0cb21eed82224eea265",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://portwatch.imf.org/",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://portwatch.imf.org/",
+    "first8192BytesSha256": "e45796fde0e392641515429da5985ed9759c1f0e99b06210aef3f312c33c120b",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://power.larc.nasa.gov/docs/services/api/",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://power.larc.nasa.gov/docs/services/api/",
+    "first8192BytesSha256": "d2839e893d3604978cac306d94ace7b6a3aa66e3959b8af2f5a8a8d3da2e02f1",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://quickstats.nass.usda.gov/api",
+    "checkedAt": "2026-11-15T16:14:10+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://quickstats.nass.usda.gov/api",
+    "first8192BytesSha256": "5568dc63bdc511225066686e53fd291268700102fa8093a1bed64c94d95e4f8e",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://sdmx.ilo.org/",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://sdmx.ilo.org/index.html",
+    "first8192BytesSha256": "9ac97d7fed0ce58c3692a276afd5ad26a562d0e25127abbe39ccb1f885dbe0f8",
+    "contentType": "text/html;charset=utf-8"
+  },
+  {
+    "url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/ArcGIS/rest/services/PortWatch_ports_database/FeatureServer",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/ArcGIS/rest/services/PortWatch_ports_database/FeatureServer",
+    "first8192BytesSha256": "f27bccc5f51a74ffeb2176da59f6c90d3994344696e1e4b5fa06a45232789962",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0",
+    "first8192BytesSha256": "ce17cecb5e51ca193252b2e6af12458219a7585e952c64d8047581603a1f9be1",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://stats.bis.org/api-doc/v2/",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://stats.bis.org/api-doc/v2/",
+    "first8192BytesSha256": "621b097b7df3201ef29032886af8d1df669709946568337925d93fb6019815dd",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://transparency.entsoe.eu/",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://transparency.entsoe.eu/",
+    "first8192BytesSha256": "66ef5e7afbc6ddfb47572d3c7c29d1eb2138e1b0081fda46204974ec00ed4c7a",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://ucdp.uu.se/downloads/",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://ucdp.uu.se/downloads/",
+    "first8192BytesSha256": "2370d96b90a75e21f815b657779964069102a1f258085b537495f81ee60c4958",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://unctadstat.unctad.org/",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://unctadstat.unctad.org/EN/Index.html",
+    "first8192BytesSha256": "41c63c9f53b3729966f708eb8650badd6d13a59051536a717fcedb2f7c7d8b82",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://v-dem.net/data/the-v-dem-dataset/",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://v-dem.net/data/the-v-dem-dataset/",
+    "first8192BytesSha256": "daeb2e320ca46e05c23082a5cc9c04fd9ac4bcaac0b02df2fab78902c69c8914",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://wiki.openstreetmap.org/wiki/API_v0.6",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://wiki.openstreetmap.org/wiki/API_v0.6",
+    "first8192BytesSha256": "a4d708318ade18393d8c0f5b48a82dd57cacd4d45d655ad3010882ccf07aa513",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://wiki.openstreetmap.org/wiki/Overpass_API",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://wiki.openstreetmap.org/wiki/Overpass_API",
+    "first8192BytesSha256": "5473dd42eee6608382f66796c73b9b8c7ec5dd94f004d7844cac57edf24486c4",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://wits.worldbank.org/witsapiintro.aspx?lang=en",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://wits.worldbank.org/witsapiintro.aspx?lang=en",
+    "first8192BytesSha256": "aa0a37720e0e0f709e8ae06034c1ed21b195664f95a233d39b0509d60ba0adc9",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.bls.gov/developers/",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 403,
+    "error": "Forbidden"
+  },
+  {
+    "url": "https://www.cdp.net/en/data",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.cdp.net/en/data",
+    "first8192BytesSha256": "6a271dffce7536a493a4cc199662fd25d0722c5099cef2e450fcaa3926aa1812",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.census.gov/data/developers/data-sets.html",
+    "checkedAt": "2026-11-15T16:14:11+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.census.gov/data/developers/data-sets.html",
+    "first8192BytesSha256": "3697933e809a686025206bd20d31604212e8b3cd70dd90e26722b291f10bee97",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+    "first8192BytesSha256": "b9bb5527f5226b4609eadab6c8963c6a4822db166ef96e550c05960129ced06a",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://www.dma.dk/safety-at-sea/navigational-information/ais-data",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.dma.dk/safety-at-sea/navigational-information/ais-data",
+    "first8192BytesSha256": "d8f3d23310ce536f82de3903021f514f2fe8c0434ba9d3af6e01f74af5f10de4",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.ecb.europa.eu/home/html/rss.en.html",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.ecb.europa.eu/home/html/rss.en.html",
+    "first8192BytesSha256": "835a08b6fdac0ed097b9f8e8f3b6cb391ca060d8f6fcade0e5c63002b4abddd6",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.eia.gov/opendata/documentation.php",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.eia.gov/opendata/documentation.php",
+    "first8192BytesSha256": "0811d3184ec58c5dc27ffd404872b3c59a7cb2b1647e79cd5cf88ab447e3179a",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.epa.gov/egrid",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.epa.gov/egrid",
+    "first8192BytesSha256": "2e9255236b3e20c7b3e40082d55eeed233eecec925c46ecef742a2365271e10d",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.epa.gov/enviro/envirofacts-data-service-api",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.epa.gov/enviro/envirofacts-data-service-api",
+    "first8192BytesSha256": "499a3adf2608bafa93a8457e683b5ccc39b71efef0f9159c08b3929bb2dc1aef",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.epo.org/en/searching-for-patents/data/web-services/ops",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.epo.org/en/searching-for-patents/data/web-services/ops",
+    "first8192BytesSha256": "9b32acbe95491286ec2623d8c3bae510bb82e2c6a3ba8f7f06c6921c9383a09c",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.fao.org/faostat/en/",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.fao.org/faostat/en/",
+    "first8192BytesSha256": "e7d6c678671ba94e79217f3ed76de34cf93d3414d9677cedecb66c84089846af",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://www.fao.org/faostat/en/#data",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.fao.org/faostat/en/#data",
+    "first8192BytesSha256": "e7d6c678671ba94e79217f3ed76de34cf93d3414d9677cedecb66c84089846af",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://www.federalregister.gov/developers/documentation/api/v1",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://unblock.federalregister.gov/",
+    "first8192BytesSha256": "a518bc043f27a22f477326c2d3349418220323042c533aca16b5362a67f07fd0",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.federalreserve.gov/data.htm",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.federalreserve.gov/data.htm",
+    "first8192BytesSha256": "0ed9ad3a6e8b591a2930975a2503a3aa1952b5077e0119196acff7d2d04b0aa3",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://www.federalreserve.gov/feeds/feeds.htm",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.federalreserve.gov/feeds/feeds.htm",
+    "first8192BytesSha256": "094084f3dfe2869ad17e87260d37c670eb1533fa6cd8a6a8e0e3c1947fbbbb3e",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://www.gdacs.org/gdacsapi/swagger/index.html",
+    "checkedAt": "2026-11-15T16:14:12+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.gdacs.org/gdacsapi/swagger/index.html",
+    "first8192BytesSha256": "f487c68ed1c141ff127869a6c357dce38a9b1486ff37c9113ba04e96dc4fa812",
+    "contentType": "text/html;charset=utf-8"
+  },
+  {
+    "url": "https://www.gdeltproject.org/data.html",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://gdeltproject.org:443/data.html",
+    "first8192BytesSha256": "849ca3db77a680744e0f802b6e05c158752541bbfd0be0d70f26e52249f0f55c",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://www.geoboundaries.org/api.html",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.geoboundaries.org/api.html",
+    "first8192BytesSha256": "05ff3d55f3577cbc328a161bfd28ccc001f1340b0bbbb169164719c11291961c",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.geonames.org/export/web-services.html",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.geonames.org/export/web-services.html",
+    "first8192BytesSha256": "7ab84b0345d78f952f58bcfce621fdc6cd39b6f0466e0612a05a7ec65142aced",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+    "first8192BytesSha256": "6e21625f74c391d2b51fb36f040c2c32367f998e07f3a2bb307f20be7264f793",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.here.com/docs/bundle/geocoding-and-search-api-developer-guide/page/topics/what-is.html",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://docs.here.com/geocoding-and-search/docs/introduction-to-here-geocoding-search-api-v7",
+    "first8192BytesSha256": "692798ba97fe3f70ffb8a6610000d0be5e9b4877dda188b18e6dc8ec4507daad",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.jodidata.org/oil/database/data-downloads.aspx",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.jodidata.org/oil/database/data-downloads.aspx",
+    "first8192BytesSha256": "dd04738a474cabfb58e81432da575752869f04ef5c2fed0ab811ca3bb58ce96c",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.mediawiki.org/wiki/API:Recent_changes",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 404,
+    "error": "Not Found"
+  },
+  {
+    "url": "https://www.naturalearthdata.com/downloads/",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.naturalearthdata.com/downloads/",
+    "first8192BytesSha256": "72de5d64243e9622114df0d38e8e56e1d20159b4c0f9a7f34a898c7d1a3044a9",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.ncdc.noaa.gov/cdo-web/webservices/v2",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.ncdc.noaa.gov/cdo-web/webservices/v2",
+    "first8192BytesSha256": "c268fae085659b3c4c4e0099686f597119de0fcb93f5ab9bd1dacf706162c78c",
+    "contentType": "text/html;charset=ISO-8859-1"
+  },
+  {
+    "url": "https://www.newscatcherapi.com/",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.newscatcherapi.com/",
+    "first8192BytesSha256": "aac17171106cf2219df91bb67a824b25b01c16f511a00263577895793f36fa9e",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.newyorkfed.org/microeconomics/sce",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.newyorkfed.org/microeconomics/sce",
+    "first8192BytesSha256": "535825bd6e145128a10fe2cadb17007879f4dfa97a6cf76c6315a941cc1045cf",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.nhc.noaa.gov/gis/",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.nhc.noaa.gov/gis/",
+    "first8192BytesSha256": "12cd0e481c800c6f81331a10ef481c7f9fd5842b65833e69ec8a6b9fbc37736e",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.nhc.noaa.gov/gis/rss.php",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.nhc.noaa.gov/gis/rss.php",
+    "first8192BytesSha256": "4206154128cd1c336f9cc390b5b59d7b42e54e28f81729bfa08996f95487229f",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 403,
+    "error": "Forbidden"
+  },
+  {
+    "url": "https://www.openstreetmap.org/copyright",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.openstreetmap.org/copyright",
+    "first8192BytesSha256": "b0bcfec211770e4f35af4afd84552c9118552036dadfc4cb53e70816f026d2ef",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.reddit.com/dev/api/",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.reddit.com/dev/api/",
+    "first8192BytesSha256": "2c3c0623094f2903dea55493bdc36c5c72078446b50daea68757aacf08e60c61",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.sanctionsmap.eu/",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanctionsmap.eu/",
+    "first8192BytesSha256": "8314c8a21a55a6b3141e6208308d3481fe8e7f7278ecec5011814bc6b72a0f51",
+    "contentType": "text/html"
+  },
+  {
+    "url": "https://www.semanticscholar.org/product/api",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.semanticscholar.org/product/api",
+    "first8192BytesSha256": "b6ef8adb8d441fe3480e0c7c364e27ac24044c862202dda90a1760ac5d0f5bd1",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.statcan.gc.ca/en/developers/wds",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.statcan.gc.ca/en/developers/wds",
+    "first8192BytesSha256": "b198506e5448ada99aec88a9bcd1f1fad608e32012290304386c4706b3b7c23c",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.statcan.gc.ca/en/microdata/api",
+    "checkedAt": "2026-11-15T16:14:13+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.statcan.gc.ca/en/microdata/api",
+    "first8192BytesSha256": "6533cbbb565addb35c09cef8bc4443ef73d346aba588178cc7cd6915da125009",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.thenewsapi.com/documentation",
+    "checkedAt": "2026-11-15T16:14:14+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.thenewsapi.com/documentation",
+    "first8192BytesSha256": "5d8cf455b5c01b6cb3fe38cd5ff8bbab81a867b42427436e351b20b30b0b00c5",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
+    "checkedAt": "2026-11-15T16:14:14+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
+    "first8192BytesSha256": "02da5ff4a359e2fcb67c3a30c8c6015b635aea01c6d36da3c4e67ea1111ebbcc",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.usgs.gov/data/mineral-commodity-summaries-2026-data-release",
+    "checkedAt": "2026-11-15T16:14:14+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": null,
+    "error": "The read operation timed out"
+  },
+  {
+    "url": "https://www.visualcrossing.com/weather-api/",
+    "checkedAt": "2026-11-15T16:14:14+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.visualcrossing.com/weather-api/",
+    "first8192BytesSha256": "4ade60520f8c03e2eb8f591003a836e1554e90b423f6b50d8824a659b1562827",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.weather.gov/documentation/services-web-api",
+    "checkedAt": "2026-11-15T16:14:14+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.weather.gov/documentation/services-web-api",
+    "first8192BytesSha256": "c04abdd057024fa2792ef971f52ce2242c5b214baabeef577c7ab0796b93000a",
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://www.weatherapi.com/docs/",
+    "checkedAt": "2026-11-15T16:14:14+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.weatherapi.com/docs/",
+    "first8192BytesSha256": "deaee24c584e31b9283d13ff668c24277a45cfe788405fbe26a95430379707c5",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.who.int/data/gho/info/gho-odata-api",
+    "checkedAt": "2026-11-15T16:14:14+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.who.int/data/gho/info/gho-odata-api",
+    "first8192BytesSha256": "b090e3d2cb38ce7243758bdd36ce0dd3afe71eadbe1cd4901803d2c8eb3683e2",
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.worldbank.org/en/publication/worldwide-governance-indicators",
+    "checkedAt": "2026-11-15T16:14:14+00:00",
+    "kind": "documentation_reachability_only",
+    "httpStatus": 200,
+    "finalUrl": "https://www.worldbank.org/en/publication/worldwide-governance-indicators",
+    "first8192BytesSha256": "66165355adc056b3c70dd41427f7a0bb64c6eb6ac854ef10aecc4bfdcd2c60ac",
+    "contentType": "text/html;charset=utf-8"
+  }
+]

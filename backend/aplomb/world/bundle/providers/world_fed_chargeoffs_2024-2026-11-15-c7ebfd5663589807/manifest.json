@@ -1,0 +1,35 @@
+{
+ "attribution": "Source: Board of Governors of the Federal Reserve System, charge-off rates, all banks, seasonally adjusted. Selected normalized records by Aplomb; no government endorsement.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_fed_chargeoffs_2024-2026-11-15-c7ebfd5663589807",
+ "datasetId": "world_fed_chargeoffs_2024",
+ "frequency": "Quarterly",
+ "historicalReplay": false,
+ "licence": "Federal Reserve Board information public domain unless otherwise indicated; Board source credit",
+ "licenceUrl": "https://www.federalreserve.gov/disclaimer.htm",
+ "limitations": [
+  "One 2024 series only. National or supranational aggregate; no point coordinates, issuer links or financial impact.",
+  "Period start is a display anchor; source publication time and historical vintage are unproven.",
+  "Latest captured values may be revised; excluded before retrieval, unavailable for original historical replay.",
+  "Charge-offs are net of recoveries as a percentage of average loans, annualized and seasonally adjusted; insured U.S.-chartered commercial banks. Official release table is used, not the interactive Data Download Program."
+ ],
+ "name": "Federal Reserve 2024 all-bank total loan and lease charge-off rate",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "bba1035efd55329c9c132ebb4ddca6abf58a5401553869fcef05ef4c3255c9d5",
+   "url": "https://www.federalreserve.gov/releases/chargeoff/chgallsa.htm"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T17:45:23Z",
+ "rowCount": 4,
+ "scope": "One selected 2024 official macro series; incomplete provider and history coverage.",
+ "sha256": "c7ebfd56635898075bb9c06c4730aeba6c82a4171718b9051b3c024fb22841e2",
+ "sourceIds": [
+  "SRC-103"
+ ],
+ "sourceRows": 4,
+ "sourceUrl": "https://www.federalreserve.gov/releases/chargeoff/chgallsa.htm"
+}

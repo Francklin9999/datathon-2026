@@ -1,0 +1,119 @@
+<section class="mainSection">
+    <div id="content" class="">
+        <div class="pgHeader">Active Fire Data</div>
+        <div id="data-region" tatra-process="active_fires('all')"></div>
+            
+        <div id="content main">
+            <div style="margin-top:3rem;">
+                <p class="pgP">
+                    Download active fire products from the 
+                    <a target="_blank" rel="noopener" class="ext" href="https://modis.gsfc.nasa.gov/">Moderate Resolution Imaging Spectroradiometer (MODIS)</a> 
+                    , <a target="_blank" rel="noopener" class="ext" href="https://www.jpss.noaa.gov/viirs.html">Visible Infrared Imaging Radiometer Suite (VIIRS)</a> 
+                    and Landsat Operational Land Imager (OLI)
+                    for the last 24, 48 hours and 7 days in 
+                    <a href="/active_fire/#firms-shapefile" onclick="modal_mli.setTab('shapefile', true);">shapefile</a>, 
+                    <a href="/active_fire/#firms-kml" onclick="modal_mli.setTab('kml', true);">KML</a> or 
+                    <a href="/active_fire/#firms-txt" onclick="modal_mli.setTab('csv', true);">text</a> file formats.<br>
+                    Also available through FIRMS:
+                </p>
+                <ul>
+                        <li><a href="/web-services/">WMS and WMS-T</a> </li>
+                        <li>FIRMS <a href="/download">Archive Download</a> * for data older than 7 days</li>
+                        <li>Daily text files for the last two months via HTTPS: <a href="https://nrt3.modaps.eosdis.nasa.gov/archive/FIRMS" target="_blank" rel="noopener" class="ext">https://nrt3.modaps.eosdis.nasa.gov/archive/FIRMS</a></li>
+                    </ul>
+                <p class="pgP">
+                    <a target="_blank" rel="noopener" class="ext" href="https://urs.earthdata.nasa.gov/">Register for an Earthdata Login</a> to start downloading data
+                </p>
+                <p class="pgP">
+                    * Please note on the Archive Download, the NRT data is replaced with data extracted from the standard MODIS and VIIRS active fire products 
+                    as it becomes available (usually after 2-3 months, but possibly up to 5 months). Users intending to perform scientific analysis are advised to download 
+                    the standard (science quality) data.
+                </p>
+                <ul>
+                        <li>MODIS C6.1 is available from November 2000 (for Terra) and from July 2002 (for Aqua) to the present.</li>
+                        <li>VIIRS 375 m (NOAA-20) data are currently available from 01 April 2018 to the present.</li>
+                        <li>VIIRS 375 m (NOAA-21) data are currently available from 17 January 2024 to the present.</li>
+                        <li>LANDSAT 30 m OLI (8 / 9) data are currently available from 20 June 2022 to the present.</li>
+                </ul>
+                <p class="pgP">
+                    For <a target="_blank" rel="noopener" class="ext" href="https://earthdata.nasa.gov/earth-observation-data/near-real-time/firms">more information about FIRMS and the active fire products</a>.
+                </p>
+
+                <p>
+                    <img src="/images/Regions_500px.jpg" style="border:none;"><br/>
+                    <span>Details about <a href="./coordinates.html">regional coordinates</a>.</span>
+                </p>
+
+                <div class="notice">
+                    <div>Note about Real-Time (RT) and Ultra Real-Time (URT) data</div>
+                    Real-Time (RT) and Ultra Real-Time (URT) data is available through these services:
+                    <ul>
+                        <li><a href="/api/area/">API - area</a></li>
+                        <li><a href="/api/kml_fire_footprints/">KML - fire footprints</a></li>
+                        <li><a href="/mapserver/wfs-info/">WFS</a></li>
+                        <li><a href="/mapserver/wms-info/">WMS</a></li>
+                    </ul>
+                    RT and URT data are removed when corresponding NRT detections are processed or RT/URT is older than 6 hours.<br/>
+                    <b>Coming soon:</b> RT and URT data as part of the CSV, ShapeFile and KML/KMZ Active Fire downloads 
+                    <br/><br/>
+                    NASA EOSDIS defines Real-Time as data that is made available within 60 minutes of satellite overpass. 
+                    URT is much quicker than that. FIRMS makes URT data available in less than 60 seconds of satellite fly over for much of the US and Canada<br/>
+                    <a target="_blank" class="ext" href="https://wiki.earthdata.nasa.gov/display/FIRMS/2022/07/14/Wildfire+detection+in+the+US+and+Canada+within+a+minute+of+satellite+observation">Learn more about Ultra Real-Time data.</a><br/>
+                </div>
+
+                <div class="mliGroup" id="firms-shapefile">
+                    Shapefiles
+                </div>
+                
+                <div id="mliContent_shp" class="dwnlfileTable">
+                    <div id="table_shp"></div>
+                </div>
+
+                <div class="mliGroup" id="firms-kml">
+                    Google Earth KML
+                </div>
+
+                <div id="mliContent_kml" class="dwnlfileTable">
+                    <p class="pgP"><a href="/tutorials/googleEarth/">How to Auto-Refresh FIRMS KML in Google Earth Pro</a></p>
+                    <p class="pgP">Animated files are marked as (anim).</p>
+                
+                    <div id="table_kml"></div>
+                </div>
+
+                <div class="mliGroup" id="firms-txt">
+                    Text Files (CSV)
+                </div>
+                <div id="mliContent_csv" class="dwnlfileTable">
+                    <p style="font-size: 1.6rem;line-height:2rem;"> 
+                        <a href="https://urs.earthdata.nasa.gov/" target="_blank">Register</a> to start downloading daily text files for the last two months:
+                    </p>
+                    <ul>
+                        <li><a href="https://nrt3.modaps.eosdis.nasa.gov/archive/FIRMS/modis-c6.1" target="_blank" rel="noopener" class="ext">MODIS Collection 6.1</a></li>						
+                        <li><a href="https://nrt3.modaps.eosdis.nasa.gov/archive/FIRMS/noaa-20-viirs-c2" target="_blank" rel="noopener" class="ext">VIIRS 375m / NOAA-20</a></li>
+                        <li><a href="https://nrt3.modaps.eosdis.nasa.gov/archive/FIRMS/noaa-21-viirs-c2" target="_blank" rel="noopener" class="ext">VIIRS 375m / NOAA-21</a></li>
+                        <li><a href="https://nrt3.modaps.eosdis.nasa.gov/archive/FIRMS/landsat" target="_blank" rel="noopener" class="ext">LANDSAT</a></li>
+                    </ul>    							
+                    <p style="font-size: 1.6rem;line-height:2rem;">
+                        To keep file sizes to a minimum, the data are provided by region. 
+                    </p>
+
+                    <div id="table_csv"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+    .notice {
+        padding: 1rem;
+        background: #e3e3e3;
+    }
+    .notice div {
+        padding: 0.5rem 1rem;
+        font-size: 2.2rem;
+        background: #62605b;
+        color: white;
+        margin-bottom: 1rem;
+        width:100%;
+    }
+</style>

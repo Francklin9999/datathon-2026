@@ -1,0 +1,45 @@
+{
+ "attribution": "© OpenStreetMap contributors, ODbL 1.0 (https://opendatacommons.org/licenses/odbl/1-0/); selected and normalized by Aplomb. This separate derived database is available under ODbL 1.0.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_nominatim_eiffel_lookup-2026-11-15-261736705de3a7f1",
+ "datasetId": "world_nominatim_eiffel_lookup",
+ "frequency": "Manually pinned immutable sample",
+ "historicalReplay": false,
+ "licence": "ODbL 1.0; attribution and share-alike apply to this separate derived database",
+ "licenceUrl": "https://opendatacommons.org/licenses/odbl/1-0/",
+ "limitations": [
+  "Single mapped Paris landmark; not a comprehensive infrastructure database or verified operator relationship.",
+  "OSM edit time is not an event or publication time; first proven availability is capture time.",
+  "One permanently cached lookup; no public geocoder autocomplete, bulk collection or per-request API calls."
+ ],
+ "name": "Tour Eiffel — cached Nominatim lookup",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "596a75678707980ed5eb68f1bd9f2f99cf490b2ba91272f3a8827ba1cb093d7f",
+   "url": "https://nominatim.openstreetmap.org/search?q=Eiffel%20Tower%2C%20Paris%2C%20France&format=jsonv2&limit=1&addressdetails=1"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "5df4309b238da3f2e60955161ef52a5a3d1d86301a48c0d2cbe860cde1a9343a",
+   "url": "https://www.openstreetmap.org/copyright"
+  },
+  {
+   "file": "raw-002.bin",
+   "sha256": "96f1c62c2b6d886d2c525cb60b5d2fbc24532d25ef477bc0aaf31ce786f9ad74",
+   "url": "https://operations.osmfoundation.org/policies/nominatim/"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T18:04:53Z",
+ "rowCount": 1,
+ "scope": "Single mapped Paris landmark; not a comprehensive infrastructure database or verified operator relationship.",
+ "sha256": "261736705de3a7f19d73b99f13e9bb6815632aaec2a1e38d93683b0cb8389020",
+ "sourceIds": [
+  "SRC-151",
+  "MASTER-061"
+ ],
+ "sourceRows": 1,
+ "sourceUrl": "https://nominatim.openstreetmap.org/search?q=Eiffel%20Tower%2C%20Paris%2C%20France&format=jsonv2&limit=1&addressdetails=1"
+}

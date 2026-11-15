@@ -1993,6 +1993,54 @@
         "macro_release_dates",
         "etf_holdings",
         "world_events",
+        "world_aviation_weather",
+        "world_noaa_alerts",
+        "world_usgs_geojson",
+        "world_gdacs_alerts",
+        "world_nasa_power",
+        "world_epa_sems_sites",
+        "world_climate_trace_canada_electricity_co2",
+        "world_federal_register",
+        "world_ecb_press",
+        "world_uk_sanctions_updates",
+        "world_usgs_minerals",
+        "world_statcan_cpi",
+        "world_wgi_political_stability_2024",
+        "world_ecb_eurosystem_assets_2024",
+        "world_bis_us_debt_service_2024",
+        "world_fed_chargeoffs_2024",
+        "world_gdelt_event_metadata",
+        "world_gdelt_gkg_locations",
+        "world_gdelt_geographic_mentions",
+        "world_fda_drug_enforcement_counts",
+        "world_crossref_climate_bibliography",
+        "world_ted_published_notice_metadata",
+        "world_nasa_cmr_modis_granules",
+        "world_openflights_airport_reference",
+        "world_bls_us_cpi_2024",
+        "world_wikimedia_topic_pageviews",
+        "world_wikipedia_recent_changes",
+        "world_ilo_unemployment_2024",
+        "world_bank_sdmx_gdp_2024",
+        "world_energy_charts_de_power",
+        "world_nasa_gibs_modis_tile",
+        "world_nominatim_eiffel_lookup",
+        "world_osm_eiffel_tower",
+        "world_global_carbon_budget_2026",
+        "world_adsblol_heathrow_positions",
+        "trade_marinecadastre_ais_2024_samples",
+        "world_copernicus_activation_centroids",
+        "world_firms_modis_europe",
+        "world_nyfed_sce_inflation_2024",
+        "world_ember_monthly_generation_2026",
+        "world_geofabrik_monaco_transport",
+        "world_geoboundaries_fra_adm1",
+        "world_ucdp_ged_ukraine_2025",
+        "energy_wri_plants",
+        "trade_portwatch_ports",
+        "trade_un_comtrade_exports",
+        "trade_wits_fuel_exports",
+        "trade_unctad_concentration",
         "attention_pageviews",
         "emissions_facilities",
         "natural_hazards",
@@ -9865,6 +9913,13 @@
             "$ref": "#/$defs/HoldingExposure"
           },
           "type": "array"
+        },
+        "geographicRelationships": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/WorldGeographicRelationship"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -9948,6 +10003,67 @@
         "facts"
       ],
       "title": "WorldExposureResponse",
+      "type": "object"
+    },
+    "WorldGeographicRelationship": {
+      "properties": {
+        "relationshipId": {
+          "type": "string"
+        },
+        "relation": {
+          "enum": [
+            "EVENT_OCCURRED_AT",
+            "FACILITY_LOCATED_IN"
+          ],
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "objectId": {
+          "type": "string"
+        },
+        "evidenceClass": {
+          "enum": [
+            "direct",
+            "derived",
+            "candidate",
+            "model_inferred"
+          ],
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceUrl": {
+          "type": "string"
+        },
+        "normalizedRecordSha256": {
+          "type": "string"
+        },
+        "retrievedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "relationshipId",
+        "relation",
+        "subjectId",
+        "objectId",
+        "evidenceClass",
+        "sourceId",
+        "sourceUrl",
+        "normalizedRecordSha256",
+        "retrievedAt",
+        "limitations"
+      ],
+      "title": "WorldGeographicRelationship",
       "type": "object"
     },
     "WorldLayer": {
@@ -10035,6 +10151,280 @@
         "items"
       ],
       "title": "WorldLayersResponse",
+      "type": "object"
+    },
+    "WorldModeStatus": {
+      "properties": {
+        "mode": {
+          "type": "string"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "count": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "mode",
+        "available",
+        "count",
+        "reason"
+      ],
+      "title": "WorldModeStatus",
+      "type": "object"
+    },
+    "WorldObservation": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "news",
+            "macro",
+            "trade",
+            "energy",
+            "hazards",
+            "conflicts",
+            "aviation",
+            "environment",
+            "infrastructure"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "timeBasis": {
+          "enum": [
+            "source_observation",
+            "reference_period",
+            "event_date",
+            "capture_only"
+          ],
+          "type": "string"
+        },
+        "publishedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrievedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorldObservationLocation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "countryIso3": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source": {
+          "$ref": "#/$defs/WorldObservationSource"
+        },
+        "datasetId": {
+          "type": "string"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "mode",
+        "title",
+        "summary",
+        "occurredAt",
+        "timeBasis",
+        "publishedAt",
+        "retrievedAt",
+        "location",
+        "source",
+        "datasetId",
+        "limitations"
+      ],
+      "title": "WorldObservation",
+      "type": "object"
+    },
+    "WorldObservationLocation": {
+      "properties": {
+        "lat": {
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "lon": {
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "countryIso3": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "precision": {
+          "enum": [
+            "point",
+            "city",
+            "country",
+            "polygon_anchor"
+          ],
+          "type": "string"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "lat",
+        "lon",
+        "countryIso3",
+        "precision"
+      ],
+      "title": "WorldObservationLocation",
+      "type": "object"
+    },
+    "WorldObservationSource": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "url"
+      ],
+      "title": "WorldObservationSource",
+      "type": "object"
+    },
+    "WorldObservationsResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/WorldObservation"
+          },
+          "type": "array"
+        },
+        "total": {
+          "ge": 0,
+          "type": "integer"
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dataVersion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "capturedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ISODateTime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "modes": {
+          "items": {
+            "$ref": "#/$defs/WorldModeStatus"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "nextCursor",
+        "dataVersion",
+        "capturedAt",
+        "modes"
+      ],
+      "title": "WorldObservationsResponse",
       "type": "object"
     },
     "WorstExposure": {
@@ -10886,11 +11276,29 @@
     "WorldExposureResponse": {
       "$ref": "#/$defs/WorldExposureResponse"
     },
+    "WorldGeographicRelationship": {
+      "$ref": "#/$defs/WorldGeographicRelationship"
+    },
     "WorldLayer": {
       "$ref": "#/$defs/WorldLayer"
     },
     "WorldLayersResponse": {
       "$ref": "#/$defs/WorldLayersResponse"
+    },
+    "WorldModeStatus": {
+      "$ref": "#/$defs/WorldModeStatus"
+    },
+    "WorldObservation": {
+      "$ref": "#/$defs/WorldObservation"
+    },
+    "WorldObservationLocation": {
+      "$ref": "#/$defs/WorldObservationLocation"
+    },
+    "WorldObservationSource": {
+      "$ref": "#/$defs/WorldObservationSource"
+    },
+    "WorldObservationsResponse": {
+      "$ref": "#/$defs/WorldObservationsResponse"
     },
     "WorstExposure": {
       "$ref": "#/$defs/WorstExposure"
@@ -11172,8 +11580,14 @@
     "WorldEventResponse",
     "WorldEventsResponse",
     "WorldExposureResponse",
+    "WorldGeographicRelationship",
     "WorldLayer",
     "WorldLayersResponse",
+    "WorldModeStatus",
+    "WorldObservation",
+    "WorldObservationLocation",
+    "WorldObservationSource",
+    "WorldObservationsResponse",
     "WorstExposure"
   ],
   "title": "AplombContracts",
@@ -11183,7 +11597,7 @@
   "x-contract-version": "1.4.0",
   "x-spec-sha256": {
     "schemas.md": "265d9314275affd762f8834145813f612112216bb2b6b9615d009f6cef88cb37",
-    "catalog.md": "bb0d2cb38aca894af1b4592857d13a921f308e807d7b6011bc3ccb71391a3e3c",
+    "catalog.md": "9c05df6ba1da06cabbc28f7b683dd7d37b8edad5da05ddc619eff49fa44db4c2",
     "api.md": "eedd6df0c3c4f3ce35e020477c1995524c05e8c625820bea335b80c1010c8197",
     "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
     "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"

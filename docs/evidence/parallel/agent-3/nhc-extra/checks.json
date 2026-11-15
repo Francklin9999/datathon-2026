@@ -1,0 +1,104 @@
+[
+  {
+    "url": "https://www.nhc.noaa.gov/gis/rss.php",
+    "status": 200,
+    "finalUrl": "https://www.nhc.noaa.gov/gis/rss.php",
+    "bytes": 30059,
+    "sha256": "328ec058724bc27685c57af233abc46260aa1cc4ebbba1c4bd63d78820042b50",
+    "file": "docs/evidence/parallel/agent-3/nhc-extra/gis-rss-description.html",
+    "retrievedAt": "2026-11-15T17:25:19.898640+00:00"
+  },
+  {
+    "url": "https://www.nhc.noaa.gov/CurrentStorms.json",
+    "status": 200,
+    "finalUrl": "https://www.nhc.noaa.gov/CurrentStorms.json",
+    "bytes": 24,
+    "sha256": "faea5cf4718512d456018c5081c2b274d7709e4f7f69e4d0bb2556d0d33360d7",
+    "file": "docs/evidence/parallel/agent-3/nhc-extra/current-storms.json",
+    "retrievedAt": "2026-11-15T17:25:19.804172+00:00"
+  },
+  {
+    "url": "https://www.nhc.noaa.gov/gis/",
+    "status": 200,
+    "finalUrl": "https://www.nhc.noaa.gov/gis/",
+    "bytes": 43021,
+    "sha256": "e8839b3a0aca6e73bb584a1c51f230f46ea568e8f5b2ae4871de1fafcaf93b7f",
+    "file": "docs/evidence/parallel/agent-3/nhc-extra/nhc-gis.html",
+    "retrievedAt": "2026-11-15T17:25:19.893029+00:00"
+  },
+  {
+    "url": "https://www.weather.gov/disclaimer",
+    "status": 200,
+    "finalUrl": "https://www.weather.gov/disclaimer",
+    "bytes": 41679,
+    "sha256": "c08c1597ebd52b31e3ba749f76d2217c290dcd16dc894cb4c109655566ecbbd1",
+    "file": "docs/evidence/parallel/agent-3/nhc-extra/noaa-disclaimer.html",
+    "retrievedAt": "2026-11-15T17:25:19.833254+00:00"
+  },
+  {
+    "url": "https://www.nhc.noaa.gov/gis-at.xml",
+    "status": 200,
+    "finalUrl": "https://www.nhc.noaa.gov/gis-at.xml",
+    "bytes": 1438,
+    "sha256": "b9869a434a4107fd28a93c0e2d5c9f05284191746e788638c5eaabade233462e",
+    "file": "docs/evidence/parallel/agent-3/nhc-extra/gis-at.xml",
+    "retrievedAt": "2026-11-15T17:25:29.319713+00:00",
+    "itemCount": 1,
+    "titles": [
+      "There are no tropical cyclones at this time."
+    ],
+    "channelPublishedAtRaw": "Sun, 15 Nov 2026 17:20:20 GMT",
+    "items": [
+      {
+        "title": "There are no tropical cyclones at this time.",
+        "description": "No tropical cyclones as of Sun, 15 Nov 2026 17:20:20 GMT",
+        "publishedAtRaw": "Tue, 17 Nov 2026 05:10:42 GMT",
+        "link": "https://www.nhc.noaa.gov/gis/"
+      }
+    ]
+  },
+  {
+    "url": "https://www.nhc.noaa.gov/gis-ep.xml",
+    "status": 200,
+    "finalUrl": "https://www.nhc.noaa.gov/gis-ep.xml",
+    "bytes": 1441,
+    "sha256": "bffa4110e6cf58c45488b8fcfd3fd85fcf6e999148a6658c80b995f7d8a96355",
+    "file": "docs/evidence/parallel/agent-3/nhc-extra/gis-ep.xml",
+    "retrievedAt": "2026-11-15T17:25:29.388989+00:00",
+    "itemCount": 1,
+    "titles": [
+      "There are no tropical cyclones at this time."
+    ],
+    "channelPublishedAtRaw": "Sun, 15 Nov 2026 17:20:20 GMT",
+    "items": [
+      {
+        "title": "There are no tropical cyclones at this time.",
+        "description": "No tropical cyclones as of Sun, 15 Nov 2026 17:20:20 GMT",
+        "publishedAtRaw": "Tue, 17 Nov 2026 05:09:41 GMT",
+        "link": "https://www.nhc.noaa.gov/gis/"
+      }
+    ]
+  },
+  {
+    "url": "https://www.nhc.noaa.gov/gis-cp.xml",
+    "status": 200,
+    "finalUrl": "https://www.nhc.noaa.gov/gis-cp.xml",
+    "bytes": 1455,
+    "sha256": "1cb12ad3a21fe00e8d4698b31c21105ca1a7f1755c1f89276409fb93f53f0b8f",
+    "file": "docs/evidence/parallel/agent-3/nhc-extra/gis-cp.xml",
+    "retrievedAt": "2026-11-15T17:25:29.355230+00:00",
+    "itemCount": 1,
+    "titles": [
+      "There are no tropical cyclones at this time."
+    ],
+    "channelPublishedAtRaw": "Sun, 15 Nov 2026 17:20:20 GMT",
+    "items": [
+      {
+        "title": "There are no tropical cyclones at this time.",
+        "description": "No tropical cyclones as of Sun, 15 Nov 2026 17:20:20 GMT",
+        "publishedAtRaw": "Tue, 17 Nov 2026 05:09:41 GMT",
+        "link": "https://www.nhc.noaa.gov/gis/"
+      }
+    ]
+  }
+]

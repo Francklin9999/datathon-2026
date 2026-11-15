@@ -34,6 +34,7 @@ def parameters(request, kind: str) -> dict:
         limits = {
             "assets": (50, 500),
             "world_events": (300, 1000),
+            "world_observations": (250, 500),
             "world_facilities": (500, 2000),
             "world_hazards": (500, 2000),
             "world_airports": (2000, 2000),

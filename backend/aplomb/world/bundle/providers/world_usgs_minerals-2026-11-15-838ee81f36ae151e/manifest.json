@@ -1,0 +1,40 @@
+{
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_usgs_minerals-2026-11-15-838ee81f36ae151e",
+ "datasetId": "world_usgs_minerals",
+ "frequency": "2026 publication, 2025 annual estimates; manual capture",
+ "historicalReplay": false,
+ "licence": "CC0 1.0 public domain dedication; USGS attribution provided",
+ "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+ "limitations": [
+  "Six selected minerals and numeric country production rows only; not the full USGS release.",
+  "Country totals are not mine locations, company output or issuer exposures.",
+  "Withheld, missing and other-country aggregate values are excluded, not treated as zero.",
+  "USGS estimates can be revised; original historical CSV vintages were not captured."
+ ],
+ "name": "USGS Mineral Commodity Summaries 2026 Data Release",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "2bf0a970277e24615a585c8826d23e2f0448709d858b82ef420b87c8ba3b3b9b",
+   "url": "https://www.sciencebase.gov/catalog/item/696a75d5d4be0228872d3bf8?format=json"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "582a0aa231aea53d8a97dc8d1cd3dfa5f885cf3760353e3d029d7f0ae4fbaaf5",
+   "url": "https://www.sciencebase.gov/catalog/file/get/696a75d5d4be0228872d3bf8?f=__disk__eb%2F4d%2Fd1%2Feb4dd129d4f08cfba010a8b11cbbd2d88bbefdcb"
+  }
+ ],
+ "rejected": 14,
+ "retrievedAt": "2026-11-15T17:13:51Z",
+ "rowCount": 74,
+ "scope": "Six selected minerals, numeric 2025 country mine-production rows only; withheld, missing, aggregate and nonnumeric values excluded; no mine locations.",
+ "sha256": "838ee81f36ae151e1bcac46365e0c495cafc37b59e1e718845c2331bb6820320",
+ "sourceIds": [
+  "SRC-199",
+  "MASTER-086"
+ ],
+ "sourceRows": 88,
+ "sourceUrl": "https://www.sciencebase.gov/catalog/item/696a75d5d4be0228872d3bf8?format=json"
+}

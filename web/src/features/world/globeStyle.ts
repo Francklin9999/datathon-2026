@@ -11,7 +11,7 @@ import type { EventCategory } from '../../contracts/types';
 
 export interface GlobePin {
   id: string;
-  kind: 'event' | 'facility' | 'hazard' | 'airport';
+  kind: 'event' | 'facility' | 'hazard' | 'airport' | 'cluster' | 'observation';
   lat: number;
   lng: number;
   /** Plain text shown in the caption on hover. */
@@ -25,6 +25,59 @@ export interface GlobePin {
   related?: readonly string[];
   /** Earthquake magnitude, for the dot size. */
   magnitude?: number;
+  members?: readonly GlobePin[];
+  /** Original provider GeoJSON, used only for the selected source overlay. */
+  geometry?: Record<string, unknown> | null;
+}
+
+export interface SourceGeometry {
+  polygon: { geometry: Record<string, unknown> } | null;
+  paths: number[][][];
+}
+/** Keep source ordering and coordinates. Reject unsupported, invalid or unbounded geometry. */
+export function sourceGeometry(geometry: Record<string, unknown> | null | undefined): SourceGeometry {
+  const empty = { polygon: null, paths: [] };
+  if (!geometry) return empty;
+  let count = 0;
+  const line = (value: unknown, closed = false): value is number[][] => {
+    if (!Array.isArray(value) || value.length < (closed ? 4 : 2)) return false;
+    for (const point of value) {
+      if (++count > 20000 || !Array.isArray(point) || point.length < 2
+        || typeof point[0] !== 'number' || typeof point[1] !== 'number'
+        || !Number.isFinite(point[0]) || !Number.isFinite(point[1])
+        || Math.abs(point[0]) > 180 || Math.abs(point[1]) > 90) return false;
+    }
+    return !closed || (value[0][0] === value[value.length - 1][0] && value[0][1] === value[value.length - 1][1]);
+  };
+  const polygon = (value: unknown): boolean => Array.isArray(value) && value.length > 0 && value.every(ring => line(ring, true));
+  const coordinates = geometry.coordinates;
+  if (geometry.type === 'Polygon' && polygon(coordinates)) return { polygon: { geometry }, paths: [] };
+  if (geometry.type === 'MultiPolygon' && Array.isArray(coordinates) && coordinates.length > 0 && coordinates.every(polygon)) return { polygon: { geometry }, paths: [] };
+  if (geometry.type === 'LineString' && line(coordinates)) return { polygon: null, paths: [coordinates] };
+  if (geometry.type === 'MultiLineString' && Array.isArray(coordinates) && coordinates.length > 0 && coordinates.every(part => line(part))) return { polygon: null, paths: coordinates as number[][][] };
+  return empty;
+}
+
+/** Spatial display grouping only. It never merges source records or changes source coordinates. */
+export function clusterPins(pins: readonly GlobePin[], altitude: number, selectedId: string | null): GlobePin[] {
+  const degrees = altitude >= 2 ? 12 : altitude >= 1.2 ? 6 : 0;
+  const valid = pins.filter(pin => Number.isFinite(pin.lat) && Number.isFinite(pin.lng) && Math.abs(pin.lat) <= 90 && Math.abs(pin.lng) <= 180);
+  if (!degrees) return valid;
+  const cells = new Map<string, GlobePin[]>();
+  const singles: GlobePin[] = [];
+  for (const pin of valid) {
+    if (pin.id === selectedId) { singles.push(pin); continue; }
+    const key = `${pin.kind}:${Math.floor((pin.lat + 90) / degrees)}:${Math.floor((pin.lng + 180) / degrees)}`;
+    const cell = cells.get(key) ?? [];
+    cell.push(pin);
+    cells.set(key, cell);
+  }
+  return [...singles, ...[...cells.entries()].map(([cell, members]) => members.length === 1 ? members[0]! : ({
+    id: `cluster:${degrees}:${cell}`, kind: 'cluster' as const,
+    lat: members.reduce((sum, pin) => sum + pin.lat, 0) / members.length,
+    lng: members.reduce((sum, pin) => sum + pin.lng, 0) / members.length,
+    label: `${members.length} · ${members[0]!.kind}`, countryLevel: false, weight: 0, members,
+  }))];
 }
 
 /** Category colours: the categorical palette of the app, in a fixed order (colour follows the category). */
@@ -46,6 +99,8 @@ export const PIN_COLORS = {
 
 export function pinColor(pin: GlobePin, selectedId: string | null): string {
   if (pin.id === selectedId) return PIN_COLORS.selected;
+  if (pin.kind === 'cluster') return '#D8E8FF';
+  if (pin.kind === 'observation') return '#6AE0CF';
   if (pin.kind === 'facility') return PIN_COLORS.facility;
   if (pin.kind === 'hazard') return PIN_COLORS.hazard;
   if (pin.kind === 'airport') return PIN_COLORS.airport;
