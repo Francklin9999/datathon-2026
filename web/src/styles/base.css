@@ -1,4 +1,4 @@
-/* Reset, typography, utilities and the ambient light behind the glass. */
+/* Reset, typography, utilities and scrollbars. The page background is one solid colour. */
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
@@ -7,7 +7,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -17,14 +17,14 @@ h1, h2, h3, h4, p, ul, ol, dl, dd, figure, blockquote { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-a { color: var(--accent-text); text-underline-offset: 2px; text-decoration-thickness: 1px; }
+a { color: var(--accent-text); text-underline-offset: 3px; text-decoration-thickness: 1px; }
 a:hover { color: var(--text); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-::selection { background: var(--gold-soft); color: var(--text); }
+::selection { background: var(--accent-soft); color: var(--text); }
 table { border-collapse: collapse; }
 summary { cursor: pointer; }
 
-.serif { font-family: var(--serif); font-variation-settings: 'SOFT' 50, 'WONK' 0; }
+.serif { font-family: var(--serif); font-variation-settings: 'SOFT' 30, 'WONK' 0; }
 .mono { font-family: var(--mono); }
 .num { font-variant-numeric: tabular-nums lining-nums; }
 .small { font-size: 13px; }
@@ -32,32 +32,21 @@ summary { cursor: pointer; }
 .block { display: block; }
 .break { overflow-wrap: anywhere; word-break: break-word; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
-/* Small section label: sentence case, quiet weight (no tracked-out capitals). */
-.eyebrow { font-size: 13px; font-weight: 500; letter-spacing: .01em; color: var(--text-2); }
-.h4 { font-size: 16px; font-weight: 600; margin: 16px 0 6px; }
+/* Small context label: sentence case, quiet. */
+.eyebrow { font-size: 13px; font-weight: 400; color: var(--text-3); }
+.h4 { font-size: 15px; font-weight: 500; margin: 16px 0 8px; }
 .error-text { color: var(--conflict-fg); }
-.skip-link { position: absolute; left: -9999px; top: 8px; z-index: 100; background: var(--gold); color: var(--navy); padding: 8px 12px; border-radius: var(--r-chip); font-weight: 600; }
+.skip-link { position: absolute; left: -9999px; top: 8px; z-index: 100; background: var(--accent); color: var(--accent-contrast); padding: 8px 12px; border-radius: var(--r-ctl); font-weight: 500; }
 .skip-link:focus { left: 8px; }
 
-/* Ambient light: a soft gold "plumb" shaft (the logo's plumb line) with teal and blue haze.
-   Static gradients on a fixed layer; only `transform` drifts, and only without reduced motion. */
-.ambient { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
-  background: radial-gradient(120% 90% at 15% 0%, var(--bg-2) 0%, var(--bg) 60%); }
-.ambient > span { position: absolute; display: block; border-radius: 50%; will-change: transform; }
-.ambient-shaft { left: 54%; top: -20%; width: 22vw; min-width: 220px; height: 120vh;
-  background: radial-gradient(50% 50% at 50% 50%, var(--glow-shaft-core) 0%, var(--glow-shaft) 35%, transparent 72%);
-  animation: ambient-sway 48s var(--ease-standard) infinite alternate; }
-.ambient-teal { left: -12%; bottom: -30%; width: 62vw; height: 70vh;
-  background: radial-gradient(50% 50% at 50% 50%, var(--glow-teal) 0%, transparent 70%);
-  animation: ambient-drift 64s var(--ease-standard) infinite alternate; }
-.ambient-blue { right: -14%; top: -18%; width: 48vw; height: 60vh;
-  background: radial-gradient(50% 50% at 50% 50%, var(--glow-blue) 0%, transparent 70%);
-  animation: ambient-drift 56s var(--ease-standard) infinite alternate-reverse; }
-.ambient-grain { inset: 0; border-radius: 0 !important; opacity: var(--grain-opacity); mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-@keyframes ambient-sway { from { transform: translate3d(-3vw, 0, 0) rotate(-2deg); } to { transform: translate3d(4vw, 2vh, 0) rotate(2deg); } }
-@keyframes ambient-drift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(4vw, -3vh, 0) scale(1.08); } }
+/* Scrollbars: thin, neutral, part of the ramp (Firefox + Chromium/WebKit). */
+* { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+
 @media (prefers-reduced-motion: reduce) {
-  .ambient > span { animation: none; }
   * { scroll-behavior: auto !important; }
 }

@@ -16,8 +16,10 @@ const H = 260;
 const PAD = { l: 60, r: 14, t: 14, b: 30 };
 const time = (date: string) => Date.parse(`${date}T00:00:00Z`);
 
-export function LineChart({ series, lang, unitLabel, caption, digits = 0 }: {
+export function LineChart({ series, lang, unitLabel, caption, digits = 0, area = true }: {
   series: readonly Series[]; lang: Lang; unitLabel: string; caption: string; digits?: number;
+  /** Gradient area under the first series (off for views that live below zero, like drawdown). */
+  area?: boolean;
 }) {
   const id = useId();
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -80,7 +82,7 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0 }: {
           {first && <text x={PAD.l} y={H - 8} className="chart-axis">{fmtDate(first.date, lang)}</text>}
           {last && <text x={W - PAD.r} y={H - 8} textAnchor="end" className="chart-axis">{fmtDate(last.date, lang)}</text>}
           <g key={animKey}>
-            {base && <path d={areaPath(base.xy, baseline)} fill={`url(#${id}-area)`} className="chart-area" />}
+            {area && base && <path d={areaPath(base.xy, baseline)} fill={`url(#${id}-area)`} className="chart-area" />}
             {plotted.map(s => (
               <path key={s.label} d={linePath(s.xy)} fill="none" {...chartLineProps(Boolean(s.dashed))}
                 className={`chart-line${s.dashed ? ' chart-line-dashed' : ''}`} style={{ stroke: s.color }} />

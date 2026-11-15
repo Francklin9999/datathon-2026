@@ -371,7 +371,7 @@ function FrontierChart({ data, lang }: { data: FrontierResponse; lang: Lang }) {
   return (
     <figure>
       <svg viewBox={`0 0 ${W} ${H}`} className="chart" role="img" aria-label={tr({ en: 'Frontier chart; a list of points follows', fr: 'Graphique de frontière ; une liste des points suit' })}>
-        <line x1={x(data.volBudgetPct)} x2={x(data.volBudgetPct)} y1={P / 2} y2={H - P} stroke="var(--gold)" strokeDasharray="4 4" />
+        <line x1={x(data.volBudgetPct)} x2={x(data.volBudgetPct)} y1={P / 2} y2={H - P} stroke="var(--tension-fg)" strokeDasharray="4 4" />
         <polyline points={line(data.minVarFrontier)} fill="none" stroke="var(--chart-1)" strokeWidth={2} />
         <polyline points={line(data.histMvFrontier)} fill="none" stroke="var(--chart-4)" strokeWidth={2} strokeDasharray="6 4" />
         {data.assets.map(a => <circle key={a.ticker} cx={x(a.volPct)} cy={y(a.histReturnPct)} r={3} fill="var(--text-3)" />)}
@@ -383,7 +383,7 @@ function FrontierChart({ data, lang }: { data: FrontierResponse; lang: Lang }) {
       <div className="legend">
         <span><span className="swatch" aria-hidden="true" />{tr({ en: 'Risk-only minimum-variance curve', fr: 'Courbe de variance minimale (risque seul)' })}</span>
         <span><span className="swatch" style={{ background: 'var(--chart-4)' }} aria-hidden="true" />{tr({ en: 'Historical mean-variance illustration', fr: 'Illustration moyenne-variance historique' })}</span>
-        <span><span className="swatch" style={{ background: 'var(--gold)' }} aria-hidden="true" />{tr({ en: 'Volatility budget', fr: 'Budget de volatilité' })} {fmtPct(data.volBudgetPct, lang)}</span>
+        <span><span className="swatch" style={{ background: 'var(--tension-fg)' }} aria-hidden="true" />{tr({ en: 'Volatility budget', fr: 'Budget de volatilité' })} {fmtPct(data.volBudgetPct, lang)}</span>
         <span>● {tr({ en: 'Current portfolio', fr: 'Portefeuille actuel' })} · {data.currency} · {data.window.code}</span>
       </div>
       <details className="small">

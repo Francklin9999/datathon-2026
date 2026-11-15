@@ -1,24 +1,27 @@
 'use client';
 /**
- * AppShell (T13): floating glass sidebar with the fictional-investor switcher, glass topbar with
- * window / language / theme controls, persistent simulation disclaimer, development-fixture banner
- * and a polite live region. Presentation follows docs/superpowers/specs/2026-11-14-glass-ui-design.md.
+ * AppShell (T13): sidebar (expandable to labels or collapsed to an icon rail) with the
+ * fictional-investor switcher, flat page header with data date, window, language and theme,
+ * persistent simulation disclaimer, development-fixture banner and a polite live region.
  */
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BookOpen, ChevronsUpDown, Cpu, Earth, History, LayoutDashboard, Menu, PieChart, Scale, ShieldCheck, UserRound,
-  type LucideIcon,
+  BookOpen, ChevronsUpDown, Cpu, Earth, History, Info, LayoutDashboard, Menu, PanelLeftClose, PanelLeftOpen, PieChart,
+  Scale, ShieldCheck, UserRound, type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useId, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import type { I18NText, WindowCode } from '../../contracts/types';
 import { useApp, WINDOW_CODES } from '../../state/app';
 import { RISK_LEVEL, WINDOW, labelOf } from '../../lib/labels';
 import { fmtDate } from '../../lib/format';
+import { readPref, writePref } from '../../lib/session';
 import { windowShortLabel } from '../../lib/ui/segmented';
+import { SIDEBAR_PREF_KEY, isSidebarState, type SidebarState } from '../../lib/ui/theme';
 import { FIXTURE_BANNER } from '../../api/fixtures';
 import { ErrorState, Loading } from '../common/States';
 import { Drawer } from '../common/Drawer';
+import { Listbox } from '../ui/Listbox';
 import { SegmentedControl } from '../ui/SegmentedControl';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { pillStyle, useSlidingPill } from '../ui/useSlidingPill';
@@ -45,13 +48,14 @@ function isActive(pathname: string, href: string): boolean {
   return pathname.startsWith(href.replace(/\/$/, ''));
 }
 
+/** The plumb line: the product's own mark, one solid colour. */
 function Logo() {
   return (
     <Link href="/" className="logo" aria-label="Aplomb">
-      <svg width="20" height="28" viewBox="0 0 26 34" aria-hidden="true">
-        <circle cx="13" cy="4" r="3" fill="none" stroke="#E3A53B" strokeWidth="2" />
-        <line x1="13" y1="7" x2="13" y2="22" stroke="#E3A53B" strokeWidth="2" />
-        <path d="M13 21 L20 28 L13 33 L6 28 Z" fill="#E3A53B" />
+      <svg className="logo-mark" width="16" height="22" viewBox="0 0 26 34" aria-hidden="true">
+        <circle cx="13" cy="4" r="3" fill="none" stroke="currentColor" strokeWidth="2" />
+        <line x1="13" y1="7" x2="13" y2="22" stroke="currentColor" strokeWidth="2" />
+        <path d="M13 21 L20 28 L13 33 L6 28 Z" fill="currentColor" />
       </svg>
       <span className="logo-text">Aplomb</span>
     </Link>
@@ -59,7 +63,7 @@ function Logo() {
 }
 
 /** Nav with one highlight that glides to the current page (positioned in list coordinates). */
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({ onNavigate, tooltips = false }: { onNavigate?: () => void; tooltips?: boolean }) {
   const pathname = usePathname() ?? '/';
   const { tr, feature, meta } = useApp();
   const items = NAV.filter(item => !item.flag || !meta || feature(item.flag));
@@ -74,13 +78,14 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         {items.map(item => {
           const active = isActive(pathname, item.href);
           const Icon = item.icon;
+          const label = tr(item.label);
           return (
             <li key={item.href}>
-              <Link href={item.href} className="nav-link" aria-current={active ? 'page' : undefined}
+              <Link href={item.href} className="nav-link" aria-current={active ? 'page' : undefined} {...(tooltips ? { title: label } : {})}
                 data-pill-target={active ? 'true' : undefined}
                 {...(onNavigate ? { onClick: onNavigate } : {})}>
-                <Icon className="nav-icon" aria-hidden="true" size={18} strokeWidth={1.75} />
-                <span className="nav-text">{tr(item.label)}</span>
+                <Icon className="nav-icon" aria-hidden="true" size={18} strokeWidth={1.5} />
+                <span className="nav-text">{label}</span>
               </Link>
             </li>
           );
@@ -90,36 +95,30 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-/**
- * Investor switcher: the whole card is the hit area of a transparent native <select> laid over it,
- * so keyboard, screen readers and mobile pickers keep their native behaviour.
- */
-function PersonaCard({ compact = false }: { compact?: boolean }) {
+/** Investor switcher: a styled listbox (the native list cannot be themed in every browser). */
+function PersonaSwitcher({ compact = false }: { compact?: boolean }) {
   const { profiles, profile, selectProfile, tr, feature } = useApp();
-  const id = useId();
-  // Chrome treats a clicked <select> as :focus-visible; remember the modality so the ring is keyboard-only.
-  const [pointer, setPointer] = useState(false);
   if (!profile) return null;
   const caption = tr({ en: 'Fictional investor', fr: 'Investisseur fictif' });
+  const options = profiles.map(p => ({
+    value: p.profileId,
+    label: p.name,
+    ...(p.isDefault ? {} : { meta: tr({ en: 'custom', fr: 'personnalisé' }) }),
+  }));
   return (
     <div className={`persona${compact ? ' persona-compact' : ''}`}>
-      <div className="persona-card" data-pointer={pointer ? 'true' : undefined}
-        onPointerDown={() => setPointer(true)} onKeyDown={() => setPointer(false)} onBlur={() => setPointer(false)}>
-        <span className="avatar" aria-hidden="true">{profile.initial}</span>
-        <span className="persona-body" aria-hidden="true">
-          <span className="persona-caption">{caption}</span>
-          <span className="persona-name">{profile.name}</span>
-        </span>
-        <ChevronsUpDown aria-hidden="true" size={15} className="persona-chevron" />
-        <label htmlFor={id} className="sr-only">{caption}</label>
-        <select id={id} className="persona-native" value={profile.profileId} onChange={e => selectProfile(e.target.value)}>
-          {profiles.map(p => (
-            <option key={p.profileId} value={p.profileId}>
-              {p.name}{p.isDefault ? '' : ` (${tr({ en: 'custom', fr: 'personnalisé' })})`}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Listbox label={caption} value={profile.profileId} options={options} onChange={selectProfile}
+        triggerClassName="persona-trigger"
+        renderTrigger={selected => (
+          <>
+            <span className="avatar" aria-hidden="true">{profile.initial}</span>
+            <span className="persona-body" aria-hidden="true">
+              <span className="persona-caption">{caption}</span>
+              <span className="persona-name">{selected?.label ?? profile.name}</span>
+            </span>
+            <ChevronsUpDown aria-hidden="true" size={16} strokeWidth={1.5} className="persona-chevron" />
+          </>
+        )} />
       {!compact && feature('profile_creator') && (
         <Link href="/profiles/" className="persona-link">{tr({ en: 'Manage profiles', fr: 'Gérer les profils' })}</Link>
       )}
@@ -153,24 +152,56 @@ function LanguageSelect() {
   );
 }
 
+/** Expanded / collapsed sidebar, stored as a UI preference; the boot script applied it before paint. */
+function useSidebarState(): [SidebarState, () => void] {
+  const [state, setState] = useState<SidebarState>('expanded');
+  useEffect(() => {
+    const stored = readPref(SIDEBAR_PREF_KEY);
+    if (isSidebarState(stored)) setState(stored);
+  }, []);
+  const toggle = useCallback(() => {
+    setState(current => {
+      const next: SidebarState = current === 'collapsed' ? 'expanded' : 'collapsed';
+      writePref(SIDEBAR_PREF_KEY, next);
+      if (next === 'collapsed') document.documentElement.dataset.sidebar = 'collapsed';
+      else delete document.documentElement.dataset.sidebar;
+      return next;
+    });
+  }, []);
+  return [state, toggle];
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { tr, meta, phase, bootError, retryBoot, profile, lang, fixtures, announcement, feature } = useApp();
+  const pathname = usePathname() ?? '/';
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebar, toggleSidebar] = useSidebarState();
+  const collapsed = sidebar === 'collapsed';
   const disclaimer = meta?.disclaimer ?? FALLBACK_DISCLAIMER;
+  // Home carries its own scope bar (window, period and dashboard criteria); other pages use this one.
+  const showWindow = pathname !== '/';
 
   return (
     <div className="shell">
       <a href="#main" className="skip-link">{tr({ en: 'Skip to content', fr: 'Aller au contenu' })}</a>
-      <aside className="sidebar glass" aria-label={tr({ en: 'Primary', fr: 'Principal' })}>
-        <Logo />
-        <PersonaCard />
-        <nav aria-label={tr({ en: 'Pages', fr: 'Pages' })}><NavList /></nav>
+      <aside id="sidebar" className="sidebar" aria-label={tr({ en: 'Primary', fr: 'Principal' })}>
+        <div className="sidebar-head">
+          <Logo />
+          <button type="button" className="icon-btn collapse-btn" onClick={toggleSidebar}
+            aria-controls="sidebar" aria-expanded={!collapsed}
+            aria-label={collapsed ? tr({ en: 'Expand sidebar', fr: 'Déplier la barre latérale' }) : tr({ en: 'Collapse sidebar', fr: 'Replier la barre latérale' })}
+            title={collapsed ? tr({ en: 'Expand sidebar', fr: 'Déplier la barre latérale' }) : tr({ en: 'Collapse sidebar', fr: 'Replier la barre latérale' })}>
+            {collapsed ? <PanelLeftOpen aria-hidden="true" size={18} strokeWidth={1.5} /> : <PanelLeftClose aria-hidden="true" size={18} strokeWidth={1.5} />}
+          </button>
+        </div>
+        <PersonaSwitcher />
+        <nav aria-label={tr({ en: 'Pages', fr: 'Pages' })}><NavList tooltips={collapsed} /></nav>
         <div className="sidebar-foot">
-          <Link href="/sources/" className="nav-link nav-link-sm">
-            <BookOpen className="nav-icon" aria-hidden="true" size={16} strokeWidth={1.75} />
+          <Link href="/sources/" className="nav-link nav-link-sm" {...(collapsed ? { title: tr({ en: 'Sources & data passports', fr: 'Sources et passeports' }) } : {})}>
+            <BookOpen className="nav-icon" aria-hidden="true" size={16} strokeWidth={1.5} />
             <span className="nav-text">{tr({ en: 'Sources & data passports', fr: 'Sources et passeports' })}</span>
           </Link>
-          {meta && <p className="sidebar-meta mono">{meta.dataVersion}</p>}
+          {meta && <p className="sidebar-meta">{meta.dataVersion}</p>}
         </div>
       </aside>
 
@@ -181,27 +212,27 @@ export function AppShell({ children }: { children: ReactNode }) {
             {tr({ en: 'Only contract fixtures are served; every other call reports unavailable.', fr: 'Seuls les jeux d’essai du contrat sont servis ; tout autre appel est signalé indisponible.' })}
           </div>
         )}
-        <header className="topbar glass">
+        <header className="topbar">
           <button type="button" className="icon-btn menu-btn" onClick={() => setMenuOpen(true)} aria-haspopup="dialog"
             aria-label={tr({ en: 'Menu', fr: 'Menu' })}>
-            <Menu aria-hidden="true" size={18} strokeWidth={1.75} />
+            <Menu aria-hidden="true" size={18} strokeWidth={1.5} />
           </button>
-          <div className="topbar-persona"><PersonaCard compact /></div>
-          <div className="topbar-meta small">
+          <div className="topbar-persona"><PersonaSwitcher compact /></div>
+          <div className="topbar-meta">
             {meta && <span className="meta-chip">{tr({ en: 'Data as of', fr: 'Données au' })} <strong>{fmtDate(meta.dataAsOf, lang)}</strong></span>}
             {profile && (
               <span className="meta-chip">{profile.portfolio.currency}, {tr({ en: 'risk', fr: 'risque' })} {labelOf(RISK_LEVEL, profile.riskLevel, lang).toLowerCase()}</span>
             )}
           </div>
           <div className="topbar-controls">
-            <WindowControl />
+            {showWindow && <WindowControl />}
             <LanguageSelect />
             <ThemeToggle />
           </div>
         </header>
 
         <p className="disclaimer" role="note">
-          <span aria-hidden="true" className="disclaimer-mark">!</span>{tr(disclaimer)}
+          <Info aria-hidden="true" size={14} strokeWidth={1.5} className="disclaimer-mark" />{tr(disclaimer)}
         </p>
 
         <main id="main" className="content" tabIndex={-1}>
@@ -213,7 +244,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {phase === 'ready' && children}
         </main>
 
-        <footer className="footer small">
+        <footer className="footer">
           <span>{tr(disclaimer)}</span>
           <Link href="/sources/">{tr({ en: 'Sources', fr: 'Sources' })}</Link>
           {meta && <span className="mono">{tr({ en: 'Contract', fr: 'Contrat' })} {meta.contractVersion}, {meta.environment}</span>}
@@ -224,13 +255,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav aria-label={tr({ en: 'Pages', fr: 'Pages' })} className="mobile-nav">
           <NavList onNavigate={() => setMenuOpen(false)} />
           <Link href="/sources/" className="nav-link" onClick={() => setMenuOpen(false)}>
-            <BookOpen className="nav-icon" aria-hidden="true" size={18} strokeWidth={1.75} />
+            <BookOpen className="nav-icon" aria-hidden="true" size={18} strokeWidth={1.5} />
             <span className="nav-text">{tr({ en: 'Sources', fr: 'Sources' })}</span>
           </Link>
           {/* The sidebar (and its "Manage profiles" link) is hidden on phones: keep Profiles reachable. */}
           {feature('profile_creator') && (
             <Link href="/profiles/" className="nav-link" onClick={() => setMenuOpen(false)}>
-              <UserRound className="nav-icon" aria-hidden="true" size={18} strokeWidth={1.75} />
+              <UserRound className="nav-icon" aria-hidden="true" size={18} strokeWidth={1.5} />
               <span className="nav-text">{tr({ en: 'Profiles', fr: 'Profils' })}</span>
             </Link>
           )}
