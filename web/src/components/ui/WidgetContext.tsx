@@ -15,6 +15,10 @@ export interface WidgetChrome {
   resizing: boolean;
   /** Visible title, used in handle labels ("Move Allocation"). */
   title: string;
+  /** Label of this widget in the section dock. */
+  section?: string;
+  /** Widget whose content draws its own tiles (no card sheet behind it). */
+  bare?: boolean;
   onMovePointerDown: (event: PointerEvent<HTMLElement>) => void;
   onMoveKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
   onResizePointerDown: (event: PointerEvent<HTMLElement>) => void;

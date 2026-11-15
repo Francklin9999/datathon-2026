@@ -141,8 +141,8 @@ test('splitLimitations dedupes, keeps order and folds after n', () => {
 });
 
 test('browser theme-color follows the resolved theme, not only the OS', () => {
-  assert.equal(themeColorFor('light'), '#FAFAFA');
-  assert.equal(themeColorFor('dark'), '#141415');
+  assert.equal(themeColorFor('light'), '#ECEFF5');
+  assert.equal(themeColorFor('dark'), '#0B0D12');
 });
 
 test('motion boot script pauses entrance motion while the page is hidden', () => {

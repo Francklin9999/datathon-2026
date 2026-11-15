@@ -18,7 +18,7 @@ import {
 } from '../../lib/ui/layout';
 import { WidgetContext, type WidgetChrome } from '../../components/ui/WidgetContext';
 
-export interface WidgetDef { id: string; title: string; limits: WidgetLimits; render: () => ReactNode }
+export interface WidgetDef { id: string; title: string; limits: WidgetLimits; render: () => ReactNode; section?: string; bare?: boolean }
 
 const LAYOUT_PREF = 'dashboard.layout.v1';
 const ROW_PX = 32;
@@ -167,6 +167,8 @@ export function DashboardGrid({ widgets, defaults, editing, resetToken, announce
 
   const chrome = (item: LayoutItem): WidgetChrome => ({
     id: item.id, w: item.w, h: item.h, title: titleOf(item.id),
+    ...(byId.get(item.id)?.section ? { section: byId.get(item.id)!.section! } : {}),
+    ...(byId.get(item.id)?.bare ? { bare: true } : {}),
     editing: editing && !stacked,
     dragging: activeGesture?.kind === 'move' && activeGesture.id === item.id,
     resizing: activeGesture?.kind === 'resize' && activeGesture.id === item.id,

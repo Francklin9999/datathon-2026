@@ -16,6 +16,7 @@ import { asApiError, isAbort, type ApiRequestError } from '../../api/errors';
 import { useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
 import { useRun } from '../../state/useRun';
+import { WindowControl } from '../../components/shell/TopBar';
 import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
 import { ErrorState, Loading } from '../../components/common/States';
 import { FactScopeProvider, LimitationList, type FactScope } from '../../components/common/FactDrawer';
@@ -58,6 +59,8 @@ function DeskContent({ profile }: { profile: Profile }) {
   const contextProfile = params.get('profileId');
   const urlSourceRun = params.get('sourceRunId');
   const ticker = params.get('ticker') ?? '';
+  // Text typed in the top bar ("Ask Aplomb") arrives as ?q= and is interpreted once.
+  const askedText = params.get('q');
   const contextMatches = !contextProfile || contextProfile === profile.profileId;
 
 
@@ -122,7 +125,7 @@ function DeskContent({ profile }: { profile: Profile }) {
   }, [checkKey, blocking, goal, gate]);
 
   const previewScope = useMemo<FactScope | null>(() => (preview.result
-    ? { kind: 'local', label: { en: 'Deterministic preview (/check, no model). Not part of any run ledger.', fr: 'Aperçu déterministe (/check, sans modèle). Hors de tout registre d’exécution.' }, facts: preview.result.facts }
+    ? { kind: 'local', label: { en: 'Instant rule check, computed by code. Not part of an analysis.', fr: 'Vérification instantanée, calculée par le code. Hors de toute analyse.' }, facts: preview.result.facts }
     : null), [preview.result]);
 
   // ----- run creation -----
@@ -163,9 +166,9 @@ function DeskContent({ profile }: { profile: Profile }) {
 
   return (
     <>
-      <PageHeader eyebrow={tr({ en: 'Decision Desk', fr: 'Pupitre de décision' })}
-        title={tr({ en: `Test a hypothetical move for ${profile.name}`, fr: `Tester un mouvement hypothétique pour ${profile.name}` })}>
-        <p className="page-sub">{tr({ en: 'Describe a move or fill the form. Rule checks are deterministic; the evidence analysis is an audited agent run. Nothing is ever executed.', fr: 'Décrivez un mouvement ou remplissez le formulaire. Les vérifications sont déterministes ; l’analyse des preuves est une exécution d’agents auditée. Rien n’est jamais exécuté.' })}</p>
+      <PageHeader actions={<WindowControl />} tour="desk-header"
+        title={tr({ en: `Test a move for ${profile.name}`, fr: `Tester un mouvement pour ${profile.name}` })}>
+        <p className="page-sub">{tr({ en: 'Describe a move or fill in the form, then analyze the evidence. Nothing is ever executed.', fr: 'Décrivez un mouvement ou remplissez le formulaire, puis analysez les preuves. Rien n’est jamais exécuté.' })}</p>
       </PageHeader>
 
       {contextEvent && <Card title={tr({ en: 'Investigation context', fr: 'Contexte de recherche' })}>
@@ -175,8 +178,13 @@ function DeskContent({ profile }: { profile: Profile }) {
         {sourceRun && <> · <Link href={`/evidence-audit/?runId=${encodeURIComponent(sourceRun)}`}>{tr({ en: 'Event brief evidence', fr: 'Preuves de la note d’événement' })}</Link></>}
       </Card>}
       <div className="cols">
-        <div>
-          <FreeText profile={profile} onUse={(parsed, text) => {
+        <div id="request" data-section={tr({ en: 'Request', fr: 'Demande' })}>
+          <FreeText profile={profile} initial={askedText} onConsumed={() => {
+            const next = new URLSearchParams(params.toString());
+            next.delete('q');
+            const rest = next.toString();
+            router.replace(rest ? `/decision-desk/?${rest}` : '/decision-desk/');
+          }} onUse={(parsed, text) => {
             setOriginalText(text);
             if (!parsed.request) return;
             touched.current = true;
@@ -191,37 +199,38 @@ function DeskContent({ profile }: { profile: Profile }) {
           <MoveFormCard profile={profile} form={form} update={update} maxSize={maxSize} currentWeight={currentWeight} issues={shownIssues} goal={goal} />
         </div>
         <div>
-          <Card title={tr({ en: 'Deterministic preview', fr: 'Aperçu déterministe' })}>
+          <Card id="preview" section={tr({ en: 'Check', fr: 'Vérification' })} tour="preview" title={tr({ en: 'Instant rule check', fr: 'Vérification instantanée des règles' })}
+            info={tr({ en: 'Computed by code from the plan’s rules, updated as you change the move. No AI is involved.', fr: 'Calculée par le code à partir des règles du plan, à chaque changement du mouvement. Aucune IA n’intervient.' })}>
             {goal ? (
-              <p className="small muted">{tr({ en: 'Goal requests have no deterministic preview; analyze them as a run.', fr: 'Les objectifs n’ont pas d’aperçu déterministe ; analysez-les par une exécution.' })}</p>
+              <p className="small muted">{tr({ en: 'Goals have no instant check; analyze them instead.', fr: 'Les objectifs n’ont pas de vérification instantanée ; analysez-les directement.' })}</p>
             ) : (
               <>
                 <p className="small muted">{move
-                  ? `${describeRequest({ type: 'move', move }, lang)} · ${fundingLabel(move.funding, lang)}`
+                  ? `${describeRequest({ type: 'move', move }, lang)}, ${fundingLabel(move.funding, lang)}`
                   : tr({ en: 'Baseline: current portfolio, no move (size 0).', fr: 'Référence : portefeuille actuel, sans mouvement (taille 0).' })}</p>
-                {preview.loading && <Loading label={tr({ en: 'Checking rules (no model)…', fr: 'Vérification des règles (sans modèle)…' })} />}
+                {preview.loading && <Loading label={tr({ en: 'Checking rules…', fr: 'Vérification des règles…' })} />}
                 {preview.error && !preview.loading && <PreviewError error={preview.error} ticker={form.ticker} />}
                 {preview.result && previewScope && !preview.loading && (
                   <FactScopeProvider scope={previewScope}>
                     <VerdictHeader verdict={preview.result.verdict} counts={preview.result.counts} />
                     {move && <BoundaryNote sizePct={preview.result.maxCompatibleSizePct} counts={preview.result.counts} baselineConflict={preview.result.baselineConflict} />}
-                    <p className="small muted">{tr({ en: 'Funding used', fr: 'Financement utilisé' })}: {fundingLabel(preview.result.fundingUsed, lang)} · <span className="mono">{preview.result.dataVersion}</span> · {preview.result.asOf}</p>
+                    <p className="small muted">{tr({ en: 'Funding used', fr: 'Financement utilisé' })}: {fundingLabel(preview.result.fundingUsed, lang)}</p>
                   </FactScopeProvider>
                 )}
               </>
             )}
             <div className="row-actions">
-              <button type="button" className="btn gold" disabled={!canAnalyze} onClick={() => void analyze()}>
+              <button type="button" className="btn" disabled={!canAnalyze} onClick={() => void analyze()} data-tour="analyze">
                 {tr({ en: 'Analyze evidence', fr: 'Analyser les preuves' })}
               </button>
-              <span className="small muted">{tr({ en: 'Starts an audited agent run with the confirmed request.', fr: 'Lance une exécution d’agents auditée avec la requête confirmée.' })}</span>
+              <span className="small muted">{tr({ en: 'Starts the audited AI analysis.', fr: 'Lance l’analyse IA auditée.' })}</span>
             </div>
             {createError && <ErrorState error={createError} />}
           </Card>
         </div>
       </div>
 
-      {preview.result && previewScope && !goal && !preview.loading && (
+      {preview.result && previewScope && !goal && !preview.loading && run?.status !== 'succeeded' && (
         <FactScopeProvider scope={previewScope}>
           <Card title={tr({ en: 'Preview details', fr: 'Détails de l’aperçu' })}>
             <SnapshotCompare before={preview.result.portfolioBefore} after={move ? preview.result.portfolioAfter : null} />
@@ -235,16 +244,16 @@ function DeskContent({ profile }: { profile: Profile }) {
       <ComparePanel profile={profile} form={form} />
 
       {runId && (
-        <Card id="run" title={tr({ en: 'Evidence analysis run', fr: 'Exécution d’analyse des preuves' })}>
+        <Card id="run" section={tr({ en: 'Analysis', fr: 'Analyse' })} tour="run" title={tr({ en: 'Evidence analysis', fr: 'Analyse des preuves' })}>
           {polled.loading && !run && <Loading />}
           {polled.error && <ErrorState error={polled.error} onRetry={polled.reload}
-            {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This run does not exist or belongs to another session.', fr: 'Cette exécution n’existe pas ou appartient à une autre session.' }) } : {})} />}
+            {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This analysis does not exist or belongs to another session.', fr: 'Cette analyse n’existe pas ou appartient à une autre session.' }) } : {})} />}
           {polled.pollError && (
-            <p className="small muted" role="status">{tr({ en: 'Polling paused after an error; retrying with backoff.', fr: 'Interrogation suspendue après une erreur ; nouvel essai progressif.' })} ({polled.pollError.code})</p>
+            <p className="small muted" role="status">{tr({ en: 'Connection lost, retrying…', fr: 'Connexion perdue, nouvel essai…' })}</p>
           )}
           {otherProfileId && (
             <p className="stale-note">
-              {tr({ en: 'This run belongs to another fictional profile.', fr: 'Cette exécution concerne un autre profil fictif.' })}{' '}
+              {tr({ en: 'This analysis belongs to another fictional profile.', fr: 'Cette analyse concerne un autre profil fictif.' })}{' '}
               <button type="button" className="linklike" onClick={() => selectProfile(otherProfileId)}>
                 {tr({ en: 'Switch to', fr: 'Basculer vers' })} {profiles.find(p => p.profileId === otherProfileId)?.name ?? otherProfileId}
               </button>
@@ -286,31 +295,43 @@ function PreviewError({ error, ticker }: { error: ApiRequestError; ticker: strin
   );
 }
 
-function FreeText({ profile, onUse }: { profile: Profile; onUse: (parsed: ParsedRequest, text: string) => void }) {
+function FreeText({ profile, onUse, initial, onConsumed }: {
+  profile: Profile; onUse: (parsed: ParsedRequest, text: string) => void; initial?: string | null; onConsumed?: () => void;
+}) {
   const { tr, lang, feature } = useApp();
-  const [text, setText] = useState('');
+  const [text, setText] = useState(initial ?? '');
   const [parsed, setParsed] = useState<ParsedRequest | null>(null);
   const [error, setError] = useState<ApiRequestError | null>(null);
   const [busy, setBusy] = useState(false);
   const trimmed = text.trim();
   const valid = trimmed.length >= 1 && trimmed.length <= 600;
-  const submit = async () => {
-    if (!valid) return;
+  const interpret = useCallback(async (value: string) => {
     setBusy(true); setError(null); setParsed(null);
-    try { setParsed(await getApiClient().parse({ profileId: profile.profileId, text: trimmed, lang })); }
+    try { setParsed(await getApiClient().parse({ profileId: profile.profileId, text: value, lang })); }
     catch (e) { setError(asApiError(e)); }
     finally { setBusy(false); }
-  };
+  }, [profile.profileId, lang]);
+  const submit = async () => { if (valid) await interpret(trimmed); };
+  // A request typed in the top bar is interpreted once, then dropped from the address.
+  const asked = useRef<string | null>(null);
+  useEffect(() => {
+    const value = initial?.trim().slice(0, 600) ?? '';
+    if (!value || asked.current === value) return;
+    asked.current = value;
+    setText(value);
+    void interpret(value);
+    onConsumed?.();
+  }, [initial, interpret, onConsumed]);
   const goalBlocked = parsed?.request?.type === 'goal' && !feature('goal_requests');
   return (
-    <Card title={tr({ en: 'Describe the move', fr: 'Décrivez le mouvement' })}>
+    <Card title={tr({ en: 'Describe the move', fr: 'Décrivez le mouvement' })} tour="freetext">
       <form onSubmit={e => { e.preventDefault(); void submit(); }}>
         <div className="field">
           <label htmlFor="request-text">{tr({ en: 'In your own words', fr: 'Dans vos mots' })}</label>
           <textarea id="request-text" value={text} maxLength={600} onChange={e => setText(e.target.value)}
             placeholder={tr({ en: 'e.g. What if this investor added a quarter of the portfolio to Tesla?', fr: 'ex. Et si cet investisseur ajoutait un quart du portefeuille à Tesla ?' })}
             aria-describedby="request-text-hint" />
-          <span id="request-text-hint" className="hint">{trimmed.length}/600 · {tr({ en: 'The interpretation is shown for your confirmation; nothing runs until you confirm.', fr: 'L’interprétation est affichée pour confirmation ; rien ne s’exécute avant votre confirmation.' })}</span>
+          <span id="request-text-hint" className="hint">{trimmed.length}/600. {tr({ en: 'Nothing runs until you confirm.', fr: 'Rien ne s’exécute avant votre confirmation.' })}</span>
         </div>
         <div className="row-actions">
           <button type="submit" className="btn ghost" disabled={!valid || busy}>{tr({ en: 'Interpret', fr: 'Interpréter' })}</button>
@@ -318,8 +339,9 @@ function FreeText({ profile, onUse }: { profile: Profile; onUse: (parsed: Parsed
       </form>
       {busy && <Loading label={tr({ en: 'Interpreting…', fr: 'Interprétation…' })} />}
       {error && (
-        <ErrorState error={error}>
-          <p className="small">{tr({ en: 'Use the manual form below; it works without the model.', fr: 'Utilisez le formulaire manuel ci-dessous ; il fonctionne sans modèle.' })}</p>
+        <ErrorState error={error} {...(error.code === 'upstream_unavailable'
+          ? { title: tr({ en: 'AI interpretation is not available on this server right now.', fr: 'L’interprétation par l’IA n’est pas disponible sur ce serveur pour l’instant.' }) } : {})}>
+          <p className="small">{tr({ en: 'Fill in the form below instead: it works without AI.', fr: 'Remplissez plutôt le formulaire ci-dessous : il fonctionne sans IA.' })}</p>
         </ErrorState>
       )}
       {parsed && (
@@ -328,20 +350,19 @@ function FreeText({ profile, onUse }: { profile: Profile; onUse: (parsed: Parsed
             <>
               <p className="state-title">{tr({ en: 'Not something this simulation does', fr: 'Hors du champ de cette simulation' })}</p>
               <p>{tr(parsed.refused.message)}</p>
-              <p className="small muted">{tr({ en: 'Aplomb tests hypothetical moves against fictional plans. No order is placed. The manual form remains available.', fr: 'Aplomb teste des mouvements hypothétiques contre des plans fictifs. Aucun ordre n’est passé. Le formulaire manuel reste disponible.' })}</p>
+              <p className="small muted">{tr({ en: 'Aplomb tests hypothetical moves against fictional plans; no order is placed. The form below still works.', fr: 'Aplomb teste des mouvements hypothétiques contre des plans fictifs ; aucun ordre n’est passé. Le formulaire ci-dessous reste disponible.' })}</p>
             </>
           ) : (
             <>
               <p className="state-title">{tr(parsed.interpretation)}</p>
-              <p className="small muted">{tr({ en: 'Confidence', fr: 'Confiance' })}: {parsed.confidence}</p>
               {parsed.missing.length > 0 && (
-                <ul className="bullets small">{parsed.missing.map(m => <li key={m.field}><span className="mono">{m.field}</span>: {tr(m.question)}</li>)}</ul>
+                <ul className="bullets small">{parsed.missing.map(m => <li key={m.field}>{tr(m.question)}</li>)}</ul>
               )}
               {parsed.warnings.length > 0 && <ul className="bullets small">{parsed.warnings.map((w, i) => <li key={i}>{tr(w)}</li>)}</ul>}
               {goalBlocked && <p className="small">{tr({ en: 'Goal requests are turned off; name a specific asset instead.', fr: 'Les objectifs sont désactivés ; nommez plutôt un actif précis.' })}</p>}
               {parsed.request && !goalBlocked && (
                 <button type="button" className="btn btn-sm" onClick={() => onUse(parsed, trimmed)}>
-                  {tr({ en: 'Use this interpretation in the form', fr: 'Utiliser cette interprétation dans le formulaire' })}
+                  {tr({ en: 'Use in the form', fr: 'Utiliser dans le formulaire' })}
                 </button>
               )}
             </>
@@ -365,12 +386,12 @@ export function MoveFormCard({ profile, form, update, maxSize, currentWeight, is
     signal => getApiClient().assets({ q: debounced, limit: 20 }, signal));
   const issueFor = (field: keyof MoveForm) => issues.some(i => i.field === field);
   return (
-    <Card title={tr({ en: 'Structured request (manual form)', fr: 'Requête structurée (formulaire manuel)' })}>
+    <Card title={tr({ en: 'Move details', fr: 'Détails du mouvement' })} tour="move-form">
       {goal && goal.type === 'goal' && (
         <div className="state">
           <p className="state-title">{tr({ en: 'Goal request confirmed from your text', fr: 'Objectif confirmé à partir de votre texte' })}</p>
           <p className="small">{describeRequest(goal, lang)}{goal.goal.targetExposurePct !== null ? ` · ${tr({ en: 'target', fr: 'cible' })} ${fmtPct(goal.goal.targetExposurePct, lang)}` : ''}</p>
-          <p className="small muted">{tr({ en: 'Existing rules are not loosened for a goal. Editing the form below switches back to a single move.', fr: 'Les règles existantes ne sont pas assouplies pour un objectif. Modifier le formulaire revient à un mouvement unique.' })}</p>
+          <p className="small muted">{tr({ en: 'Rules are not loosened for a goal. Editing the form switches back to a single move.', fr: 'Les règles ne sont pas assouplies pour un objectif. Modifier le formulaire revient à un mouvement unique.' })}</p>
         </div>
       )}
       <div className="form-grid">
@@ -393,8 +414,8 @@ export function MoveFormCard({ profile, form, update, maxSize, currentWeight, is
             : tr({ en: 'Funded from the current portfolio value.', fr: 'Financé à partir de la valeur actuelle du portefeuille.' })}</span>
         </div>
       </div>
-      <div className="field" style={{ marginTop: 16 }}>
-        <label htmlFor="move-size">{tr({ en: 'Added size (points of current portfolio value)', fr: 'Taille ajoutée (points de la valeur actuelle du portefeuille)' })}</label>
+      <div className="field" style={{ marginTop: 16 }} data-tour="move-size">
+        <label htmlFor="move-size">{tr({ en: 'Added size (points of current value)', fr: 'Taille ajoutée (points de la valeur actuelle)' })}</label>
         <div className="slider-row">
           <input type="range" min={0} max={maxSize} step={0.5} value={Math.min(form.sizePct, maxSize)}
             onChange={e => update({ sizePct: Number(e.target.value) })} aria-label={tr({ en: 'Added size slider', fr: 'Curseur de taille ajoutée' })}
@@ -402,7 +423,7 @@ export function MoveFormCard({ profile, form, update, maxSize, currentWeight, is
           <input id="move-size" type="number" min={0} max={maxSize} step={0.1} value={form.sizePct}
             onChange={e => update({ sizePct: Number(e.target.value) || 0 })} aria-invalid={issueFor('sizePct')} />
         </div>
-        <span className="hint">{tr({ en: 'An added amount, not a target weight. 0 previews the current portfolio.', fr: 'Un montant ajouté, pas un poids cible. 0 affiche le portefeuille actuel.' })}</span>
+        <span className="hint">{tr({ en: 'Added amount, not a target weight. 0 shows the current portfolio.', fr: 'Montant ajouté, pas un poids cible. 0 montre le portefeuille actuel.' })}</span>
       </div>
       {form.fundingMode === 'from_holdings' && (
         <fieldset style={{ marginTop: 16 }}>
@@ -412,7 +433,7 @@ export function MoveFormCard({ profile, form, update, maxSize, currentWeight, is
               <label key={p.ticker}>
                 <input type="checkbox" checked={form.fromTickers.includes(p.ticker)}
                   onChange={e => update({ fromTickers: e.target.checked ? [...form.fromTickers, p.ticker] : form.fromTickers.filter(t => t !== p.ticker) })} />
-                <span className="mono">{p.ticker}</span> <span className="small muted">{fmtPct(p.weightPct, lang)}</span>
+                <span className="ticker">{p.ticker}</span> <span className="small muted">{fmtPct(p.weightPct, lang)}</span>
               </label>
             ))}
           </div>
@@ -449,7 +470,9 @@ function ComparePanel({ profile, form }: { profile: Profile; form: MoveForm }) {
   };
   if (others.length === 0) return null;
   return (
-    <Card id="compare" title={tr({ en: 'Compare two profiles', fr: 'Comparer deux profils' })}>
+    <details className="fold compare-fold" id="compare" data-section={tr({ en: 'Compare', fr: 'Comparer' })} data-tour="compare">
+      <summary>{tr({ en: 'Compare with another profile', fr: 'Comparer avec un autre profil' })}</summary>
+      <div className="fold-body">
       <div className="form-grid">
         <div className="field">
           <label htmlFor="compare-with">{tr({ en: 'Compare with', fr: 'Comparer avec' })}</label>
@@ -476,7 +499,6 @@ function ComparePanel({ profile, form }: { profile: Profile; form: MoveForm }) {
                   <div className="state state-error" role="alert">
                     <p className="state-title">{labelOf(ERROR_CODE, item.error.code, lang)}</p>
                     <p className="small">{item.error.message}</p>
-                    <p className="small mono muted">{item.error.requestId}</p>
                   </div>
                 ) : <ComparePane result={item} profile={p} />}
               </div>
@@ -484,8 +506,9 @@ function ComparePanel({ profile, form }: { profile: Profile; form: MoveForm }) {
           })}
         </div>
       )}
-      <p className="small muted">{tr({ en: 'Different thresholds and holdings can produce the same verdict; read the checks, not only the headline.', fr: 'Des seuils et positions différents peuvent donner le même verdict ; lisez les vérifications, pas seulement le titre.' })}</p>
-    </Card>
+      <p className="small muted">{tr({ en: 'The same verdict can hide different rules: read the checks, not only the headline.', fr: 'Un même verdict peut cacher des règles différentes : lisez les vérifications, pas seulement le titre.' })}</p>
+      </div>
+    </details>
   );
 }
 
@@ -494,7 +517,7 @@ function ComparePane({ result, profile }: { result: CheckResult; profile: Profil
   const name = profile?.name ?? '';
   const scope = useMemo<FactScope>(() => ({
     kind: 'local',
-    label: { en: `Compare preview for ${name} (/check/batch, no model).`, fr: `Aperçu comparatif pour ${name} (/check/batch, sans modèle).` },
+    label: { en: `Comparison for ${name}, computed by code.`, fr: `Comparaison pour ${name}, calculée par le code.` },
     facts: result.facts,
   }), [result, name]);
   return (
@@ -514,14 +537,13 @@ function DecisionRun({ run, stale }: { run: Run; stale: boolean }) {
   const selected = decision?.scenarios.find(s => s.scenarioId === decision.selectedScenarioId) ?? null;
   return (
     <FactScopeProvider scope={scope}>
-      {run.flags.fixture && <p className="banner banner-fixture">{tr({ en: 'Development fixture — no agents executed.', fr: 'Jeu d’essai — aucun agent exécuté.' })}</p>}
       {stale && original && (
         <p className="stale-note" role="status">
           {tr({ en: `Written for ${describeRequest(original, 'en')} (${fmtDateTime(run.createdAt, 'en')}); rerun to update the explanation.`, fr: `Rédigé pour ${describeRequest(original, 'fr')} (${fmtDateTime(run.createdAt, 'fr')}) ; relancez pour mettre l’explication à jour.` })}
         </p>
       )}
       {!isTerminal(run.status) && run.status !== 'waiting_input' && (
-        <p className="small"><RunStatusBadge status={run.status} /> {tr({ en: 'Steps appear only as they actually execute.', fr: 'Les étapes apparaissent seulement quand elles s’exécutent réellement.' })}</p>
+        <p className="small"><RunStatusBadge status={run.status} /></p>
       )}
       {run.status === 'waiting_input' && run.question && <QuestionForm run={run} />}
       {decision && (
@@ -533,7 +555,7 @@ function DecisionRun({ run, stale }: { run: Run; stale: boolean }) {
               ? <BoundaryNote sizePct={decision.maxCompatibleSizePct} counts={boundary.counts} countsAt="boundary" />
               : <BoundaryNote sizePct={decision.maxCompatibleSizePct} counts={decision.counts} />;
           })()}
-          <h3 className="h4">{tr({ en: 'Scenarios', fr: 'Scénarios' })}</h3>
+          <h3 className="h4">{tr({ en: 'Hypothetical scenarios', fr: 'Scénarios hypothétiques' })}</h3>
           <ScenarioCards scenarios={decision.scenarios} selectedId={decision.selectedScenarioId} />
           {selected && (
             <>
@@ -546,12 +568,12 @@ function DecisionRun({ run, stale }: { run: Run; stale: boolean }) {
           <BriefView brief={decision.brief} />
           <LimitationList codes={decision.limitations} />
           <p className="row-actions small">
-            <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'Open Evidence & Audit for this run', fr: 'Ouvrir Preuves et audit pour cette exécution' })}</Link>
+            <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'See the evidence and audit', fr: 'Voir les preuves et l’audit' })}</Link>
           </p>
         </>
       )}
-      <details open={!decision}>
-        <summary className="h4">{tr({ en: 'Execution trace', fr: 'Trace d’exécution' })} · {labelOf(RUN_STATUS, run.status, lang)}</summary>
+      <details className="fold" open={!decision}>
+        <summary>{tr({ en: 'Steps', fr: 'Étapes' })}, {labelOf(RUN_STATUS, run.status, lang).toLowerCase()}</summary>
         <RunTimeline run={run} />
       </details>
       {!isTerminal(run.status) && <CancelButton runId={run.runId} />}
@@ -592,7 +614,7 @@ export function QuestionForm({ run }: { run: Run }) {
         </div>
       )}
       <button type="submit" className="btn btn-sm" disabled={busy || !value || sent}>{tr({ en: 'Send answer', fr: 'Envoyer la réponse' })}</button>
-      {sent && <p className="small" role="status">{tr({ en: 'Answer sent; the same run resumes.', fr: 'Réponse envoyée ; la même exécution reprend.' })}</p>}
+      {sent && <p className="small" role="status">{tr({ en: 'Answer sent; the analysis resumes.', fr: 'Réponse envoyée ; l’analyse reprend.' })}</p>}
       {error && <ErrorState error={error} />}
     </form>
   );
@@ -604,7 +626,7 @@ export function CancelButton({ runId }: { runId: string }) {
   return (
     <div className="row-actions">
       <button type="button" className="btn ghost btn-sm" onClick={() => { getApiClient().cancel(runId).catch(e => setError(asApiError(e))); }}>
-        {tr({ en: 'Cancel run', fr: 'Annuler l’exécution' })}
+        {tr({ en: 'Cancel analysis', fr: 'Annuler l’analyse' })}
       </button>
       {error && <span className="field-error">{error.message}</span>}
     </div>

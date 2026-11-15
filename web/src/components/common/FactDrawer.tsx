@@ -12,6 +12,7 @@ import type { Evidence, Fact, FactResponse, I18NText } from '../../contracts/typ
 import { getApiClient } from '../../api/index';
 import { useQuery } from '../../state/useQuery';
 import { useApp } from '../../state/app';
+import { CountUp } from '../../components/ui/CountUp';
 import { Drawer } from './Drawer';
 import { ErrorState, Loading, Unavailable } from './States';
 import { EVIDENCE_TYPE, FACT_KIND, LIMITATION, VERIFICATION, WINDOW, labelOf } from '../../lib/labels';
@@ -82,7 +83,7 @@ export function FactChip({ factId, display, scope: explicit, children }: { factI
   return (
     <button type="button" className="chip" onClick={() => openFact(scope, factId)}
       aria-label={`${tr({ en: 'Show source for', fr: 'Voir la source de' })} ${label}: ${text}`}>
-      {children ?? text}
+      {children ?? <CountUp text={text} />}
     </button>
   );
 }
@@ -131,10 +132,10 @@ function FactDrawerView({ target, onClose, onOpenFact }: {
 }) {
   const { tr } = useApp();
   const title = target?.type === 'evidence'
-    ? `${tr({ en: 'Evidence', fr: 'Preuve' })} ${target.id}`
+    ? tr({ en: 'Source document', fr: 'Document source' })
     : target?.scope.kind === 'reveal'
-      ? `${tr({ en: 'Reveal fact', fr: 'Fait de révélation' })} ${target.id}`
-      : `${tr({ en: 'Fact', fr: 'Fait' })} ${target?.id ?? ''}`;
+      ? tr({ en: 'Revealed outcome', fr: 'Résultat révélé' })
+      : tr({ en: 'Source of this figure', fr: 'Source de ce chiffre' });
   return (
     <Drawer open={target !== null} title={title} onClose={onClose}>
       {target?.type === 'fact' && <FactBody key={`${target.scope.kind}|${target.id}`} scope={target.scope} factId={target.id} onOpenFact={onOpenFact} />}
@@ -147,11 +148,11 @@ function ScopeNote({ scope }: { scope: FactScope }) {
   const { tr } = useApp();
   return (
     <p className="scope-note small">
-      {scope.kind === 'run' && <>{tr({ en: 'Ledger of run', fr: 'Registre de l’exécution' })} <span className="mono">{scope.runId}</span></>}
+      {scope.kind === 'run' && tr({ en: 'From the ledger of this analysis.', fr: 'Tiré du registre de cette analyse.' })}
       {scope.kind === 'reveal' && (
         <>
-          {tr({ en: 'Reveal ledger (outcomes observed up to', fr: 'Registre de révélation (résultats observés jusqu’au' })} {scope.until}) {tr({ en: 'for run', fr: 'pour l’exécution' })}{' '}
-          <span className="mono">{scope.runId}</span>. {tr({ en: 'Separate from the run’s signed ledger: these facts were not available to the decision.', fr: 'Distinct du registre signé de l’exécution : ces faits n’étaient pas disponibles pour la décision.' })}
+          {tr({ en: 'Revealed outcome, observed up to', fr: 'Résultat révélé, observé jusqu’au' })} {scope.until}.{' '}
+          {tr({ en: 'It was not available to the decision.', fr: 'Il n’était pas disponible pour la décision.' })}
         </>
       )}
       {scope.kind === 'local' && tr(scope.label)}
@@ -225,39 +226,15 @@ export function FactDetail({ response, showUsage, onOpenInput }: {
   return (
     <div>
       <p className="fact-label">{tr(fact.label)}</p>
-      <p className="fact-value serif">{tr(fact.display)}</p>
+      <p className="fact-value">{tr(fact.display)}</p>
       <dl>
-        <Row k={tr({ en: 'Kind', fr: 'Nature' })}>{labelOf(FACT_KIND, fact.kind, lang)}</Row>
-        <Row k={tr({ en: 'Unit', fr: 'Unité' })}>{fact.unit}{fact.currency ? ` · ${fact.currency}` : ''}</Row>
-        <Row k={tr({ en: 'Subject', fr: 'Sujet' })}>
-          <span className="mono">{fact.subject.type}:{fact.subject.id}</span> · {fact.subject.variant}
-        </Row>
-        <Row k={tr({ en: 'Window', fr: 'Fenêtre' })}>
+        <Row k={tr({ en: 'How it is computed', fr: 'Calcul' })}>{tr(fact.method.description)}</Row>
+        <Row k={tr({ en: 'Period', fr: 'Période' })}>
           {fact.window ? labelOf(WINDOW, fact.window.code, lang) : '—'}
-          {fact.period && <> · {fmtDate(fact.period.start, lang)} → {fmtDate(fact.period.end, lang)}</>}
+          {fact.period && <>, {fmtDate(fact.period.start, lang)} → {fmtDate(fact.period.end, lang)}</>}
         </Row>
-        <Row k={tr({ en: 'Information date', fr: 'Date d’information' })}>{fmtDate(fact.asOf, lang)}</Row>
-        <Row k={tr({ en: 'Available at', fr: 'Disponible le' })}>{fact.availableAt ? fmtDateTime(fact.availableAt, lang) : '—'}</Row>
-        <Row k={tr({ en: 'Method', fr: 'Méthode' })}>
-          <span className="mono">{fact.method.id}</span>
-          <span className="block small">{tr(fact.method.description)}</span>
-          {params.length > 0 && (
-            <span className="block small mono">{params.map(([k, v]) => `${k}=${String(v)}`).join(', ')}</span>
-          )}
-        </Row>
-        <Row k={tr({ en: 'Observations', fr: 'Observations' })}>{fact.nObs ?? '—'}</Row>
-        <Row k={tr({ en: 'Key', fr: 'Clé' })}><span className="mono small break">{fact.key}</span></Row>
-        <Row k={tr({ en: 'Verification', fr: 'Vérification' })}>
-          {labelOf(VERIFICATION, fact.verification.status, lang)}
-          {fact.verification.checks.length > 0 && (
-            <ul className="small">
-              {fact.verification.checks.map((c, i) => (
-                <li key={`${c.code}-${i}`}><span aria-hidden="true">{c.ok ? '✓ ' : '✕ '}</span>
-                  <span className="mono">{c.code}</span> {c.ok ? tr({ en: 'passed', fr: 'réussi' }) : tr({ en: 'failed', fr: 'échoué' })} — {c.detail}</li>
-              ))}
-            </ul>
-          )}
-        </Row>
+        <Row k={tr({ en: 'Data as of', fr: 'Données au' })}>{fmtDate(fact.asOf, lang)}</Row>
+        <Row k={tr({ en: 'Verification', fr: 'Vérification' })}>{labelOf(VERIFICATION, fact.verification.status, lang)}</Row>
       </dl>
 
       <h3 className="h4">{tr({ en: 'Sources', fr: 'Sources' })}</h3>
@@ -267,14 +244,14 @@ export function FactDetail({ response, showUsage, onOpenInput }: {
           <ul className="source-list">
             {fact.sources.map((s, i) => (
               <li key={`${s.datasetId}-${i}`} className="small">
-                <strong>{s.sourceName}</strong> · <span className="mono">{s.datasetId}</span> · <span className="mono">{s.dataVersion}</span>
-                <span className="block">{tr({ en: 'Retrieved', fr: 'Récupéré' })} {fmtDate(s.retrievedOn, lang)} · {tr({ en: 'Licence', fr: 'Licence' })}: {s.licence}
-                  {s.rowsRead !== null && <> · {s.rowsRead} {tr({ en: 'rows', fr: 'lignes' })}</>}</span>
+                <strong>{s.sourceName}</strong>
+                <span className="block">{tr({ en: 'Retrieved', fr: 'Récupéré le' })} {fmtDate(s.retrievedOn, lang)}, {tr({ en: 'licence', fr: 'licence' })} {s.licence}
+                  {s.rowsRead !== null && <>, {s.rowsRead} {tr({ en: 'rows', fr: 'lignes' })}</>}</span>
                 <span className="block">
                   <Link href={`/sources/?datasetId=${encodeURIComponent(s.datasetId)}&dataVersion=${encodeURIComponent(s.dataVersion)}`}>
                     {tr({ en: 'Open dataset passport', fr: 'Ouvrir le passeport du jeu de données' })}
                   </Link>
-                  {s.sourceUrl && <> · <ExternalLink href={s.sourceUrl}>{tr({ en: 'Provider', fr: 'Fournisseur' })}</ExternalLink></>}
+                  {s.sourceUrl && <>{' '}<ExternalLink href={s.sourceUrl}>{tr({ en: 'Provider', fr: 'Fournisseur' })}</ExternalLink></>}
                 </span>
               </li>
             ))}
@@ -283,6 +260,38 @@ export function FactDetail({ response, showUsage, onOpenInput }: {
 
       <LimitationList codes={fact.limitations} />
 
+      <details className="fold">
+        <summary>{tr({ en: 'Technical details', fr: 'Détails techniques' })}</summary>
+        <div className="fold-body">
+      <dl>
+        <Row k={tr({ en: 'Kind', fr: 'Nature' })}>{labelOf(FACT_KIND, fact.kind, lang)}</Row>
+        <Row k={tr({ en: 'Unit', fr: 'Unité' })}>{fact.unit}{fact.currency ? `, ${fact.currency}` : ''}</Row>
+        <Row k={tr({ en: 'Subject', fr: 'Sujet' })}>
+          <span className="mono">{fact.subject.type}:{fact.subject.id}</span>, {fact.subject.variant}
+        </Row>
+        <Row k={tr({ en: 'Available at', fr: 'Disponible le' })}>{fact.availableAt ? fmtDateTime(fact.availableAt, lang) : '—'}</Row>
+        <Row k={tr({ en: 'Method', fr: 'Méthode' })}>
+          <span className="mono">{fact.method.id}</span>
+          {params.length > 0 && (
+            <span className="block small mono">{params.map(([k, v]) => `${k}=${String(v)}`).join(', ')}</span>
+          )}
+        </Row>
+        <Row k={tr({ en: 'Observations', fr: 'Observations' })}>{fact.nObs ?? '—'}</Row>
+        <Row k={tr({ en: 'Key', fr: 'Clé' })}><span className="mono small break">{fact.key}</span></Row>
+        {fact.verification.checks.length > 0 && (
+          <Row k={tr({ en: 'Checks', fr: 'Contrôles' })}>
+            <ul className="small">
+              {fact.verification.checks.map((c, i) => (
+                <li key={`${c.code}-${i}`}><span aria-hidden="true">{c.ok ? '✓ ' : '✕ '}</span>
+                  <span className="mono">{c.code}</span> {c.ok ? tr({ en: 'passed', fr: 'réussi' }) : tr({ en: 'failed', fr: 'échoué' })}: {c.detail}</li>
+              ))}
+            </ul>
+          </Row>
+        )}
+        <Row k={tr({ en: 'Sources', fr: 'Sources' })}>
+          <span className="mono small break">{fact.sources.map(s => `${s.datasetId} ${s.dataVersion}`).join(', ') || '—'}</span>
+        </Row>
+      </dl>
       <h3 className="h4">{tr({ en: 'Inputs (one level)', fr: 'Intrants (un niveau)' })}</h3>
       {fact.inputs.length === 0
         ? <p className="muted small">{tr({ en: 'None.', fr: 'Aucun.' })}</p>
@@ -312,6 +321,8 @@ export function FactDetail({ response, showUsage, onOpenInput }: {
           </p>
         </>
       )}
+        </div>
+      </details>
     </div>
   );
 }
@@ -323,7 +334,7 @@ function EvidenceBody({ scope, evidenceId }: { scope: FactScope; evidenceId: str
     return (
       <>
         <ScopeNote scope={scope} />
-        <Unavailable title={tr({ en: 'This evidence item is not in this run.', fr: 'Cette preuve n’est pas dans cette exécution.' })} />
+        <Unavailable title={tr({ en: 'This evidence item is not in this analysis.', fr: 'Cette preuve n’est pas dans cette analyse.' })} />
       </>
     );
   }
@@ -337,7 +348,7 @@ function EvidenceBody({ scope, evidenceId }: { scope: FactScope; evidenceId: str
           {evidence.quote}
           <footer className="small muted">
             {quoteVerified
-              ? tr({ en: 'Quote found in the cached source document (A08).', fr: 'Citation retrouvée dans le document source en cache (A08).' })
+              ? tr({ en: 'Quote found in the cached source document.', fr: 'Citation retrouvée dans le document source en cache.' })
               : tr({ en: 'Quote not verified against the cached document.', fr: 'Citation non vérifiée dans le document en cache.' })}
           </footer>
         </blockquote>

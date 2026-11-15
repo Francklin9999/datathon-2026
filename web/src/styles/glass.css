@@ -1,0 +1,56 @@
+/* Liquid Glass material.
+   The fill and the backdrop blur live on ::before, the specular rim on ::after, both behind the
+   content inside an isolated stacking context. Keeping backdrop-filter off the element itself means
+   a menu opened inside a pane (investor list, settings) is not trapped in the pane's backdrop root
+   and can frost the page below it. Elements using these classes must not use their own pseudos.
+   - .glass        the page panel: light frosted sheet
+   - .glass-pop    menus, drawers, tooltips: denser frost
+   - .chrome       floating chrome (top bar, rail, dock): dark graphite glass */
+.glass, .glass-pop, .chrome { position: relative; isolation: isolate; }
+.glass::before, .glass-pop::before, .chrome::before,
+.glass::after, .glass-pop::after, .chrome::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+}
+.glass::before {
+  background: var(--glass-panel);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+}
+.glass-pop::before {
+  background: var(--glass-pop);
+  -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--shadow-pop);
+}
+.chrome::before {
+  background: var(--chrome);
+  -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm);
+  box-shadow: 0 16px 36px -14px rgba(10, 12, 20, .45), 0 2px 6px rgba(10, 12, 20, .12);
+}
+/* Specular rim: a 1 px ring, bright where light would catch the top edge, faint on the sides. */
+.glass::after, .glass-pop::after, .chrome::after {
+  padding: 1px;
+  background: linear-gradient(170deg, var(--glass-edge) 0%, var(--glass-edge-low) 22%, transparent 48%, transparent 70%, var(--glass-edge-low) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.chrome::after {
+  background: linear-gradient(170deg, var(--chrome-edge) 0%, rgba(255, 255, 255, .06) 30%, transparent 55%, rgba(255, 255, 255, .05) 100%);
+}
+
+/* Opaque fallbacks: reduced transparency, or no backdrop-filter support. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass::before { background: var(--raised); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .glass-pop::before { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .chrome::before { background: var(--chrome-solid); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .ambient::after { display: none; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass::before { background: var(--raised); }
+  .glass-pop::before { background: var(--surface); }
+  .chrome::before { background: var(--chrome-solid); }
+}
+@media (forced-colors: active) {
+  .glass, .glass-pop, .chrome { border: 1px solid CanvasText; }
+}

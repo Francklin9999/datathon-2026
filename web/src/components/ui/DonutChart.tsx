@@ -6,6 +6,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { donutArcs } from '../../lib/ui/donut';
+import { CountUp } from '../../components/ui/CountUp';
 
 export interface DonutItem { key: string; label: string; value: number; color: string }
 
@@ -21,6 +22,7 @@ export function DonutChart({ items, centerValue, centerLabel, label, format }: {
   const [active, setActive] = useState<string | null>(null);
   const arcs = useMemo(() => donutArcs(items, GEOM), [items]);
   const byKey = useMemo(() => new Map(items.map(item => [item.key, item])), [items]);
+  const max = Math.max(1e-9, ...items.map(item => item.value));
   // A view switch (e.g. by keyboard while the pointer rests on the ring) must not keep a stale highlight.
   const itemsKey = items.map(item => item.key).join('|');
   useEffect(() => { setActive(null); }, [itemsKey]);
@@ -29,7 +31,7 @@ export function DonutChart({ items, centerValue, centerLabel, label, format }: {
     <div className="donut" onPointerLeave={() => setActive(null)}>
       <div className="donut-figure">
         {/* The ring is decoration for sighted readers; the legend list below is the text version. */}
-        <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false" className="donut-svg">
+        <svg key={itemsKey} viewBox="0 0 200 200" aria-hidden="true" focusable="false" className="donut-svg">
           {arcs.map(arc => (
             <path key={arc.key} d={arc.d} fillRule="evenodd" className="donut-slice"
               data-dim={active !== null && active !== arc.key ? 'true' : undefined}
@@ -38,7 +40,7 @@ export function DonutChart({ items, centerValue, centerLabel, label, format }: {
           ))}
         </svg>
         <div className="donut-center">
-          <span className="donut-center-value">{centerValue}</span>
+          <span className="donut-center-value"><CountUp text={centerValue} /></span>
           <span className="donut-center-label">{centerLabel}</span>
         </div>
       </div>
@@ -49,7 +51,8 @@ export function DonutChart({ items, centerValue, centerLabel, label, format }: {
               onPointerEnter={() => setActive(item.key)}>
               <span className="meter-dot" style={{ background: item.color }} aria-hidden="true" />
               <span className="meter-name">{item.label}</span>
-              <span className="meter-value num">{format(item.value)}</span>
+              <span className="meter-bar" aria-hidden="true"><span style={{ width: `${Math.max(0, Math.min(100, (item.value / max) * 100))}%`, background: item.color }} /></span>
+              <span className="meter-value num"><CountUp text={format(item.value)} /></span>
             </li>
           );
         })}

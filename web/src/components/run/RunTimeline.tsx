@@ -65,9 +65,8 @@ export function RunTimeline({ run }: { run: Run }) {
     <div className="timeline">
       <div className="timeline-head">
         <RunStatusBadge status={run.status} />
-        <span className="small muted mono">{run.runId}</span>
         <span className="small muted">
-          {fmtNumber(run.usage.llmCalls, lang, 0)} {tr({ en: 'model call(s)', fr: 'appel(s) de modèle' })} · {fmtNumber(run.usage.toolCalls, lang, 0)} {tr({ en: 'tool call(s)', fr: 'appel(s) d’outil' })} · {fmtDuration(run.usage.durationMs, lang)}
+          {fmtNumber(run.usage.llmCalls, lang, 0)} {tr({ en: 'AI call(s)', fr: 'appel(s) IA' })}, {fmtNumber(run.usage.toolCalls, lang, 0)} {tr({ en: 'tool call(s)', fr: 'appel(s) d’outil' })}, {fmtDuration(run.usage.durationMs, lang)}
         </span>
       </div>
       {run.flags.fixture && (
@@ -80,7 +79,7 @@ export function RunTimeline({ run }: { run: Run }) {
         : <ol className="steps">{run.steps.map(step => <StepItem key={step.seq} step={step} />)}</ol>}
       {run.error && (
         <div className="state state-error" role="alert">
-          <p className="state-title">{tr({ en: 'The run failed. Steps executed so far remain visible; no signed result exists.', fr: 'L’exécution a échoué. Les étapes réalisées restent visibles ; aucun résultat signé n’existe.' })}</p>
+          <p className="state-title">{tr({ en: 'The analysis failed. The steps done so far stay visible; there is no result.', fr: 'L’analyse a échoué. Les étapes réalisées restent visibles ; il n’y a pas de résultat.' })}</p>
           <p className="small mono">{run.error.code}: {run.error.message}</p>
         </div>
       )}

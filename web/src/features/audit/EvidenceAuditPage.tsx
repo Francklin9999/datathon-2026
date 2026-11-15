@@ -22,7 +22,8 @@ import { RuleTable } from '../../components/run/RuleTable';
 import { RunTimeline } from '../../components/run/RunTimeline';
 import { AuditPanel } from '../../components/run/AuditPanel';
 import { FACT_KIND, RUN_KIND, RUN_STATUS, SABOTAGE_MODE, VERIFICATION, labelOf } from '../../lib/labels';
-import { fmtDateTime, fmtDuration } from '../../lib/format';
+import { fmtDate, fmtDateTime } from '../../lib/format';
+import { RunsTable } from '../../components/run/RunsTable';
 import { briefsOf, danglingReferences } from '../../lib/brief';
 
 const SABOTAGE_MODES: readonly SabotageMode[] = ['invented_number', 'false_comparison', 'unsupported_interpretation'];
@@ -40,45 +41,18 @@ function RunList() {
   const runs = useQuery<RunsResponse>(sessionId ? `runs|${sessionId}` : null, signal => getApiClient().runs({ limit: 50 }, signal));
   return (
     <>
-      <PageHeader eyebrow={tr({ en: 'Evidence & Audit', fr: 'Preuves et audit' })} title={tr({ en: 'Runs in this session', fr: 'Exécutions de cette session' })}>
-        <p className="page-sub">{tr({ en: 'Pick a run to inspect its ledger, audit and execution trace. Runs of other sessions are not accessible.', fr: 'Choisissez une exécution pour examiner son registre, son audit et sa trace. Les exécutions d’autres sessions ne sont pas accessibles.' })}</p>
+      <PageHeader title={tr({ en: 'Evidence and audit', fr: 'Preuves et audit' })}>
+        <p className="page-sub">{tr({ en: 'Pick an analysis to inspect its sources and audit.', fr: 'Choisissez une analyse pour examiner ses sources et son audit.' })}</p>
       </PageHeader>
-      <Card>
+      <Card id="runs" tour="run-list" title={tr({ en: 'Analyses of this session', fr: 'Analyses de cette session' })}
+        info={tr({ en: 'Only analyses started from this browser session are listed.', fr: 'Seules les analyses lancées depuis cette session de navigateur sont listées.' })}>
         {runs.loading && <Loading />}
         {runs.error && <ErrorState error={runs.error} onRetry={runs.reload} />}
         {runs.data && runs.data.items.length === 0 && (
-          <Empty>{tr({ en: 'No runs yet. Start one from the Decision Desk or Home.', fr: 'Aucune exécution. Lancez-en une depuis le Pupitre de décision ou l’Accueil.' })}</Empty>
+          <Empty>{tr({ en: 'No analysis yet. Start one from Decide or Home.', fr: 'Aucune analyse pour l’instant. Lancez-en une depuis Décider ou l’Accueil.' })}</Empty>
         )}
         {runs.data && runs.data.items.length > 0 && (
-          <div className="table-scroll" role="region" aria-label={tr({ en: 'Session runs', fr: 'Exécutions de la session' })} tabIndex={0}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th scope="col">{tr({ en: 'Run', fr: 'Exécution' })}</th>
-                  <th scope="col">{tr({ en: 'Kind', fr: 'Type' })}</th>
-                  <th scope="col">{tr({ en: 'Status', fr: 'Statut' })}</th>
-                  <th scope="col">{tr({ en: 'Verdict', fr: 'Verdict' })}</th>
-                  <th scope="col">{tr({ en: 'Created', fr: 'Créée' })}</th>
-                  <th scope="col" className="num-col">{tr({ en: 'Duration', fr: 'Durée' })}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {runs.data.items.map(item => (
-                  <tr key={item.runId}>
-                    <th scope="row">
-                      <Link href={`/evidence-audit/?runId=${encodeURIComponent(item.runId)}`}>{tr(item.title)}</Link>
-                      <span className="block small mono muted">{item.runId}</span>
-                    </th>
-                    <td>{labelOf(RUN_KIND, item.kind, lang)}</td>
-                    <td><RunStatusBadge status={item.status} /></td>
-                    <td>{item.verdict ? <VerdictBadge verdict={item.verdict} /> : '—'}</td>
-                    <td className="small">{fmtDateTime(item.createdAt, lang)}</td>
-                    <td className="num-col">{fmtDuration(item.durationMs, lang)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RunsTable items={runs.data.items} linkFor={id => `/evidence-audit/?runId=${encodeURIComponent(id)}`} />
         )}
       </Card>
     </>
@@ -123,33 +97,32 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
 
   return (
     <>
-      <PageHeader eyebrow={tr({ en: 'Evidence & Audit', fr: 'Preuves et audit' })} title={run ? labelOf(RUN_KIND, run.kind, lang) : tr({ en: 'Run', fr: 'Exécution' })}>
-        <p className="small mono muted">{runId}</p>
-        <p><Link href="/evidence-audit/">{tr({ en: 'All runs in this session', fr: 'Toutes les exécutions de la session' })}</Link></p>
+      <PageHeader title={run ? labelOf(RUN_KIND, run.kind, lang) : tr({ en: 'Analysis', fr: 'Analyse' })}
+        actions={<Link className="btn ghost btn-sm" href="/evidence-audit/">{tr({ en: 'All analyses', fr: 'Toutes les analyses' })}</Link>}>
       </PageHeader>
       {polled.loading && !run && <Loading />}
       {polled.error && <ErrorState error={polled.error} onRetry={polled.reload}
-        {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This run does not exist or belongs to another session.', fr: 'Cette exécution n’existe pas ou appartient à une autre session.' }) } : {})} />}
+        {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This analysis does not exist or belongs to another session.', fr: 'Cette analyse n’existe pas ou appartient à une autre session.' }) } : {})} />}
       {run && scope && (
         <FactScopeProvider scope={scope}>
           <RunHeader run={run} />
           {dangling.length > 0 && (
             <div className="state state-error" role="alert">
-              <p className="state-title">{tr({ en: 'Some references do not resolve inside this run:', fr: 'Certaines références ne se résolvent pas dans cette exécution :' })}</p>
+              <p className="state-title">{tr({ en: 'Some references do not resolve inside this analysis:', fr: 'Certaines références ne se résolvent pas dans cette analyse :' })}</p>
               <p className="mono small">{dangling.join(', ')}</p>
             </div>
           )}
           {run.status === 'failed' && (
-            <p className="stale-note">{tr({ en: 'This run failed: there is no signed result. The trace and any facts computed before the failure remain visible.', fr: 'Cette exécution a échoué : il n’y a aucun résultat signé. La trace et les faits calculés avant l’échec restent visibles.' })}</p>
+            <p className="stale-note">{tr({ en: 'This analysis failed, so there is no result. The steps and facts computed before the failure stay visible.', fr: 'Cette analyse a échoué : il n’y a pas de résultat. Les étapes et faits calculés avant l’échec restent visibles.' })}</p>
           )}
           {run.result?.kind === 'sabotage' && <SabotageResultView run={run} />}
           {brief && (
             <div className="cols">
-              <Card id="brief" title={tr({ en: 'Brief with audit markings', fr: 'Note avec marques d’audit' })}>
-                <p className="small muted">{tr({ en: 'Struck sentences are shown here only, with the checks they failed.', fr: 'Les phrases rayées ne sont montrées qu’ici, avec les vérifications échouées.' })}</p>
+              <Card id="brief" section={tr({ en: 'Brief', fr: 'Note' })} tour="audit-brief" title={tr({ en: 'Brief with audit marks', fr: 'Note avec marques d’audit' })}
+                info={tr({ en: 'Struck sentences appear only here, with the checks they failed.', fr: 'Les phrases rayées n’apparaissent qu’ici, avec les vérifications échouées.' })}>
                 <BriefView brief={brief} mode="audit" />
               </Card>
-              <Card id="audit" title={tr({ en: 'Audit report', fr: 'Rapport d’audit' })}>
+              <Card id="audit" section={tr({ en: 'Audit', fr: 'Audit' })} tour="audit-report" title={tr({ en: 'Audit report', fr: 'Rapport d’audit' })}>
                 <AuditPanel audit={brief.audit} run={run} />
               </Card>
             </div>
@@ -157,9 +130,10 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
           <RuleChecksPanel run={run} />
           <FactLedger run={run} scope={scope} />
           <EvidenceList run={run} scope={scope} />
-          <Card id="timeline" title={tr({ en: 'Execution timeline', fr: 'Chronologie d’exécution' })}>
-            <RunTimeline run={run} />
-          </Card>
+          <details className="fold section-fold" id="timeline" data-section={tr({ en: 'Steps', fr: 'Étapes' })}>
+            <summary>{tr({ en: 'Steps', fr: 'Étapes' })}</summary>
+            <div className="fold-body"><RunTimeline run={run} /></div>
+          </details>
           <DatasetsUsed run={run} />
           <SabotageControls run={run} />
         </FactScopeProvider>
@@ -169,7 +143,8 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
 }
 
 function RunHeader({ run }: { run: Run }) {
-  const { tr, lang } = useApp();
+  const { tr, lang, profiles } = useApp();
+  const profileName = profiles.find(p => p.profileId === run.profileId)?.name ?? null;
   return (
     <Card>
       <div className="verdict-header">
@@ -177,14 +152,17 @@ function RunHeader({ run }: { run: Run }) {
         {run.result?.kind === 'decision' && <VerdictBadge verdict={run.result.decision.verdict} />}
         {run.flags.sabotage && <span className="tag tag-strong">{tr({ en: 'Sabotage demonstration', fr: 'Démonstration de sabotage' })}: {labelOf(SABOTAGE_MODE, run.flags.sabotage, lang)}</span>}
         {run.flags.timeMachine && <span className="tag">{tr({ en: 'Historical replay', fr: 'Rejeu historique' })}</span>}
-        {run.flags.fixture && <span className="tag">{tr({ en: 'Development fixture — no agents executed', fr: 'Jeu d’essai — aucun agent exécuté' })}</span>}
       </div>
       <p className="small muted">
-        {tr({ en: 'Profile', fr: 'Profil' })} <span className="mono">{run.profileId ?? '—'}</span> · {tr({ en: 'information date', fr: 'date d’information' })} {run.asOf} · <span className="mono">{run.dataVersion}</span> · {tr({ en: 'created', fr: 'créée' })} {fmtDateTime(run.createdAt, lang)} · {run.lang.toUpperCase()}
+        {profileName ? `${profileName}, ` : ''}{tr({ en: 'data as of', fr: 'données au' })} {fmtDate(run.asOf, lang)}, {tr({ en: 'started', fr: 'lancée le' })} {fmtDateTime(run.createdAt, lang)}
       </p>
       {run.parentRunId && (
-        <p className="small">{tr({ en: 'Derived from parent run (left unchanged)', fr: 'Dérivée de l’exécution parente (laissée inchangée)' })}: <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.parentRunId)}`} className="mono">{run.parentRunId}</Link></p>
+        <p className="small">{tr({ en: 'Derived from an earlier analysis, left unchanged.', fr: 'Dérivée d’une analyse antérieure, laissée inchangée.' })} <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.parentRunId)}`}>{tr({ en: 'Open it', fr: 'L’ouvrir' })}</Link></p>
       )}
+      <details className="tech-details">
+        <summary>{tr({ en: 'Technical details', fr: 'Détails techniques' })}</summary>
+        <p className="mono break">{run.runId}, {run.dataVersion}, {run.lang.toUpperCase()}</p>
+      </details>
     </Card>
   );
 }
@@ -207,7 +185,7 @@ function RuleChecksPanel({ run }: { run: Run }) {
   if (!checks) return null;
   const rules = profiles.find(p => p.profileId === run.profileId)?.rules;
   return (
-    <Card id="rules" title={tr({ en: 'Rule checks and assumptions', fr: 'Vérifications et hypothèses de règles' })}>
+    <Card id="rules" section={tr({ en: 'Rules', fr: 'Règles' })} title={tr({ en: 'Rule checks', fr: 'Vérifications des règles' })}>
       <RuleTable checks={checks} rules={rules} caption={tr({ en: 'Rule checks of the selected scenario', fr: 'Vérifications du scénario sélectionné' })} />
       {run.result?.kind === 'decision' && <LimitationList codes={run.result.decision.limitations} />}
     </Card>
@@ -224,11 +202,13 @@ function FactLedger({ run, scope }: { run: Run; scope: FactScope }) {
     ? facts.filter(f => [f.id, f.metric, f.kind, f.key, f.label.en, f.label.fr].some(v => v.toLowerCase().includes(q)))
     : facts;
   return (
-    <Card id="ledger" title={tr({ en: `Fact ledger (${facts.length})`, fr: `Registre des faits (${facts.length})` })}>
+    <details className="fold section-fold" id="ledger" data-section={tr({ en: 'Facts', fr: 'Faits' })} data-tour="ledger">
+      <summary>{tr({ en: `Fact ledger (${facts.length})`, fr: `Registre des faits (${facts.length})` })}</summary>
+      <div className="fold-body">
       <div className="search-row">
         <label htmlFor="ledger-search" className="sr-only">{tr({ en: 'Search facts', fr: 'Rechercher des faits' })}</label>
         <input id="ledger-search" type="search" value={query} onChange={e => setQuery(e.target.value)}
-          placeholder={tr({ en: 'Search by ID, metric or kind', fr: 'Rechercher par ID, mesure ou nature' })} />
+          placeholder={tr({ en: 'Search facts', fr: 'Rechercher un fait' })} />
         <span className="small muted" role="status">{filtered.length} / {facts.length}</span>
       </div>
       {facts.length === 0 ? <Empty>{tr({ en: 'No facts recorded yet.', fr: 'Aucun fait enregistré.' })}</Empty> : (
@@ -257,7 +237,8 @@ function FactLedger({ run, scope }: { run: Run; scope: FactScope }) {
           </table>
         </div>
       )}
-    </Card>
+      </div>
+    </details>
   );
 }
 
@@ -266,18 +247,21 @@ function EvidenceList({ run, scope }: { run: Run; scope: FactScope }) {
   const { openEvidence } = useFactDrawer();
   const items = Object.values(run.evidence);
   return (
-    <Card id="evidence" title={tr({ en: `Evidence (${items.length})`, fr: `Preuves (${items.length})` })}>
-      {items.length === 0 ? <Empty>{tr({ en: 'No research evidence was collected in this run.', fr: 'Aucune preuve documentaire n’a été recueillie dans cette exécution.' })}</Empty> : (
+    <details className="fold section-fold" id="evidence" data-section={tr({ en: 'Evidence', fr: 'Preuves' })}>
+      <summary>{tr({ en: `Evidence (${items.length})`, fr: `Preuves (${items.length})` })}</summary>
+      <div className="fold-body">
+      {items.length === 0 ? <Empty>{tr({ en: 'No document evidence was collected in this analysis.', fr: 'Aucune preuve documentaire n’a été recueillie dans cette analyse.' })}</Empty> : (
         <ul className="list-plain">
           {items.map(e => (
             <li key={e.id}>
               <button type="button" className="linklike" onClick={() => openEvidence(scope, e.id)}><span className="mono">{e.id}</span> {e.title}</button>
-              <span className="block small muted">{e.publisher} · {tr({ en: 'tier', fr: 'niveau' })} {e.tier} · {tr(e.claim)}</span>
+              <span className="block small muted">{e.publisher}, {tr({ en: 'tier', fr: 'niveau' })} {e.tier}. {tr(e.claim)}</span>
             </li>
           ))}
         </ul>
       )}
-    </Card>
+      </div>
+    </details>
   );
 }
 
@@ -292,18 +276,21 @@ function DatasetsUsed({ run }: { run: Run }) {
   for (const step of run.steps) for (const call of step.toolCalls) for (const d of call.datasetsRead) add(d.datasetId, d.dataVersion);
   for (const fact of Object.values(run.facts)) for (const s of fact.sources) add(s.datasetId, s.dataVersion);
   return (
-    <Card id="datasets" title={tr({ en: 'Data sources used', fr: 'Sources de données utilisées' })}>
+    <details className="fold section-fold" id="datasets" data-section={tr({ en: 'Data', fr: 'Données' })}>
+      <summary>{tr({ en: 'Data sources used', fr: 'Sources de données utilisées' })}</summary>
+      <div className="fold-body">
       {used.size === 0 ? <Empty>{tr({ en: 'No dataset read was recorded.', fr: 'Aucune lecture de données n’a été enregistrée.' })}</Empty> : (
         <ul className="list-plain">
           {[...used.entries()].flatMap(([datasetId, versions]) => [...versions].map(version => (
             <li key={`${datasetId}-${version}`}>
               <Link href={`/sources/?datasetId=${encodeURIComponent(datasetId)}&dataVersion=${encodeURIComponent(version)}`} className="mono">{datasetId}</Link>
-              <span className="small muted"> · {version}</span>
+              <span className="small muted">, {version}</span>
             </li>
           )))}
         </ul>
       )}
-    </Card>
+      </div>
+    </details>
   );
 }
 
@@ -322,8 +309,8 @@ function SabotageControls({ run }: { run: Run }) {
     } catch (e) { setError(asApiError(e)); } finally { setBusy(false); }
   };
   return (
-    <Card id="sabotage" title={tr({ en: 'Sabotage demonstration (labelled test)', fr: 'Démonstration de sabotage (test identifié)' })}>
-      <p className="small">{tr({ en: 'Creates a separate child run in which the writer receives an instruction to lie. This run stays unchanged. The auditor may or may not catch it; the outcome is reported as it happens.', fr: 'Crée une exécution enfant distincte où le rédacteur reçoit l’instruction de mentir. Cette exécution reste inchangée. L’auditeur peut ou non le détecter ; le résultat est rapporté tel quel.' })}</p>
+    <Card id="sabotage" section={tr({ en: 'Sabotage test', fr: 'Test de sabotage' })} tour="sabotage" title={tr({ en: 'Sabotage demonstration (labelled test)', fr: 'Démonstration de sabotage (test identifié)' })}>
+      <p className="small">{tr({ en: 'Starts a separate copy in which the writer is told to lie; this analysis stays unchanged. The auditor may or may not catch it, and the outcome is shown as it is.', fr: 'Lance une copie distincte où le rédacteur reçoit l’ordre de mentir ; cette analyse reste inchangée. L’auditeur peut le détecter ou non, et le résultat est montré tel quel.' })}</p>
       <fieldset>
         <legend>{tr({ en: 'Injected instruction type', fr: 'Type d’instruction injectée' })}</legend>
         <div className="checks">

@@ -10,6 +10,7 @@ import type {
 import { ASSET_GROUP, FUNDING_MODE, SCENARIO_KIND, labelOf } from '../../lib/labels';
 import { factIdFor, fmtMoney, fmtPct, fmtPts, fmtSignedPct } from '../../lib/format';
 import { useApp } from '../../state/app';
+import { CountUp } from '../ui/CountUp';
 import { CountsLine, VerdictBadge } from '../common/Badges';
 import { FactChip } from '../common/FactDrawer';
 import { RuleTable } from './RuleTable';
@@ -47,9 +48,9 @@ export function BoundaryNote({ sizePct, counts, baselineConflict, countsAt = 're
   return (
     <p className="boundary">
       <span className="eyebrow block">{tr({ en: 'Largest size before the first rule conflict', fr: 'Taille maximale avant le premier conflit de règle' })}</span>
-      <strong className="boundary-value num">{fmtPts(sizePct, lang)}</strong>
+      <strong className="boundary-value num"><CountUp text={fmtPts(sizePct, lang)} /></strong>
       <span className="small muted block">
-        {tr({ en: 'A grid boundary, not a certification: tension and evidence gaps can remain at this size.', fr: 'Une limite de grille, pas une certification : des tensions et des lacunes de preuves peuvent subsister à cette taille.' })}
+        {tr({ en: 'Tension or missing evidence can remain at this size.', fr: 'Des tensions ou preuves manquantes peuvent subsister à cette taille.' })}
         {counts && (counts.tension > 0 || counts.nee > 0) && (
           <> {countsAt === 'boundary'
             ? tr({ en: `At this size: ${counts.tension} tension, ${counts.nee} not enough evidence.`, fr: `À cette taille : ${counts.tension} tension(s), ${counts.nee} preuve(s) insuffisante(s).` })
@@ -160,9 +161,7 @@ export function FundingOptions({ options }: { options: readonly FundingOption[] 
   if (options.length === 0) return null;
   return (
     <div>
-      <p className="small muted">
-        {tr({ en: 'Hypothetical comparison of funding sources. Nothing is executed; no order exists.', fr: 'Comparaison hypothétique des sources de financement. Rien n’est exécuté ; aucun ordre n’existe.' })}
-      </p>
+      <h3 className="h4">{tr({ en: 'Hypothetical funding comparison', fr: 'Comparaison hypothétique du financement' })}</h3>
       <div className="table-scroll" role="region" aria-label={tr({ en: 'Funding comparison', fr: 'Comparaison du financement' })} tabIndex={0}>
         <table className="data-table">
           <thead>
@@ -205,19 +204,18 @@ export function ScenarioCards({ scenarios, selectedId }: { scenarios: readonly S
       {[...scenarios].sort((a, b) => a.rank - b.rank).map(scenario => (
         <article key={scenario.scenarioId} className={`scenario${scenario.scenarioId === selectedId ? ' selected' : ''}`}
           aria-label={tr(scenario.label)}>
-          <p className="eyebrow">{labelOf(SCENARIO_KIND, scenario.kind, lang)} · <span className="mono">{scenario.scenarioId}</span></p>
+          <p className="eyebrow">{labelOf(SCENARIO_KIND, scenario.kind, lang)}</p>
           <h3 className="h4">{tr(scenario.label)}</h3>
           <div className="tags">
             {scenario.scenarioId === selectedId && <span className="tag tag-strong">{tr({ en: 'selected scenario', fr: 'scénario sélectionné' })}</span>}
             {scenario.isBestFit && scenario.scenarioId !== selectedId && <span className="tag">{tr({ en: 'best-fit alternative', fr: 'meilleure solution de rechange' })}</span>}
-            <span className="tag">{tr({ en: 'hypothetical scenario', fr: 'scénario hypothétique' })}</span>
           </div>
           <VerdictHeader verdict={scenario.verdict} counts={scenario.counts} />
           {scenario.moves.length > 0 && (
             <ul className="small">
               {scenario.moves.map((move, i) => (
                 <li key={`${move.ticker}-${i}`}>
-                  <span className="mono">{move.ticker}</span> +{fmtPts(move.sizePct, lang)} · {fundingLabel(move.funding, lang)}
+                  <span className="ticker">{move.ticker}</span> +{fmtPts(move.sizePct, lang)}, {fundingLabel(move.funding, lang)}
                 </li>
               ))}
             </ul>
