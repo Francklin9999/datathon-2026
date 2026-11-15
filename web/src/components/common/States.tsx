@@ -5,13 +5,25 @@ import type { ApiRequestError } from '../../api/errors';
 import type { Lang } from '../../contracts/types';
 import { CLIENT_ERROR, ERROR_CODE, labelOf } from '../../lib/labels';
 import { useApp } from '../../state/app';
+import { Skeleton } from '../ui/Skeleton';
 
-export function Loading({ label }: { label?: string }) {
+export function Loading({ label, variant = 'inline' }: { label?: string; variant?: 'inline' | 'skeleton' }) {
   const { tr } = useApp();
+  const text = label ?? tr({ en: 'Loading…', fr: 'Chargement…' });
+  if (variant === 'skeleton') {
+    return (
+      <div className="skeleton-tile" role="status">
+        <span className="sr-only">{text}</span>
+        <Skeleton width="38%" height={12} />
+        <Skeleton width="72%" height={22} />
+        <Skeleton width="56%" height={12} />
+      </div>
+    );
+  }
   return (
     <div className="state state-loading" role="status">
       <span className="spinner" aria-hidden="true" />
-      <span>{label ?? tr({ en: 'Loading…', fr: 'Chargement…' })}</span>
+      <span>{text}</span>
     </div>
   );
 }
@@ -33,7 +45,7 @@ export function ErrorState({ error, onRetry, title, children }: {
       <p className="state-title">{title ?? errorTitle(error, lang)}</p>
       <p className="muted small">{error.message}</p>
       {error.requestId && (
-        <p className="muted small mono">{tr({ en: 'Request', fr: 'Requête' })} {error.requestId}</p>
+        <p className="muted small mono break">{tr({ en: 'Request', fr: 'Requête' })} {error.requestId}</p>
       )}
       {children}
       {onRetry && !disabled && (
