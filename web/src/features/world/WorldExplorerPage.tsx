@@ -317,190 +317,125 @@ function WorldContent({ profile }: { profile: Profile }) {
         counts={{ shown: visible.length, total: feed.total, linked: relevantCount }} showHazards={hazardsOn} hazardsLabel={hazardsTitle}
         onPin={onPin} onCountry={selectCountry} onOpenDetails={openDetails} />
 
-      <Card id="filters" section={tr({ en: 'Filters', fr: 'Filtres' })} tour="world-filters" title={tr({ en: 'Filters', fr: 'Filtres' })}>
-        <div className="checks">
-          <label>
-            <input type="checkbox" checked={relevantOnly && relevanceKnown} disabled={!relevanceKnown} onChange={e => setRelevantOnly(e.target.checked)} />
-            {tr({ en: `Only events matching ${profile.name}’s portfolio`, fr: `Seulement les événements correspondant au portefeuille de ${profile.name}` })}
-          </label>
-        </div>
-        <p className="small muted">
-          {relevanceKnown
-            ? tr({ en: 'A held ticker is named in the event, or the event’s country has weight in the portfolio.', fr: 'Un symbole détenu est nommé dans l’événement, ou le pays de l’événement a un poids dans le portefeuille.' })
-            : tr({ en: 'Not available yet: the API has not returned a portfolio match for the loaded events.', fr: 'Pas encore disponible : l’API n’a pas renvoyé de correspondance avec le portefeuille pour les événements chargés.' })}
-        </p>
-        <details className="filters-fold">
-          <summary>
-            {tr({ en: 'Dates, countries, categories and sources', fr: 'Dates, pays, catégories et sources' })}
-            {applied?.from && applied.to && <span className="small muted"> · {fmtDate(applied.from, lang)} → {fmtDate(applied.to, lang)}</span>}
-            {applied && activeFilterCount(applied) > 0 && <span className="small muted"> · {tr({ en: `${activeFilterCount(applied)} filter(s) applied`, fr: `${activeFilterCount(applied)} filtre(s) appliqué(s)` })}</span>}
-          </summary>
-        <form onSubmit={apply} noValidate>
-          <div className="form-grid">
-            <div className="field">
-              <label htmlFor="world-from">{tr({ en: 'From', fr: 'Du' })}</label>
-              <input id="world-from" type="date" value={draft.from} min={coverage?.start} max={coverage?.end}
-                onChange={e => setDraft(value => ({ ...value, from: e.target.value }))} aria-describedby="world-range-hint" />
-            </div>
-            <div className="field">
-              <label htmlFor="world-to">{tr({ en: 'To', fr: 'Au' })}</label>
-              <input id="world-to" type="date" value={draft.to} min={coverage?.start} max={coverage?.end}
-                onChange={e => setDraft(value => ({ ...value, to: e.target.value }))} aria-describedby="world-range-hint" />
-            </div>
-            <div className="field">
-              <label htmlFor="world-country">{tr({ en: 'Country (ISO code)', fr: 'Pays (code ISO)' })}</label>
-              <input id="world-country" type="text" list="world-country-options" maxLength={3} autoComplete="off" value={draft.country}
-                onChange={e => setDraft(value => ({ ...value, country: e.target.value.toUpperCase() }))} placeholder="CAN" />
-              <datalist id="world-country-options">
-                {countryOptions.map(code => <option key={code} value={code}>{countryLabel(code, lang)}</option>)}
-              </datalist>
-            </div>
-            <div className="field">
-              <label htmlFor="world-ticker">{tr({ en: 'Ticker named in the event', fr: 'Symbole nommé dans l’événement' })}</label>
-              <input id="world-ticker" type="text" list="world-ticker-options" autoComplete="off" value={draft.ticker}
-                onChange={e => setDraft(value => ({ ...value, ticker: e.target.value.toUpperCase() }))} />
-              <datalist id="world-ticker-options">
-                {profile.portfolio.positions.map(position => <option key={position.ticker} value={position.ticker} />)}
-              </datalist>
-            </div>
-            <div className="field">
-              <label htmlFor="world-theme">{tr({ en: 'Theme', fr: 'Thème' })}</label>
-              <select id="world-theme" value={draft.theme} onChange={e => setDraft(value => ({ ...value, theme: e.target.value }))}>
-                <option value="">{tr({ en: 'All themes', fr: 'Tous les thèmes' })}</option>
-                {THEME_TAGS.map(theme => <option key={theme} value={theme}>{labelOf(THEME_TAG, theme, lang)}</option>)}
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="world-q">{tr({ en: 'Text in title or publisher', fr: 'Texte du titre ou de l’éditeur' })}</label>
-              <input id="world-q" type="search" value={draft.q} maxLength={120} onChange={e => setDraft(value => ({ ...value, q: e.target.value }))} />
-            </div>
-            <div className="field">
-              <label htmlFor="world-sort">{tr({ en: 'Sort by', fr: 'Trier par' })}</label>
-              <select id="world-sort" value={draft.sort} onChange={e => setDraft(value => ({ ...value, sort: e.target.value === 'date' ? 'date' : 'importance' }))}>
-                <option value="importance">{tr({ en: 'Ranking score', fr: 'Score de classement' })}</option>
-                <option value="date">{tr({ en: 'Date (most recent first)', fr: 'Date (plus récent d’abord)' })}</option>
-              </select>
-            </div>
+      <div className="world-controls">
+        <Card id="filters" section={tr({ en: 'Filters', fr: 'Filtres' })} tour="world-filters" title={tr({ en: 'Filters', fr: 'Filtres' })}>
+          <div className="checks">
+            <label>
+              <input type="checkbox" checked={relevantOnly && relevanceKnown} disabled={!relevanceKnown} onChange={e => setRelevantOnly(e.target.checked)} />
+              {tr({ en: `Only events matching ${profile.name}’s portfolio`, fr: `Seulement les événements correspondant au portefeuille de ${profile.name}` })}
+            </label>
           </div>
-          <p id="world-range-hint" className="hint small muted" style={{ marginTop: 6 }}>
-            {coverage
-              ? <>{tr({ en: 'Dataset coverage', fr: 'Couverture du jeu de données' })}: {fmtDate(coverage.start, lang)} → {fmtDate(coverage.end, lang)}. </>
-              : <>{tr({ en: 'Dataset coverage not known yet; without dates the API uses the last 30 days of its events dataset.', fr: 'Couverture du jeu de données pas encore connue ; sans dates, l’API utilise les 30 derniers jours de son jeu d’événements.' })} </>}
-            {tr({ en: `${MAX_RANGE_DAYS} days at most.`, fr: `${MAX_RANGE_DAYS} jours au plus.` })}
+          <p className="small muted">
+            {relevanceKnown
+              ? tr({ en: 'A held ticker is named in the event, or the event’s country has weight in the portfolio.', fr: 'Un symbole détenu est nommé dans l’événement, ou le pays de l’événement a un poids dans le portefeuille.' })
+              : tr({ en: 'Not available yet: the API has not returned a portfolio match for the loaded events.', fr: 'Pas encore disponible : l’API n’a pas renvoyé de correspondance avec le portefeuille pour les événements chargés.' })}
           </p>
-
-          <div className="filter-sets">
-            <fieldset>
-              <legend>{tr({ en: 'Categories (none ticked = all)', fr: 'Catégories (aucune cochée = toutes)' })}</legend>
-              <div className="checks">
-                {EVENT_CATEGORIES.map(category => (
-                  <label key={category}>
-                    <input type="checkbox" checked={draft.categories.includes(category)}
-                      onChange={e => setDraft(value => ({ ...value, categories: toggle<EventCategory>(value.categories, category, e.target.checked) }))} />
-                    {labelOf(EVENT_CATEGORY, category, lang)}
-                  </label>
-                ))}
+          <details className="filters-fold">
+            <summary>
+              {tr({ en: 'Dates, countries, categories and sources', fr: 'Dates, pays, catégories et sources' })}
+              {applied?.from && applied.to && <span className="small muted"> · {fmtDate(applied.from, lang)} → {fmtDate(applied.to, lang)}</span>}
+              {applied && activeFilterCount(applied) > 0 && <span className="small muted"> · {tr({ en: `${activeFilterCount(applied)} filter(s) applied`, fr: `${activeFilterCount(applied)} filtre(s) appliqué(s)` })}</span>}
+            </summary>
+          <form onSubmit={apply} noValidate>
+            <div className="form-grid">
+              <div className="field">
+                <label htmlFor="world-from">{tr({ en: 'From', fr: 'Du' })}</label>
+                <input id="world-from" type="date" value={draft.from} min={coverage?.start} max={coverage?.end}
+                  onChange={e => setDraft(value => ({ ...value, from: e.target.value }))} aria-describedby="world-range-hint" />
               </div>
-            </fieldset>
-            <fieldset>
-              <legend>{tr({ en: 'Source origin (none ticked = all)', fr: 'Origine de la source (aucune cochée = toutes)' })}</legend>
-              <div className="checks">
-                {EVENT_ORIGINS.map(origin => (
-                  <label key={origin}>
-                    <input type="checkbox" checked={draft.origins.includes(origin)}
-                      onChange={e => setDraft(value => ({ ...value, origins: toggle<WorldEvent['origin']>(value.origins, origin, e.target.checked) }))} />
-                    {labelOf(EVENT_ORIGIN, origin, lang)}
-                  </label>
-                ))}
+              <div className="field">
+                <label htmlFor="world-to">{tr({ en: 'To', fr: 'Au' })}</label>
+                <input id="world-to" type="date" value={draft.to} min={coverage?.start} max={coverage?.end}
+                  onChange={e => setDraft(value => ({ ...value, to: e.target.value }))} aria-describedby="world-range-hint" />
               </div>
-            </fieldset>
-          </div>
-
-          {formIssue && (
-            <div className="error-summary" role="alert" style={{ marginTop: 12 }}>
-              <p className="small">{tr(FORM_ISSUE[formIssue])}</p>
-              {(formIssue === 'too_long' || formIssue === 'order' || formIssue === 'outside_coverage') && draft.from && draft.to && (
-                <button type="button" className="btn ghost btn-sm" onClick={fitRange}>
-                  {tr({ en: 'Fit the interval to the limit and the coverage', fr: 'Ajuster l’intervalle à la limite et à la couverture' })}
-                </button>
-              )}
+              <div className="field">
+                <label htmlFor="world-country">{tr({ en: 'Country (ISO code)', fr: 'Pays (code ISO)' })}</label>
+                <input id="world-country" type="text" list="world-country-options" maxLength={3} autoComplete="off" value={draft.country}
+                  onChange={e => setDraft(value => ({ ...value, country: e.target.value.toUpperCase() }))} placeholder="CAN" />
+                <datalist id="world-country-options">
+                  {countryOptions.map(code => <option key={code} value={code}>{countryLabel(code, lang)}</option>)}
+                </datalist>
+              </div>
+              <div className="field">
+                <label htmlFor="world-ticker">{tr({ en: 'Ticker named in the event', fr: 'Symbole nommé dans l’événement' })}</label>
+                <input id="world-ticker" type="text" list="world-ticker-options" autoComplete="off" value={draft.ticker}
+                  onChange={e => setDraft(value => ({ ...value, ticker: e.target.value.toUpperCase() }))} />
+                <datalist id="world-ticker-options">
+                  {profile.portfolio.positions.map(position => <option key={position.ticker} value={position.ticker} />)}
+                </datalist>
+              </div>
+              <div className="field">
+                <label htmlFor="world-theme">{tr({ en: 'Theme', fr: 'Thème' })}</label>
+                <select id="world-theme" value={draft.theme} onChange={e => setDraft(value => ({ ...value, theme: e.target.value }))}>
+                  <option value="">{tr({ en: 'All themes', fr: 'Tous les thèmes' })}</option>
+                  {THEME_TAGS.map(theme => <option key={theme} value={theme}>{labelOf(THEME_TAG, theme, lang)}</option>)}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="world-q">{tr({ en: 'Text in title or publisher', fr: 'Texte du titre ou de l’éditeur' })}</label>
+                <input id="world-q" type="search" value={draft.q} maxLength={120} onChange={e => setDraft(value => ({ ...value, q: e.target.value }))} />
+              </div>
+              <div className="field">
+                <label htmlFor="world-sort">{tr({ en: 'Sort by', fr: 'Trier par' })}</label>
+                <select id="world-sort" value={draft.sort} onChange={e => setDraft(value => ({ ...value, sort: e.target.value === 'date' ? 'date' : 'importance' }))}>
+                  <option value="importance">{tr({ en: 'Ranking score', fr: 'Score de classement' })}</option>
+                  <option value="date">{tr({ en: 'Date (most recent first)', fr: 'Date (plus récent d’abord)' })}</option>
+                </select>
+              </div>
             </div>
-          )}
-          <div className="row-actions">
-            <button type="submit" className="btn" disabled={applied === null}>{tr({ en: 'Apply filters', fr: 'Appliquer les filtres' })}</button>
-            <button type="button" className="btn ghost" onClick={reset} disabled={applied === null}>{tr({ en: 'Reset to the dataset coverage', fr: 'Revenir à la couverture du jeu de données' })}</button>
-            {dirty && <span className="small muted" role="status">{tr({ en: 'Filters changed; apply them to update the feed.', fr: 'Filtres modifiés ; appliquez-les pour mettre le fil à jour.' })}</span>}
-          </div>
-        </form>
-        </details>
-      </Card>
+            <p id="world-range-hint" className="hint small muted" style={{ marginTop: 6 }}>
+              {coverage
+                ? <>{tr({ en: 'Dataset coverage', fr: 'Couverture du jeu de données' })}: {fmtDate(coverage.start, lang)} → {fmtDate(coverage.end, lang)}. </>
+                : <>{tr({ en: 'Dataset coverage not known yet; without dates the API uses the last 30 days of its events dataset.', fr: 'Couverture du jeu de données pas encore connue ; sans dates, l’API utilise les 30 derniers jours de son jeu d’événements.' })} </>}
+              {tr({ en: `${MAX_RANGE_DAYS} days at most.`, fr: `${MAX_RANGE_DAYS} jours au plus.` })}
+            </p>
 
-      <div className="world-grid">
-        <Card id="feed" className="world-feed" section={tr({ en: 'Feed', fr: 'Fil' })} tour="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
-          actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={feed.loading || applied === null}>{tr({ en: 'Reload', fr: 'Recharger' })}</button>}>
-          <div role="status" aria-live="polite" className="small feed-counts">
-            {(current || keptAfterFailure) && feed.total !== null && (
-              <p>
-                {tr({
-                  en: `${visible.length} of ${feed.total} events`,
-                  fr: `${visible.length} sur ${feed.total} événements`,
-                })}
-                {relevantOnly && relevanceKnown && <>{tr({ en: `, ${relevantCount} linked to the portfolio`, fr: `, ${relevantCount} liés au portefeuille` })}</>}
-              </p>
-            )}
-          </div>
-          {(layers.loading || applied === null || (feed.loading && !keptAfterFailure)) && <Loading label={tr({ en: 'Loading events…', fr: 'Chargement des événements…' })} />}
-          {feed.error && !feed.loading && (
-            <ErrorState error={feed.error} onRetry={() => setNonce(n => n + 1)}
-              title={tr({ en: 'The events could not be loaded for these filters.', fr: 'Les événements n’ont pas pu être chargés pour ces filtres.' })}>
-              {feed.items.length > 0 && sameProfile && feed.loadedAt && (
-                <p className="small">
-                  {current
-                    ? tr({ en: `The list below is the copy loaded at ${fmtDateTime(feed.loadedAt, 'en')}; it was not refreshed.`, fr: `La liste ci-dessous est la copie chargée le ${fmtDateTime(feed.loadedAt, 'fr')} ; elle n’a pas été actualisée.` })
-                    : tr({ en: `The list below was loaded at ${fmtDateTime(feed.loadedAt, 'en')} for the previous filters, not for the filters above.`, fr: `La liste ci-dessous a été chargée le ${fmtDateTime(feed.loadedAt, 'fr')} pour les filtres précédents, pas pour les filtres ci-dessus.` })}
-                </p>
-              )}
-            </ErrorState>
-          )}
-          {current && !feed.loading && !feed.error && loaded.length === 0 && (
-            <Empty>{tr({ en: 'No event matches these filters in the loaded dataset. Widen the interval or remove a filter.', fr: 'Aucun événement ne correspond à ces filtres dans le jeu de données chargé. Élargissez l’intervalle ou retirez un filtre.' })}</Empty>
-          )}
-          {loaded.length > 0 && visible.length === 0 && (
-            <Empty>{tr({ en: 'None of the loaded events matches this portfolio. Load more events or untick the portfolio filter.', fr: 'Aucun des événements chargés ne correspond à ce portefeuille. Chargez plus d’événements ou décochez le filtre de portefeuille.' })}</Empty>
-          )}
-          {visible.length > 0 && (
-            <ol className="feed-list" aria-label={tr({ en: 'Events, in the order returned by the API', fr: 'Événements, dans l’ordre renvoyé par l’API' })}>
-              {visible.map(event => (
-                <li key={event.eventId}>
-                  <button type="button" className="feed-item" aria-current={event.eventId === eventId ? 'true' : undefined} onClick={() => selectEvent(event.eventId)}>
-                    <span className="feed-title" lang={sourceLang(event)}>{event.title}</span>
-                    <EventLine event={event} />
-                    <span className="block">
-                      {event.portfolioRelevant === true && <span className="tag tag-strong">{tr({ en: 'Linked to the portfolio', fr: 'Lié au portefeuille' })}</span>}
-                      {event.location.precision === 'country' && <span className="tag">{labelOf(LOCATION_PRECISION, 'country', lang)}</span>}
-                      {event.sourceCount > 1 && <span className="tag">{event.sourceCount} {tr({ en: 'sources', fr: 'sources' })}</span>}
-                    </span>
+            <div className="filter-sets">
+              <fieldset>
+                <legend>{tr({ en: 'Categories (none ticked = all)', fr: 'Catégories (aucune cochée = toutes)' })}</legend>
+                <div className="checks">
+                  {EVENT_CATEGORIES.map(category => (
+                    <label key={category}>
+                      <input type="checkbox" checked={draft.categories.includes(category)}
+                        onChange={e => setDraft(value => ({ ...value, categories: toggle<EventCategory>(value.categories, category, e.target.checked) }))} />
+                      {labelOf(EVENT_CATEGORY, category, lang)}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>{tr({ en: 'Source origin (none ticked = all)', fr: 'Origine de la source (aucune cochée = toutes)' })}</legend>
+                <div className="checks">
+                  {EVENT_ORIGINS.map(origin => (
+                    <label key={origin}>
+                      <input type="checkbox" checked={draft.origins.includes(origin)}
+                        onChange={e => setDraft(value => ({ ...value, origins: toggle<WorldEvent['origin']>(value.origins, origin, e.target.checked) }))} />
+                      {labelOf(EVENT_ORIGIN, origin, lang)}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
+
+            {formIssue && (
+              <div className="error-summary" role="alert" style={{ marginTop: 12 }}>
+                <p className="small">{tr(FORM_ISSUE[formIssue])}</p>
+                {(formIssue === 'too_long' || formIssue === 'order' || formIssue === 'outside_coverage') && draft.from && draft.to && (
+                  <button type="button" className="btn ghost btn-sm" onClick={fitRange}>
+                    {tr({ en: 'Fit the interval to the limit and the coverage', fr: 'Ajuster l’intervalle à la limite et à la couverture' })}
                   </button>
-                </li>
-              ))}
-            </ol>
-          )}
-          {current && feed.nextCursor && (
+                )}
+              </div>
+            )}
             <div className="row-actions">
-              <button type="button" className="btn ghost" onClick={() => void loadMore()} disabled={feed.loadingMore}>
-                {tr({ en: 'Load the next page', fr: 'Charger la page suivante' })}
-              </button>
-              {feed.total !== null && <span className="small muted">{tr({ en: `${Math.max(0, feed.total - feed.items.length)} more in the dataset for these filters.`, fr: `${Math.max(0, feed.total - feed.items.length)} de plus dans le jeu de données pour ces filtres.` })}</span>}
+              <button type="submit" className="btn" disabled={applied === null}>{tr({ en: 'Apply filters', fr: 'Appliquer les filtres' })}</button>
+              <button type="button" className="btn ghost" onClick={reset} disabled={applied === null}>{tr({ en: 'Reset to the dataset coverage', fr: 'Revenir à la couverture du jeu de données' })}</button>
+              {dirty && <span className="small muted" role="status">{tr({ en: 'Filters changed; apply them to update the feed.', fr: 'Filtres modifiés ; appliquez-les pour mettre le fil à jour.' })}</span>}
             </div>
-          )}
-          {feed.loadingMore && <Loading label={tr({ en: 'Loading the next page…', fr: 'Chargement de la page suivante…' })} />}
-          {feed.moreError && (
-            <ErrorState error={feed.moreError} onRetry={() => void loadMore()}
-              title={tr({ en: 'The next page could not be loaded. The events already loaded stay listed.', fr: 'La page suivante n’a pas pu être chargée. Les événements déjà chargés restent listés.' })} />
-          )}
+          </form>
+          </details>
         </Card>
-
-        <div className="world-map">
+        <div className="world-layers">
           {picked && (
             <p className="small" role="status">
               <strong>{picked.kind === 'facility' ? tr({ en: 'Facility', fr: 'Installation' }) : tr({ en: 'Hazard', fr: 'Aléa' })}:</strong> {picked.label}.{' '}
@@ -541,6 +476,70 @@ function WorldContent({ profile }: { profile: Profile }) {
           </Card>
         </div>
       </div>
+
+      <Card id="feed" className="world-feed" section={tr({ en: 'Feed', fr: 'Fil' })} tour="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
+        actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={feed.loading || applied === null}>{tr({ en: 'Reload', fr: 'Recharger' })}</button>}>
+        <div role="status" aria-live="polite" className="small feed-counts">
+          {(current || keptAfterFailure) && feed.total !== null && (
+            <p>
+              {tr({
+                en: `${visible.length} of ${feed.total} events`,
+                fr: `${visible.length} sur ${feed.total} événements`,
+              })}
+              {relevantOnly && relevanceKnown && <>{tr({ en: `, ${relevantCount} linked to the portfolio`, fr: `, ${relevantCount} liés au portefeuille` })}</>}
+            </p>
+          )}
+        </div>
+        {(layers.loading || applied === null || (feed.loading && !keptAfterFailure)) && <Loading label={tr({ en: 'Loading events…', fr: 'Chargement des événements…' })} />}
+        {feed.error && !feed.loading && (
+          <ErrorState error={feed.error} onRetry={() => setNonce(n => n + 1)}
+            title={tr({ en: 'The events could not be loaded for these filters.', fr: 'Les événements n’ont pas pu être chargés pour ces filtres.' })}>
+            {feed.items.length > 0 && sameProfile && feed.loadedAt && (
+              <p className="small">
+                {current
+                  ? tr({ en: `The list below is the copy loaded at ${fmtDateTime(feed.loadedAt, 'en')}; it was not refreshed.`, fr: `La liste ci-dessous est la copie chargée le ${fmtDateTime(feed.loadedAt, 'fr')} ; elle n’a pas été actualisée.` })
+                  : tr({ en: `The list below was loaded at ${fmtDateTime(feed.loadedAt, 'en')} for the previous filters, not for the filters above.`, fr: `La liste ci-dessous a été chargée le ${fmtDateTime(feed.loadedAt, 'fr')} pour les filtres précédents, pas pour les filtres ci-dessus.` })}
+              </p>
+            )}
+          </ErrorState>
+        )}
+        {current && !feed.loading && !feed.error && loaded.length === 0 && (
+          <Empty>{tr({ en: 'No event matches these filters in the loaded dataset. Widen the interval or remove a filter.', fr: 'Aucun événement ne correspond à ces filtres dans le jeu de données chargé. Élargissez l’intervalle ou retirez un filtre.' })}</Empty>
+        )}
+        {loaded.length > 0 && visible.length === 0 && (
+          <Empty>{tr({ en: 'None of the loaded events matches this portfolio. Load more events or untick the portfolio filter.', fr: 'Aucun des événements chargés ne correspond à ce portefeuille. Chargez plus d’événements ou décochez le filtre de portefeuille.' })}</Empty>
+        )}
+        {visible.length > 0 && (
+          <ol className="feed-list" aria-label={tr({ en: 'Events, in the order returned by the API', fr: 'Événements, dans l’ordre renvoyé par l’API' })}>
+            {visible.map(event => (
+              <li key={event.eventId}>
+                <button type="button" className="feed-item" aria-current={event.eventId === eventId ? 'true' : undefined} onClick={() => selectEvent(event.eventId)}>
+                  <span className="feed-title" lang={sourceLang(event)}>{event.title}</span>
+                  <EventLine event={event} />
+                  <span className="block">
+                    {event.portfolioRelevant === true && <span className="tag tag-strong">{tr({ en: 'Linked to the portfolio', fr: 'Lié au portefeuille' })}</span>}
+                    {event.location.precision === 'country' && <span className="tag">{labelOf(LOCATION_PRECISION, 'country', lang)}</span>}
+                    {event.sourceCount > 1 && <span className="tag">{event.sourceCount} {tr({ en: 'sources', fr: 'sources' })}</span>}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        )}
+        {current && feed.nextCursor && (
+          <div className="row-actions">
+            <button type="button" className="btn ghost" onClick={() => void loadMore()} disabled={feed.loadingMore}>
+              {tr({ en: 'Load the next page', fr: 'Charger la page suivante' })}
+            </button>
+            {feed.total !== null && <span className="small muted">{tr({ en: `${Math.max(0, feed.total - feed.items.length)} more in the dataset for these filters.`, fr: `${Math.max(0, feed.total - feed.items.length)} de plus dans le jeu de données pour ces filtres.` })}</span>}
+          </div>
+        )}
+        {feed.loadingMore && <Loading label={tr({ en: 'Loading the next page…', fr: 'Chargement de la page suivante…' })} />}
+        {feed.moreError && (
+          <ErrorState error={feed.moreError} onRetry={() => void loadMore()}
+            title={tr({ en: 'The next page could not be loaded. The events already loaded stay listed.', fr: 'La page suivante n’a pas pu être chargée. Les événements déjà chargés restent listés.' })} />
+        )}
+      </Card>
 
       {(eventId || countryIso3) && (
         <div className="world-panels">

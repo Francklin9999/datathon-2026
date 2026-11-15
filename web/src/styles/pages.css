@@ -71,9 +71,8 @@ pre.args { margin: 6px 0; padding: 10px 12px; border-radius: 10px; background: v
 .filters-fold > summary { min-height: 40px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; cursor: pointer; font-weight: 600; }
 .filters-fold[open] > summary { margin-bottom: 8px; }
 .filter-sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
-.world-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); grid-template-areas: 'feed map'; gap: 18px; align-items: start; }
-.world-feed { grid-area: feed; }
-.world-map { grid-area: map; min-width: 0; }
+.world-controls { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px; align-items: stretch; }
+.world-layers { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .world-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px; align-items: start; }
 .feed-list { display: flex; flex-direction: column; max-height: 720px; overflow-y: auto; border-radius: 16px; background: var(--glass-inset); border: 1px solid var(--glass-line); }
 .feed-list li { border-top: 1px solid var(--line); }
@@ -98,7 +97,7 @@ pre.args { margin: 6px 0; padding: 10px 12px; border-radius: 10px; background: v
 .holding-pair { display: inline-block; margin-right: 12px; white-space: nowrap; }
 
 @media (max-width: 1100px) {
-  .world-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'feed' 'map'; }
+  .world-controls { grid-template-columns: minmax(0, 1fr); }
   .feed-list { max-height: none; }
 }
 @media (prefers-reduced-motion: reduce) {
