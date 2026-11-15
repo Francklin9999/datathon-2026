@@ -155,7 +155,15 @@ html[data-sidebar='expanded'] .nav-tip { display: none; }
   .shell { --rail-current: 0px; padding: 8px 8px 0; }
   .topbar { position: relative; top: 0; flex-wrap: wrap; border-radius: 26px; padding: 8px; }
   .topbar .menu-btn { display: inline-flex; }
+  .logo, .topbar-sep { display: none; }
+  .persona { flex: 1 1 auto; }
   .persona-body { display: flex; }
+  .persona-caption { display: none; }
+  /* The end group flows into the bar: help and settings stay on the first row, the simulation note
+     becomes a full-width line under Ask Aplomb, with its words visible. */
+  .topbar-end { display: contents; }
+  .sim-pill { order: 6; flex-basis: 100%; width: auto; min-height: 24px; justify-content: center; background: transparent; box-shadow: none; }
+  .sim-pill .sim-text { position: static; width: auto; height: auto; overflow: visible; clip: auto; clip-path: none; white-space: normal; }
   .command { order: 5; flex-basis: 100%; max-width: none; }
   .command-kbd { display: none; }
   .rail, .dock { display: none; }
