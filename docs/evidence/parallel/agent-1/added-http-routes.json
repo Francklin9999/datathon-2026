@@ -1,0 +1,136 @@
+{
+  "baseline": "2604b9689e9f992b4e9e46c4a06ea89ec57ac155",
+  "count": 26,
+  "routes": [
+    {
+      "method": "DELETE",
+      "path": "/v1/profiles/{profile_id}/condition-rules/{rule_id}",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/profiles/{profile_id}/account-valuations",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/profiles/{profile_id}/allocation-targets",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/profiles/{profile_id}/strategic-candidates",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/accounts/{account_id}/private-assets",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/accounts/{account_id}/refresh",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/accounts/{account_id}/transfer",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/condition-rules",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/custom-rules",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/profiles/{profile_id}/accounts/{account_id}",
+      "module": "backend/aplomb/api/app.py"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk/source-inputs",
+      "module": "backend/aplomb/datastore/financial_inputs_api.py"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk/providers",
+      "module": "backend/aplomb/datastore/financial_provider_api.py"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk/providers/{provider_id}/captures/{capture_id}",
+      "module": "backend/aplomb/datastore/financial_provider_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk/providers/{provider_id}/capture",
+      "module": "backend/aplomb/datastore/financial_provider_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/decision/target-funding",
+      "module": "backend/aplomb/quant/scenario_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/requirements-scenario",
+      "module": "backend/aplomb/quant/scenario_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk/factor-fit",
+      "module": "backend/aplomb/quant/scenario_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk/fund-look-through",
+      "module": "backend/aplomb/quant/scenario_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk/scenario",
+      "module": "backend/aplomb/quant/scenario_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/joint-plan",
+      "module": "backend/aplomb/quant/joint_plan_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/portfolios/compare",
+      "module": "backend/aplomb/quant/expanded_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/factor-exposure",
+      "module": "backend/aplomb/quant/expanded_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/liquidity-analysis",
+      "module": "backend/aplomb/quant/expanded_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles/{profile_id}/position-details",
+      "module": "backend/aplomb/quant/expanded_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk/covariance",
+      "module": "backend/aplomb/quant/expanded_api.py"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk/nested-fund-look-through",
+      "module": "backend/aplomb/quant/expanded_api.py"
+    }
+  ]
+}

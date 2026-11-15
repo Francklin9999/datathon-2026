@@ -90,3 +90,23 @@ test('country, dates, source provenance and independent objectives round-trip wi
   form.investorContext!.horizons![0]!.endDate = '2026-01-01';
   assert.ok(validateProfileForm(form).some(issue => issue.field === 'investorContext'));
 });
+
+
+test('edited copied inputs become user input while untouched imported provenance survives', () => {
+  const profile = structuredClone(fixtures.items[0]) as Profile;
+  profile.investorContext = { country: 'CA', investorType: 'individual', investorTypeOrigin: 'system_default',
+    language: 'en', riskToleranceOrigin: 'system_default',
+    inputOrigins: { name: 'system_default', reportingCurrency: 'imported', age: 'imported' } };
+  const form = formFromProfile(profile, ' copy');
+  form.reportingCurrency = 'EUR'; form.riskLevel = 'low';
+  form.investorContext!.investorType = 'foundation'; form.investorContext!.country = 'FR';
+  const request = toCreateRequest(form, null);
+  assert.equal(request.investorContext!.inputOrigins!.name, 'user');
+  assert.equal(request.investorContext!.inputOrigins!.reportingCurrency, 'user');
+  assert.equal(request.investorContext!.inputOrigins!.age, 'imported');
+  assert.equal(request.investorContext!.inputOrigins!.country, 'user');
+  assert.equal(request.investorContext!.investorTypeOrigin, 'user');
+  assert.equal(request.investorContext!.riskToleranceOrigin, 'user');
+  assert.equal(profile.investorContext.inputOrigins!.reportingCurrency, 'imported');
+  validateContract('CreateProfileRequest', request);
+});

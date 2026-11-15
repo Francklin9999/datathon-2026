@@ -7,6 +7,8 @@ import { ContractValidationError, validateContract } from '../contracts/validate
 import { validateHoldings, type HoldingsIssue } from './holdings';
 
 export interface ProfileForm {
+  /** Local baseline for identifying user edits when copying or replacing a profile. */
+  sourceProfile?: Profile;
   investorContext?: Profile["investorContext"];
   name: string;
   age: string;
@@ -53,6 +55,7 @@ function prefsToForm(p: Preferences1): PreferenceFields {
 /** Form pre-filled from an existing profile; saving a copy of a default creates a new ID (api.md 3.3). */
 export function formFromProfile(profile: Profile, copySuffix = ''): ProfileForm {
   return {
+    sourceProfile: structuredClone(profile),
     investorContext: profile.investorContext ? structuredClone(profile.investorContext) : profile.investorContext,
     name: `${profile.name}${copySuffix}`.slice(0, 40),
     age: profile.age === null ? '' : String(profile.age),
@@ -96,7 +99,7 @@ export function applyDraft(form: ProfileForm, draft: PartialProfile): { form: Pr
 }
 
 export type ProfileFormIssue =
-  | { field: Exclude<keyof ProfileForm, 'positions'>; code: 'required' | 'too_long' | 'invalid' | 'range'; detail?: string }
+  | { field: Exclude<keyof ProfileForm, 'positions' | 'sourceProfile'>; code: 'required' | 'too_long' | 'invalid' | 'range'; detail?: string }
   | { field: 'positions'; code: 'holdings'; issue: HoldingsIssue };
 
 function num(value: string): number | null {
@@ -152,7 +155,7 @@ export function validateProfileForm(form: ProfileForm): ProfileFormIssue[] {
 export function toCreateRequest(form: ProfileForm, fromDraftRunId: string | null): CreateProfileRequest {
   const max = num(form.horizonMax);
   const age = num(form.age);
-  return {
+  const request: CreateProfileRequest = {
     name: form.name.trim(),
     age: age === null || Number.isNaN(age) ? null : age,
     riskLevel: form.riskLevel as RiskLevel,
@@ -172,4 +175,26 @@ export function toCreateRequest(form: ProfileForm, fromDraftRunId: string | null
     fromDraftRunId,
     ...(form.investorContext ? { investorContext: structuredClone(form.investorContext) } : {}),
   };
+  const previous = form.sourceProfile;
+  if (previous) {
+    const context = request.investorContext ?? {};
+    const origins = { ...context.inputOrigins };
+    let changed = false;
+    for (const key of ['name', 'age', 'riskLevel', 'horizonYears', 'objective', 'experience', 'reportingCurrency', 'preferences'] as const) {
+      if (JSON.stringify(request[key]) !== JSON.stringify(previous[key])) {
+        origins[key] = 'user'; changed = true;
+      }
+    }
+    const oldPortfolio = { totalValue: previous.portfolio.totalValue, positions: previous.portfolio.positions };
+    if (JSON.stringify(request.portfolio) !== JSON.stringify(oldPortfolio)) {
+      origins.portfolio = request.portfolio ? 'user' : 'assumption'; changed = true;
+    }
+    if (request.riskLevel !== previous.riskLevel) context.riskToleranceOrigin = 'user';
+    if (context.investorType !== previous.investorContext?.investorType) context.investorTypeOrigin = 'user';
+    for (const key of ['country', 'language'] as const) {
+      if (context[key] !== previous.investorContext?.[key]) { origins[key] = 'user'; changed = true; }
+    }
+    if (changed) { context.inputOrigins = origins; request.investorContext = context; }
+  }
+  return request;
 }
