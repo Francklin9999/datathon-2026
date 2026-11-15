@@ -1,0 +1,185 @@
+/* Aplomb glass tokens (docs/superpowers/specs/2026-11-14-glass-ui-design.md §5.1).
+   Light is the base; html[data-theme='dark'] overrides. The boot script in <head> sets data-theme
+   before first paint. Legacy token names stay as aliases so older rules keep working. */
+:root {
+  color-scheme: light;
+
+  /* Brand constants */
+  --navy: #0F2233;
+  --navy-2: #17324A;
+  --gold: #E3A53B;
+
+  /* Ambient (behind the glass) */
+  --bg: #E3E9EE;
+  --bg-2: #F2F5F7;
+  --glow-shaft: rgba(227, 165, 59, .34);
+  --glow-shaft-core: rgba(244, 200, 115, .42);
+  --glow-teal: rgba(11, 94, 102, .20);
+  --glow-blue: rgba(86, 132, 190, .20);
+  --grain-opacity: .05;
+
+  /* Glass */
+  --glass: rgba(255, 255, 255, .52);
+  --glass-strong: rgba(250, 252, 253, .86);
+  --glass-border: rgba(255, 255, 255, .78);
+  --glass-edge: rgba(15, 34, 51, .07);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, .95);
+  --glass-blur: 22px;
+  --glass-saturate: 150%;
+  --tile: rgba(255, 255, 255, .58);
+  --tile-hover: rgba(255, 255, 255, .78);
+  --tile-border: rgba(255, 255, 255, .9);
+  --field: rgba(255, 255, 255, .72);
+  --field-border: rgba(15, 34, 51, .16);
+  --shadow-float: 0 1px 2px rgba(15, 34, 51, .05), 0 14px 34px -10px rgba(15, 34, 51, .16);
+  --shadow-pop: 0 2px 6px rgba(15, 34, 51, .08), 0 30px 60px -18px rgba(15, 34, 51, .30);
+  --scrim: rgba(15, 34, 51, .32);
+
+  /* Text */
+  --text: #10202E;
+  --text-2: #3D4E5F;
+  --text-3: #536475;
+  --line: rgba(15, 34, 51, .10);
+  --line-strong: rgba(15, 34, 51, .18);
+
+  /* Accent (teal) and gold */
+  --accent: #0B5E66;
+  --accent-2: #12818A;
+  --accent-text: #08585F;
+  --accent-soft: rgba(11, 94, 102, .10);
+  --accent-line: rgba(11, 94, 102, .32);
+  --accent-contrast: #FFFFFF;
+  --gold-text: #845408;
+  --gold-soft: rgba(227, 165, 59, .18);
+  --focus: #946010;          /* deep gold: ≥ 3:1 on light glass (WCAG 1.4.11) */
+  --nav-edge: #946010;
+  --footer-text: #3D4E5F;
+  /* Accent card (the one saturated surface): opaque teal → blue under white text. */
+  --accent-card-1: #0B5E66;
+  --accent-card-2: #1B57A0;
+  --accent-card-note: rgba(255, 255, 255, .9);
+
+  /* Status: text on tinted background, line = border, solid = verdict badge fill */
+  --pass-fg: #145B2E;     --pass-bg: rgba(224, 242, 230, .92);     --pass-line: #A4D2B3;     --pass-solid: #145B2E;
+  --tension-fg: #734300;  --tension-bg: rgba(255, 240, 210, .92);  --tension-line: #E8C781;  --tension-solid: #734300;
+  --conflict-fg: #8A1B12; --conflict-bg: rgba(252, 233, 230, .92); --conflict-line: #E9B3AB; --conflict-solid: #8A1B12;
+  --nee-fg: #334759;      --nee-bg: rgba(231, 236, 241, .92);      --nee-line: #B7C4D1;      --nee-solid: #334759;
+  --notice-fg: #5B3E08;   --notice-bg: rgba(248, 237, 211, .78);   --notice-line: rgba(227, 165, 59, .45);
+
+  /* Charts */
+  --chart-1: #0B5E66;
+  --chart-2: #B07A1E;
+  --chart-3: #4F79B0;
+  --chart-4: #6E8396;
+  --chart-grid: rgba(15, 34, 51, .08);
+  /* Categorical identity (validated: dataviz validate_palette.js, light vs #EEF2F5, dark vs #122230).
+     Fixed order, colour follows the entity: asset group / country never repaint on filter. */
+  --cat-1: #1BAF7A; --cat-2: #2A78D6; --cat-3: #EB6834; --cat-4: #6250D6; --cat-5: #E87BA4; --cat-other: #8A99A8;
+  --chart-area-top: rgba(11, 94, 102, .26);
+  --chart-area-bottom: rgba(11, 94, 102, 0);
+
+  /* Type */
+  --serif: 'Fraunces Variable', 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Shape: radius follows hierarchy (panel > card > tile > control > chip) */
+  --r-panel: 24px;
+  --r-card: 20px;
+  --r-tile: 16px;
+  --r-ctl: 12px;
+  --r-chip: 8px;
+  --radius: var(--r-card);
+  --radius-sm: var(--r-ctl);
+
+  /* Motion (Arc library tokens, MIT) */
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --dur-instant: 120ms;
+  --dur-fast: 160ms;
+  --dur-standard: 240ms;
+  --dur-considered: 480ms;
+
+  /* Legacy aliases (pre-glass rules and page code) */
+  --canvas: var(--tile);
+  --surface: var(--glass-strong);
+  --ink: var(--text);
+  --muted: var(--text-2);
+  --border: var(--line-strong);
+  --teal: var(--accent);
+  --teal-dark: var(--accent-text);
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #050E17;
+  --bg-2: #0A1824;
+  --glow-shaft: rgba(227, 165, 59, .16);
+  --glow-shaft-core: rgba(246, 196, 102, .22);
+  --glow-teal: rgba(24, 149, 154, .26);
+  --glow-blue: rgba(70, 110, 180, .22);
+  --grain-opacity: .07;
+
+  /* Dark-tinted glass: keeps AA text contrast even over the brightest part of the gold shaft. */
+  --glass: rgba(16, 30, 44, .55);
+  --glass-strong: rgba(13, 27, 39, .86);
+  --glass-border: rgba(255, 255, 255, .11);
+  --glass-edge: rgba(0, 0, 0, .28);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, .09);
+  --tile: rgba(255, 255, 255, .045);
+  --tile-hover: rgba(255, 255, 255, .08);
+  --tile-border: rgba(255, 255, 255, .075);
+  --field: rgba(255, 255, 255, .06);
+  --field-border: rgba(255, 255, 255, .16);
+  --shadow-float: 0 1px 1px rgba(0, 0, 0, .25), 0 22px 44px -16px rgba(0, 0, 0, .65);
+  --shadow-pop: 0 2px 8px rgba(0, 0, 0, .35), 0 36px 70px -20px rgba(0, 0, 0, .75);
+  --scrim: rgba(2, 8, 14, .55);
+
+  --text: #EDF2F5;
+  --text-2: #AAB8C4;
+  --text-3: #8B9CAB;
+  --line: rgba(255, 255, 255, .08);
+  --line-strong: rgba(255, 255, 255, .15);
+
+  --accent: #0F6A6F;
+  --accent-2: #157F84;
+  --accent-text: #6CD4C9;
+  --accent-soft: rgba(108, 212, 201, .12);
+  --accent-line: rgba(108, 212, 201, .34);
+  --accent-contrast: #FFFFFF;
+  --gold-text: #F2C46F;
+  --gold-soft: rgba(227, 165, 59, .16);
+  --focus: #F2B84E;
+  --nav-edge: #F2B84E;
+  --footer-text: #AAB8C4;
+  --accent-card-1: rgba(17, 118, 123, .80);
+  --accent-card-2: rgba(32, 84, 160, .76);
+  --accent-card-note: rgba(255, 255, 255, .88);
+
+  --pass-fg: #86DDA6;     --pass-bg: rgba(52, 168, 98, .15);     --pass-line: rgba(134, 221, 166, .34);     --pass-solid: #1C7442;
+  --tension-fg: #F6C771;  --tension-bg: rgba(227, 165, 59, .15); --tension-line: rgba(246, 199, 113, .36);  --tension-solid: #8C5704;
+  --conflict-fg: #FFA295; --conflict-bg: rgba(226, 86, 66, .15); --conflict-line: rgba(255, 162, 149, .36); --conflict-solid: #A3291C;
+  --nee-fg: #BCCAD7;      --nee-bg: rgba(150, 175, 200, .13);    --nee-line: rgba(188, 202, 215, .30);      --nee-solid: #3E5468;
+  --notice-fg: #F3D49A;   --notice-bg: rgba(227, 165, 59, .10);  --notice-line: rgba(227, 165, 59, .28);
+
+  --chart-1: #5FD0C4;
+  --chart-2: #E9B45A;
+  --chart-3: #86A9E2;
+  --chart-4: #8B9CAB;
+  --chart-grid: rgba(255, 255, 255, .07);
+  --cat-1: #199E70; --cat-2: #3987E5; --cat-3: #D95926; --cat-4: #9085E9; --cat-5: #D55181; --cat-other: #7D8D9C;
+  --chart-area-top: rgba(95, 208, 196, .30);
+  --chart-area-bottom: rgba(95, 208, 196, 0);
+}
+
+/* No blur support, or the person asked for less transparency: solid surfaces, same hierarchy. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root { --glass: rgba(250, 252, 253, .97); --glass-strong: #FAFCFD; --tile: #EEF2F5; --glass-blur: 0px; }
+  html[data-theme='dark'] { --glass: #0E1D2A; --glass-strong: #0E1D2A; --tile: #132433; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass: rgba(250, 252, 253, .97); --glass-strong: #FAFCFD; --tile: #EEF2F5; --glass-blur: 0px; }
+  html[data-theme='dark'] { --glass: #0E1D2A; --glass-strong: #0E1D2A; --tile: #132433; }
+}

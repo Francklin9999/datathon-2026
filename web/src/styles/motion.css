@@ -1,0 +1,43 @@
+/* Motion layer. Rule: base styles are the FINAL, visible state; start states live only inside
+   @keyframes with `backwards` fill (applied only during the delay and the run), so a skipped or
+   paused animation never hides content and nothing lingers after it ends.
+   Everything here is switched off under prefers-reduced-motion. */
+
+/* One orchestrated entrance per display: fade + 8px rise, 50 ms apart. The animation runs on the
+   panels themselves, never on a wrapper: an ancestor with opacity < 1 would cut the panels' glass
+   off from the background behind it (backdrop root) and the blur would "pop" in at the end. */
+.reveal > :not(.kpis), .reveal > .kpis > * { animation: reveal-in var(--dur-considered) var(--ease-enter) backwards; animation-delay: calc(var(--i, 0) * 50ms); }
+@keyframes reveal-in { from { opacity: 0; transform: translate3d(0, 8px, 0); } }
+
+/* Rolling figures: each digit rises into its own clipped cell; tabular numerals keep widths fixed. */
+.roll { display: inline-block; white-space: nowrap; }
+.roll-glyphs { display: inline-flex; align-items: baseline; }
+.roll-cell { display: inline-block; overflow: hidden; vertical-align: bottom; height: 1.15em; line-height: 1.15; }
+.roll-digit { display: inline-block; animation: roll-up var(--dur-considered) var(--ease-enter) backwards; animation-delay: calc(120ms + var(--d, 0) * 28ms); }
+.roll-static { display: inline-block; line-height: 1.15; }
+@keyframes roll-up { from { transform: translate3d(0, 105%, 0); opacity: 0; } }
+
+/* Chart: the portfolio line draws itself, the area and comparison line fade in after it. */
+.chart-line:not(.chart-line-dashed) { stroke-dasharray: 1 1; animation: line-draw 900ms var(--ease-enter) backwards; }
+@keyframes line-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.chart-area, .chart-line-dashed { animation: fade-in 700ms var(--ease-standard) backwards; animation-delay: 300ms; }
+@keyframes fade-in { from { opacity: 0; } }
+
+/* Donut slices sweep in by fading, in legend order. */
+.donut-slice { animation: fade-in var(--dur-considered) var(--ease-enter) backwards; }
+.donut-slice:nth-child(2) { animation-delay: 60ms; }
+.donut-slice:nth-child(3) { animation-delay: 120ms; }
+.donut-slice:nth-child(4) { animation-delay: 180ms; }
+.donut-slice:nth-child(5) { animation-delay: 240ms; }
+
+/* Meter fills grow from zero the first time they appear. */
+.meter-fill, .bar-fill { transform-origin: left center; animation: meter-grow 700ms var(--ease-enter) backwards; animation-delay: 200ms; }
+@keyframes meter-grow { from { transform: scaleX(0); } }
+
+/* Hidden tab or preview (html[data-motion="off"], set by the boot script): nothing waits on a frame. */
+html[data-motion='off'] *, html[data-motion='off'] *::before, html[data-motion='off'] *::after { animation: none !important; transition: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal > *, .reveal > .kpis > *, .roll-digit, .chart-line, .chart-area, .chart-line-dashed, .donut-slice, .meter-fill, .bar-fill { animation: none; }
+  .chart-line:not(.chart-line-dashed) { stroke-dasharray: none; }
+}

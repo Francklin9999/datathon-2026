@@ -1,4 +1,7 @@
 import { OwnedElsewhere } from '../../components/common/OwnedElsewhere';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Time Machine' };
 
 // Skeleton only: T15 owns the Time Machine body (web/page-specs/time-machine.md).
 export default function Page() {

@@ -364,19 +364,19 @@ function FrontierChart({ data, lang }: { data: FrontierResponse; lang: Lang }) {
   return (
     <figure>
       <svg viewBox={`0 0 ${W} ${H}`} className="chart" role="img" aria-label={tr({ en: 'Frontier chart; a list of points follows', fr: 'Graphique de frontière ; une liste des points suit' })}>
-        <line x1={x(data.volBudgetPct)} x2={x(data.volBudgetPct)} y1={P / 2} y2={H - P} stroke="#E3A53B" strokeDasharray="4 4" />
-        <polyline points={line(data.minVarFrontier)} fill="none" stroke="#0B5E66" strokeWidth={2} />
-        <polyline points={line(data.histMvFrontier)} fill="none" stroke="#8FA3B6" strokeWidth={2} strokeDasharray="6 4" />
-        {data.assets.map(a => <circle key={a.ticker} cx={x(a.volPct)} cy={y(a.histReturnPct)} r={3} fill="#4A5B6C" />)}
-        <circle cx={x(data.portfolio.volPct)} cy={y(data.portfolio.histReturnPct)} r={6} fill="#12202F" />
-        {data.portfolioAfter && <circle cx={x(data.portfolioAfter.volPct)} cy={y(data.portfolioAfter.histReturnPct)} r={6} fill="#8A1B12" />}
+        <line x1={x(data.volBudgetPct)} x2={x(data.volBudgetPct)} y1={P / 2} y2={H - P} stroke="var(--gold)" strokeDasharray="4 4" />
+        <polyline points={line(data.minVarFrontier)} fill="none" stroke="var(--chart-1)" strokeWidth={2} />
+        <polyline points={line(data.histMvFrontier)} fill="none" stroke="var(--chart-4)" strokeWidth={2} strokeDasharray="6 4" />
+        {data.assets.map(a => <circle key={a.ticker} cx={x(a.volPct)} cy={y(a.histReturnPct)} r={3} fill="var(--text-3)" />)}
+        <circle cx={x(data.portfolio.volPct)} cy={y(data.portfolio.histReturnPct)} r={6} fill="var(--text)" />
+        {data.portfolioAfter && <circle cx={x(data.portfolioAfter.volPct)} cy={y(data.portfolioAfter.histReturnPct)} r={6} fill="var(--conflict-fg)" />}
         <text x={W / 2} y={H - 10} textAnchor="middle" className="chart-axis">{tr({ en: 'Historical annualized volatility (%)', fr: 'Volatilité annualisée historique (%)' })}</text>
         <text x={12} y={H / 2} transform={`rotate(-90 12 ${H / 2})`} textAnchor="middle" className="chart-axis">{tr({ en: 'Historical annualized return (%)', fr: 'Rendement annualisé historique (%)' })}</text>
       </svg>
       <div className="legend">
         <span><span className="swatch" aria-hidden="true" />{tr({ en: 'Risk-only minimum-variance curve', fr: 'Courbe de variance minimale (risque seul)' })}</span>
-        <span><span className="swatch" style={{ background: '#8FA3B6' }} aria-hidden="true" />{tr({ en: 'Historical mean-variance illustration', fr: 'Illustration moyenne-variance historique' })}</span>
-        <span><span className="swatch" style={{ background: '#E3A53B' }} aria-hidden="true" />{tr({ en: 'Volatility budget', fr: 'Budget de volatilité' })} {fmtPct(data.volBudgetPct, lang)}</span>
+        <span><span className="swatch" style={{ background: 'var(--chart-4)' }} aria-hidden="true" />{tr({ en: 'Historical mean-variance illustration', fr: 'Illustration moyenne-variance historique' })}</span>
+        <span><span className="swatch" style={{ background: 'var(--gold)' }} aria-hidden="true" />{tr({ en: 'Volatility budget', fr: 'Budget de volatilité' })} {fmtPct(data.volBudgetPct, lang)}</span>
         <span>● {tr({ en: 'Current portfolio', fr: 'Portefeuille actuel' })} · {data.currency} · {data.window.code}</span>
       </div>
       <details className="small">

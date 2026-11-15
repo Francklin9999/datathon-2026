@@ -1,4 +1,7 @@
 import { OwnedElsewhere } from '../../components/common/OwnedElsewhere';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Agents & System' };
 
 // Skeleton only: T15 owns the Agents & System body (web/page-specs/agents-system.md).
 export default function Page() {
