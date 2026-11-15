@@ -12,6 +12,7 @@ import os
 import re
 import runpy
 import sys
+from datetime import datetime
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -188,6 +189,42 @@ def check_controls(profiles, run):
         close(metrics[name], value, 1e-9, name + " fixture consistency")
 
 
+def check_delivery():
+    """Delivery evidence must exist, retain provenance and cover every AT row."""
+    folder = ROOT / "docs/deliverables"
+    manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
+    report = json.loads((folder / "evidence/report.json").read_text(encoding="utf-8"))
+    acceptance = (folder / "acceptance.md").read_text(encoding="utf-8")
+    rows = re.findall(r"\| (AT-\d{2}) \| P[01] \| (passed|failed|blocked) \|", acceptance)
+    check(len(rows) == 20 and {key for key, _ in rows} ==
+          {f"AT-{n:02d}" for n in range(1, 21)}, "delivery: missing/duplicate acceptance rows")
+    check(report["releaseReady"] is False, "offline gate cannot certify release readiness")
+    check(report["passed"] == (all(stage["exitCode"] == 0 for stage in report["stages"])
+                               and "error" not in report.get("staticExport", {"error": True})),
+          "delivery: inconsistent gate result")
+    files = {artifact["file"] for artifact in manifest["artifacts"]}
+    check({"acceptance.md", "README.md", "demo.md", "technical.md", "one-pager.md",
+           "evidence/report.json", "evidence/http-controls.json"} <= files,
+          "delivery: incomplete artifact manifest")
+    for artifact in manifest["artifacts"]:
+        path = (folder / artifact["file"]).resolve()
+        check(path.is_relative_to(ROOT) and path.is_file(), "delivery: missing/outside artifact")
+        if path.is_relative_to(ROOT) and path.is_file():
+            check(hashlib.sha256(path.read_bytes()).hexdigest() == artifact["sha256"],
+                  f"delivery: changed artifact {artifact['file']}; refresh manifest")
+        check(bool(re.fullmatch(r"[0-9a-f]{40}", artifact["codeRevision"])),
+              "delivery: revision must be a full git hash")
+        captured = datetime.fromisoformat(artifact["capturedAt"].replace("Z", "+00:00"))
+        check(captured.utcoffset() is not None and captured.utcoffset().total_seconds() == 0,
+              "delivery: capture time must be UTC")
+        check(artifact["kind"] in {"runtime", "offline-check", "historical-runtime", "illustrative"},
+              "delivery: unknown evidence kind")
+    for stage in report["stages"]:
+        path = folder / "evidence" / stage["log"]
+        check(path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == stage["sha256"],
+              f"delivery: log hash mismatch {stage['name']}")
+
+
 def main():
     count = check_links()
     profiles = load_fixture("profiles.json")["items"]
@@ -196,6 +233,7 @@ def main():
     check_profiles(profiles)
     check_run(run, profiles)
     check_controls(profiles, run)
+    check_delivery()
     required(world, "items nextCursor total coverage dataVersion", "world response")
     check(world["total"] == len(world["items"]), "world count")
     for event in world["items"]:
@@ -206,6 +244,7 @@ def main():
         print("\n".join("FAIL: " + error for error in ERRORS))
         return 1
     print(f"PASS: {count} specification documents linked; 3 fixtures validated; numeric controls reproduced.")
+    print("PASS: delivery artifact/log hashes and all 20 acceptance rows validated.")
     print("Application runtime, live sources and AWS execution are not verified by this check.")
     return 0
 
