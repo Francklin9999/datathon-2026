@@ -39,6 +39,7 @@ export function briefsOf(result: RunResult | null): Brief[] {
   if (!result) return [];
   switch (result.kind) {
     case 'decision': return [result.decision.brief];
+    case 'rebalance': return [result.rebalance.brief];
     case 'portfolio_brief': return [result.portfolioBrief.brief];
     case 'event_brief': return [result.eventBrief.brief];
     case 'replay': return [result.replay.decision.brief];
@@ -52,6 +53,7 @@ export function ruleChecksOf(result: RunResult | null): RuleCheck[] {
   if (!result) return [];
   switch (result.kind) {
     case 'decision': return result.decision.scenarios.flatMap(s => s.ruleChecks);
+    case 'rebalance': return [...result.rebalance.ruleChecksBefore, ...result.rebalance.ruleChecksAfter];
     case 'replay': return result.replay.decision.scenarios.flatMap(s => s.ruleChecks);
     case 'portfolio_brief': return result.portfolioBrief.ruleChecks;
     default: return [];

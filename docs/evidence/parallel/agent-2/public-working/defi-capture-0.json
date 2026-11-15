@@ -1,0 +1,43 @@
+{
+  "revision": 1,
+  "source": "https://api.dexscreener.com/latest/dex/pairs/ethereum/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+  "raw": "{\"schemaVersion\":\"1.0.0\",\"pairs\":[{\"chainId\":\"ethereum\",\"dexId\":\"uniswap\",\"url\":\"https://dexscreener.com/ethereum/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640\",\"pairAddress\":\"0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640\",\"labels\":[\"v3\"],\"baseToken\":{\"address\":\"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2\",\"name\":\"Wrapped Ether\",\"symbol\":\"WETH\"},\"quoteToken\":{\"address\":\"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48\",\"name\":\"USD Coin\",\"symbol\":\"USDC\"},\"priceNative\":\"1814.4642\",\"priceUsd\":\"1814.46\",\"txns\":{\"m5\":{\"buys\":12,\"sells\":3},\"h1\":{\"buys\":146,\"sells\":173},\"h6\":{\"buys\":857,\"sells\":777},\"h24\":{\"buys\":5073,\"sells\":4227}},\"volume\":{\"h24\":228670519.08,\"h6\":29097249.84,\"h1\":6145258.94,\"m5\":157343.77},\"priceChange\":{\"m5\":0.1,\"h1\":0.52,\"h6\":-1.01,\"h24\":-0.53},\"liquidity\":{\"usd\":75358897.29,\"base\":31996,\"quote\":17301858},\"fdv\":3827206269,\"marketCap\":3833320326,\"pairCreatedAt\":1620250931000,\"info\":{\"imageUrl\":\"https://cdn.dexscreener.com/cms/images/e7ad3f643e8706e541538413f2afad46f18cafb430606caae3c70c0f7425c16e?width=800&height=800&quality=95&format=auto\",\"openGraph\":\"https://cdn.dexscreener.com/token-images/og/ethereum/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2?timestamp=1794763200000\",\"websites\":[],\"socials\":[]}}],\"pair\":{\"chainId\":\"ethereum\",\"dexId\":\"uniswap\",\"url\":\"https://dexscreener.com/ethereum/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640\",\"pairAddress\":\"0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640\",\"labels\":[\"v3\"],\"baseToken\":{\"address\":\"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2\",\"name\":\"Wrapped Ether\",\"symbol\":\"WETH\"},\"quoteToken\":{\"address\":\"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48\",\"name\":\"USD Coin\",\"symbol\":\"USDC\"},\"priceNative\":\"1814.4642\",\"priceUsd\":\"1814.46\",\"txns\":{\"m5\":{\"buys\":12,\"sells\":3},\"h1\":{\"buys\":146,\"sells\":173},\"h6\":{\"buys\":857,\"sells\":777},\"h24\":{\"buys\":5073,\"sells\":4227}},\"volume\":{\"h24\":228670519.08,\"h6\":29097249.84,\"h1\":6145258.94,\"m5\":157343.77},\"priceChange\":{\"m5\":0.1,\"h1\":0.52,\"h6\":-1.01,\"h24\":-0.53},\"liquidity\":{\"usd\":75358897.29,\"base\":31996,\"quote\":17301858},\"fdv\":3827206269,\"marketCap\":3833320326,\"pairCreatedAt\":1620250931000,\"info\":{\"imageUrl\":\"https://cdn.dexscreener.com/cms/images/e7ad3f643e8706e541538413f2afad46f18cafb430606caae3c70c0f7425c16e?width=800&height=800&quality=95&format=auto\",\"openGraph\":\"https://cdn.dexscreener.com/token-images/og/ethereum/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2?timestamp=1794763200000\",\"websites\":[],\"socials\":[]}}}",
+  "result": {
+    "status": "available",
+    "provider": "dexscreener",
+    "source_url": "https://api.dexscreener.com/latest/dex/pairs/ethereum/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+    "source_sha256": "56f687e87ed4c8297bea08ab533a0ba4c3ae8ec0da44c73a55d4e0bf83b8accb",
+    "dataset_version": "dexscreener-56f687e87ed4c829",
+    "retrieved_at": "2026-11-15T17:22:31.635377+00:00",
+    "available_at": "2026-11-15T17:22:31.635377+00:00",
+    "published_at": null,
+    "observation": {
+      "chain": "ethereum",
+      "pool_address": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+      "dex_id": "uniswap",
+      "base": {
+        "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "symbol": "WETH",
+        "name": "Wrapped Ether"
+      },
+      "quote": {
+        "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "symbol": "USDC",
+        "name": "USD Coin"
+      },
+      "price_usd": "1814.46",
+      "price_native": "1814.4642",
+      "liquidity_usd": "75358897.29",
+      "volume_24h_usd": "228670519.08",
+      "price_change_24h_pct": "-0.53",
+      "fully_diluted_valuation_usd": "3827206269",
+      "market_cap_usd": "3833320326",
+      "pool_created_at": "2021-05-05T21:42:11+00:00"
+    },
+    "limitations": [
+      "Provider-reported estimates, not verified on-chain or an executable price.",
+      "Availability before capture and later revisions are unknown.",
+      "Token symbols are labels, not security or issuer identities."
+    ]
+  }
+}

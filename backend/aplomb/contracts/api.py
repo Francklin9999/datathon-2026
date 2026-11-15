@@ -490,6 +490,15 @@ class CreateDecisionRunRequest(WireModel):
     window: WindowSpec = None
 
 
+class CreateRebalanceRunRequest(WireModel):
+    kind: Literal["rebalance"]
+    profile_id: ProfileId
+    profile_version: Annotated[int, Field(strict=True, ge=1)]
+    lang: Lang
+    positions: Annotated[list[Position], Field(min_length=1, max_length=40)]
+    window: WindowSpec = None
+
+
 class CreatePortfolioBriefRunRequest(WireModel):
     kind: Literal["portfolio_brief"]
     profile_id: ProfileId
@@ -525,6 +534,7 @@ CreateRunRequest = TypeAliasType(
     "CreateRunRequest",
     Annotated[
         CreateDecisionRunRequest
+        | CreateRebalanceRunRequest
         | CreatePortfolioBriefRunRequest
         | CreateEventBriefRunRequest
         | CreateReplayRunRequest

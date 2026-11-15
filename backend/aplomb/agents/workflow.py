@@ -18,7 +18,7 @@ from aplomb.contracts import models as m
 
 from .limits import BudgetExceeded, Limits
 from .models import AnalysisPlan, ModelGateway, ResearchActions, WriterDraft
-from .registry import QUANT, RESEARCH, RISK, ToolContext, ToolRegistry, ToolResult
+from .registry import QUANT, RESEARCH, RISK, ToolContext, ToolRegistry, ToolResult, safe_tool_error
 
 # A browser session and up to five pages (aplomb.research.tools); the browse itself stops at 36 s.
 BROWSE_TOOL_SECONDS = 40
@@ -68,6 +68,8 @@ class AgentServices:
     max_llm_calls: int = 12
     max_research_calls: int = 12
     max_revisions: int = 2
+    candidate_provider: object = None
+    event_relationship_provider: object = None
 
 
 class Execution:
@@ -87,6 +89,22 @@ class Execution:
         self.current = None
         self.ctx = None
         self.step_delta = {"facts": 0, "evidence": 0}
+        claims = state.get("claims", [])
+        if claims or record.run.steps:
+            done = sum(1 for x in record.run.steps if x.status == "done")
+            self.event("resumed", generation=record.generation, completedSteps=done,
+                       cachedSteps=len(state.get("step_outputs", {})))
+        claims.append(record.generation)
+        state["claims"] = claims[-20:]
+
+    MAX_EVENTS = 200
+
+    def event(self, kind, **data):
+        """Append a bounded, code-authored trace event (no provider or model text)."""
+        events = self.state.setdefault("events", [])
+        if len(events) >= self.MAX_EVENTS:
+            return
+        events.append({"type": kind, "at": timestamp(self.services.clock()), "step": self.current, **data})
 
     @property
     def run(self):
@@ -136,6 +154,7 @@ class Execution:
                     for key in ("llm_calls", "research_calls", "revisions", "rewrites", "scenarios")
                 }
             )
+            self.state["checkpoints"] = self.state.get("checkpoints", 0) + 1
             private["agents"] = self.state
             payload = self.run.to_wire()
             payload.update(changes)
@@ -178,6 +197,10 @@ class Execution:
         key = f"{kind}:{iteration}"
         saved = self.state.get("step_outputs", {}).get(key)
         if saved is not None:
+            reused = self.state.setdefault("reused_steps", [])
+            if key not in reused:
+                reused.append(key)
+                self.event("step_reused_from_checkpoint", stepKey=key)
             return _decode_output(saved)
         pending = next(
             (
@@ -215,7 +238,8 @@ class Execution:
         start = time.monotonic()
         try:
             output = function()
-        except Exception:
+        except Exception as exc:
+            self.event("step_failed", stepType=kind, errorType=type(exc).__name__)
             self.end_step(seq, start, "failed")
             raise
         # A completed step is ONE checkpoint: ledger state (possibly frozen by the audit), cached
@@ -288,6 +312,7 @@ class Execution:
         ).hexdigest()
         cached = self.state.get("model_outputs", {}).get(key)
         if cached is not None:
+            self.event("model_output_reused", role=role)
             return schema.model_validate(cached)
         before = self.limits.llm_calls
         try:
@@ -309,6 +334,7 @@ class Execution:
             actual = getattr(exc, "aplomb_usage", None)
             if actual:
                 self.state["model_calls"][-1].update(actual)
+                self._attempt_events(role, actual.get("attempts") or [], actual.get("fallback"))
                 usage = self.run.usage.to_wire()
                 usage["inputTokens"] += actual.get("input_tokens", 0)
                 usage["outputTokens"] += actual.get("output_tokens", 0)
@@ -349,8 +375,11 @@ class Execution:
                 "output_tokens": reply.output_tokens,
                 "calls": reply.calls,
                 "provider_usage": reply.provider_usage,
+                "attempts": list(getattr(reply, "attempts", ()) or ()),
+                "fallback": getattr(reply, "fallback", None),
             }
         )
+        self._attempt_events(role, getattr(reply, "attempts", ()) or (), getattr(reply, "fallback", None))
         usage = self.run.usage.to_wire()
         usage["inputTokens"] += reply.input_tokens
         usage["outputTokens"] += reply.output_tokens
@@ -358,6 +387,16 @@ class Execution:
         self.state.setdefault("model_outputs", {})[key] = output.model_dump(mode="json")
         self.save(steps=steps, usage=usage)
         return output
+
+    def _attempt_events(self, role, attempts, fallback):
+        for item in attempts:
+            if item.get("next") == "retry":
+                self.event("model_retry", role=role, model=item.get("model"), reason=item.get("errorCode"))
+            elif item.get("next") == "repair":
+                self.event("model_schema_repair", role=role, model=item.get("model"))
+        if fallback:
+            self.event("model_fallback", role=role, fromModel=fallback.get("from"), toModel=fallback.get("to"),
+                       reason=fallback.get("reason"))
 
     def context_call(self, ctx, function, timeout):
         # Late timed-out threads own only a discarded isolated ledger/context.
@@ -383,7 +422,7 @@ class Execution:
             if isinstance(result, dict):
                 result = ToolResult(**result)
         except Exception as exc:
-            result = ToolResult(False, "Tool did not complete", error=str(exc)[:300])
+            result = ToolResult(False, "Tool did not complete", error=safe_tool_error(exc))
         steps = self.run.to_wire()["steps"]
         calls = steps[self.current - 1]["toolCalls"]
         calls.append(
@@ -417,11 +456,11 @@ class Execution:
         if report is not None:
             self.state["failed_audit"] = report.to_wire()
         code, message = failure_of(exc)
+        self.event("run_failed", code=code, errorType=type(exc).__name__)
         logger = self.services.logger
         if logger is not None:
-            # Full detail (it can name accounts, roles or internals) goes to the server log only.
-            logger.error("Run failed", extra={"run_id": self.run.run_id, "exception_type": type(exc).__name__,
-                                              "detail": str(exc)[:1000]})
+            # Provider exceptions can contain credentials or untrusted source text.
+            logger.error("Run failed", extra={"run_id": self.run.run_id, "exception_type": type(exc).__name__})
         error = ServiceError(code, message).envelope(self.run.run_id).error.to_wire()
         self.save(status="failed", question=None, result=None, error=error)
 
@@ -536,7 +575,7 @@ def _execute(e):
         result = e.step("sign", "auditor", "code", sign_draft)
         e.save(status="succeeded", result=result.to_wire())
         return
-    if run.kind not in {"decision", "replay", "portfolio_brief", "event_brief"}:
+    if run.kind not in {"decision", "rebalance", "replay", "portfolio_brief", "event_brief"}:
         raise ServiceError("upstream_unavailable", f"{run.kind} provider unavailable; capability disabled")
     if run.kind == "replay" and services.replay_result_factory is None:
         raise ServiceError("upstream_unavailable", "Replay gate/reveal result provider unavailable; capability disabled")
@@ -597,7 +636,7 @@ def _execute(e):
         )
         e.state["plan"] = plan.model_dump(mode="json")
         e.save()
-    if run.kind in {"portfolio_brief", "event_brief"}:
+    if run.kind in {"portfolio_brief", "event_brief", "rebalance"}:
         # A brief has no confirmed request to clarify and tests no alternative scenario.
         update = {"clarification": None, "scenario_tasks": [], "revise": False}
         if run.kind == "portfolio_brief":
@@ -667,9 +706,9 @@ def _execute(e):
                         )
                     if actions.done or not actions.actions:
                         break
-            except BudgetExceeded:
+            except (BudgetExceeded, ServiceError):
                 e.state.setdefault("execution_limitations", []).append(
-                    "Optional research budget exhausted; evidence gaps remain"
+                    "Optional research did not complete within its budget or provider availability; evidence gaps remain"
                 )
             e.state["research_done"] = True
 
@@ -677,6 +716,9 @@ def _execute(e):
 
     if run.kind == "event_brief":
         _event_brief(e, ctx)
+        return
+    if run.kind == "rebalance":
+        _review_rebalance(e, ctx)
         return
     request = run.input.request if run.kind in {"decision", "replay"} else None
     if answered is not None:
@@ -773,6 +815,80 @@ def _execute(e):
         e.state["outcome"] = _dump_outcome(outcome)
         e.save()
     _write_sign(e, ctx, outcome)
+
+
+def _register_rebalance(ctx, comparison):
+    """Copy the deterministic local ledger into this run, rewriting every dependency and reference."""
+    raw = copy.deepcopy(comparison)
+    source_facts = raw.pop("facts")
+    mapping = {}
+    pending = dict(source_facts)
+    while pending:
+        progressed = False
+        for old_id, fact in list(pending.items()):
+            dependencies = fact.get("inputs", [])
+            if not all(item in mapping for item in dependencies):
+                continue
+            body = dict(fact)
+            body.pop("id", None)
+            body["inputs"] = [mapping[item] for item in dependencies]
+            mapping[old_id] = ctx.ledger.add_fact(body)
+            del pending[old_id]
+            progressed = True
+        if not progressed:
+            raise ValueError("Rebalance ledger contains unresolved fact dependencies")
+
+    def remap(value):
+        if isinstance(value, dict):
+            return {key: remap(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [remap(item) for item in value]
+        return mapping.get(value, value) if isinstance(value, str) else value
+
+    raw = remap(raw)
+    # This deterministic-only note belongs to the standalone endpoint; the run performs review.
+    raw["assumptions"] = raw["assumptions"][:2]
+    return raw
+
+
+def _review_rebalance(e, ctx):
+    def import_comparison():
+        before = set(ctx.ledger.export().facts)
+        comparison = e.context_call(ctx, lambda isolated: _register_rebalance(isolated, e.record.private["rebalance"]), 30)
+        receipt = e.record.private.get("rebalanceReceipt")
+        if receipt:
+            steps = e.run.to_wire()["steps"]
+            calls = steps[e.current - 1]["toolCalls"]
+            if not any(call["id"] == "prepared-rebalance" for call in calls):
+                calls.append(m.ToolCall(id="prepared-rebalance", tool="check.rebalance",
+                    args={"phase": "run preparation", "profileVersion": comparison["profileVersion"],
+                          "targetCount": len(comparison["changes"])}, started_at=receipt["startedAt"],
+                    duration_ms=receipt["durationMs"], ok=True,
+                    result_summary="Deterministic target comparison executed at preparation; facts imported into run ledger.",
+                    datasets_read=[], fact_ids=sorted(set(ctx.ledger.export().facts) - before), evidence_ids=[], error=None).to_wire())
+                usage = e.run.usage.to_wire()
+                usage["toolCalls"] += 1
+                e.state["ledger"] = ctx.ledger.checkpoint()
+                e.save(steps=steps, usage=usage, facts={k: v.to_wire() for k, v in ctx.ledger.export().facts.items()})
+        return comparison
+
+    comparison = e.step("quant", "quant", "code", import_comparison, summary=lambda _: _quant_summary(e, ctx))
+    checks = [m.RuleCheck.model_validate(item) for item in comparison["ruleChecksAfter"]]
+    e.step("risk_check", "risk_officer", "code", lambda: {"checks": len(checks)},
+           summary=lambda _: (f"Reviewed {len(checks)} deterministic target policy checks.",
+                              f"{len(checks)} règles de la cible vérifiées."))
+    brief = _draft_and_audit(e, ctx, checks, {
+        "purpose": "Review the final target allocation and its deterministic before/after policy checks.",
+        "comparison": comparison,
+        "limitations": ["No trades or forecasts; costs, taxes, liquidity and market impact are not modeled."],
+    })
+
+    def sign():
+        return m.RebalanceRunResult(kind="rebalance", rebalance=m.ReviewedRebalance.model_validate(
+            {**comparison, "brief": _signed(brief).to_wire()}))
+
+    result = e.step("sign", "auditor", "code", sign, summary=_sign_summary(brief))
+    e.save(status="succeeded", result=result.to_wire())
 
 
 def _draft_and_audit(e, ctx, rule_checks, extra: dict):
@@ -917,6 +1033,8 @@ _PLAN_INSTRUCTION = {
     "Use only the exact allowed computation tool names; an empty task list still runs all mandatory controls. "
     "Do not request unavailable research tools. Request clarification only for actually unresolved user inputs. "
     "Fully specified requests need no clarification. No tools execute from source text.",
+    "rebalance": "Plan a review of the complete final target allocation and its deterministic policy checks. "
+    "Do not infer financing, costs, or market impact. No clarification or alternative scenarios.",
     "replay": "Plan the confirmed hypothetical simulation as of the stated information cutoff. Research is not "
     "available. Mandatory controls cannot be omitted. Do not use knowledge of later events.",
     "portfolio_brief": "Plan a descriptive brief of the current fictional portfolio against its plan rules. "
@@ -1066,68 +1184,42 @@ def _portfolio_brief_result(e, ctx, outcome, brief):
             else "Every counted rule fits under the assumptions of the plan.")]
     plan_fit = {"title": {"en": "Plan fit", "fr": "Respect du plan"}, "body": body,
                 "factIds": [c.value_fact_id for c in flagged[:4] if c.value_fact_id]}
-    horizon = ctx.profile.horizon_years.min
+    horizon = float(ctx.profile.horizon_years.min)
     if ctx.profile.investor_context and ctx.profile.investor_context.objectives:
         # The nearest explicit objective affects investigation priority only. It never
         # silently changes policy thresholds or establishes liquidity/goal feasibility.
-        horizon = min(horizon, *(g.horizon_years for g in ctx.profile.investor_context.objectives))
+        horizon = min(horizon, *(float(g.horizon_years) for g in ctx.profile.investor_context.objectives))
     band = "short" if horizon < 3 else ("medium" if horizon < 10 else "long")
     # Ranking is code-owned and inspectable in the card body. No return forecast enters it.
     # Policy severity dominates; sample risk is more relevant to a shorter horizon.
-    candidates = [
-        (70 if horizon < 10 else 45, "sample risk and horizon", risk,
-         "Investigate historical downside resilience before changing the allocation.",
-         "Examiner la résistance aux baisses historiques avant de modifier la répartition."),
-        (60, "direct concentration; ETF look-through remains unknown", concentration,
-         "Investigate issuer overlap inside ETFs; direct positions do not establish underlying diversification.",
-         "Examiner les émetteurs communs aux FNB; les positions directes ne prouvent pas la diversification sous-jacente."),
-    ]
-    if flagged:
-        severity = 100 if any(c.status == "conflict" for c in flagged) else (90 if any(c.status == "tension" for c in flagged) else 55)
-        candidates.append((severity, "policy status or missing evidence", plan_fit,
-                           "Inspect the flagged rules and their evidence before testing a move.",
-                           "Examiner les règles signalées et leurs preuves avant de tester un mouvement."))
+    from . import focus
+    from .bridges import candidate_findings
+
     bonds = [f for f in facts.values() if f.metric == "weight.asset_group" and f.subject.id == "fixed_income"
              and f.verification.status == "verified" and f.value > 0]
     has_bonds = any(group.key == "fixed_income" and group.weight_pct > 0 for group in check.portfolio_before.by_asset_group)
+    cards = {"risk": risk, "concentration": concentration, "plan": plan_fit}
     if has_bonds:
-        bond = card("BOND", "Interest-rate evidence", "Preuves sur les taux", [
+        cards["fixed_income"] = card("BOND", "Interest-rate evidence", "Preuves sur les taux", [
             ("Revenu fixe" if fr else "Fixed income", bonds[0].id if bonds else None),
         ])
-        candidates.append((75 if horizon < 10 else 50, "fixed-income exposure and horizon; duration unavailable", bond,
-                           "Investigate bond duration and credit quality; neither is established by asset-class weight.",
-                           "Examiner la duration et la qualité du crédit; le poids de la catégorie ne les établit pas."))
-    candidates.append((10, "baseline policy assessment", plan_fit,
-                       "Review policy assumptions and missing evidence before the next investigation.",
-                       "Revoir les hypothèses du plan et les preuves manquantes avant la prochaine recherche."))
-    selected, seen = [], set()
-    for score, rationale, focus, action_en, action_fr in sorted(candidates, key=lambda x: -x[0]):
-        if focus["title"]["en"] in seen:
-            continue
-        seen.add(focus["title"]["en"])
-        priority = len(selected) + 1
-        focus["body"].append(_text_sentence(f"C-FOCUS-{priority}-ACTION", action_fr if fr else action_en))
-        topic = focus["title"]["en"]
-        if topic == "Risk in this sample":
-            en = "Consider whether the sample's drawdowns are tolerable over the investor's horizon."
-            french = "Examiner si les baisses de l'échantillon sont tolérables à l'horizon de l'investisseur."
-        elif topic == "Concentration":
-            en = "Investigate whether concentrated exposures fit the investor's horizon and capacity for losses."
-            french = "Examiner si la concentration convient à l'horizon et à la capacité de perte de l'investisseur."
-        elif topic == "Interest-rate evidence":
-            en = "Compare bond characteristics with the investor's horizon; duration is not established here."
-            french = "Comparer les caractéristiques obligataires à l'horizon de l'investisseur; la duration n'est pas établie ici."
-        else:
-            en = "Review whether the policy assumptions reflect the investor's horizon."
-            french = "Examiner si les hypothèses du plan reflètent l'horizon de l'investisseur."
-        focus["body"].append(_text_sentence(f"C-FOCUS-{priority}-HORIZON", french if fr else en))
-        # This explains ordering; it is a code-owned heuristic, not a verified market claim.
-        focus["body"].append(_text_sentence(f"C-FOCUS-{priority}-RANK",
-            f"Code heuristic score {score}: {rationale}." if not fr else
-            f"Score heuristique du système : {score}; ce classement n'est pas une mesure financière."))
-        selected.append(focus)
-        if len(selected) == 3:
-            break
+    candidates = focus.built_in_candidates(run_id=e.run.run_id, profile=ctx.profile, check=check, cards=cards,
+                                           flagged=flagged, base_horizon=horizon)
+    try:
+        findings = candidate_findings(e.services.candidate_provider, ctx.profile, outcome, ctx.ledger)
+    except Exception:
+        findings = []
+        e.state.setdefault("execution_limitations", []).append(
+            "Candidate provider failed validation; built-in deterministic priorities were used.")
+    risk_rows = [
+        ("Plus forte baisse" if fr else "Largest fall", metric_ids.get("maxDrawdown")),
+        ("Volatilité annualisée" if fr else "Annualized volatility", metric_ids.get("volatility")),
+    ]
+    candidates += focus.objective_candidates(
+        profile=ctx.profile, risk_rows=risk_rows, make_card=card,
+        include=frozenset(f.objective for f in findings if f.objective))
+    focus.apply_provider(candidates, findings, facts=facts, fact_sentence=_fact_sentence, lang=e.run.lang)
+    selected = focus.select(candidates, lang=e.run.lang, text_sentence=_text_sentence)
     return m.PortfolioBriefResult.model_validate({
         "snapshot": check.portfolio_before.to_wire(), "ruleChecks": [c.to_wire() for c in check.rule_checks],
         "verdict": check.verdict, "counts": check.counts.to_wire(), "focusCards": selected,
@@ -1199,7 +1291,49 @@ def _event_brief(e, ctx):
         x.model_copy(update={"impact": "measured_price_move", "impact_fact_id": moves[x.ticker]}) if x.ticker in moves else x
         for x in exposures
     ]
+    from datetime import date
+
+    from .bridges import event_hypotheses
+
+    provider = e.services.event_relationship_provider
+    review_limitations = [{
+        "en": "Geographic proximity or a shared name is not causation; financial impact is not established.",
+        "fr": "La proximité géographique ou un nom commun n'est pas une cause; l'effet financier n'est pas établi."}]
+    try:
+        with ctx.ledger.transaction():
+            hypotheses = event_hypotheses(provider, event, profile, date.fromisoformat(str(ctx.as_of)), ctx.ledger)
+        review_status = "not_configured" if provider is None else ("documented" if hypotheses else "none_found")
+    except Exception:
+        hypotheses = []
+        review_status = "failed"
+        e.state.setdefault("execution_limitations", []).append(
+            "Event relationship provider failed validation; no additional relationship was asserted.")
+        review_limitations.append({
+            "en": "The relationship source failed validation or was unavailable; no relationship was asserted.",
+            "fr": "La source de relations a échoué à la validation ou était indisponible; aucune relation n'est affirmée."})
+    if review_status == "not_configured":
+        review_limitations.append({
+            "en": "No documented event-to-issuer relationship source is connected for this run.",
+            "fr": "Aucune source documentée de liens événement-émetteur n'est connectée pour cette analyse."})
+    elif review_status == "none_found":
+        review_limitations.append({
+            "en": "No directly documented, date-eligible relationship was found; absence is not proof of no exposure.",
+            "fr": "Aucun lien directement documenté et disponible à la date n'a été trouvé; cela ne prouve pas l'absence d'exposition."})
+    relationship_review = {
+        "status": review_status,
+        "hypotheses": [{
+            "securityId": h["security_id"], "issuerId": h["issuer_id"], "evidenceIds": h["evidence_ids"],
+            # The adapter only ever returns not_established; enforce it again at the wire boundary.
+            "impact": "not_established",
+            "interpretation": {"en": "Documented relationship; financial impact is not established.",
+                               "fr": "Relation documentée; l'effet financier n'est pas établi."},
+        } for h in hypotheses],
+        "limitations": review_limitations,
+    }
+    if hypotheses:
+        e.state["ledger"] = ctx.ledger.checkpoint()
     brief = _draft_and_audit(e, ctx, [], {
+        "documented_hypotheses": hypotheses,
         "event": event.to_wire(), "code_matched_holdings": [x.to_wire() for x in final],
         "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"] + (["LIM_PRICE_MOVE_NOT_CAUSAL"] if moves else []),
         "measured_impact_fact_ids": sorted(moves.values()),
@@ -1210,7 +1344,8 @@ def _event_brief(e, ctx):
 
     def sign():
         statement = IMPACT_MEASURED if moves else IMPACT_NOT_ESTABLISHED if final else NO_LINKED_HOLDING
-        return m.EventBriefResult(event=event, exposures=final, brief=_signed(brief), impact_statement=statement)
+        return m.EventBriefResult(event=event, exposures=final, brief=_signed(brief), impact_statement=statement,
+                                  relationship_review=m.EventRelationshipReview.model_validate(relationship_review))
 
     result = e.step("sign", "auditor", "code", sign, summary=_sign_summary(brief))
     e.save(status="succeeded", result=m.EventBriefRunResult(kind="event_brief", event_brief=result).to_wire())
@@ -1315,6 +1450,7 @@ def _decode_output(saved):
             m.ProfileDraftResult,
             m.ProfileDraftRunResult,
             m.DecisionResult,
+            m.RebalanceRunResult,
             m.PortfolioBriefResult,
             m.EventBriefResult,
             m.Brief,

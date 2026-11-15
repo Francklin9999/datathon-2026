@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 from typing import Callable
 
+from aplomb.contracts.catalog import AuditCheckCode
 from aplomb.contracts.models import (
     AuditReport,
     Brief,
@@ -277,19 +278,27 @@ def relation_matches_plain_comparison(sentence: Sentence, relation: Relation) ->
     if len(indices) != 2:
         return True
     left, right = (segments[i].fact_id for i in indices)
-    if {relation.left_fact_id, relation.right_fact_id} != {left, right}:
-        return True  # another typed relation may describe a different proposition
+    right_id = relation.right_fact_id
+    if relation.literal_token:
+        token = TOKEN.fullmatch(relation.literal_token)
+        right_id = token[2] if token and token[1] == "fact" else None
+    if left == right or {relation.left_fact_id, right_id} != {left, right}:
+        return False  # A true self-comparison cannot authenticate a different assertion.
     between = normalized(" ".join(segment.text for segment in segments[indices[0] + 1:indices[1]]
                                    if segment.t == "text"))
-    if re.search(r"\b(?:not|no|never|pas|non|ne)\b", between):
+    lower = bool(re.search(r"\b(?:lower|less|below|inferieur|inferieure|moins)\b|en[\s-]+dessous", between))
+    higher = bool(re.search(r"\b(?:higher|greater|above|more|exceeds|superieur|superieure|plus|depasse)\b|au[\s-]+dessus", between))
+    inclusive = bool(re.search(r"\b(?:or equal|ou egal)\b", between))
+    equality = bool(re.search(r"\b(?:equal|equals|egal|egale)\b", between)) and not inclusive
+    if sum((lower, higher, equality)) != 1:
         return True
-    lower = bool(re.search(r"\b(?:lower|less|below|inferieur|inferieure)\b", between))
-    higher = bool(re.search(r"\b(?:higher|greater|above|superieur|superieure)\b", between))
-    if lower == higher:
-        return True
-    expected = "<" if lower else ">"
+    expected = "==" if equality else "<" if lower else ">"
+    if inclusive:
+        expected = "<=" if lower else ">="
+    if re.search(r"\b(?:not|never|pas|non)\b", between):
+        expected = {"<": ">=", ">": "<=", "<=": ">", ">=": "<", "==": "!="}[expected]
     if relation.left_fact_id == right:
-        expected = ">" if expected == "<" else "<"
+        expected = {"<": ">", ">": "<", "<=": ">=", ">=": "<=", "==": "==", "!=": "!="}[expected]
     return relation.operator == expected
 
 
@@ -459,7 +468,7 @@ def audit_and_sign(
                 for sid in item["sentenceIds"]:
                     sentence = by_id[sid]
                     sentence.audit.status = "struck"
-                    sentence.audit.failed_checks.append(item["code"])
+                    sentence.audit.failed_checks.append(AuditCheckCode(item["code"]))
         # Append only limitations of citations which survive audit; code strings are trusted.
         limitations = sorted(
             {

@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.16, pytest-9.2.0, pluggy-1.7.0
+rootdir: /home/francklin99/Desktop/Coding/datathon-2026/.worktrees/research-audit
+configfile: pyproject.toml
+plugins: anyio-4.16.0
+collected 2 items
+
+backend/tests/integration/test_run_composition.py .                      [ 50%]
+backend/tests/unit/timemachine/test_timemachine.py .                     [100%]
+
+============================== 2 passed in 4.06s ===============================

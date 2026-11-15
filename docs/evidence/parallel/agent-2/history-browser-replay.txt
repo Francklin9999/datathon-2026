@@ -1,0 +1,322 @@
+lue)
+Added amount, not a target weight. 0 shows the current portfolio.
+Run the replay
+
++5 points of TSLA, Compare funding options, cutoff Dec 30, 2022
+
+Run historical replay
+Replay
+
+Information cutoff: Dec 30, 2022
+
+Only data available on this date is used. Later outcomes stay hidden until you reveal them.
+
+Request: +5 points of TSLA · Compare funding options · created Nov 15, 2026, 04:19 p.m. UTC
+
+✕
+Conflict
+
+2
+1 conflict
+1
+1 tension
+5
+3 fit
+0
+0 not enough evidence
+3
+2 information
+
+Largest size before the first rule conflict
+0.0 pts
+0.0 pts
+Tension or missing evidence can remain at this size. At the requested size: 1 tension, 0 not enough evidence.
+
+Notices for this replay
+
+The language model may know what happened after the selected date. Numbers come from date-filtered data, but wording could reflect later knowledge.
+Computed on the available window only (from 2021-11-12 in the starter data). Other periods would give different values.
+The asset universe was chosen in 2026 among names that are large today, which flatters historical results.
+Prices come from Yahoo Finance and are not exchange-certified. Adjusted closes change when data is re-downloaded.
+US macro values are the latest revised figures, not as first published.
+Date gate: what the run could and could not read
+Rule checks at the cutoff (selected scenario)
+
+Checks without enough data at the cutoff stay listed as not enough evidence.
+
+Rule checks at the information cutoff
+Rule	Value	Threshold	Headroom	Status
+
+R1No single stock or crypto asset above 10.0% of the portfolio
+Details
+	
+4.8%
+3.2%	≤ 
+10.0%
+6.6%	5.2%	
+✓
+Fit
+
+R2No sector above 20.0% of the portfolio (directly held stocks)
+Details
+	
+4.8%
+3.2%	≤ 
+20.0%
+13.3%	15.2%	
+✓
+Fit
+
+R3Stocks, equity funds and crypto together at most 35.0%
+Details
+	
+49.5%
+32.8%	≤ 
+35.0%
+23.2%	-14.5%	
+✕
+Conflict
+
+R4Keep bonds and cash at 55.0% or more
+Details
+	
+47.6%
+31.6%	≥ 
+55.0%
+36.5%	-7.4%	
+✕
+Conflict
+
+R5Portfolio volatility at most 9.0% a year
+Details
+	
+8.8%
+5.8%	≤ 
+9.0%
+6.0%	0.2%	
+!
+Tension
+
+R6A repeat of 2022 may cost at most 9.0% of the portfolio
+Details
+	
+8.1%
+5.4%	≤ 
+9.0%
+6.0%	0.9%	
+✓
+Fit
+
+R7Largest historical peak-to-trough fall at most 18.0%
+Details
+	
+10.4%
+6.9%	≤ 
+18.0%
+11.9%	7.6%	
+✓
+Fit
+
+R8No crypto assets
+Details
+	
+0.0%
+0.0%	= 
+0.0%
+0.0%	—	
+✓
+Fit
+
+R9Show when the requested asset is drawing unusual public attention
+Details
+	—	—	—	
+i
+Information
+
+R10Show how the portfolio behaved while interest rates rose
+Details
+	—	—	—	
+i
+Information
+
+R11Simulation only: no order is ever placed
+Details
+	—	—	—	
+i
+Information
+Before and after (selected scenario, at the cutoff)
+Metric (CAD)	Before	After (hypothetical)
+Annualized volatility (historical)	
+7.4%
+4.9%	
+8.8%
+5.8%
+Maximum drawdown (positive loss)	
+9.6%
+6.4%	
+10.4%
+6.9%
+2022 replay return (signed)	
+−4.7%
+−3.1%	
+−8.1%
+−5.4%
+Fictional portfolio value	CAD 600,000	CAD 630,000
+Holding	Before	After
+XBB.TO	30.0%	28.6%
+XIU.TO	15.0%	14.3%
+ZST.TO	15.0%	14.3%
+SPY	10.0%	9.5%
+AGG	5.0%	4.8%
+FTS.TO	5.0%	4.8%
+RY.TO	5.0%	4.8%
+ENB.TO	4.0%	3.8%
+JNJ	4.0%	3.8%
+PG	4.0%	3.8%
+GLD	3.0%	2.9%
+TSLA	—	4.8%
+Hypothetical scenarios
+
+Requested move
+
+Requested: 5 points into TSLA
+selected scenario
+✕
+Conflict
+
+2
+1 conflict
+1
+1 tension
+5
+3 fit
+0
+0 not enough evidence
+3
+2 information
+
+TSLA +5.0 pts, New money
+
+The move as confirmed by the user.
+
+Key facts: 
+49.52%
+32.82%
+47.62%
+31.56%
+8.84% (2021-11-12 – 2022-12-30)
+5.86% (2021-11-12 – 2022-12-30)
+
+Rule checks for this scenario
+
+Rebalance
+
+Rebalance in 1 move(s)
+!
+Tension
+
+0
+0 conflict
+1
+1 tension
+7
+5 fit
+0
+0 not enough evidence
+3
+2 information
+
+AGG +25.0 pts, Pro-rata from all holdings
+
+Few, small hypothetical moves toward broad funds, bonds, gold or cash that remove every rule conflict (bounded greedy search).
+
+Key facts: 
+34.63%
+22.94%
+
+Rule checks for this scenario
+Hypothetical funding comparison
+Funding	Verdict	Boundary	Note
+New moneybest fit in this comparison	
+✕
+Conflict	0.0 pts	Keeps the plan most intact among the feasible hypothetical funding modes (fewest conflicts, then tensions).
+From named holdings: XIU.TO	
+✕
+Conflict	0.0 pts	Ranked 2 of the feasible funding modes. Donors, in order: XIU.TO.
+Pro-rata from all holdings	
+✕
+Conflict	0.0 pts	Ranked 3 of the feasible funding modes.
+From cash	Not feasible: Cash positions total 0.00 points, less than the 5 points needed.	—	Not feasible for this size.
+Audited brief (written with the cutoff data)
+Facts
+
+A computed figure of this simulation is 
+7.39% (2021-11-12 – 2022-12-30)
+4.89% (2021-11-12 – 2022-12-30).
+
+A computed figure of this simulation is 
+9.60% (2021-11-12 – 2022-12-30)
+6.36% (2021-11-12 – 2022-12-30).
+
+A computed figure of this simulation is 
+−4.70% (2021-12-31 – 2022-12-30)
+−3.11% (2021-12-31 – 2022-12-30).
+
+Assumptions
+
+R3 is in conflict under an assumed threshold.
+
+R4 is in conflict under an assumed threshold.
+
+R5 is in tension under an assumed threshold.
+
+Limits
+
+This is a simulation and the figures describe a historical sample only.
+
+Only days when both the Canadian and US markets were open are used; crypto weekend moves appear on the next trading day.
+
+Portfolio history applies today’s weights to past returns, rebalanced daily. It is not what an actual investor would have earned.
+
+USD/CAD uses the Bank of Canada daily rate; on days without a published rate the previous rate is carried forward.
+
+Computed on the available window only (from 2021-11-12 in the starter data). Other periods would give different values.
+
+The asset universe was chosen in 2026 among names that are large today, which flatters historical results.
+
+Prices come from Yahoo Finance and are not exchange-certified. Adjusted closes change when data is re-downloaded.
+
+Simulation with fictional profiles and portfolios. Not financial advice. No order is placed.
+
+Written Nov 15, 2026, 04:19 p.m. UTC
+
+Limitations
+
+Only days when both the Canadian and US markets were open are used; crypto weekend moves appear on the next trading day.
+Portfolio history applies today’s weights to past returns, rebalanced daily. It is not what an actual investor would have earned.
+Funds are treated as single diversified positions; their underlying holdings are not counted in sector or single-name limits.
+USD/CAD uses the Bank of Canada daily rate; on days without a published rate the previous rate is carried forward.
+Past performance does not guarantee future results. These figures describe a historical sample; they are not forecasts.
+Computed on the available window only (from 2021-11-12 in the starter data). Other periods would give different values.
+Sector labels for starter assets were assigned by the organizers and are simplified.
+Simulation with fictional profiles and portfolios. Not financial advice. No order is placed.
+The asset universe was chosen in 2026 among names that are large today, which flatters historical results.
+Rule thresholds are assumptions derived from the stated risk level and horizon. They are editable and are not regulatory limits.
+Prices come from Yahoo Finance and are not exchange-certified. Adjusted closes change when data is re-downloaded.
+Signed decision ledger
+
+See the evidence and audit
+
+Steps, done
+Later outcomes
+
+Still hidden. Revealing does not change the verdict, the brief or the signed ledger above; it adds a separate, deterministic ledger of what the fixed scenarios did afterwards.
+
+Reveal up to
+After Dec 30, 2022, no later than Nov 12, 2026 (last date in the data snapshot). Empty = last date.
+Reveal later outcomes
+Date
+Start
+Result
+Historical replay: Done
+CONTROLS [{"id":"","text":"","value":"","disabled":false},{"id":"","text":"R\nFictional investor\nRobert","value":"","disabled":false},{"id":"_R_56mlb_","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":true},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"Show labels","value":"","disabled":false},{"id":"","text":"2025-02-19: before the largest later fall\nSelected with hindsight for demonstration: the eligible day followed by the largest fall of SPY within the next 60 trading days in this dataset. The selection never enters the decision.","value":"","disabled":false},{"id":"","text":"2022-12-30: end of 2022\nLast trading day of 2022 common to the Canadian and U.S. markets.","value":"","disabled":false},{"id":"","text":"2023-12-29: end of 2023\nLast trading day of 2023 common to the Canadian and U.S. markets.","value":"","disabled":false},{"id":"","text":"2024-12-31: end of 2024\nLast trading day of 2024 common to the Canadian and U.S. markets.","value":"","disabled":false},{"id":"","text":"2025-12-31: end of 2025\nLast trading day of 2025 common to the Canadian and U.S. markets.","value":"","disabled":false},{"id":"","text":"2022-11-22: earliest supported date\nFirst date with 252 master-calendar price observations behind it (A-24).","value":"","disabled":false},{"id":"tm-asof","text":"","value":"2022-12-30","disabled":false},{"id":"move-ticker","text":"","value":"TSLA","disabled":false},{"id":"","text":"","value":"5","disabled":false},{"id":"move-size","text":"","value":"5","disabled":false},{"id":"","text":"Run historical replay","value":"","disabled":false},{"id":"","text":"4.8%\n3.2%","value":"","disabled":false},{"id":"","text":"10.0%\n6.6%","value":"","disabled":false},{"id":"","text":"4.8%\n3.2%","value":"","disabled":false},{"id":"","text":"20.0%\n13.3%","value":"","disabled":false},{"id":"","text":"49.5%\n32.8%","value":"","disabled":false},{"id":"","text":"35.0%\n23.2%","value":"","disabled":false},{"id":"","text":"47.6%\n31.6%","value":"","disabled":false},{"id":"","text":"55.0%\n36.5%","value":"","disabled":false},{"id":"","text":"8.8%\n5.8%","value":"","disabled":false},{"id":"","text":"9.0%\n6.0%","value":"","disabled":false},{"id":"","text":"8.1%\n5.4%","value":"","disabled":false},{"id":"","text":"9.0%\n6.0%","value":"","disabled":false},{"id":"","text":"10.4%\n6.9%","value":"","disabled":false},{"id":"","text":"18.0%\n11.9%","value":"","disabled":false},{"id":"","text":"0.0%\n0.0%","value":"","disabled":false},{"id":"","text":"0.0%\n0.0%","value":"","disabled":false},{"id":"","text":"7.4%\n4.9%","value":"","disabled":false},{"id":"","text":"8.8%\n5.8%","value":"","disabled":false},{"id":"","text":"9.6%\n6.4%","value":"","disabled":false},{"id":"","text":"10.4%\n6.9%","value":"","disabled":false},{"id":"","text":"−4.7%\n−3.1%","value":"","disabled":false},{"id":"","text":"−8.1%\n−5.4%","value":"","disabled":false},{"id":"","text":"49.52%\n32.82%","value":"","disabled":false},{"id":"","text":"47.62%\n31.56%","value":"","disabled":false},{"id":"","text":"8.84% (2021-11-12 – 2022-12-30)\n5.86% (2021-11-12 – 2022-12-30)","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"34.63%\n22.94%","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"","value":"","disabled":false},{"id":"","text":"7.39% (2021-11-12 – 2022-12-30)\n4.89% (2021-11-12 – 2022-12-30)","value":"","disabled":false},{"id":"","text":"9.60% (2021-11-12 – 2022-12-30)\n6.36% (2021-11-12 – 2022-12-30)","value":"","disabled":false},{"id":"","text":"−4.70% (2021-12-31 – 2022-12-30)\n−3.11% (2021-12-31 – 2022-12-30)","value":"","disabled":false},{"id":"tm-until","text":"","value":"2026-11-12","disabled":false},{"id":"","text":"Reveal later outcomes","value":"","disabled":false},{"id":"","text":"Date","value":"","disabled":false},{"id":"","text":"Start","value":"","disabled":false},{"id":"","text":"Result","value":"","disabled":false}]

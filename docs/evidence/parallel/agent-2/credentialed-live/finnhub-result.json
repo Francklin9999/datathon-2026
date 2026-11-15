@@ -1,0 +1,31 @@
+{
+  "status": "available",
+  "provider": "finnhub",
+  "observation": {
+    "company": {
+      "ticker": "MSFT",
+      "name": "Microsoft Corporation",
+      "country": "US",
+      "currency": "USD",
+      "exchange": "NASDAQ NMS - GLOBAL MARKET",
+      "finnhubIndustry": "Technology",
+      "weburl": "https://www.microsoft.com/en-in/",
+      "ipo": "1986-03-13"
+    },
+    "identity_basis": "provider ticker and exchange labels; no ISIN/issuer inference",
+    "market_cap_millions_reported": "3890434.688710624"
+  },
+  "source_url": "https://finnhub.io/api/v1/stock/profile2?symbol=MSFT",
+  "source_sha256": "79e61cba104030d65a2f00508f98bfb49fe4c2c6a7027b76be63f94a0d159929",
+  "dataset_version": "market-finnhub-79e61cba104030d6",
+  "retrieved_at": "2026-11-15T17:39:08.376865+00:00",
+  "available_at": "2026-11-15T17:39:08.376865+00:00",
+  "published_at": null,
+  "licence": "Configured account terms; rights confirmation required, no blanket redistribution licence",
+  "documentation_url": "https://finnhub.io/docs/api/company-profile2",
+  "limitations": [
+    "Provider symbols/labels are not globally unique issuer identities.",
+    "Original publication and revision availability before capture is unknown.",
+    "Entitlement/latency depend on the actual account; no paid endpoint fallback."
+  ]
+}

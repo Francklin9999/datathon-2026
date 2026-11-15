@@ -18,6 +18,10 @@ def test_global_fx_cross_direction_and_temporal_availability(tmp_path):
     assert market.conversion_at('GBP', 'EUR', day)[0] == pytest.approx(gbp / eur)
     assert market.conversion_at('EUR', 'GBP', day)[0] == pytest.approx(eur / gbp)
     assert snap.gate('2025-01-01', 'historical').global_fx('EUR').rows == ()
+    # The snapshot observation date predates this capture. An explicit historical
+    # cutoff equal to the snapshot end must not inherit current-mode availability.
+    same_day = snap.gate(snap.data_as_of, 'historical').global_fx('EUR')
+    assert same_day.rows == () and same_day.rows_withheld > 0
     assert market.conversion_at('ZZZ', 'EUR', day) is None
     ledger = LocalLedger()
     engine = QuantEngine(current, ledger, currency='EUR', subject_id='europe', created_at='2026-11-15T08:00:00Z')

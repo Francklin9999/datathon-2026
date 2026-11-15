@@ -1,0 +1,40 @@
+{
+  "status": "available",
+  "provider": "dexscreener",
+  "source_url": "https://api.dexscreener.com/latest/dex/pairs/ethereum/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+  "source_sha256": "56f687e87ed4c8297bea08ab533a0ba4c3ae8ec0da44c73a55d4e0bf83b8accb",
+  "dataset_version": "dexscreener-56f687e87ed4c829",
+  "retrieved_at": "2026-11-15T17:22:31.635377+00:00",
+  "available_at": "2026-11-15T17:22:31.635377+00:00",
+  "published_at": null,
+  "observation": {
+    "chain": "ethereum",
+    "pool_address": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+    "dex_id": "uniswap",
+    "base": {
+      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "symbol": "WETH",
+      "name": "Wrapped Ether"
+    },
+    "quote": {
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "symbol": "USDC",
+      "name": "USD Coin"
+    },
+    "price_usd": "1814.46",
+    "price_native": "1814.4642",
+    "liquidity_usd": "75358897.29",
+    "volume_24h_usd": "228670519.08",
+    "price_change_24h_pct": "-0.53",
+    "fully_diluted_valuation_usd": "3827206269",
+    "market_cap_usd": "3833320326",
+    "pool_created_at": "2021-05-05T21:42:11+00:00"
+  },
+  "limitations": [
+    "Provider-reported estimates, not verified on-chain or an executable price.",
+    "Availability before capture and later revisions are unknown.",
+    "Token symbols are labels, not security or issuer identities."
+  ],
+  "terms_url": "https://docs.dexscreener.com/api/api-terms-and-conditions",
+  "docs_url": "https://docs.dexscreener.com/api/reference"
+}

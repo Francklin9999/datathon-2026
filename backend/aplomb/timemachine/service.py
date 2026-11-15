@@ -13,6 +13,7 @@ notices say so; nothing here claims a leakage-free historical forecast.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from typing import Callable
@@ -311,9 +312,11 @@ def reveal(run: m.Run, snapshot: Snapshot, until: str | None, created_at: str) -
 class ReplayServiceImpl:
     """``ReplayService`` for the HTTP API (api.md §5.8 and §7.1)."""
 
-    def __init__(self, snapshot: Callable[[], Snapshot], clock: Callable[[], datetime] | None = None) -> None:
+    def __init__(self, snapshot: Callable[[], Snapshot], clock: Callable[[], datetime] | None = None,
+                 store=None) -> None:
         self.snapshot = snapshot
         self.clock = clock or (lambda: datetime.now(timezone.utc))
+        self.store = store
 
     def presets(self, session_id: str) -> a.ReplayPresetsResponse:
         return a.ReplayPresetsResponse.model_validate(build_presets(self.snapshot()))
@@ -321,5 +324,34 @@ class ReplayServiceImpl:
     def reveal(self, session_id: str, run: m.Run, request: a.RevealRequest) -> m.RevealResult:
         if run.session_id != session_id:
             raise NotFound()
+        from aplomb.api.storage import Write, canonical
+
+        snap = self.snapshot()
+        until = request.until or snap.data_as_of
+        parent_hash = hashlib.sha256(canonical(run.to_wire())).hexdigest()
+        key = "REVEAL#" + run.run_id
+        # Session is part of the storage partition, as well as checked against the parent run.
+        partition = "SESSION#" + session_id + "#" + key
+        sort = "UNTIL#" + until
+        if self.store is not None:
+            previous = self.store.get("runs", partition, sort)
+            if previous:
+                if previous["parentHash"] != parent_hash or previous["dataVersion"] != snap.data_version:
+                    raise Conflict("The stored reveal does not match the original replay")
+                return m.RevealResult.model_validate(previous["result"])
         stamp = self.clock().astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        return m.RevealResult.model_validate(reveal(run, self.snapshot(), request.until, stamp))
+        result = m.RevealResult.model_validate(reveal(run, snap, request.until, stamp))
+        if self.store is not None:
+            record = {"revision": 1, "type": "REVEAL", "runId": run.run_id, "sessionId": session_id,
+                      "parentHash": parent_hash, "dataVersion": snap.data_version, "createdAt": stamp,
+                      "result": result.to_wire()}
+            try:
+                self.store.transact([Write("runs", partition, sort, record, None)])
+            except Conflict:
+                # Concurrent identical requests return the first persisted reveal, including its
+                # original timestamps. Never replace an already frozen result.
+                previous = self.store.get("runs", partition, sort)
+                if not previous or previous["parentHash"] != parent_hash or previous["dataVersion"] != snap.data_version:
+                    raise
+                return m.RevealResult.model_validate(previous["result"])
+        return result

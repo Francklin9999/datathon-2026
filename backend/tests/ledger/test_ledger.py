@@ -407,6 +407,31 @@ def test_whitespace_only_mandatory_and_checkpoint():
         Ledger.restore(book.run_id, book.as_of, state, clock=lambda: NOW)
 
 
+def test_checkpoint_binds_run_cutoff_documents_and_frozen_state():
+    from copy import deepcopy
+    book = ledger()
+    book.add_fact(fact())
+    doc = DocumentRef("doc-abc", "Revenue was 12 percent.", "https://example.com/source", book.run_id)
+    book.add_evidence(evidence(), doc)
+    state = book.checkpoint()
+    assert Ledger.restore(book.run_id, book.as_of, state).export().digest() == book.export().digest()
+    with pytest.raises(ValueError, match="run/cutoff"):
+        Ledger.restore("another-run", book.as_of, state)
+    for change in (lambda x: x.update(frozen=True),
+                   lambda x: x["documents"].clear(),
+                   lambda x: x["documents"][0].update(source_url="https://example.com/other")):
+        changed = deepcopy(state)
+        change(changed)
+        with pytest.raises(ValueError, match="integrity"):
+            Ledger.restore(book.run_id, book.as_of, changed)
+    # Older stored checkpoints do not have checkpointHash; still reject missing verified source.
+    legacy = deepcopy(state)
+    legacy.pop("checkpointHash")
+    legacy["documents"].clear()
+    with pytest.raises(ValueError, match="same-run document"):
+        Ledger.restore(book.run_id, book.as_of, legacy)
+
+
 def test_idempotent_registration_ignores_only_ledger_outputs():
     book = ledger()
     original = fact()

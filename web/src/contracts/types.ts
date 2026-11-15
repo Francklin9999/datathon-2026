@@ -359,7 +359,8 @@ export type Segment = TextSegment | FactSegment | RuleSegment | StatusSegment | 
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "RunKind".
  */
-export type RunKind = "decision" | "portfolio_brief" | "event_brief" | "replay" | "profile_draft" | "sabotage";
+export type RunKind =
+  "decision" | "rebalance" | "portfolio_brief" | "event_brief" | "replay" | "profile_draft" | "sabotage";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "RunStatus".
@@ -375,7 +376,13 @@ export type SessionId = string;
  * via the `definition` "RunInput".
  */
 export type RunInput =
-  DecisionInput | PortfolioBriefInput | EventBriefInput | ReplayInput | ProfileDraftInput | SabotageInput;
+  | DecisionInput
+  | RebalanceInput
+  | PortfolioBriefInput
+  | EventBriefInput
+  | ReplayInput
+  | ProfileDraftInput
+  | SabotageInput;
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "DecisionRequest".
@@ -439,6 +446,7 @@ export type StepType = "plan" | "research" | "quant" | "risk_check" | "revise" |
  */
 export type RunResult =
   | DecisionRunResult
+  | RebalanceRunResult
   | PortfolioBriefRunResult
   | EventBriefRunResult
   | ReplayRunResult
@@ -484,6 +492,7 @@ export type Experience = "beginner" | "intermediate" | "advanced";
  */
 export type CreateRunRequest =
   | CreateDecisionRunRequest
+  | CreateRebalanceRunRequest
   | CreatePortfolioBriefRunRequest
   | CreateEventBriefRunRequest
   | CreateReplayRunRequest
@@ -571,6 +580,7 @@ export interface AplombContracts {
   CreatePortfolioBriefRunRequest: CreatePortfolioBriefRunRequest;
   CreateProfileDraftRunRequest: CreateProfileDraftRunRequest;
   CreateProfileRequest: CreateProfileRequest;
+  CreateRebalanceRunRequest: CreateRebalanceRunRequest;
   CreateReplayRunRequest: CreateReplayRunRequest;
   CreateRunRequest: CreateRunRequest;
   Currency: Currency;
@@ -602,8 +612,10 @@ export interface AplombContracts {
   EventBriefResult: EventBriefResult;
   EventBriefRunResult: EventBriefRunResult;
   EventCategory: EventCategory;
+  EventHypothesis: EventHypothesis;
   EventId: EventId;
   EventLocation: EventLocation;
+  EventRelationshipReview: EventRelationshipReview;
   EventSource: EventSource;
   Evidence: Evidence;
   EvidenceId: EvidenceId;
@@ -627,6 +639,7 @@ export interface AplombContracts {
   FetchAssetResponse: FetchAssetResponse;
   FieldExplanation: FieldExplanation;
   FocusCard: FocusCard;
+  FocusDetail: FocusDetail;
   FrontierAsset: FrontierAsset;
   FrontierMetrics: FrontierMetrics;
   FrontierPoint: FrontierPoint;
@@ -700,8 +713,11 @@ export interface AplombContracts {
   QuantityReceipt: QuantityReceipt;
   QuestionOption: QuestionOption;
   QueuedRunResponse: QueuedRunResponse;
+  RebalanceChange: RebalanceChange;
+  RebalanceInput: RebalanceInput;
   RebalanceRequest: RebalanceRequest;
   RebalanceResponse: RebalanceResponse;
+  RebalanceRunResult: RebalanceRunResult;
   RebalancingPreferences: RebalancingPreferences;
   RefreshAccountRequest: RefreshAccountRequest;
   Refusal: Refusal;
@@ -714,6 +730,7 @@ export interface AplombContracts {
   RevealRequest: RevealRequest;
   RevealResult: RevealResult;
   ReviewFinding: ReviewFinding;
+  ReviewedRebalance: ReviewedRebalance;
   RiskDiagnosticsResponse: RiskDiagnosticsResponse;
   RiskLevel: RiskLevel;
   RuleBounds: RuleBounds;
@@ -1738,6 +1755,32 @@ export interface ExposureGoal2 {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RebalanceInput".
+ */
+export interface RebalanceInput {
+  kind: "rebalance";
+  profileVersion: number;
+  /**
+   * @minItems 1
+   * @maxItems 40
+   */
+  positions: [Position, ...Position[]];
+  window: WindowSpec;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "Position".
+ */
+export interface Position {
+  ticker: Ticker;
+  weightPct: number;
+  quantity?: number | null;
+  quantityAsOf?: ISODate | null;
+  quantityOrigin?: ("user" | "imported") | null;
+  quantitySource?: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "PortfolioBriefInput".
  */
 export interface PortfolioBriefInput {
@@ -2003,18 +2046,6 @@ export interface Portfolio {
   positions: Position[];
   updatedAt: ISODateTime;
 }
-/**
- * This interface was referenced by `AplombContracts`'s JSON-Schema
- * via the `definition` "Position".
- */
-export interface Position {
-  ticker: Ticker;
-  weightPct: number;
-  quantity?: number | null;
-  quantityAsOf?: ISODate | null;
-  quantityOrigin?: ("user" | "imported") | null;
-  quantitySource?: string | null;
-}
 export interface Portfolio1 {
   isFictional: true;
   totalValue: number;
@@ -2219,6 +2250,48 @@ export interface ThemeExposure {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RebalanceRunResult".
+ */
+export interface RebalanceRunResult {
+  kind: "rebalance";
+  rebalance: ReviewedRebalance;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "ReviewedRebalance".
+ */
+export interface ReviewedRebalance {
+  profileId: ProfileId;
+  profileVersion: number;
+  currency: Currency;
+  totalValue: number;
+  asOf: ISODate;
+  dataVersion: DataVersion;
+  window: WindowSpec;
+  changes: RebalanceChange[];
+  portfolioBefore: PortfolioSnapshot;
+  portfolioAfter: PortfolioSnapshot;
+  verdictBefore: Verdict;
+  verdictAfter: Verdict;
+  countsBefore: VerdictCounts;
+  countsAfter: VerdictCounts;
+  ruleChecksBefore: RuleCheck[];
+  ruleChecksAfter: RuleCheck[];
+  assumptions: I18NText[];
+  brief: Brief;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RebalanceChange".
+ */
+export interface RebalanceChange {
+  ticker: Ticker;
+  beforePct: number;
+  targetPct: number;
+  changePct: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "PortfolioBriefRunResult".
  */
 export interface PortfolioBriefRunResult {
@@ -2250,6 +2323,29 @@ export interface FocusCard {
   title: I18NText;
   body: Sentence[];
   factIds: FactId[];
+  detail?: FocusDetail | null;
+}
+/**
+ * Code-owned focus metadata. ``score`` is an inspectable heuristic, never a forecast.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "FocusDetail".
+ */
+export interface FocusDetail {
+  priority: number;
+  topic: "risk" | "concentration" | "plan" | "fixed_income" | "objective";
+  score: number;
+  basis: "built_in" | "candidate_provider";
+  timeHorizon: "short" | "medium" | "long";
+  horizonYears: number;
+  objective?: string | null;
+  holdings: Ticker[];
+  evidenceIds: EvidenceId[];
+  ruleIds: RuleId[];
+  uncertainty: "low" | "medium" | "high";
+  uncertaintyReasons: I18NText[];
+  investigation: I18NText;
+  href: string;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2268,6 +2364,7 @@ export interface EventBriefResult {
   exposures: HoldingExposure[];
   brief: Brief;
   impactStatement: I18NText;
+  relationshipReview?: EventRelationshipReview | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2328,6 +2425,28 @@ export interface HoldingExposure {
   impact: "not_established" | "measured_price_move";
   impactFactId: FactId | null;
   note: I18NText;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EventRelationshipReview".
+ */
+export interface EventRelationshipReview {
+  status: "not_configured" | "none_found" | "documented" | "failed";
+  hypotheses: EventHypothesis[];
+  limitations: I18NText[];
+}
+/**
+ * A documented event→issuer→security lead; never a measured or causal impact.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "EventHypothesis".
+ */
+export interface EventHypothesis {
+  securityId: string;
+  issuerId: string;
+  evidenceIds: EvidenceId[];
+  impact: "not_established";
+  interpretation: I18NText;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2673,6 +2792,27 @@ export interface Preferences1 {
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "CreateRebalanceRunRequest".
+ */
+export interface CreateRebalanceRunRequest {
+  kind: "rebalance";
+  profileId: ProfileId;
+  profileVersion: number;
+  lang: Lang;
+  /**
+   * @minItems 1
+   * @maxItems 40
+   */
+  positions: [Position, ...Position[]];
+  window?: WindowSpec4;
+}
+export interface WindowSpec4 {
+  code: WindowCode;
+  start?: string;
+  end?: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "CreateReplayRunRequest".
  */
 export interface CreateReplayRunRequest {
@@ -2681,9 +2821,9 @@ export interface CreateReplayRunRequest {
   lang: Lang;
   request: DecisionRequest;
   asOf: ISODate;
-  window?: WindowSpec4;
+  window?: WindowSpec5;
 }
-export interface WindowSpec4 {
+export interface WindowSpec5 {
   code: WindowCode;
   start?: string;
   end?: string;
@@ -2764,9 +2904,9 @@ export interface DatasetsResponse {
  */
 export interface DeriveRulesRequest {
   reset: boolean;
-  window?: WindowSpec5;
+  window?: WindowSpec6;
 }
-export interface WindowSpec5 {
+export interface WindowSpec6 {
   code: WindowCode;
   start?: string;
   end?: string;

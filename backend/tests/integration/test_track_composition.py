@@ -17,6 +17,17 @@ def normalized(path):
     return re.sub(r"\{[^}]+\}", "{}", path.removeprefix("/v1"))
 
 
+def registered_routes(routes, prefix=""):
+    """Flatten real routes, including FastAPI's lazily included routers (``include_router``)."""
+    for route in routes:
+        original = getattr(route, "original_router", None)
+        if original is not None:
+            context = getattr(route, "include_context", None)
+            yield from registered_routes(original.routes, prefix + (getattr(context, "prefix", "") or ""))
+        elif getattr(route, "methods", None):
+            yield prefix + route.path, route.methods
+
+
 def test_every_documented_endpoint_has_one_registered_method_and_path():
     text = (ROOT / "contracts/api.md").read_text()
     expected = {
@@ -25,10 +36,9 @@ def test_every_documented_endpoint_has_one_registered_method_and_path():
     }
     app = create_app(Settings(data_version="snap-20261113-starter"))
     actual = {
-        (method, normalized(route.path))
-        for item in app.routes
-        for route in (item.effective_route_contexts() if hasattr(item, "effective_route_contexts") else [item])
-        for method in route.methods
+        (method, normalized(path))
+        for path, methods in registered_routes(app.routes)
+        for method in methods
         if method not in {"HEAD", "OPTIONS"}
     }
     assert expected

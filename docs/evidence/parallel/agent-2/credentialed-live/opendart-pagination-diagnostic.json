@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/api/company.json",
+    "page": null,
+    "status": "000",
+    "total_page": null,
+    "total_count": null,
+    "page_count": null,
+    "rows": 0
+  },
+  {
+    "path": "/api/list.json",
+    "page": [
+      "1"
+    ],
+    "status": "000",
+    "total_page": 29,
+    "total_count": 2823,
+    "page_count": 100,
+    "rows": 100
+  }
+]

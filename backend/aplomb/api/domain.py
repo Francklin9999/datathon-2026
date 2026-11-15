@@ -159,5 +159,5 @@ def default_services(settings: Settings, store=None, gateway=None, price_provide
         # agent (the same rule as the worker): never advertise a browser the worker does not have.
         capabilities.add("research_open_web")
     return Services(profiles=profiles, checks=checks, runs=runs, parser=parser, world=world, sabotage=runs.sabotage if runs else None,
-                    replay=ReplayServiceImpl(snapshot), datastore=WorldDatastoreService(snapshot, BundleProvider(), on_demand),
+                    replay=ReplayServiceImpl(snapshot, store=run_repo.store), datastore=WorldDatastoreService(snapshot, BundleProvider(), on_demand),
                     capabilities=capabilities)

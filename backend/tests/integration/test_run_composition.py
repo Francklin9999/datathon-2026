@@ -261,6 +261,8 @@ def test_replay_uses_only_pre_cutoff_data_and_reveal_is_separate():
     signed = replay["decision"]["brief"]["audit"]["ledgerHash"]
 
     reveal = ok(client.post(f"/v1/runs/{run['runId']}/reveal", json={"until": "2023-12-29"}, headers=headers), "RevealResult")
+    repeated = ok(client.post(f"/v1/runs/{run['runId']}/reveal", json={"until": "2023-12-29"}, headers=headers), "RevealResult")
+    assert repeated == reveal
     assert (reveal["asOf"], reveal["until"]) == (as_of, "2023-12-29")
     assert [o["scenarioId"] for o in reveal["outcomes"]][:2] == ["sc_unchanged", "sc_requested"]
     assert all(o["series"][0]["value"] == 100.0 and o["factIds"] for o in reveal["outcomes"])

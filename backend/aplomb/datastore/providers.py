@@ -47,13 +47,22 @@ class ProviderError(Exception):
 HttpGet = Callable[[str, dict], tuple[int, bytes]]
 
 
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 def urllib_get(url: str, headers: dict, timeout: float = 15.0) -> tuple[int, bytes]:
     request = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 - fixed https host
-            return response.status, response.read()
+        with urllib.request.build_opener(NoRedirect).open(request, timeout=timeout) as response:
+            body = response.read(8_000_001)
+            if len(body) > 8_000_000:
+                raise ProviderError("unavailable", "Provider response exceeds capture bound.",
+                                    "La réponse du fournisseur dépasse la limite de capture.")
+            return response.status, body
     except urllib.error.HTTPError as exc:
-        return exc.code, exc.read() if exc.fp else b""
+        return exc.code, exc.read(4096) if exc.fp else b""
     except (urllib.error.URLError, TimeoutError) as exc:
         raise ProviderError("unavailable", f"Price provider unreachable: {type(exc).__name__}",
                             f"Fournisseur de prix injoignable : {type(exc).__name__}") from exc
@@ -94,6 +103,9 @@ class TiingoProvider:
         if not isinstance(meta, dict) or not meta.get("ticker"):
             raise ProviderError("not_found", "The provider returned no metadata for this ticker.",
                                 "Le fournisseur n'a renvoyé aucune métadonnée pour ce ticker.")
+        if str(meta["ticker"]).upper() != ticker.upper():
+            raise ProviderError("unavailable", "Provider symbol differs from the requested instrument.",
+                                "Le symbole du fournisseur diffère du titre demandé.")
         exchange = str(meta.get("exchangeCode") or "").upper()
         market = US_EXCHANGES.get(exchange)
         if market is None:

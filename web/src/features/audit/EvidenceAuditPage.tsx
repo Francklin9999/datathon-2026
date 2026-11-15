@@ -124,6 +124,10 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
               </Card>
               <Card id="audit" section={tr({ en: 'Audit', fr: 'Audit' })} tour="audit-report" title={tr({ en: 'Audit report', fr: 'Rapport d’audit' })}>
                 <AuditPanel audit={brief.audit} run={run} />
+                <p className="small muted">{tr({
+                  en: 'Checks attest the recorded references, source quotations, arithmetic relations and review performed. A matching quotation confirms what a source said; it does not prove the source is correct. Interpretation review can miss unsupported claims.',
+                  fr: 'Les contrôles attestent les références, les citations, les relations numériques et la revue enregistrées. Une citation conforme confirme les propos de la source, sans prouver leur exactitude. La revue peut manquer des affirmations non étayées.',
+                })}</p>
               </Card>
             </div>
           )}
@@ -221,6 +225,7 @@ function FactLedger({ run, scope }: { run: Run; scope: FactScope }) {
                 <th scope="col">{tr({ en: 'Kind', fr: 'Nature' })}</th>
                 <th scope="col" className="num-col">{tr({ en: 'Value', fr: 'Valeur' })}</th>
                 <th scope="col">{tr({ en: 'Verification', fr: 'Vérification' })}</th>
+                <th scope="col">{tr({ en: 'Availability', fr: 'Disponibilité' })}</th>
               </tr>
             </thead>
             <tbody>
@@ -230,7 +235,10 @@ function FactLedger({ run, scope }: { run: Run; scope: FactScope }) {
                   <td>{tr(fact.label)}<span className="block small mono muted break">{fact.metric}</span></td>
                   <td>{labelOf(FACT_KIND, fact.kind, lang)}</td>
                   <td className="num-col num">{tr(fact.display)}</td>
-                  <td>{labelOf(VERIFICATION, fact.verification.status, lang)}</td>
+                  <td>{labelOf(VERIFICATION, fact.verification.status, lang)}
+                    <span className="block small mono muted break">{fact.verification.checks.map(c => `${c.code}: ${c.ok ? '✓' : '✕'}`).join(', ')}</span>
+                  </td>
+                  <td className="small">{fact.availableAt ? fmtDateTime(fact.availableAt, lang) : tr({ en: 'Timeless input or availability unknown — inspect provenance', fr: 'Entrée intemporelle ou disponibilité inconnue — examiner la provenance' })}</td>
                 </tr>
               ))}
             </tbody>

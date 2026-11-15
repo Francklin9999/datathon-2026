@@ -1,0 +1,22 @@
+{
+  "provider": "Tiingo",
+  "credential": "existing project configuration; never recorded",
+  "status": "working",
+  "ticker": "MSFT",
+  "market": "NASDAQ",
+  "currency": "USD",
+  "rows": 3,
+  "retrieved_at": "2026-11-15T17:32:22Z",
+  "sources": [
+    {
+      "source_url": "https://api.tiingo.com/tiingo/daily/msft",
+      "http_status": 200,
+      "sha256": "59912649099b9f228bebc60d6ec65af1f8f8d2b07a8b33bb01e5ec513a8a874b"
+    },
+    {
+      "source_url": "https://api.tiingo.com/tiingo/daily/msft/prices?startDate=2026-11-10&endDate=2026-11-12",
+      "http_status": 200,
+      "sha256": "ee4e9b35e55b2e03102cc3b22429d3d1de6bfede650ce4e25337086c7ae4413c"
+    }
+  ]
+}
