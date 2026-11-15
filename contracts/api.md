@@ -708,7 +708,7 @@ All routes require `X-Aplomb-Session`, use server-side account credentials, and 
 | Method and path | Purpose |
 |---|---|
 | GET `/research/market-connections` | Credential presence, supported operation and official signup link per provider; no secret values |
-| GET `/research/market-provider/{provider}` | One bounded Alpha Vantage, Twelve Data or Finnhub capture (`symbol`, `mic`, `kind`) |
+| GET `/research/market-provider/{provider}` | One bounded capture from a connected market-data account (`symbol`, `mic`, `kind`); providers and operations below |
 | GET `/research/tiingo/{symbol}` | Up to one year of supported US non-fund equity metadata and daily history (`start`, `end`) |
 
 - `GET /v1/research/market-connections`: credential presence, operation and official signup links; no secret values.
