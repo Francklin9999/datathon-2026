@@ -341,3 +341,15 @@ details > summary { color: var(--text-2); }
   .drawer-head { margin: -16px -16px 12px; padding: 12px 16px; top: -16px; border-radius: 0; }
   .kv .k { flex-basis: 100%; }
 }
+
+/* Rule rows: the code sits in the sentence, the rest folds into Details */
+.rule-sentence .rule-code { margin-right: 8px; }
+.rule-table tbody th { font-weight: 500; }
+.rule-more { margin-top: 4px; }
+.rule-more > summary { display: inline-flex; min-height: 28px; align-items: center; color: var(--text-3); }
+.rule-more > .block { margin-top: 2px; }
+/* Folded page sections (Evidence, Decide) */
+details.section-fold, details.compare-fold { background: var(--glass-card); border: 1px solid var(--glass-line); box-shadow: var(--card-shadow); border-radius: var(--r-card); margin: 0 0 18px; }
+details.section-fold > summary, details.compare-fold > summary { min-height: 56px; padding: 0 22px; font-size: 16px; font-weight: 600; color: var(--text); border-radius: var(--r-card); }
+details.section-fold > .fold-body, details.compare-fold > .fold-body { padding: 0 22px 22px; }
+.runs-table { margin-top: 14px; }

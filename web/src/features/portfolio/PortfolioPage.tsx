@@ -19,7 +19,8 @@ import { FactChip, FactScopeProvider, LimitationList, type FactScope } from '../
 import { CountsLine, VerdictBadge } from '../../components/common/Badges';
 import { RuleTable } from '../../components/run/RuleTable';
 import { GroupBars } from '../../components/run/Results';
-import { ASSET_CLASS, labelOf } from '../../lib/labels';
+import { ASSET_CLASS, WINDOW, labelOf } from '../../lib/labels';
+import { CorrelationHeatmap } from './CorrelationHeatmap';
 import { factIdFor, fmtMoney, fmtNumber, fmtPct, fmtSignedPct, fmtUnit } from '../../lib/format';
 import { disabledRules, planRuleRows } from '../../lib/planRules';
 
@@ -34,15 +35,15 @@ function PortfolioContent({ profile }: { profile: Profile }) {
   const overview = useQuery<OverviewResponse>(base && `overview|${base}|${windowCode}`,
     signal => getApiClient().overview(profile.profileId, windowCode, signal));
   const scope = useMemo<FactScope | null>(() => (overview.data
-    ? { kind: 'local', label: { en: 'Deterministic overview response (no model).', fr: 'Réponse d’aperçu déterministe (aucun modèle).' }, facts: overview.data.facts }
+    ? { kind: 'local', label: { en: 'Portfolio figures, computed by code.', fr: 'Chiffres du portefeuille, calculés par le code.' }, facts: overview.data.facts }
     : null), [overview.data]);
 
   return (
     <>
-      <PageHeader actions={<WindowControl />} eyebrow={tr({ en: 'Fictional portfolio', fr: 'Portefeuille fictif' })}
-        title={tr({ en: `${profile.name}: holdings, rules and risk`, fr: `${profile.name} : positions, règles et risque` })}>
+      <PageHeader actions={<WindowControl />} tour="portfolio-header"
+        title={tr({ en: 'Holdings, rules and risk', fr: 'Positions, règles et risque' })}>
         <p className="page-sub">
-          {tr({ en: 'All values are in', fr: 'Toutes les valeurs sont en' })} {profile.portfolio.currency} · {fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} {tr({ en: 'fictional capital', fr: 'de capital fictif' })} · {tr({ en: 'profile version', fr: 'version du profil' })} {profile.version}
+          {tr({ en: `${fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} of fictional capital for ${profile.name}.`, fr: `${fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} de capital fictif pour ${profile.name}.` })}
         </p>
       </PageHeader>
       {overview.loading && <Loading />}
@@ -57,7 +58,7 @@ function PortfolioContent({ profile }: { profile: Profile }) {
       )}
       <Rules profile={profile} overview={overview.data} scope={scope} />
       <Frontier profile={profile} />
-      {overview.data && <LimitationList codes={overview.data.limitations} />}
+      {overview.data && <LimitationList compactAfter={0} codes={overview.data.limitations} />}
     </>
   );
 }
@@ -68,7 +69,7 @@ function Holdings({ overview }: { overview: OverviewResponse }) {
   const returns = new Map(overview.concentration.topPositions.map(p => [p.ticker, p.return1yPct]));
   const total = snapshot.positions.reduce((s, p) => s + p.weightPct, 0);
   return (
-    <Card id="holdings" title={tr({ en: 'Holdings', fr: 'Positions' })}>
+    <Card id="holdings" section={tr({ en: 'Holdings', fr: 'Positions' })} tour="holdings" title={tr({ en: 'Holdings', fr: 'Positions' })}>
       <div className="table-scroll" role="region" aria-label={tr({ en: 'Holdings table', fr: 'Tableau des positions' })} tabIndex={0}>
         <table className="data-table">
           <thead>
@@ -86,7 +87,7 @@ function Holdings({ overview }: { overview: OverviewResponse }) {
               const r = returns.get(p.ticker);
               return (
                 <tr key={p.ticker}>
-                  <th scope="row"><span className="mono">{p.ticker}</span><span className="block small muted">{p.name}</span></th>
+                  <th scope="row"><span className="ticker">{p.ticker}</span><span className="block small muted">{p.name}</span></th>
                   <td>{labelOf(ASSET_CLASS, p.assetClass, lang)}</td>
                   <td>{p.sector}</td>
                   <td className="num-col num">{fmtPct(p.weightPct, lang)}</td>
@@ -110,7 +111,6 @@ function Holdings({ overview }: { overview: OverviewResponse }) {
           </tfoot>
         </table>
       </div>
-      <p className="small muted">{tr({ en: 'This is a fictional simulation portfolio. No transfer or order can be made from here.', fr: 'Ceci est un portefeuille de simulation fictif. Aucun transfert ni ordre ne peut être fait ici.' })}</p>
     </Card>
   );
 }
@@ -119,19 +119,19 @@ function Allocation({ overview }: { overview: OverviewResponse }) {
   const { tr } = useApp();
   const s = overview.snapshot;
   return (
-    <div className="grid-3">
+    <div className="grid-3" id="allocation" data-section={tr({ en: 'Allocation', fr: 'Répartition' })}>
       <Card title={tr({ en: 'By asset group', fr: 'Par groupe d’actifs' })}>
         <GroupBars items={s.byAssetGroup} label={tr({ en: 'Allocation by asset group', fr: 'Répartition par groupe d’actifs' })} />
       </Card>
-      <Card title={tr({ en: 'By sector (direct equities)', fr: 'Par secteur (actions directes)' })}>
+      <Card title={tr({ en: 'By sector (direct equities)', fr: 'Par secteur (actions directes)' })}
+        info={tr({ en: 'Direct single-name equities only; funds are not looked through.', fr: 'Actions individuelles directes seulement ; les fonds ne sont pas décomposés.' })}>
         {s.bySector.length === 0
           ? <p className="muted small">{tr({ en: 'No direct single-name equities.', fr: 'Aucune action individuelle directe.' })}</p>
           : <GroupBars items={s.bySector} label={tr({ en: 'Sector weights', fr: 'Poids sectoriels' })} render={k => k} />}
-        <p className="small muted">{tr({ en: 'Direct single-name equities only; funds are not looked through.', fr: 'Actions individuelles directes seulement ; les fonds ne sont pas décomposés.' })}</p>
       </Card>
-      <Card title={tr({ en: 'By listing country', fr: 'Par pays de cotation' })}>
+      <Card title={tr({ en: 'By listing country', fr: 'Par pays de cotation' })}
+        info={tr({ en: 'Listing-country proxy, not economic exposure.', fr: 'Approximation par pays de cotation, pas l’exposition économique.' })}>
         <GroupBars items={s.byCountry} label={tr({ en: 'Country weights', fr: 'Poids par pays' })} render={k => k} />
-        <p className="small muted">{tr({ en: 'Listing-country proxy, not economic exposure.', fr: 'Approximation par pays de cotation, pas l’exposition économique.' })}</p>
       </Card>
     </div>
   );
@@ -147,31 +147,20 @@ function Risk({ overview }: { overview: OverviewResponse }) {
     return factId ? <FactChip factId={factId} display={text} /> : <span className="num">{text}</span>;
   };
   return (
-    <Card id="risk" title={tr({ en: 'Descriptive risk (historical, in this sample)', fr: 'Risque descriptif (historique, dans cet échantillon)' })}>
+    <Card id="risk" section={tr({ en: 'Risk', fr: 'Risque' })} tour="risk" title={tr({ en: 'Historical risk', fr: 'Risque historique' })}
+      info={tr({ en: 'Measured on this sample of past prices. The 2022 replay is signed; the stress rule compares the loss as a positive number.', fr: 'Mesuré sur cet échantillon de prix passés. Le rejeu 2022 est signé ; la règle de stress compare la perte en nombre positif.' })}>
       <div className="tiles">
         <div className="tile"><span className="eyebrow block">{tr({ en: 'Annualized volatility', fr: 'Volatilité annualisée' })}</span><span className="big">{cell(risk.volatilityPct, 'volatilityPct')}</span></div>
-        <div className="tile"><span className="eyebrow block">{tr({ en: 'Maximum drawdown', fr: 'Baisse maximale' })}</span><span className="big">{cell(risk.maxDrawdownPct, 'maxDrawdownPct')}</span><span className="small muted">{tr({ en: 'positive loss', fr: 'perte positive' })}</span></div>
-        <div className="tile"><span className="eyebrow block">{tr({ en: '2022 replay return', fr: 'Rendement rejoué 2022' })}</span><span className="big">{cell(risk.stress2022Pct, 'stress2022Pct', true)}</span><span className="small muted">{tr({ en: 'signed; the stress rule compares the loss as a positive number', fr: 'signé ; la règle de stress compare la perte en nombre positif' })}</span></div>
+        <div className="tile"><span className="eyebrow block">{tr({ en: 'Maximum drawdown', fr: 'Baisse maximale' })}</span><span className="big">{cell(risk.maxDrawdownPct, 'maxDrawdownPct')}</span></div>
+        <div className="tile"><span className="eyebrow block">{tr({ en: '2022 replay return', fr: 'Rendement rejoué 2022' })}</span><span className="big">{cell(risk.stress2022Pct, 'stress2022Pct', true)}</span></div>
         <div className="tile"><span className="eyebrow block">{tr({ en: 'Worst 12 months', fr: 'Pires 12 mois' })}</span><span className="big">{cell(risk.worst12mPct, 'worst12mPct', true)}</span></div>
-        <div className="tile"><span className="eyebrow block">HHI · {tr({ en: 'effective N', fr: 'N effectif' })}</span><span className="big num">{fmtNumber(concentration.hhi, lang, 3)} · {fmtNumber(concentration.effectiveN, lang, 1)}</span></div>
+        <div className="tile"><span className="eyebrow block">{tr({ en: 'Effective positions', fr: 'Positions effectives' })}</span><span className="big num" title={`HHI ${fmtNumber(concentration.hhi, lang, 3)}`}>{fmtNumber(concentration.effectiveN, lang, 1)}</span></div>
       </div>
       <h3 className="h4">{tr({ en: 'Correlation of daily returns', fr: 'Corrélation des rendements quotidiens' })}</h3>
       {correlation === null
         ? <p className="small muted">{tr({ en: 'Not shown: more than 20 positions or not supplied.', fr: 'Non affichée : plus de 20 positions ou non fournie.' })}</p>
         : (
-          <div className="table-scroll" role="region" aria-label={tr({ en: 'Correlation matrix', fr: 'Matrice de corrélation' })} tabIndex={0}>
-            <table className="data-table">
-              <thead><tr><th scope="col"><span className="sr-only">{tr({ en: 'Asset', fr: 'Actif' })}</span></th>{correlation.tickers.map(t => <th key={t} scope="col" className="corr-cell mono">{t}</th>)}</tr></thead>
-              <tbody>
-                {correlation.tickers.map((t, i) => (
-                  <tr key={t}>
-                    <th scope="row" className="mono">{t}</th>
-                    {correlation.matrix[i]?.map((v, j) => <td key={j} className="corr-cell">{Number.isFinite(v) ? fmtNumber(v, lang, 2) : '—'}</td>)}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <CorrelationHeatmap tickers={correlation.tickers} matrix={correlation.matrix} />
         )}
     </Card>
   );
@@ -276,7 +265,7 @@ function Rules({ profile, overview, scope }: { profile: Profile; overview: Overv
   };
 
   const previewScope = useMemo<FactScope | null>(() => (preview?.result
-    ? { kind: 'local', label: { en: 'Unsaved rule preview (/check, no model).', fr: 'Aperçu de règle non enregistré (/check, sans modèle).' }, facts: preview.result.facts }
+    ? { kind: 'local', label: { en: 'Unsaved rule preview.', fr: 'Aperçu de règle non enregistré.' }, facts: preview.result.facts }
     : null), [preview]);
   const derivedScope = useMemo<FactScope | null>(() => (derived
     ? { kind: 'local', label: { en: 'Rule derivation inputs.', fr: 'Intrants de dérivation des règles.' }, facts: derived.facts }
@@ -293,7 +282,8 @@ function Rules({ profile, overview, scope }: { profile: Profile; overview: Overv
   );
 
   return (
-    <Card id="rules" title={tr({ en: 'Plan rules (editable assumptions)', fr: 'Règles du plan (hypothèses modifiables)' })}
+    <Card id="rules" section={tr({ en: 'Rules', fr: 'Règles' })} tour="rules" title={tr({ en: 'Plan rules', fr: 'Règles du plan' })}
+      info={tr({ en: 'Each rule is an editable assumption: change a threshold, preview the effect, then save.', fr: 'Chaque règle est une hypothèse modifiable : changez un seuil, prévisualisez l’effet, puis enregistrez.' })}
       actions={<button type="button" className="btn ghost btn-sm" onClick={() => setDeriveOpen(o => !o)} aria-expanded={deriveOpen}>{tr({ en: 'Restore derived rules…', fr: 'Restaurer les règles dérivées…' })}</button>}>
       {deriveOpen && (
         <div className="state" role="group" aria-label={tr({ en: 'Restore derived rules', fr: 'Restaurer les règles dérivées' })}>
@@ -322,7 +312,7 @@ function Rules({ profile, overview, scope }: { profile: Profile; overview: Overv
       {scope ? <FactScopeProvider scope={scope}>{table}</FactScopeProvider> : table}
       {preview && (
         <div className="card" style={{ marginTop: 16 }} aria-live="polite">
-          <p className="eyebrow">{tr({ en: `Unsaved preview with ${preview.ruleCode} changed`, fr: `Aperçu non enregistré avec ${preview.ruleCode} modifiée` })}</p>
+          <p className="eyebrow">{tr({ en: 'Unsaved preview', fr: 'Aperçu non enregistré' })}</p>
           {!preview.result && !preview.error && <Loading />}
           {preview.error && <ErrorState error={preview.error} />}
           {preview.result && previewScope && (
@@ -347,7 +337,7 @@ function Frontier({ profile }: { profile: Profile }) {
     signal => getApiClient().frontier(profile.profileId, windowCode, signal));
   if (!feature('frontier_chart')) return null;
   return (
-    <Card id="frontier" title={tr({ en: 'Risk/return frontier (historical, in this sample)', fr: 'Frontière risque/rendement (historique, dans cet échantillon)' })}
+    <Card id="frontier" section={tr({ en: 'Frontier', fr: 'Frontière' })} tour="frontier" title={tr({ en: 'Risk/return frontier (historical)', fr: 'Frontière risque/rendement (historique)' })}
       actions={!active ? <button type="button" className="btn ghost btn-sm" onClick={() => setActive(true)}>{tr({ en: 'Load frontier', fr: 'Charger la frontière' })}</button> : undefined}>
       {!active && <p className="small muted">{tr({ en: 'Loaded on demand. Points illustrate the past sample, not optimal future portfolios.', fr: 'Chargée à la demande. Les points illustrent l’échantillon passé, pas des portefeuilles futurs optimaux.' })}</p>}
       {frontier.loading && <Loading />}
@@ -385,9 +375,9 @@ function FrontierChart({ data, lang }: { data: FrontierResponse; lang: Lang }) {
         <span><span className="swatch" aria-hidden="true" />{tr({ en: 'Risk-only minimum-variance curve', fr: 'Courbe de variance minimale (risque seul)' })}</span>
         <span><span className="swatch" style={{ background: 'var(--chart-4)' }} aria-hidden="true" />{tr({ en: 'Historical mean-variance illustration', fr: 'Illustration moyenne-variance historique' })}</span>
         <span><span className="swatch" style={{ background: 'var(--tension-fg)' }} aria-hidden="true" />{tr({ en: 'Volatility budget', fr: 'Budget de volatilité' })} {fmtPct(data.volBudgetPct, lang)}</span>
-        <span>● {tr({ en: 'Current portfolio', fr: 'Portefeuille actuel' })} · {data.currency} · {data.window.code}</span>
+        <span>● {tr({ en: 'Current portfolio', fr: 'Portefeuille actuel' })}, {data.currency}, {labelOf(WINDOW, data.window.code, lang).toLowerCase()}</span>
       </div>
-      <details className="small">
+      <details className="fold small">
         <summary>{tr({ en: 'List of frontier points', fr: 'Liste des points de la frontière' })}</summary>
         <ul className="list-plain">
           {data.minVarFrontier.map((p, i) => (

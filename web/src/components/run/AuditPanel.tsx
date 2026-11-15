@@ -55,11 +55,11 @@ export function AuditPanel({ audit, run }: { audit: AuditReport; run: Run }) {
       <p>
         <span className={`pill s-${pillClass}`}>{tr(STATUS_TEXT[audit.status])}</span>{' '}
         <span className="small muted">
-          {tr({ en: '“Passed” describes the checks listed below, not an external certification of the data.', fr: '« Réussi » décrit les vérifications ci-dessous, pas une certification externe des données.' })}
+          {tr({ en: 'Covers the checks below only.', fr: 'Ne couvre que les vérifications ci-dessous.' })}
         </span>
       </p>
       <p className="small">
-        {audit.sentencesChecked} {tr({ en: 'sentence(s) checked', fr: 'phrase(s) vérifiée(s)' })} · {audit.sentencesStruck} {tr({ en: 'struck', fr: 'rayée(s)' })} · {audit.rewrites} {tr({ en: 'rewrite(s)', fr: 'réécriture(s)' })}
+        {audit.sentencesChecked} {tr({ en: 'sentence(s) checked', fr: 'phrase(s) vérifiée(s)' })}, {audit.sentencesStruck} {tr({ en: 'struck', fr: 'rayée(s)' })}, {audit.rewrites} {tr({ en: 'rewrite(s)', fr: 'réécriture(s)' })}
       </p>
       <p className="small">
         {tr({ en: 'Guardrail', fr: 'Garde-fou' })}:{' '}
@@ -106,8 +106,9 @@ export function AuditPanel({ audit, run }: { audit: AuditReport; run: Run }) {
         </>
       )}
 
-      <div className="ledger">
-        <p className="eyebrow">{tr({ en: 'Ledger integrity metadata', fr: 'Métadonnées d’intégrité du registre' })}</p>
+      <details className="fold">
+        <summary>{tr({ en: 'Ledger integrity', fr: 'Intégrité du registre' })}</summary>
+        <div className="fold-body">
         <p className="mono small break">{audit.ledgerHash}</p>
         <p className="small">{tr({ en: 'Signed', fr: 'Signé' })} {fmtDateTime(audit.signedAt, lang)}</p>
         <p className="small muted">{tr({ en: 'The hash lets anyone detect later changes to the facts and evidence. It is not proof that they are true.', fr: 'L’empreinte permet de détecter toute modification ultérieure des faits et preuves. Elle ne prouve pas qu’ils sont vrais.' })}</p>
@@ -115,7 +116,8 @@ export function AuditPanel({ audit, run }: { audit: AuditReport; run: Run }) {
           <button type="button" className="btn ghost btn-sm" onClick={copy}>{copied ? tr({ en: 'Copied', fr: 'Copié' }) : tr({ en: 'Copy hash', fr: 'Copier l’empreinte' })}</button>
           <button type="button" className="btn ghost btn-sm" onClick={download}>{tr({ en: 'Download ledger bundle', fr: 'Télécharger le registre' })}</button>
         </div>
-      </div>
+        </div>
+      </details>
     </div>
   );
 }
