@@ -1,0 +1,100 @@
+{
+  "datasets": [
+    {
+      "attribution": "European Union, Copernicus Emergency Management Service, On-Demand Mapping; activation metadata normalized by Aplomb",
+      "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+      "coverageComplete": false,
+      "dataVersion": "world_copernicus_activation_centroids-2026-11-15-e3eab799076179a4",
+      "datasetId": "world_copernicus_activation_centroids",
+      "frequency": "Manual bounded current capture",
+      "historicalReplay": false,
+      "licence": "Copernicus EMS On-Demand Mapping terms permit reproduction, distribution and adaptation with source attribution; EU ownership retained",
+      "licenceUrl": "https://mapping.emergency.copernicus.eu/terms-and-conditions/",
+      "limitations": [
+        "Five activation metadata records from a paginated catalogue; not a complete global hazard inventory.",
+        "A centroid identifies the mapping activation area, not the disaster epicenter, affected boundary or damage extent.",
+        "Source activation and revision timestamps omit timezone and remain verbatim properties; display time is capture time.",
+        "No disaster narrative, casualty count, third-party imagery or product damage assessment is reproduced.",
+        "Restricted products and third-party linked information are excluded; no account or registration used.",
+        "Current capture cannot establish original historical availability, issuer exposure or financial impact."
+      ],
+      "name": "Copernicus EMS public activation centroids",
+      "rawCaptures": [
+        {
+          "file": "raw-000.bin",
+          "sha256": "dcd2475df88dc1535255d68c8d52adac418334bcedc8b4f3d86daa55484c8dfe",
+          "url": "https://mapping.emergency.copernicus.eu/activations/api/activations/?limit=5&offset=0"
+        },
+        {
+          "file": "raw-001.bin",
+          "sha256": "fa01f1f79bb0979ede54060c69e2874a1a5f1da55428f01a8a1d04c1bba70b7b",
+          "url": "https://mapping.emergency.copernicus.eu/terms-and-conditions/"
+        }
+      ],
+      "rejected": 0,
+      "retrievedAt": "2026-11-15T18:12:54Z",
+      "returnedRows": 5,
+      "rowCount": 5,
+      "scope": "First five public Copernicus EMS activation metadata records; source centroids only.",
+      "sha256": "e3eab799076179a475877e897d59c19d949d40233b390be27f47abc34de6e8da",
+      "sourceIds": [
+        "SRC-187",
+        "MASTER-071"
+      ],
+      "sourceRows": 1069,
+      "sourceUrl": "https://mapping.emergency.copernicus.eu/activations/api/activations/?limit=5&offset=0"
+    },
+    {
+      "attribution": "NASA FIRMS / LANCE, MODIS Collection 6.1 Terra and Aqua near-real-time active-fire data; no NASA endorsement",
+      "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+      "coverageComplete": false,
+      "dataVersion": "world_firms_modis_europe-2026-11-15-9adbf0f878d38bac",
+      "datasetId": "world_firms_modis_europe",
+      "frequency": "Manual bounded current capture",
+      "historicalReplay": false,
+      "licence": "NASA-led Terra/Aqua mission data: CC0 under NASA Earthdata guidance unless marked restricted; no restriction in selected CSV",
+      "licenceUrl": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
+      "limitations": [
+        "Europe regional rolling 24-hour feed only; incomplete detection coverage due to clouds, orbital revisit and sensor resolution.",
+        "Thermal anomalies can include industrial heat or volcanoes; a detection is not confirmation of a wildfire.",
+        "Coordinates are satellite pixel centers, not exact fire boundaries; scan/track dimensions are retained in kilometres.",
+        "Fire radiative power is an instantaneous source measurement, not damage, area burned or financial loss.",
+        "Near-real-time data may be revised or replaced by science-quality products; this immutable version retains the captured feed.",
+        "Anonymous current file download is usable; area API still requires MAP_KEY and historical archive authentication is set aside.",
+        "Original historical availability is unproven; replay gates at capture and issuer exposure is not established."
+      ],
+      "name": "NASA FIRMS MODIS Europe thermal detections",
+      "rawCaptures": [
+        {
+          "file": "raw-000.bin",
+          "sha256": "f08bf99d3956cb0220d51cb41a7480ef4f34280b930cb95257af601f6340a67e",
+          "url": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Europe_24h.csv"
+        },
+        {
+          "file": "raw-001.bin",
+          "sha256": "f218f94ec20213391d273219a50bb6a6d4afe4ea1355ec56d894b25011abcad1",
+          "url": "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance"
+        }
+      ],
+      "rejected": 0,
+      "retrievedAt": "2026-11-15T18:12:55Z",
+      "rowCount": 39,
+      "scope": "Official MODIS Collection 6.1 near-real-time Europe rolling 24-hour CSV; captured feed only.",
+      "sha256": "9adbf0f878d38bacff452d0c43c1e76ed94a82b88b5a2bb10e81d2b59ea1cdf1",
+      "sourceIds": [
+        "SRC-174",
+        "MASTER-067"
+      ],
+      "sourceRows": 39,
+      "sourceUrl": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Europe_24h.csv"
+    }
+  ],
+  "runtimeObservationCounts": {
+    "world_copernicus_activation_centroids": 5,
+    "world_firms_modis_europe": 39
+  },
+  "passportsValidated": true,
+  "replayBeforeCaptureExcluded": true,
+  "geographyValidated": true,
+  "verification": "Existing parsers, integrity loader, passport generator and typed World observations service exercised; no new tests."
+}

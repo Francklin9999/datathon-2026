@@ -1,0 +1,58 @@
+[
+ {
+  "availableAt": "2026-11-15T18:04:53Z",
+  "category": "environment",
+  "countryIso3": null,
+  "id": "world_nasa_gibs_modis_tile:2026-11-14:250m-0-0-0",
+  "latitude": null,
+  "longitude": null,
+  "observedAt": "2026-11-14",
+  "properties": {
+   "attribution": "NASA Terra MODIS. We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS). Tile footprint derived from WMTS metadata by Aplomb.",
+   "footprintDerivation": "CRS84 matrix scale and 512-pixel tile; clipped to Earth extent. Footprint is not observed cloud-free coverage.",
+   "geographicRole": "imagery_tile_footprint",
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       -180,
+       -90
+      ],
+      [
+       108,
+       -90
+      ],
+      [
+       108,
+       90
+      ],
+      [
+       -180,
+       90
+      ],
+      [
+       -180,
+       -90
+      ]
+     ]
+    ],
+    "type": "Polygon"
+   },
+   "imageDay": "2026-11-14",
+   "imageSha256": "5d38ae41ee3ad7d3166df8a84860448f612297fcbf035812849bea578d85137c",
+   "layerId": "MODIS_Terra_CorrectedReflectance_TrueColor",
+   "temporalPrecision": "day",
+   "tileColumn": 0,
+   "tileHeight": 512,
+   "tileMatrix": 0,
+   "tileMatrixSet": "250m",
+   "tileRow": 0,
+   "tileWidth": 512
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:04:53Z",
+  "sourceId": "world_nasa_gibs_modis_tile",
+  "sourceUrl": "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/2026-11-14/250m/0/0/0.jpg",
+  "title": "NASA Terra MODIS true color — one captured overview tile"
+ }
+]

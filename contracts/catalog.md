@@ -279,6 +279,19 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `world_wikimedia_topic_pageviews` | Wikimedia daily topic article pageview counts; no reader geography | P2 |
 | `world_wikipedia_recent_changes` | English Wikipedia bounded factual edit metadata; no editor details or event location | P2 |
 | `world_ilo_unemployment_2024` | ILOSTAT 2024 national unemployment rate for Canada, Japan and Brazil | P2 |
+| `world_bank_sdmx_gdp_2024` | World Bank SDMX 2024 nominal GDP for Canada, Japan and Brazil | P2 |
+| `world_energy_charts_de_power` | Germany selected 15-minute electricity production power series from Fraunhofer Energy-Charts | P2 |
+| `world_nasa_gibs_modis_tile` | NASA GIBS one Terra MODIS overview browse tile and its footprint | P2 |
+| `world_nominatim_eiffel_lookup` | One cached Nominatim Eiffel Tower place lookup under ODbL | P2 |
+| `world_osm_eiffel_tower` | OpenStreetMap Eiffel Tower mapped landmark footprint under ODbL | P2 |
+| `world_global_carbon_budget_2026` | Global Carbon Budget 2026 v0.1 selected annual global components in GtC/yr | P2 |
+| `world_adsblol_heathrow_positions` | ADS-B.lol one bounded Heathrow-area aircraft report snapshot under ODbL | P2 |
+| `trade_marinecadastre_ais_2024_samples` | NOAA MarineCadastre two annual 2024 AIS raster cell counts; no vessel positions | P2 |
+| `world_copernicus_activation_centroids` | Five public Copernicus EMS mapping activation centroids; no affected boundaries or damage assessment | P2 |
+| `world_firms_modis_europe` | NASA FIRMS MODIS Europe rolling 24-hour thermal anomaly pixel centers | P2 |
+| `world_nyfed_sce_inflation_2024` | New York Fed SCE twelve 2024 monthly household inflation expectation observations | P2 |
+| `world_ember_monthly_generation_2026` | Ember 2026 selected monthly country electricity generation aggregates in TWh | P2 |
+| `world_geofabrik_monaco_transport` | Geofabrik Monaco extract OpenStreetMap transport points under ODbL | P2 |
 | `world_geoboundaries_fra_adm1` | geoBoundaries pinned 2022 metropolitan France ADM1 polygons | P2 |
 | `world_ucdp_ged_ukraine_2025` | UCDP GED 26.1 bounded Ukraine 2025 conflict events | P2 |
 | `energy_wri_plants` | WRI power plant reference observations | P2 |

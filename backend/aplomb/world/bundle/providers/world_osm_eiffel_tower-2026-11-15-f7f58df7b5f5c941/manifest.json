@@ -1,0 +1,39 @@
+{
+ "attribution": "© OpenStreetMap contributors, ODbL 1.0 (https://opendatacommons.org/licenses/odbl/1-0/); selected and normalized by Aplomb. This separate derived database is available under ODbL 1.0.",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_osm_eiffel_tower-2026-11-15-f7f58df7b5f5c941",
+ "datasetId": "world_osm_eiffel_tower",
+ "frequency": "Manually pinned immutable sample",
+ "historicalReplay": false,
+ "licence": "ODbL 1.0; attribution and share-alike apply to this separate derived database",
+ "licenceUrl": "https://opendatacommons.org/licenses/odbl/1-0/",
+ "limitations": [
+  "Single mapped Paris landmark; not a comprehensive infrastructure database or verified operator relationship.",
+  "OSM edit time is not an event or publication time; first proven availability is capture time."
+ ],
+ "name": "Tour Eiffel — OSM mapped footprint",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "7bc1264bcc760dd444d6642152abcae6fea35dc68e9bd31b915ecf56837d4e71",
+   "url": "https://api.openstreetmap.org/api/0.6/way/5013364/full.json"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "5df4309b238da3f2e60955161ef52a5a3d1d86301a48c0d2cbe860cde1a9343a",
+   "url": "https://www.openstreetmap.org/copyright"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T18:04:53Z",
+ "rowCount": 1,
+ "scope": "Single mapped Paris landmark; not a comprehensive infrastructure database or verified operator relationship.",
+ "sha256": "f7f58df7b5f5c9418444c4f31477a1f00d4801636cc595910385125d70df1d6b",
+ "sourceIds": [
+  "SRC-148",
+  "MASTER-060"
+ ],
+ "sourceRows": 1,
+ "sourceUrl": "https://api.openstreetmap.org/api/0.6/way/5013364/full.json"
+}

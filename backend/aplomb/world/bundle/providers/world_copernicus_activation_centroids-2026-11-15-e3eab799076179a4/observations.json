@@ -1,0 +1,152 @@
+[
+ {
+  "availableAt": "2026-11-15T18:12:54Z",
+  "category": "hazards",
+  "countryIso3": null,
+  "id": "world_copernicus_activation_centroids:EMSR931",
+  "latitude": 43.32315366146852,
+  "longitude": 16.511327265522922,
+  "observedAt": null,
+  "properties": {
+   "activationCode": "EMSR931",
+   "activationTimeSource": "2026-09-12T07:01:00",
+   "areaOfInterestCount": 1,
+   "closed": true,
+   "damageAssessmentLoaded": false,
+   "event": "Wildfire",
+   "geographicRole": "activation_centroid",
+   "lastUpdateSource": "2026-09-16T10:09:02.444791",
+   "productCount": 3,
+   "satelliteImageryLoaded": false,
+   "sourceCountries": [
+    "Croatia"
+   ],
+   "sourceTimestampTimezone": "not stated; display anchored at capture"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:12:54Z",
+  "sourceId": "world_copernicus_activation_centroids",
+  "sourceUrl": "https://mapping.emergency.copernicus.eu/activations/EMSR931/",
+  "title": "Copernicus activation: Wildfire in Island of Brac, Croatia"
+ },
+ {
+  "availableAt": "2026-11-15T18:12:54Z",
+  "category": "hazards",
+  "countryIso3": null,
+  "id": "world_copernicus_activation_centroids:EMSR932",
+  "latitude": 37.789542,
+  "longitude": -7.213497,
+  "observedAt": null,
+  "properties": {
+   "activationCode": "EMSR932",
+   "activationTimeSource": "2026-09-15T16:58:00",
+   "areaOfInterestCount": 1,
+   "closed": true,
+   "damageAssessmentLoaded": false,
+   "event": "Wildfire",
+   "geographicRole": "activation_centroid",
+   "lastUpdateSource": "2026-09-17T12:48:32.188752",
+   "productCount": 1,
+   "satelliteImageryLoaded": false,
+   "sourceCountries": [
+    "Spain"
+   ],
+   "sourceTimestampTimezone": "not stated; display anchored at capture"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:12:54Z",
+  "sourceId": "world_copernicus_activation_centroids",
+  "sourceUrl": "https://mapping.emergency.copernicus.eu/activations/EMSR932/",
+  "title": "Copernicus activation: Wildfire in Huelva Province, Spain"
+ },
+ {
+  "availableAt": "2026-11-15T18:12:54Z",
+  "category": "hazards",
+  "countryIso3": null,
+  "id": "world_copernicus_activation_centroids:EMSR933",
+  "latitude": 35.22506250241993,
+  "longitude": 24.978601792058495,
+  "observedAt": null,
+  "properties": {
+   "activationCode": "EMSR933",
+   "activationTimeSource": "2026-10-04T11:02:00",
+   "areaOfInterestCount": 8,
+   "closed": true,
+   "damageAssessmentLoaded": false,
+   "event": "Flood",
+   "geographicRole": "activation_centroid",
+   "lastUpdateSource": "2026-10-12T16:44:23.825381",
+   "productCount": 18,
+   "satelliteImageryLoaded": false,
+   "sourceCountries": [
+    "Greece"
+   ],
+   "sourceTimestampTimezone": "not stated; display anchored at capture"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:12:54Z",
+  "sourceId": "world_copernicus_activation_centroids",
+  "sourceUrl": "https://mapping.emergency.copernicus.eu/activations/EMSR933/",
+  "title": "Copernicus activation: Flood in Crete, Greece"
+ },
+ {
+  "availableAt": "2026-11-15T18:12:54Z",
+  "category": "hazards",
+  "countryIso3": null,
+  "id": "world_copernicus_activation_centroids:EMSR934",
+  "latitude": 8.006692455305458,
+  "longitude": -80.67084785156305,
+  "observedAt": null,
+  "properties": {
+   "activationCode": "EMSR934",
+   "activationTimeSource": "2026-10-09T23:19:00",
+   "areaOfInterestCount": 9,
+   "closed": true,
+   "damageAssessmentLoaded": false,
+   "event": "Earthquake",
+   "geographicRole": "activation_centroid",
+   "lastUpdateSource": "2026-10-21T14:43:29.845108",
+   "productCount": 12,
+   "satelliteImageryLoaded": false,
+   "sourceCountries": [
+    "Panama"
+   ],
+   "sourceTimestampTimezone": "not stated; display anchored at capture"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:12:54Z",
+  "sourceId": "world_copernicus_activation_centroids",
+  "sourceUrl": "https://mapping.emergency.copernicus.eu/activations/EMSR934/",
+  "title": "Copernicus activation: Earthquake in Los Santos, Panama"
+ },
+ {
+  "availableAt": "2026-11-15T18:12:54Z",
+  "category": "hazards",
+  "countryIso3": null,
+  "id": "world_copernicus_activation_centroids:EMSR935",
+  "latitude": 38.81628901353977,
+  "longitude": 0.022993090259437,
+  "observedAt": null,
+  "properties": {
+   "activationCode": "EMSR935",
+   "activationTimeSource": "2026-10-19T16:03:00",
+   "areaOfInterestCount": 2,
+   "closed": true,
+   "damageAssessmentLoaded": false,
+   "event": "Flood",
+   "geographicRole": "activation_centroid",
+   "lastUpdateSource": "2026-10-21T03:55:11.352969",
+   "productCount": 2,
+   "satelliteImageryLoaded": false,
+   "sourceCountries": [
+    "Spain"
+   ],
+   "sourceTimestampTimezone": "not stated; display anchored at capture"
+  },
+  "publishedAt": null,
+  "retrievedAt": "2026-11-15T18:12:54Z",
+  "sourceId": "world_copernicus_activation_centroids",
+  "sourceUrl": "https://mapping.emergency.copernicus.eu/activations/EMSR935/",
+  "title": "Copernicus activation: Flood in Alicante-Valencia Regions, Spain"
+ }
+]

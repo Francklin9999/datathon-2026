@@ -1,0 +1,28 @@
+[
+  {
+    "key": "osm",
+    "url": "https://api.openstreetmap.org/api/0.6/way/5013364/full.json",
+    "status": 200,
+    "bytes": 26638,
+    "sha256": "7bc1264bcc760dd444d6642152abcae6fea35dc68e9bd31b915ecf56837d4e71"
+  },
+  {
+    "key": "gibs_modis",
+    "url": "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/2026-11-14/250m/0/0/0.jpg",
+    "status": 200,
+    "bytes": 53658,
+    "sha256": "5d38ae41ee3ad7d3166df8a84860448f612297fcbf035812849bea578d85137c"
+  },
+  {
+    "key": "gibs_capabilities",
+    "url": "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/1.0.0/WMTSCapabilities.xml",
+    "status": 200,
+    "bytes": 5319421,
+    "sha256": "92dd664294e351b25aa0189f39d6ea24b56fa7063d0b6d82134efb919017a6dc"
+  },
+  {
+    "key": "gibs_overview",
+    "url": "https://nasa-gibs.github.io/gibs-api-docs/overview/",
+    "error": "HTTP Error 404: Not Found"
+  }
+]

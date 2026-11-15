@@ -12,6 +12,7 @@ HOSTS = frozenset({
     "www.gdacs.org", "ghoapi.azureedge.net", "ec.europa.eu", "power.larc.nasa.gov",
     "data.epa.gov", "www.sciencebase.gov", "earthquake.usgs.gov",
     "api.worldbank.org", "datacatalog.worldbank.org",
+    "coast.noaa.gov", "api.adsb.lol", "www.adsb.lol",
 })
 
 

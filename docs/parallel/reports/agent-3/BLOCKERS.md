@@ -64,8 +64,7 @@ permitted authorization. The independent official versioned ZIP was acquired ano
 a bounded cited sample was enabled; see `UCDP-STATIC.md`.
 Eurostat's live HICP endpoint returned old-series observations ending 2025-12, while the
 copyright reference tried returned 404; use the replacement series and current reuse notice.
-IMF/OECD SDMX and other accessible sources remain unimplemented where marked
-as such in SOURCES.csv. GDELT DOC remains baseline unavailable; its article location cannot be
+The World Bank SDMX GDP slice is integrated; IMF and OECD SDMX remain held by rights or endpoint issues as marked in SOURCES.csv. GDELT DOC remains baseline unavailable; its article location cannot be
 invented from publisher location.
 
 ## Work completed without these dependencies
@@ -85,7 +84,7 @@ their individual reports. Baseline WDI, EONET,
 USGS catalog, OurAirports, ECCC and Natural Earth remain separate.
 
 All 153 assigned SRC rows and 65 assigned MASTER rows are dispositioned in SOURCES.csv.
-Most rows remain unimplemented. Bounded capture pipelines do not complete the full assignment.
+Every row has now been integrated in bounded form or checked with an explicit reason. Bounded capture pipelines do not complete the full product assignment.
 
 ## Subsequent anonymous-release integrations
 
@@ -117,3 +116,7 @@ established. WHO GHO's retrieved terms limit purpose and adaptations. FAOSTAT
 Fenix and bulk payload requests returned HTTP 521 and 403. These are held from
 runtime until their respective rights or endpoint blockers are resolved; see
 `GLOBAL-SOCIAL-STATS.md`.
+
+## Final access and rights checks
+
+`REMAINING-ACCESS.md`, `MISC-OFFICIAL.md`, `HAZARDS-REMAINING.md` and the energy, transport, SDMX and geographic source reports record the final anonymous access pass. Ember monthly electricity and Geofabrik Monaco GeoPackage were integrated; the public FIRMS Europe CSV and Copernicus activation metadata were integrated. HAPI requires an app identifier generated with an email address; Global Fishing Watch requires a registered personal token and limits API use to noncommercial purposes; OpenAQ requires an API key and review of each upstream provider's terms. The exact FIRMS area API needs MAP_KEY, while its regional public CSV remains usable. V-Dem's official download flow asks for personal details. UNdata's documented statistical requests returned HTTP 500. USDA PSD's bulk catalogue is anonymous but an applicable redistribution grant was not verified. Global Flood Database V1 has CC BY-NC terms. Those channels are withheld or set aside as specified in `SOURCES.csv`; none was mislabeled as a paid plan without evidence.

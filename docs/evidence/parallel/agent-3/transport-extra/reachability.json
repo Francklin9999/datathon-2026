@@ -1,0 +1,59 @@
+[
+  {
+    "id": "adsb_docs",
+    "url": "https://api.adsb.lol/docs",
+    "status": 200,
+    "bytes": 2645,
+    "finalUrl": "https://api.adsb.lol/docs"
+  },
+  {
+    "id": "adsb_home",
+    "url": "https://www.adsb.lol/docs/open-data/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "id": "adsb_license",
+    "url": "https://raw.githubusercontent.com/adsblol/api/main/LICENSE",
+    "status": 200,
+    "bytes": 1501,
+    "finalUrl": "https://raw.githubusercontent.com/adsblol/api/main/LICENSE"
+  },
+  {
+    "id": "airplanes_api",
+    "url": "https://airplanes.live/api-guide/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "id": "airplanes_terms",
+    "url": "https://airplanes.live/terms-of-service/",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "id": "dma",
+    "url": "https://www.dma.dk/safety-at-sea/navigational-information/ais-data",
+    "status": 200,
+    "bytes": 86518,
+    "finalUrl": "https://www.dma.dk/safety-at-sea/navigational-information/ais-data"
+  },
+  {
+    "id": "marine",
+    "url": "https://marinecadastre.gov/ais/",
+    "status": 200,
+    "bytes": 59236,
+    "finalUrl": "https://hub.marinecadastre.gov/pages/vesseltraffic"
+  },
+  {
+    "id": "marine_readme",
+    "url": "https://raw.githubusercontent.com/NOAA-OCM/ocm-marinecadastre-ais-vessel-traffic/master/README.md",
+    "status": 200,
+    "bytes": 3637,
+    "finalUrl": "https://raw.githubusercontent.com/NOAA-OCM/ocm-marinecadastre-ais-vessel-traffic/master/README.md"
+  },
+  {
+    "id": "opensky",
+    "url": "https://openskynetwork.github.io/opensky-api/rest.html",
+    "status": 200,
+    "bytes": 65499,
+    "finalUrl": "https://openskynetwork.github.io/opensky-api/rest.html"
+  }
+]

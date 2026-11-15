@@ -28,3 +28,9 @@ Documented entity-to-security, facility operator, revenue geography and supply-c
 - `web/src/api/client.ts`: typed observations request.
 
 All bridges are additive. The integrator must regenerate mirrors after reconciling the three branches, check dataset-ID and contract conflicts, and rerun full contract/API/web gates. No production migration or feature flag change is made here.
+
+## Latest provider geometry and units
+
+The provider registry, `DatasetId`, catalogue and datastore descriptors now include the newer SDMX, energy, carbon, satellite, OSM/Nominatim, ADS-B, MarineCadastre, Copernicus, FIRMS, New York Fed SCE, Ember and Geofabrik captures. Each capture is a separate versioned bundle and is only available from its retrieval time in replay.
+
+OSM Eiffel Tower and NASA GIBS footprints use source polygon geometry for viewport intersection without invented pins. The GIBS polygon is an image-tile footprint, not a claim of clear observed imagery. Copernicus points are activation-area centroids, FIRMS points are thermal-detection pixel centers, MarineCadastre points are annual raster query anchors, and Geofabrik points are mapped transport reference objects from a Monaco extract that may include neighboring France. These roles are explicit in item limitations and source summaries. Ember records are monthly country generation totals in TWh with no point coordinates; Fraunhofer Energy-Charts values are 15-minute national power in MW. Both are distinct from plant generation or issuer exposure.

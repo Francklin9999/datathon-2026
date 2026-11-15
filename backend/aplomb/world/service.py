@@ -69,6 +69,13 @@ PROVIDER_MODES = {
     "world_ecb_press": "macro", "world_uk_sanctions_updates": "conflicts",
     "world_geoboundaries_fra_adm1": "infrastructure", "world_ucdp_ged_ukraine_2025": "conflicts",
     "world_nasa_cmr_modis_granules": "environment",
+    "world_nasa_gibs_modis_tile": "environment",
+    "world_osm_eiffel_tower": "infrastructure",
+    "world_nominatim_eiffel_lookup": "infrastructure",
+    "world_global_carbon_budget_2026": "environment",
+    "world_copernicus_activation_centroids": "hazards",
+    "world_firms_modis_europe": "hazards",
+    "world_geofabrik_monaco_transport": "infrastructure",
 }
 
 
@@ -267,7 +274,8 @@ class WorldServiceImpl:
         if bbox:
             rows = [r for r in rows if (
                 geometry_intersects_bbox(r.get("geometry"), bbox)
-                if r["datasetId"] in {"world_geoboundaries_fra_adm1", "world_nasa_cmr_modis_granules"}
+                if r["datasetId"] in {"world_geoboundaries_fra_adm1", "world_nasa_cmr_modis_granules",
+                                      "world_osm_eiffel_tower", "world_nasa_gibs_modis_tile"}
                 else r["location"] and in_bbox(r["location"]["lat"], r["location"]["lon"], bbox)
             )]
         if start:
@@ -692,6 +700,70 @@ def _utc_stamp(value: str) -> str:
 def _observation_summary(row: dict) -> str:
     """Short code-owned description of recorded fields, never an AI summary."""
     props = row.get("properties") or {}
+    if row["sourceId"] == "world_ember_monthly_generation_2026":
+        return (f"Ember {props['referenceMonth']} {props['electricitySource']}: "
+                f"{props['generationTWh']:g} TWh. Country electricity generation is "
+                "a monthly aggregate, not current plant output or issuer exposure. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_geofabrik_monaco_transport":
+        return (f"Geofabrik Monaco extract OpenStreetMap {props['featureClass']} "
+                f"point {props['osmId']}. The extract can include neighboring France; "
+                "the point does not establish an operating company or current service. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_copernicus_activation_centroids":
+        return (f"Copernicus EMS activation {props['activationCode']}: {props['event']}. "
+                "The point is the source activation-area centroid, not the disaster epicenter "
+                "or damage boundary. Products and imagery are not loaded.")
+    if row["sourceId"] == "world_firms_modis_europe":
+        return (f"NASA FIRMS {props['satellite']} MODIS thermal anomaly: "
+                f"{props['fireRadiativePowerMw']:g} MW radiative power. "
+                "The point is a satellite pixel center, not a confirmed wildfire, "
+                "fire perimeter or loss estimate.")
+    if row["sourceId"] == "world_nyfed_sce_inflation_2024":
+        return (f"{props['seriesTitle']}, United States, {props['referenceMonth']}: "
+                f"{props['value']:g} {props['unit']}. Household survey expectation, "
+                "not measured CPI inflation. Date is a monthly display anchor. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_adsblol_heathrow_positions":
+        return (f"ADS-B.lol captured aircraft report {props['sourceHex']}; "
+                f"source position type {props.get('positionType') or 'unspecified'}, "
+                f"position age {props['positionAgeSeconds']:g} seconds at the source snapshot. "
+                "One Heathrow-area snapshot; no continuous tracking, verified operator "
+                f"or issuer relationship. {props['attribution']}")
+    if row["sourceId"] == "trade_marinecadastre_ais_2024_samples":
+        return (f"NOAA MarineCadastre {props['referenceYear']} annual AIS raster sample: "
+                f"{props['vesselTransitCount']:,} grid-cell transits. "
+                "This point is a selected raster query anchor, not a vessel position "
+                "or port boundary. Annual counts do not measure current traffic, "
+                f"distinct vessels or cargo volume. {props['attribution']}")
+    if row["sourceId"] == "world_osm_eiffel_tower":
+        return (f"OpenStreetMap way {props['osmId']} mapped Eiffel Tower footprint. "
+                "A map feature does not establish its operator or any issuer relationship. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_nominatim_eiffel_lookup":
+        return (f"One permanently cached Nominatim lookup for {props['displayName']}. "
+                "The source point is a geocoder result, not an event location or ownership assertion. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_nasa_gibs_modis_tile":
+        return (f"NASA Terra MODIS true-color overview tile dated {props['imageDay']}. "
+                "Its polygon is the tile footprint, not guaranteed observed or cloud-free coverage. "
+                "A full satellite raster overlay is not implemented. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_bank_sdmx_gdp_2024":
+        return (f"World Bank WDI SDMX {props['referenceYear']} GDP: "
+                f"{props['value']:,.2f} {props['unit']}. "
+                "Annual nominal national level; not real growth, an issuer metric or a live market signal. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_energy_charts_de_power":
+        return (f"Fraunhofer Energy-Charts Germany {props['productionType']}: "
+                f"{props['value']:,.1f} {props['unit']} at a 15-minute source interval. "
+                "National power is not energy production in MWh or a specific plant's output. "
+                f"{props['attribution']}")
+    if row["sourceId"] == "world_global_carbon_budget_2026":
+        return (f"Global Carbon Budget 2026 {props['referenceYear']} "
+                f"{props['component']}: {props['value']:g} {props['unit']}. "
+                "Revised global carbon estimate; no country, facility or issuer attribution. "
+                f"{props['attribution']}")
     if row["sourceId"] == "world_openflights_airport_reference":
         return (f"OpenFlights static airport reference {props['iata']} in "
                 f"{props['sourceCity']}, {props['sourceCountry']}. "

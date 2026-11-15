@@ -1,0 +1,44 @@
+{
+ "attribution": "European Union, Copernicus Emergency Management Service, On-Demand Mapping; activation metadata normalized by Aplomb",
+ "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt.",
+ "coverageComplete": false,
+ "dataVersion": "world_copernicus_activation_centroids-2026-11-15-e3eab799076179a4",
+ "datasetId": "world_copernicus_activation_centroids",
+ "frequency": "Manual bounded current capture",
+ "historicalReplay": false,
+ "licence": "Copernicus EMS On-Demand Mapping terms permit reproduction, distribution and adaptation with source attribution; EU ownership retained",
+ "licenceUrl": "https://mapping.emergency.copernicus.eu/terms-and-conditions/",
+ "limitations": [
+  "Five activation metadata records from a paginated catalogue; not a complete global hazard inventory.",
+  "A centroid identifies the mapping activation area, not the disaster epicenter, affected boundary or damage extent.",
+  "Source activation and revision timestamps omit timezone and remain verbatim properties; display time is capture time.",
+  "No disaster narrative, casualty count, third-party imagery or product damage assessment is reproduced.",
+  "Restricted products and third-party linked information are excluded; no account or registration used.",
+  "Current capture cannot establish original historical availability, issuer exposure or financial impact."
+ ],
+ "name": "Copernicus EMS public activation centroids",
+ "rawCaptures": [
+  {
+   "file": "raw-000.bin",
+   "sha256": "dcd2475df88dc1535255d68c8d52adac418334bcedc8b4f3d86daa55484c8dfe",
+   "url": "https://mapping.emergency.copernicus.eu/activations/api/activations/?limit=5&offset=0"
+  },
+  {
+   "file": "raw-001.bin",
+   "sha256": "fa01f1f79bb0979ede54060c69e2874a1a5f1da55428f01a8a1d04c1bba70b7b",
+   "url": "https://mapping.emergency.copernicus.eu/terms-and-conditions/"
+  }
+ ],
+ "rejected": 0,
+ "retrievedAt": "2026-11-15T18:12:54Z",
+ "returnedRows": 5,
+ "rowCount": 5,
+ "scope": "First five public Copernicus EMS activation metadata records; source centroids only.",
+ "sha256": "e3eab799076179a475877e897d59c19d949d40233b390be27f47abc34de6e8da",
+ "sourceIds": [
+  "SRC-187",
+  "MASTER-071"
+ ],
+ "sourceRows": 1069,
+ "sourceUrl": "https://mapping.emergency.copernicus.eu/activations/api/activations/?limit=5&offset=0"
+}

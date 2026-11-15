@@ -1,0 +1,879 @@
+
+ 
+ 
+   
+    
+       
+       
+      
+      
+      
+      
+      
+         
+      
+      
+       
+       
+    
+    
+      
+         HDX HAPI - The Humanitarian API 
+      
+    
+    
+       
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+         
+         
+         :root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"} 
+      
+    
+    
+       
+    
+     __md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}} 
+    
+      
+
+    
+    
+    
+   
+  
+  
+     
+  
+    
+     
+     
+     
+     
+      
+        
+         
+          Skip to content
+         
+      
+     
+     
+      
+     
+    
+    
+      
+
+  
+
+ 
+   
+     
+      
+  
+   
+
+     
+     
+      
+       
+     
+     
+       
+         
+           
+            HDX HAPI - The Humanitarian API
+           
+         
+         
+           
+            
+              Home
+            
+           
+         
+       
+     
+    
+    
+       var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)} 
+    
+    
+    
+      
+      
+         
+          
+           
+         
+         
+   
+   
+     
+       
+       
+        
+         
+        
+         
+       
+       
+        
+         
+          
+           
+         
+       
+      
+     
+     
+       
+         
+           
+            Initializing search
+           
+           
+         
+       
+     
+   
+ 
+      
+    
+    
+   
+  
+ 
+    
+     
+      
+      
+        
+          
+        
+      
+       
+         
+          
+            
+              
+               
+                 
+                   
+                    
+
+
+
+ 
+   
+     
+      
+  
+   
+
+     
+    HDX HAPI - The Humanitarian API
+   
+  
+   
+    
+      
+      
+  
+  
+    
+  
+  
+  
+     
+      
+       
+      
+      
+        
+      
+      
+         
+          
+  
+  
+   
+    Home
+    
+   
+  
+
+           
+         
+      
+       
+        
+  
+  
+   
+    Home
+    
+   
+  
+
+       
+      
+        
+
+ 
+  
+  
+  
+    
+  
+  
+     
+       
+      Table of contents
+     
+     
+      
+         
+   
+     
+      Latest Changes
+     
+   
+  
+     
+       
+        
+           
+   
+     
+      2026-09-30
+     
+   
+  
+ 
+        
+           
+   
+     
+      2025-09-15
+     
+   
+  
+ 
+        
+           
+   
+     
+      2025-03-27
+     
+   
+  
+ 
+        
+       
+     
+  
+ 
+      
+         
+   
+     
+      Data Coverage
+     
+   
+  
+ 
+      
+         
+   
+     
+      Accessing the Data
+     
+   
+  
+ 
+      
+         
+   
+     
+      How HDX HAPI works
+     
+   
+  
+ 
+      
+         
+   
+     
+      Terms Of Use
+     
+   
+  
+ 
+      
+         
+   
+     
+      FAQS
+     
+   
+  
+ 
+      
+     
+  
+ 
+      
+     
+  
+
+    
+      
+      
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Getting Started
+    
+   
+  
+
+       
+     
+  
+
+    
+      
+      
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Code Examples
+    
+   
+  
+
+       
+     
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+     
+      
+        
+        
+         
+        
+          
+           
+            
+  
+  
+   
+    Data Usage Guide
+    
+   
+  
+
+             
+           
+        
+         
+           
+             
+            Data Usage Guide
+           
+           
+            
+              
+                
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Affected People
+    
+   
+  
+
+       
+     
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Coordination & Context
+    
+   
+  
+
+       
+     
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Food Security, Nutrition & Poverty
+    
+   
+  
+
+       
+     
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Geography & Infrastructure
+    
+   
+  
+
+       
+     
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Climate
+    
+   
+  
+
+       
+     
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Metadata
+    
+   
+  
+
+       
+     
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Enums
+    
+   
+  
+
+       
+     
+  
+
+              
+            
+           
+         
+      
+     
+  
+
+    
+      
+      
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Changelog
+    
+   
+  
+
+       
+     
+  
+
+    
+      
+      
+  
+  
+  
+  
+     
+       
+        
+  
+  
+   
+    Contact
+    
+   
+  
+
+       
+     
+  
+
+    
+   
+ 
+                   
+                 
+               
+            
+            
+              
+               
+                 
+                   
+                    
+
+ 
+  
+  
+  
+    
+  
+  
+     
+       
+      Table of contents
+     
+     
+      
+         
+   
+     
+      Latest Changes
+     
+   
+  
+     
+       
+        
+           
+   
+     
+      2026-09-30
+     
+   
+  
+ 
+        
+           
+   
+     
+      2025-09-15
+     
+   
+  
+ 
+        
+           
+   
+     
+      2025-03-27
+     
+   
+  
+ 
+        
+       
+     
+  
+ 
+      
+         
+   
+     
+      Data Coverage
+     
+   
+  
+ 
+      
+         
+   
+     
+      Accessing the Data
+     
+   
+  
+ 
+      
+         
+   
+     
+      How HDX HAPI works
+     
+   
+  
+ 
+      
+         
+   
+     
+      Terms Of Use
+     
+   
+  
+ 
+      
+         
+   
+     
+      FAQS
+     
+   
+  
+ 
+      
+     
+  
+ 
+                   
+                 
+               
+            
+          
+          
+             
+               
+                
+                  
+
+
+
+ HDX HAPI 
+ The  HDX Humanitarian API  (HDX HAPI) is a way
+to access standardised indicators from multiple sources to automate workflows
+and visualisations. 
+ HDX HAPI is in beta phase, and we are seeking feedback. To share your thoughts
+or join our Slack channel, send an email to  hdx@un.org . 
+ Latest Changes 
+ Note: this is only a 10-line snippet, for full details please refer
+ to the complete  changelog . 
+ 2026-09-30 
+ 
+ Removed the  is_hxl  field and query parameter from the
+  metadata/resource endpoint 
+ Add SRV, FMS, FMC, FMSc and REG to idps and assessment type parameters 
+ 
+ 2025-09-15 
+ 
+ Add ETT to idps and assessment type parameters  
+ 
+ 2025-03-27 
+ Data Coverage 
+ Thematically, HDX HAPI aims to include all the data subcategories from the
+ HDX data grids .
+Geographically, HAPI focuses on all countries that have a humanitarian response
+plan but also includes other countries for which the data is available.
+The  Data Availability Table 
+details the data coverage that we have achieved at present, and to which
+administrative level the data is available: national (admin 0), admin 1,
+or admin 2. 
+ Accessing the Data 
+ You can find out more about HDX HAPI in the
+ Getting Started  and
+ API documentation  pages. 
+ There are also
+ HDX HAPI datasets on HDX 
+containing the data available from the API. Some datasets have warning and
+error columns. Warnings typically indicate corrections have been made to
+the data or show things to look out for. Rows with only warnings are considered
+complete, and are available from the API. Errors usually mean that the data
+is incomplete or unusable. Rows with any errors are not present in the API but
+have been included for transparency. 
+ How HDX HAPI works 
+ The full API ecosystem is illustrated in the diagram below. It depicts data
+being added to HDX either through manual uploads or automated API submission
+by partners, or from HDX-managed pipelines.
+This incoming data is then processed through our pipelines,
+which add and verify p-codes and standardize key
+components.
+The result is a set of global HAPI subcateogry datasets published on HDX.
+These datasets as the foundation for the data available via API, and they are
+further refined to create the country-specific HDX HAPI datasets. 
+ 
+This browser does not support PDFs. Please download the PDF to view it: <a href="assets/diagram.pdf">Download PDF</a>
+ 
+
+ Terms Of Use 
+ Use of HDX HAPI is governed by the
+ HDX HAPI Terms of Use . 
+ FAQS 
+ Please  refer to the landing page 
+for non-technical FAQs 
+
+
+
+
+
+
+
+
+
+
+
+
+                
+               
+             
+          
+          
+ var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_")) 
+         
+        
+       
+      
+         
+  
+   
+     
+       
+  
+  
+    Made with
+     
+      Material for MkDocs
+     
+  
+ 
+      
+     
+   
+ 
+      
+     
+     
+       
+     
+    
+    
+    
+      
+       {"base": ".", "features": [], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null} 
+    
+    
+       
+      
+    
+   

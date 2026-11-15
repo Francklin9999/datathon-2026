@@ -1,0 +1,82 @@
+[
+  {
+    "datasetId": "world_ember_monthly_generation_2026",
+    "sourceIds": [
+      "MASTER-084"
+    ],
+    "name": "Ember monthly country electricity generation, 2026",
+    "sourceUrl": "https://ember-energy.org/data/monthly-electricity-data/",
+    "retrievedAt": "2026-11-15T18:14:00Z",
+    "frequency": "Manual pinned capture",
+    "attribution": "Ember, monthly electricity data, CC BY 4.0; selected and normalized by Aplomb.",
+    "licence": "CC BY 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "limitations": [
+      "All available 2026 country/economy Total generation months in the captured global release; other years, fuels and regional aggregates excluded.",
+      "Captured reference data do not establish real-time activity, ownership, issuer exposure or financial impact.",
+      "Original historical availability is unproven; gate at capture time.",
+      "Generation months and country coverage vary; first day is a monthly display anchor, not an event date."
+    ],
+    "sourceRows": 182200,
+    "rejected": 0,
+    "coverageComplete": false,
+    "scope": "All available 2026 country/economy Total generation months in the captured global release; other years, fuels and regional aggregates excluded.",
+    "dataVersion": "world_ember_monthly_generation_2026-2026-11-15-014e1b2a66ef997d",
+    "rowCount": 693,
+    "sha256": "014e1b2a66ef997d3527c2b70317c9def42415e351b489d4e263a3254ccfebf5",
+    "rawCaptures": [
+      {
+        "file": "raw-000.bin",
+        "url": "https://files.ember-energy.org/public-downloads/generation/outputs/release_generation_monthly_global.csv",
+        "sha256": "abd374033a1e970700b0643c9de992b3ec719e34e6335e44ed82083e53c50904"
+      },
+      {
+        "file": "raw-001.bin",
+        "url": "https://ember-energy.org/data/monthly-electricity-data/",
+        "sha256": "f1690891249605ba86a39bf73b88622ff05df6e589ba5ee9efbf04135d21117b"
+      }
+    ],
+    "historicalReplay": false,
+    "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt."
+  },
+  {
+    "datasetId": "world_geofabrik_monaco_transport",
+    "sourceIds": [
+      "SRC-150"
+    ],
+    "name": "Geofabrik Monaco transport point reference",
+    "sourceUrl": "https://download.geofabrik.de/europe/monaco.html",
+    "retrievedAt": "2026-11-15T18:14:01Z",
+    "frequency": "Manual pinned capture",
+    "attribution": "\u00a9 OpenStreetMap contributors; processed by Geofabrik GmbH; selected and normalized by Aplomb. This separate derived database is available under ODbL 1.0.",
+    "licence": "ODbL 1.0; separate derived database offered under ODbL 1.0",
+    "licenceUrl": "https://www.openstreetmap.org/copyright",
+    "limitations": [
+      "Complete transport POINT layer in this Monaco extract; not a global inventory. Extract buffer may include neighboring France; no country is inferred.",
+      "Captured reference data do not establish real-time activity, ownership, issuer exposure or financial impact.",
+      "Original historical availability is unproven; gate at capture time.",
+      "Mapped transport points may be stale or incomplete; no routes, current services or operational status established."
+    ],
+    "sourceRows": 125,
+    "rejected": 0,
+    "coverageComplete": false,
+    "scope": "Complete transport POINT layer in this Monaco extract; not a global inventory. Extract buffer may include neighboring France; no country is inferred.",
+    "dataVersion": "world_geofabrik_monaco_transport-2026-11-15-b96d889f47facfcc",
+    "rowCount": 125,
+    "sha256": "b96d889f47facfccc2afcbfefe707ed74e770edf7b7ad99c7bdaac5b1ef52f81",
+    "rawCaptures": [
+      {
+        "file": "raw-000.bin",
+        "url": "https://download.geofabrik.de/europe/monaco-latest-free.gpkg.zip",
+        "sha256": "0f3259ac54ef67786441908bcd00f029731efaf176a4fcd5daafadadf4fc97da"
+      },
+      {
+        "file": "raw-001.bin",
+        "url": "https://download.geofabrik.de/europe/monaco.html",
+        "sha256": "b78e5efb31949fcc65b734a9e51329069be7f9c34ec1aa5b68a57c79867b0983"
+      }
+    ],
+    "historicalReplay": false,
+    "availabilityRule": "Latest captured values; original historical availability is unproven. Gate at retrievedAt."
+  }
+]

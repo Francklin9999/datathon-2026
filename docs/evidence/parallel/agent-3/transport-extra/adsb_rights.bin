@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/png" href="/static/logo.png">
+<link rel="apple-touch-icon" href="/static/logo.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="describedby" href="/llms.txt" type="text/markdown">
+<link rel="alternate" type="application/rss+xml" title="adsb.lol releases" href="/releases.xml">
+<meta name="application-name" content="adsb.lol">
+<meta name="apple-mobile-web-app-title" content="adsb.lol">
+<meta name="theme-color" content="#efe8de" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1d1b24" media="(prefers-color-scheme: dark)">
+<title>Privacy and License · adsb.lol</title><meta name="description" content="privacy policy, hosting and data license.">
+<link rel="canonical" href="https://www.adsb.lol/docs/privacy-license">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="fediverse:creator" content="@adsblol@mastodon.social">
+<meta property="og:title" content="Privacy and License · adsb.lol">
+<meta name="twitter:title" content="Privacy and License · adsb.lol">
+<meta property="og:description" content="privacy policy, hosting and data license.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="adsb.lol">
+<meta property="og:locale" content="en_US">
+<meta property="og:url" content="https://www.adsb.lol/docs/privacy-license">
+<meta property="og:image" content="https://www.adsb.lol/og.png?p=%2Fdocs%2Fprivacy-license">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="adsb.lol — open flight tracking on a community receiver network">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:description" content="privacy policy, hosting and data license.">
+<meta name="twitter:image" content="https://www.adsb.lol/og.png?p=%2Fdocs%2Fprivacy-license">
+<meta property="article:section" content="docs">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","description":"Community ADS-B network with open flight data and a free API.","name":"adsb.lol","publisher":{"@type":"Organization","logo":"https://www.adsb.lol/static/logo.png","name":"adsb.lol","sameAs":["https://github.com/adsblol","https://mastodon.social/@adsblol","https://adsblol.zulipchat.com"],"url":"https://www.adsb.lol/"},"url":"https://www.adsb.lol/"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","description":"privacy policy, hosting and data license.","headline":"Privacy and License · adsb.lol","publisher":{"@type":"Organization","logo":"https://www.adsb.lol/static/logo.png","name":"adsb.lol"},"url":"https://www.adsb.lol/docs/privacy-license"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://www.adsb.lol/docs","name":"docs","position":1},{"@type":"ListItem","item":"https://www.adsb.lol/docs/privacy-license","name":"Privacy and License · adsb.lol","position":2}]}</script>
+
+<style>
+html{background:#efe8de;color:#141218}
+@media (prefers-color-scheme:dark){html{background:#1d1b24;color:#f2eef6}}
+</style>
+<link rel="preload" href="/static/fonts/b612-regular.woff2?v=a96e47fe" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/b612-bold.woff2?v=95f39db1" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/style.f117b87f.css">
+<script src="/static/app.51fc1ad7.js" defer></script>
+<script>
+
+
+
+(function () {
+  var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (c && (c.saveData || c.effectiveType === 'slow-2g' || c.effectiveType === '2g')) return;
+  if (window.matchMedia('(prefers-reduced-data: reduce)').matches) return;
+  var rules = { prerender: [{ urls: ["/","/mmb","/receiver","/request","/docs","/live","/live/airports","/live/aircraft","/live/airlines","/live/cities"], eagerness: 'moderate' }] };
+  var s = document.createElement('script');
+  s.type = 'speculationrules';
+  s.textContent = JSON.stringify(rules);
+  document.head.appendChild(s);
+})();
+</script>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="masthead">
+  <a class="brand" href="/">
+    <img src="/static/logo.png?v=73d28ae3" alt="" width="30" height="30">
+    adsb<span class="dot">.</span>lol
+  </a>
+  <nav class="nav-main">
+    
+    <a rel="nofollow noopener" class="live" href="https://adsb.lol">Live map</a>
+    <a href="/docs">Docs</a>
+    <a href="/about">About</a>
+    <a href="/changelog">Changelog</a>
+    <a href="/mmb">My keys</a>
+    
+  </nav>
+  <nav class="social">
+    
+<a rel="nofollow noopener" class="ic" style="color:#d60270" href="https://adsblol.zulipchat.com" aria-label="Zulip" title="Zulip">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M22.767 3.589c0 1.209-.543 2.283-1.37 2.934l-8.034 7.174c-.149.128-.343-.078-.235-.25l2.946-5.9c.083-.165-.024-.368-.194-.368H4.452c-1.77 0-3.219-1.615-3.219-3.59C1.233 1.616 2.682 0 4.452 0h15.096c1.77 0 3.219 1.614 3.219 3.589zM4.452 24h15.096c1.77 0 3.219-1.616 3.219-3.59s-1.449-3.59-3.219-3.59H8.12c-.17 0-.277-.202-.194-.367l2.946-5.9c.108-.172-.086-.378-.235-.25l-8.033 7.173c-.828.65-1.37 1.725-1.37 2.934 0 1.974 1.448 3.59 3.218 3.59z"/></svg>
+</a>
+<a rel="nofollow noopener" class="ic" style="color:#9b4f96" href="https://github.com/adsblol" aria-label="GitHub" title="GitHub">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77 5.44 5.44 0 0 0 3.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+</a>
+<a class="ic" style="color:#0038a8" href="https://mastodon.social/@adsblol" rel="me nofollow noopener" aria-label="Mastodon" title="Mastodon">
+  <svg viewBox="0 0 418 512" width="18" height="18" fill="currentColor"><path d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z"/></svg>
+</a>
+<a rel="nofollow noopener" class="ic" style="color:#9b4f96" href="https://web.libera.chat/#adsblol" aria-label="IRC" title="IRC">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 8.5 7.5 15.5M16.5 8.5 15 15.5M7 11h11M6.5 13h11"/></svg>
+</a>
+<a class="ic" style="color:#d60270" href="mailto:info@adsb.lol" aria-label="email" title="info@adsb.lol">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m3 6 9 6 9-6"/></svg>
+</a>
+
+    
+  </nav>
+</header>
+
+
+
+
+
+<main>
+
+<div class="docs">
+  <aside class="docs-nav">
+    <p class="kicker">docs</p>
+    
+    <h3>🧭 overview</h3>
+    <ul>
+      
+      <li><a href="/docs/overview/introduction">Introduction</a></li>
+      
+    </ul>
+    
+    <h3>📡 feeding</h3>
+    <ul>
+      
+      <li><a href="/docs/get-started/introduction">Sharing your data</a></li>
+      
+      <li><a href="/docs/get-started/adsb-image">ADSB.im</a></li>
+      
+      <li><a href="/docs/get-started/bare-metal">Bare Metal</a></li>
+      
+    </ul>
+    
+    <h3>🔑 feeders only</h3>
+    <ul>
+      
+      <li><a href="/docs/feeders-only/introduction">Introduction</a></li>
+      
+      <li><a href="/docs/feeders-only/my-map">My Map</a></li>
+      
+      <li><a href="/docs/feeders-only/mlat-map">MLAT Map</a></li>
+      
+      <li><a href="/docs/feeders-only/re-api">re-api</a></li>
+      
+    </ul>
+    
+    <h3>🗂️ open data</h3>
+    <ul>
+      
+      <li><a href="/docs/open-data/api">API</a></li>
+      
+      <li><a href="/docs/open-data/historical">Historical data</a></li>
+      
+      <li><a href="/docs/open-data/aircraft-data-links">Aircraft Data Links</a></li>
+      
+    </ul>
+    
+    <h3>📻 hardware</h3>
+    <ul>
+      
+      <li><a href="/docs/hardware/equipment">ADS-B &#43; UAT Equipment</a></li>
+      
+    </ul>
+    
+    <h3>💛 acknowledgements</h3>
+    <ul>
+      
+      <li><a href="/docs/acknowledgements/open-source">Open Source</a></li>
+      
+      <li><a href="/docs/acknowledgements/partners">Partners</a></li>
+      
+    </ul>
+    
+    <h3>🔒 privacy &amp; license</h3>
+    <ul>
+      
+      <li><a href="/docs/privacy-license" class="on">Privacy and License</a></li>
+      
+    </ul>
+    
+  </aside>
+
+  <article class="docs-body">
+    
+    <h1>Privacy and License</h1>
+    <p class="lede">privacy policy, hosting and data license.</p>
+    <p>this service is provided by myself <a href="https://github.com/iakat" rel="nofollow noopener">@iakat</a> and it is intended to use as is.</p>
+<h2 id="disclaimer-of-warranties">disclaimer of warranties</h2>
+<p>adsb.lol will use its best efforts to provide accurate data. however, except as otherwise provided herein, the data is provided on an &#34;as is&#34; basis. except as otherwise provided herein, neither adsb.lol, its partners, licensors, nor data providers make any warranty, either implied or express, of merchantability or fitness for a particular purpose, including, but not limited to, the accuracy, timeliness, completeness, reliability, or availability of adsb.lol data, applications, or services accessible through or made available by adsb.lol. users acknowledge that adsb.lol receives data from multiple sources it may or may not control, and that, except as otherwise provided herein, data integrity/accuracy cannot be guaranteed.</p>
+<p>to the extent allowed by law, users will indemnify, defend and hold harmless adsb.lol from all liabilities, claims, demands, costs, judgements, damages, losses and expenses relating to any claim brought by a third party arising out of or in connection with users&#39;s use of the data in a manner not in conformance with the above notice.</p>
+<h2 id="personal-data">personal data</h2>
+<p>we keep temporary logs for under 30 days. nothing else.</p>
+<h2 id="hosting-provider">hosting provider</h2>
+<p>adsb.lol is hosted by Netcup, with servers in Germany.</p>
+<p>parts of static data are served by GitHub, proxied by CloudFlare.</p>
+<p>CloudFlare is used as a CDN/proxy except for the <code>feed.adsb.lol</code>/<code>in.adsb.lol</code> endpoints.</p>
+<h2 id="license">license</h2>
+<p>by sending data to <code>feed.adsb.lol</code>/<code>in.adsb.lol</code>,</p>
+<p>you agree, to the extent possible under law, to waive all copyright and related or neighboring rights to the data you are sharing, under the <a href="https://creativecommons.org/share-your-work/public-domain/cc0/" rel="nofollow noopener">CC0</a> license.</p>
+<h2 id="contact">contact</h2>
+<p>for any question or concern, reach out to</p>
+<pre><code>info [at] adsb.lol</code></pre>
+
+    
+  </article>
+</div>
+
+</main>
+
+<footer class="colophon">
+  <p class="muted">made with &lt;3 by <a rel="nofollow noopener" href="https://github.com/sponsors/iakat">katia</a></p>
+  <p class="muted">with you since 2023.</p>
+</footer>
+
+<dialog id="confirm-dialog">
+  <form method="dialog">
+    <p id="confirm-msg"></p>
+    <div class="dialog-actions">
+      <button value="cancel">Cancel</button>
+      <button value="ok" class="danger">Confirm</button>
+    </div>
+  </form>
+</dialog>
+
+
+
+<iframe hidden src="https://adsb.lol/favicon.ico" title="" aria-hidden="true"
+  tabindex="-1" loading="eager" referrerpolicy="no-referrer"
+  style="display:none"></iframe>
+
+</body>
+</html>
+
+

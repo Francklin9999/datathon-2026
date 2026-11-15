@@ -1,0 +1,46 @@
+{
+  "wb-dataset-rights": {
+    "url": "https://www.worldbank.org/ext/en/legal/terms-conditions/datasets",
+    "status": 200,
+    "finalUrl": "https://www.worldbank.org/ext/en/legal/terms-conditions/datasets",
+    "bytes": 30580,
+    "contentType": "text/html; charset=utf-8"
+  },
+  "wb-can": {
+    "url": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.CAN/?startperiod=2024&endPeriod=2024",
+    "status": 200,
+    "finalUrl": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.CAN/?startperiod=2024&endPeriod=2024",
+    "bytes": 1728,
+    "contentType": "application/xml; version=2.1; charset=utf-8"
+  },
+  "wb-jpn": {
+    "url": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.JPN/?startperiod=2024&endPeriod=2024",
+    "status": 200,
+    "finalUrl": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.JPN/?startperiod=2024&endPeriod=2024",
+    "bytes": 1728,
+    "contentType": "application/xml; version=2.1; charset=utf-8"
+  },
+  "wb-bra": {
+    "url": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.BRA/?startperiod=2024&endPeriod=2024",
+    "status": 200,
+    "finalUrl": "https://api.worldbank.org/v2/sdmx/rest/data/WDI/A.NY_GDP_MKTP_CD.BRA/?startperiod=2024&endPeriod=2024",
+    "bytes": 1728,
+    "contentType": "application/xml; version=2.1; charset=utf-8"
+  },
+  "imf-terms": {
+    "url": "https://www.imf.org/external/terms.htm",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  "oecd-terms-legacy": {
+    "url": "https://www.oecd.org/termsandconditions/",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  "oecd-terms-api": {
+    "url": "https://www.oecd.org/en/about/terms-conditions.html#data",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  "oecd-data2": {
+    "url": "https://sdmx.oecd.org/public/rest/v1/data/OECD.SDD.STES,DSD_STES@DF_FINMARK,1.0/CAN.IR3TIB.PA._Z.M?startPeriod=2024-01&endPeriod=2024-01",
+    "error": "HTTP Error 404: Not Found"
+  }
+}
