@@ -1,0 +1,48 @@
+{
+  "release": "a85beea",
+  "deployedAt": "2026-11-15T06:56:41Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "previousRelease": "9f10301",
+  "purpose": "Backend part of 70c5eda (custom date windows on overview, performance and frontier); backend diff since 9f10301: backend/aplomb/profiles/service.py, backend/aplomb/optimizer/frontier.py.",
+  "method": "Same as release 9f10301 (AWS CLI, WSParticipantRole profile, change set reviewed before execution).",
+  "artifact": {
+    "key": "deployments/a85beea/lambda.zip",
+    "s3VersionId": "hJF3Zi0krnilLU0ciNeqp1INGRoKD68B",
+    "bytes": 30459578,
+    "sha256Base64": "nOEnmRCKo78XTBErVQt75LRnhLS/QwUSIxNn+nDAF8I=",
+    "files": 4283,
+    "packaging": "infra/scripts/package-backend.sh at a85beea in a clean WSL clone; Lambda Python 3.12 image import check passed"
+  },
+  "configurationChange": "none (flags as in 9f10301)",
+  "changeSet": {
+    "name": "release-a85beea",
+    "changes": [
+      "Modify ApiF70053CD and Worker11F36D0F: Code, Role; API environment only changes the worker version reference",
+      "Add API and worker version 3; version-2 resources leave the stack (DeletionPolicy Retain)",
+      "Per-release roles, policies and worker EventInvokeConfig identical to the previous ones after hash normalization",
+      "HTTP integration and its invoke permission move to API version 3"
+    ]
+  },
+  "result": {
+    "stackStatus": "UPDATE_COMPLETE",
+    "failedEvents": 0,
+    "lambdaVersions": {
+      "api": "3",
+      "worker": "3"
+    },
+    "lambdaCodeSha256MatchesArtifact": true,
+    "outputsRevision": "a85beea"
+  },
+  "liveChecks": {
+    "meta": "same eight flags on; languages en, fr",
+    "customWindow": {
+      "overview": "200, window echoed {code: custom, start: 2024-01-02, end: 2024-12-31}",
+      "performance": "200, same echo",
+      "frontier": "200, same echo",
+      "reversedRange": "422 validation_error"
+    },
+    "browser": "Home Period > Range on CloudFront (frontend a85beea) requested overview and performance with window=custom: both 200, no error state; World Explorer feed (31 events) and Time Machine presets (6) still load."
+  },
+  "rollback": "Update the stack with the 9f10301 template (artifact deployments/9f10301/lambda.zip version 9tKSn4w5GPWtd3QmCESk_GXq9wy_Q7vj is retained)."
+}
