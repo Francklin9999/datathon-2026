@@ -4,6 +4,7 @@ test gateway whose model ID says so; no network, AWS or model call is made."""
 
 from __future__ import annotations
 
+import itertools
 import time
 import uuid
 
@@ -92,7 +93,10 @@ def test_without_a_model_runs_are_refused_and_deterministic_endpoints_work():
 # World and replay over HTTP ---------------------------------------------------------------------
 
 
-def test_world_endpoints_validate_against_the_contract(client):
+def test_world_endpoints_validate_against_the_contract(client, monkeypatch):
+    # Contract coverage must not depend on runner speed or the 30 requests/second quota.
+    # Rate-limit enforcement is covered separately in tests/api/test_http.py.
+    monkeypatch.setattr(client.app.state.limiter, "clock", itertools.count().__next__)
     headers = session()
     layers = ok(client.get("/v1/world/layers", headers=headers), "WorldLayersResponse")
     assert [layer["layerId"] for layer in layers["items"]] == ["events", "exposure", "facilities", "hazards"]
