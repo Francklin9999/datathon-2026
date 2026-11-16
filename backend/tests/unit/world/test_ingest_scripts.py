@@ -1,4 +1,4 @@
-"""scripts/ingest_airports.py and scripts/ingest_facilities.py replay the retained captures offline."""
+"""scripts/ingest_facilities.py replays the retained capture offline."""
 import csv
 import gzip
 import hashlib
@@ -9,7 +9,6 @@ from pathlib import Path
 from unittest import mock
 
 import pytest
-from aplomb.world.airports import DIRECTORY as AIRPORTS
 from aplomb.world.facilities import COLUMNS, ID, NAME, OPERATOR, TOTAL, YEAR
 from aplomb.world.facilities import DIRECTORY as FACILITIES
 
@@ -50,24 +49,6 @@ def assert_same_capture(actual: Path, expected: Path):
             f'expected sha256={hashlib.sha256(expected_bytes).hexdigest()}',
             pytrace=False,
         )
-
-
-@pytest.mark.parametrize('repacked', [False, True], ids=['retained', 'different-gzip-encoding'])
-def test_airports_rebuild_from_retained_captures_without_network(tmp_path, repacked):
-    script, inputs, out = load('ingest_airports'), ROOT / 'data' / 'inputs' / 'airports', tmp_path / 'out'
-    captures = {
-        name: replay_capture(inputs / name, tmp_path, repacked)
-        for name in ('airports.csv.gz', 'country_crosswalk.json.gz')
-    }
-    committed = manifest(AIRPORTS, 'airports_manifest.json')
-    with mock.patch.object(script, 'http_get', no_network):
-        script.main(['--out', str(out), '--capture', str(captures['airports.csv.gz']),
-                     '--crosswalk-capture', str(captures['country_crosswalk.json.gz']),
-                     '--captured-at', committed['capturedAt']])
-    assert json.loads((out / 'airports.json').read_text()) == json.loads((AIRPORTS / 'airports.json').read_text())
-    assert manifest(out, 'airports_manifest.json') == committed
-    for name, capture in captures.items():
-        assert_same_capture(out / name, capture)
 
 
 @pytest.mark.parametrize('repacked', [False, True], ids=['retained', 'different-gzip-encoding'])
@@ -131,7 +112,6 @@ def test_facilities_removes_contact_data_from_gzip_metadata(tmp_path, metadata_l
     assert manifest(out, 'facilities_manifest.json')['originalSourceSha256'] is None
 
 
-@pytest.mark.parametrize('name', ['ingest_airports', 'ingest_facilities'])
-def test_captured_at_must_be_a_utc_timestamp(name, tmp_path):
+def test_captured_at_must_be_a_utc_timestamp(tmp_path):
     with pytest.raises(SystemExit):
-        load(name).main(['--out', str(tmp_path / 'out'), '--captured-at', '2026-11-15'])
+        load('ingest_facilities').main(['--out', str(tmp_path / 'out'), '--captured-at', '2026-11-15'])

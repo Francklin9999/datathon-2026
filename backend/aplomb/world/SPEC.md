@@ -43,18 +43,17 @@ Implemented in `backend/aplomb/world/` with the standard library only.
 | Module | Content |
 |---|---|
 | `ingest.py` | Batch CLI: fetch, pure parsers, canonical URL and `eventId`, alias table, merge, importance, deterministic bundle writer |
-| `geo.py` | Country reference table (ISO3, EN/FR name, approximate centroid), source-place resolution, dateline-aware bounding box |
-| `dataset.py` | `load_bundle()` verifies every file against the manifest SHA-256 and row counts; `BundleProvider` loads lazily |
+| `geo.py` | Country reference table (ISO3, EN/FR name, approximate centroid), source-place resolution, dateline-aware bounding box, the country presentation of §8.6 (`present_iso3`, `present_name`, `present_rows`) |
+| `dataset.py` | `load_bundle()` verifies every file against the manifest SHA-256 and row counts, then presents countries (§8.6); `BundleProvider` loads lazily |
 | `service.py` | `WorldServiceImpl`: the `WorldService` protocol of the API plus `search_events` for the `world.search_events` tool |
 | `assessment.py` | Source-supported country and corporate-name resolution, disclosed theme rules for screening every provider and reference record |
-| `airports.py` | Current-only OurAirports reference layer (`/world/airports`); no aircraft movements |
 | `facilities.py` | ECCC GHGRP annual facility emissions (`/world/facilities`); no fuzzy security matching or ESG scoring |
 | `country_macro.py` | World Bank WDI annual country indicators: bounded capture and immutable snapshot for the country panel |
-| `geo_boundaries.py` | Bounding-box queries over the captured metropolitan France ADM1 polygons |
+| `geo_boundaries.py` | Bounding-box queries over captured source polygons (NASA CMR granule and GIBS tile footprints) |
 | `relationships.py` | `EVENT_OCCURRED_AT` geographic edges served in `/world/events/{eventId}`; no ownership or financial claim |
-| `providers/` | Content-addressed provider captures (`snapshot.py` loader and publisher, per-source capture modules, `ingest.py` manual refresh CLI) served by `/world/observations` |
+| `providers/` | Content-addressed provider captures (`snapshot.py` loader and publisher, per-source capture modules, `ingest.py` manual refresh CLI) served by `/world/observations` in the modes `news`, `macro` and `environment` |
 | `passports.py` | Passports of `world_events` and `natural_hazards` once loaded, plus one per provider capture; `WorldDatastoreService` overlays them on `GET /datasets` |
-| `bundle/` | The committed bundle: `events.json`, `hazards.json`, `manifest.json`; `airports*.json`, `facilities*.json`, `country_macro*.json` (each with its manifest); `providers/<datasetId>-<date>-<sha16>/` captures |
+| `bundle/` | The committed bundle: `events.json`, `hazards.json`, `manifest.json`; `facilities*.json`, `country_macro*.json` (each with its manifest); `providers/<datasetId>-<date>-<sha16>/` captures |
 
 ### 8.1 What is loaded, and what is not
 
@@ -67,9 +66,9 @@ First build of 2026-11-15 (`snap-20261115-world`), window 2021-11-12 to 2026-11-
 | Federal Reserve Board monetary-policy press feed (recent items only) | 15 | country | monetary_policy |
 | Statistics Canada, The Daily: the 58 CPI releases already listed in `macro_release_dates` | 58 | country | macro_release |
 
-A NASA EONET v3 capture (2026-10-15 to 2026-11-12, bounded to the first 500 records: 480 items, 20 rejected) was added afterwards as `snap-20261115-world-eonet-570970dd`.
+A NASA EONET v3 capture (2026-10-15 to 2026-11-12, bounded to the first 500 records: 480 items, 20 rejected) was added afterwards as `snap-20261115-world-eonet-570970dd`; the event feed rule of §8.2 now keeps it out of the feed.
 
-Not part of the event bundle, and stated as such in `manifest.json` `notIngested` and on the Sources page: GDELT (the article index is not fetched at build time, O-07; bounded GDELT captures are separate `world_gdelt_*` provider observations), facility emissions (ECCC GHGRP is served separately as `emissions_facilities`; EPA facility emissions are not loaded) and NASA FIRMS (bounded MODIS detections are separate `world_firms_*` provider observations). The two press feeds list recent releases only, so official events before autumn 2026 are limited to the CPI releases. This is a cited sample, not world coverage; `total`, `coverage` and the passports describe loaded data only.
+Not part of the event bundle, and stated as such in `manifest.json` `notIngested` and on the Sources page: GDELT (the article index is not fetched at build time, O-07; bounded GDELT captures are separate `world_gdelt_*` provider observations), facility emissions (ECCC GHGRP is served separately as `emissions_facilities`; EPA facility emissions are not loaded) and NASA FIRMS (MODIS detections are not served); NASA EONET natural events and USGS earthquakes below magnitude 6.0 are kept out of the feed by its rule (§8.2). The two press feeds list recent releases only, so official events before autumn 2026 are limited to the CPI releases. This is a cited sample, not world coverage; `total`, `coverage` and the passports describe loaded data only.
 
 Rebuild (network needed; the API never needs it). Step 1 rebuilds the base bundle, including EONET over the last `--eonet-days` days of the window (default 28, at most 366, first 500 records). It writes **in place** unless `--out` is given, and an in-place run replaces the committed expanded bundle of §8.4, so build into a fresh directory and expand it:
 
@@ -80,7 +79,7 @@ uv run python ../scripts/expand_world_events.py --base /tmp/world-base --out /tm
   --start 2025-11-12 --end 2026-11-12 --min-magnitude 5
 ```
 
-Check the output, then copy `events.json`, `hazards.json` and `manifest.json` into `bundle/`. A source that fails is recorded with its error and contributes nothing; if no event at all can be read the existing bundle is left untouched. The build date becomes the version label and fixes the importance scores. `scripts/ingest_eonet.py` refreshes only EONET into a fresh `--out`. The other layers have their own capture commands: `scripts/ingest_airports.py`, `scripts/ingest_facilities.py`, `scripts/ingest_world_bank.py` and `python -m aplomb.world.providers.ingest --source <name>` (provider captures, each a new content-addressed directory; earlier versions are never deleted).
+Check the output, then copy `events.json`, `hazards.json` and `manifest.json` into `bundle/`. A source that fails is recorded with its error and contributes nothing; if no event at all can be read the existing bundle is left untouched. The build date becomes the version label and fixes the importance scores. `scripts/ingest_eonet.py` refreshes only EONET into a fresh `--out`. The other layers have their own capture commands: `scripts/ingest_facilities.py`, `scripts/ingest_world_bank.py` and `python -m aplomb.world.providers.ingest --source <name>` (provider captures, each a new content-addressed directory; earlier versions are never deleted).
 
 ### 8.2 Decisions taken in this track
 
@@ -89,12 +88,15 @@ Check the output, then copy `events.json`, `hazards.json` and `manifest.json` in
 - **Country resolution.** Only the country named at the end of the source place string (or a U.S. state after a comma) is accepted; ambiguous names such as "Georgia" resolve to nothing. An ISO3 outside the reference table is displayed as its code.
 - **Company mentions.** `COMPANY_ALIASES` in `ingest.py` lists unambiguous corporate names only: a bare "Apple", "Amazon", "Tesla" or "Fortis" is not a mention. No event of the current bundle names a holding.
 - **Theme proxy (team assumption).** A monetary-policy event is tagged with the bond themes of its country (`bonds_canada`; `bonds_us`, `long_treasuries`). Wherever it produces a link the note says "team assumption".
+- **Event feed rule (team decision).** The only natural-disaster events in the feed are USGS earthquakes of magnitude 6.0 or more, the magnitude read from the catalog record in `hazards.json`. `ingest.build_bundle` applies it, so every build (the CLI and `scripts/expand_world_events.py`) does; `manifest.json` records it as `method.naturalDisasterRule`, gives each USGS/EONET source its kept `items` and `excludedByFeedRule`, and lists the excluded sources in `notIngested`. Every captured earthquake stays in `hazards.json` and `/world/hazards`.
+- **No event relationship review.** No documented event-to-issuer relationship source is connected, so an `event_brief` result carries no `relationshipReview` (the optional contract field is kept); its links are the code matches below.
 - **Event-to-holding links.** One row per holding with its strongest code match: `named_in_source`, then `theme`, then `listing_country`. `impact` is always `not_established` on this endpoint, `evidenceIds` is empty and `documented_exposure` is never emitted; an observed price change is added only by the `event_brief` run, and only for a holding named in the source.
 - **Unknown bucket.** `GET /world/exposure` returns holdings without a listing country (crypto, cash) under `countryIso3 = "ZZZ"` (ISO 3166 user-assigned), always last, never redistributed. Basis is `listing_country` for every row because no `etf_holdings` dataset is loaded (`LIM_ETF_NO_LOOKTHROUGH`).
 - **Defaults.** Events: the last 30 days of the dataset. Country panel: the last 366 days. Hazards: the whole dataset. A cursor is bound to its filter set and data version; reusing it with other filters is a `validation_error`.
 - **Event brief cutoff and provenance.** An `event_brief` run pins the event, its code-matched holdings and the manifest record of its source at creation. Its information cutoff (`asOf`) is the later of the price data date and the bundle build date. The cited event fact is available from the source's stated publication time, or from the retrieval time when the source states none; no time is assumed.
 - **Bounding box.** `minLon` greater than `maxLon` is a box that crosses the dateline; it is accepted by the API and evaluated as two boxes.
 - **Facilities.** ECCC GHGRP reporting year 2024 is loaded (`emissions_facilities`, 1,863 rows, `snap-20261115-eccc-6c708ab589`). With `APLOMB_FEATURE_WORLD_LAYER_FACILITIES=true` (`dev:api` sets it; the flag defaults to `false`, and the AWS stack enables it only when `world_layer_facilities` is in `application.features`) the layer reports `available = true`, the capability is advertised and `GET /world/facilities` answers `200`; otherwise the route answers `feature_disabled`. The research tool `emissions.facilities` is offered only in a run whose cutoff is on or after the capture day. Rows carry no security match (`ticker = null`, `matchConfidence = none`). The capture has no historical vintages, so a request with `asOf` is a `validation_error` (422).
+- **Observation modes.** `/world/observations` serves `news`, `macro` and `environment` only; any other `mode` is a `validation_error`. Aviation, trade and shipping, conflicts, energy, economic infrastructure and observation-level hazards were removed with their captures, capture modules and the airport reference (`/world/airports`), because they do not serve the persona decisions. Their dataset ids stay in `contracts/catalog.md` §10 for this release only, with `planned` "Not served" passports, so a site built from this contract still accepts an older API's responses. With `scope=all`, feed events appear as `macro` (monetary policy, macro releases), `environment` (the feed earthquakes) or `news`.
 - **Provider captures.** A damaged capture (checksum, row count or schema) drops only its own source; the other sources are still served, and `/world/observations` gives the integrity reason only for the modes of the damaged sources (every empty mode when the source's mode cannot be told from its ID).
 
 ### 8.3 Verification
@@ -103,17 +105,20 @@ Check the output, then copy `events.json`, `hazards.json` and `manifest.json` in
 
 ### 8.4 Extended globe coverage
 
-The current bundle supersedes the initial counts above. It contains 3,090 events
-and 2,528 earthquake hazards. An additional USGS magnitude-5 capture covers
-2025-11-12 to 2026-11-12: 1,999 source records, no rejected records and 1,860 new
-identities after URL deduplication. Prior official releases, NASA EONET events
-and older earthquakes remain present. Raw source evidence, hashes and prior
-capture metadata are retained. `scripts/expand_world_events.py` produces a fresh
-verified directory before publication.
+The current bundle (`snap-20261115-world-expanded-54bfcad0-m6`) supersedes the
+initial counts above. It contains 751 events (83 official releases and 668 USGS
+earthquakes of magnitude 6.0 or more) and 2,528 earthquake hazards. An additional
+USGS magnitude-5 capture covers 2025-11-12 to 2026-11-12: 1,999 source records,
+no rejected records; all of them are hazards, and the feed rule of §8.2 keeps the
+1,860 earthquakes below magnitude 6.0 and the 479 NASA EONET events out of the
+feed. The bundle was rebuilt offline from the previous verified bundle with the
+same build time, so the kept events and every hazard are unchanged. Raw source
+evidence, hashes and prior capture metadata are retained.
+`scripts/expand_world_events.py` produces a fresh verified directory before
+publication.
 
-Provider snapshots supply additional news location metadata, conflicts,
-disaster alerts, power plants, aviation, environmental observations and
-geographic references. `GET /world/observations` supports `scope=providers` to
+Provider snapshots supply additional news location metadata, macro and market
+releases and environmental observations. `GET /world/observations` supports `scope=providers` to
 avoid duplicating core events, `mapOnly=true` to retain actual source coordinates,
 and `order=coverage` to interleave datasets and geographic cells. These options
 are included in the cursor signature; default date ordering remains supported.
@@ -124,8 +129,8 @@ Source observations retain their provenance, precision, capture gate and limitat
 
 ### 8.5 Portfolio assessments for every globe record
 
-Every portfolio-scoped event detail, provider observation, emissions facility,
-earthquake and airport reference includes a completed holdings assessment.
+Every portfolio-scoped event detail, provider observation, emissions facility
+and earthquake includes a completed holdings assessment.
 Screen all positive-weight positions against the source's explicit issuer names,
 disclosed theme proxies and supported countries. Return one row per holding with
 its strongest name/theme/listing-country match, plus unique matched weight,
@@ -143,3 +148,24 @@ gaps shown alongside it. Provider cursors include profile and effective holding
 inputs, so a profile switch or portfolio edit cannot mix assessed pages.
 The event feed's relevance flag uses the same matcher as its detail popup,
 including theme proxies.
+
+### 8.6 Country presentation (team decision)
+
+Source codes and names for Israel, the West Bank and Gaza are presented as one
+region, `PSE` / Palestine, in every world output: event `relatedCountries`,
+`location.countryIso3`, `location.placeName` and titles, hazard titles, provider
+observations (country code, title and place or country name fields), facilities,
+the country panel, exposure and every assessment. It is applied once when a
+capture is loaded (`dataset.load_bundle`, `providers.snapshot.load_provider_snapshots`,
+`facilities.load_facilities`), after every checksum has been verified; the captured
+files and their hashes are never changed. Names are replaced as whole words
+(`Israel`, `West Bank`, `Gaza Strip`, `West Bank and Gaza`); `Israeli` and the city
+of Gaza are left as written.
+
+`GET /world/countries/ISR` answers the `PSE` panel, and `country=ISR` filters select
+`PSE`. Where a source publishes both an `ISR` and a `PSE` series (World Bank
+indicators per indicator, WGI per source), the source's own `PSE` series is served
+and the ISR-coded rows are withheld, never merged or summed: 4 World Bank rows and
+1 WGI row. The passports of `world_events`, `natural_hazards`,
+`world_bank_indicators` and of every affected provider capture state the decision
+in `processing`, and their `rowCount` counts the rows served.

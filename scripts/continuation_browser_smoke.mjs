@@ -33,13 +33,6 @@ body=await evaluate('document.body.innerText');if(!body.includes('currency')||/c
 checks.push('Currency limit saved through form');
 await evaluate(`document.getElementById('limit-max').scrollIntoView({block:'center'})`);
 await fs.writeFile(out+'/browser-gbp-goals.png',Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
-await send('Page.navigate',{url:root+'/world-explorer/?country=JPN'});await delay(4000);
-const enabled=await evaluate(`(()=>{const x=document.querySelector('input[aria-describedby="layer-airports-note"]');if(!x||x.disabled)return false;x.click();return true})()`);
-if(!enabled)throw new Error('Airport layer unavailable');await delay(2500);
-body=await evaluate('document.body.innerText');if(!body.includes('Airport reference')||!body.includes('RJTT'))throw new Error('Japan airport reference not displayed');
-checks.push('Japan country filter and airport layer rendered');
-await evaluate(`Array.from(document.querySelectorAll('h2')).find(x=>x.textContent==='Airport reference')?.scrollIntoView({block:'start'})`);
-await fs.writeFile(out+'/browser-japan-airports.png',Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
 await send('Page.navigate',{url:root+'/world-explorer/?country=CAN'});await delay(3000);
 const facilityEnabled=await evaluate(`(()=>{const x=document.querySelector('input[aria-describedby="layer-facilities-note"]');if(!x||x.disabled)return false;x.click();return true})()`);
 if(!facilityEnabled)throw new Error('ECCC layer unavailable');await delay(2000);

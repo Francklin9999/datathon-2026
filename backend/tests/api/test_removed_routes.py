@@ -7,6 +7,7 @@ decision flow: every /v1/intelligence/* route except the source-capabilities shi
 /v1/research/* route and /v1/timemachine/vintages/status.
 The Risk Intelligence calculators that ignore the active investor profile, and the provider-capture feeds
 behind them, are removed too; the profile risk read and focus candidates stay.
+The World Explorer keeps the persona modes only: the static airport reference is not served.
 """
 import importlib
 
@@ -67,6 +68,9 @@ REMOVED = [
     "/v1/research/market-provider/finnhub?symbol=AAPL",
     "/v1/research/tiingo/AAPL?start=2026-10-01&end=2026-11-01",
     "/v1/timemachine/vintages/status",
+    # World Explorer: the static airport reference
+    "/v1/world/airports",
+    "/v1/world/airports?profileId=robert&country=JPN",
 ]
 
 REMOVED_POST = [
@@ -136,6 +140,7 @@ def test_removed_risk_calculator_is_not_registered(client, method, path):
     "aplomb.datastore.financial_connectors", "aplomb.datastore.fama_french", "aplomb.datastore.finra_volume",
     "aplomb.datastore.cftc_cot", "aplomb.datastore.cftc_swaps", "aplomb.datastore.nyfed_sofr",
     "aplomb.datastore.treasury_inputs",
+    "aplomb.world.airports", "aplomb.world.providers.ucdp_static", "aplomb.world.providers.transport_extra",
 ])
 def test_removed_module_is_gone(module):
     with pytest.raises(ModuleNotFoundError):

@@ -9,22 +9,17 @@ from aplomb.contracts import api as a
 from aplomb.contracts import models as m
 from aplomb.datastore.service import DatastoreService
 
-from .airports import load_airports
 from .country_macro import SOURCE_ID
 from .dataset import WorldDataError, WorldDataset
 from .facilities import load_facilities
 from .providers import load_provider_snapshots
 
 PROVIDER_DATASET_IDS = frozenset({
-    "world_aviation_weather", "world_noaa_alerts", "world_usgs_geojson", "world_gdacs_alerts",
     "world_nasa_power", "world_epa_sems_sites",
     "world_climate_trace_canada_electricity_co2",
-    "world_federal_register", "world_ecb_press", "world_uk_sanctions_updates", "world_usgs_minerals", "world_statcan_cpi",
-    "energy_wri_plants", "trade_portwatch_ports", "trade_un_comtrade_exports", "trade_wits_fuel_exports",
-    "trade_unctad_concentration",
-    "world_geoboundaries_fra_adm1", "world_ucdp_ged_ukraine_2025",
+    "world_federal_register", "world_ecb_press", "world_statcan_cpi",
     "world_fda_drug_enforcement_counts", "world_crossref_climate_bibliography",
-    "world_ted_published_notice_metadata", "world_bls_us_cpi_2024",
+    "world_bls_us_cpi_2024",
     "world_wgi_political_stability_2024",
     "world_ecb_eurosystem_assets_2024", "world_bis_us_debt_service_2024", "world_fed_chargeoffs_2024",
     "world_gdelt_event_metadata", "world_gdelt_gkg_locations", "world_gdelt_geographic_mentions",
@@ -32,22 +27,24 @@ PROVIDER_DATASET_IDS = frozenset({
     "world_wikipedia_recent_changes",
     "world_ilo_unemployment_2024",
     "world_bank_sdmx_gdp_2024",
-    "world_energy_charts_de_power",
-    "world_nasa_gibs_modis_tile", "world_nominatim_eiffel_lookup", "world_osm_eiffel_tower",
+    "world_nasa_gibs_modis_tile",
     "world_global_carbon_budget_2026",
-    "world_adsblol_heathrow_positions", "trade_marinecadastre_ais_2024_samples",
-    "world_copernicus_activation_centroids", "world_firms_modis_europe", "world_firms_modis_australia_area",
     "world_nyfed_sce_inflation_2024",
-    "world_ember_monthly_generation_2026", "world_geofabrik_monaco_transport", "world_eia_crude_production_2024",
-    "world_hapi_inform_risk_2025",
     "world_nasa_cmr_modis_granules",
-    "world_openflights_airport_reference",
     "world_openaq_defra_york_20260328",
 })
 
 
 def _t(en: str, fr: str) -> dict:
     return {"en": en, "fr": fr}
+
+
+# Team decision (geo.PRESENTED_AS), stated in every passport whose served rows it can change.
+PALESTINE_NOTE = _t(
+    "Team decision: source codes and names for Israel, the West Bank and Gaza (ISR, Israel, West Bank, Gaza Strip) "
+    "are presented as Palestine (PSE). Applied when the capture is loaded; the captured files and their checksums are unchanged.",
+    "Décision de l'équipe : les codes et noms de source d'Israël, de la Cisjordanie et de Gaza (ISR, Israel, West Bank, "
+    "Gaza Strip) sont présentés comme Palestine (PSE). Appliqué au chargement; les fichiers capturés et leurs empreintes sont inchangés.")
 
 
 def world_passports(ds: WorldDataset) -> dict[str, dict]:
@@ -89,6 +86,7 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
                 # The reasons are the bundle manifest's English text, so the French line quotes them as recorded.
                 _t(f"Not in this event feed: {not_loaded}",
                    f"Hors de ce fil d'événements (motifs du manifeste, en anglais) : {not_loaded}"),
+                PALESTINE_NOTE,
             ],
             "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"],
             "availabilityRule": _t(
@@ -117,12 +115,11 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
             "rowCount": len(ds.hazards), "dataVersion": ds.version,
             "schema": [{"name": "hazard", "type": "object", "description": "Hazard wire fields (contracts/schemas.md §10)"}],
             "processing": [
-                _t(f"Earthquakes only ({magnitude}); wildfire detections (NASA FIRMS) are not part of this layer and are "
-                   "served as separate source observations.",
-                   f"Séismes seulement ({magnitude}); les détections de feux (NASA FIRMS) ne font pas partie de cette couche et "
-                   "sont servies comme observations de source distinctes."),
+                _t(f"Earthquakes only ({magnitude}); wildfire detections (NASA FIRMS) are not served.",
+                   f"Séismes seulement ({magnitude}); les détections de feux (NASA FIRMS) ne sont pas servies."),
                 _t("Proximity to a hazard does not establish an effect on any holding.",
                    "La proximité d'un aléa n'établit aucun effet sur un titre."),
+                PALESTINE_NOTE,
             ],
             "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"],
             "availabilityRule": _t(
@@ -134,6 +131,7 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
         }
     if ds.country_macro_manifest:
         macro = ds.country_macro_manifest
+        withheld = macro["rowCount"] - len(ds.country_macro)
         out[SOURCE_ID] = {
             "datasetId": SOURCE_ID,
             "name": _t("World Bank World Development Indicators", "Indicateurs du développement dans le monde, Banque mondiale"),
@@ -142,7 +140,7 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
             "sourceUrl": macro["catalogUrl"], "accessMethod": "World Bank indicators API v2; fixed bounded batch",
             "licence": macro["licence"], "licenceUrl": macro["licenceUrl"],
             "retrievedOn": macro["retrievedAt"][:10], "coverage": macro["coverage"],
-            "frequency": "annual; manually refreshed batch", "rowCount": macro["rowCount"],
+            "frequency": "annual; manually refreshed batch", "rowCount": len(ds.country_macro),
             "dataVersion": macro["dataVersion"],
             "schema": [
                 {"name": "countryIso3", "type": "string", "description": "World Bank country/territory code; geographic aggregates excluded."},
@@ -158,12 +156,14 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
                    "Attribution : Banque mondiale, Indicateurs du développement dans le monde; les indicateurs peuvent inclure des données de sources nationales et autres. Traductions et filtrage adaptés par Aplomb. Aucun appui de la Banque mondiale n'est implicite."),
                 _t("Annual observations are not real-time signals; estimates can be revised. No financial or causal impact is implied.",
                    "Les observations annuelles ne sont pas des signaux en temps réel; les estimations peuvent être révisées. Aucune incidence financière ou causale n'est implicite."),
+                _t(f"Team decision: ISR-coded rows are presented under PSE (Palestine). The World Bank publishes its own PSE series (West Bank and Gaza), so that series is served and the {withheld} ISR rows are withheld, never merged or summed.",
+                   f"Décision de l'équipe : les lignes codées ISR sont présentées sous PSE (Palestine). La Banque mondiale publie sa propre série PSE (Cisjordanie et Gaza); cette série est servie et les {withheld} lignes ISR sont retenues, jamais fusionnées ni additionnées."),
             ],
             "limitations": ["LIM_MACRO_REVISED", "LIM_IMPACT_NOT_ESTABLISHED"],
             "availabilityRule": _t("Publication dates and original historical vintages are unknown. The earliest proven availability is the retrieval timestamp. This snapshot is not used in historical replays.",
                                    "Les dates de publication et les versions historiques originales sont inconnues. La première disponibilité prouvée est la récupération. Cet instantané n'est pas utilisé dans les rejeux historiques."),
             "checks": [{"name": "country_macro_checksum", "ok": True,
-                        "detail": "The saved observations match the manifest SHA-256 and row count.", "checkedAt": macro["retrievedAt"]}],
+                        "detail": f"The {macro['rowCount']} saved observations match the manifest SHA-256 and row count.", "checkedAt": macro["retrievedAt"]}],
             "rejectedReason": None,
         }
     return out
@@ -185,13 +185,15 @@ def provider_passports() -> dict[str, dict]:
              if row["sourceId"] == source_id and row.get("properties", {}).get("attribution")), None,
         )
         retrieved = manifest["retrievedAt"]
-        scope = manifest.get("scope") or (
-            "Five published procurement notice metadata records from the first page of "
-            "2026-11-01 through 2026-11-15; source-reported buyer countries only."
-            if source_id == "world_ted_published_notice_metadata"
-            else manifest["name"]
-        )
+        scope = manifest.get("scope") or manifest["name"]
         version = f"snap-{retrieved[:10].replace('-', '')}-{source_id}-{manifest['sha256'][:10]}"
+        presentation = manifest.get("presentation")
+        presented = [PALESTINE_NOTE] if presentation else []
+        if presentation and presentation["withheldIsrRows"]:
+            withheld = presentation["withheldIsrRows"]
+            presented.append(_t(
+                f"This source also publishes PSE rows, so its own PSE rows are served and its {withheld} ISR-coded row(s) are withheld under the team decision.",
+                f"Cette source publie aussi des lignes PSE; ses propres lignes PSE sont servies et ses {withheld} ligne(s) codée(s) ISR sont retenues selon la décision de l'équipe."))
         out[source_id] = {
             "datasetId": source_id,
             "name": _t(manifest["name"], manifest["name"]),
@@ -214,12 +216,12 @@ def provider_passports() -> dict[str, dict]:
                 {"name": "retrievedAt", "type": "timestamp", "description": "First proven availability of this captured version"},
             ],
             "processing": [_t(note, note) for note in
-                           ([attribution] if attribution else []) + manifest["limitations"]],
+                           ([attribution] if attribution else []) + manifest["limitations"]] + presented,
             "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"],
             "availabilityRule": _t(manifest["availabilityRule"], manifest["availabilityRule"]),
             "checks": [
                 {"name": "normalized_checksum", "ok": True,
-                 "detail": f"{counts[source_id]} normalized rows match {manifest['sha256']}; "
+                 "detail": f"{manifest['rowCount']} normalized rows match {manifest['sha256']}; "
                            "raw captures also passed SHA-256 verification.",
                  "checkedAt": retrieved},
                 {"name": "pagination_coverage", "ok": bool(manifest.get("coverageComplete")),
@@ -240,10 +242,6 @@ class WorldDatastoreService(DatastoreService):
     def _overrides(self) -> dict[str, dict]:
         try:
             overrides = world_passports(self._world())
-            try:
-                rows, meta = load_airports()
-            except (ValueError, OSError, KeyError):
-                rows, meta = [], None
             try:
                 facilities, facility = load_facilities()
             except (ValueError, OSError, KeyError):
@@ -270,15 +268,6 @@ class WorldDatastoreService(DatastoreService):
                                            "Publication originale et millésimes historiques inconnus. Référence actuelle capturée seulement; exclue des reconstitutions historiques."),
                     "checks": [{"name": "facility_snapshot_checksum", "ok": True,
                                 "detail": "Normalized rows match SHA-256 and count; original and retained-projection hashes preserved in manifest.", "checkedAt": facility["capturedAt"]}],
-                }
-            if meta:
-                overrides["world_airports"] = {
-                    "status": "in_use", "source": "OurAirports; World Bank country-code crosswalk",
-                    "sourceUrl": meta["sourceUrl"], "licence": meta["licence"], "licenceUrl": meta["licenceUrl"],
-                    "retrievedOn": meta["capturedAt"][:10], "rowCount": len(rows), "dataVersion": meta["dataVersion"],
-                    "processing": [_t(note, note) for note in meta["limitations"]],
-                    "checks": [{"name": "airport_snapshot_checksum", "ok": True,
-                                "detail": "Normalized rows match SHA-256 and row count.", "checkedAt": meta["capturedAt"]}],
                 }
             try:
                 overrides.update(provider_passports())

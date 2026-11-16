@@ -620,6 +620,8 @@ interface SabotageResult {
 
 ## 10. World Explorer
 
+Country presentation (team decision): every world output (event `relatedCountries` and `location`, observations, facilities, hazards, country panel, exposure, assessments) presents source codes and names for Israel, the West Bank and Gaza as `PSE` / Palestine. It is applied once in the backend when a capture is loaded; captured files and their checksums are unchanged. Where a source publishes both `ISR` and `PSE` rows for the same series (World Bank indicators, WGI), the source's own `PSE` rows are served and the `ISR` rows are withheld; the dataset passports say so.
+
 ```ts
 type EventCategory = "monetary_policy" | "macro_release" | "geopolitical" | "trade_regulation" | "corporate"
                    | "energy_commodities" | "markets" | "natural_disaster" | "other";
@@ -671,7 +673,7 @@ interface EventBriefResult {
   exposures: HoldingExposure[];
   brief: Brief;                          // sections map to: what happened, why it matters, holdings exposed, mechanisms, uncertainties, what to watch
   impactStatement: I18nText;             // "Potential exposure identified — financial impact not established." unless measured
-  relationshipReview?: EventRelationshipReview | null;   // documented relationship leads, or why there are none
+  relationshipReview?: EventRelationshipReview | null;   // not produced: no documented event-to-issuer relationship source is connected; kept optional for compatibility
 }
 
 interface EventHypothesis {              // a documented lead, never a measured or causal impact
@@ -747,7 +749,7 @@ interface WorldObservationSource { name: string; url: string }
 
 interface WorldObservation {             // one source-backed item of GET /world/observations (api.md §6.8)
   id: string;
-  mode: "news" | "macro" | "trade" | "energy" | "hazards" | "conflicts" | "aviation" | "environment" | "infrastructure";
+  mode: "news" | "macro" | "trade" | "energy" | "hazards" | "conflicts" | "aviation" | "environment" | "infrastructure"; // only news, macro and environment are served; the other values stay for the web types
   title: string;
   summary: string;
   occurredAt: ISODateTime;
@@ -774,7 +776,7 @@ interface WorldObservationsResponse {
   modes: WorldModeStatus[];              // availability, count and reason per mode
 }
 
-interface AirportReference {             // static OurAirports capture (api.md §6.9)
+interface AirportReference {             // not served: the airport route and capture were removed; kept for the web types
   airportId: string;
   ident: string;
   name: string;
@@ -789,7 +791,7 @@ interface AirportReference {             // static OurAirports capture (api.md �
 interface AirportsResponse { items: AirportReference[]; total: number; dataVersion: DataVersion; capturedAt: ISODateTime }
 
 interface WorldLayer {
-  layerId: "events" | "exposure" | "facilities" | "hazards" | "airports";
+  layerId: "events" | "exposure" | "facilities" | "hazards" | "airports"; // "airports" is no longer returned
   title: I18nText;
   tier: "P1" | "P2";
   available: boolean;                    // false when its dataset is not loaded

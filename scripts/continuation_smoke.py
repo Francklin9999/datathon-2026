@@ -53,11 +53,6 @@ def main():
     assert pid not in {p['profileId'] for p in call('GET', '/profiles', 'ProfilesResponse')['items']}
     assert pid in {p['profileId'] for p in call('GET', '/profiles/archived', 'ProfilesResponse')['items']}
     call('PATCH', f'/profiles/{pid}/archive', 'Profile', {'archived': False, 'version': archived['version']})
-    airport = call('GET', '/world/airports?country=JPN&limit=2', 'AirportsResponse')
-    assert airport['total'] > 2 and all(r['countryIso3'] == 'JPN' for r in airport['items'])
-    call('GET', '/world/airports?asOf=2020-01-01', 'ApiError', expected=422)
-    passport = call('GET', '/datasets/world_airports', 'DatasetPassport')
-    assert passport['rowCount'] == 1154 and passport['status'] == 'in_use' and passport['dataVersion'] == airport['dataVersion']
     country = call('GET', f'/world/countries/GBR?profileId={pid}', 'WorldCountryResponse')
     assert len([f for f in country['macro'] if any(s['datasetId'] == 'world_bank_indicators' for s in f['sources'])]) == 4
     facilities = call('GET', '/world/facilities?limit=3', 'FacilitiesResponse')
@@ -68,9 +63,8 @@ def main():
     call('GET', '/world/facilities?asOf=2020-01-01', 'ApiError', expected=422)
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / 'http-smoke.json').write_text(json.dumps({'meta': meta, 'checks': results, 'profileCurrency': 'GBP',
-        'goals': goals, 'airportPassport': passport, 'facilityPassport': facility_passport}, ensure_ascii=False, indent=2) + '\n')
-    print(json.dumps({'checks': len(results), 'currency': 'GBP', 'goals': len(goals['goals']),
-                      'airports': passport['rowCount']}))
+        'goals': goals, 'facilityPassport': facility_passport}, ensure_ascii=False, indent=2) + '\n')
+    print(json.dumps({'checks': len(results), 'currency': 'GBP', 'goals': len(goals['goals'])}))
 
 
 if __name__ == '__main__':

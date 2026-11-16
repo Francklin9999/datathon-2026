@@ -4,15 +4,14 @@
   "byCategory": {
    "macro_release": 58,
    "monetary_policy": 22,
-   "natural_disaster": 3007,
+   "natural_disaster": 668,
    "other": 3
   },
   "byOrigin": {
-   "eonet": 479,
    "official": 83,
-   "usgs": 2528
+   "usgs": 668
   },
-  "count": 3090,
+  "count": 751,
   "coverage": {
    "end": "2026-11-12",
    "start": "2021-11-14"
@@ -20,7 +19,7 @@
  },
  "files": {
   "events.json": {
-   "sha256": "53f612336a7d11d483202940039d8d7bb2b1b0c2c6cd4d57499666262d16e74b"
+   "sha256": "d246ab12c2b3c8197540e9a739098f3604cebc237c58e5f1a8d5253f226d2d4e"
   },
   "hazards.json": {
    "sha256": "32cf6d40f3d4c67ab6889e4b7b51fde7210e50c056f681f2cf7e05e2ec8ee9bc"
@@ -36,6 +35,7 @@
  "method": {
   "eventId": "evt_ + first 12 hex of SHA-1 of the canonical source URL",
   "importance": "min(1, 0.45*official + 0.35*min(distinctPublishers,5)/5 + 0.20*max(0, 1-ageDays/30)) at builtAt",
+  "naturalDisasterRule": "natural_disaster events are kept only for USGS earthquakes of magnitude >= 6.0 (magnitude from the catalog record in hazards.json); every captured earthquake stays in hazards.json",
   "trackingParamsRemoved": [
    "dclid",
    "fbclid",
@@ -62,8 +62,12 @@
    "source": "ECCC / EPA facility emissions"
   },
   {
-   "reason": "Not part of this bundle. Bounded FIRMS MODIS detections are separate world_firms_* source observations, not world events.",
+   "reason": "Not part of this bundle. FIRMS MODIS detections are not served.",
    "source": "NASA FIRMS wildfires"
+  },
+  {
+   "reason": "Not part of the event feed (team decision): the feed keeps natural disasters only as USGS earthquakes of magnitude 6.0 or more. Every captured earthquake stays in the natural_hazards layer.",
+   "source": "NASA EONET natural events; USGS earthquakes below magnitude 6.0"
   }
  ],
  "requestedWindow": {
@@ -72,9 +76,10 @@
  },
  "sources": [
   {
+   "excludedByFeedRule": 1860,
    "filter": "Magnitude >= 5 during 2025-11-12 to 2026-11-12; prior earthquake archive retained",
    "id": "usgs_earthquakes",
-   "items": 2528,
+   "items": 668,
    "name": "USGS Earthquake Catalog (FDSN event service)",
    "parsedItems": 1999,
    "payloadSha256": "54bfcad05deabec7002ec121120ae4fe2f34dd39d9c8c31833162e1546b04c92",
@@ -126,8 +131,9 @@
    "url": "https://www.statcan.gc.ca/dai-quo/index-eng.htm"
   },
   {
+   "excludedByFeedRule": 479,
    "id": "nasa_eonet",
-   "items": 480,
+   "items": 0,
    "name": "NASA EONET v3 natural events",
    "note": "Bounded first 500 records; completeness not established. Observation is not publication.",
    "payloadSha256": "570970dd5645ce6279fffb6f311546b214c2330ade37af616300355b2a38d0a4",
@@ -138,5 +144,5 @@
    "url": "https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start=2026-10-15&end=2026-11-12&limit=500"
   }
  ],
- "worldVersion": "snap-20261115-world-expanded-54bfcad0"
+ "worldVersion": "snap-20261115-world-expanded-54bfcad0-m6"
 }

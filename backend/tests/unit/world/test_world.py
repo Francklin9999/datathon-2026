@@ -224,18 +224,20 @@ def test_packaged_bundle_is_real_cited_and_contract_valid():
 
 def test_not_ingested_reasons_match_the_loaded_layers():
     # The committed manifest carries the reasons build_bundle writes, and they name where facility
-    # emissions and FIRMS detections are served instead of calling them "not loaded".
+    # emissions are served and which natural events the feed rule keeps out.
     built = json.loads(ing.build_bundle([], [], [], built_at=BUILT, start="2026-01-01", end="2026-01-02")["manifest.json"])
     committed = load_bundle().manifest["notIngested"]
     assert committed == built["notIngested"]
     reasons = {n["source"]: n["reason"] for n in committed}
     assert "emissions_facilities" in reasons["ECCC / EPA facility emissions"]
-    assert "world_firms_" in reasons["NASA FIRMS wildfires"] and "key" not in reasons["NASA FIRMS wildfires"]
+    assert "not served" in reasons["NASA FIRMS wildfires"] and "key" not in reasons["NASA FIRMS wildfires"]
+    assert "magnitude 6.0 or more" in reasons["NASA EONET natural events; USGS earthquakes below magnitude 6.0"]
     from aplomb.world.facilities import load_facilities
     from aplomb.world.providers import load_provider_snapshots
     assert load_facilities()[1]["datasetId"] == "emissions_facilities"
     loaded = {m["datasetId"] for m in load_provider_snapshots(errors=[])[1]}
-    assert {"world_firms_modis_europe", "world_gdelt_event_metadata"} <= loaded
+    assert "world_gdelt_event_metadata" in loaded and not any(
+        source.startswith(("world_firms_", "world_aviation", "trade_", "energy_")) for source in loaded)
 
 
 def test_layers_report_what_is_loaded(world):
@@ -254,7 +256,7 @@ def test_layers_report_what_is_loaded(world):
 
     offline = WorldServiceImpl(world.profiles, world.snapshot, broken)
     assert {layer.layer_id: layer.available for layer in offline.layers(SID, {}).items} == {
-        "airports": True, "events": False, "exposure": True, "facilities": True, "hazards": False}
+        "events": False, "exposure": True, "facilities": True, "hazards": False}
     with pytest.raises(ServiceError) as exc:
         offline.events(SID, {})
     assert exc.value.code == "upstream_unavailable"
@@ -289,23 +291,28 @@ def test_explicit_historical_queries_exclude_current_only_world_capture(world):
 def test_observations_are_geolocated_paginated_and_capture_gated(world):
     service = WorldServiceImpl(world.profiles, world.snapshot, world.dataset, clock=lambda: BUILT)
     service._provider_capture = (({
-        "id": "world_test:station", "sourceId": "world_test", "category": "aviation",
+        "id": "world_test:station", "sourceId": "world_test", "category": "environment",
         "title": "Sydney station report", "sourceUrl": "https://example.org/station",
         "retrievedAt": "2026-11-15T01:00:00Z", "availableAt": "2026-11-15T01:00:00Z",
         "observedAt": "2026-11-14T23:00:00Z", "publishedAt": None,
         "latitude": -33.9, "longitude": 151.2, "countryIso3": "AUS",
         "properties": {"stationId": "YSSY", "metar": "YSSY sample", "geographicRole": "weather_station"},
     },), ({"dataVersion": "world-test-1", "retrievedAt": "2026-11-15T01:00:00Z"},))
-    current = service.observations(SID, {"mode": "aviation", "country": ["AUS"]})
+    current = service.observations(SID, {"mode": "environment", "country": ["AUS"], "scope": "providers"})
     assert current.total == 1 and current.items[0].location.lat < 0
     assert current.items[0].source.url == "https://example.org/station"
-    assert next(m for m in current.modes if m.mode == "aviation").available
-    assert service.observations(SID, {"mode": "aviation", "asOf": "2026-11-14"}).total == 0
-    assert service.observations(SID, {"mode": "aviation", "bbox": "100,-40,160,-20"}).total == 1
-    assert service.observations(SID, {"mode": "aviation", "bbox": "-100,-40,-80,-20"}).total == 0
-    page = service.observations(SID, {"mode": "hazards", "limit": 1})
+    assert next(m for m in current.modes if m.mode == "environment").available
+    assert [m.mode for m in current.modes] == ["news", "macro", "environment"]
+    assert service.observations(SID, {"mode": "environment", "asOf": "2026-11-14", "scope": "providers"}).total == 0
+    assert service.observations(SID, {"mode": "environment", "bbox": "100,-40,160,-20", "scope": "providers"}).total == 1
+    assert service.observations(SID, {"mode": "environment", "bbox": "-100,-40,-80,-20", "scope": "providers"}).total == 0
+    for removed in ("aviation", "trade", "conflicts", "infrastructure", "energy", "hazards"):
+        with pytest.raises(ServiceError):
+            service.observations(SID, {"mode": removed})
+    # Feed earthquakes (magnitude 6.0 or more) are environment observations; hazards stay their own layer.
+    page = service.observations(SID, {"mode": "environment", "limit": 1})
     assert page.total > 1 and page.next_cursor
-    second = service.observations(SID, {"mode": "hazards", "limit": 1, "cursor": page.next_cursor})
+    second = service.observations(SID, {"mode": "environment", "limit": 1, "cursor": page.next_cursor})
     assert page.items[0].id != second.items[0].id
     with pytest.raises(ServiceError):
         service.observations(SID, {"mode": "news", "cursor": page.next_cursor})
@@ -383,7 +390,7 @@ def test_one_damaged_provider_capture_disables_only_its_own_mode(world, tmp_path
     def capture(source):
         return next(path for path in sorted(DIRECTORY.iterdir()) if path.name.startswith(source + "-2"))
 
-    hazard, aviation = capture("world_firms_modis_europe"), capture("world_aviation_weather")
+    hazard, aviation = capture("world_global_carbon_budget_2026"), capture("world_federal_register")
     for path in (hazard, aviation):
         shutil.copytree(path, tmp_path / path.name)
     strict = providers.load_provider_snapshots
@@ -397,18 +404,18 @@ def test_one_damaged_provider_capture_disables_only_its_own_mode(world, tmp_path
 
     (tmp_path / hazard.name / "observations.json").write_bytes(b"[]")
     service, page, modes = statuses()
-    assert [source for source, _ in service._provider_failures] == ["world_firms_modis_europe"]
-    assert {item.dataset_id for item in page.items} == {"world_aviation_weather"}
-    assert modes["aviation"].available and modes["aviation"].reason is None
-    assert not modes["hazards"].available
-    assert modes["hazards"].reason == "Provider capture failed integrity validation."
+    assert [source for source, _ in service._provider_failures] == ["world_global_carbon_budget_2026"]
+    assert {item.dataset_id for item in page.items} == {"world_federal_register"}
+    assert modes["news"].available and modes["news"].reason is None
+    assert not modes["environment"].available
+    assert modes["environment"].reason == "Provider capture failed integrity validation."
     assert modes["macro"].reason == "No geolocated authorized capture is loaded."
 
     # A damaged source whose mode cannot be told from its ID: every empty mode may be the affected one.
     shutil.rmtree(tmp_path / hazard.name)
     (tmp_path / aviation.name / "observations.json").write_bytes(b"[]")
     service, page, modes = statuses()
-    assert page.total == 0 and [source for source, _ in service._provider_failures] == ["world_aviation_weather"]
+    assert page.total == 0 and [source for source, _ in service._provider_failures] == ["world_federal_register"]
     assert all(s.reason == "Provider capture failed integrity validation." for s in modes.values())
 
 

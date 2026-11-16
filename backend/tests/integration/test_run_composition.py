@@ -95,7 +95,7 @@ def test_without_a_model_runs_are_refused_and_deterministic_endpoints_work():
 def test_world_endpoints_validate_against_the_contract(client):
     headers = session()
     layers = ok(client.get("/v1/world/layers", headers=headers), "WorldLayersResponse")
-    assert [layer["layerId"] for layer in layers["items"]] == ["airports", "events", "exposure", "facilities", "hazards"]
+    assert [layer["layerId"] for layer in layers["items"]] == ["events", "exposure", "facilities", "hazards"]
     page = ok(client.get("/v1/world/events", params={"profileId": "robert", "limit": 5}, headers=headers), "WorldEventsResponse")
     assert len(page["items"]) == 5 and page["total"] > 5 and page["nextCursor"]
     nxt = ok(client.get("/v1/world/events", params={"profileId": "robert", "limit": 5, "cursor": page["nextCursor"]}, headers=headers),
@@ -110,33 +110,32 @@ def test_world_endpoints_validate_against_the_contract(client):
     assert detail["assessment"]["profileId"] == "robert" and detail["assessment"]["holdingsChecked"] == 11
     assert detail["assessment"]["exposures"] == detail["exposures"]
     assert detail["geographicRelationships"][0]["relation"] == "EVENT_OCCURRED_AT"
-    observation_page = ok(client.get("/v1/world/observations", params={"profileId": "robert", "mode": "hazards", "limit": 2},
+    observation_page = ok(client.get("/v1/world/observations", params={"profileId": "robert", "mode": "environment", "limit": 2},
                                      headers=headers), "WorldObservationsResponse")
     assert observation_page["total"] > 2 and len(observation_page["items"]) == 2
     assert observation_page["nextCursor"]
     assert all(item["source"]["url"].startswith("https://") for item in observation_page["items"])
     assert all(item["timeBasis"] == "event_date" for item in observation_page["items"] if item["datasetId"] == "world_events")
     assert all(item["assessment"]["holdingsChecked"] == 11 for item in observation_page["items"])
-    historical_observations = ok(client.get("/v1/world/observations", params={"mode": "hazards", "asOf": "2026-11-14"},
+    historical_observations = ok(client.get("/v1/world/observations", params={"mode": "environment", "asOf": "2026-11-14"},
                                              headers=headers), "WorldObservationsResponse")
     assert historical_observations["total"] == 0
-    aviation = ok(client.get("/v1/world/observations", params={"mode": "aviation", "limit": 20},
-                             headers=headers), "WorldObservationsResponse")
-    # 6 airport weather reports, 678 OpenFlights airport references and 49 ADS-B positions.
-    assert aviation["total"] == 733
-    japan = ok(client.get("/v1/world/observations", params={"mode": "aviation", "country": "JPN", "limit": 200},
-                          headers=headers), "WorldObservationsResponse")
-    assert any(row["datasetId"] == "world_aviation_weather" and row["location"]["countryIso3"] == "JPN"
-               for row in japan["items"])
+    assert [mode["mode"] for mode in historical_observations["modes"]] == ["news", "macro", "environment"]
     policy = ok(client.get("/v1/world/observations", params={"mode": "news", "q": "Federal Register"},
                            headers=headers), "WorldObservationsResponse")
     assert policy["total"] == 20
     assert all(row["location"] is None and row["timeBasis"] == "event_date"
                for row in policy["items"])
-    energy = ok(client.get("/v1/world/observations", params={"mode": "energy", "limit": 1},
-                           headers=headers), "WorldObservationsResponse")
-    # 34,936 WRI power plants, 74 USGS mineral sites, 384 Energy-Charts, 693 Ember and 215 EIA crude rows.
-    assert energy["total"] == 36302 and energy["items"][0]["datasetId"] == "world_usgs_minerals"
+    macro = ok(client.get("/v1/world/observations", params={"mode": "macro", "scope": "providers", "limit": 1},
+                          headers=headers), "WorldObservationsResponse")
+    # SDMX 3, BIS 4, BLS 12, ECB assets 52, ECB press 4, Fed 4, ILO 3, NY Fed 12, StatCan 12 and WGI 206
+    # (its ISR row withheld: the source's own PSE row is served).
+    assert macro["total"] == 312
+    environment = ok(client.get("/v1/world/observations", params={"mode": "environment", "limit": 1},
+                                headers=headers), "WorldObservationsResponse")
+    # 1,207 provider rows (Climate TRACE 12, EPA 438, Global Carbon Budget 469, CMR 5, GIBS 1, POWER 186,
+    # OpenAQ 96) and the 668 feed earthquakes of magnitude 6.0 or more.
+    assert environment["total"] == 1875
     exposure = ok(client.get("/v1/world/exposure", params={"profileId": "amira"}, headers=headers), "WorldExposureResponse")
     assert sum(i["weightPct"] for i in exposure["items"]) == pytest.approx(100)
     country = ok(client.get("/v1/world/countries/CAN", params={"profileId": "robert"}, headers=headers), "WorldCountryResponse")
@@ -149,28 +148,58 @@ def test_world_endpoints_validate_against_the_contract(client):
     assert len(hazards["items"]) == 3 and hazards["total"] > 3
     assert all(row["assessment"]["profileId"] == "amira" and row["assessment"]["holdingsChecked"] == 16
                for row in hazards["items"])
-    airports = ok(client.get("/v1/world/airports", params={"profileId": "robert", "limit": 3}, headers=headers), "AirportsResponse")
-    assert all(row["assessment"]["profileId"] == "robert" and row["assessment"]["holdingsChecked"] == 11
-               for row in airports["items"])
+    assert client.get("/v1/world/airports", headers=headers).status_code == 404
     for path, status in (("/v1/world/events/evt_000000000000", 404), ("/v1/world/exposure", 422),
                          ("/v1/world/events?from=2020-01-01&to=2026-01-01", 422), ("/v1/world/events?country=can", 422),
                          ("/v1/world/countries/canada", 422), ("/v1/world/events?profileId=p_aaaaaaaaaa", 404),
                          ("/v1/world/observations?profileId=p_aaaaaaaaaa", 404),
                          ("/v1/world/facilities?profileId=p_aaaaaaaaaa", 404),
-                         ("/v1/world/hazards?profileId=p_aaaaaaaaaa", 404),
-                         ("/v1/world/airports?profileId=p_aaaaaaaaaa", 404)):
+                         ("/v1/world/hazards?profileId=p_aaaaaaaaaa", 404)):
         response = client.get(path, headers=headers)
         assert response.status_code == status, (path, response.text)
         adapter("ApiError").validate_json(response.content)
     passports = ok(client.get("/v1/datasets", headers=headers), "DatasetsResponse")
     status = {p["datasetId"]: p["status"] for p in passports["items"]}
     assert (status["world_events"], status["natural_hazards"], status["emissions_facilities"]) == ("in_use", "in_use", "in_use")
-    for dataset_id, count in (("world_aviation_weather", 6), ("world_federal_register", 20),
-                              ("world_noaa_alerts", 3), ("energy_wri_plants", 34936)):
+    for dataset_id, count in (("world_federal_register", 20), ("world_nasa_power", 186),
+                              ("world_wgi_political_stability_2024", 206)):
         assert status[dataset_id] == "in_use"
         assert ok(client.get(f"/v1/datasets/{dataset_id}", headers=headers),
                   "DatasetPassport")["rowCount"] == count
+    # Retired ids stay valid on the wire for this release (catalog §10); nothing is loaded or served.
+    for dataset_id in ("world_aviation_weather", "world_noaa_alerts", "energy_wri_plants", "world_ucdp_ged_ukraine_2025"):
+        retired = ok(client.get(f"/v1/datasets/{dataset_id}", headers=headers), "DatasetPassport")
+        assert status[dataset_id] == "planned" and retired["rowCount"] is None
+        assert retired["source"].startswith("Not served")
+    natural_hazards = ok(client.get("/v1/datasets/natural_hazards", headers=headers), "DatasetPassport")
+    assert "wildfire" not in natural_hazards["role"]["en"]
+    assert natural_hazards["processing"][0]["en"].endswith("wildfire detections (NASA FIRMS) are not served.")
     assert ok(client.get("/v1/datasets/world_events", headers=headers), "DatasetPassport")["rowCount"] == next(layer["count"] for layer in layers["items"] if layer["layerId"] == "events")
+
+
+def test_world_serves_persona_modes_and_presents_palestine(client):
+    headers = session()
+    for removed in ("aviation", "trade", "conflicts", "infrastructure", "energy", "hazards"):
+        assert client.get("/v1/world/observations", params={"mode": removed}, headers=headers).status_code == 422
+    events = ok(client.get("/v1/world/events", params={"from": "2025-11-13", "to": "2026-11-12", "limit": 1000},
+                           headers=headers), "WorldEventsResponse")
+    assert {e["origin"] for e in events["items"] if e["category"] == "natural_disaster"} == {"usgs"}
+    # Team decision: ISR is presented as Palestine; the panel serves the World Bank's own PSE series.
+    palestine = ok(client.get("/v1/world/countries/ISR", headers=headers), "WorldCountryResponse")
+    assert palestine["countryIso3"] == "PSE" and palestine["name"]["en"] == "Palestine"
+    wdi = [f for f in palestine["macro"] if f["sources"][0]["datasetId"] == "world_bank_indicators"]
+    assert wdi and all(f["subject"]["id"].startswith("wdi:PSE:") and "locations=PSE" in f["sources"][0]["sourceUrl"] for f in wdi)
+    assert ok(client.get("/v1/world/countries/PSE", headers=headers), "WorldCountryResponse") == palestine
+    wgi = ok(client.get("/v1/world/observations", params={"mode": "macro", "country": "ISR", "q": "political stability"},
+                        headers=headers), "WorldObservationsResponse")
+    assert [row["countryIso3"] for row in wgi["items"]] == ["PSE"]
+    assert "West Bank" not in wgi["items"][0]["title"] and "Palestine" in wgi["items"][0]["title"]
+    gdelt = ok(client.get("/v1/world/observations", params={"mode": "news", "q": "Tel Aviv"}, headers=headers),
+               "WorldObservationsResponse")
+    assert gdelt["items"] and all("Israel" not in row["title"] for row in gdelt["items"])
+    wgi_passport = ok(client.get("/v1/datasets/world_wgi_political_stability_2024", headers=headers), "DatasetPassport")
+    assert any("presented as Palestine (PSE)" in note["en"] for note in wgi_passport["processing"])
+    assert any("1 ISR-coded row(s) are withheld" in note["en"] for note in wgi_passport["processing"])
 
 
 def test_disabled_flags_answer_501():

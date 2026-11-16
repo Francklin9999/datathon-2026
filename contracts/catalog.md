@@ -251,7 +251,7 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `prices_daily` | Daily OHLC, close, adjusted close, volume | P0 |
 | `corporate_actions` | Dividends and splits | P0 |
 | `fx_boc_global` | Bank of Canada global exchange rates | P1 |
-| `world_airports` | OurAirports static large scheduled-service airport reference | P2 |
+| `world_airports` | OurAirports airport reference; not loaded and not served (the id stays for the web contract types) | P2 |
 | `world_bank_indicators` | Worldwide annual country indicators | P1 |
 | `fx_usdcad_daily` | USD/CAD from the Bank of Canada | P0 |
 | `macro_rates` | Policy rates, yields, CPI, unemployment | P0 |
@@ -260,17 +260,17 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `macro_release_dates` | Publication dates of monthly series | P1 |
 | `etf_holdings` | Constituents and weights of ETFs | P1 |
 | `world_events` | Geolocated events | P1 |
-| `world_aviation_weather` | Aviation weather observations from bounded airport station captures | P2 |
-| `world_noaa_alerts` | NOAA weather alert observations with source geometry | P2 |
-| `world_usgs_geojson` | USGS weekly magnitude 4.5 to below 6 earthquake GeoJSON observations | P2 |
-| `world_gdacs_alerts` | GDACS bounded global disaster alert observations | P2 |
+| `world_aviation_weather` | Aviation weather observations from bounded airport station captures; retired, not served | P2 |
+| `world_noaa_alerts` | NOAA weather alert observations with source geometry; retired, not served | P2 |
+| `world_usgs_geojson` | USGS weekly magnitude 4.5 to below 6 earthquake GeoJSON observations; retired, not served | P2 |
+| `world_gdacs_alerts` | GDACS bounded global disaster alert observations; retired, not served | P2 |
 | `world_nasa_power` | NASA POWER bounded gridded daily temperature observations | P2 |
 | `world_epa_sems_sites` | EPA Envirofacts bounded geolocated SEMS site references | P2 |
 | `world_climate_trace_canada_electricity_co2` | Climate TRACE monthly 2025 Canada electricity-generation CO2 estimates | P2 |
 | `world_federal_register` | Federal Register policy observations | P2 |
 | `world_ecb_press` | ECB press release metadata from the current RSS feed | P2 |
-| `world_uk_sanctions_updates` | UK Sanctions List publication change notes | P2 |
-| `world_usgs_minerals` | USGS selected annual country mine-production estimates | P2 |
+| `world_uk_sanctions_updates` | UK Sanctions List publication change notes; retired, not served | P2 |
+| `world_usgs_minerals` | USGS selected annual country mine-production estimates; retired, not served | P2 |
 | `world_statcan_cpi` | Statistics Canada bounded monthly all-items CPI index | P2 |
 | `world_wgi_political_stability_2024` | World Bank WGI 2024 political stability governance scores by country | P2 |
 | `world_ecb_eurosystem_assets_2024` | ECB 2024 weekly Eurosystem total assets/liabilities sample | P2 |
@@ -281,42 +281,44 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 | `world_gdelt_geographic_mentions` | GDELT bounded Geographic Graph article-location metadata sample | P2 |
 | `world_fda_drug_enforcement_counts` | openFDA bounded drug enforcement record counts by classification | P2 |
 | `world_crossref_climate_bibliography` | Crossref five-record 2024 climate-title bibliographic metadata sample | P2 |
-| `world_ted_published_notice_metadata` | TED five-record published procurement notice metadata sample with reported buyer countries | P2 |
+| `world_ted_published_notice_metadata` | TED five-record published procurement notice metadata sample with reported buyer countries; retired, not served | P2 |
 | `world_nasa_cmr_modis_granules` | NASA CMR MODIS Terra five-granule satellite coverage polygon metadata; no fire detections or imagery | P2 |
-| `world_openflights_airport_reference` | OpenFlights ODbL static airport reference for six countries; no aircraft tracking | P2 |
+| `world_openflights_airport_reference` | OpenFlights ODbL static airport reference for six countries; no aircraft tracking; retired, not served | P2 |
 | `world_openaq_defra_york_20260328` | OpenAQ DEFRA York Bootham historical one-day hourly air pollutant concentrations under UK OGL | P2 |
 | `world_bls_us_cpi_2024` | U.S. BLS monthly 2024 CPI-U all-items index; no location pins | P2 |
 | `world_wikimedia_topic_pageviews` | Wikimedia daily topic article pageview counts; no reader geography | P2 |
 | `world_wikipedia_recent_changes` | English Wikipedia bounded factual edit metadata; no editor details or event location | P2 |
 | `world_ilo_unemployment_2024` | ILOSTAT 2024 national unemployment rate for Canada, Japan and Brazil | P2 |
 | `world_bank_sdmx_gdp_2024` | World Bank SDMX 2024 nominal GDP for Canada, Japan and Brazil | P2 |
-| `world_energy_charts_de_power` | Germany selected 15-minute electricity production power series from Fraunhofer Energy-Charts | P2 |
+| `world_energy_charts_de_power` | Germany selected 15-minute electricity production power series from Fraunhofer Energy-Charts; retired, not served | P2 |
 | `world_nasa_gibs_modis_tile` | NASA GIBS one Terra MODIS overview browse tile and its footprint | P2 |
-| `world_nominatim_eiffel_lookup` | One cached Nominatim Eiffel Tower place lookup under ODbL | P2 |
-| `world_osm_eiffel_tower` | OpenStreetMap Eiffel Tower mapped landmark footprint under ODbL | P2 |
+| `world_nominatim_eiffel_lookup` | One cached Nominatim Eiffel Tower place lookup under ODbL; retired, not served | P2 |
+| `world_osm_eiffel_tower` | OpenStreetMap Eiffel Tower mapped landmark footprint under ODbL; retired, not served | P2 |
 | `world_global_carbon_budget_2026` | Global Carbon Budget 2026 v0.1 selected annual global components in GtC/yr | P2 |
-| `world_adsblol_heathrow_positions` | ADS-B.lol one bounded Heathrow-area aircraft report snapshot under ODbL | P2 |
-| `trade_marinecadastre_ais_2024_samples` | NOAA MarineCadastre two annual 2024 AIS raster cell counts; no vessel positions | P2 |
-| `world_copernicus_activation_centroids` | Five public Copernicus EMS mapping activation centroids; no affected boundaries or damage assessment | P2 |
-| `world_firms_modis_europe` | NASA FIRMS MODIS Europe rolling 24-hour thermal anomaly pixel centers | P2 |
-| `world_firms_modis_australia_area` | NASA FIRMS MODIS Australia-area one-day thermal anomaly pixel centers | P2 |
+| `world_adsblol_heathrow_positions` | ADS-B.lol one bounded Heathrow-area aircraft report snapshot under ODbL; retired, not served | P2 |
+| `trade_marinecadastre_ais_2024_samples` | NOAA MarineCadastre two annual 2024 AIS raster cell counts; no vessel positions; retired, not served | P2 |
+| `world_copernicus_activation_centroids` | Five public Copernicus EMS mapping activation centroids; no affected boundaries or damage assessment; retired, not served | P2 |
+| `world_firms_modis_europe` | NASA FIRMS MODIS Europe rolling 24-hour thermal anomaly pixel centers; retired, not served | P2 |
+| `world_firms_modis_australia_area` | NASA FIRMS MODIS Australia-area one-day thermal anomaly pixel centers; retired, not served | P2 |
 | `world_nyfed_sce_inflation_2024` | New York Fed SCE twelve 2024 monthly household inflation expectation observations | P2 |
-| `world_eia_crude_production_2024` | EIA 2024 annual country crude oil production in thousand barrels per day | P2 |
-| `world_ember_monthly_generation_2026` | Ember 2026 selected monthly country electricity generation aggregates in TWh | P2 |
-| `world_geofabrik_monaco_transport` | Geofabrik Monaco extract OpenStreetMap transport points under ODbL | P2 |
-| `world_hapi_inform_risk_2025` | HDX HAPI 2025 INFORM national humanitarian risk index for 191 countries | P2 |
-| `world_geoboundaries_fra_adm1` | geoBoundaries pinned 2022 metropolitan France ADM1 polygons | P2 |
-| `world_ucdp_ged_ukraine_2025` | UCDP GED 26.1 bounded Ukraine 2025 conflict events | P2 |
-| `energy_wri_plants` | WRI power plant reference observations | P2 |
-| `trade_portwatch_ports` | IMF PortWatch port reference observations | P2 |
-| `trade_un_comtrade_exports` | UN Comtrade selected annual country merchandise exports to the world | P2 |
-| `trade_wits_fuel_exports` | WITS Canada annual fuel exports to the world, sourced from UN Comtrade | P2 |
-| `trade_unctad_concentration` | UNCTAD selected global export concentration indices | P2 |
+| `world_eia_crude_production_2024` | EIA 2024 annual country crude oil production in thousand barrels per day; retired, not served | P2 |
+| `world_ember_monthly_generation_2026` | Ember 2026 selected monthly country electricity generation aggregates in TWh; retired, not served | P2 |
+| `world_geofabrik_monaco_transport` | Geofabrik Monaco extract OpenStreetMap transport points under ODbL; retired, not served | P2 |
+| `world_hapi_inform_risk_2025` | HDX HAPI 2025 INFORM national humanitarian risk index for 191 countries; retired, not served | P2 |
+| `world_geoboundaries_fra_adm1` | geoBoundaries pinned 2022 metropolitan France ADM1 polygons; retired, not served | P2 |
+| `world_ucdp_ged_ukraine_2025` | UCDP GED 26.1 bounded Ukraine 2025 conflict events; retired, not served | P2 |
+| `energy_wri_plants` | WRI power plant reference observations; retired, not served | P2 |
+| `trade_portwatch_ports` | IMF PortWatch port reference observations; retired, not served | P2 |
+| `trade_un_comtrade_exports` | UN Comtrade selected annual country merchandise exports to the world; retired, not served | P2 |
+| `trade_wits_fuel_exports` | WITS Canada annual fuel exports to the world, sourced from UN Comtrade; retired, not served | P2 |
+| `trade_unctad_concentration` | UNCTAD selected global export concentration indices; retired, not served | P2 |
 | `attention_pageviews` | Wikipedia page views per asset | P1 |
 | `emissions_facilities` | ECCC and EPA facility emissions | P1 (cut item 2) |
-| `natural_hazards` | USGS earthquakes, NASA FIRMS wildfires | P1 (cut item 2) |
+| `natural_hazards` | USGS earthquakes (NASA FIRMS wildfires are not served) | P1 (cut item 2) |
 | `research_documents` | Cached text of documents cited as evidence | P1 |
 | `filings_index` | SEC EDGAR filing metadata fetched by the researcher | P1 |
+
+Retired, not served in this release: the 27 ids marked "retired, not served", whose provider captures were removed with the aviation, trade and shipping, conflicts, energy, economic infrastructure and observation-level hazards modes of `/world/observations` (`api.md` §6.8), and `world_airports`. Nothing loads or serves them, and their passports are `planned` with a "Not served" source. They stay valid on the wire for this release only, so a site built from this contract still accepts the responses of an API released before the removal (its `GET /datasets` lists them as loaded). Drop them once the backend and the site are both deployed past the removal.
 
 ---
 
