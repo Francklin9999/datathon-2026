@@ -23,7 +23,6 @@
 .scope-trigger:hover { border-color: var(--line-strong); }
 .scope-trigger .chev { color: var(--text-3); }
 .scope-field .listbox { position: relative; }
-.scope-field .popover { top: calc(100% + 6px); left: 0; }
 .scope-error { color: var(--conflict-fg); font-size: 12px; }
 .scope-end { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; align-self: center; }
 .scope-hint { font-size: 12px; color: var(--text-3); }
@@ -36,7 +35,6 @@
 /* Phones only: the filters other than the period fold into a disclosure. Wider: the wrapper is transparent. */
 .scope-filters { display: contents; }
 .scope-filters-toggle { display: none; }
-.scope-note { margin: 0 0 8px; font-size: 12px; color: var(--text-3); }
 
 /* Grid. Widgets are always arrangeable: the header is the grip, the grabber at the top edge the
    keyboard handle, the corner handle resizes. A widget never scrolls (overflow hidden) and keeps the
@@ -59,18 +57,19 @@
 .card.card-bare { background: transparent; border-color: transparent; box-shadow: none; padding: 0; overflow: visible; }
 .card-bare > .card-head { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); margin: 0; min-height: 0; }
 .card-bare > .widget-body { margin: 0; padding: 0; overflow: visible; }
-.card-bare > .widget-grabber { top: -12px; }
+.card-bare > .widget-grabber { top: -14px; }
 
-/* Moving */
+/* Moving. The grabber shows a grip icon on hover and focus (title "Move"). */
 .dash-grid[data-movable] .widget > .card-head { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
 .dash-grid[data-movable] .widget > .card-head :is(button, a, [role='radiogroup'], [role='radio']) { cursor: pointer; }
-.widget-grabber { position: absolute; top: 0; left: 50%; z-index: 3; width: 56px; height: 14px; translate: -50% 0; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none;
-  opacity: 0; transition: opacity var(--dur-fast) var(--ease); }
-.widget-grabber::before { content: ''; position: absolute; left: 10px; right: 10px; top: 5px; height: 4px; border-radius: var(--r-pill); background: var(--text-3); opacity: .45; transition: opacity var(--dur-fast) var(--ease); }
-.widget-grabber::after { content: ''; position: absolute; inset: -8px -4px -16px; }
-.widget-grabber:hover::before { opacity: .8; }
+.widget-grabber { position: absolute; top: 2px; left: 50%; z-index: 3; width: 40px; height: 18px; translate: -50% 0; padding: 0; border: 0; border-radius: var(--r-pill);
+  display: inline-flex; align-items: center; justify-content: center; background: transparent; color: var(--text-3); cursor: grab; touch-action: none;
+  opacity: 0; transition: opacity var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
+.widget-grabber > svg { flex: none; pointer-events: none; }
+.widget-grabber::after { content: ''; position: absolute; inset: -8px -4px -18px; }
+.widget-grabber:hover, .widget[data-dragging] .widget-grabber { color: var(--text); background: var(--glass-inset); }
 .widget:hover .widget-grabber, .widget:focus-within .widget-grabber, .widget[data-dragging] .widget-grabber { opacity: 1; }
-.widget-grabber:focus-visible { outline-offset: 0; border-radius: var(--r-pill); }
+.widget-grabber:focus-visible { outline-offset: 0; color: var(--text); }
 .widget-resize { position: absolute; right: 6px; bottom: 6px; z-index: 3; width: 22px; height: 22px; display: inline-flex; align-items: flex-end; justify-content: flex-end; padding: 3px;
   border: 0; border-radius: 8px; background: transparent; color: var(--text-3); cursor: nwse-resize; touch-action: none;
   opacity: 0; transition: opacity var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
@@ -86,7 +85,7 @@
 .dash-grid[data-gesture] { cursor: grabbing; }
 /* Where the dragged widget will land: a recessed slot. */
 .drop-slot { position: absolute; z-index: 0; border-radius: var(--r-card); background: var(--glass-inset); box-shadow: inset 0 0 0 1.5px var(--line-strong); pointer-events: none;
-  transition: left 460ms var(--ease), top 460ms var(--ease), width 460ms var(--ease), height 460ms var(--ease); }
+  transition: left var(--dur-enter) var(--ease), top var(--dur-enter) var(--ease), width var(--dur-enter) var(--ease), height var(--dur-enter) var(--ease); }
 /* Entrance animations of donuts and bars play once: a widget moved in the DOM does not replay them. */
 .dash-grid:not([data-fresh]) :is(.donut-svg, .bar-fill, .meter-bar > span) { animation: none; }
 
@@ -164,7 +163,7 @@
 /* Plan health: the verdict, then counts as tiles, then the rules nearest their limit. */
 .health-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 16px; }
 .status-counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 0; }
-.status-count { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--glass-inset); }
+.status-count { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 14px; border-radius: var(--r-inset); background: var(--glass-inset); }
 .status-count dd { margin: 0; }
 .status-count strong { font-size: 24px; font-weight: 650; letter-spacing: -.02em; color: var(--text); font-variant-numeric: tabular-nums; }
 .limit-list { display: flex; flex-direction: column; }
@@ -190,7 +189,7 @@
 .brief-summary { margin-bottom: 12px; }
 .brief-summary p { font-size: 14px; line-height: 1.55; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .focus-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-.focus-card { display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden; padding: 14px 16px; border-radius: 14px; background: var(--glass-inset); }
+.focus-card { display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden; padding: 14px 16px; border-radius: var(--r-inset); background: var(--glass-inset); }
 .focus-card .h4 { margin: 0; }
 .focus-card p { font-size: 13px; line-height: 1.55; color: var(--text-2); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
 .focus-card p + p { display: none; }
@@ -202,12 +201,7 @@
 .figure-list > div:first-child { border-top: 0; padding-top: 0; }
 .figure-list dt { font-size: 13px; color: var(--text-2); }
 .figure-list dd { margin: 0; font-size: 24px; font-weight: 650; letter-spacing: -.02em; font-variant-numeric: tabular-nums lining-nums; }
-.figure-note { margin-top: 12px; font-size: 12px; line-height: 1.45; color: var(--text-3); }
 
-@media (prefers-reduced-motion: reduce) {
-  .widget, .widget-grabber, .widget-resize, .drop-slot, .more-btn { transition: none; }
-  .donut-slice, .meter-row, .scope-toggle { transition: none; }
-}
 @media (max-width: 767px) {
   .dash-header { align-items: flex-start; }
   .scope-end { margin-left: 0; }

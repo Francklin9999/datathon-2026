@@ -35,13 +35,12 @@ import {
 } from '../../lib/brief';
 import { autoBriefKey, autoBriefUsed, markAutoBrief } from '../../lib/briefAuto';
 import { isTerminal } from '../../lib/runs';
-import type { LayoutItem, WidgetLimits } from '../../lib/ui/layout';
-import { ASSET_GROUPS, scopeWindow, scopeWindowKey, type DashboardScope } from '../../lib/ui/scope';
+import { HOME_DEFAULT_LAYOUT, HOME_LIMITS } from '../../lib/ui/layout';
+import { ASSET_GROUPS, sameSubject, scopeWindow, scopeWindowKey, type DashboardScope } from '../../lib/ui/scope';
 import { drawdownSeries, indexSeries, periodChangePct, periodEnds } from '../../lib/ui/series';
 import { Reveal } from '../../components/ui/Reveal';
 import { CountUp } from '../../components/ui/CountUp';
 import { AllocationCard } from './AllocationCard';
-import { AutomationsCard } from './AutomationsCard';
 import { ClosestToLimit } from './ClosestToLimit';
 import { DashboardGrid, type WidgetDef } from './DashboardGrid';
 import { KeyFigures, KeyFiguresSkeleton } from './KeyFigures';
@@ -49,39 +48,12 @@ import { DiversificationCard, HorizonsCard, StressCard } from './FigureCards';
 import { ScopeBar, periodLabel } from './ScopeBar';
 import { PositionsCard } from './PositionsCard';
 import { useDashboardScope } from './useDashboardScope';
+import './home.css';
 
 /** Run started for each cache key in this page load (survives navigation between pages). */
 const startedRuns = new Map<string, string>();
 
-/**
- * Default arrangement (12 columns × 32 px rows, 16 px gaps: a widget of h rows is 48h − 16 px tall)
- * and the size limits of each widget. Every minimum still holds the widget's essentials without
- * scrolling; lists and the chart grow with the widget.
- */
-const DEFAULT_LAYOUT: readonly LayoutItem[] = [
-  { id: 'figures', w: 12, h: 4 },
-  { id: 'automations', w: 12, h: 4 },
-  { id: 'performance', w: 8, h: 9 },
-  { id: 'allocation', w: 4, h: 9 },
-  { id: 'health', w: 5, h: 7 },
-  { id: 'positions', w: 7, h: 7 },
-  { id: 'brief', w: 12, h: 8 },
-  { id: 'horizons', w: 4, h: 5 },
-  { id: 'stress', w: 4, h: 5 },
-  { id: 'diversification', w: 4, h: 5 },
-];
-const LIMITS: Record<string, WidgetLimits> = {
-  figures: { minW: 6, maxW: 12, minH: 4, maxH: 7 },
-  automations: { minW: 4, maxW: 12, minH: 4, maxH: 8 },
-  performance: { minW: 5, maxW: 12, minH: 7, maxH: 18 },
-  allocation: { minW: 3, maxW: 8, minH: 8, maxH: 14 },
-  positions: { minW: 4, maxW: 12, minH: 4, maxH: 18 },
-  health: { minW: 4, maxW: 12, minH: 5, maxH: 18 },
-  horizons: { minW: 3, maxW: 6, minH: 5, maxH: 8 },
-  stress: { minW: 3, maxW: 6, minH: 5, maxH: 8 },
-  diversification: { minW: 3, maxW: 6, minH: 4, maxH: 8 },
-  brief: { minW: 6, maxW: 12, minH: 6, maxH: 24 },
-};
+const LIMITS = HOME_LIMITS;
 
 export function HomePage() {
   return <ProfileGate>{profile => <HomeContent key={profile.profileId} profile={profile} />}</ProfileGate>;
@@ -113,10 +85,14 @@ function HomeContent({ profile }: { profile: Profile }) {
   const [scope, setScope] = useDashboardScope();
   const windowSpec = scopeWindow(scope, windowCode);
   const windowKey = scopeWindowKey(scope, windowCode);
+  // A new period or benchmark keeps the figures on screen (dimmed, aria-busy) until the new ones land,
+  // so they count from the old values to the new; another persona, profile version or data never does.
+  const keepOverview = useMemo(() => ({ keepPreviousFrom: sameSubject('overview', base) }), [base]);
+  const keepPerformance = useMemo(() => ({ keepPreviousFrom: sameSubject('performance', base) }), [base]);
   const overview = useQuery<OverviewResponse>(base && `overview|${base}|${windowKey}`,
-    signal => client.overview(profile.profileId, windowSpec, signal));
+    signal => client.overview(profile.profileId, windowSpec, signal), keepOverview);
   const performance = useQuery<PerformanceResponse>(base && `performance|${base}|${windowKey}|${scope.benchmark ?? '-'}`,
-    signal => client.performance(profile.profileId, windowSpec, signal, scope.benchmark));
+    signal => client.performance(profile.profileId, windowSpec, signal, scope.benchmark), keepPerformance);
   // The first and last day the API resolved for the window on screen: a new custom Range starts there.
   const shownId = overview.data?.returns.factIds.selectedPct;
   const shownFact = shownId ? overview.data?.facts[shownId] : undefined;
@@ -152,7 +128,6 @@ function HomeContent({ profile }: { profile: Profile }) {
     const t = (en: string, fr: string) => tr({ en, fr });
     return [
       { id: 'figures', title: t('Key figures', 'Chiffres clés'), section: t('Figures', 'Chiffres'), bare: true, limits: LIMITS.figures!, render: () => <KeyFigures overview={data} period={period} /> },
-      { id: 'automations', title: t('Automations', 'Automatisations'), section: t('Automations', 'Automatisations'), limits: LIMITS.automations!, render: () => <AutomationsCard profile={profile} /> },
       { id: 'performance', title: t('Past performance', 'Performance passée'), section: t('Performance', 'Performance'), limits: LIMITS.performance!, render: () => <PerformanceCard state={performance} scope={scope} period={period} /> },
       { id: 'allocation', title: t('Allocation', 'Répartition'), section: t('Allocation', 'Répartition'), limits: LIMITS.allocation!, render: () => <AllocationCard overview={data} scope={scope} /> },
       { id: 'positions', title: t('Positions', 'Positions'), section: t('Positions', 'Positions'), limits: LIMITS.positions!, render: () => <PositionsCard overview={data} scope={scope} /> },
@@ -178,7 +153,7 @@ function HomeContent({ profile }: { profile: Profile }) {
         </div>
         <div className="dash-actions">
           {/* Always shown so it can be found; inactive while the layout is already the default one. */}
-          <button type="button" className="btn ghost btn-sm layout-reset" disabled={!customized}
+          <button type="button" className="btn ghost layout-reset" disabled={!customized}
             onClick={() => { setResetToken(n => n + 1); announce(tr({ en: 'Default layout restored', fr: 'Disposition par défaut rétablie' })); }}
             title={customized
               ? tr({ en: 'Put the widgets back in their original places and sizes', fr: 'Remettre les widgets à leur place et à leur taille d’origine' })
@@ -199,13 +174,14 @@ function HomeContent({ profile }: { profile: Profile }) {
         <ErrorState error={overview.error} onRetry={overview.reload}
           title={tr({ en: 'The portfolio overview is unavailable for this scope. No summary figures are shown.', fr: 'L’aperçu du portefeuille est indisponible pour ce périmètre. Aucun chiffre de synthèse n’est affiché.' })} />
       )}
-      {overview.loading && <KeyFiguresSkeleton label={tr({ en: 'Loading figures…', fr: 'Chargement des chiffres…' })} />}
+      {overview.loading && !data && <KeyFiguresSkeleton label={tr({ en: 'Loading figures…', fr: 'Chargement des chiffres…' })} />}
       {data && overviewScope && (
         <FactScopeProvider scope={overviewScope}>
           {/* No animated wrapper: each widget enters on its own (DashboardGrid, Web Animations), which
               survives the DOM moves of a reorder. */}
-          <DashboardGrid widgets={widgets} defaults={DEFAULT_LAYOUT} resetToken={resetToken} announce={announce} labels={labels}
-            onCustomizedChange={setCustomized} />
+          <DashboardGrid widgets={widgets} defaults={HOME_DEFAULT_LAYOUT} resetToken={resetToken} announce={announce} labels={labels}
+            onCustomizedChange={setCustomized} busy={Boolean(overview.stale)} />
+          {overview.stale && <p className="sr-only" role="status">{tr({ en: `Updating the figures for ${period}`, fr: `Mise à jour des chiffres pour ${period}` })}</p>}
         </FactScopeProvider>
       )}
     </>
@@ -262,7 +238,7 @@ function PerformanceCard({ state, scope, period }: { state: QueryState<Performan
         </>
       ),
     }}>
-      <p className="period-change">
+      <p className="period-change period-update" {...(state.stale ? { 'aria-busy': true } : {})}>
         {own !== null && <span>{tr({ en: 'Over the period', fr: 'Sur la période' })} <strong><CountUp text={fmtSignedPct(own, lang)} /></strong></span>}
         {data.benchmark && bench !== null && <span>{data.benchmark.ticker} <strong><CountUp text={fmtSignedPct(bench, lang)} /></strong></span>}
         {endsText && <span>{endsText}</span>}
@@ -294,7 +270,8 @@ function PlanHealth({ overview, period }: { overview: OverviewResponse; period: 
     return factId ? <FactChip factId={factId} display={text} /> : <span className="num">{text}</span>;
   };
   return (
-    <Card title={tr({ en: 'Plan health', fr: 'Santé du plan' })} tour="health" details={{
+    <Card title={tr({ en: 'Plan health', fr: 'Santé du plan' })} tour="health"
+      info={tr({ en: 'How the plan’s rules stand over this period, with the rules nearest their limit below.', fr: 'L’état des règles du plan sur cette période, avec en dessous les règles les plus proches de leur limite.' })} details={{
       render: () => (
         <>
           <p className="figure-note">{tr({ en: `${total} rule checks, ${period}`, fr: `${total} vérifications de règles, ${period}` })}</p>
@@ -436,7 +413,7 @@ function AnalystBrief({ profile, scopeNote, customRange }: { profile: Profile; s
       )}
       {polled.error && <ErrorState error={polled.error} onRetry={polled.reload} />}
       {empty && (
-        <p className="small muted">{tr({ en: 'No brief has been written for this selection yet. Use Refresh brief to write one.', fr: 'Aucune note n’a encore été rédigée pour cette sélection. Utilisez « Actualiser la note » pour en rédiger une.' })}</p>
+        <p className="small muted">{tr({ en: 'No brief yet for this selection. Refresh brief writes one.', fr: 'Pas encore de note pour cette sélection. « Actualiser la note » en rédige une.' })}</p>
       )}
       {refreshing && (
         <p className="small muted" role="status">

@@ -5,8 +5,10 @@
  * evidence" creates a decision run kept in ?runId=; compare uses /check/batch with identical inputs.
  */
 import Link from 'next/link';
-import { RebalancePanel } from './RebalancePanel';
 import { CompareDifferences } from './CompareDifferences';
+import { AssetPanel } from './AssetPanel';
+import { TargetAllocation } from './TargetAllocation';
+import './decision.css';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
@@ -46,7 +48,7 @@ import { SupportedUniverse } from '../../components/common/SupportedUniverse';
 import { onDemandTickerHint } from '../../lib/universe';
 import { tickerSuggestions } from '../../lib/suggest';
 import { investigationOriginalText, readInvestigationContext, validInvestigationContext } from '../../lib/world';
-import { deskContext } from '../../lib/deskContext';
+import { deskContext, prefillTicker } from '../../lib/deskContext';
 
 const FUNDING_MODES: readonly FundingMode[] = ['auto', 'pro_rata', 'from_cash', 'from_holdings', 'new_money'];
 const DEBOUNCE_MS = 250;
@@ -69,14 +71,15 @@ function DeskContent({ profile }: { profile: Profile }) {
   const runId = params.get('runId');
   const urlEvent = params.get('eventId');
   const contextProfile = params.get('profileId');
+  const contextMatches = !contextProfile || contextProfile === profile.profileId;
   const urlSourceRun = params.get('sourceRunId');
   const ticker = params.get('ticker') ?? '';
+  // ?ticker= (World investigations, old Markets links) pre-fills the move form for this persona.
+  const prefill = contextMatches ? prefillTicker(ticker) : '';
   // Text typed in the top bar ("Ask Aplomb") arrives as ?q= and is interpreted once.
   const askedText = params.get('q');
-  const contextMatches = !contextProfile || contextProfile === profile.profileId;
 
-
-  const [form, setForm] = useState<MoveForm>(() => contextMatches && /^[A-Z0-9.-]{1,20}$/.test(ticker) ? { ...EMPTY_FORM, ticker } : EMPTY_FORM);
+  const [form, setForm] = useState<MoveForm>(() => prefill ? { ...EMPTY_FORM, ticker: prefill } : EMPTY_FORM);
   const [originalText, setOriginalText] = useState<string | null>(null);
   const [goal, setGoal] = useState<DecisionRequest | null>(null);
   const touched = useRef(false);
@@ -85,9 +88,16 @@ function DeskContent({ profile }: { profile: Profile }) {
     setGoal(null);
     setForm(f => ({ ...f, ...patch }));
   }, []);
+  // A later link to this page with another ?ticker= (the page stays mounted) switches the asset.
+  const prefilled = useRef(prefill);
+  useEffect(() => {
+    if (!prefill || prefilled.current === prefill) return;
+    prefilled.current = prefill;
+    update({ ticker: prefill });
+  }, [prefill, update]);
 
   // ----- run restored from the URL -----
-  const polled = useRun(runId, finished => announce(`${tr({ en: 'Decision run', fr: 'Exécution de décision' })}: ${labelOf(RUN_STATUS, finished.status, lang)}`));
+  const polled = useRun(runId, finished => announce(`${tr({ en: 'Evidence analysis', fr: 'Analyse des preuves' })}: ${labelOf(RUN_STATUS, finished.status, lang)}`));
   const run = polled.run;
   const savedContext = run?.profileId === profile.profileId && run.input.kind === 'decision' ? readInvestigationContext(run.input.originalText) : null;
   const { context, shown: shownContext, foreign: foreignContext } = deskContext(
@@ -197,11 +207,9 @@ function DeskContent({ profile }: { profile: Profile }) {
         <p className="page-sub">{tr({ en: 'Describe a move or fill in the form, then analyze the evidence. Nothing is ever executed.', fr: 'Décrivez un mouvement ou remplissez le formulaire, puis analysez les preuves. Rien n’est jamais exécuté.' })}</p>
       </PageHeader>
 
-      <RebalancePanel key={`${profile.profileId}|${profile.version}|${JSON.stringify(windowSpec)}`} profile={profile} />
-
       {contextEvent && <Card title={tr({ en: 'Investigation context', fr: 'Contexte de recherche' })}>
         <p className="small">{tr({ en: 'Event relevance does not establish financial impact. Review its sources before testing a hypothetical move.', fr: 'La pertinence de l’événement ne prouve pas une incidence financière. Examinez ses sources avant de tester un mouvement hypothétique.' })}</p>
-        {foreignContext && <p className="stale-note">{tr({ en: 'This event was selected for another persona. Select that persona to restore its holding context.', fr: 'Cet événement a été sélectionné pour un autre profil. Sélectionnez ce profil pour retrouver le contexte de la position.' })}
+        {foreignContext && <p className="stale-note">{tr({ en: 'This event was selected for another investor. Switch to that investor to restore its holding context.', fr: 'Cet événement a été sélectionné pour un autre investisseur. Basculez vers cet investisseur pour retrouver le contexte de la position.' })}
           {contextProfile && contextProfileName && <>{' '}<button type="button" className="linklike" onClick={() => selectProfile(contextProfile)}>
             {tr({ en: 'Switch to', fr: 'Basculer vers' })} {contextProfileName}
           </button></>}</p>}
@@ -268,7 +276,7 @@ function DeskContent({ profile }: { profile: Profile }) {
 
       {preview.result && previewScope && !goal && !preview.loading && run?.status !== 'succeeded' && (
         <FactScopeProvider scope={previewScope}>
-          <Card title={tr({ en: 'Preview details', fr: 'Détails de l’aperçu' })}>
+          <Card title={tr({ en: 'Instant check details', fr: 'Détails de la vérification instantanée' })}>
             <SnapshotCompare before={preview.result.portfolioBefore} after={move ? preview.result.portfolioAfter : null} />
             <h3 className="h4">{tr({ en: 'Rule checks', fr: 'Vérifications des règles' })}</h3>
             <RuleTable checks={preview.result.ruleChecks} rules={profile.rules} caption={tr({ en: 'Preview rule checks', fr: 'Vérifications en aperçu' })} />
@@ -277,7 +285,11 @@ function DeskContent({ profile }: { profile: Profile }) {
         </FactScopeProvider>
       )}
 
+      <AssetPanel ticker={goal ? '' : form.ticker} profile={profile} />
+
       <ComparePanel profile={profile} form={form} />
+
+      <TargetAllocation key={`${profile.profileId}|${profile.version}`} profile={profile} />
 
       {runId && (
         <Card id="run" section={tr({ en: 'Analysis', fr: 'Analyse' })} tour="run" title={tr({ en: 'Evidence analysis', fr: 'Analyse des preuves' })}>
@@ -633,21 +645,21 @@ function ComparePanel({ profile, form }: { profile: Profile; form: MoveForm }) {
   };
   if (others.length === 0) return null;
   return (
-    <details className="fold compare-fold" id="compare" data-section={tr({ en: 'Compare', fr: 'Comparer' })} data-tour="compare">
-      <summary>{tr({ en: 'Compare with another profile', fr: 'Comparer avec un autre profil' })}</summary>
-      <div className="fold-body">
+    <Card id="compare" section={tr({ en: 'Compare', fr: 'Comparer' })} tour="compare" title={tr({ en: 'Compare with another investor', fr: 'Comparer avec un autre investisseur' })}
+      info={tr({ en: 'The same verdict can hide different rules: read the checks, not only the headline.', fr: 'Un même verdict peut cacher des règles différentes : lisez les vérifications, pas seulement le titre.' })}>
+      <p className="small muted">{tr({ en: 'See how another investor’s plan answers the same move.', fr: 'Voyez comment le plan d’un autre investisseur répond au même mouvement.' })}</p>
       <div className="form-grid">
         <div className="field">
-          <label htmlFor="compare-with">{tr({ en: 'Compare with', fr: 'Comparer avec' })}</label>
+          <label htmlFor="compare-with">{tr({ en: 'Other investor', fr: 'Autre investisseur' })}</label>
           <select id="compare-with" value={effectiveOther} onChange={e => setOtherId(e.target.value)}>
             {others.map(p => <option key={p.profileId} value={p.profileId}>{p.name}</option>)}
           </select>
         </div>
       </div>
       <p className="small muted">{move
-        ? tr({ en: `Same request for both: ${describeRequest({ type: 'move', move }, 'en')}, ${fundingLabel(move.funding, 'en')}, same window.`, fr: `Même requête pour les deux : ${describeRequest({ type: 'move', move }, 'fr')}, ${fundingLabel(move.funding, 'fr')}, même fenêtre.` })
+        ? tr({ en: `Same request for both: ${describeRequest({ type: 'move', move }, 'en')}, ${fundingLabel(move.funding, 'en')}, same period.`, fr: `Même requête pour les deux : ${describeRequest({ type: 'move', move }, 'fr')}, ${fundingLabel(move.funding, 'fr')}, même période.` })
         : tr({ en: 'No move set: compares both current portfolios.', fr: 'Aucun mouvement : compare les deux portefeuilles actuels.' })}</p>
-      <div className="row-actions"><button type="button" className="btn ghost" onClick={() => void compare()} disabled={state.loading}>{tr({ en: 'Compare', fr: 'Comparer' })}</button></div>
+      <div className="row-actions"><button type="button" className="btn ghost" onClick={() => void compare()} disabled={state.loading}>{tr({ en: 'Compare the answers', fr: 'Comparer les réponses' })}</button></div>
       {state.loading && <Loading />}
       {state.error && <ErrorState error={state.error} />}
       {state.data && (
@@ -675,9 +687,7 @@ function ComparePanel({ profile, form }: { profile: Profile; form: MoveForm }) {
           })}
         </div>
       )}
-      <p className="small muted">{tr({ en: 'The same verdict can hide different rules: read the checks, not only the headline.', fr: 'Un même verdict peut cacher des règles différentes : lisez les vérifications, pas seulement le titre.' })}</p>
-      </div>
-    </details>
+    </Card>
   );
 }
 
@@ -714,7 +724,7 @@ function DecisionRun({ run, stale }: { run: Run; stale: boolean }) {
     <FactScopeProvider scope={scope}>
       {stale && original && (
         <p className="stale-note" role="status">
-          {tr({ en: `Written for ${describeRequest(original, 'en')} (${fmtDateTime(run.createdAt, 'en')}); rerun to update the explanation.`, fr: `Rédigé pour ${describeRequest(original, 'fr')} (${fmtDateTime(run.createdAt, 'fr')}) ; relancez pour mettre l’explication à jour.` })}
+          {tr({ en: `Written for ${describeRequest(original, 'en')} (${fmtDateTime(run.createdAt, 'en')}); analyze again to update the explanation.`, fr: `Rédigé pour ${describeRequest(original, 'fr')} (${fmtDateTime(run.createdAt, 'fr')}) ; analysez de nouveau pour mettre l’explication à jour.` })}
         </p>
       )}
       {active && (

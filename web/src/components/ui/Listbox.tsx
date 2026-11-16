@@ -4,15 +4,22 @@
  * Home/End and typeahead move the active option, Enter/Space choose it, Escape or a click outside
  * closes and returns focus to the button. Used where the native list cannot be styled. An optional
  * footer (an action such as "Manage profiles") sits under the options, outside the listbox itself:
- * Tab moves to it, and leaving the popover closes it.
+ * Tab moves to it, and leaving the popover closes it. The popover renders in a portal on
+ * document.body, fixed under the button (above it when there is no room below), so no card, widget
+ * or bar clips or covers it; it fades in and out (usePopover).
  */
 import { Check } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { listboxNext, typeaheadIndex } from '../../lib/ui/listbox';
+import { portalTarget } from './popoverPlacement';
+import { usePopoverPosition, usePresence } from './usePopover';
 
 export interface ListboxOption<T extends string> { value: T; label: string; meta?: string }
 
-export function Listbox<T extends string>({ label, value, options, onChange, renderTrigger, triggerClassName, footer }: {
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+export function Listbox<T extends string>({ label, value, options, onChange, renderTrigger, triggerClassName, popoverClassName, footer }: {
   /** Accessible name of the control (e.g. "Fictional investor"). */
   label: string;
   value: T;
@@ -20,6 +27,8 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
   onChange: (value: T) => void;
   renderTrigger: (selected: ListboxOption<T> | undefined, open: boolean) => ReactNode;
   triggerClassName?: string;
+  /** Extra class on the popover (it renders in a portal, so the trigger's parent cannot style it). */
+  popoverClassName?: string;
   /** Rendered under the options; receives a function that closes the popover. */
   footer?: (close: () => void) => ReactNode;
 }) {
@@ -29,7 +38,11 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
   const root = useRef<HTMLDivElement | null>(null);
   const button = useRef<HTMLButtonElement | null>(null);
   const list = useRef<HTMLUListElement | null>(null);
+  // The popover element: the list itself, or the box holding the list and the footer.
+  const pop = useRef<HTMLElement | null>(null);
   const typed = useRef({ text: '', at: 0 });
+  const presence = usePresence(open, pop);
+  const place = usePopoverPosition(presence.present, button, pop, { minWidth: 220 });
   // -1 when the value is not (yet) among the options, e.g. a stored benchmark before assets load.
   const selectedIndex = options.findIndex(o => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -46,9 +59,10 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
 
   useEffect(() => {
     if (!open) return undefined;
-    list.current?.focus();
+    list.current?.focus({ preventScroll: true });
     const onDown = (event: PointerEvent) => {
-      if (root.current && !root.current.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (!root.current?.contains(target) && !pop.current?.contains(target)) setOpen(false);
     };
     document.addEventListener('pointerdown', onDown);
     return () => document.removeEventListener('pointerdown', onDown);
@@ -68,8 +82,14 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
     if (next !== null) { event.preventDefault(); setActive(next); return; }
     const typing = Date.now() - typed.current.at < 600 && typed.current.text.length > 0;
     if (event.key === 'Enter' || (event.key === ' ' && !typing)) { event.preventDefault(); choose(active); return; }
-    if (event.key === 'Escape') { event.preventDefault(); close(true); return; }
-    if (event.key === 'Tab') { if (!footer || event.shiftKey) close(false); return; }
+    // Closing the list must not also close a drawer or sheet around it.
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(true); return; }
+    if (event.key === 'Tab') {
+      // The list sits at the end of the page (portal): focus goes back to the button first, so Tab
+      // continues from there as if the list were still beside it. With a footer, Tab enters the footer.
+      if (!footer || event.shiftKey) close(true);
+      return;
+    }
     if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
       const now = Date.now();
       typed.current = { text: now - typed.current.at < 600 ? typed.current.text + event.key : event.key, at: now };
@@ -78,6 +98,40 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
     }
   };
 
+  // Keys inside the footer: Escape closes; Shift+Tab from its first control returns to the list, Tab
+  // from its last moves on past the button.
+  const onPopoverKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target === list.current || !pop.current) return;
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(true); return; }
+    if (event.key !== 'Tab') return;
+    const items = [...pop.current.querySelectorAll<HTMLElement>(`.popover-footer :is(${FOCUSABLE})`)];
+    if (event.shiftKey && event.target === items[0]) { event.preventDefault(); list.current?.focus(); return; }
+    if (!event.shiftKey && event.target === items[items.length - 1]) close(true);
+  };
+
+  const portalClass = `popover popover-portal${popoverClassName ? ` ${popoverClassName}` : ''}`;
+  const popProps = {
+    style: place.style,
+    'data-side': place.side,
+    ...(presence.leaving ? { 'data-leaving': '', inert: true } : {}),
+  };
+  const items = (
+    <ul ref={el => { list.current = el; if (!footer) pop.current = el; }} id={`${id}-list`} role="listbox" aria-label={label} tabIndex={-1}
+      className={footer ? 'popover-list' : portalClass} {...(footer ? {} : popProps)}
+      {...(active >= 0 ? { 'aria-activedescendant': `${id}-opt-${active}` } : {})} onKeyDown={onListKey}
+      onPointerLeave={() => setActive(-1)}>
+      {options.map((option, i) => (
+        <li key={option.value} id={`${id}-opt-${i}`} role="option" aria-selected={i === selectedIndex} data-index={i}
+          data-active={i === active ? 'true' : undefined} className="option"
+          onPointerEnter={() => setActive(i)} onClick={() => choose(i)}>
+          <span>{option.label}</span>
+          {option.meta && <span className="option-meta">{option.meta}</span>}
+          {i === selectedIndex && <Check className="option-check" aria-hidden="true" size={16} strokeWidth={1.5} />}
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <div className="listbox" ref={root}>
       <button ref={button} type="button" className={triggerClassName} aria-haspopup="listbox" aria-expanded={open}
@@ -85,32 +139,16 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
         onClick={() => (open ? close(false) : openList(false))} onKeyDown={onButtonKey}>
         {renderTrigger(selected, open)}
       </button>
-      {open && (() => {
-        const items = (
-          <ul ref={list} id={`${id}-list`} role="listbox" aria-label={label} tabIndex={-1} className={footer ? 'popover-list' : 'popover'}
-            {...(active >= 0 ? { 'aria-activedescendant': `${id}-opt-${active}` } : {})} onKeyDown={onListKey}
-            onPointerLeave={() => setActive(-1)}>
-            {options.map((option, i) => (
-              <li key={option.value} id={`${id}-opt-${i}`} role="option" aria-selected={i === selectedIndex} data-index={i}
-                data-active={i === active ? 'true' : undefined} className="option"
-                onPointerEnter={() => setActive(i)} onClick={() => choose(i)}>
-                <span>{option.label}</span>
-                {option.meta && <span className="option-meta">{option.meta}</span>}
-                {i === selectedIndex && <Check className="option-check" aria-hidden="true" size={16} strokeWidth={1.5} />}
-              </li>
-            ))}
-          </ul>
-        );
-        if (!footer) return items;
-        return (
-          <div className="popover"
-            onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); close(true); } }}
-            onBlur={event => { if (!root.current?.contains(event.relatedTarget as Node | null)) setOpen(false); }}>
-            {items}
-            <div className="popover-footer">{footer(() => close(false))}</div>
-          </div>
-        );
-      })()}
+      {presence.present && createPortal(footer ? (
+        <div ref={el => { pop.current = el; }} className={portalClass} {...popProps} onKeyDown={onPopoverKey}
+          onBlur={event => {
+            const next = event.relatedTarget as Node | null;
+            if (!next || (!root.current?.contains(next) && !pop.current?.contains(next))) setOpen(false);
+          }}>
+          {items}
+          <div className="popover-footer">{footer(() => close(false))}</div>
+        </div>
+      ) : items, portalTarget())}
     </div>
   );
 }

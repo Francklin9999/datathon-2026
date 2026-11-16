@@ -1,26 +1,50 @@
-/* Motion that explains something, nothing that loops. One entrance on load (a short fade and rise,
-   staggered, on the panels themselves), figures that tween when they change, menus and sheets that
-   open from where they are. Base styles are the final state; start states live only in @keyframes
-   with `backwards` fill. Off under prefers-reduced-motion and while the page is hidden. */
+/* Motion that explains something, nothing that loops (the loading spinner aside). One entrance on
+   load (a short fade and rise, staggered, on the panels themselves), figures that tween when they
+   change, menus and sheets that open from where they are and close the same way. Base styles are the
+   final state; start states live only in @keyframes with `backwards` fill or in @starting-style.
+   Every duration is a token (tokens.css) and the gate below sets them all to 0s. */
 
+/* The motion gate, the only one. Motion stops when:
+   - Settings > Animations is Off (html[data-anim='off']);
+   - the page is hidden (html[data-motion='off'], boot script: nothing waits on a frame in a background tab);
+   - the system asks to reduce motion, unless Animations is On (html[data-anim='on']).
+   The tokens go to 0s, and anything that bypasses them (a hard-coded duration in a feature, a delay,
+   a stagger) is neutralised: animations and transitions jump to their end state, so `backwards`
+   entrances show their final frame at once. The spinner, the one loop, stands still.
+   JavaScript motion follows the same three inputs (useAnimationsAllowed, lib/ui/theme.ts). */
+html[data-anim='off'], html[data-motion='off'] {
+  --dur-fast: 0s; --dur-menu: 0s; --dur-enter: 0s; --dur-draw: 0s;
+}
+html[data-anim='off'] *, html[data-anim='off'] *::before, html[data-anim='off'] *::after {
+  animation-duration: 0s !important; animation-delay: 0s !important;
+  transition-duration: 0s !important; transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+/* Hidden page: animations are removed rather than finished, so an entrance starts afresh, once, when
+   the tab is first shown (the boot script drops the attribute in that task). */
+html[data-motion='off'] *, html[data-motion='off'] *::before, html[data-motion='off'] *::after {
+  animation: none !important; transition: none !important; scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-anim='on']) {
+    --dur-fast: 0s; --dur-menu: 0s; --dur-enter: 0s; --dur-draw: 0s;
+  }
+  html:not([data-anim='on']) *, html:not([data-anim='on']) *::before, html:not([data-anim='on']) *::after {
+    animation-duration: 0s !important; animation-delay: 0s !important;
+    transition-duration: 0s !important; transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Entrance on load */
 .enter > :not(.kpis), .enter > .kpis > * { animation: enter-in var(--dur-enter) var(--ease) backwards; animation-delay: calc(min(var(--i, 0), 5) * 50ms); }
 @keyframes enter-in { from { opacity: 0; transform: translate3d(0, 8px, 0); } }
 
-/* Hidden tab or preview (html[data-motion="off"], set by the boot script): nothing waits on a frame. */
-html[data-motion='off'] *, html[data-motion='off'] *::before, html[data-motion='off'] *::after { animation: none !important; transition: none !important; }
-
-/* Reduced motion (system) unless the person turned animations on; or animations turned off. */
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-anim='on']) :is(.enter > *, .enter > .kpis > *) { animation: none; }
-}
-html[data-anim='off'] :is(.enter > *, .enter > .kpis > *) { animation: none; }
-
 /* Charts draw themselves once when they appear (and again when their data changes: they are re-keyed),
-   only while fresh (LineChart's Drawn group), so moving a widget never redraws them.
-   Final states are the base styles; start states live only in the keyframes. */
-.chart-anim[data-fresh] .chart-line:not(.chart-line-dashed) { stroke-dasharray: 1 1; animation: chart-draw 1.3s var(--ease) backwards; }
-.chart-anim[data-fresh] .chart-line-dashed { animation: chart-fade .6s var(--ease) .55s backwards; }
-.chart-anim[data-fresh] .chart-area { animation: chart-reveal 1.3s var(--ease) backwards; }
+   only while fresh (LineChart's Drawn group), so moving a widget never redraws them. */
+.chart-anim[data-fresh] .chart-line:not(.chart-line-dashed) { stroke-dasharray: 1 1; animation: chart-draw var(--dur-draw) var(--ease) backwards; }
+.chart-anim[data-fresh] .chart-line-dashed { animation: chart-fade calc(var(--dur-draw) / 2) var(--ease) calc(var(--dur-draw) / 2) backwards; }
+.chart-anim[data-fresh] .chart-area { animation: chart-reveal var(--dur-draw) var(--ease) backwards; }
 @keyframes chart-draw { from { stroke-dashoffset: 1; } }
 @keyframes chart-fade { from { opacity: 0; } }
 @keyframes chart-reveal { from { clip-path: inset(0 100% 0 0); opacity: 0; } }
@@ -28,18 +52,22 @@ html[data-anim='off'] :is(.enter > *, .enter > .kpis > *) { animation: none; }
 /* Donut: the ring sweeps clockwise from the top. */
 @property --sweep { syntax: '<angle>'; inherits: false; initial-value: 360deg; }
 .donut-svg { -webkit-mask: conic-gradient(#000 var(--sweep), transparent 0); mask: conic-gradient(#000 var(--sweep), transparent 0);
-  animation: donut-sweep 1.2s var(--ease) .1s backwards; }
+  animation: donut-sweep var(--dur-draw) var(--ease) .1s backwards; }
 @keyframes donut-sweep { from { --sweep: 0deg; } }
 
 /* Bars grow from their start. */
-.bar-fill, .meter-bar > span { transform-origin: left center; animation: grow-x 1s var(--ease) .15s backwards; }
+.bar-fill, .meter-bar > span { transform-origin: left center; animation: grow-x var(--dur-draw) var(--ease) .15s backwards; }
 @keyframes grow-x { from { transform: scaleX(0); } }
 
 /* Heatmap cells settle in a diagonal wave. */
-.corr-cell { animation: corr-in .5s var(--ease) backwards; animation-delay: calc(min(var(--k, 0), 30) * 18ms); }
+.corr-cell { animation: corr-in var(--dur-enter) var(--ease) backwards; animation-delay: calc(min(var(--k, 0), 30) * 18ms); }
 @keyframes corr-in { from { opacity: 0; transform: scale(.85); } }
 
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-anim='on']) :is(.chart-line, .chart-area, .donut-svg, .bar-fill, .meter-bar > span, .corr-cell) { animation: none; }
+/* Folds open and close by their height where the browser can interpolate to `auto` (progressive
+   enhancement; elsewhere they snap, as before). */
+@supports (interpolate-size: allow-keywords) {
+  details { interpolate-size: allow-keywords; }
+  details::details-content { block-size: 0; overflow: clip;
+    transition: block-size var(--dur-menu) var(--ease), content-visibility var(--dur-menu) allow-discrete; }
+  details[open]::details-content { block-size: auto; }
 }
-html[data-anim='off'] :is(.chart-line, .chart-area, .donut-svg, .bar-fill, .meter-bar > span, .corr-cell) { animation: none; }

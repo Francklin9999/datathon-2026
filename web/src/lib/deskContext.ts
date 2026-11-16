@@ -24,3 +24,12 @@ export function deskContext(
   if (context) return { context, shown: context, foreign: false };
   return { context: null, shown: urlContext, foreign: urlContext !== null };
 }
+
+/**
+ * The ticker a ?ticker= link pre-fills in the move form (old Markets "Investigate in Decision Desk"
+ * links, World investigations): trimmed and upper-cased, or '' when it is not a plausible ticker.
+ */
+export function prefillTicker(raw: string | null | undefined): string {
+  const ticker = (raw ?? '').trim().toUpperCase();
+  return /^[A-Z0-9][A-Z0-9.^=-]{0,19}$/.test(ticker) ? ticker : '';
+}

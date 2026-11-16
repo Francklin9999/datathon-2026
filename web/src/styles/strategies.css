@@ -1,4 +1,4 @@
-/* Strategies page (web/page-specs/strategies.md) and the Automations widget on Home. Glass vocabulary
+/* Strategies page (web/page-specs/strategies.md). Glass vocabulary
    of the shell: cards are --glass-card, nested blocks --glass-inset; one accent per kind. */
 .kind-rebalance { --kind: var(--accent); --kind-soft: var(--accent-soft); }
 .kind-contribute { --kind: var(--pass-fg); --kind-soft: var(--pass-bg); }
@@ -58,7 +58,7 @@
 .number-suffix { position: absolute; right: 12px; font-size: 12px; color: var(--text-3); pointer-events: none; }
 .strategy-issues { margin-top: 12px; padding-left: 18px; list-style: disc; }
 
-/* Switch (Active on Home) */
+/* Switch (Active) */
 .switch { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 32px; cursor: pointer; font-size: 13px; color: var(--text-2); }
 .switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .switch-track { position: relative; width: 38px; height: 22px; border-radius: var(--r-pill); background: var(--line-strong); transition: background-color var(--dur-menu) var(--ease); }
@@ -105,15 +105,6 @@
 .plan-months strong { font-size: 15px; }
 .plan-legend { margin-top: 8px; }
 
-/* Home: Automations widget */
-.auto-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
-.auto-item { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 2px 12px; min-width: 0; padding: 12px 14px; border-radius: 16px; background: var(--glass-inset); }
-.auto-item .strategy-icon { grid-row: span 2; }
-.auto-name { font-weight: 600; font-size: 14px; }
-.auto-next { font-size: 12px; color: var(--text-2); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
-.auto-next[data-due] { color: var(--accent-text); font-weight: 500; }
-.auto-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-
 @media (max-width: 1100px) {
   .strategy-row { grid-template-columns: minmax(0, 1fr); }
 }
@@ -126,3 +117,6 @@
   html:not([data-anim='on']) :is(.kind-card, .strategy-item, .switch-track, .switch-thumb, .strategy-results) { transition: none; }
 }
 html[data-anim='off'] :is(.kind-card, .strategy-item, .switch-track, .switch-thumb, .strategy-results) { transition: none; }
+
+/* Delete shows its word next to the icon; it keeps the small button height inside the card header. */
+.strategy-delete { color: var(--text-2); }

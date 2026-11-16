@@ -6,16 +6,13 @@
  */
 import { useMemo, useState } from 'react';
 import { PositionQuantities } from './PositionQuantities';
-import { ConditionalPolicies } from './ConditionalPolicies';
 import { AccountEditor } from './AccountEditor';
-import { JointPlan } from '../planning/JointPlan';
-import { AllocationTargets } from './AllocationTargets';
-import { RequirementsScenario } from './RequirementsScenario';
 import { PrivateAssets } from './PrivateAssets';
-import { CustomPolicies } from './CustomPolicies';
 import { Accounts } from './Accounts';
-import { GoalFunding } from './GoalFunding';
-import { ExposureLimits } from './ExposureLimits';
+import { AddRule } from './AddRule';
+import { RiskDiagnostics } from './RiskDiagnostics';
+import { ORIGIN } from './portfolioLabels';
+import './portfolio.css';
 import type {
   CheckResult, DeriveRulesResponse, FrontierResponse, Lang, OverviewResponse, PolicyRule, Profile,
 } from '../../contracts/types';
@@ -23,7 +20,10 @@ import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
 import { profileKey, useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
+import { sameSubject } from '../../lib/ui/scope';
 import { WindowControl } from '../../components/shell/TopBar';
+import { Tabs, tabPanelProps, useTabParam } from '../../components/ui/Tabs';
+import { ProxyNote } from '../../components/common/Note';
 import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
 import { ErrorState, Loading, Unavailable } from '../../components/common/States';
 import { FactChip, FactScopeProvider, LimitationList, type FactScope } from '../../components/common/FactDrawer';
@@ -42,15 +42,29 @@ export function PortfolioPage() {
   return <ProfileGate>{profile => <PortfolioContent key={profile.profileId} profile={profile} />}</ProfileGate>;
 }
 
+const TABS = ['holdings', 'risk', 'rules', 'accounts'] as const;
+type PortfolioTab = typeof TABS[number];
+
 function PortfolioContent({ profile }: { profile: Profile }) {
   const app = useApp();
   const { tr, windowCode, lang } = app;
   const base = profileKey(app);
+  const [tab, setTab] = useTabParam<PortfolioTab>('tab', TABS, 'holdings');
+  // A new period keeps the figures on screen (dimmed) until the new ones land; another profile never does.
+  const keepOverview = useMemo(() => ({ keepPreviousFrom: sameSubject('overview', base) }), [base]);
   const overview = useQuery<OverviewResponse>(base && `overview|${base}|${windowCode}`,
-    signal => getApiClient().overview(profile.profileId, windowCode, signal));
+    signal => getApiClient().overview(profile.profileId, windowCode, signal), keepOverview);
   const scope = useMemo<FactScope | null>(() => (overview.data
     ? { kind: 'local', label: { en: 'Portfolio figures, computed by code.', fr: 'Chiffres du portefeuille, calculés par le code.' }, facts: overview.data.facts }
     : null), [overview.data]);
+  const { key: panelKey, ...panel } = tabPanelProps('portfolio', tab);
+
+  const overviewState = <>
+    {overview.loading && !overview.data && <Loading />}
+    {overview.error && <ErrorState error={overview.error} onRetry={overview.reload}
+      title={tr({ en: 'The portfolio overview is unavailable. No figures are shown.', fr: 'L’aperçu du portefeuille est indisponible. Aucun chiffre n’est affiché.' })} />}
+    {overview.stale && <p className="sr-only" role="status">{tr({ en: 'Updating the figures for the new period', fr: 'Mise à jour des chiffres pour la nouvelle période' })}</p>}
+  </>;
 
   return (
     <>
@@ -60,30 +74,44 @@ function PortfolioContent({ profile }: { profile: Profile }) {
           {tr({ en: `${fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} of fictional capital for ${profile.name}.`, fr: `${fmtMoney(profile.portfolio.totalValue, profile.portfolio.currency, lang)} de capital fictif pour ${profile.name}.` })}
         </p>
       </PageHeader>
-      <Accounts key={`accounts|${profile.profileId}|${profile.version}`} profile={profile} />
-      <PositionQuantities key={`quantities|${profile.profileId}|${profile.version}`} profile={profile} />
-      <AccountEditor key={`account-edit|${profile.profileId}|${profile.version}`} profile={profile} />
-      <PrivateAssets key={`private|${profile.profileId}|${profile.version}`} profile={profile} />
-      {overview.loading && <Loading />}
-      {overview.error && <ErrorState error={overview.error} onRetry={overview.reload}
-        title={tr({ en: 'The portfolio overview is unavailable. No figures are shown.', fr: 'L’aperçu du portefeuille est indisponible. Aucun chiffre n’est affiché.' })} />}
-      {overview.data && scope && (
-        <FactScopeProvider scope={scope}>
-          <Holdings overview={overview.data} profile={profile} />
-          <Allocation overview={overview.data} />
-          <Risk overview={overview.data} />
-        </FactScopeProvider>
-      )}
-      <AllocationTargets profile={profile} />
-      <JointPlan key={`joint|${profile.profileId}|${profile.version}`} profile={profile} />
-      <GoalFunding profile={profile} />
-      <RequirementsScenario key={`requirements|${profile.profileId}|${profile.version}`} profile={profile} />
-      <ExposureLimits profile={profile} />
-      <ConditionalPolicies key={`conditions|${profile.profileId}|${profile.version}`} profile={profile} />
-      <CustomPolicies key={`policies|${profile.profileId}|${profile.version}`} profile={profile} />
-      <Rules profile={profile} overview={overview.data} scope={scope} />
-      <Frontier profile={profile} />
-      {overview.data && <LimitationList compactAfter={0} codes={overview.data.limitations} />}
+      <div data-tour="portfolio-tabs">
+        <Tabs<PortfolioTab> idBase="portfolio" label={tr({ en: 'Portfolio sections', fr: 'Sections du portefeuille' })} value={tab} onChange={setTab} tabs={[
+          { id: 'holdings', label: tr({ en: 'Holdings', fr: 'Positions' }), title: tr({ en: 'What the portfolio holds and how it is spread', fr: 'Ce que détient le portefeuille et sa répartition' }) },
+          { id: 'risk', label: tr({ en: 'Risk', fr: 'Risque' }), title: tr({ en: 'How the portfolio behaved in the past', fr: 'Comment le portefeuille s’est comporté par le passé' }) },
+          { id: 'rules', label: tr({ en: 'Rules', fr: 'Règles' }), title: tr({ en: 'The limits every decision is checked against', fr: 'Les limites vérifiées pour chaque décision' }) },
+          { id: 'accounts', label: tr({ en: 'Accounts', fr: 'Comptes' }), title: tr({ en: 'Accounts, quantities and private assets', fr: 'Comptes, quantités et actifs privés' }) },
+        ]} />
+      </div>
+      <div key={panelKey} {...panel} data-tour={`portfolio-panel-${tab}`} {...(overview.stale && tab !== 'accounts' ? { 'aria-busy': true } : {})}>
+        {tab === 'holdings' && <>
+          {overviewState}
+          {overview.data && scope && (
+            <FactScopeProvider scope={scope}>
+              <Holdings overview={overview.data} profile={profile} />
+              <Allocation overview={overview.data} />
+              <LimitationList compactAfter={0} codes={overview.data.limitations} />
+            </FactScopeProvider>
+          )}
+        </>}
+        {tab === 'risk' && <>
+          {overviewState}
+          {overview.data && scope && <FactScopeProvider scope={scope}><Risk overview={overview.data} /></FactScopeProvider>}
+          <RiskDiagnostics profile={profile} />
+          {overview.data && <LimitationList compactAfter={0} codes={overview.data.limitations} />}
+        </>}
+        {tab === 'rules' && <>
+          {overview.error && overviewState}
+          <Rules profile={profile} overview={overview.data} scope={scope} />
+          <AddRule profile={profile} />
+          <Frontier profile={profile} />
+        </>}
+        {tab === 'accounts' && <div data-tour="accounts">
+          <Accounts key={`accounts|${profile.profileId}|${profile.version}`} profile={profile} />
+          <PositionQuantities key={`quantities|${profile.profileId}|${profile.version}`} profile={profile} />
+          <AccountEditor key={`account-edit|${profile.profileId}|${profile.version}`} profile={profile} />
+          <PrivateAssets key={`private|${profile.profileId}|${profile.version}`} profile={profile} />
+        </div>}
+      </div>
     </>
   );
 }
@@ -94,17 +122,18 @@ function Holdings({ overview, profile }: { overview: OverviewResponse; profile: 
   const returns = holdingReturnsOf(overview);
   const total = snapshot.positions.reduce((s, p) => s + p.weightPct, 0);
   return (
-    <Card id="holdings" section={tr({ en: 'Holdings', fr: 'Positions' })} tour="holdings" title={tr({ en: 'Holdings', fr: 'Positions' })}>
+    <Card id="holdings" section={tr({ en: 'Holdings', fr: 'Positions' })} tour="holdings" title={tr({ en: 'Holdings', fr: 'Positions' })}
+      info={tr({ en: 'Modeled value is weight × capital. A documented quantity is what you entered in Accounts; it does not change the modeled value.', fr: 'La valeur modélisée est poids × capital. Une quantité documentée est celle saisie dans Comptes ; elle ne change pas la valeur modélisée.' })}>
       <div className="table-scroll" role="region" aria-label={tr({ en: 'Holdings table', fr: 'Tableau des positions' })} tabIndex={0}>
         <table className="data-table">
           <thead>
             <tr>
               <th scope="col">{tr({ en: 'Asset', fr: 'Actif' })}</th>
               <th scope="col">{tr({ en: 'Class', fr: 'Catégorie' })}</th>
-              <th scope="col">{tr({ en: 'Sector label', fr: 'Secteur' })}</th>
+              <th scope="col">{tr({ en: 'Sector', fr: 'Secteur' })}</th>
               <th scope="col" className="num-col">{tr({ en: 'Weight', fr: 'Poids' })}</th>
-              <th scope="col">{tr({ en: 'Documented quantity', fr: 'Quantité documentée' })}</th>
-              <th scope="col" className="num-col">{tr({ en: 'Modeled position value', fr: 'Valeur de position modélisée' })} ({snapshot.currency})</th>
+              <th scope="col">{tr({ en: 'Quantity', fr: 'Quantité' })}</th>
+              <th scope="col" className="num-col">{tr({ en: 'Modeled value', fr: 'Valeur modélisée' })} ({snapshot.currency})</th>
               <th scope="col" className="num-col">{tr({ en: '1-year return (historical)', fr: 'Rendement 1 an (historique)' })}</th>
             </tr>
           </thead>
@@ -113,11 +142,25 @@ function Holdings({ overview, profile }: { overview: OverviewResponse; profile: 
               const r = returns.get(p.ticker);
               return (
                 <tr key={p.ticker}>
-                  <th scope="row"><span className="ticker">{p.ticker}</span><span className="block small muted">{p.name}</span><span className="block small muted">{p.market ?? '—'} · {p.quoteCurrency ?? '—'} · {p.listingCountry ?? '—'} ({tr({ en: 'listing proxy', fr: 'approximation de cotation' })})</span><details><summary className="small">{tr({ en: 'Source identity and history', fr: 'Identité source et historique' })}</summary><p className="small">{tr({ en: 'Source asset ID', fr: 'Identifiant source de l’actif' })}: {p.sourceAssetId ?? '—'}</p><p className="small">{p.history?.firstDate ?? '—'} — {p.history?.lastDate ?? '—'} · {p.history?.nObs ?? '—'} {tr({ en: 'visible price observations', fr: 'observations de prix visibles' })}</p><p className="small muted">{tr({ en: 'Source ticker/market metadata is not an independently verified cross-provider ISIN or issuer crosswalk. FX and risk sample availability are assessed separately.', fr: 'Les métadonnées de symbole/marché ne constituent pas une correspondance ISIN ou émetteur indépendante. La disponibilité du change et de l’échantillon de risque est évaluée séparément.' })}</p></details></th>
+                  <th scope="row"><span className="ticker">{p.ticker}</span><span className="block small muted">{p.name}</span><span className="block small muted">{p.market ?? '—'} · {p.quoteCurrency ?? '—'} · {p.listingCountry ?? '—'}</span>
+                    <details className="holding-source"><summary className="small">{tr({ en: 'Source and history', fr: 'Source et historique' })}</summary>
+                      <p className="small">{tr({ en: 'Source asset ID', fr: 'Identifiant source de l’actif' })}: <span className="mono">{p.sourceAssetId ?? '—'}</span></p>
+                      <p className="small">{p.history?.firstDate ?? '—'} — {p.history?.lastDate ?? '—'} · {p.history?.nObs ?? '—'} {tr({ en: 'price observations', fr: 'observations de prix' })}</p>
+                      <p className="small muted">{tr({ en: 'Ticker and market come from the source and are not cross-checked against an ISIN or issuer register.', fr: 'Symbole et marché viennent de la source, sans contrôle croisé avec un ISIN ou un registre d’émetteurs.' })}</p>
+                    </details>
+                  </th>
                   <td>{labelOf(ASSET_CLASS, p.assetClass, lang)}</td>
                   <td>{p.sector}</td>
                   <td className="num-col num"><CountUp text={fmtPct(p.weightPct, lang)} /></td>
-                  <td>{(() => { const q = profile.portfolio.positions.find(h => h.ticker === p.ticker); return q?.quantity === undefined || q.quantity === null ? <span className="small muted">{tr({ en: 'Unknown; modeled size only', fr: 'Inconnue; taille modélisée seulement' })}</span> : <><span>{fmtNumber(q.quantity, lang, 4)}</span><span className="block small muted">{q.quantityAsOf} · {q.quantityOrigin}</span><details><summary className="small">{tr({ en: 'Quantity source', fr: 'Source de la quantité' })}</summary><p className="small">{q.quantitySource}</p></details></>; })()}</td>
+                  <td>{(() => {
+                    const q = profile.portfolio.positions.find(h => h.ticker === p.ticker);
+                    if (q?.quantity === undefined || q.quantity === null) return <span className="small muted">{tr({ en: 'Not entered', fr: 'Non saisie' })}</span>;
+                    return <>
+                      <span>{fmtNumber(q.quantity, lang, 4)}</span>
+                      <span className="block small muted">{q.quantityAsOf}{q.quantityOrigin ? ` · ${labelOf(ORIGIN, q.quantityOrigin, lang)}` : ''}</span>
+                      {q.quantitySource && <details><summary className="small">{tr({ en: 'Quantity source', fr: 'Source de la quantité' })}</summary><p className="small">{q.quantitySource}</p></details>}
+                    </>;
+                  })()}</td>
                   <td className="num-col num"><CountUp text={fmtMoney(p.marketValue, snapshot.currency, lang)} /></td>
                   <td className="num-col num">
                     {r === undefined
@@ -140,6 +183,7 @@ function Holdings({ overview, profile }: { overview: OverviewResponse; profile: 
           </tfoot>
         </table>
       </div>
+      <ProxyNote />
     </Card>
   );
 }
@@ -155,7 +199,7 @@ function Allocation({ overview }: { overview: OverviewResponse }) {
       <Card title={tr({ en: 'By sector (direct equities)', fr: 'Par secteur (actions directes)' })}
         info={tr({ en: 'Direct single-name equities only; funds are not looked through.', fr: 'Actions individuelles directes seulement ; les fonds ne sont pas décomposés.' })}>
         {s.bySector.length === 0
-          ? <p className="muted small">{tr({ en: 'No direct single-name equities.', fr: 'Aucune action individuelle directe.' })}</p>
+          ? <p className="muted small">{tr({ en: 'No direct single-name equities', fr: 'Aucune action individuelle directe' })}</p>
           : <GroupBars items={s.bySector} label={tr({ en: 'Sector weights', fr: 'Poids sectoriels' })} render={k => k} />}
       </Card>
       <Card title={tr({ en: 'By listing country', fr: 'Par pays de cotation' })}
@@ -166,11 +210,11 @@ function Allocation({ overview }: { overview: OverviewResponse }) {
   );
 }
 
-export function Risk({ overview }: { overview: OverviewResponse }) {
+function Risk({ overview }: { overview: OverviewResponse }) {
   const { tr, lang } = useApp();
   const { risk, concentration, correlation } = overview;
   const cell = (value: number | null, key: string, signed = false) => {
-    if (value === null) return <span className="small muted">{tr({ en: 'Unavailable for this period.', fr: 'Indisponible pour cette période.' })}</span>;
+    if (value === null) return <span className="small muted">{tr({ en: 'Unavailable for this period', fr: 'Indisponible pour cette période' })}</span>;
     const text = signed ? fmtSignedPct(value, lang) : fmtPct(value, lang);
     const factId = factIdFor(risk.factIds, key);
     return factId ? <FactChip factId={factId} display={text} /> : <span className="num">{text}</span>;
@@ -187,7 +231,7 @@ export function Risk({ overview }: { overview: OverviewResponse }) {
       </div>
       <h3 className="h4">{tr({ en: 'Correlation of daily returns', fr: 'Corrélation des rendements quotidiens' })}</h3>
       {correlation === null
-        ? <p className="small muted">{tr({ en: 'Not shown: more than 20 positions or not supplied.', fr: 'Non affichée : plus de 20 positions ou non fournie.' })}</p>
+        ? <p className="small muted">{tr({ en: 'Not shown: more than 20 holdings, or not supplied', fr: 'Non affichée : plus de 20 positions, ou non fournie' })}</p>
         : (
           <CorrelationHeatmap tickers={correlation.tickers} matrix={correlation.matrix} />
         )}
@@ -218,7 +262,7 @@ function RuleEditor({ rule, profile, onPreview }: {
       if (enabled !== rule.enabled) body.enabled = enabled;
       const response = await getApiClient().patchRule(profile.profileId, rule.ruleId, body);
       applyProfile({ ...profile, version: response.profileVersion, rules: profile.rules.map(r => (r.ruleId === rule.ruleId ? response.rule : r)) });
-      announce(tr({ en: `Rule ${rule.code} saved; earlier briefs are now stale.`, fr: `Règle ${rule.code} enregistrée ; les notes antérieures sont périmées.` }));
+      announce(tr({ en: `Rule “${tr(rule.label)}” saved; earlier briefs are now out of date.`, fr: `Règle « ${tr(rule.label)} » enregistrée ; les notes antérieures sont périmées.` }));
     } catch (caught) {
       const apiError = asApiError(caught);
       setError(apiError);
@@ -239,12 +283,12 @@ function RuleEditor({ rule, profile, onPreview }: {
           </span>
         </>
       )}
-      <label className="small" style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+      <label className="small rule-enabled">
         <input type="checkbox" checked={enabled} onChange={e => setEnabled(e.target.checked)} />
         {tr({ en: 'Enabled', fr: 'Activée' })}
       </label>
-      {invalid && <span className="field-error">{tr({ en: 'Outside the allowed range.', fr: 'Hors de la plage permise.' })}</span>}
-      <div className="row-actions" style={{ marginTop: 4 }}>
+      {invalid && <span className="field-error">{tr({ en: 'Outside the allowed range', fr: 'Hors de la plage permise' })}</span>}
+      <div className="row-actions rule-edit-actions">
         <button type="button" className="btn ghost btn-sm" disabled={!changed || invalid} onClick={() => onPreview(rule, numeric, enabled)}>
           {tr({ en: 'Preview', fr: 'Aperçu' })}
         </button>
@@ -265,21 +309,21 @@ function RuleEditor({ rule, profile, onPreview }: {
 
 function Rules({ profile, overview, scope }: { profile: Profile; overview: OverviewResponse | null; scope: FactScope | null }) {
   const { tr, windowSpec, applyProfile, announce } = useApp();
-  const [preview, setPreview] = useState<{ result: CheckResult | null; error: ApiRequestError | null; ruleCode: string } | null>(null);
+  const [preview, setPreview] = useState<{ result: CheckResult | null; error: ApiRequestError | null; ruleLabel: string } | null>(null);
   const [deriveOpen, setDeriveOpen] = useState(false);
   const [derived, setDerived] = useState<DeriveRulesResponse | null>(null);
   const [deriveError, setDeriveError] = useState<ApiRequestError | null>(null);
 
   const runPreview = async (rule: PolicyRule, threshold: number | null, enabled: boolean) => {
-    setPreview({ result: null, error: null, ruleCode: rule.code });
+    setPreview({ result: null, error: null, ruleLabel: tr(rule.label) });
     try {
       const result = await getApiClient().check({
         profileId: profile.profileId, move: null, window: windowSpec,
         ruleOverrides: [{ ruleId: rule.ruleId, enabled, ...(threshold !== null ? { threshold } : {}) }],
       });
-      setPreview({ result, error: null, ruleCode: rule.code });
+      setPreview({ result, error: null, ruleLabel: tr(rule.label) });
     } catch (error) {
-      setPreview({ result: null, error: asApiError(error), ruleCode: rule.code });
+      setPreview({ result: null, error: asApiError(error), ruleLabel: tr(rule.label) });
     }
   };
 
@@ -312,8 +356,8 @@ function Rules({ profile, overview, scope }: { profile: Profile; overview: Overv
 
   return (
     <Card id="rules" section={tr({ en: 'Rules', fr: 'Règles' })} tour="rules" title={tr({ en: 'Plan rules', fr: 'Règles du plan' })}
-      info={tr({ en: 'Each rule is an editable assumption: change a threshold, preview the effect, then save.', fr: 'Chaque règle est une hypothèse modifiable : changez un seuil, prévisualisez l’effet, puis enregistrez.' })}
-      actions={<button type="button" className="btn ghost btn-sm" onClick={() => setDeriveOpen(o => !o)} aria-expanded={deriveOpen}>{tr({ en: 'Restore derived rules…', fr: 'Restaurer les règles dérivées…' })}</button>}>
+      info={tr({ en: 'Each rule is an editable assumption: change a threshold, preview the effect, then save. Saving makes earlier briefs out of date.', fr: 'Chaque règle est une hypothèse modifiable : changez un seuil, prévisualisez l’effet, puis enregistrez. Enregistrer rend les notes antérieures périmées.' })}
+      actions={<button type="button" className="btn ghost btn-sm" onClick={() => setDeriveOpen(o => !o)} aria-expanded={deriveOpen}>{tr({ en: 'Restore derived rules', fr: 'Restaurer les règles dérivées' })}</button>}>
       {deriveOpen && (
         <div className="state" role="group" aria-label={tr({ en: 'Restore derived rules', fr: 'Restaurer les règles dérivées' })}>
           <p className="state-title">{tr({ en: 'Recompute derived thresholds from the risk level, horizon and preferences?', fr: 'Recalculer les seuils dérivés à partir du risque, de l’horizon et des préférences ?' })}</p>
@@ -327,21 +371,21 @@ function Rules({ profile, overview, scope }: { profile: Profile; overview: Overv
       {deriveError && <ErrorState error={deriveError} />}
       {derived && derivedScope && (
         <FactScopeProvider scope={derivedScope}>
-          <p className="small">{tr({ en: 'Derived rules applied. Derivation inputs:', fr: 'Règles dérivées appliquées. Intrants :' })} {Object.keys(derived.facts).map(id => <FactChip key={id} factId={id} />)}</p>
+          <p className="small">{tr({ en: 'Derived rules applied. Based on:', fr: 'Règles dérivées appliquées. Fondées sur :' })} {Object.entries(derived.facts).map(([id, fact]) => <FactChip key={id} factId={id} display={`${tr(fact.label)}: ${tr(fact.display)}`} />)}</p>
         </FactScopeProvider>
       )}
-      {overview === null && <p className="small muted">{tr({ en: 'Statuses need the overview; rule definitions are shown from the profile.', fr: 'Les statuts nécessitent l’aperçu ; les définitions viennent du profil.' })}</p>}
+      {overview === null && <p className="small muted">{tr({ en: 'Statuses appear once the portfolio figures load; the rules below come from the profile', fr: 'Les statuts apparaissent une fois les chiffres chargés ; les règles ci-dessous viennent du profil' })}</p>}
       {disabled.length > 0 && (
         <p className="small muted">
           {tr({ en: 'Disabled, not counted in the plan verdict:', fr: 'Désactivées, non comptées dans le verdict du plan :' })}{' '}
-          <span className="mono">{disabled.map(rule => rule.code).join(', ')}</span>.{' '}
+          {disabled.map(rule => tr(rule.label)).join(', ')}.{' '}
           {tr({ en: 'Each stays listed below and can be enabled again.', fr: 'Chacune reste listée ci-dessous et peut être réactivée.' })}
         </p>
       )}
       {scope ? <FactScopeProvider scope={scope}>{table}</FactScopeProvider> : table}
       {preview && (
-        <div className="card" style={{ marginTop: 16 }} aria-live="polite">
-          <p className="eyebrow">{tr({ en: 'Unsaved preview', fr: 'Aperçu non enregistré' })}</p>
+        <div className="card rule-preview" aria-live="polite">
+          <p className="eyebrow">{tr({ en: 'Unsaved preview', fr: 'Aperçu non enregistré' })} · {preview.ruleLabel}</p>
           {!preview.result && !preview.error && <Loading />}
           {preview.error && <ErrorState error={preview.error} />}
           {preview.result && previewScope && (
@@ -362,17 +406,20 @@ function Frontier({ profile }: { profile: Profile }) {
   const { tr, feature, windowCode, lang } = app;
   const [active, setActive] = useState(false);
   const base = profileKey(app);
+  // Loaded on demand: the request starts the first time the fold opens.
   const frontier = useQuery<FrontierResponse>(active && base ? `frontier|${base}|${windowCode}` : null,
     signal => getApiClient().frontier(profile.profileId, windowCode, signal));
   if (!feature('frontier_chart')) return null;
   return (
-    <Card id="frontier" section={tr({ en: 'Frontier', fr: 'Frontière' })} tour="frontier" title={tr({ en: 'Risk/return frontier (historical)', fr: 'Frontière risque/rendement (historique)' })}
-      actions={!active ? <button type="button" className="btn ghost btn-sm" onClick={() => setActive(true)}>{tr({ en: 'Load frontier', fr: 'Charger la frontière' })}</button> : undefined}>
-      {!active && <p className="small muted">{tr({ en: 'Loaded on demand. Points illustrate the past sample, not optimal future portfolios.', fr: 'Chargée à la demande. Les points illustrent l’échantillon passé, pas des portefeuilles futurs optimaux.' })}</p>}
-      {frontier.loading && <Loading />}
-      {frontier.error && <ErrorState error={frontier.error} onRetry={frontier.reload} />}
-      {frontier.data && <FrontierChart data={frontier.data} lang={lang} />}
-    </Card>
+    <details className="fold section-fold" id="frontier" data-tour="frontier" onToggle={event => { if (event.currentTarget.open) setActive(true); }}>
+      <summary>{tr({ en: 'Risk/return frontier (historical)', fr: 'Frontière risque/rendement (historique)' })}</summary>
+      <div className="fold-body">
+        <p className="small muted">{tr({ en: 'Points illustrate the past sample, not optimal future portfolios.', fr: 'Les points illustrent l’échantillon passé, pas des portefeuilles futurs optimaux.' })}</p>
+        {frontier.loading && <Loading />}
+        {frontier.error && <ErrorState error={frontier.error} onRetry={frontier.reload} />}
+        {frontier.data && <FrontierChart data={frontier.data} lang={lang} />}
+      </div>
+    </details>
   );
 }
 
@@ -411,15 +458,15 @@ function FrontierChart({ data, lang }: { data: FrontierResponse; lang: Lang }) {
         <ul className="list-plain">
           {data.minVarFrontier.map((p, i) => (
             <li key={`mv-${i}`}>
-              <button type="button" className="linklike" onClick={() => setPicked({ label: `MinVar ${i + 1}`, weights: p.weights })}>
-                MinVar {i + 1}: {fmtPct(p.volPct, lang)} / {fmtPct(p.histReturnPct, lang)}
+              <button type="button" className="linklike" onClick={() => setPicked({ label: `${tr({ en: 'Minimum-variance point', fr: 'Point de variance minimale' })} ${i + 1}`, weights: p.weights })}>
+                {tr({ en: 'Minimum-variance point', fr: 'Point de variance minimale' })} {i + 1}: {tr({ en: 'volatility', fr: 'volatilité' })} {fmtPct(p.volPct, lang)}, {tr({ en: 'return', fr: 'rendement' })} {fmtPct(p.histReturnPct, lang)}
               </button>
             </li>
           ))}
           {data.histMvFrontier.map((p, i) => (
             <li key={`hm-${i}`}>
-              <button type="button" className="linklike" onClick={() => setPicked({ label: `MV ${i + 1}`, weights: p.weights })}>
-                MV {i + 1}: {fmtPct(p.volPct, lang)} / {fmtPct(p.histReturnPct, lang)}
+              <button type="button" className="linklike" onClick={() => setPicked({ label: `${tr({ en: 'Mean-variance point', fr: 'Point moyenne-variance' })} ${i + 1}`, weights: p.weights })}>
+                {tr({ en: 'Mean-variance point', fr: 'Point moyenne-variance' })} {i + 1}: {tr({ en: 'volatility', fr: 'volatilité' })} {fmtPct(p.volPct, lang)}, {tr({ en: 'return', fr: 'rendement' })} {fmtPct(p.histReturnPct, lang)}
               </button>
             </li>
           ))}

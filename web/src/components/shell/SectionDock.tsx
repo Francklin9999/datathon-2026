@@ -9,7 +9,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Plus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { activeSection } from '../../lib/ui/sections';
 import { useApp } from '../../state/app';
 import { pillStyle, useSlidingPill } from '../ui/useSlidingPill';
@@ -22,6 +22,29 @@ function readSections(): Section[] {
   return Array.from(main.querySelectorAll<HTMLElement>('[data-section][id]'))
     .map(el => ({ id: el.id, label: el.dataset.section ?? '' }))
     .filter(s => s.label !== '');
+}
+
+/**
+ * Which edges of a horizontally scrolling list hide more items: 'start', 'end', 'both' or '' (CSS
+ * fades those edges). Follows scrolling and resizing.
+ */
+function useEdgeFade(ref: RefObject<HTMLElement | null>, dep: number): string {
+  const [fade, setFade] = useState('');
+  useEffect(() => {
+    const list = ref.current;
+    if (!list) { setFade(''); return undefined; }
+    const measure = () => {
+      const start = list.scrollLeft > 2;
+      const end = list.scrollLeft + list.clientWidth < list.scrollWidth - 2;
+      setFade(start && end ? 'both' : start ? 'start' : end ? 'end' : '');
+    };
+    measure();
+    list.addEventListener('scroll', measure, { passive: true });
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(list);
+    return () => { list.removeEventListener('scroll', measure); observer?.disconnect(); };
+  }, [ref, dep]);
+  return fade;
 }
 
 function sameSections(a: Section[], b: Section[]): boolean {
@@ -100,6 +123,17 @@ export function SectionDock() {
     };
   }, [sections]);
 
+  // Keep the highlighted section in view when the list scrolls sideways.
+  useEffect(() => {
+    const list = ref.current;
+    const item = list?.querySelector<HTMLElement>('.dock-item[aria-current="true"]');
+    if (!list || !item) return;
+    const left = item.offsetLeft;
+    const right = left + item.offsetWidth;
+    if (left < list.scrollLeft) list.scrollLeft = Math.max(0, left - 24);
+    else if (right > list.scrollLeft + list.clientWidth) list.scrollLeft = right - list.clientWidth + 24;
+  }, [current, ref]);
+
   const go = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -116,11 +150,19 @@ export function SectionDock() {
   };
 
   const showSections = sections.length >= 3;
+  const fade = useEdgeFade(ref, showSections ? sections.length : 0);
   const onDecide = pathname.startsWith('/decision-desk');
+  const plusLabel = onDecide ? tr({ en: 'Describe a move', fr: 'Décrire un mouvement' }) : tr({ en: 'Test a move', fr: 'Tester un mouvement' });
+  const plusInner = (
+    <>
+      <Plus aria-hidden="true" size={18} strokeWidth={2.25} />
+      <span className="dock-plus-text">{plusLabel}</span>
+    </>
+  );
   return (
     <nav className="dock chrome" aria-label={tr({ en: 'On this page', fr: 'Sur cette page' })} data-tour="dock">
       {showSections && (
-        <div className="dock-list" ref={ref}>
+        <div className="dock-list" ref={ref} data-fade={fade || undefined}>
           <span className="dock-pill" aria-hidden="true" data-animate={animate ? 'true' : undefined} style={pillStyle(box)} />
           {sections.map(s => (
             <button key={s.id} type="button" className="dock-item" aria-current={s.id === current ? 'true' : undefined}
@@ -132,15 +174,9 @@ export function SectionDock() {
       )}
       {showSections && <span className="dock-sep" aria-hidden="true" />}
       {onDecide ? (
-        <button type="button" className="dock-plus" onClick={() => go('request')} data-tour="dock-plus"
-          aria-label={tr({ en: 'Describe a move', fr: 'Décrire un mouvement' })} title={tr({ en: 'Describe a move', fr: 'Décrire un mouvement' })}>
-          <Plus aria-hidden="true" size={22} strokeWidth={2} />
-        </button>
+        <button type="button" className="dock-plus" onClick={() => go('request')} data-tour="dock-plus">{plusInner}</button>
       ) : (
-        <Link href="/decision-desk/" className="dock-plus" data-tour="dock-plus"
-          aria-label={tr({ en: 'Test a move', fr: 'Tester un mouvement' })} title={tr({ en: 'Test a move', fr: 'Tester un mouvement' })}>
-          <Plus aria-hidden="true" size={22} strokeWidth={2} />
-        </Link>
+        <Link href="/decision-desk/" className="dock-plus" data-tour="dock-plus">{plusInner}</Link>
       )}
     </nav>
   );

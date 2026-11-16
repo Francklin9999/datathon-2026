@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
-  fitCount, isDefaultLayout, keyboardMove, keyboardResize, moveItem, normalizeLayout, reorderTarget, resizeItem, sizeFromPointer,
+  HOME_DEFAULT_LAYOUT, HOME_LIMITS, fitCount, isDefaultLayout, keyboardMove, keyboardResize, moveItem, normalizeLayout, reorderTarget, resizeItem, sizeFromPointer,
   type LayoutItem, type WidgetLimits,
 } from '../src/lib/ui/layout';
 import { drawdownSeries, indexSeries, periodChangePct, periodEnds } from '../src/lib/ui/series';
 import * as SECTIONS from '../src/lib/ui/sections';
 import {
-  DEFAULT_SCOPE, defaultRange, filterPositions, hiddenFilterCount, isScopeDefault, normalizeScope, scopeSummary, scopeWindow,
+  DEFAULT_SCOPE, defaultRange, filterPositions, hiddenFilterCount, isScopeDefault, normalizeScope, sameSubject, scopeSummary, scopeWindow,
   scopeWindowKey, validateRange, yearsBefore, type DashboardScope,
 } from '../src/lib/ui/scope';
 import { axisTicks, chartScale } from '../src/lib/ui/chart';
@@ -22,6 +22,41 @@ const LIMITS: Record<string, WidgetLimits> = {
   c: { minW: 3, maxW: 12, minH: 2, maxH: 4 },
 };
 const DEFAULTS: LayoutItem[] = [{ id: 'a', w: 12, h: 3 }, { id: 'b', w: 4, h: 4 }, { id: 'c', w: 8, h: 2 }];
+
+test('Home default layout: figures, brief, performance, plan health, allocation, positions, then the small cards', () => {
+  assert.deepEqual(HOME_DEFAULT_LAYOUT.map(i => i.id),
+    ['figures', 'brief', 'performance', 'health', 'allocation', 'positions', 'horizons', 'stress', 'diversification']);
+  // Every default fits its own limits and every widget with limits is in the default.
+  assert.deepEqual(normalizeLayout(HOME_DEFAULT_LAYOUT, HOME_DEFAULT_LAYOUT, HOME_LIMITS), [...HOME_DEFAULT_LAYOUT]);
+  assert.deepEqual(Object.keys(HOME_LIMITS).sort(), HOME_DEFAULT_LAYOUT.map(i => i.id).sort());
+});
+
+test('a stored Home layout that still names Automations loads without it and keeps its own order', () => {
+  const stored = [
+    { id: 'figures', w: 12, h: 4 }, { id: 'automations', w: 12, h: 4 }, { id: 'positions', w: 6, h: 7 },
+    { id: 'performance', w: 8, h: 9 }, { id: 'retired_widget', w: 4, h: 4 },
+  ];
+  const restored = normalizeLayout(stored, HOME_DEFAULT_LAYOUT, HOME_LIMITS);
+  assert.ok(!restored.some(i => i.id === 'automations' || i.id === 'retired_widget'));
+  assert.deepEqual(restored.slice(0, 3).map(i => i.id), ['figures', 'positions', 'performance']);
+  assert.deepEqual(restored.find(i => i.id === 'positions'), { id: 'positions', w: 6, h: 7 });
+  assert.deepEqual(restored.map(i => i.id).sort(), HOME_DEFAULT_LAYOUT.map(i => i.id).sort());
+});
+
+test('sameSubject keeps data of another period or benchmark, never of another session, profile, version or data', () => {
+  const base = 'sess1|robert|v3|dv42';
+  const keep = sameSubject('overview', base);
+  assert.equal(keep('overview|sess1|robert|v3|dv42|1y'), true);
+  assert.equal(keep('overview|sess1|robert|v3|dv42|custom:2020-01-01..2021-01-01'), true);
+  assert.equal(keep('overview|sess2|robert|v3|dv42|1y'), false);
+  assert.equal(keep('overview|sess1|nadia|v3|dv42|1y'), false);
+  assert.equal(keep('overview|sess1|robert|v4|dv42|1y'), false);
+  assert.equal(keep('overview|sess1|robert|v3|dv43|1y'), false);
+  assert.equal(keep('performance|sess1|robert|v3|dv42|1y|-'), false);
+  assert.equal(keep('overview|sess1|robert|v3|dv42'), false);
+  assert.equal(sameSubject('performance', base)('performance|sess1|robert|v3|dv42|3y|SPY'), true);
+  assert.equal(sameSubject('overview', null)('overview|sess1|robert|v3|dv42|1y'), false);
+});
 
 test('moveItem reorders and keeps every widget once', () => {
   assert.deepEqual(moveItem(DEFAULTS, 'c', 0).map(i => i.id), ['c', 'a', 'b']);

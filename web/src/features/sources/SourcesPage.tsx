@@ -6,6 +6,7 @@
  */
 import Link from 'next/link';
 import { SourceDirectory } from './SourceDirectory';
+import { SourceAvailability, useSourceCapabilities } from '../markets/SourceAvailability';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import type { DatasetPassport, DatasetsResponse } from '../../contracts/types';
@@ -37,6 +38,7 @@ export function SourcesPage() {
   const detailRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => { if (detail.data) detailRef.current?.focus(); }, [detail.data]);
 
+  const capabilities = useSourceCapabilities();
   const unknown = tr({ en: 'Licence unknown', fr: 'Licence inconnue' });
 
   return (
@@ -69,13 +71,13 @@ export function SourcesPage() {
         </div>
       )}
 
-      <SourceDirectory />
       {list.loading && <Loading />}
       {list.error && <ErrorState error={list.error} onRetry={list.reload}
         title={tr({ en: 'Dataset passports are unavailable. No source health is implied.', fr: 'Les passeports sont indisponibles. Aucun état des sources n’est supposé.' })} />}
       {list.data && (
         <>
-          <Card id="datasets" title={tr({ en: 'Datasets', fr: 'Jeux de données' })}>
+          <Card id="datasets" tour="sources-passports" title={tr({ en: 'Dataset passports', fr: 'Passeports des jeux de données' })}
+            info={tr({ en: 'Open a dataset to see where it comes from, how it is processed and what it cannot tell you.', fr: 'Ouvrez un jeu de données pour voir sa provenance, son traitement et ce qu’il ne peut pas dire.' })}>
             {list.data.items.length === 0 ? <Empty>{tr({ en: 'No dataset passport was returned.', fr: 'Aucun passeport n’a été retourné.' })}</Empty> : (
               <div className="table-scroll" role="region" aria-label={tr({ en: 'Dataset passports', fr: 'Passeports des jeux de données' })} tabIndex={0}>
                 <table className="data-table">
@@ -126,6 +128,13 @@ export function SourcesPage() {
           </Card>
         </>
       )}
+
+      <section className="sources-availability" data-tour="sources-availability" aria-labelledby="sources-availability-title">
+        <h2 className="h4" id="sources-availability-title">{tr({ en: 'Research sources available now', fr: 'Sources de recherche disponibles' })}</h2>
+        <SourceAvailability value={capabilities.data} loading={capabilities.loading} error={capabilities.error} reload={capabilities.reload} />
+      </section>
+
+      <SourceDirectory />
     </>
   );
 }

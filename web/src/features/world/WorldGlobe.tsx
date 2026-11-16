@@ -10,7 +10,7 @@
  */
 import dynamic from 'next/dynamic';
 import { Maximize2, Minimize2, Pause, Play } from 'lucide-react';
-import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Component, useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { EventCategory, WorldEvent, WorldExposureResponse } from '../../contracts/types';
 import { profileKey, useApp } from '../../state/app';
 import { EVENT_CATEGORY, labelOf } from '../../lib/labels';
@@ -57,6 +57,34 @@ function useReducedMotion(): boolean {
     return () => { query.removeEventListener('change', update); observer.disconnect(); };
   }, []);
   return reduced;
+}
+
+/**
+ * True while nothing on the globe needs to move: the stage is off-screen, the tab is hidden, or a sheet
+ * (portalled to the body) covers the page.
+ */
+function useGlobeIdle(stageRef: RefObject<HTMLElement | null>, active: boolean): boolean {
+  const [offscreen, setOffscreen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [covered, setCovered] = useState(false);
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!active || !stage || typeof IntersectionObserver === 'undefined') { setOffscreen(false); return undefined; }
+    const observer = new IntersectionObserver(([entry]) => setOffscreen(entry ? !entry.isIntersecting : false));
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [stageRef, active]);
+  useEffect(() => {
+    const updateHidden = () => setHidden(document.visibilityState === 'hidden');
+    const updateCovered = () => setCovered(document.querySelector('body > .sheet-layer') !== null);
+    updateHidden();
+    updateCovered();
+    document.addEventListener('visibilitychange', updateHidden);
+    const observer = new MutationObserver(updateCovered);
+    observer.observe(document.body, { childList: true });
+    return () => { document.removeEventListener('visibilitychange', updateHidden); observer.disconnect(); };
+  }, []);
+  return offscreen || hidden || covered;
 }
 
 class GlobeBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -110,6 +138,7 @@ export function WorldGlobe({
   const stageRef = useRef<HTMLElement | null>(null);
   // Full screen: 'native' = the browser's, 'cover' = the stage fixed over the window (no Fullscreen API).
   const [expanded, setExpanded] = useState<false | 'native' | 'cover'>(false);
+  const idle = useGlobeIdle(stageRef, showGlobe);
 
   useEffect(() => { setWebgl(webglAvailable()); }, []);
   useEffect(() => { setHover(null); }, [lang, selectedId, scope]);
@@ -202,15 +231,15 @@ export function WorldGlobe({
   ) : (
     <GlobeBoundary fallback={<p className="globe-fallback">{tr({ en: 'The globe could not be loaded. The list beside it and the feed below show the same events and countries.', fr: 'Le globe n’a pas pu être chargé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>}>
       <GlobeView pins={pins} investors={investors} selectedProfileId={app.profile?.profileId ?? null} selectedId={selectedId} selectedGeometry={selectedGeometry} selectedCountry={selectedCountry} countries={countries} exposure={exposure}
-        rotate={rotate && !hover?.pin} reducedMotion={reducedMotion} lang={lang} height={height}
+        rotate={rotate && !hover?.pin && !idle} paused={idle} reducedMotion={reducedMotion} lang={lang} height={height}
         onPin={pickPin} onCountry={onCountry} onHover={setHover} onInteract={stopRotation} area={area} command={command} onClusters={setClusterCount} onViewport={onViewport} onReady={markGlobeReady} />
     </GlobeBoundary>
   );
 
   return (
     <>
-    <button type="button" className="btn ghost btn-sm world-globe-toggle" aria-expanded={showGlobe} aria-controls="world-map-stage" onClick={() => { setCommand(null); setGlobeReady(false); setHover(null); setShowGlobe(value => !value); }}>
-      {showGlobe ? tr({ en: 'Hide globe · use the accessible feed', fr: 'Masquer le globe · utiliser le fil accessible' }) : tr({ en: 'Show optional globe', fr: 'Afficher le globe facultatif' })}
+    <button type="button" className="btn ghost btn-sm world-globe-toggle" data-tour="world-globe-toggle" aria-expanded={showGlobe} aria-controls="world-map-stage" onClick={() => { setCommand(null); setGlobeReady(false); setHover(null); setShowGlobe(value => !value); }}>
+      {showGlobe ? tr({ en: 'Hide globe', fr: 'Masquer le globe' }) : tr({ en: 'Show globe', fr: 'Afficher le globe' })}
     </button>
     {showGlobe &&
     <section ref={stageRef} className="world-stage" data-tour="world-globe" data-expanded={expanded || undefined}
@@ -281,7 +310,7 @@ export function WorldGlobe({
       )}
 
       <div className="stage-side">
-        {webgl && <div className="world-map-controls" role="group" aria-label={tr({ en: 'Globe controls', fr: 'Commandes du globe' })}>
+        {webgl && <div className="world-map-controls" data-tour="world-map-controls" role="group" aria-label={tr({ en: 'Globe controls', fr: 'Commandes du globe' })}>
           {([
             ['zoom-in', { en: 'Zoom in', fr: 'Agrandir' }], ['zoom-out', { en: 'Zoom out', fr: 'Réduire' }],
             ['left', { en: 'West', fr: 'Ouest' }], ['right', { en: 'East', fr: 'Est' }],

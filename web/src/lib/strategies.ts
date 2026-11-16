@@ -11,7 +11,7 @@ export type StrategyKind = StrategyConfig['kind'];
 export const MAX_STRATEGIES = 3;
 export const STRATEGY_KINDS: readonly StrategyKind[] = ['rebalance', 'contribute', 'risk_guard'];
 
-/** A strategy as saved: a name, whether it is active (shown on Home) and its configuration. */
+/** A strategy as saved: a name, whether it is active or paused, and its configuration. */
 export interface SavedStrategy { id: string; name: string; active: boolean; config: StrategyConfig }
 
 export function defaultConfig(kind: StrategyKind): StrategyConfig {
@@ -80,18 +80,6 @@ export function configIssues(config: StrategyConfig): I18NText[] {
   return out;
 }
 
-/**
- * What Home's Automations widget can say about one active strategy. An API too old (or of another
- * major) to simulate strategies is never called, so it is reported first; invalid settings are never
- * simulated either, so they are reported instead of an endless "Simulating…".
- */
-export function automationState(config: StrategyConfig, hasNext: boolean, failed: boolean, compat: ApiCompatibility = 'supported'): 'outdated' | 'invalid' | 'next' | 'unavailable' | 'pending' {
-  if (compat === 'older' || compat === 'incompatible') return 'outdated';
-  if (configIssues(config).length > 0) return 'invalid';
-  if (hasNext) return 'next';
-  return failed ? 'unavailable' : 'pending';
-}
-
 // ----- Site/API version skew (the site deploys on every push, the API separately) -----
 
 /** Whether the connected API can simulate strategies; `unknown` while /meta loads. */
@@ -116,9 +104,9 @@ export interface StrategiesUnavailable {
   body: I18NText;
   /** Which contract the feature needs and which one the API reports. */
   version: I18NText;
-  /** Short status on a saved strategy (Strategies list, Home Automations). */
+  /** Short status on a saved strategy (Strategies list). */
   badge: I18NText;
-  /** On a "create" card (kind picker, Home's empty state): what creating one will not do yet. */
+  /** On a "create" card (kind picker): what creating one will not do yet. */
   createNote: I18NText;
 }
 

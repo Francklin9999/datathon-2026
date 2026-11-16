@@ -8,12 +8,17 @@
    scroller's scroll-padding-bottom (base.css), so focus, find-in-page and scroll-into-view never park a
    control under the dock. Phones hide the dock and set the clearance to zero (media block below). */
 :root { --dock-h: 56px; --dock-gap: 18px; --dock-clearance: calc(var(--dock-h) + var(--dock-gap) + 16px); }
-.shell { --rail-current: var(--rail-w); --topbar-h: 60px; position: relative; min-height: 100vh; padding: calc(12px + var(--topbar-h)) var(--gap-shell) 0; }
+/* The rail: compact (icons with a caption under each, wide enough for a two-line caption) or expanded
+   (headings and inline labels). It starts under the top bar, level with the page panel. */
+:root { --rail-w-compact: 92px; --rail-top: calc(12px + 60px + 16px); }
+/* Stacking: the rail and the dock sit under the top bar (z 38), whose popovers (investor, simulation
+   note, help, settings) therefore always cover them; sheets and drawers (40+) cover all three. */
+.shell { --rail-current: var(--rail-w-compact); --topbar-h: 60px; position: relative; min-height: 100vh; padding: calc(12px + var(--topbar-h)) var(--gap-shell) 0; }
 html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
 .chrome { color: var(--chrome-text); }
 
 /* Top bar */
-.topbar { position: fixed; top: 12px; left: var(--gap-shell); right: var(--gap-shell); z-index: 30; display: flex; align-items: center; gap: 12px; min-height: var(--topbar-h); padding: 8px 11px; border-radius: var(--r-pill); }
+.topbar { position: fixed; top: 12px; left: var(--gap-shell); right: var(--gap-shell); z-index: 38; display: flex; align-items: center; gap: 12px; min-height: var(--topbar-h); padding: 8px 11px; border-radius: var(--r-pill); }
 .logo { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 6px; color: var(--chrome-text); text-decoration: none; flex: none; }
 .logo:hover { color: var(--chrome-text); }
 .logo-mark { flex: none; }
@@ -45,7 +50,8 @@ html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
 .persona-caption { font-size: 12px; color: var(--chrome-text-2); }
 .persona-name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .persona-chevron { flex: none; color: var(--chrome-text-2); }
-.persona .popover { top: calc(100% + 10px); left: 0; width: 280px; }
+/* The investor list is portaled (Listbox), so it is sized by its own class and placed by JS. */
+.persona-pop { width: 280px; }
 
 /* Ask Aplomb: the command bar in the middle of the top bar */
 .command { position: relative; flex: 0 1 620px; min-width: 0; }
@@ -89,10 +95,16 @@ html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
   .command-mic[aria-pressed='true'] { outline: 2px solid Highlight; outline-offset: 2px; }
 }
 
-/* Simulation note: always visible, full text for assistive tech and on hover */
-.sim-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px; border-radius: var(--r-pill); flex: none;
-  background: var(--chrome-field); box-shadow: inset 0 0 0 1px var(--chrome-line); color: var(--chrome-text-2); font-size: 12px; white-space: nowrap; }
+/* Simulation note: always visible; a press opens the full disclaimer (Escape closes it). */
+.sim-pill { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 0; border-radius: var(--r-pill); flex: none;
+  background: var(--chrome-field); box-shadow: inset 0 0 0 1px var(--chrome-line); color: var(--chrome-text-2); font: inherit; font-size: 12px; white-space: nowrap; cursor: pointer;
+  transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
+.sim-pill::after { content: ''; position: absolute; inset: -2px; }
+.sim-pill:hover, .sim-pill[aria-expanded='true'] { color: var(--chrome-text); background: var(--chrome-hover); }
 .sim-pill svg { flex: none; }
+.sim-pop { width: 320px; gap: 6px; white-space: normal; }
+.sim-pop-title { margin: 0; font-size: 14px; font-weight: 600; color: var(--text); }
+.sim-pop-body { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-2); }
 
 /* Settings popover */
 .menu-anchor { position: relative; }
@@ -105,14 +117,22 @@ html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
 .settings-pop .segmented { width: 100%; }
 .settings-pop .segment { flex: 1 1 0; }
 
-/* Navigation rail */
-.rail { position: fixed; left: var(--gap-shell); top: 50%; z-index: 35; transform: translateY(-50%); width: var(--rail-w); padding: 8px; border-radius: 30px;
-  display: flex; flex-direction: column; gap: 8px; transition: width var(--dur-enter) var(--ease); }
-html[data-sidebar='expanded'] .rail { width: var(--rail-w-open); border-radius: 26px; }
+/* Navigation rail: under the top bar (never centred, so it cannot climb into it), as tall as its
+   pages up to the window's height; the list scrolls inside it on short windows. */
+.rail { position: fixed; left: var(--gap-shell); top: var(--rail-top); z-index: 32; width: var(--rail-w-compact); max-height: calc(100dvh - var(--rail-top) - var(--gap-shell));
+  padding: 8px; border-radius: 24px; display: flex; flex-direction: column; gap: 6px; transition: width var(--dur-enter) var(--ease); }
+html[data-sidebar='expanded'] .rail { width: var(--rail-w-open); }
+.rail-scroll { min-height: 0; flex: 0 1 auto; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--chrome-edge) transparent; }
+.rail-scroll::-webkit-scrollbar { width: 6px; }
+.rail-scroll::-webkit-scrollbar-thumb { background: var(--chrome-edge); border-radius: 3px; }
 .nav-wrap { position: relative; }
-.nav-list { display: flex; flex-direction: column; gap: 4px; } /* not positioned: offsets resolve to .nav-wrap */
-.nav-link { position: relative; display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 12px; border-radius: var(--r-pill);
-  color: var(--chrome-text-2); text-decoration: none; font-weight: 500; white-space: nowrap;
+/* Groups, lists and items are not positioned: offsets resolve to .nav-wrap (the sliding highlight). */
+.nav-list { display: flex; flex-direction: column; gap: 2px; }
+.nav-heading { margin: 0; padding: 12px 12px 4px; font-size: 12px; font-weight: 600; line-height: 1.3; color: var(--chrome-text-2); }
+.nav-group:first-child .nav-heading { padding-top: 4px; }
+.nav-divider { display: block; height: 1px; margin: 6px 10px; background: var(--chrome-line); }
+.nav-link { position: relative; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: var(--r-pill);
+  color: var(--chrome-text-2); text-decoration: none; font-weight: 500;
   transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
 .rail .nav-link:hover { color: var(--chrome-text); background: var(--chrome-hover); }
 .rail .nav-link[aria-current='page'], .rail .nav-link[aria-current='page']:hover { color: var(--chrome-active-text); background: transparent; }
@@ -121,76 +141,102 @@ html[data-sidebar='expanded'] .rail { width: var(--rail-w-open); border-radius: 
 .nav-pill[data-animate='true'] { transition: transform var(--dur-enter) var(--ease), height var(--dur-enter) var(--ease); }
 .nav-icon, .nav-text { position: relative; z-index: 1; }
 .nav-icon { flex: none; }
-.nav-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-/* Links fill the rail's width in both states, icon pinned 12 px from the left (centred in 44 px), so
-   links and the highlight widen and narrow with the rail itself. */
-.rail .nav-link { width: 100%; justify-content: flex-start; padding: 0 12px; }
-.rail .nav-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
-html[data-sidebar='expanded'] .rail .nav-text { position: relative; width: auto; height: auto; clip: auto; clip-path: none;
-  animation: rail-label .34s var(--ease) backwards; animation-delay: calc(90ms + var(--n, 0) * 28ms); }
+.nav-text { min-width: 0; }
+
+/* Compact rail: a caption under each icon (12 px, up to two lines, never cut); a divider between groups. */
+.rail .nav-link { width: 100%; flex-direction: column; justify-content: center; gap: 3px; min-height: 54px; padding: 7px 2px 6px; border-radius: 16px; }
+.rail .nav-pill { border-radius: 16px; }
+.rail .nav-text { max-width: 100%; font-size: 12px; line-height: 1.2; text-align: center; white-space: normal; overflow-wrap: normal; -webkit-hyphens: auto; hyphens: auto; }
+.rail .nav-heading { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.rail .nav-group + .nav-group:not([data-group='footer'])::before { content: ''; display: block; height: 1px; margin: 6px 10px; background: var(--chrome-line); }
+
+/* Expanded rail: the headings and the labels beside the icons. */
+html[data-sidebar='expanded'] .rail .nav-link { flex-direction: row; justify-content: flex-start; gap: 12px; min-height: 44px; padding: 6px 12px; border-radius: var(--r-pill); }
+html[data-sidebar='expanded'] .rail .nav-pill { border-radius: var(--r-pill); }
+html[data-sidebar='expanded'] .rail .nav-text { font-size: 14px; text-align: left; animation: rail-label .34s var(--ease) backwards; animation-delay: calc(90ms + var(--n, 0) * 28ms); }
+html[data-sidebar='expanded'] .rail .nav-heading { position: static; width: auto; height: auto; padding: 12px 12px 4px; overflow: visible; clip: auto; clip-path: none; white-space: normal; }
+html[data-sidebar='expanded'] .rail .nav-group:first-child .nav-heading { padding-top: 4px; }
+html[data-sidebar='expanded'] .rail .nav-group + .nav-group:not([data-group='footer'])::before { display: none; }
 @keyframes rail-label { from { opacity: 0; transform: translate3d(-8px, 0, 0); } }
+
+/* The World item's mini globe (MiniGlobe.tsx): drawn in the link's colour, the focus country in the accent. */
+.mini-globe { position: relative; z-index: 1; flex: none; overflow: visible; transform-origin: 50% 50%; }
+.rail .nav-globe { width: 40px; height: 40px; margin: -5px 0 -6px; }
+html[data-sidebar='expanded'] .rail .nav-globe, .mobile-nav .nav-globe { width: 28px; height: 28px; margin: -4px; }
+.globe-sphere { fill: currentColor; fill-opacity: .1; }
+.globe-grid { fill: none; stroke: currentColor; stroke-opacity: .22; stroke-width: .75px; vector-effect: non-scaling-stroke; }
+.globe-land { fill: currentColor; fill-opacity: .42; }
+.globe-focus { fill: var(--accent); }
+.globe-rim { fill: none; stroke: currentColor; stroke-opacity: .45; stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.mini-globe[data-expanding] { animation: globe-expand 160ms var(--ease) forwards; }
+@keyframes globe-expand { to { opacity: 0; transform: scale(1.4); } }
+::view-transition-group(world-globe) { animation-duration: var(--dur-enter); animation-timing-function: var(--ease); }
+
 .rail-toggle-icon { transition: transform var(--dur-enter) var(--ease); }
 html[data-sidebar='expanded'] .rail-toggle-icon { transform: rotate(180deg); }
-.rail-sep { height: 1px; margin: 2px 8px; background: var(--chrome-line); }
-.rail-toggle { width: 44px; height: 36px; border: 0; border-radius: var(--r-pill); display: inline-flex; align-items: center; justify-content: center; background: transparent; color: var(--chrome-text-2);
+.rail-sep { flex: none; height: 1px; margin: 0 8px; background: var(--chrome-line); }
+.rail-toggle { position: relative; flex: none; align-self: center; width: 44px; height: 36px; border: 0; border-radius: var(--r-pill); display: inline-flex; align-items: center; justify-content: center; background: transparent; color: var(--chrome-text-2);
   transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
+.rail-toggle::after { content: ''; position: absolute; inset: -4px 0; }
 .rail-toggle:hover { color: var(--chrome-text); background: var(--chrome-hover); }
 html[data-sidebar='expanded'] .rail-toggle { align-self: flex-end; }
-/* Tooltip beside a rail icon (collapsed rail only). The span is empty and aria-hidden: its text comes
-   from data-label, so the label exists once in the DOM (.nav-text) and the link's name is not doubled. */
-.nav-tip::after { content: attr(data-label); }
-.nav-tip { position: absolute; left: calc(100% + 14px); top: 50%; z-index: 2; transform: translate3d(-4px, -50%, 0); padding: 6px 12px; border-radius: var(--r-pill);
-  background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm); color: var(--text); box-shadow: var(--shadow-pop);
-  font-size: 13px; font-weight: 500; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
-.rail .nav-link:hover .nav-tip, .rail .nav-link:focus-visible .nav-tip, .rail-toggle:hover .nav-tip, .rail-toggle:focus-visible .nav-tip { opacity: 1; transform: translate3d(0, -50%, 0); }
-.rail-toggle { position: relative; }
-html[data-sidebar='expanded'] .nav-tip { display: none; }
 
 /* Page panel */
 .page { display: block; margin: 16px 0 0 calc(var(--rail-current) + var(--gap-shell)); min-height: calc(100vh - 104px); padding: 32px 36px calc(var(--dock-clearance) + 30px); border-radius: var(--r-panel);
   outline: none; transition: margin-left var(--dur-enter) var(--ease); }
 .content { width: 100%; max-width: 1480px; margin: 0 auto; }
-.banner { margin: 16px 0 0 calc(var(--rail-current) + var(--gap-shell)); padding: 10px 16px; border-radius: var(--r-ctl); font-size: 13px; }
+.banner { margin: 16px 0 0 calc(var(--rail-current) + var(--gap-shell)); padding: 10px 16px; border-radius: var(--r-ctl); font-size: 13px; transition: margin-left var(--dur-enter) var(--ease); }
 
 /* Section dock */
-.dock { position: fixed; bottom: var(--dock-gap); left: calc(50% + (var(--rail-current) + var(--gap-shell)) / 2); z-index: 30; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 6px; max-width: calc(100vw - var(--rail-current) - 64px); min-height: var(--dock-h); padding: 6px; border-radius: var(--r-pill);
+/* Centred on the page panel and never wider than it (12 px of air each side), so it never reaches the rail. */
+.dock { position: fixed; bottom: var(--dock-gap); left: calc(50% + (var(--rail-current) + var(--gap-shell)) / 2); z-index: 32; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; max-width: calc(100% - var(--rail-current) - 3 * var(--gap-shell) - 24px); min-height: var(--dock-h); padding: 6px; border-radius: var(--r-pill);
   transition: left var(--dur-enter) var(--ease); }
 .dock-list { position: relative; display: flex; align-items: center; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .dock-list::-webkit-scrollbar { display: none; }
+/* More sections past an edge: that edge fades out (SectionDock.tsx sets data-fade). */
+.dock-list[data-fade='end'] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+.dock-list[data-fade='start'] { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); }
+.dock-list[data-fade='both'] { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
 .dock-item { position: relative; z-index: 1; flex: none; height: 40px; padding: 0 16px; border: 0; border-radius: var(--r-pill); background: transparent;
   color: var(--chrome-text-2); font-size: 14px; font-weight: 500; white-space: nowrap; transition: color var(--dur-fast) var(--ease); }
 .dock-item:hover { color: var(--chrome-text); }
 .dock-item[aria-current='true'] { color: var(--chrome-active-text); }
 .dock-pill { position: absolute; top: 0; left: 0; z-index: 0; pointer-events: none; border-radius: var(--r-pill); background: var(--chrome-active); box-shadow: 0 4px 12px rgba(0, 0, 0, .25); }
 .dock-pill[data-animate='true'] { transition: transform var(--dur-enter) var(--ease), width var(--dur-enter) var(--ease); }
-.dock-plus { position: relative; flex: none; width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-  background: var(--accent); color: #FFFFFF; text-decoration: none; box-shadow: 0 6px 16px rgba(47, 91, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .3);
+.dock-plus { position: relative; flex: none; height: 44px; padding: 0 18px 0 14px; gap: 6px; border: 0; border-radius: var(--r-pill); display: inline-flex; align-items: center; justify-content: center;
+  font: inherit; font-size: 14px; font-weight: 600; white-space: nowrap; background: var(--accent); color: #FFFFFF; text-decoration: none; box-shadow: 0 6px 16px rgba(47, 91, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .3);
   transition: transform var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
 .dock-plus:hover { background: var(--accent-hover); color: #FFFFFF; }
 .dock-plus:active { transform: scale(.94); }
 .dock-sep { width: 1px; height: 24px; background: var(--chrome-line); flex: none; }
 
-/* Mobile menu drawer (light sheet) */
+/* Mobile menu drawer (light sheet): the rail's groups with their headings. */
 .mobile-nav { display: flex; flex-direction: column; gap: 2px; }
+.mobile-nav .nav-heading { padding: 14px 12px 4px; color: var(--text-3); }
+.mobile-nav .nav-group:first-child .nav-heading { padding-top: 0; }
+.mobile-nav .nav-divider { background: var(--line); margin: 10px 12px; }
 .mobile-nav .nav-link { width: 100%; color: var(--text-2); }
 .mobile-nav .nav-link:hover { color: var(--text); background: var(--glass-inset); }
 .mobile-nav .nav-link[aria-current='page'] { color: var(--accent-text); background: var(--accent-soft); }
-.mobile-nav .nav-pill, .mobile-nav .nav-tip { display: none; }
+.mobile-nav .nav-pill { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-anim='on']) :is(.nav-link, .segment, .persona-trigger, .nav-pill, .segment-pill, .dock-pill, .rail, .page, .dock, .nav-tip, .chrome-btn, .command-field, .command-mic, .rail-toggle-icon) { transition: none !important; }
+  html:not([data-anim='on']) :is(.nav-link, .segment, .persona-trigger, .nav-pill, .segment-pill, .dock-pill, .rail, .page, .banner, .dock, .chrome-btn, .sim-pill, .command-field, .command-mic, .rail-toggle-icon) { transition: none !important; }
   html[data-sidebar='expanded']:not([data-anim='on']) .rail .nav-text { animation: none; }
+  html:not([data-anim='on']) .mini-globe[data-expanding] { animation: none; }
   .settings-pop, .command-note { animation: none; }
 }
 @media (max-width: 1180px) {
   .sim-pill .sim-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
-  .sim-pill { width: 40px; padding: 0; justify-content: center; }
+  .sim-pill { width: 40px; padding: 0; justify-content: center; border-radius: 50%; }
   .logo-text { display: none; }
 }
+/* Down to 768 px the investor's name stays (cut with an ellipsis, full name on hover); only the caption goes. */
 @media (max-width: 960px) {
-  .persona-body { display: none; }
-  .persona-trigger { padding-right: 6px; }
+  .persona-caption { display: none; }
+  .persona-name { max-width: 132px; }
+  .persona-trigger { padding-right: 8px; gap: 8px; }
 }
 @media (max-width: 767px) {
   :root { --dock-clearance: 0px; }
@@ -199,12 +245,14 @@ html[data-sidebar='expanded'] .nav-tip { display: none; }
   .topbar .menu-btn { display: inline-flex; }
   .logo, .topbar-sep { display: none; }
   .persona { flex: 1 1 auto; }
-  .persona-body { display: flex; }
+  .persona-name { max-width: none; }
   .persona-caption { display: none; }
   /* The end group flows into the bar: help and settings stay on the first row, the simulation note
      becomes a full-width line under Ask Aplomb, with its words visible. */
   .topbar-start, .topbar-end { display: contents; }
-  .sim-pill { order: 6; flex-basis: 100%; width: auto; min-height: 24px; justify-content: center; background: transparent; box-shadow: none; }
+  .sim-anchor { order: 6; flex-basis: 100%; }
+  .sim-pill { width: 100%; min-height: 40px; border-radius: var(--r-pill); justify-content: center; background: transparent; box-shadow: none; }
+  .sim-pop { left: 0; right: 0; width: auto; }
   .sim-pill .sim-text { position: static; width: auto; height: auto; overflow: visible; clip: auto; clip-path: none; white-space: normal; }
   .command { order: 5; flex-basis: 100%; max-width: none; }
   .command-kbd { display: none; }
@@ -213,5 +261,5 @@ html[data-sidebar='expanded'] .nav-tip { display: none; }
   .banner { margin: 8px 0 0; }
 }
 
-html[data-anim='off'] :is(.rail, .page, .dock, .rail-toggle-icon, .nav-pill, .dock-pill) { transition: none !important; }
-html[data-anim='off'][data-sidebar='expanded'] .rail .nav-text { animation: none; }
+html[data-anim='off'] :is(.rail, .page, .banner, .dock, .rail-toggle-icon, .nav-pill, .dock-pill) { transition: none !important; }
+html[data-anim='off'][data-sidebar='expanded'] .rail .nav-text, html[data-anim='off'] .mini-globe[data-expanding] { animation: none; }

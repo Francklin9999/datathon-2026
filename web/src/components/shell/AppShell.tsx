@@ -2,9 +2,10 @@
 /**
  * AppShell (T13): ambient field, floating top bar (investor, Ask Aplomb, simulation note, help,
  * settings), floating navigation rail, one frosted page panel, the section dock, the phone menu
- * drawer and a polite live region. The simulation note in the top bar is the page's disclaimer.
+ * drawer (the rail's groups, with headings) and a polite live region. The simulation note in the top bar is the page's disclaimer.
  */
 import Link from 'next/link';
+import { UserRound } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useApp } from '../../state/app';
 import { FIXTURE_BANNER } from '../../api/fixtures';
@@ -90,9 +91,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <Drawer open={menuOpen} title={tr({ en: 'Menu', fr: 'Menu' })} onClose={() => setMenuOpen(false)} side="left">
         <nav aria-label={tr({ en: 'Pages', fr: 'Pages' })} className="mobile-nav">
-          <NavList onNavigate={() => setMenuOpen(false)} withSources />
+          <NavList onNavigate={() => setMenuOpen(false)} withFooter />
           {feature('profile_creator') && (
             <Link href="/profiles/" className="nav-link" onClick={() => setMenuOpen(false)}>
+              <UserRound className="nav-icon" aria-hidden="true" size={20} strokeWidth={1.75} />
               <span className="nav-text">{tr({ en: 'Manage profiles', fr: 'Gérer les profils' })}</span>
             </Link>
           )}

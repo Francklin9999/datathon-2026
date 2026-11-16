@@ -132,3 +132,17 @@ export function scopeSummary(scope: DashboardScope, lang: Lang): string[] {
   if (scope.chartMode === 'drawdown') parts.push(t('Drawdown chart', 'graphique Repli'));
   return parts;
 }
+
+/**
+ * keepPreviousFrom for a Home query (useQuery): keep the last data on screen while a new period or
+ * benchmark loads, only when the previous key is the same query kind for the same session, profile
+ * version and data version (`base` is profileKey). A persona, profile edit or data change never keeps it.
+ */
+export function sameSubject(kind: string, base: string | null): (previousKey: string) => boolean {
+  const parts = base ? [kind, ...base.split('|')] : null;
+  return previousKey => {
+    if (!parts) return false;
+    const previous = previousKey.split('|');
+    return previous.length > parts.length && parts.every((part, i) => previous[i] === part);
+  };
+}

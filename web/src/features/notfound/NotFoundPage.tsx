@@ -25,7 +25,7 @@ export function NotFoundPage() {
         <nav aria-label={listLabel}>
           <ul className="notfound-links">
             {entries.map(entry => {
-              const Icon = navIcon(entry.href);
+              const Icon = navIcon(entry);
               return (
                 <li key={entry.href}>
                   <Link href={entry.href} className="notfound-link">

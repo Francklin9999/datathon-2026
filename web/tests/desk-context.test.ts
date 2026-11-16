@@ -1,7 +1,7 @@
 /** Decision Desk investigation context from a shared World link (web/src/lib/deskContext.ts). */
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { deskContext } from '../src/lib/deskContext';
+import { deskContext, prefillTicker } from '../src/lib/deskContext';
 
 const linked = { eventId: 'evt_a', ticker: 'CNQ.TO', sourceRunId: 'run_1' };
 const saved = { eventId: 'evt_saved', ticker: 'XOM' };
@@ -21,4 +21,14 @@ test('a restored run context of this persona wins over a foreign link', () => {
 
 test('no context at all', () => {
   assert.deepEqual(deskContext(null, 'p_amira', 'p_robert', null), { context: null, shown: null, foreign: false });
+});
+
+test('a ?ticker= link pre-fills a plausible ticker only', () => {
+  assert.equal(prefillTicker('aapl'), 'AAPL');
+  assert.equal(prefillTicker(' CNQ.TO '), 'CNQ.TO');
+  assert.equal(prefillTicker('BRK-B'), 'BRK-B');
+  assert.equal(prefillTicker(null), '');
+  assert.equal(prefillTicker(''), '');
+  assert.equal(prefillTicker('<script>'), '');
+  assert.equal(prefillTicker('A'.repeat(21)), '');
 });

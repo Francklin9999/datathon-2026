@@ -41,7 +41,7 @@ function Welcome({ onStart, onLater }: { onStart: () => void; onLater: () => voi
         <span className="tour-welcome-orb" aria-hidden="true" />
         <h2 id="tour-welcome-title" className="tour-title">{tr({ en: 'New here? Take the one-minute tour', fr: 'Première visite ? Suivez la visite d’une minute' })}</h2>
         <p id="tour-welcome-body" className="tour-body">
-          {tr({ en: 'See how to pick an investor, read the dashboard and test a move. You can replay it any time from the ? button.', fr: 'Voyez comment choisir un investisseur, lire le tableau de bord et tester un mouvement. Vous pourrez la relancer avec le bouton ?.' })}
+          {tr({ en: 'See how to pick an investor, ask for a move and find your way around. The ? button replays it and offers a short tour of each page.', fr: 'Voyez comment choisir un investisseur, demander un mouvement et vous repérer. Le bouton ? la relance et propose une courte visite de chaque page.' })}
         </p>
         <div className="tour-actions">
           <button type="button" className="btn ghost btn-sm" onClick={onLater}>{tr({ en: 'Later', fr: 'Plus tard' })}</button>

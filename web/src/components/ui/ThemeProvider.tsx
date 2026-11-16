@@ -7,7 +7,7 @@
 import { MotionConfig } from 'motion/react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { readPref, writePref } from '../../lib/session';
-import { THEME_PREF_KEY, isThemePref, motionReducedFor, themeColorFor, themeToApply, type ThemeMode, type ThemePref } from '../../lib/ui/theme';
+import { DUR, EASE, THEME_PREF_KEY, isThemePref, themeColorFor, themeToApply, useAnimationsAllowed, type ThemeMode, type ThemePref } from '../../lib/ui/theme';
 
 interface ThemeState { theme: ThemeMode; pref: ThemePref; setPref: (pref: ThemePref) => void }
 
@@ -68,28 +68,15 @@ function ThemeProvider({ children }: { children: ReactNode }) {
 }
 
 /**
- * The Settings animation choice (html[data-anim]) as a MotionConfig rule, kept current while the page
- * is open; `user` (follow the system) until mounted and for Auto. Same source as CountUp and the globe.
+ * Client-side UI providers: theme plus one motion rule for every motion component, from the same
+ * gate as the CSS (Settings > Animations, the hidden page, else the system setting; motion.css) and
+ * the one easing curve as the default transition.
  */
-function useMotionReduced(): 'always' | 'never' | 'user' {
-  const [reduced, setReduced] = useState<'always' | 'never' | 'user'>('user');
-  useEffect(() => {
-    const root = document.documentElement;
-    const update = () => setReduced(motionReducedFor(root.dataset.anim));
-    update();
-    const observer = new MutationObserver(update);
-    observer.observe(root, { attributes: true, attributeFilter: ['data-anim'] });
-    return () => observer.disconnect();
-  }, []);
-  return reduced;
-}
-
-/** Client-side UI providers: theme plus a global reduced-motion rule (Settings > Animations, else the system). */
 export function UiProviders({ children }: { children: ReactNode }) {
-  const reducedMotion = useMotionReduced();
+  const allowed = useAnimationsAllowed();
   return (
     <ThemeProvider>
-      <MotionConfig reducedMotion={reducedMotion}>{children}</MotionConfig>
+      <MotionConfig reducedMotion={allowed ? 'never' : 'always'} transition={{ ease: EASE, duration: DUR.enter }}>{children}</MotionConfig>
     </ThemeProvider>
   );
 }

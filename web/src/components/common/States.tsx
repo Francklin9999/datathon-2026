@@ -1,15 +1,24 @@
 'use client';
 /** Loading / error / unavailable / empty states shared by every page (web/SPEC.md §6). */
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type { ApiRequestError } from '../../api/errors';
 import type { Lang } from '../../contracts/types';
 import { CLIENT_ERROR, ERROR_CODE, labelOf } from '../../lib/labels';
 import { useApp } from '../../state/app';
 import { Skeleton } from '../ui/Skeleton';
 
+/** A load that ends within this many milliseconds never shows its spinner (no flicker). */
+const SPINNER_DELAY_MS = 150;
+
 export function Loading({ label, variant = 'inline' }: { label?: string; variant?: 'inline' | 'skeleton' }) {
   const { tr } = useApp();
   const text = label ?? tr({ en: 'Loading…', fr: 'Chargement…' });
+  // The box keeps its place from the start (no layout shift); its spinner and words appear after the delay.
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShown(true), SPINNER_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
   if (variant === 'skeleton') {
     return (
       <div className="skeleton-tile" role="status">
@@ -21,7 +30,7 @@ export function Loading({ label, variant = 'inline' }: { label?: string; variant
     );
   }
   return (
-    <div className="state state-loading" role="status">
+    <div className="state state-loading" role="status" {...(shown ? {} : { 'data-pending': '' })}>
       <span className="spinner" aria-hidden="true" />
       <span>{text}</span>
     </div>

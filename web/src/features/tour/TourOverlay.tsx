@@ -64,11 +64,20 @@ export function TourOverlay({ tour, index, onIndex, onClose, onFinish }: {
     setStatus('seeking');
     if (step.route && !onRoute(pathname, step.route)) return undefined;
     let cancelled = false;
+    let opened = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const started = performance.now();
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const seek = () => {
       if (cancelled) return;
+      // The target sits in another tab: select that tab once, as soon as the page shows it.
+      if (step.open && !opened && !isVisibleRect(measure(step.target!))) {
+        const tab = document.getElementById(step.open);
+        if (tab) {
+          opened = true;
+          if (tab.getAttribute('aria-selected') !== 'true') tab.click();
+        }
+      }
       const found = measure(step.target!);
       if (isVisibleRect(found)) {
         const vh = window.innerHeight;

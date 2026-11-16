@@ -13,7 +13,7 @@
 /* Cards */
 .card { position: relative; min-width: 0; margin-bottom: 18px; padding: 22px; border-radius: var(--r-card);
   background: var(--glass-card); border: 1px solid var(--glass-line); box-shadow: var(--card-shadow); }
-.card .card { background: var(--glass-inset); border: 0; box-shadow: none; border-radius: 14px; padding: 16px; }
+.card .card { background: var(--glass-inset); border: 0; box-shadow: none; border-radius: var(--r-inset); padding: 16px; }
 .card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; margin-bottom: 16px; min-height: 32px; }
 .card-title { font-size: 16px; font-weight: 600; letter-spacing: -.01em; color: var(--text); }
 .card-title-row { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
@@ -22,21 +22,27 @@
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
-.tile { min-width: 0; padding: 16px; border-radius: 14px; background: var(--glass-inset); }
+.tile { min-width: 0; padding: 16px; border-radius: var(--r-inset); background: var(--glass-inset); }
 .tile .big { font-size: 28px; font-weight: 600; line-height: 1.15; letter-spacing: -.02em; display: block; margin-top: 6px; font-variant-numeric: tabular-nums lining-nums; }
 .row-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
 .bullets { list-style: disc; padding-left: 20px; }
 .bullets li { margin: 2px 0; }
 
-/* Buttons: pills. Cobalt for the main action, glass for the rest, ink for a strong secondary. */
+/* Buttons: pills sized to their words. Cobalt for the main action (.btn; .btn.gold is an alias kept
+   for older markup), glass for the rest (.ghost), ink for a strong secondary (.ink), red outline for a
+   destructive action (.danger). A long label wraps onto balanced lines inside the pill instead of
+   overflowing it; the pill grows in height, never past its container's width. */
 .btn {
   position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 40px; padding: 0 18px; border-radius: var(--r-pill);
-  border: 1px solid transparent; font-weight: 600; font-size: 14px; text-decoration: none; white-space: nowrap;
+  height: auto; min-height: var(--h-ctl); max-width: 100%; padding: 8px 18px; border-radius: var(--r-pill);
+  border: 1px solid transparent; font-weight: 600; font-size: 14px; line-height: 1.25; text-align: center; text-decoration: none;
+  white-space: normal; text-wrap: balance; overflow-wrap: anywhere;
   background: var(--accent); color: var(--accent-contrast);
   box-shadow: 0 6px 16px -6px rgba(47, 91, 255, .55), inset 0 1px 0 rgba(255, 255, 255, .25);
-  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
 }
+.btn > svg { flex: none; }
 .btn::after { content: ''; position: absolute; inset: -2px 0; } /* 44 px hit area */
 .btn:hover { background: var(--accent-hover); color: var(--accent-contrast); }
 .btn:active:not(:disabled) { transform: scale(.97); }
@@ -45,15 +51,16 @@
 .btn.ink { background: var(--ink-fill); color: var(--ink-fill-text); box-shadow: 0 6px 14px -8px rgba(0, 0, 0, .5); }
 .btn.ink:hover { background: var(--ink-fill-hover); color: var(--ink-fill-text); }
 .btn.gold { background: var(--accent); color: var(--accent-contrast); }
+.btn.gold:hover { background: var(--accent-hover); color: var(--accent-contrast); }
 .btn.danger { background: var(--glass-card); color: var(--conflict-fg); border-color: var(--conflict-line); box-shadow: none; }
 .btn.danger:hover { background: var(--conflict-bg); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn-sm { min-height: 34px; padding: 0 14px; font-size: 13px; }
-.btn-sm::after { inset: -5px 0; }
+.btn-sm { min-height: var(--h-ctl-sm); padding: 6px 14px; font-size: 13px; }
+.btn-sm::after { inset: -6px 0; }
 .linklike { background: none; border: 0; padding: 4px 0; color: var(--accent-text); text-align: left; text-decoration: underline; text-underline-offset: 3px; min-height: 32px; }
-.icon-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none; border-radius: 50%;
+.icon-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: var(--h-ctl); height: var(--h-ctl); flex: none; border-radius: 50%;
   border: 1px solid transparent; background: transparent; color: var(--text-2);
-  transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
+  transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
 .icon-btn::after { content: ''; position: absolute; inset: -2px; }
 .icon-btn:hover { color: var(--text); background: var(--glass-inset); }
 
@@ -125,21 +132,35 @@
 .info-btn::after { content: ''; position: absolute; inset: -11px; }
 .info-btn:hover, .info-btn[aria-expanded='true'] { color: var(--text); background: var(--raised-2); }
 /* Fixed portals avoid hidden absolute bubbles widening the document. JS clamps both axes. */
-.info-bubble { position: fixed; z-index: 155; width: max-content; max-width: min(320px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow: auto; box-sizing: border-box; padding: 10px 12px; border-radius: 12px;
+.info-bubble { position: fixed; z-index: 1020; width: max-content; max-width: min(320px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow: auto; box-sizing: border-box; padding: 10px 12px; border-radius: 12px;
   opacity: 0; visibility: hidden; pointer-events: none;
   background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm); box-shadow: var(--shadow-pop);
   color: var(--text-2); font-size: 13px; font-weight: 400; line-height: 1.45; text-align: left; white-space: normal; overflow-wrap: anywhere; letter-spacing: 0;
-  transition: opacity var(--dur-fast) var(--ease); }
-.info-bubble[data-open] { opacity: 1; visibility: visible; }
+  translate: 0 4px;
+  /* Closing fades out first; visibility flips only once the fade is over. */
+  transition: opacity var(--dur-menu) var(--ease), translate var(--dur-menu) var(--ease), visibility 0s linear var(--dur-menu); }
+.info-bubble[data-open] { opacity: 1; visibility: visible; translate: 0 0;
+  transition: opacity var(--dur-menu) var(--ease), translate var(--dur-menu) var(--ease), visibility 0s; }
 
-/* Disclosure: details folded by default */
-details.fold { border-radius: 14px; background: var(--glass-inset); margin: 12px 0; }
-details.fold > summary { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; list-style: none; color: var(--text-2); font-weight: 500; font-size: 14px; border-radius: 14px; }
-details.fold > summary::-webkit-details-marker { display: none; }
-details.fold > summary::before { content: ''; width: 7px; height: 7px; flex: none; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform var(--dur-fast) var(--ease); }
-details.fold[open] > summary::before { transform: rotate(45deg); }
-details.fold > summary:hover { color: var(--text); }
+/* Disclosures. Every summary shows the same chevron (never the
+   browser's triangle) and a focus ring inside its row; the chevron turns as it opens and the content
+   eases open and closed where supported (motion.css). `details.fold` is the standard look: a recessed
+   block with a 44 px row and the content in `.fold-body`. A details without a class gets that look
+   too, its content padded directly. Low specificity (:where) so a classed fold keeps its own spacing. */
+:where(details) > summary { list-style: none; cursor: pointer; }
+:where(details) > summary::-webkit-details-marker { display: none; }
+:where(details) > summary::before { content: ''; display: inline-block; flex: none; width: 7px; height: 7px; margin: 0 10px 2px 2px; vertical-align: middle;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; rotate: -45deg; transition: rotate var(--dur-menu) var(--ease); }
+:where(details[open]) > summary::before { rotate: 45deg; }
+:where(details) > summary:hover { color: var(--text); }
+:where(details) > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; border-radius: var(--r-ctl); }
+details.fold, :where(details:not([class])) { border-radius: var(--r-inset); background: var(--glass-inset); margin: 12px 0; }
+details.fold > summary, :where(details:not([class])) > summary { display: flex; align-items: center; min-height: 44px; padding: 6px 14px; line-height: 1.35;
+  color: var(--text-2); font-weight: 500; font-size: 14px; border-radius: var(--r-inset); }
+details.fold > summary::before, :where(details:not([class])) > summary::before { margin: 0 10px 0 2px; }
 details.fold > .fold-body { padding: 4px 14px 14px; }
+:where(details:not([class])) > :not(summary) { margin-inline: 14px; }
+:where(details:not([class]))[open] { padding-bottom: 14px; }
 details.fold .card { background: transparent; padding: 0; box-shadow: none; border: 0; }
 
 /* Tables */
@@ -183,6 +204,8 @@ details.fold .card { background: transparent; padding: 0; box-shadow: none; bord
 .state-error .state-title { color: var(--conflict-fg); }
 .state-unavailable { border: 1px solid var(--glass-line); }
 .state-loading { flex-direction: row; align-items: center; border-style: solid; border-color: var(--glass-line); }
+/* Loading (States.tsx): the box holds its place at once; spinner and words show after 150 ms. */
+.state-loading[data-pending] > * { visibility: hidden; }
 .state-title { font-weight: 600; }
 .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line-strong); border-top-color: var(--accent); animation: spin .9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -215,7 +238,8 @@ details.fold .card { background: transparent; padding: 0; box-shadow: none; bord
 .kv .v { flex: 1 1 200px; min-width: 0; font-size: 13px; }
 .fact-label { font-weight: 600; }
 .fact-value { font-size: 32px; font-weight: 650; letter-spacing: -.02em; margin: 4px 0 8px; font-variant-numeric: tabular-nums; }
-.scope-note { background: var(--glass-inset); border-radius: var(--r-ctl); padding: 8px 12px; margin-bottom: 12px; color: var(--text-2); }
+/* Which scope a figure belongs to (fact drawer, research outcome): one quiet inset line. */
+.scope-note { margin: 0 0 12px; padding: 8px 12px; border-radius: var(--r-ctl); background: var(--glass-inset); color: var(--text-2); font-size: 13px; }
 .source-list li, .input-list li { padding: 8px 0; border-top: 1px solid var(--line); }
 .quote { border-left: 2px solid var(--accent-line); padding: 10px 14px; margin: 12px 0; background: var(--glass-inset); border-radius: 0 12px 12px 0; white-space: pre-wrap; }
 .limitations { margin-top: 12px; }
@@ -240,7 +264,7 @@ details.fold .card { background: transparent; padding: 0; box-shadow: none; bord
 .brief-disclaimer { margin-top: 16px; padding: 10px 14px; border-radius: var(--r-ctl); background: var(--glass-inset); color: var(--text-2); font-size: 13px; }
 .stale-note { padding: 10px 14px; border-radius: var(--r-ctl); color: var(--tension-fg); border: 1px solid var(--tension-line); background: var(--tension-bg); margin: 8px 0 12px; }
 /* Home brief: the previous brief stays in place, greyed, while a new one is written (no layout shift). */
-.is-refreshing { opacity: .55; transition: opacity .2s ease; }
+.is-refreshing { opacity: .55; transition: opacity var(--dur-menu) var(--ease); }
 .brief-tools { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 10px; }
 
 /* Timeline */
@@ -278,7 +302,7 @@ textarea { min-height: 88px; width: 100%; resize: vertical; }
 /* Native dropdown lists styled where the browser allows it (customizable <select>). */
 @supports (appearance: base-select) {
   select { appearance: base-select; }
-  select::picker(select) { appearance: base-select; border: 1px solid var(--glass-line); border-radius: 14px; background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm); color: var(--text); box-shadow: var(--shadow-pop); padding: 4px; }
+  select::picker(select) { appearance: base-select; border: 1px solid var(--glass-line); border-radius: var(--r-inset); background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm); color: var(--text); box-shadow: var(--shadow-pop); padding: 4px; }
   select option { padding: 8px 10px; border-radius: 8px; }
   select option:hover, select option:focus-visible { background: var(--glass-inset); }
   select option:checked { color: var(--accent-text); font-weight: 600; }
@@ -290,12 +314,12 @@ textarea { min-height: 88px; width: 100%; resize: vertical; }
 .field label, .field legend { font-weight: 600; font-size: 13px; }
 .field .hint { font-size: 12px; color: var(--text-3); }
 .field-error { color: var(--conflict-fg); font-size: 13px; }
-fieldset { border: 1px solid var(--glass-line); border-radius: 14px; padding: 12px 16px; margin: 0; min-width: 0; }
+fieldset { border: 1px solid var(--glass-line); border-radius: var(--r-inset); padding: 12px 16px; margin: 0; min-width: 0; }
 .checks { display: flex; flex-wrap: wrap; gap: 4px 16px; }
 .checks label { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; font-weight: 400; }
 input[type='checkbox'], input[type='radio'] { width: 18px; height: 18px; accent-color: var(--accent); }
 input[type='range'] { width: 100%; min-height: 40px; accent-color: var(--accent); }
-.error-summary { border: 1px solid var(--conflict-line); background: var(--conflict-bg); color: var(--conflict-fg); border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; }
+.error-summary { border: 1px solid var(--conflict-line); background: var(--conflict-bg); color: var(--conflict-fg); border-radius: var(--r-inset); padding: 12px 16px; margin-bottom: 12px; }
 .slider-row { display: flex; align-items: center; gap: 12px; }
 .slider-row input[type='number'] { width: 112px; }
 .search-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
@@ -308,8 +332,9 @@ input[type='range'] { width: 100%; min-height: 40px; accent-color: var(--accent)
 .chart-line { stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
 .chart-cursor line { stroke: var(--text-3); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
 .chart-cursor circle { stroke: var(--surface); stroke-width: 2; }
-.chart-tip { position: absolute; top: 0; z-index: 2; pointer-events: none; display: flex; flex-direction: column; gap: 4px; min-width: 170px;
-  padding: 10px 12px; border-radius: 14px; background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm);
+/* The tooltip renders in a portal (LineChart), fixed at the cursor, so a widget's overflow never clips it. */
+.chart-tip { position: fixed; top: 0; left: 0; z-index: 70; pointer-events: none; max-width: calc(100vw - 16px); display: flex; flex-direction: column; gap: 4px; min-width: 170px;
+  padding: 10px 12px; border-radius: var(--r-inset); background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm);
   border: 1px solid var(--glass-line); box-shadow: var(--shadow-pop); font-size: 12px; }
 .chart-tip-date { color: var(--text-3); }
 .chart-tip-row { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
@@ -318,23 +343,34 @@ input[type='range'] { width: 100%; min-height: 40px; accent-color: var(--accent)
 .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--text-2); margin-top: 10px; }
 .swatch { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; background: var(--chart-1); }
 .swatch-dashed { background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 7px); }
-.ledger { margin-top: 16px; padding: 12px 16px; border-radius: 14px; background: var(--glass-inset); }
+.ledger { margin-top: 16px; padding: 12px 16px; border-radius: var(--r-inset); background: var(--glass-inset); }
 .list-plain li { padding: 12px 0; border-top: 1px solid var(--line); }
 .list-plain li:first-child { border-top: 0; }
 .banner-fixture { background: var(--glass-card); color: var(--text-2); border: 1px solid var(--glass-line); }
 p.banner-fixture { padding: 8px 12px; border-radius: var(--r-ctl); margin: 8px 0; }
 details > summary { color: var(--text-2); }
 
-/* Popover menus (Listbox, period picker) */
+/* Popover menus (Listbox, SuggestInput). They render in a portal on document.body as
+   .popover-portal: fixed, placed from the trigger's box (below it, or above when there is no room),
+   kept in place on scroll and resize, and stacked above the top bar, rail, dock, sheets and drawers.
+   They rise 4 px and fade in (@starting-style) and fall back the same way on close
+   ([data-leaving], kept mounted until the transition ends). [data-side='top'] mirrors the drift. */
 .popover { position: absolute; z-index: 60; min-width: 220px; max-height: min(360px, 60vh); overflow-y: auto; padding: 6px; color: var(--text);
   background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm);
   border: 1px solid var(--glass-line); border-radius: 16px; box-shadow: var(--shadow-pop), inset 0 1px 0 var(--glass-edge);
-  animation: pop-in var(--dur-menu) var(--ease) backwards; }
+  opacity: 1; translate: 0 0; scale: 1;
+  transition: opacity var(--dur-menu) var(--ease), translate var(--dur-menu) var(--ease), scale var(--dur-menu) var(--ease); }
+@starting-style { .popover { opacity: 0; translate: 0 -4px; scale: .98; } }
+@starting-style { .popover[data-side='top'] { opacity: 0; translate: 0 4px; scale: .98; } }
+.popover[data-leaving] { opacity: 0; translate: 0 -4px; scale: .98; pointer-events: none; }
+.popover[data-side='top'][data-leaving] { translate: 0 4px; }
+.popover-portal { position: fixed; z-index: 1010; max-width: calc(100vw - 16px); }
+/* Kept for the settings and help popovers (shell.css), which still enter with this keyframe. */
 @keyframes pop-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
 /* Suggestions under a text field (SuggestInput): the shared popover, one highlighted row at a time. */
 .suggest { position: relative; min-width: 0; }
 .suggest > input { width: 100%; }
-.suggest-list { top: calc(100% + 6px); left: 0; right: 0; min-width: 0; }
+.suggest-list { min-width: 0; }
 .suggest-list .option { gap: 10px; min-width: 0; }
 .suggest-list .option[aria-selected='true'] { color: var(--text); font-weight: inherit; }
 .suggest-list[data-keys] .option[data-active='true'] { box-shadow: inset 0 0 0 2px var(--focus); }
@@ -354,10 +390,6 @@ details > summary { color: var(--text-2); }
 .option-check { margin-left: auto; color: var(--accent-text); }
 .option-meta { color: var(--text-3); font-size: 12px; }
 
-@media (prefers-reduced-motion: reduce) {
-  .spinner, .popover { animation: none; }
-  .btn, .chip, .icon-btn, .data-table tbody tr, .fchip, .info-bubble, details.fold > summary::before { transition: none; }
-}
 @media (max-width: 1100px) {
   .cols { grid-template-columns: minmax(0, 1fr); }
   .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -378,13 +410,13 @@ details > summary { color: var(--text-2); }
 .rule-more > summary { display: inline-flex; min-height: 28px; align-items: center; color: var(--text-3); }
 .rule-more > .block { margin-top: 2px; }
 /* Folded page sections (Evidence, Decide) */
-details.section-fold, details.compare-fold { background: var(--glass-card); border: 1px solid var(--glass-line); box-shadow: var(--card-shadow); border-radius: var(--r-card); margin: 0 0 18px; }
-details.section-fold > summary, details.compare-fold > summary { min-height: 56px; padding: 0 22px; font-size: 16px; font-weight: 600; color: var(--text); border-radius: var(--r-card); }
-details.section-fold > .fold-body, details.compare-fold > .fold-body { padding: 0 22px 22px; }
+details.section-fold { background: var(--glass-card); border: 1px solid var(--glass-line); box-shadow: var(--card-shadow); border-radius: var(--r-card); margin: 0 0 18px; }
+details.section-fold > summary { min-height: 56px; padding: 0 22px; font-size: 16px; font-weight: 600; color: var(--text); border-radius: var(--r-card); }
+details.section-fold > .fold-body { padding: 0 22px 22px; }
 .runs-table { margin-top: 14px; }
 
 /* Sabotage test result: verdict banner, the inserted sentence, and its raw form. */
-.sabotage-verdict { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--conflict-line); background: var(--conflict-bg); margin-bottom: 14px; }
+.sabotage-verdict { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: var(--r-inset); border: 1px solid var(--conflict-line); background: var(--conflict-bg); margin-bottom: 14px; }
 .sabotage-verdict.is-caught { border-color: var(--pass-line); background: var(--pass-bg); }
 .sabotage-verdict-mark { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; font-weight: 700; font-size: 18px; color: var(--conflict-fg); border: 2px solid currentColor; }
 .sabotage-verdict.is-caught .sabotage-verdict-mark { color: var(--pass-fg); }
@@ -392,15 +424,24 @@ details.section-fold > .fold-body, details.compare-fold > .fold-body { padding: 
 .sabotage-sentence { padding: 10px 14px; border-radius: 12px; border-left: 3px solid var(--conflict-fg); background: var(--glass-inset); margin-bottom: 12px; }
 .sabotage-raw-injected { color: var(--conflict-fg); }
 
-/* Small round controls in a card header (details, refresh) and in sheet and drawer heads. */
-.icon-btn-sm, .details-btn { width: 30px; height: 30px; background: var(--glass-inset); color: var(--text-2); }
-.icon-btn-sm::after, .details-btn::after { inset: -7px; }
-.icon-btn-sm:hover, .details-btn:hover { background: var(--raised-2); color: var(--text); }
+/* Small round controls in a card header (refresh) and in sheet and drawer heads. */
+.icon-btn-sm { width: var(--h-ctl-sm); height: var(--h-ctl-sm); background: var(--glass-inset); color: var(--text-2); }
+.icon-btn-sm::after { inset: -6px; }
+.icon-btn-sm:hover { background: var(--raised-2); color: var(--text); }
 .icon-btn:active { transform: scale(.94); }
+/* A card's "Details" (opens its sheet): a small quiet pill with its word, so it never reads as a
+   full-screen control. */
+.details-btn { position: relative; display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 28px; padding: 0 8px 0 12px; border: 0; border-radius: var(--r-pill);
+  background: var(--glass-inset); color: var(--text-2); font-size: var(--fs-12); font-weight: 600; line-height: 1.2; white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.details-btn::after { content: ''; position: absolute; inset: -8px -2px; } /* 44 px hit area */
+.details-btn:hover { background: var(--raised-2); color: var(--text); }
+.details-btn:active { transform: scale(.96); }
+.details-btn > svg { flex: none; }
 
 /* Details sheet: a centred glass panel (bottom sheet on phones) that grows from the widget's button. */
 .sheet-layer { position: fixed; inset: 0; z-index: 45; display: flex; align-items: center; justify-content: center; padding: 24px; pointer-events: none; }
-.sheet { position: relative; pointer-events: auto; width: min(760px, 100%); max-height: min(820px, calc(100vh - 48px)); display: flex; flex-direction: column;
+.sheet { position: relative; pointer-events: auto; width: min(760px, 100%); max-height: min(820px, calc(100vh - 48px)); max-height: min(820px, calc(100dvh - 48px)); display: flex; flex-direction: column;
   border-radius: var(--r-panel); outline: none; overflow: hidden;
   background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-line); box-shadow: var(--shadow-pop), inset 0 1px 0 var(--glass-edge); }
@@ -409,7 +450,8 @@ details.section-fold > .fold-body, details.compare-fold > .fold-body { padding: 
 .sheet-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 20px; }
 .sheet-body > * { flex: none; }
 .sheet-section > .eyebrow { margin-bottom: 8px; font-size: 12px; font-weight: 500; color: var(--text-3); }
-.figure-note { font-size: 13px; line-height: 1.55; color: var(--text-2); }
+/* Caption under a widget's figures or a sheet section: what the figures cover. */
+.figure-note { margin-top: 12px; font-size: var(--fs-12); line-height: 1.45; color: var(--text-3); }
 .backdrop-drawer { z-index: 48; }
 
 /* Charts that fill a dashboard widget (LineChart fill) and keep the unit in the legend (compact). */
@@ -420,11 +462,6 @@ details.section-fold > .fold-body, details.compare-fold > .fold-body { padding: 
 
 @media (max-width: 767px) {
   .sheet-layer { padding: 8px; align-items: flex-end; }
-  .sheet { max-height: calc(100vh - 16px); }
+  .sheet { max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); }
   .sheet-body { padding: 16px; }
-  /* On phones the note of an "i" is a fixed card at the bottom: it can never widen the page. */
-  .info-tip .info-bubble, .info-tip[data-align] .info-bubble { position: fixed; top: auto; bottom: 12px; left: 12px; right: 12px; width: auto; max-width: none; transform: translate3d(0, 6px, 0); }
-  .info-tip:hover .info-bubble, .info-tip:focus-within .info-bubble, .info-tip[data-open] .info-bubble,
-  .info-tip[data-align]:hover .info-bubble, .info-tip[data-align]:focus-within .info-bubble, .info-tip[data-align][data-open] .info-bubble { transform: translate3d(0, 0, 0); }
 }
-@media (prefers-reduced-motion: reduce) { html:not([data-anim='on']) .icon-btn:active { transform: none; } }

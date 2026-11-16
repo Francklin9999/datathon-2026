@@ -4,7 +4,7 @@
 /* Tabs reuse the segmented look; the panel fades and rises on change (gated with the other motion). */
 .tabs { margin-bottom: 16px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
-.tab-panel { outline: none; animation: tab-in var(--dur-menu, 180ms) var(--ease) backwards; }
+.tab-panel { outline: none; animation: tab-in var(--dur-menu) var(--ease) backwards; }
 .tab-panel:focus-visible { box-shadow: 0 0 0 2px var(--focus); border-radius: var(--r-card); }
 @keyframes tab-in { from { opacity: 0; transform: translateY(4px); } }
 
@@ -20,7 +20,4 @@
 
 .redirect-note { margin: 24px 0; color: var(--text-2); }
 
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-anim='on']) .tab-panel { animation: none; }
-}
-html[data-anim='off'] .tab-panel, html[data-motion='off'] .tab-panel { animation: none; }
+/* Motion: gated with everything else in motion.css. */

@@ -134,3 +134,34 @@ export function fitRowsWithMore(availablePx: number, heights: readonly number[],
   if (availablePx < morePx) return { shown: 0, more: false };
   return { shown: fitHeights(availablePx - morePx, heights), more: true };
 }
+
+/**
+ * Home's default arrangement (12 columns × 32 px rows, 16 px gaps: a widget of h rows is 48h − 16 px
+ * tall), read top to bottom: the key figures, the brief, performance beside the plan health, allocation
+ * beside the positions, then the small figure cards. Automations live on the Strategies page; a stored
+ * layout that still names them (or any removed widget) drops them on load (normalizeLayout).
+ */
+export const HOME_DEFAULT_LAYOUT: readonly LayoutItem[] = [
+  { id: 'figures', w: 12, h: 4 },
+  { id: 'brief', w: 12, h: 8 },
+  { id: 'performance', w: 8, h: 9 },
+  { id: 'health', w: 4, h: 9 },
+  { id: 'allocation', w: 4, h: 8 },
+  { id: 'positions', w: 8, h: 8 },
+  { id: 'horizons', w: 4, h: 5 },
+  { id: 'stress', w: 4, h: 5 },
+  { id: 'diversification', w: 4, h: 5 },
+];
+
+/** Size limits of each Home widget: every minimum still holds its essentials without scrolling. */
+export const HOME_LIMITS: Readonly<Record<string, WidgetLimits>> = {
+  figures: { minW: 6, maxW: 12, minH: 4, maxH: 7 },
+  brief: { minW: 6, maxW: 12, minH: 6, maxH: 24 },
+  performance: { minW: 5, maxW: 12, minH: 7, maxH: 18 },
+  health: { minW: 4, maxW: 12, minH: 5, maxH: 18 },
+  allocation: { minW: 3, maxW: 8, minH: 8, maxH: 14 },
+  positions: { minW: 4, maxW: 12, minH: 4, maxH: 18 },
+  horizons: { minW: 3, maxW: 6, minH: 5, maxH: 8 },
+  stress: { minW: 3, maxW: 6, minH: 5, maxH: 8 },
+  diversification: { minW: 3, maxW: 6, minH: 4, maxH: 8 },
+};

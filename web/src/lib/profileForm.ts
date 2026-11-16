@@ -37,6 +37,54 @@ export function profileFieldLabel(field: string): I18NText {
   return PROFILE_FIELD_LABEL[field] ?? { en: field, fr: field };
 }
 
+/** Readable names of the coded choices in the advanced profile inputs (never shown as raw codes). */
+export const INPUT_ORIGIN_LABEL: Record<'user' | 'imported' | 'system_default' | 'assumption', I18NText> = {
+  user: { en: 'Entered by you', fr: 'Saisi par vous' },
+  imported: { en: 'Imported', fr: 'Importé' },
+  system_default: { en: 'System default', fr: 'Valeur par défaut du système' },
+  assumption: { en: 'Assumption', fr: 'Hypothèse' },
+};
+export const RISK_CAPACITY_LABEL: Record<'low' | 'low_moderate' | 'moderate' | 'moderate_high' | 'high', I18NText> = {
+  low: { en: 'Low', fr: 'Faible' },
+  low_moderate: { en: 'Low to moderate', fr: 'Faible à modérée' },
+  moderate: { en: 'Moderate', fr: 'Modérée' },
+  moderate_high: { en: 'Moderate to high', fr: 'Modérée à élevée' },
+  high: { en: 'High', fr: 'Élevée' },
+};
+export const REVIEW_FREQUENCY_LABEL: Record<'none' | 'monthly' | 'quarterly' | 'semiannual' | 'annual' | 'custom', I18NText> = {
+  none: { en: 'No set review', fr: 'Aucune révision prévue' },
+  monthly: { en: 'Monthly', fr: 'Mensuelle' },
+  quarterly: { en: 'Quarterly', fr: 'Trimestrielle' },
+  semiannual: { en: 'Twice a year', fr: 'Semestrielle' },
+  annual: { en: 'Yearly', fr: 'Annuelle' },
+  custom: { en: 'Custom', fr: 'Personnalisée' },
+};
+export const TARGET_DIMENSION_LABEL: Record<'position' | 'sector' | 'asset_class' | 'country' | 'currency' | 'theme', I18NText> = {
+  position: { en: 'Holding', fr: 'Position' },
+  sector: { en: 'Sector', fr: 'Secteur' },
+  asset_class: { en: 'Asset class', fr: 'Catégorie d’actifs' },
+  country: { en: 'Country', fr: 'Pays' },
+  currency: { en: 'Currency', fr: 'Devise' },
+  theme: { en: 'Theme', fr: 'Thème' },
+};
+export const REQUIREMENT_KIND_LABEL: Record<'liquidity' | 'spending' | 'liability', I18NText> = {
+  liquidity: { en: 'Cash on hand', fr: 'Liquidités' },
+  spending: { en: 'Spending', fr: 'Dépense' },
+  liability: { en: 'Liability', fr: 'Passif' },
+};
+/** Readable labels of the dated fields of goals and horizons (not the raw keys). */
+export const DATE_FIELD_LABEL: Record<'startDate' | 'endDate' | 'deadline', I18NText> = {
+  startDate: { en: 'Start date', fr: 'Date de début' },
+  endDate: { en: 'End date', fr: 'Date de fin' },
+  deadline: { en: 'Deadline', fr: 'Échéance' },
+};
+
+/** Form fields kept in the "More details" fold; it opens by itself when one of them needs attention. */
+const ADVANCED_FIELDS = ['investorContext', 'cryptoInterest', 'excludedSectors', 'themesOfInterest', 'excludedAssetClasses', 'notes'];
+export function isAdvancedField(field: string): boolean {
+  return ADVANCED_FIELDS.some(f => field === f || field.startsWith(`${f}.`));
+}
+
 export interface ProfileForm {
   /** Local baseline for identifying user edits when copying or replacing a profile. */
   sourceProfile?: Profile;

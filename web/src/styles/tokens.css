@@ -94,18 +94,32 @@
   --r-ctl: 12px;
   --r-chip: 8px;
   --r-pill: 999px;
+  --r-inset: 14px;          /* blocks nested in a card: tiles, folds, panes */
   --radius: var(--r-card);
+
+  /* Control heights: one size for fields and buttons, one for compact rows. Hit areas stay 44 px. */
+  --h-ctl: 40px;
+  --h-ctl-sm: 32px;
+
+  /* Type scale (body is 14 px): captions, meta, lead, card and section titles */
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-15: 15px;
+  --fs-17: 17px;
+  --fs-20: 20px;
 
   /* Layout */
   --rail-w: 60px;
   --rail-w-open: 216px;
   --gap-shell: 16px;
 
-  /* Motion: one curve, a few durations */
+  /* Motion: one curve, a few durations. motion.css sets every duration to 0s when animations are
+     off, the page is hidden, or the system reduces motion (unless Settings > Animations is On). */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur-fast: 150ms;
-  --dur-menu: 200ms;
-  --dur-enter: 420ms;
+  --dur-fast: 150ms;        /* hover, press, colour */
+  --dur-menu: 200ms;        /* menus, popovers, tooltips, folds */
+  --dur-enter: 420ms;       /* entrances, sheets, drawers, glides */
+  --dur-draw: 1200ms;       /* charts, donuts and bars drawing themselves */
 
   /* Scrollbars */
   --scroll-thumb: rgba(20, 24, 36, .22);

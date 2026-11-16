@@ -4,9 +4,8 @@
  * run's recorded actors match it (SYS-01), argument redaction and the guardrail/budget readings.
  * Nothing here infers a step: every figure shown comes from the run payload.
  */
-import type { AgentRole, GuardrailAudit, I18NText, Run, RunStatus, RunSummary, Step, StepType } from '../contracts/types';
+import type { AgentRole, GuardrailAudit, I18NText, Run, Step, StepType } from '../contracts/types';
 import { briefsOf } from './brief';
-import { isTerminal } from './runs';
 
 export type Actor = Step['actor'];
 export type WorkNature = 'model' | 'code' | 'mixed';
@@ -273,39 +272,6 @@ export function runGuardrailAudit(run: Pick<Run, 'result'>): GuardrailAudit | nu
   const briefs = briefsOf(run.result);
   const brief = briefs[briefs.length - 1];
   return brief ? brief.audit.guardrail : null;
-}
-
-// ----- Run picker: the list is a snapshot, the selected run is polled -----
-
-export interface LiveRunStatus { runId: string; status: RunStatus }
-
-/**
- * Rows to display: the row of the polled run follows its live status. A terminal status already in
- * the list is final and is never replaced by an older, non-terminal poll.
- */
-export function applyLiveStatus(items: readonly RunSummary[], live: LiveRunStatus | null): RunSummary[] {
-  if (!live) return [...items];
-  return items.map(item => (
-    item.runId === live.runId && item.status !== live.status && !isTerminal(item.status) ? { ...item, status: live.status } : item));
-}
-
-/**
- * True when the list's copy of the polled run is still active while the run has reached a terminal
- * status: its verdict and duration belong to GET /runs and must be read again, not derived here.
- */
-export function listRowIsBehind(items: readonly RunSummary[], live: LiveRunStatus | null): boolean {
-  if (!live || !isTerminal(live.status)) return false;
-  const row = items.find(item => item.runId === live.runId);
-  return row !== undefined && !isTerminal(row.status);
-}
-
-/**
- * Refresh loaded rows from a newer page without clearing the table: a row present in `fresh` is
- * replaced in place; order, rows absent from `fresh` and the number of rows are kept.
- */
-export function refreshRunRows(loaded: readonly RunSummary[], fresh: readonly RunSummary[]): RunSummary[] {
-  const byId = new Map(fresh.map(item => [item.runId, item]));
-  return loaded.map(item => byId.get(item.runId) ?? item);
 }
 
 /** Contract defaults from run-events.md §4; a deployment may override them by environment variable. */

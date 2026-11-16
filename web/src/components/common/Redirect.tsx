@@ -7,14 +7,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import type { I18NText } from '../../contracts/types';
+import { redirectTarget } from '../../lib/redirect';
 import { useApp } from '../../state/app';
 
 export function Redirect({ to, label }: { to: string; label: I18NText }) {
   const router = useRouter();
   const { tr } = useApp();
   useEffect(() => {
-    // Keep a query or hash the old address carried (for instance ?ticker=).
-    router.replace(`${to}${window.location.search}${window.location.hash}`);
+    // Keep a query or hash the old address carried (for instance ?ticker=), merged into `to`'s own.
+    router.replace(redirectTarget(to, window.location.search, window.location.hash));
   }, [router, to]);
   return (
     <p className="redirect-note" role="status">

@@ -1,10 +1,11 @@
 'use client';
 /**
- * Evidence & Audit (T14, web/page-specs/evidence-audit.md). Loads the owned run (or lists session runs),
- * shows the brief with audit markings, a searchable fact ledger, rule checks, A01–A14 results, the
- * actual timeline and the datasets read. ?factId= deep-links the fact drawer (AUDUI-06).
+ * Evidence & Audit (T14, web/page-specs/evidence-audit.md). Loads the owned run (or lists session runs,
+ * the app's one list of analyses), shows the brief with audit markings and the audit report, the
+ * sabotage test, rule checks, a searchable fact ledger, the actual timeline and the datasets read. ?factId= deep-links the fact drawer (AUDUI-06).
  */
 import Link from 'next/link';
+import { ListTree } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import type { Brief, Run, RuleCheck, RunsResponse, SabotageMode } from '../../contracts/types';
@@ -23,7 +24,7 @@ import { RunTimeline } from '../../components/run/RunTimeline';
 import { AuditPanel } from '../../components/run/AuditPanel';
 import { AUDIT_CHECK, FACT_KIND, RUN_KIND, RUN_STATUS, SABOTAGE_MODE, VERIFICATION, labelOf } from '../../lib/labels';
 import { fmtDate, fmtDateTime } from '../../lib/format';
-import { RunsTable } from '../../components/run/RunsTable';
+import { RunsTable, stepsHref } from '../../components/run/RunsTable';
 import { ResearchOutcomeNote } from '../../components/run/ResearchOutcomeNote';
 import { briefsOf, danglingReferences } from '../../lib/brief';
 import {
@@ -31,6 +32,7 @@ import {
   sentenceHashTarget, type RunListScope,
 } from '../../lib/evidence';
 import { fold } from '../../lib/suggest';
+import './audit.css';
 
 const SABOTAGE_MODES: readonly SabotageMode[] = ['invented_number', 'false_comparison', 'unsupported_interpretation'];
 
@@ -54,7 +56,7 @@ function RunList() {
   return (
     <>
       <PageHeader title={tr({ en: 'Evidence and audit', fr: 'Preuves et audit' })}>
-        <p className="page-sub">{tr({ en: 'Pick an analysis to inspect its sources and audit.', fr: 'Choisissez une analyse pour examiner ses sources et son audit.' })}</p>
+        <p className="page-sub">{tr({ en: 'Every analysis you started, with two ways in: its evidence and audit, or the steps it took.', fr: 'Chaque analyse lancée, avec deux entrées : ses preuves et son audit, ou les étapes suivies.' })}</p>
       </PageHeader>
       <Card id="runs" tour="run-list" title={tr({ en: 'Analyses started in this browser', fr: 'Analyses lancées dans ce navigateur' })}
         info={tr({
@@ -79,7 +81,7 @@ function RunList() {
             : tr({ en: 'No analysis yet. Start one from Decide or Home.', fr: 'Aucune analyse pour l’instant. Lancez-en une depuis Décider ou l’Accueil.' })}</Empty>
         )}
         {runs.data && runs.data.items.length > 0 && (
-          <RunsTable items={runs.data.items} linkFor={id => `/evidence-audit/?runId=${encodeURIComponent(id)}`} />
+          <RunsTable items={runs.data.items} />
         )}
       </Card>
     </>
@@ -138,7 +140,10 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
   return (
     <>
       <PageHeader title={run ? labelOf(RUN_KIND, run.kind, lang) : tr({ en: 'Analysis', fr: 'Analyse' })}
-        actions={<Link className="btn ghost btn-sm" href="/evidence-audit/">{tr({ en: 'All analyses', fr: 'Toutes les analyses' })}</Link>}>
+        actions={<>
+          <Link className="btn ghost btn-sm" href={stepsHref(runId)}><ListTree size={16} aria-hidden="true" />{tr({ en: 'See steps', fr: 'Voir les étapes' })}</Link>
+          <Link className="btn ghost btn-sm" href="/evidence-audit/">{tr({ en: 'All analyses', fr: 'Toutes les analyses' })}</Link>
+        </>}>
       </PageHeader>
       {polled.loading && !run && <Loading />}
       {polled.error && <ErrorState error={polled.error} onRetry={polled.reload}
@@ -172,6 +177,7 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
               </Card>
             </div>
           )}
+          <SabotageControls run={run} />
           <RuleChecksPanel run={run} />
           <FactLedger run={run} scope={scope} />
           <EvidenceList run={run} scope={scope} />
@@ -181,7 +187,6 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
             <div className="fold-body"><RunTimeline run={run} /></div>
           </details>
           <DatasetsUsed run={run} />
-          <SabotageControls run={run} />
         </FactScopeProvider>
       )}
     </>

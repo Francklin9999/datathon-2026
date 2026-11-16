@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 /**
  * Theme preference (UI preference only, web/SPEC.md §2). The resolved mode is written to
  * `html[data-theme]`; the boot script runs before first paint so the page never flashes the wrong theme.
@@ -64,11 +66,40 @@ export function animationsAllowed(pref: string | undefined, systemReduce: boolea
   return !systemReduce;
 }
 
-/** MotionConfig `reducedMotion` for the html[data-anim] value: Off reduces, On never does, Auto follows the system. */
-export function motionReducedFor(pref: string | undefined): 'always' | 'never' | 'user' {
-  if (pref === 'off') return 'always';
-  if (pref === 'on') return 'never';
-  return 'user';
+/** The one easing curve (tokens.css --ease) and the duration tokens in seconds, for JavaScript motion. */
+export const EASE = [0.22, 1, 0.36, 1] as const;
+export const DUR = { fast: 0.15, menu: 0.2, enter: 0.42, draw: 1.2 } as const;
+
+const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
+
+/**
+ * Whether motion may play now, from the same three inputs as the CSS gate in styles/motion.css:
+ * html[data-anim] (Settings > Animations), html[data-motion] (hidden page) and the system setting.
+ * False outside a browser.
+ */
+export function readAnimationsAllowed(): boolean {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return false;
+  const root = document.documentElement;
+  const reduce = typeof window.matchMedia === 'function' && window.matchMedia(REDUCE_QUERY).matches;
+  return animationsAllowed(root.dataset.anim, reduce, root.dataset.motion === 'off');
+}
+
+function subscribeAnimations(onChange: () => void): () => void {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-anim', 'data-motion'] });
+  const media = typeof window.matchMedia === 'function' ? window.matchMedia(REDUCE_QUERY) : null;
+  media?.addEventListener('change', onChange);
+  return () => { observer.disconnect(); media?.removeEventListener('change', onChange); };
+}
+
+/**
+ * Live readAnimationsAllowed() for components (MotionConfig, Sheet, Drawer): re-renders when the
+ * setting, the page visibility or the system preference changes. False during the static render and
+ * hydration. (React is imported as a namespace because the root layout, a server component, imports
+ * this module for its boot scripts; the hook only ever runs in client components.)
+ */
+export function useAnimationsAllowed(): boolean {
+  return React.useSyncExternalStore(subscribeAnimations, readAnimationsAllowed, () => false);
 }
 
 /** Navigation rail preference: collapsed (floating icon rail, the default) or expanded (icons with labels). */

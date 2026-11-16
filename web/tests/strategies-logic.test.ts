@@ -7,7 +7,7 @@ import { createApiClient } from '../src/api/client';
 import { ApiRequestError } from '../src/api/errors';
 import { WEB_CONTRACT_VERSION } from '../src/lib/apiCompat';
 import {
-  MAX_STRATEGIES, STRATEGY_KINDS, UNDO_DELETE_MS, automationState, configIssues, defaultConfig, describe, moveFocusFromExpiredUndo,
+  MAX_STRATEGIES, STRATEGY_KINDS, UNDO_DELETE_MS, configIssues, defaultConfig, describe, moveFocusFromExpiredUndo,
   newStrategy, readStrategies,
   removeStrategy, restoreStrategy, simulationRequest, strategiesCompatibility, strategiesUnavailable, strategyFailure, wireConfig,
   writeStrategies, type SavedStrategy,
@@ -44,18 +44,16 @@ test('form problems are reported before anything is sent', () => {
   assert.equal(configIssues({ ...defaultConfig('rebalance'), costBps: 101 }).length, 1);
 });
 
-test('Home widget: saved invalid settings are reported, not left on "Simulating…"', () => {
+test('saved invalid settings are kept and reported, never simulated (not left on "Simulating…")', () => {
   // An emptied field is saved as NaN, which JSON stores as null; readStrategies keeps the strategy.
   const store = new Map<string, string>();
   const strategy = newStrategy('contribute', [], en, 'st_x');
   writeStrategies('robert', [{ ...strategy, config: { ...strategy.config, amount: Number.NaN } as StrategyConfig }], (k, v) => { store.set(k, v); });
   const [saved] = readStrategies('robert', k => store.get(k) ?? null);
   assert.ok(saved);
-  assert.equal(automationState(saved.config, false, false), 'invalid');
-  const valid = defaultConfig('contribute');
-  assert.equal(automationState(valid, false, false), 'pending');
-  assert.equal(automationState(valid, true, false), 'next');
-  assert.equal(automationState(valid, false, true), 'unavailable');
+  assert.ok(configIssues(saved.config).length > 0, 'the form reports the emptied field');
+  assert.equal(simulationRequest('supported', 'base', '1y', saved.config), null, 'invalid settings are never sent');
+  assert.ok(simulationRequest('supported', 'base', '1y', defaultConfig('contribute')), 'valid settings are simulated');
 });
 
 test('descriptions name what the automation does', () => {
@@ -110,7 +108,7 @@ test('an API older than contract 1.5.0 is never asked to simulate', () => {
   assert.equal(request?.key, `strategy|${base}|1y|${JSON.stringify(wireConfig(config))}`);
 });
 
-test('the version-skew notice: Strategies page, strategy cards, creation cards, Home', () => {
+test('the version-skew notice: Strategies page, strategy cards, creation cards', () => {
   assert.equal(strategiesUnavailable('supported', '1.5.0'), null);
   assert.equal(strategiesUnavailable('unknown', null), null, 'nothing shown while /meta loads');
   const older = strategiesUnavailable('older', '1.4.0');
@@ -124,12 +122,6 @@ test('the version-skew notice: Strategies page, strategy cards, creation cards, 
   assert.ok(incompatible);
   for (const [name, text] of Object.entries(incompatible)) bilingual(text, `incompatible.${name}`);
   assert.doesNotMatch(incompatible.title.en, /newer/, 'a different major is not "older"');
-
-  const valid = defaultConfig('contribute');
-  assert.equal(automationState(valid, false, false, 'older'), 'outdated');
-  assert.equal(automationState(valid, false, false, 'incompatible'), 'outdated');
-  assert.equal(automationState(valid, false, false, 'unknown'), 'pending');
-  assert.equal(automationState(valid, true, false, 'supported'), 'next');
 });
 
 const SESSION = 's_00000000-0000-4000-8000-000000000001';

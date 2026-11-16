@@ -1,13 +1,19 @@
 .world-navigation { margin-bottom: 18px; padding: 18px; border: 1px solid var(--border); border-radius: 18px; }
 .world-mode-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-.world-mode-grid button[aria-pressed="true"] { background: var(--accent); color: var(--accent-contrast); }
+/* Beats .btn.ghost:hover so the active mode keeps its selected look under the pointer. */
+.world-mode-grid .btn.ghost[aria-pressed="true"] { background: var(--accent); color: var(--accent-contrast); }
 .world-navigation-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .world-navigation .field, .world-navigation input, .world-navigation select { min-width: 0; width: 100%; }
 .world-search-row { display: flex; gap: 8px; align-items: center; }
 /* The country search is a SuggestInput: its wrapper takes the row, the matches open under it. */
 .world-search-row .suggest { flex: 1 1 auto; }
 .world-map-controls { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; background: rgba(0,0,0,.2); }
-.world-map-controls .btn { color: #edf2ff; border-color: #4a5c79; }
+/* The controls sit on the dark stage in both themes: dark translucent fill, light text, light focus ring. */
+.world-map-controls .btn.ghost { color: #EDF2FF; background: rgba(11, 18, 34, .72); border-color: rgba(233, 238, 255, .28); box-shadow: none; }
+.world-map-controls .btn.ghost:hover:not(:disabled) { color: #FFFFFF; background: rgba(36, 50, 78, .92); border-color: rgba(233, 238, 255, .45); }
+.world-map-controls .btn.ghost:focus-visible { outline: 2px solid #9DB2FF; outline-offset: 2px; }
+/* The navigation mini-globe morphs into the stage on route change. */
+.world-stage { view-transition-name: world-globe; }
 .world-globe-toggle { margin: 0 0 12px; }
 .world-stage .stage-top { flex-wrap: wrap; padding-right: 42px; }
 .world-stage .stage-chip { max-width: 100%; min-width: 0; padding: 6px 12px; line-height: 1.4; }
@@ -29,6 +35,8 @@
 .world-event-exposure[data-exposed="true"] { border-color: var(--tension-line); }
 .world-exposure-title { font-size: 19px; font-weight: 650; letter-spacing: -.01em; text-wrap: balance; }
 .world-event-exposure .holdings-inline { margin: 0; }
+/* Older API fallback: an empty linked-holdings table is not shown. */
+.world-event-exposure[data-assessed="false"] .table-scroll:has(tbody:empty) { display: none; }
 .world-event-details .fold { min-width: 0; }
 @media (max-width: 760px) {
   .world-navigation-fields { grid-template-columns: minmax(0, 1fr); }
