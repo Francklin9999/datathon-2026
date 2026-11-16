@@ -1,8 +1,0 @@
-{
-  "sourceUrl": "https://www.cftc.gov/MarketReports/SwapsReports/L2IRSGrossExp.html",
-  "retrievedAt": "2026-11-15T16:22:19Z",
-  "rawSha256": "dbffdc8ff8039b5af4515c9fed85b76bb366f50215ad62d8e8f3d876fadeb42b",
-  "series": "interest_rate_swaps_gross_notional",
-  "unit": "millions USD",
-  "rights": "CFTC weekly swaps report, source attribution; aggregate summary, not transaction data"
-}

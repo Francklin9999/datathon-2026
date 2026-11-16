@@ -1,7 +1,0 @@
-{
-  "sourceUrl": "https://publicreporting.cftc.gov/resource/6dca-aqww.json?%24limit=100&%24order=report_date_as_yyyy_mm_dd%20DESC%2Cid%20ASC",
-  "retrievedAt": "2026-11-15T16:09:53Z",
-  "rawSha256": "f02c33d8faa428f48f542a65859dc738346d97573bb137d1fbb095227dc422e0",
-  "report": "legacy-futures-only",
-  "terms": "CFTC public COT reporting API; observe website terms."
-}

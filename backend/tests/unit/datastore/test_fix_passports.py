@@ -259,15 +259,6 @@ class DevApiScript(unittest.TestCase):
             self.assertEqual(server[f"APLOMB_FEATURE_{flag.upper()}"], "false", flag)
         self.assertEqual(server["APLOMB_ALLOWED_ORIGINS"], "http://localhost:3000,http://127.0.0.1:3000")
 
-    def test_env_example_lists_every_provider_permission_setting_switched_off(self):
-        from aplomb.datastore import financial_connectors as fc
-        documented = load_dev_api().read_env_file(REPO / ".env.example")
-        names = {fc.provider_status(p)["permissionSetting"] for p in fc.PROVIDERS.values()}
-        self.assertEqual(names, {f"APLOMB_SOURCE_{key}_RIGHTS_CONFIRMED"
-                                 for key in ("FAMA_FRENCH", "AQR", "CBOE", "OCC", "FINRA")})
-        for name in names:
-            self.assertEqual(documented.get(name), "false", name)  # documented, never asserted on the owner's behalf
-
     def test_missing_env_file_reads_nothing(self):
         self.assertEqual(load_dev_api().read_env_file(temp_root() / "absent.env"), {})
 

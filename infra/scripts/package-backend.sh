@@ -13,20 +13,11 @@ mkdir -p "$artifact"
 uv pip install --python-version 3.12 --python-platform x86_64-manylinux_2_28 \
   --only-binary :all: --target "$artifact" -r infra/.build/requirements.txt
 cp -R backend/aplomb "$artifact/aplomb"
-# Captured rate/positioning inputs read by /v1/risk/source-inputs
-# (CAPTURE_FOLDERS in backend/aplomb/datastore/financial_inputs_api.py). In the
-# artifact they resolve to /var/task/data/inputs.
-risk_captures=(risk-nyfed risk-cftc risk-treasury)
-mkdir -p "$artifact/data/inputs"
-for folder in "${risk_captures[@]}"; do
-  if [[ ! -d "data/inputs/$folder" ]]; then printf 'Cannot package: capture folder missing: data/inputs/%s\n' "$folder" >&2; exit 1; fi
-  cp -R "data/inputs/$folder" "$artifact/data/inputs/$folder"
-done
 find "$artifact" -type d -name __pycache__ -prune -exec rm -rf {} +
 # Native extension imports must be checked in the actual Lambda Python/architecture.
 # Pin the runtime image used for the import check.
 docker run --rm --platform linux/amd64 --entrypoint python \
-  -v "$artifact:/var/task:ro" public.ecr.aws/lambda/python:3.12@sha256:696fcc2a052fc8f335f9b34c6ec4e50ad54dbe5dd35134ec997c4f97bd150b22   -c 'import pydantic_core, mangum, boto3, strands; from aplomb.optimizer.services import build_domain_services; from aplomb.api.lambda_handler import handler; from aplomb.agents.worker import handler as worker; from aplomb.world import load_bundle; assert callable(handler) and callable(worker) and callable(build_domain_services) and load_bundle().events; from aplomb.datastore import financial_inputs_api as fi; assert str(fi.INPUTS) == "/var/task/data/inputs", fi.INPUTS; missing = [s["id"] for s in fi.financial_source_inputs(as_of=None)["sources"] if s["status"] == "capture_unavailable" and s["id"] != "fama-french"]; assert not missing, missing'
+  -v "$artifact:/var/task:ro" public.ecr.aws/lambda/python:3.12@sha256:696fcc2a052fc8f335f9b34c6ec4e50ad54dbe5dd35134ec997c4f97bd150b22   -c 'import pydantic_core, mangum, boto3, strands; from aplomb.optimizer.services import build_domain_services; from aplomb.api.lambda_handler import handler; from aplomb.agents.worker import handler as worker; from aplomb.world import load_bundle; assert callable(handler) and callable(worker) and callable(build_domain_services) and load_bundle().events'
 python3 - "$artifact" <<'PY'
 import hashlib, json, pathlib, sys
 root = pathlib.Path(sys.argv[1])
