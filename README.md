@@ -1,69 +1,162 @@
-# Aplomb — evidence before conviction
+<img src="web/src/app/icon.svg" alt="Aplomb" width="76" align="right">
 
-A self-explaining agentic assistant that tests a hypothetical investment move against a fictional investor's own plan, and shows what supports every conclusion. Built for **AlphaForge AI**, Datathon 2026 (National Bank × AWS × PolyFinances).
+# Aplomb
 
-**Simulation only. Fictional profiles. Not financial advice.** Aplomb has no trading tool.
+**Evidence before conviction.**
 
-- **Live app**: https://d1r325uzu5fe7x.cloudfront.net (AWS account available until 2026-11-16 13:59 EST)
-- **One-pager**: [docs/deliverables/one-pager.pdf](docs/deliverables/one-pager.pdf)
-- **Technical documentation**: [docs/deliverables/technical.pdf](docs/deliverables/technical.pdf) ([Markdown](docs/deliverables/technical.md))
-- **Demo script**: [docs/deliverables/demo.md](docs/deliverables/demo.md)
+Aplomb turns an investment idea into a decision you can inspect: what changes in the portfolio, which personal rules it meets, and what evidence supports the explanation. Six specialist roles combine portfolio calculations, research and an audited brief in an English/French workspace.
 
-## What it does
+Built for **AlphaForge AI · Datathon 2026 — National Bank × AWS × PolyFinances**.
 
-Pick Robert, Amira or Mateo, the three personas of the case, and test an idea such as "add 25% of Tesla".
+**[Open the app](https://d1r325uzu5fe7x.cloudfront.net)** · **[Watch the demo](docs/deliverables/demo/aplomb-live-subtitled.webm)** · **[One-pager](docs/deliverables/one-pager.pdf)** · **[Technical report](docs/deliverables/technical.pdf)** · **[Demo walkthrough](docs/deliverables/demo.md)**
 
-- **Code computes everything**: adjusted returns, volatility, drawdown, the 2022 stress, concentration, currency conversion, and every rule of the investor's plan. It also finds the largest size the plan allows.
-- **Agents explain and check**: a planner frames the request and chooses which extra analyses the code runs, a researcher reads allow-listed official sources, a writer drafts in English or French from recorded facts only, and an auditor verifies every sentence before signing the brief.
-- **Every figure is clickable**: it opens the method, inputs, source rows, period and limitations behind it.
+![Aplomb World Explorer showing a globe of dated events, source observations and portfolio geography](docs/assets/aplomb-world.png)
 
-Same idea, different investors: Robert at +25 points hits six rule conflicts and a 6-point limit; Amira hits three, with an 11-point limit; Mateo's Energy exclusion blocks CNQ even though eight other checks pass.
+*World Explorer, captured from the live application. Explore a location, inspect its sources, and connect it to the holdings worth investigating.*
 
-## How it works
+## One idea. Three different decisions.
 
+“Add Tesla” means something different for Robert and Amira. Aplomb starts with the investor's goals, horizon, cash needs, holdings and rules, then computes the consequences of the proposed move.
+
+| Investor | Proposed move | What Aplomb finds |
+|---|---|---|
+| **Robert** | Add 25 percentage points of TSLA | **6 rule conflicts.** The first-conflict boundary is **6 points**. |
+| **Amira** | Add 25 percentage points of TSLA | **3 rule conflicts.** The first-conflict boundary is **11 points**. |
+| **Mateo** | Add 10 percentage points of CNQ.TO | **His Energy exclusion conflicts**, even though eight financial checks pass. |
+
+These reproducible examples use the full starter-data window, CAD and proportional funding. A size is an addition in portfolio percentage points; the boundary is the last tested size before the first rule conflict. [Calculations and reference results →](contracts/controls.md)
+
+Open **Decide**, select Robert, test TSLA at 25 points, and inspect a highlighted figure. Switch to Amira to see the same idea evaluated against a different plan.
+
+## From knowing yourself to testing a decision
+
+| Workspace | What you can do |
+|---|---|
+| **Investor Lab** | Make choices at three masked historical checkpoints, consult dated evidence, and explain what would make you reconsider. Review and explicitly confirm the resulting profile settings and investment playbook. |
+| **Portfolio** | Bring together accounts, holdings, cash, goals and spending needs. Inspect allocation, concentration, historical risk and a joint plan for competing goals. |
+| **Decide** | Test a position using cash, proportional sales, selected holdings or new money. Compare before and after, see each personal rule, and explore the size before the first conflict. |
+| **Strategies** | Simulate calendar or band rebalancing, recurring contributions and drawdown guards against a baseline, with transaction costs and the next action visible. |
+| **Replay** | Revisit a historical decision with an as-of date, then reveal what followed while preserving the original evidence and decision record. |
+| **World Explorer** | Navigate a 3D globe of dated events, hazards and source observations. Inspect countries and portfolio geography to choose what to research next. |
+| **Evidence & System** | Open the facts behind a brief, follow its source trail, inspect the agent timeline, and see model usage, timing and audit results. |
+
+The interface supports **English and French**, responsive layouts, guided tours and movable dashboard widgets.
+
+## How a brief earns its conclusions
+
+Aplomb separates calculation, interpretation and verification. The language model chooses useful analyses and explains the results; the quant engine and personal rules determine the numbers and verdicts.
+
+| Role | Responsibility |
+|---|---|
+| **Planner** | Structure the request, resolve missing details and select analyses. |
+| **Researcher** | Gather dated evidence from permitted sources and retain source references. |
+| **Quant Engine** | Compute returns, volatility, drawdowns, stress, concentration, correlations and portfolio scenarios in Python. |
+| **Risk Officer** | Evaluate the scenario against the investor's explicit rules and funding constraints. |
+| **Writer** | Produce the English or French brief using recorded facts and evidence references. |
+| **Auditor** | Check the brief against its supporting records before completion. |
+
+The Planner, Researcher, Writer and Auditor use **Strands Agents and Amazon Bedrock**. The Quant Engine and Risk Officer execute deterministic code. Within fixed run budgets, the workflow can revisit its analysis and rewrite a brief after an audit objection.
+
+Every displayed fact can carry its **method, inputs, period, currency, source rows and data version**. Fourteen audit checks validate references, numerical claims, comparisons, quotations and time availability. The final record includes a SHA-256 hash of its facts and evidence so later changes can be detected.
+
+The built-in **Audit test** deliberately introduces an incorrect number, comparison or causal claim and sends it through the same verification path. Judges can inspect the failure and its supporting trace directly.
+
+## Built on AWS
+
+```mermaid
+flowchart LR
+    Browser["Next.js · React · TypeScript"]
+    Site["CloudFront + private S3<br/>Static web application"]
+    Gateway["API Gateway"]
+    API["Lambda<br/>FastAPI + deterministic analytics"]
+    Worker["Worker Lambda<br/>Plan → Research → Quant → Risk → Write → Audit"]
+    Models["Amazon Bedrock<br/>Models + Guardrails"]
+    State[("DynamoDB<br/>Profiles · Runs · Cache")]
+    Evidence[("S3<br/>Snapshots · Evidence")]
+    Logs["CloudWatch<br/>Logs + metrics"]
+
+    Browser --> Site
+    Browser --> Gateway
+    Gateway --> API
+    API --> Worker
+    Worker --> Models
+    API --> State
+    Worker --> State
+    API --> Evidence
+    Worker --> Evidence
+    API --> Logs
+    Worker --> Logs
 ```
-Next.js app ─► CloudFront + S3 ─► API Gateway ─► API Lambda (FastAPI, deterministic analytics)
-                                                    └─► Worker Lambda: plan → research → quant → risk → write → audit → sign
-                                                          Amazon Bedrock (two models + Guardrail), DynamoDB, S3, CloudWatch
-```
 
-Details, methods, data sources, a traced example and validation: [technical documentation](docs/deliverables/technical.md).
+The API serves interactive calculations while the asynchronous worker handles agent runs. Durable checkpoints support progress reporting and recovery; conditional writes protect session ownership and concurrent edits. AWS CDK defines the infrastructure, and GitHub Actions verifies changes and publishes the frontend through OIDC.
 
-## Run it locally
+[Architecture and deployment →](docs/AWS-ARCHITECTURE.md) · [API contracts →](contracts/api.md) · [Agent tools →](contracts/tools.md)
 
-Requirements: Python 3.12 with [uv](https://docs.astral.sh/uv/), Node.js 22.19 or later.
+## Data you can trace
+
+The repository pins its active snapshot to **`snap-20261115-globalfx`**. Manifests record the source, coverage, processing and hashes needed to reproduce it.
+
+| Coverage | Included data |
+|---|---|
+| **31 investable assets** | 10 Canadian equities, 10 US equities, 9 ETFs, Bitcoin and Ether. |
+| **40,049 daily price rows** | November 12, 2021–November 12, 2026, with 658 corporate-action records. |
+| **Currency and macro context** | Bank of Canada FX and rates, FRED series, Statistics Canada release dates and Wikimedia attention. |
+| **751 dated world events** | Official events and earthquake records, with additional hazard and provider observations. |
+| **217 countries** | World Bank country indicators for geographic context. |
+| **243 source-directory entries** | A searchable research catalogue with source descriptions and access details. |
+
+Prices originate from the organizers' Yahoo Finance/yfinance starter dataset. The source directory describes research sources; each analysis records which evidence it actually used. Dataset passports retain attribution, methodology and licensing information alongside the data.
+
+[Data sources →](data/SOURCES.md) · [Snapshot specification →](data/SPEC.md) · [Active manifest →](data/manifests/active.json)
+
+## Run locally
+
+Requirements: **Python 3.12**, **[uv](https://docs.astral.sh/uv/)** and **Node.js 22.19+**.
 
 ```bash
 uv sync --locked
 npm ci
 npm --prefix infra ci
-npm run dev:api      # materializes the pinned data snapshot, starts the API on :8000
-npm run dev:web      # starts the web app on :3000
 ```
 
-Deterministic features (portfolios, rule checks, size limits, strategies, world exposure, data passports) work without credentials. Agent runs need Amazon Bedrock access: set `APLOMB_MODEL_STRONG` and `APLOMB_MODEL_FAST` (see [.env.example](.env.example)). `npm run dev:web:aws` points the local web app at the deployed API.
+Run the current source locally to explore the latest Investor Lab and playbook additions. Start the API and web app in separate terminals:
 
-## Checks
+```bash
+# Terminal 1 — http://localhost:8000
+npm run dev:api
+```
+
+```bash
+# Terminal 2 — http://localhost:3000
+npm run dev:web
+```
+
+The API materializes and verifies the pinned data snapshot automatically. Portfolio analytics, rule checks, strategies and the world explorer work locally with that data.
+
+For agent runs and free-text parsing, configure AWS credentials with Bedrock access and set `APLOMB_MODEL_STRONG` and `APLOMB_MODEL_FAST`. Research also uses `APLOMB_SOURCE_USER_AGENT` with a contact URL or email. The development launcher reads `APLOMB_*` settings from a local `.env`; [.env.example](.env.example) documents the options.
+
+To run the local interface against the hosted API, use `npm run dev:web:aws`.
+
+## Verify the build
 
 ```bash
 npm run check
+npm run build:web
 ```
 
-Runs the generated-file checks, lint, the Python test suite, type checks, the web tests, the specification and link checks, and the infrastructure tests with CDK synth. CI runs the same gate on every push; pushes to `main` publish the site.
+The verification gate checks generated contracts, Python lint and tests, TypeScript, web tests, specification links, and infrastructure assertions with CDK synthesis. Tests cover the reference portfolio calculations, investor-specific rules, agent verification, historical evidence gates, session isolation and Investor Lab confirmation.
 
-## Repository
+## Explore the repository
 
 | Path | Contents |
 |---|---|
-| `backend/aplomb/` | API, agent workflow, quant engine, rules, ledger and audit, data store, world module (each with a `SPEC.md`) |
-| `web/` | Next.js static web app |
-| `contracts/` | API, schemas, catalog and tools contracts; generated JSON schema and TypeScript types |
-| `data/` | Snapshot manifests, inputs and data documentation |
-| `infra/` | AWS CDK stack, packaging script, release evidence |
-| `scripts/` | Development server, ingestion, contract generation and checks |
-| `docs/` | Product, architecture, compliance and deliverables |
-| `Datathon2026/` | The official case, slides and starter dataset |
+| [`backend/aplomb/`](backend/aplomb/) | FastAPI, agent workflow, quant engine, rules, Investor Lab, evidence ledger and world data. |
+| [`web/`](web/) | Next.js application, feature workspaces, bilingual copy and typed API client. |
+| [`contracts/`](contracts/) | Shared API schemas, generated types, tool definitions and numerical controls. |
+| [`data/`](data/) | Snapshot manifests, source attribution and data specifications. |
+| [`infra/`](infra/) | AWS CDK stack, packaging and release evidence. |
+| [`scripts/`](scripts/) | Local development, ingestion, generation and verification tools. |
+| [`docs/deliverables/`](docs/deliverables/) | Demo recording, walkthrough, one-pager and technical report. |
+| [`Datathon2026/`](Datathon2026/) | Official case, presentation and starter dataset. |
 
-## Data and licences
-
-The case starter dataset (31 assets, daily prices from 2021-11-12 to 2026-11-12, dividends and splits, Bank of Canada USD/CAD, Bank of Canada and FRED macro series) is extended with Bank of Canada global FX, Wikimedia page views, issuer and official documents, and dated world events and hazards. Every dataset has a passport (source, licence, coverage, processing, availability rule, limitations) in the app's Sources page and in [data/](data/). Prices come from Yahoo Finance via yfinance under Yahoo's terms and are not certified.
+Aplomb is an investment simulation for fictional profiles.
