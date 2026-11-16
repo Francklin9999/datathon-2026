@@ -3,6 +3,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import zlib
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.request import urlopen
@@ -17,6 +18,16 @@ def captured_at(value: str) -> str:
     except ValueError as exc:
         raise argparse.ArgumentTypeError('expected YYYY-MM-DDTHH:MM:SSZ') from exc
     return value
+
+
+def safe_gzip_replay(capture: bytes) -> bool:
+    # Optional headers and additional members can contain unprojected metadata.
+    if capture[3] != 0:
+        return False
+    decompressor = zlib.decompressobj(wbits=31)
+    decompressor.decompress(capture)
+    return not decompressor.unused_data.strip(b'\0')
+
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
@@ -45,9 +56,11 @@ def main(argv=None):
     now = args.captured_at or datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     rows, meta = normalize(projected, now, original_sha256=original_sha256)
     args.out.mkdir(parents=True)
-    # Only an already projected capture can be retained without re-encoding it.
+    # Only a projected capture with no embedded metadata can be retained.
     (args.out / 'facilities_source.csv.gz').write_bytes(
-        capture_gzip if capture_gzip is not None and projected == payload else gzip.compress(projected, mtime=0))
+        capture_gzip
+        if capture_gzip is not None and projected == payload and safe_gzip_replay(capture_gzip)
+        else gzip.compress(projected, mtime=0))
     (args.out / 'facilities.json').write_text(json.dumps(rows, ensure_ascii=False, sort_keys=True, indent=1) + '\n')
     (args.out / 'facilities_manifest.json').write_text(json.dumps(meta, indent=2, ensure_ascii=False) + '\n')
     load_facilities(args.out)

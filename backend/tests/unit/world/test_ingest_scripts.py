@@ -109,6 +109,28 @@ def test_facilities_original_capture_is_projected_before_retention(tmp_path, com
     assert len(rows) == 1 and rows[0]['facilityId'] == 'eccc_123'
 
 
+@pytest.mark.parametrize('metadata_location', ['filename', 'empty-concatenated-member'])
+def test_facilities_removes_contact_data_from_gzip_metadata(tmp_path, metadata_location):
+    script, out = load('ingest_facilities'), tmp_path / 'out'
+    payload = gzip.decompress((ROOT / 'data' / 'inputs' / 'eccc' / 'facilities_source.csv.gz').read_bytes())
+    stream = io.BytesIO()
+    with gzip.GzipFile(filename='public-contact@example.org', fileobj=stream, mode='wb', mtime=0) as archive:
+        archive.write(payload if metadata_location == 'filename' else b'')
+    captured_bytes = stream.getvalue()
+    if metadata_location == 'empty-concatenated-member':
+        captured_bytes = gzip.compress(payload, mtime=0) + captured_bytes
+    assert gzip.decompress(captured_bytes) == payload
+    capture = tmp_path / 'original.csv.gz'
+    capture.write_bytes(captured_bytes)
+    committed = manifest(FACILITIES, 'facilities_manifest.json')
+    with mock.patch.object(script, 'urlopen', no_network):
+        script.main(['--out', str(out), '--capture', str(capture), '--captured-at', committed['capturedAt']])
+    retained = (out / 'facilities_source.csv.gz').read_bytes()
+    assert b'public-contact@example.org' not in retained
+    assert gzip.decompress(retained) == payload
+    assert manifest(out, 'facilities_manifest.json')['originalSourceSha256'] is None
+
+
 @pytest.mark.parametrize('name', ['ingest_airports', 'ingest_facilities'])
 def test_captured_at_must_be_a_utc_timestamp(name, tmp_path):
     with pytest.raises(SystemExit):
