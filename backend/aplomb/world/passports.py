@@ -115,10 +115,8 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
             "rowCount": len(ds.hazards), "dataVersion": ds.version,
             "schema": [{"name": "hazard", "type": "object", "description": "Hazard wire fields (contracts/schemas.md §10)"}],
             "processing": [
-                _t(f"Earthquakes only ({magnitude}); wildfire detections (NASA FIRMS) are not part of this layer and are "
-                   "served as separate source observations.",
-                   f"Séismes seulement ({magnitude}); les détections de feux (NASA FIRMS) ne font pas partie de cette couche et "
-                   "sont servies comme observations de source distinctes."),
+                _t(f"Earthquakes only ({magnitude}); wildfire detections (NASA FIRMS) are not served.",
+                   f"Séismes seulement ({magnitude}); les détections de feux (NASA FIRMS) ne sont pas servies."),
                 _t("Proximity to a hazard does not establish an effect on any holding.",
                    "La proximité d'un aléa n'établit aucun effet sur un titre."),
                 PALESTINE_NOTE,

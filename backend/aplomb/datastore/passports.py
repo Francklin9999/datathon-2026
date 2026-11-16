@@ -545,13 +545,13 @@ DESCRIPTORS: dict[str, Descriptor] = {
     ),
     "natural_hazards": Descriptor(
         t("Natural hazards", "Aléas naturels"),
-        t("Earthquakes and wildfire detections for the globe layer.", "Séismes et feux détectés pour la couche du globe."),
+        t("Earthquakes for the globe layer.", "Séismes pour la couche du globe."),
         "near real time",
-        "planned: USGS feeds, NASA FIRMS",
+        "planned: USGS feeds",
         (t("Not loaded.", "Non chargé."),),
         (),
         t("Available from the feed publication time.", "Disponible à partir de l'heure de publication du flux."),
-        planned_source="USGS earthquake feeds and NASA FIRMS (planned, T11)",
+        planned_source="USGS earthquake feeds (planned, T11)",
     ),
     "research_documents": Descriptor(
         t("Research documents", "Documents de recherche"),
@@ -575,6 +575,53 @@ DESCRIPTORS: dict[str, Descriptor] = {
         planned_source="SEC EDGAR APIs (planned, T09)",
     ),
 }
+
+# Removed with the World Explorer modes that do not serve the persona decisions (world/SPEC.md §8.2).
+# Their ids stay in catalog §10 for this release only, so a site built from this contract still
+# accepts the responses of an older API; each passport says the dataset is not served.
+_NOT_SERVED: dict[str, dict] = {
+    "world_aviation_weather": t("Aviation weather", "Météo aéronautique"),
+    "world_noaa_alerts": t("NOAA weather alerts", "Alertes météo NOAA"),
+    "world_gdacs_alerts": t("GDACS disaster alerts", "Alertes de catastrophe GDACS"),
+    "world_usgs_geojson": t("USGS weekly earthquakes", "Séismes hebdomadaires de l'USGS"),
+    "world_uk_sanctions_updates": t("UK Sanctions List updates", "Mises à jour de la liste des sanctions du Royaume-Uni"),
+    "world_usgs_minerals": t("USGS mineral production", "Production minérale de l'USGS"),
+    "world_ted_published_notice_metadata": t("TED published procurement notice sample", "Échantillon d'avis de marchés publics TED"),
+    "world_energy_charts_de_power": t("Germany selected electricity production power", "Puissance de production électrique choisie en Allemagne"),
+    "world_nominatim_eiffel_lookup": t("Cached Nominatim Eiffel Tower place", "Lieu Tour Eiffel en cache Nominatim"),
+    "world_osm_eiffel_tower": t("OpenStreetMap Eiffel Tower footprint", "Empreinte Tour Eiffel OpenStreetMap"),
+    "world_adsblol_heathrow_positions": t("ADS-B.lol Heathrow-area aircraft snapshot", "Instantané d'aéronefs près de Heathrow selon ADS-B.lol"),
+    "trade_marinecadastre_ais_2024_samples": t("NOAA 2024 AIS raster sample cells", "Cellules d'échantillon du raster AIS 2024 de la NOAA"),
+    "world_copernicus_activation_centroids": t("Copernicus EMS activation centroids", "Centroïdes d'activations du service Copernicus EMS"),
+    "world_firms_modis_europe": t("NASA FIRMS MODIS Europe thermal detections", "Détections thermiques MODIS en Europe de NASA FIRMS"),
+    "world_firms_modis_australia_area": t("NASA FIRMS MODIS Australia area detections", "Détections MODIS de NASA FIRMS dans la région australienne"),
+    "world_eia_crude_production_2024": t("EIA annual crude oil production", "Production annuelle de pétrole brut selon l’EIA"),
+    "world_ember_monthly_generation_2026": t("Ember monthly electricity generation", "Production mensuelle d'électricité selon Ember"),
+    "world_geofabrik_monaco_transport": t("Geofabrik Monaco transport points", "Points de transport Geofabrik de Monaco"),
+    "world_hapi_inform_risk_2025": t("INFORM 2025 national humanitarian risk index", "Indice national INFORM 2025 de risque humanitaire"),
+    "world_geoboundaries_fra_adm1": t("France regional boundaries", "Limites régionales de France"),
+    "world_ucdp_ged_ukraine_2025": t("Ukraine conflict event sample", "Échantillon d'événements de conflit en Ukraine"),
+    "trade_un_comtrade_exports": t("UN Comtrade merchandise exports", "Exportations de marchandises de l'UN Comtrade"),
+    "trade_wits_fuel_exports": t("WITS Canada fuel exports", "Exportations canadiennes de combustibles selon WITS"),
+    "trade_unctad_concentration": t("UNCTAD export concentration", "Concentration des exportations selon la CNUCED"),
+    "energy_wri_plants": t("WRI power plant reference", "Référence des centrales WRI"),
+    "world_openflights_airport_reference": t("OpenFlights static airport reference", "Référence statique des aéroports OpenFlights"),
+    "trade_portwatch_ports": t("PortWatch port reference", "Référence des ports PortWatch"),
+}
+DESCRIPTORS.update({dataset_id: Descriptor(
+    name,
+    t("Not served: removed from the World Explorer.", "Non servi : retiré de l'explorateur mondial."),
+    "not served", "not loaded",
+    (t("Not loaded and not served: removed with a World Explorer mode that does not serve the persona decisions. "
+       "The id stays in the catalog for this release only, so a site built from this contract still accepts an "
+       "older API's responses.",
+       "Non chargé et non servi : retiré avec un mode de l'explorateur mondial qui ne sert pas les décisions des "
+       "personas. L'identifiant reste au catalogue pour cette version seulement, afin qu'un site construit sur ce "
+       "contrat accepte encore les réponses d'une API antérieure."),),
+    (),
+    t("Not served.", "Non servi."),
+    planned_source="Not served: removed from the World Explorer",
+) for dataset_id, name in _NOT_SERVED.items()})
 
 _URL = re.compile(r"https?://[^\s;,)]+")
 

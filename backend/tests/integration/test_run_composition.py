@@ -166,7 +166,14 @@ def test_world_endpoints_validate_against_the_contract(client):
         assert status[dataset_id] == "in_use"
         assert ok(client.get(f"/v1/datasets/{dataset_id}", headers=headers),
                   "DatasetPassport")["rowCount"] == count
-    assert not {"world_aviation_weather", "world_noaa_alerts", "energy_wri_plants", "world_ucdp_ged_ukraine_2025"} & set(status)
+    # Retired ids stay valid on the wire for this release (catalog §10); nothing is loaded or served.
+    for dataset_id in ("world_aviation_weather", "world_noaa_alerts", "energy_wri_plants", "world_ucdp_ged_ukraine_2025"):
+        retired = ok(client.get(f"/v1/datasets/{dataset_id}", headers=headers), "DatasetPassport")
+        assert status[dataset_id] == "planned" and retired["rowCount"] is None
+        assert retired["source"].startswith("Not served")
+    natural_hazards = ok(client.get("/v1/datasets/natural_hazards", headers=headers), "DatasetPassport")
+    assert "wildfire" not in natural_hazards["role"]["en"]
+    assert natural_hazards["processing"][0]["en"].endswith("wildfire detections (NASA FIRMS) are not served.")
     assert ok(client.get("/v1/datasets/world_events", headers=headers), "DatasetPassport")["rowCount"] == next(layer["count"] for layer in layers["items"] if layer["layerId"] == "events")
 
 
