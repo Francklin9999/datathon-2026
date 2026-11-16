@@ -776,7 +776,7 @@ def _execute(e):
         if not plan.scenario_tasks and not plan.quant_tasks:
             break
         if e.limits.scenarios + len(plan.scenario_tasks) > 6:
-            _record_plan_tasks(e, {"planTasks": _skipped(plan.quant_tasks, "scenario_budget")})
+            _record_plan_tasks(e, {"planTasks": _budget_skipped(e, services, plan.quant_tasks)})
             e.save()
             break
         computed = e.step(
@@ -1529,6 +1529,22 @@ def _skipped(tasks, reason):
     return [{"tool": str(t.tool), "status": "skipped", "reason": reason} for t in tasks]
 
 
+def _budget_skipped(e, services, tasks):
+    """The quant tasks of a revision stopped at the scenario budget. A computation the controls run
+    themselves (``mandatory``) or an analysis a quant step of this run already executed
+    (``duplicate``) is not left undone, so only the other tasks are ``scenario_budget``."""
+    mandatory = getattr(services.controls, "mandatory_task", None)
+    ran = {json.dumps([c["tool"], c["args"]], sort_keys=True, default=str)
+           for s in e.run.to_wire()["steps"] if s["type"] == "quant" for c in s["toolCalls"]}
+    out = []
+    for t in tasks:
+        tool, args = str(t.tool), dict(t.args or {})
+        reason = ("mandatory" if callable(mandatory) and mandatory(tool, args) else
+                  "duplicate" if json.dumps([tool, args], sort_keys=True, default=str) in ran else "scenario_budget")
+        out.append({"tool": tool, "status": "skipped", "reason": reason})
+    return out
+
+
 def _record_plan_tasks(e, computed):
     """Account for every plan quant task (agents SPEC §4.3): an executed optional analysis becomes a
     tool call of the current step with the facts it registered; any other task becomes a
@@ -1550,12 +1566,14 @@ def _record_plan_tasks(e, computed):
             if calls is None or any(c["tool"] == item["tool"] and c["args"] == item["args"] for c in calls):
                 continue
             facts, error = item.get("factIds") or [], item.get("error")
+            # Like the quant tools, data not visible at the cutoff is a result, not a failure.
+            missing = None if facts or error else item.get("missing") or "not enough visible data"
             calls.append(m.ToolCall(
                 id=f"call-{e.current}-{len(calls) + 1}", tool=item["tool"], args=item["args"],
-                started_at=item["startedAt"], duration_ms=item["durationMs"], ok=bool(facts) and not error,
-                result_summary=f"Optional analysis from the plan: {len(facts)} fact(s) registered.",
-                datasets_read=item.get("datasetsRead") or [], fact_ids=facts, evidence_ids=[],
-                error=error or (None if facts else f"No fact registered: {item.get('missing') or 'not enough visible data'}."),
+                started_at=item["startedAt"], duration_ms=item["durationMs"], ok=not error,
+                result_summary=(f"Optional analysis from the plan: no fact registered ({missing})." if missing else
+                                f"Optional analysis from the plan: {len(facts)} fact(s) registered."),
+                datasets_read=item.get("datasetsRead") or [], fact_ids=facts, evidence_ids=[], error=error,
             ).to_wire())
             usage["toolCalls"] += 1
             added = True

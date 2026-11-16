@@ -34,11 +34,19 @@ OPTIONAL_ANALYSES = [
     {"tool": "quant.stress_replay", "args": {"window_id": "\"rate_cycle\" or {\"start\": ISO date, \"end\": ISO date}"},
      "computes": "Portfolio return over the 2022-2023 rate-hiking cycle or a custom period, before and after the move."},
 ]
-# Plan tasks that name a computation the mandatory controls always run for a move.
+# Plan tasks that name a computation the code controls run themselves for a move, whatever the plan
+# says: the mandatory set, plus the risk check's alternatives (when the move conflicts) and rebalance
+# (when the current portfolio already conflicts). They are reported as ``mandatory``, never as undone.
 MANDATORY_TASKS = frozenset({"quant.portfolio_snapshot", "quant.portfolio_metrics", "quant.apply_move",
-                             "quant.compare_funding", "rules.check", "optimizer.max_compatible_size"})
+                             "quant.compare_funding", "rules.check", "optimizer.max_compatible_size",
+                             "optimizer.alternatives", "optimizer.rebalance"})
 MAX_OPTIONAL_ANALYSES = 4
 MAX_CORRELATED_HOLDINGS = 8
+
+
+def mandatory_task(tool: str, args: dict) -> bool:
+    """Whether a plan task names a computation the code controls run themselves for a move."""
+    return tool in MANDATORY_TASKS or (tool == "quant.stress_replay" and args.get("window_id") == "2022")
 
 
 class _NoArgs(BaseModel):
@@ -214,6 +222,7 @@ class DecisionControls:
 
     MAX_SCENARIOS = 6
     OPTIONAL_ANALYSES = OPTIONAL_ANALYSES
+    mandatory_task = staticmethod(mandatory_task)
 
     @staticmethod
     def _plan_tasks(ctx, engine, profile, prepared, win, tasks) -> list[dict]:
@@ -222,7 +231,7 @@ class DecisionControls:
         for tool, args in map(_task_parts, tasks or ()):
             record = {"tool": tool, "status": "skipped"}
             key = json.dumps([tool, args], sort_keys=True, default=str)
-            if tool in MANDATORY_TASKS or (tool == "quant.stress_replay" and args.get("window_id") == "2022"):
+            if mandatory_task(tool, args):
                 out.append({**record, "reason": "mandatory"})
             elif tool not in _ANALYSES:
                 out.append({**record, "reason": "not_optional"})

@@ -10,10 +10,10 @@ from tests.integration._scripted import ScriptedGateway
 from tests.integration.test_fix_workflow import DECISION, client, session, wait
 
 
-def run_with(plan: dict):
+def run_with(plan: dict, body: dict = DECISION):
     gateway = ScriptedGateway(plan={"interpretation": "Test the confirmed hypothetical request.", **plan})
     c, headers = client(gateway), session()
-    run_id = c.post("/v1/runs", json=DECISION, headers=headers).json()["runId"]
+    run_id = c.post("/v1/runs", json=body, headers=headers).json()["runId"]
     run = wait(c, headers, run_id, until=("succeeded", "failed"))
     assert run["status"] == "succeeded", run["error"]
     trace = c.get(f"/v1/runs/{run_id}/trace", headers=headers).json()
@@ -83,24 +83,50 @@ def test_the_mandatory_controls_run_with_an_empty_plan_and_a_plan_cannot_change_
 
 
 def test_tasks_outside_the_closed_list_are_reported_as_skipped():
-    tasks = [{"tool": "optimizer.rebalance"}, {"tool": "quant.portfolio_metrics"},
+    tasks = [{"tool": "quant.price_move_after"}, {"tool": "quant.portfolio_metrics"},
              {"tool": "quant.calendar_year_return", "args": {"year": "last"}},
              {"tool": "quant.correlation"}, {"tool": "quant.correlation"},
              {"tool": "optimizer.rebalance", "args": {"target": "within_rules"}}]
     run, trace, gateway, _ = run_with({"quant_tasks": tasks})
-    assert skipped(trace) == [(1, "optimizer.rebalance", "not_optional"), (2, "quant.portfolio_metrics", "mandatory"),
+    assert skipped(trace) == [(1, "quant.price_move_after", "not_optional"), (2, "quant.portfolio_metrics", "mandatory"),
                               (3, "quant.calendar_year_return", "invalid_args"), (5, "quant.correlation", "duplicate"),
-                              (6, "optimizer.rebalance", "not_optional")]
+                              (6, "optimizer.rebalance", "mandatory")]
     assert all(set(x) == {"type", "at", "step", "task", "tool", "reason"}
                for x in trace["events"] if x["type"] == "plan_task_skipped")   # no model-written args
     step = quant_step(run)
     assert [c["tool"] for c in step["toolCalls"]] == ["quant.correlation"]
-    assert "1 run, 1 already mandatory, 4 skipped" in step["summary"]["en"]
+    assert "1 run, 2 already mandatory, 3 skipped" in step["summary"]["en"]
     notes = " ".join(trace["limitations"])
-    assert "optimizer.rebalance" in notes and "quant.calendar_year_return" in notes
-    assert "quant.portfolio_metrics" not in notes          # computed anyway: not a limitation
+    assert "quant.price_move_after" in notes and "quant.calendar_year_return" in notes
+    assert "quant.portfolio_metrics" not in notes and "optimizer.rebalance" not in notes   # run by the controls
     writer = next(p for role, p in gateway.prompts if role == "writer")
-    assert "optimizer.rebalance" in " ".join(writer["execution_limitations"])
+    assert "quant.price_move_after" in " ".join(writer["execution_limitations"])
+
+
+def test_alternatives_and_rebalance_tasks_are_left_to_the_risk_check_and_never_claimed_undone():
+    # The risk check adds alternatives to a conflicting move (and a rebalance to a conflicting
+    # portfolio) whatever the plan says, so the writer must not be told they were not computed. The
+    # scripted planner repeats its plan as the revision, whose 3 scenarios exceed the budget (4 + 3).
+    nvda = {**DECISION, "request": {"type": "move", "move": {"ticker": "NVDA", "sizePct": 20, "funding": {"mode": "pro_rata"}}}}
+    tasks = [{"tool": "optimizer.alternatives"}, {"tool": "optimizer.rebalance"}, {"tool": "quant.correlation"}]
+    run, trace, gateway, _ = run_with({"revise": True, "quant_tasks": tasks, "scenario_tasks": [{"kind": "alternative"}] * 3}, nvda)
+    decision = run["result"]["decision"]
+    assert decision["verdict"] == "conflict" and "alternative" in {s["kind"] for s in decision["scenarios"]}
+    assert [s["type"] for s in run["steps"]] == ["plan", "quant", "risk_check", "revise", "write", "audit", "sign"]
+    first = [(1, "optimizer.alternatives", "mandatory"), (2, "optimizer.rebalance", "mandatory")]
+    assert skipped(trace) == first + first + [(3, "quant.correlation", "duplicate")]   # plan, then the stopped revision
+    writer = next(p for role, p in gateway.prompts if role == "writer")
+    for notes in (trace["limitations"], writer["execution_limitations"]):
+        assert not [n for n in notes if "calculation" in n]
+
+
+def test_an_analysis_without_visible_data_is_a_successful_call_with_no_fact():
+    # A year before the visible history is a result (no fact), not a failed tool call.
+    run, trace, _, _ = run_with({"quant_tasks": [{"tool": "quant.calendar_year_return", "args": {"year": 2020}}]})
+    [call] = quant_step(run)["toolCalls"]
+    assert call["ok"] and call["error"] is None and call["factIds"] == []
+    assert call["resultSummary"].startswith("Optional analysis from the plan: no fact registered (")
+    assert not metric_ids(run, "return.calendar_year") and skipped(trace) == []
 
 
 def test_a_revision_that_selects_an_analysis_runs_it_in_the_next_quant_step():
