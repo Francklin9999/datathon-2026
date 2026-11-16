@@ -2,7 +2,9 @@
 
 research#2/#3 (SEC research), intelligence#1 (mempool chain), #2 (DefiLlama protocol),
 #5 (live crypto venues), #6 (issuer holdings, Stooq), #10 (security-issuer) and #11
-(Golden Copy entity). The routes that still have a web caller keep answering.
+(Golden Copy entity). The routes that still have a web caller keep answering. The Risk
+Intelligence calculators that ignore the active investor profile, and the provider-capture
+feeds behind them, are removed too; the profile risk read and focus candidates stay.
 """
 import importlib
 
@@ -33,6 +35,21 @@ REMOVED = [
 ]
 
 
+RISK_REMOVED = [
+    ("POST", "/v1/risk/scenario"),
+    ("POST", "/v1/risk/fund-look-through"),
+    ("POST", "/v1/risk/factor-fit"),
+    ("POST", "/v1/risk/covariance"),
+    ("POST", "/v1/risk/nested-fund-look-through"),
+    ("GET", "/v1/risk/source-inputs"),
+    ("GET", "/v1/risk/providers"),
+    ("POST", "/v1/risk/providers/cboe/capture"),
+    ("GET", "/v1/risk/providers/cboe/captures/capture_" + "0" * 64),
+    ("POST", "/v1/profiles/robert/liquidity-analysis"),
+    ("POST", "/v1/profiles/robert/factor-exposure"),
+]
+
+
 @pytest.fixture(scope="module")
 def client():
     return TestClient(create_app(Settings(data_version="snap-20261113-starter")))
@@ -47,9 +64,19 @@ def test_removed_route_is_not_registered(client, monkeypatch, path):
     assert client.get(path, headers=HEADERS).status_code == 404
 
 
+@pytest.mark.parametrize("method,path", RISK_REMOVED)
+def test_removed_risk_calculator_is_not_registered(client, method, path):
+    assert client.request(method, path, json={}, headers=HEADERS).status_code == 404
+
+
 @pytest.mark.parametrize("module", [
     "aplomb.research.sec_extra", "aplomb.research.company_routes", "aplomb.intelligence.chain_routes",
     "aplomb.intelligence.chain_public", "aplomb.intelligence.issuer_holdings", "aplomb.intelligence.stooq",
+    "aplomb.quant.exposures", "aplomb.quant.factors", "aplomb.quant.covariance", "aplomb.quant.liquidity",
+    "aplomb.quant.nested", "aplomb.datastore.financial_provider_api", "aplomb.datastore.financial_inputs_api",
+    "aplomb.datastore.financial_connectors", "aplomb.datastore.fama_french", "aplomb.datastore.finra_volume",
+    "aplomb.datastore.cftc_cot", "aplomb.datastore.cftc_swaps", "aplomb.datastore.nyfed_sofr",
+    "aplomb.datastore.treasury_inputs",
 ])
 def test_removed_module_is_gone(module):
     with pytest.raises(ModuleNotFoundError):
@@ -64,3 +91,5 @@ def test_routes_with_web_callers_remain(client):
     assert client.get("/v1/intelligence/defi/sources", headers=HEADERS).status_code == 200
     paths = {getattr(route, "path", "") for route in client.app.routes}
     assert "/v1/intelligence/crypto-markets/vision/{symbol}/{day}" in paths
+    # The Risk page keeps the profile risk read and the focus candidates.
+    assert {"/v1/profiles/{profile_id}/risk", "/v1/profiles/{profile_id}/strategic-candidates"} <= paths

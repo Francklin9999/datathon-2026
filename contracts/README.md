@@ -41,7 +41,7 @@ Owner: track **T01 (Contracts & integration)**. See `docs/04-TRACKS.md`.
 |---|---|---|
 | `schemas.md` types | `backend/aplomb/contracts/models.py` (Pydantic v2 models, one class per type, same names) | `web/src/contracts/types.ts` (one interface per type, same names) |
 | `catalog.md` enums | `backend/aplomb/contracts/catalog.py` (`StrEnum`s and constant tables) | `web/src/contracts/catalog.ts` |
-| `api.md` | Route handlers in `create_app` (`backend/aplomb/api/app.py`), plus the module routers it includes (`aplomb.quant.*_api`, `aplomb.datastore.financial_*_api`, `aplomb.intelligence.*`, `aplomb.research.*`, `aplomb.timemachine.pit_routes`) | `web/src/api/client.ts` has a function for the core endpoints, not for every route; the intelligence, research and time-machine routes are called from feature modules (`web/src/features/markets/`, `web/src/features/timemachine/`) |
+| `api.md` | Route handlers in `create_app` (`backend/aplomb/api/app.py`), plus the module routers it includes (`aplomb.quant.*_api`, `aplomb.intelligence.*`, `aplomb.research.*`, `aplomb.timemachine.pit_routes`) | `web/src/api/client.ts` has a function for the core endpoints, not for every route; the intelligence, research and time-machine routes are called from feature modules (`web/src/features/markets/`, `web/src/features/timemachine/`) |
 | `fixtures/*.json` | loaded by contract tests in `backend/tests/contract/` | `profiles.json` and `run.decision.robert-tsla-25.json` are served in fixture mode (`web/src/api/fixtures.ts`); `world.events.sample.json` is read only by tests and `scripts/check_specs.py` |
 
 T01 writes the two mirrored files once and owns them. Other tracks import them and never redefine a type locally.
@@ -65,22 +65,14 @@ Some routes listed in `api.md` have no type in the generated registry. Their han
 | Route (`api.md` index) | Web check |
 |---|---|
 | A1.6 strategic-candidates, A1.7 allocation-targets | `web/src/api/focusModels.ts` |
-| A1.20 joint-plan, A1.21 compare, A1.22 covariance, A1.23 liquidity-analysis, A1.24 nested-fund-look-through, A1.25 factor-exposure, A1.26 position-details | `web/src/api/expandedInvestor.ts` |
-| A1.10 factor-fit, A1.11 fund-look-through | `web/src/api/investorModels.ts` |
-| A1.9 risk/scenario | `web/src/api/riskModels.ts` |
-| A1.8 requirements-scenario, A1.12 source-inputs, A1.13 target-funding, A1.14 providers, A1.15 provider capture | partial inline checks in `web/src/api/client.ts` |
+| A1.20 joint-plan, A1.21 compare, A1.26 position-details | `web/src/api/expandedInvestor.ts` |
+| A1.8 requirements-scenario, A1.13 target-funding | partial inline checks in `web/src/api/client.ts` |
 | A1.1 account-valuations | `web/src/api/readModels.ts` (`accountValuationsResult`) |
-| A1.16 stored provider capture | no web caller |
 | intelligence, research and time-machine routes ("Agent 2 research API additions" in `api.md`) | local checks in the calling feature modules |
 
 Since 1.6.0 the credentialed market routes (`/research/market-connections`, `/research/market-provider/{provider}`, `/research/tiingo/{symbol}`) and `/intelligence/regional` are in the registry, with typed `client.ts` methods. The three market payloads keep their snake_case keys (a documented exception to convention 1); their models switch the camelCase alias off.
 
 A1.20 joint-plan declares the Pydantic model `JointPlanResult` (`backend/aplomb/quant/joint_plan_api.py`), but that model is not in the generated registry.
-
-Some of these payloads break the global conventions above:
-
-- **Convention 3 (no fractions).** A1.9 `/risk/scenario` returns fractions and labels them `"unit": "fraction"`. A1.11 and A1.24 (fund look-through) return weights as fractions. A1.22 covariance labels its values `"fractional daily return squared"`.
-- **Convention 1 (camelCase keys).** The `sources` objects of A1.11 and A1.24 carry evidence with snake_case keys (`source_id`, `content_sha256`, `available_at`, ...). `web/src/api/investorModels.ts` mirrors these keys.
 
 Typing these routes means four steps, none of them done yet: add their models to `backend/aplomb/contracts/api.py`, set `response_model` on each route, regenerate, and switch `client.ts` to `call()`.
 

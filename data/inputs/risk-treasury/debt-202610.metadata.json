@@ -1,8 +1,0 @@
-{
-  "sourceUrl": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny?fields=record_date,tot_pub_debt_out_amt,debt_held_public_amt,intragov_hold_amt&filter=record_date:gte:2026-10-01,record_date:lte:2026-10-31&sort=record_date&page%5Bsize%5D=100",
-  "retrievedAt": "2026-11-15T16:19:42Z",
-  "rawSha256": "b1dbdef8969c435db2d4cd40ee96a9d4049b7f0898c59c65ca7ac71898d4e553",
-  "series": "debt_to_penny",
-  "unit": "USD",
-  "rights": "US Treasury Fiscal Data; source attribution and terms apply"
-}

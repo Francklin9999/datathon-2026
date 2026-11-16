@@ -212,11 +212,6 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     Session = Annotated[str, Depends(session)]
     from aplomb.quant.scenario_api import router as scenario_router
     app.include_router(scenario_router, dependencies=[Depends(session)])
-    from aplomb.datastore.financial_inputs_api import router as financial_inputs_router
-    app.include_router(financial_inputs_router, dependencies=[Depends(session)])
-    from aplomb.datastore.financial_provider_api import make_router as financial_provider_router
-    app.include_router(financial_provider_router(store, session))
-    app.state.financial_capture_store = store
     from aplomb.quant.joint_plan_api import router as joint_plan_router
     app.include_router(joint_plan_router, dependencies=[Depends(session)])
     from aplomb.quant.expanded_api import make_router as expanded_quant_router

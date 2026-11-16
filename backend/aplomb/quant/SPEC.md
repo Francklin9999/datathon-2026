@@ -71,15 +71,10 @@ Later explicit-input models behind the A1.x HTTP routes of [api.md §1](../../..
 
 | Module | Content | Routes (`/v1` prefix) |
 |---|---|---|
-| `scenario_api.py` | HTTP boundary for user-supplied scenarios | `POST /risk/scenario` (A1.9), `POST /decision/target-funding` (A1.13), `POST /risk/fund-look-through` (A1.11), `POST /profiles/{id}/requirements-scenario` (A1.8), `POST /risk/factor-fit` (A1.10) |
-| `exposures.py` | Exact-identifier dated fund look-through, disclosed overlap, first-order `linear_shock` | used by `/risk/scenario`, `/risk/fund-look-through` |
+| `scenario_api.py` | HTTP boundary for user-supplied scenarios | `POST /decision/target-funding` (A1.13), `POST /profiles/{id}/requirements-scenario` (A1.8) |
 | `target_funding.py` | `compare_target_funding`: final-target arithmetic with explicit deposit or withdrawal | used by `/decision/target-funding` |
 | `cashflows.py` | `requirement_scenario`: nominal liquid-capital scenario, no borrowing assumption | used by `/profiles/{id}/requirements-scenario` |
-| `factors.py` | `fit_factor_exposures`: OLS on explicitly aligned start/end return periods | used by `/risk/factor-fit`, `/profiles/{id}/factor-exposure` |
-| `expanded_api.py` | `make_router(session)`: session-bound comparisons, matrices and explicit-input models | `POST /portfolios/compare` (A1.21), `POST /risk/covariance` (A1.22), `POST /profiles/{id}/liquidity-analysis` (A1.23), `POST /risk/nested-fund-look-through` (A1.24), `POST /profiles/{id}/factor-exposure` (A1.25), `POST /profiles/{id}/position-details` (A1.26) |
-| `covariance.py` | `sample_covariance` on identical return calendars | used by `/risk/covariance` |
-| `liquidity.py` | `sale_scenario`: explicit sale-date capacity, spread and impact | used by `/profiles/{id}/liquidity-analysis` |
-| `nested.py` | `nested_look_through`: bounded exact-ISIN nested decomposition with explicit unknown mass | used by `/risk/nested-fund-look-through` |
+| `expanded_api.py` | `make_router(session)`: session-bound portfolio comparisons and documented position details | `POST /portfolios/compare` (A1.21), `POST /profiles/{id}/position-details` (A1.26) |
 | `joint_plan.py`, `joint_plan_api.py` | Dated shared-capital plan across goals and cash requirements | `POST /profiles/{id}/joint-plan` (A1.20) |
 | `candidates.py` | `strategic_brief`: deterministic focus candidates with a local ledger | `GET /profiles/{id}/strategic-candidates` (A1.6), route defined in `app.py` |
 

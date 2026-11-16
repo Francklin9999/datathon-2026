@@ -1,8 +1,0 @@
-{
-  "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value_month=202610",
-  "retrievedAt": "2026-11-15T16:19:55Z",
-  "rawSha256": "7093adad69ca8545e3a75d9458b5006d50e257de1b6c861b090d1171a16f3842",
-  "series": "daily_treasury_yield_curve",
-  "unit": "percent",
-  "rights": "US Treasury published indicative par yield rates; source attribution and terms apply"
-}
