@@ -24,8 +24,9 @@ import type { InvestorMapEntry } from './investorMap';
 import { insideBbox, viewportBounds, type GeographicArea } from '../../lib/world';
 import {
   ATMOSPHERE_COLOR, CATEGORY_COLORS, LAND_HOVER_COLOR, PIN_RADIUS, REFERENCE_PIN_ALTITUDE, SPHERE_COLOR, exposureColor, labelOffset, pinColor,
-  quakeRadius, spikeAltitude, spreadStacked, clusterPins, sourceGeometry, type GlobeHover, type GlobePin, type ScreenBox, type ScreenSpike,
+  quakeRadius, spikeAltitude, spreadStacked, clusterDegrees, clusterPins, sourceGeometry, type GlobeHover, type GlobePin, type ScreenBox, type ScreenSpike,
 } from './globeStyle';
+import { useStableItems } from './stableItems';
 
 export interface MapCommand { action: 'zoom-in' | 'zoom-out' | 'left' | 'right' | 'up' | 'down' | 'reset' | 'query'; sequence: number }
 export interface GlobeViewProps {
@@ -79,6 +80,11 @@ const HOVER_OUT_MS = 90;
 const HIT_LAYER_COLOR = 'rgba(0,0,0,0)';
 const noLabel = () => '';
 const noSide = () => '';
+// The selected record's outline (GeoJSON line coordinates are [lon, lat]).
+const pathPoints = (path: unknown) => path as number[][];
+const pathPointLat = (point: unknown) => (point as number[])[1]!;
+const pathPointLng = (point: unknown) => (point as number[])[0]!;
+const pathColor = () => '#6AE0CF';
 
 const HEX_RESOLUTION = 3;
 const LABEL_ALTITUDE = 0.03;
@@ -148,9 +154,11 @@ export default function GlobeView({
   const land = useMemo(() => hexReadyCountries(countries), [countries]);
   // Hexagons: the land, plus one hexagon for each island too small to hold one.
   const hexLand = useMemo(() => [...land, ...islandHexes(land, HEX_RESOLUTION)], [land]);
-  // Events sharing a spot are fanned out; the original pin is what goes back up on click.
+  // Events sharing a spot are fanned out; the original pin is what goes back up on click. Unchanged pins keep
+  // their object, so a new selection or grouping does not make every cylinder grow in again.
   const grouped = useMemo(() => clusterPins(pins, altitude, selectedId), [pins, altitude, selectedId]);
-  const placed = useMemo(() => spreadStacked(grouped), [grouped]);
+  const spread = useMemo(() => spreadStacked(grouped), [grouped]);
+  const placed = useStableItems(spread);
   useEffect(() => { onClusters(grouped.filter(pin => pin.kind === 'cluster').length); }, [grouped, onClusters]);
   const original = useMemo(() => new Map(pins.map(pin => [pin.id, pin])), [pins]);
   const selectedGeometry = useMemo(() => sourceGeometry(standaloneGeometry ?? pins.find(pin => pin.id === selectedId)?.geometry), [standaloneGeometry, pins, selectedId]);
@@ -179,7 +187,7 @@ export default function GlobeView({
   const events = useMemo(() => placed.filter(pin => pin.kind === 'event'), [placed]);
 
   // Arcs: from an event to each country it names where the portfolio has weight (not to its own spot).
-  const arcs = useMemo<Arc[]>(() => {
+  const arcList = useMemo<Arc[]>(() => {
     const out: Arc[] = [];
     for (const investor of investors) for (const wallet of investor.wallets) {
       if (wallet.lat === investor.home.lat && wallet.lon === investor.home.lon) continue;
@@ -197,6 +205,8 @@ export default function GlobeView({
     }
     return out;
   }, [events, exposure, centroids, selectedId, investors, selectedProfileId]);
+  // An unchanged arc keeps its object: globe.gl would otherwise redraw it from its start.
+  const arcs = useStableItems(arcList);
 
   const rings = useMemo<Ring[]>(() => {
     const pin = placed.find(item => item.id === selectedId);
@@ -377,7 +387,6 @@ export default function GlobeView({
   const arcDashGap = useCallback((arc: object) => ((arc as Arc).selected ? 0.18 : 0), []);
   const arcDashAnimateTime = useCallback((arc: object) => ((arc as Arc).selected && !reducedMotion ? 1800 : 0), [reducedMotion]);
   const ringColor = useCallback(() => (t: number) => `rgba(255,255,255,${Math.max(0, 1 - t)})`, []);
-  const hitColor = useCallback(() => HIT_LAYER_COLOR, []);
   const labelElement = useCallback((label: object) => {
     const l = label as CountryLabel;
     // globe.gl positions the anchor; the label inside it is moved aside from the spikes.
@@ -395,6 +404,17 @@ export default function GlobeView({
     return anchor;
   }, []);
   const labelVisibility = useCallback((el: HTMLElement, visible: boolean) => { el.style.opacity = visible ? '1' : '0'; }, []);
+  // The invisible country shapes: stable accessors, so a hover does not make globe.gl rebuild the layer.
+  const selectedPolygon = selectedGeometry.polygon;
+  const polygonCapColor = useCallback((feature: object) => (feature === selectedPolygon ? 'rgba(106,224,207,0.15)' : HIT_LAYER_COLOR), [selectedPolygon]);
+  const polygonStrokeColor = useCallback((feature: object) => (feature === selectedPolygon ? '#6AE0CF' : HIT_LAYER_COLOR), [selectedPolygon]);
+  const polygonAltitude = useCallback((feature: object) => (feature === selectedPolygon ? 0.02 : 0.003), [selectedPolygon]);
+  const clickPolygon = useCallback((feature: object) => { if (feature !== selectedPolygon) clickCountry(feature); }, [selectedPolygon, clickCountry]);
+  const hoverPolygon = useCallback((feature: object | null) => { if (feature !== selectedPolygon) hoverCountry(feature); }, [selectedPolygon, hoverCountry]);
+  // onZoom fires on every camera move (a drag, its damping). Only crossing a grouping level regroups the pins.
+  const zoomed = useCallback((point: { altitude: number }) => {
+    setAltitude(previous => (clusterDegrees(previous) === clusterDegrees(point.altitude) ? previous : point.altitude));
+  }, []);
 
   // First view: over the country holding the most of the portfolio.
   const home = useMemo(() => {
@@ -416,7 +436,7 @@ export default function GlobeView({
           atmosphereAltitude={0.2}
           animateIn={!reducedMotion}
           onGlobeReady={() => { globe.current?.pointOfView({ lat: home.lat, lng: home.lng - 25, altitude: 2.1 }, 0); setReady(true); onReady(); }}
-          onZoom={point => setAltitude(point.altitude)}
+          onZoom={zoomed}
           // Land as hexagons, coloured by exposure
           hexPolygonsData={hexLand as unknown as object[]}
           hexPolygonResolution={3}
@@ -430,22 +450,22 @@ export default function GlobeView({
           onHexPolygonHover={hoverCountry}
           // Invisible country shapes just under the hexagons: they catch the pointer in the gaps
           polygonsData={polygonData as unknown as object[]}
-          polygonCapColor={feature => feature === selectedGeometry.polygon ? 'rgba(106,224,207,0.15)' : hitColor()}
-          polygonStrokeColor={feature => feature === selectedGeometry.polygon ? '#6AE0CF' : 'rgba(0,0,0,0)'}
+          polygonCapColor={polygonCapColor}
+          polygonStrokeColor={polygonStrokeColor}
           polygonSideColor={noSide}
-          polygonAltitude={feature => feature === selectedGeometry.polygon ? 0.02 : 0.003}
+          polygonAltitude={polygonAltitude}
           // Small cap triangles: large flat ones would sag under the globe surface and miss the pointer
           polygonCapCurvatureResolution={2}
           polygonsTransitionDuration={0}
           polygonLabel={noLabel}
-          onPolygonClick={feature => { if (feature !== selectedGeometry.polygon) clickCountry(feature); }}
-          onPolygonHover={feature => { if (feature !== selectedGeometry.polygon) hoverCountry(feature); }}
+          onPolygonClick={clickPolygon}
+          onPolygonHover={hoverPolygon}
           pathsData={selectedGeometry.paths}
-          pathPoints={path => path as number[][]}
-          pathPointLat={point => (point as number[])[1]!}
-          pathPointLng={point => (point as number[])[0]!}
+          pathPoints={pathPoints}
+          pathPointLat={pathPointLat}
+          pathPointLng={pathPointLng}
           pathPointAlt={0.02}
-          pathColor={() => '#6AE0CF'}
+          pathColor={pathColor}
           pathStroke={1.5}
           pathTransitionDuration={0}
           // Events as spikes (height = importance); facilities and earthquakes as low dots

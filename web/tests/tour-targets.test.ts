@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ALL_TOURS, BASIC_TOUR } from '../src/features/tour/tours';
+import { ALL_TOURS, BASIC_TOUR, CASE_TOUR } from '../src/features/tour/tours';
 import { NAV_GROUPS } from '../src/lib/ui/nav';
 
 const SRC = fileURLToPath(new URL('../src/', import.meta.url));
@@ -59,7 +59,8 @@ test('tour targets: every route is a page of the app', () => {
 
 test('tour targets: each page of the menu, and Profiles, has one short tour', () => {
   const pages = [...NAV_GROUPS.flatMap(group => group.entries.map(entry => entry.href)), '/profiles/'];
-  const pageTours = ALL_TOURS.filter(tour => tour !== BASIC_TOUR);
+  // The basic tour and the end-to-end case tour span several pages.
+  const pageTours = ALL_TOURS.filter(tour => tour !== BASIC_TOUR && tour !== CASE_TOUR);
   for (const href of pages) {
     const forPage = pageTours.filter(tour => tour.route === href);
     assert.equal(forPage.length, 1, `${href} should have exactly one tour`);

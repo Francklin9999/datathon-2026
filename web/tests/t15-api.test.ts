@@ -119,19 +119,20 @@ test('worldFacilities and worldHazards validate their responses', async () => {
 test('provider observations preserve missing geography and send geographic pagination filters', async () => {
   const captured: Captured[] = [];
   const observation = {
-    id: 'source:energy:1', mode: 'energy', title: 'Source bulletin', summary: 'Provider description',
+    id: 'source:news:1', mode: 'news', title: 'Source bulletin', summary: 'Provider description',
     occurredAt: '2026-11-15T12:00:00Z', timeBasis: 'capture_only', publishedAt: null,
     retrievedAt: '2026-11-15T12:00:00Z', location: null,
     source: { name: 'Provider', url: 'https://example.org/bulletin' }, datasetId: 'provider_capture',
     limitations: ['No source coordinates or historical vintage'],
   };
   const body = { items: [observation], total: 2, nextCursor: 'next', dataVersion: 'capture-1', capturedAt: '2026-11-15T12:00:00Z',
-    modes: [{ mode: 'energy', available: true, count: 2, reason: null }] };
-  const page = await clientFor(200, body, captured).worldObservations({ mode: 'energy', country: ['USA', 'CAN'], bbox: '170,-20,-170,20', cursor: 'page-1', limit: 100 });
+    modes: [{ mode: 'news', available: true, count: 2, reason: null }] };
+  const page = await clientFor(200, body, captured).worldObservations({ mode: 'news', country: ['USA', 'CAN'], bbox: '170,-20,-170,20', cursor: 'page-1', limit: 100 });
   assert.equal(page.items[0]?.location, null, 'a source without geometry must remain unlocated');
   assert.equal(page.items[0]?.timeBasis, 'capture_only');
   const url = new URL(captured[0]?.url ?? '');
   assert.equal(url.pathname, '/v1/world/observations');
+  assert.equal(url.searchParams.get('mode'), 'news');
   assert.deepEqual(url.searchParams.getAll('country'), ['USA', 'CAN']);
   assert.equal(url.searchParams.get('bbox'), '170,-20,-170,20');
   assert.equal(url.searchParams.get('cursor'), 'page-1');
@@ -149,7 +150,7 @@ test('every globe source endpoint sends the profile and validates the completed 
     limitations: [text('Name and listing-country screens are relevance proxies.')],
   };
   const observation = {
-    id: 'registry:1', mode: 'energy', title: 'Reporting site', summary: 'Registry record',
+    id: 'registry:1', mode: 'environment', title: 'Reporting site', summary: 'Registry record',
     occurredAt: '2026-11-15T12:00:00Z', timeBasis: 'capture_only', publishedAt: null,
     retrievedAt: '2026-11-15T12:00:00Z', location: null, countryIso3: null,
     source: { name: 'Registry', url: 'https://example.org/registry' }, datasetId: 'provider_capture',
@@ -180,15 +181,6 @@ test('every globe source endpoint sends the profile and validates the completed 
   assert.equal(new URL(captured[2]!.url).searchParams.get('profileId'), 'robert');
   assert.equal(hazards.items[0]?.assessment?.holdingsChecked, 11, 'an empty match list remains a completed screen');
   assert.equal(hazards.items[0]?.assessment?.exposures.length, 0);
-
-  const airport = { airportId: 'oa_1', ident: 'CYUL', name: 'Montréal', lat: 45.5, lon: -73.5,
-    countryIso2: 'CA', countryIso3: 'CAN', sourceUrl: 'https://example.org/airports',
-    capturedAt: '2026-11-15T12:00:00Z', assessment };
-  const airports = await clientFor(200, { items: [airport], total: 1, capturedAt: airport.capturedAt,
-    dataVersion: eventsPage.dataVersion }, captured).worldAirports({ profileId: 'robert', bbox: '-75,45,-73,46' });
-  assert.equal(new URL(captured[3]!.url).searchParams.get('profileId'), 'robert');
-  assert.equal(new URL(captured[3]!.url).searchParams.get('bbox'), '-75,45,-73,46');
-  assert.deepEqual(airports.items[0]?.assessment, assessment);
 
   await invalid(clientFor(200, { ...observations, items: [{ ...observation, assessment: { ...assessment, holdingsChecked: -1 } }] }).worldObservations({ profileId: 'robert' }));
   await invalid(clientFor(200, { ...observations, items: [{ ...observation, assessment: { ...assessment, matchedWeightPct: 101 } }] }).worldObservations({ profileId: 'robert' }));

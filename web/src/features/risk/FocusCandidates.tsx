@@ -26,7 +26,7 @@ function Limitations({ lines }: { lines: readonly string[] }) {
 export function FocusCandidates({ profile }: { profile: Profile }) {
   const { tr, sessionId } = useApp();
   const query = useQuery(sessionId ? `focus|${sessionId}|${profile.profileId}|${profile.version}` : null, signal => getApiClient().strategicCandidates(profile.profileId, signal));
-  return <Card title={tr({ en: 'Deterministic focus candidates', fr: 'Priorités candidates déterministes' })}>
+  return <Card tour="focus-candidates" title={tr({ en: 'Deterministic focus candidates', fr: 'Priorités candidates déterministes' })}>
     <p className="small muted">{tr({ en: 'At most three findings, ranked from measured policy conflicts and explicit goal scenarios. These candidates have local calculation facts; an audited writer must create and verify claims separately.', fr: 'Au plus trois constats classés selon les conflits mesurés et les scénarios d’objectifs explicites. Ces candidats ont des faits de calcul locaux; la rédaction auditée doit créer et vérifier les affirmations séparément.' })}</p>
     {query.loading && <Loading />}{query.error && <ErrorState error={query.error} onRetry={query.reload} />}
     {query.data && <FactScopeProvider scope={{ kind: 'local', label: { en: 'Focus candidate calculations', fr: 'Calculs des priorités candidates' }, facts: query.data.facts }}>

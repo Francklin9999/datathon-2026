@@ -8,7 +8,6 @@
 .labs-cat + .labs-cat { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
 .labs-cat-title { margin: 0 0 6px; padding: 0 10px; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--text-3); }
 .labs-tools { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
-.labs-checking { margin: 6px 10px 0; }
 
 .labs-tool-btn { display: flex; align-items: flex-start; gap: 10px; width: 100%; min-height: 44px; padding: 9px 10px; text-align: left;
   border: 0; border-radius: var(--r-ctl); background: transparent; color: var(--text); cursor: pointer; font: inherit;
@@ -32,7 +31,6 @@
 .labs-panel-body { min-width: 0; }
 
 .labs-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
-.labs-inline-btn { margin-top: 10px; }
 
 /* Phones and narrow windows: the list goes above the panel and no longer scrolls on its own. */
 @media (max-width: 900px) {

@@ -11,10 +11,6 @@ function finiteTree(value: unknown, depth = 0): boolean {
 const required: Record<string, string[]> = {
   joint: ['state', 'capital', 'goals', 'events', 'missingInputs', 'assumptions'],
   compare: ['portfolios', 'sameSample', 'currency', 'limitations'],
-  covariance: ['tickers', 'dailyCovariance', 'unit', 'facts', 'unavailable'],
-  liquidity: ['state', 'knownNetProceeds', 'missingHoldings', 'holdings', 'limitations'],
-  factor: ['state', 'limitations'],
-  nested: ['direct', 'indirect', 'unresolvedWeight', 'unresolvedByReason', 'paths', 'limitations'],
   positions: ['positions', 'currency', 'limitations'],
 };
 export function expandedResult(kind: keyof typeof required, value: unknown): ModelResult {

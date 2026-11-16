@@ -301,7 +301,7 @@ function PlanHealth({ overview, period }: { overview: OverviewResponse; period: 
             </SheetSection>
           )}
           <LimitationList compactAfter={0} codes={overview.limitations} />
-          <p><Link href="/portfolio/" className="btn ghost btn-sm">{tr({ en: 'Open rules', fr: 'Ouvrir les règles' })}</Link></p>
+          <p><Link href="/portfolio/?tab=rules" className="btn ghost btn-sm">{tr({ en: 'Open rules', fr: 'Ouvrir les règles' })}</Link></p>
         </>
       ),
     }}>

@@ -2,7 +2,7 @@
 /**
  * Evidence & Audit (T14, web/page-specs/evidence-audit.md). Loads the owned run (or lists session runs,
  * the app's one list of analyses), shows the brief with audit markings and the audit report, the
- * sabotage test, rule checks, a searchable fact ledger, the actual timeline and the datasets read. ?factId= deep-links the fact drawer (AUDUI-06).
+ * audit test, rule checks, a searchable fact ledger, the actual timeline and the datasets read. ?factId= deep-links the fact drawer (AUDUI-06).
  */
 import Link from 'next/link';
 import { ListTree } from 'lucide-react';
@@ -201,7 +201,7 @@ function RunHeader({ run }: { run: Run }) {
       <div className="verdict-header">
         <RunStatusBadge status={run.status} />
         {run.result?.kind === 'decision' && <VerdictBadge verdict={run.result.decision.verdict} />}
-        {run.flags.sabotage && <span className="tag tag-strong">{tr({ en: 'Sabotage demonstration', fr: 'Démonstration de sabotage' })}: {labelOf(SABOTAGE_MODE, run.flags.sabotage, lang)}</span>}
+        {run.flags.sabotage && <span className="tag tag-strong">{tr({ en: 'Audit test', fr: 'Test d’audit' })}: {labelOf(SABOTAGE_MODE, run.flags.sabotage, lang)}</span>}
         {run.flags.timeMachine && <span className="tag">{tr({ en: 'Historical replay', fr: 'Rejeu historique' })}</span>}
       </div>
       <p className="small muted">
@@ -423,10 +423,10 @@ function SabotageControls({ run }: { run: Run }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiRequestError | null>(null);
   if (!feature('sabotage_demo') || run.kind !== 'decision' || run.status !== 'succeeded') return null;
-  const title = tr({ en: 'Sabotage test: try to slip a lie past the auditor', fr: 'Test de sabotage : glisser un mensonge à l’auditeur' });
+  const title = tr({ en: 'Audit test: try to slip a lie past the auditor', fr: 'Test d’audit : glisser un mensonge à l’auditeur' });
   if (run.lang !== lang) {
     return (
-      <Card id="sabotage" section={tr({ en: 'Sabotage test', fr: 'Test de sabotage' })} tour="sabotage" title={title}>
+      <Card id="sabotage" section={tr({ en: 'Audit test', fr: 'Test d’audit' })} tour="sabotage" title={title}>
         <p className="small muted">{tr({ en: 'This analysis was written in French. Switch the language to French to run the test on it.', fr: 'Cette analyse a été rédigée en anglais. Passez en anglais pour lancer le test sur elle.' })}</p>
       </Card>
     );
@@ -439,7 +439,7 @@ function SabotageControls({ run }: { run: Run }) {
     } catch (e) { setError(asApiError(e)); } finally { setBusy(false); }
   };
   return (
-    <Card id="sabotage" section={tr({ en: 'Sabotage test', fr: 'Test de sabotage' })} tour="sabotage" title={title}>
+    <Card id="sabotage" section={tr({ en: 'Audit test', fr: 'Test d’audit' })} tour="sabotage" title={title}>
       <p className="small">{tr({ en: 'Aplomb copies this signed brief, inserts one false sentence built from its own figures, then runs the full audit again (code checks, model review, guardrail). This analysis stays unchanged; the outcome is shown as it is.', fr: 'Aplomb copie cette note signée, y insère une phrase fausse construite à partir de ses propres chiffres, puis relance l’audit complet (contrôles par le code, relecture par le modèle, garde-fou). Cette analyse reste inchangée ; le résultat est montré tel quel.' })}</p>
       <fieldset>
         <legend>{tr({ en: 'Kind of lie', fr: 'Type de mensonge' })}</legend>
@@ -449,7 +449,7 @@ function SabotageControls({ run }: { run: Run }) {
           ))}
         </div>
       </fieldset>
-      <div className="row-actions"><button type="button" className="btn danger" disabled={busy} onClick={() => void start()}>{busy ? tr({ en: 'Starting…', fr: 'Lancement…' }) : tr({ en: 'Run the sabotage test', fr: 'Lancer le test de sabotage' })}</button></div>
+      <div className="row-actions"><button type="button" className="btn danger" disabled={busy} onClick={() => void start()}>{busy ? tr({ en: 'Starting…', fr: 'Lancement…' }) : tr({ en: 'Run the audit test', fr: 'Lancer le test d’audit' })}</button></div>
       {error && <ErrorState error={error} />}
     </Card>
   );
@@ -465,7 +465,7 @@ function SabotageResultView({ run }: { run: Run }) {
   const attempted = s.briefBeforeAudit.sections.some(section => section.sentences.some(sentence => sentence.id === 'S-INJECTED'));
   const codes = [...new Set(failed.map(c => c.code))];
   return (
-    <Card id="sabotage-result" title={tr({ en: 'Sabotage test result', fr: 'Résultat du test de sabotage' })}>
+    <Card id="sabotage-result" title={tr({ en: 'Audit test result', fr: 'Résultat du test d’audit' })}>
       <div className={`sabotage-verdict ${caught ? 'is-caught' : 'is-missed'}`} role="status">
         <span className="sabotage-verdict-mark" aria-hidden="true">{caught ? '✓' : '!'}</span>
         <div>

@@ -521,7 +521,7 @@ function DraftFromText({ fields, onApply }: { fields: PartialProfile; onApply: (
       {run && !draft && (
         <div>
           <RunStatusBadge status={run.status} />
-          <details><summary className="small">{tr({ en: 'Execution trace', fr: 'Trace d’exécution' })}</summary><RunTimeline run={run} /></details>
+          <details><summary className="small">{tr({ en: 'Steps', fr: 'Étapes' })}</summary><RunTimeline run={run} /></details>
         </div>
       )}
       {run && draft && review && (

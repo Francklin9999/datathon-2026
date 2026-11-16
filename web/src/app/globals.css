@@ -1,5 +1,5 @@
 /* Aplomb global stylesheet entry. Order matters: tokens, base, glass material, then component layers.
-   Liquid Glass design: docs/superpowers/specs/2026-11-15-liquid-glass-design.md */
+   Liquid Glass design: web/DESIGN.md */
 @import '../styles/tokens.css';
 @import '../styles/base.css';
 @import '../styles/glass.css';

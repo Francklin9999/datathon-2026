@@ -43,6 +43,43 @@ export const BASIC_TOUR: Tour = {
   ],
 };
 
+/**
+ * The case end to end, for a demo: the three personas on Decide, then the audit in Evidence and a replay. The
+ * tour cannot switch the investor or type the move, so each step says what to do.
+ */
+export const CASE_TOUR: Tour = {
+  id: 'case',
+  route: '/decision-desk/',
+  title: t('The case, end to end', 'Le cas, de bout en bout'),
+  summary: t('Robert, Amira and Mateo, then the audit and a replay.', 'Robert, Amira et Mateo, puis l’audit et un rejeu.'),
+  steps: [
+    { id: 'robert', route: '/decision-desk/', target: 'persona', title: t('Start with Robert', 'Commencez par Robert'),
+      body: t('Pick Robert in the investor list: the case follows three fictional investors, Robert, Amira and Mateo.',
+        'Choisissez Robert dans la liste des investisseurs : le cas suit trois investisseurs fictifs, Robert, Amira et Mateo.') },
+    { id: 'tsla', route: '/decision-desk/', target: 'move-form', title: t('Test TSLA at +25', 'Testez TSLA à +25'),
+      body: t('Enter a buy of TSLA for 25 points: the instant check finds six conflicts, including the 6.0-point limit.',
+        'Saisissez un achat de TSLA de 25 points : la vérification instantanée trouve six conflits, dont la limite de 6,0 points.') },
+    { id: 'fact', route: '/decision-desk/', target: 'preview', title: t('Open a figure', 'Ouvrez un chiffre'),
+      body: t('Click a figure such as 16.96% to open its fact, with the method, the period and the data behind it.',
+        'Cliquez sur un chiffre comme 16,96 % pour ouvrir son fait, avec la méthode, la période et les données qui le justifient.') },
+    { id: 'amira', route: '/decision-desk/', target: 'persona', title: t('The same move for Amira', 'Le même mouvement pour Amira'),
+      body: t('Switch to Amira and test the same move at +10: her plan shows a tension, not a conflict.',
+        'Passez à Amira et testez le même mouvement à +10 : son plan montre une tension, pas un conflit.') },
+    { id: 'mateo', route: '/decision-desk/', target: 'move-form', title: t('Mateo and CNQ', 'Mateo et CNQ'),
+      body: t('Pick Mateo, test CNQ at +5 and start the analysis: the Energy exclusion applies, and the controversy is reported as not enough evidence.',
+        'Choisissez Mateo, testez CNQ à +5 et lancez l’analyse : l’exclusion de l’énergie s’applique, et la controverse est signalée faute de preuves suffisantes.') },
+    { id: 'evidence', route: '/evidence-audit/', target: 'run-list', title: t('Check the audit', 'Vérifiez l’audit'),
+      body: t('Open an analysis here to see the audit checks A01 to A14 and the signed hash of its decision ledger.',
+        'Ouvrez une analyse ici pour voir les contrôles d’audit A01 à A14 et l’empreinte signée de son registre de décision.') },
+    { id: 'audit-test', route: '/evidence-audit/', target: 'sabotage', optional: true, title: t('The audit test', 'Le test d’audit'),
+      body: t('Run the audit test: Aplomb slips one false sentence into a copy of the brief to see whether the auditor catches it.',
+        'Lancez le test d’audit : Aplomb glisse une phrase fausse dans une copie de la note pour voir si l’auditeur la détecte.') },
+    { id: 'replay', route: '/time-machine/', target: 'tm-start', optional: true, title: t('Replay a past date', 'Rejouez une date passée'),
+      body: t('Start a replay at a past date with only the data known then, then reveal what happened later in a separate ledger.',
+        'Lancez un rejeu à une date passée avec les seules données connues alors, puis révélez la suite dans un registre séparé.') },
+  ],
+};
+
 const PAGE_TOURS: readonly Tour[] = [
   {
     id: 'home', route: '/',
@@ -162,7 +199,7 @@ const PAGE_TOURS: readonly Tour[] = [
   {
     id: 'evidence', route: '/evidence-audit/',
     title: t('Evidence', 'Preuves'),
-    summary: t('Audit marks, the sabotage test and the fact ledger.', 'Marques d’audit, test de sabotage et registre des faits.'),
+    summary: t('Audit marks, the audit test and the fact ledger.', 'Marques d’audit, test d’audit et registre des faits.'),
     steps: [
       { id: 'runs', route: '/evidence-audit/', target: 'run-list', title: t('Your analyses', 'Vos analyses'),
         body: t('Every analysis started in this browser: “Open evidence” shows its audited brief and “See steps” what ran.',
@@ -170,7 +207,7 @@ const PAGE_TOURS: readonly Tour[] = [
       { id: 'brief', route: '/evidence-audit/', target: 'audit-brief', optional: true, title: t('Brief with audit marks', 'Note avec marques d’audit'),
         body: t('Each sentence is marked by the auditor as supported or not by the computed figures.',
           'Chaque phrase est marquée par l’auditeur comme étayée ou non par les chiffres calculés.') },
-      { id: 'sabotage', route: '/evidence-audit/', target: 'sabotage', optional: true, title: t('The sabotage test', 'Le test de sabotage'),
+      { id: 'sabotage', route: '/evidence-audit/', target: 'sabotage', optional: true, title: t('The audit test', 'Le test d’audit'),
         body: t('Aplomb inserts one labelled false sentence into a copy of the brief and audits it again, to see whether the auditor catches it.',
           'Aplomb insère une phrase fausse identifiée dans une copie de la note et relance l’audit, pour voir si l’auditeur la détecte.') },
       { id: 'ledger', route: '/evidence-audit/', target: 'ledger', optional: true, title: t('The fact ledger', 'Le registre des faits'),
@@ -210,9 +247,6 @@ const PAGE_TOURS: readonly Tour[] = [
       { id: 'traps', route: '/sources/', target: 'traps', optional: true, title: t('Known traps', 'Pièges connus'),
         body: t('Calendar gaps, adjusted prices or survivor bias, and whether each is handled, disclosed or still open.',
           'Trous de calendrier, prix ajustés ou biais du survivant, et si chacun est traité, signalé ou encore ouvert.') },
-      { id: 'availability', route: '/sources/', target: 'sources-availability', optional: true, title: t('Research sources available now', 'Sources de recherche disponibles'),
-        body: t('Which research sources answer right now; the tools that use them are in Labs.',
-          'Les sources de recherche qui répondent en ce moment ; les outils qui les utilisent sont dans Labos.') },
     ],
   },
   {
@@ -248,4 +282,4 @@ const PAGE_TOURS: readonly Tour[] = [
   },
 ];
 
-export const ALL_TOURS: readonly Tour[] = [BASIC_TOUR, ...PAGE_TOURS];
+export const ALL_TOURS: readonly Tour[] = [BASIC_TOUR, CASE_TOUR, ...PAGE_TOURS];

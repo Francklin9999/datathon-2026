@@ -6,7 +6,6 @@
  */
 import Link from 'next/link';
 import { SourceDirectory } from './SourceDirectory';
-import { SourceAvailability, useSourceCapabilities } from '../markets/SourceAvailability';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import type { DatasetPassport, DatasetsResponse } from '../../contracts/types';
@@ -38,7 +37,6 @@ export function SourcesPage() {
   const detailRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => { if (detail.data) detailRef.current?.focus(); }, [detail.data]);
 
-  const capabilities = useSourceCapabilities();
   const unknown = tr({ en: 'Licence unknown', fr: 'Licence inconnue' });
 
   return (
@@ -128,11 +126,6 @@ export function SourcesPage() {
           </Card>
         </>
       )}
-
-      <section className="sources-availability" data-tour="sources-availability" aria-labelledby="sources-availability-title">
-        <h2 className="h4" id="sources-availability-title">{tr({ en: 'Research sources available now', fr: 'Sources de recherche disponibles' })}</h2>
-        <SourceAvailability value={capabilities.data} loading={capabilities.loading} error={capabilities.error} reload={capabilities.reload} />
-      </section>
 
       <SourceDirectory />
     </>

@@ -1,6 +1,6 @@
 /**
- * Layout and shell guards (QA 4.1, 4.2, 4.3, 4.6, 4.8): the dock clearance, legend and plan-health
- * lines that wrap instead of an ellipsis, the covariance number format, one always-visible label per
+ * Layout and shell guards (QA 4.1, 4.2, 4.6, 4.8): the dock clearance, legend and plan-health
+ * lines that wrap instead of an ellipsis, one always-visible label per
  * rail link, the rail's place under the top bar and
  * the 404 page's list of pages. Geometry itself needs a browser (tests/browser-smoke.mjs); these pin
  * the rules and the pure logic.
@@ -8,7 +8,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { fmtExact, fmtSci } from '../src/lib/format';
 import { fitHeights, fitRowsWithMore } from '../src/lib/ui/layout';
 import { FOOTER_ENTRIES, NAV_ENTRIES, isActivePath, visibleNavEntries, visibleNavGroups } from '../src/lib/ui/nav';
 
@@ -16,7 +15,6 @@ const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf
 const shellCss = read('../src/styles/shell.css');
 const baseCss = read('../src/styles/base.css');
 const dashboardCss = read('../src/styles/dashboard.css');
-const pagesCss = read('../src/styles/pages.css');
 
 /** The declarations of the first rule whose selector is exactly `selector` (outside or inside a media block). */
 function rule(css: string, selector: string, from = 0): string {
@@ -87,36 +85,6 @@ test('4.2 fitRowsWithMore: rows beside a "more" button, which shows only when so
   assert.deepEqual(fitRowsWithMore(40, [44, 44], 36), { shown: 0, more: true });
   assert.deepEqual(fitRowsWithMore(30, [44, 44], 36), { shown: 0, more: false });
   assert.deepEqual(fitRowsWithMore(0, [], 36), { shown: 0, more: false });
-});
-
-test('4.3 fmtSci: 3 significant digits, true minus, superscript exponent, EN and FR', () => {
-  assert.equal(fmtSci(1.199e-5, 'en'), '1.20×10⁻⁵');
-  assert.equal(fmtSci(-3.1e-7, 'en'), '−3.10×10⁻⁷');
-  assert.equal(fmtSci(3.103e-4, 'en'), '3.10×10⁻⁴');
-  assert.equal(fmtSci(1.199e-5, 'fr'), '1,20×10⁻⁵');
-  assert.equal(fmtSci(-2.27e-5, 'fr'), '−2,27×10⁻⁵');
-  assert.equal(fmtSci(9.9996e-6, 'en'), '1.00×10⁻⁵');
-  assert.equal(fmtSci(2.5, 'en'), '2.50');
-  assert.equal(fmtSci(12345, 'en'), '1.23×10⁴');
-  assert.equal(fmtSci(0, 'en'), '0');
-  assert.equal(fmtSci(Number.NaN, 'en'), '—');
-  assert.equal(fmtSci(Number.POSITIVE_INFINITY, 'fr'), '—');
-});
-
-test('4.3 fmtExact: the full value without an exponent, for the cell title', () => {
-  assert.equal(fmtExact(1.199012e-5, 'en'), '0.00001199012');
-  assert.equal(fmtExact(-3.1e-7, 'fr'), '-0,00000031');
-  assert.equal(fmtExact(Number.NaN, 'en'), '—');
-});
-
-test('4.3 covariance table: sticky ticker column and cells that do not wrap', () => {
-  assert.match(rule(pagesCss, ".cov-table th[scope='row'], .cov-table thead th:first-child"), /position:\s*sticky;\s*left:\s*0/);
-  assert.match(rule(pagesCss, '.cov-table th, .cov-table td'), /white-space:\s*nowrap/);
-  const source = read('../src/features/risk/ExpandedRisk.tsx');
-  assert.match(source, /className="table-scroll cov-scroll" role="region" tabIndex=\{0\}/);
-  assert.match(source, /title=\{fmtExact\(value, lang\)\}>\{fmtSci\(value, lang\)\}/);
-  assert.match(source, /href="#risk"/);
-  assert.doesNotMatch(source, /fmtNumber\(numeric\(v\)!, lang, 8\)/);
 });
 
 test('4.6 rail: each link holds its label once, always visible (no tooltip copy)', () => {

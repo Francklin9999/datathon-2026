@@ -5,6 +5,7 @@
  */
 import type {
   CountryExposure, EventBriefResult, EventCategory, Fact, I18NText, Lang, Period, WorldEvent, WorldEventItem, WorldLayer,
+  WorldObservation,
 } from '../contracts/types';
 import type { WorldEventsQuery } from '../api/client';
 import { countryLabel, iso3FromNumeric } from './geo';
@@ -14,7 +15,8 @@ export const EVENT_CATEGORIES: readonly EventCategory[] = [
   'monetary_policy', 'macro_release', 'geopolitical', 'trade_regulation', 'corporate',
   'energy_commodities', 'markets', 'natural_disaster', 'other',
 ];
-export const EVENT_ORIGINS: readonly WorldEvent['origin'][] = ['official', 'curated', 'gdelt', 'usgs', 'firms', 'live', 'eonet'];
+/** Origins offered as feed filters. GET /world/events returns no 'eonet' or 'firms' event, so those would always filter to nothing. */
+export const EVENT_ORIGINS: readonly WorldEvent['origin'][] = ['official', 'curated', 'gdelt', 'usgs', 'live'];
 
 /** api.md 6.2: "range ≤ 366 days". Enforced as at most 366 calendar dates, both ends included. */
 export const MAX_RANGE_DAYS = 366;
@@ -43,20 +45,23 @@ export function daysBetween(from: string, to: string): number {
 
 export interface DateRange { from: string; to: string }
 
-export type WorldMode = 'overview' | 'news' | 'portfolio' | 'macro' | 'trade' | 'energy' | 'hazards' | 'conflicts' | 'aviation' | 'environment' | 'infrastructure';
-export const WORLD_MODES: readonly { id: WorldMode; title: I18NText; categories: readonly EventCategory[]; layers: readonly string[]; note: I18NText }[] = [
-  { id: 'overview', title: { en: 'All data', fr: 'Toutes les données' }, categories: [], layers: ['events', 'exposure'], note: { en: 'All events plus a geographic sample of news, hazards, conflicts, energy, aviation and environmental records. Choose a topic or region to explore more.', fr: 'Tous les événements et un échantillon géographique des actualités, aléas, conflits, données énergétiques, aériennes et environnementales. Choisissez un thème ou une région pour approfondir.' } },
+/** Modes GET /world/observations accepts; it answers 422 for the other values the contract still lists. */
+export type ObservationMode = Extract<WorldObservation['mode'], 'news' | 'macro' | 'environment'>;
+/** The served observation modes, plus 'overview' and 'portfolio', which send no mode. */
+export type WorldMode = 'overview' | 'news' | 'portfolio' | 'macro' | 'environment';
+export const WORLD_MODES: readonly { id: WorldMode; title: I18NText; categories: readonly EventCategory[]; layers: readonly LayerId[]; note: I18NText }[] = [
+  { id: 'overview', title: { en: 'All data', fr: 'Toutes les données' }, categories: [], layers: ['events', 'exposure'], note: { en: 'All events plus a geographic sample of news, macroeconomic and environmental source records. Choose a topic or region to explore more.', fr: 'Tous les événements et un échantillon géographique des actualités et des données macroéconomiques et environnementales. Choisissez un thème ou une région pour approfondir.' } },
   { id: 'news', title: { en: 'News', fr: 'Actualités' }, categories: [], layers: ['events'], note: { en: 'Loaded source observations and releases. This sample does not cover all worldwide news.', fr: 'Observations et publications chargées. Cet échantillon ne couvre pas toutes les actualités mondiales.' } },
   { id: 'portfolio', title: { en: 'Portfolio exposure', fr: 'Exposition du portefeuille' }, categories: [], layers: ['events', 'exposure'], note: { en: 'Listing-country and theme matches are proxies. Inspect event evidence before drawing a financial conclusion.', fr: 'Les correspondances de pays de cotation et de thème sont des approximations. Consultez les preuves avant toute conclusion financière.' } },
   { id: 'macro', title: { en: 'Macro & markets', fr: 'Macro et marchés' }, categories: ['macro_release', 'monetary_policy', 'markets'], layers: ['events'], note: { en: 'Select any country to inspect supported annual indicators and releases. Annual observations are not live market signals.', fr: 'Sélectionnez un pays pour consulter les indicateurs annuels et publications disponibles. Les observations annuelles ne sont pas des signaux de marché en direct.' } },
-  { id: 'trade', title: { en: 'Trade & shipping', fr: 'Commerce et transport maritime' }, categories: ['trade_regulation'], layers: ['events'], note: { en: 'Loaded trade releases only. Shipping activity and vessel tracking require a separately loaded, authorized dataset.', fr: 'Publications commerciales chargées seulement. L’activité maritime et le suivi des navires nécessitent un jeu de données autorisé distinct.' } },
-  { id: 'energy', title: { en: 'Energy', fr: 'Énergie' }, categories: ['energy_commodities'], layers: ['events'], note: { en: 'Loaded energy releases and power-plant references. Capture dates for static references do not establish current operating status.', fr: 'Publications énergétiques et références de centrales chargées. Les dates de collecte des références statiques n’établissent pas leur état opérationnel actuel.' } },
-  { id: 'hazards', title: { en: 'Hazards', fr: 'Aléas' }, categories: ['natural_disaster'], layers: ['events', 'hazards'], note: { en: 'Reported hazards and their original geometry. Proximity does not establish a company relationship or loss.', fr: 'Aléas signalés et géométrie originale. La proximité ne prouve ni lien d’entreprise ni perte.' } },
-  { id: 'conflicts', title: { en: 'Conflicts & geopolitics', fr: 'Conflits et géopolitique' }, categories: ['geopolitical'], layers: ['events'], note: { en: 'Only sourced geopolitical records in the loaded sample. Missing records are not evidence of peace or absence of sanctions.', fr: 'Seulement les enregistrements géopolitiques sourcés de l’échantillon chargé. L’absence de données ne prouve ni paix ni absence de sanctions.' } },
-  { id: 'aviation', title: { en: 'Aviation', fr: 'Aviation' }, categories: [], layers: ['airports'], note: { en: 'Static airport reference with source coordinates. No aircraft movements or current operating status is established.', fr: 'Référence aéroportuaire statique avec coordonnées sourcées. Aucun mouvement aérien ni état opérationnel actuel établi.' } },
-  { id: 'environment', title: { en: 'ESG & environment', fr: 'ESG et environnement' }, categories: ['natural_disaster'], layers: ['events', 'facilities'], note: { en: 'Registry emissions and environmental observations. These are not a comprehensive ESG rating or proof of controversy.', fr: 'Émissions des registres et observations environnementales. Ce n’est ni une note ESG complète ni une preuve de controverse.' } },
-  { id: 'infrastructure', title: { en: 'Economic infrastructure', fr: 'Infrastructure économique' }, categories: [], layers: ['airports', 'facilities'], note: { en: 'Loaded airport and reporting-facility references. Ownership, supply chains and financial exposure require separate documented evidence.', fr: 'Références chargées d’aéroports et d’installations déclarantes. Propriété, chaînes d’approvisionnement et exposition financière nécessitent des preuves distinctes.' } },
+  // Earthquake thresholds and windows of the served bundle (backend/aplomb/world/bundle/hazards.json, FEED_MIN_EARTHQUAKE_MAGNITUDE).
+  { id: 'environment', title: { en: 'ESG & environment', fr: 'ESG et environnement' }, categories: ['natural_disaster'], layers: ['events', 'facilities', 'hazards'], note: { en: 'Registry emissions, environmental observations and USGS earthquakes: magnitude 6.0 or more in the event feed; in the earthquake layer, 6.0 or more from 2021-11-14 to 2025-11-11 and 5.0 or more from 2025-11-12 to 2026-11-12. Not a comprehensive ESG rating or proof of controversy; proximity establishes no company relationship or loss.', fr: 'Émissions des registres, observations environnementales et séismes de l’USGS : magnitude 6,0 ou plus dans le fil d’événements ; dans la couche des séismes, 6,0 ou plus du 2021-11-14 au 2025-11-11 et 5,0 ou plus du 2025-11-12 au 2026-11-12. Ni une note ESG complète ni une preuve de controverse ; la proximité ne prouve ni lien d’entreprise ni perte.' } },
 ];
+
+/** Title of an observation's mode. A mode the contract still lists but the API no longer serves gets a neutral title. */
+export function observationModeTitle(mode: WorldObservation['mode']): I18NText {
+  return WORLD_MODES.find(item => item.id === mode)?.title ?? { en: 'Other sources', fr: 'Autres sources' };
+}
 
 export interface GeographicArea { id: string; title: I18NText; bbox: string; lat: number; lng: number; altitude: number }
 /** Navigation boxes, not political membership or financial coverage classifications. */
@@ -248,8 +253,9 @@ export function thinPins<T extends Pick<WorldEvent, 'eventId' | 'importance' | '
   return { pins, eligible: located.length, unlocated: events.length - located.length, thinned: located.length > pins.length };
 }
 
-export type LayerId = WorldLayer['layerId'];
-export const LAYER_IDS: readonly LayerId[] = ['events', 'exposure', 'facilities', 'hazards', 'airports'];
+/** The contract keeps 'airports' for compatibility; GET /world/layers no longer lists it and /world/airports is gone. */
+export type LayerId = Exclude<WorldLayer['layerId'], 'airports'>;
+export const LAYER_IDS: readonly LayerId[] = ['events', 'exposure', 'facilities', 'hazards'];
 /** Feature flag gating a layer, when it has one (api.md 6.6, 6.7). */
 const LAYER_FLAG: Partial<Record<LayerId, string>> = {
   facilities: 'world_layer_facilities', hazards: 'world_layer_hazards',

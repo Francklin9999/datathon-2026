@@ -15,13 +15,19 @@ test('geographic search includes uncovered countries in both languages without r
 });
 
 test('the all-data overview and topic modes have bilingual coverage limits and request actual reference layers', () => {
-  assert.equal(WORLD_MODES.length, 11);
-  assert.equal(new Set(WORLD_MODES.map(mode => mode.id)).size, 11);
+  // Only the modes the API serves: GET /world/observations answers 422 for the other observation modes.
+  assert.deepEqual(WORLD_MODES.map(mode => mode.id), ['overview', 'news', 'portfolio', 'macro', 'environment']);
   for (const mode of WORLD_MODES) {
     assert.ok(mode.title.en && mode.title.fr && mode.note.en && mode.note.fr);
   }
-  assert.deepEqual(WORLD_MODES.find(mode => mode.id === 'aviation')?.layers, ['airports']);
-  assert.deepEqual(WORLD_MODES.find(mode => mode.id === 'overview')?.layers, ['events', 'exposure']);
+  const overview = WORLD_MODES.find(mode => mode.id === 'overview');
+  assert.deepEqual(overview?.layers, ['events', 'exposure']);
+  for (const note of [overview?.note.en ?? '', overview?.note.fr ?? '']) assert.doesNotMatch(note, /hazard|aléa|conflict|conflit|energ|énerg|aviation|aérien/i);
+  // The earthquake layer stays reachable from a mode, and its note states what the layer and the feed hold.
+  const environment = WORLD_MODES.find(mode => mode.id === 'environment');
+  assert.deepEqual(environment?.layers, ['events', 'facilities', 'hazards']);
+  assert.match(environment?.note.en ?? '', /6\.0 or more in the event feed; .*6\.0 or more from 2021-11-14 to 2025-11-11 and 5\.0 or more from 2025-11-12 to 2026-11-12/);
+  assert.match(environment?.note.fr ?? '', /6,0 ou plus dans le fil d’événements ; .*6,0 ou plus du 2021-11-14 au 2025-11-11 et 5,0 ou plus du 2025-11-12 au 2026-11-12/);
 });
 
 test('selected source geometry preserves original shapes and refuses invalid or unbounded coordinates', () => {
@@ -53,12 +59,12 @@ const pin = (id: string, lat: number, lng: number, kind: GlobePin['kind'] = 'eve
   id, lat, lng, kind, label: id, countryLevel: false, weight: .2,
 });
 test('zoom clustering retains selected source pins and separates reference layers', () => {
-  const rows = [pin('a', 1, 1), pin('b', 2, 2), pin('c', 3, 3), pin('airport', 1, 1, 'airport')];
+  const rows = [pin('a', 1, 1), pin('b', 2, 2), pin('c', 3, 3), pin('facility', 1, 1, 'facility')];
   const grouped = clusterPins(rows, 2.1, 'a');
   assert.equal(grouped.find(row => row.id === 'a'), rows[0]);
   const cluster = grouped.find(row => row.kind === 'cluster');
   assert.deepEqual(cluster?.members?.map(row => row.id), ['b', 'c']);
-  assert.ok(grouped.some(row => row.id === 'airport'));
+  assert.ok(grouped.some(row => row.id === 'facility'));
   assert.deepEqual(clusterPins(rows, .8, null), rows);
   assert.deepEqual(rows.map(row => [row.lat, row.lng]), [[1, 1], [2, 2], [3, 3], [1, 1]]);
 });

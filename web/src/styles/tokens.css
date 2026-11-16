@@ -1,4 +1,4 @@
-/* Aplomb tokens — Liquid Glass (2026-11-15, docs/superpowers/specs/2026-11-15-liquid-glass-design.md).
+/* Aplomb tokens — Liquid Glass (2026-11-15, web/DESIGN.md).
    Frosted panels float over a fixed ambient field (fine graph paper and two light pools). The opaque
    roles (--bg, --surface, --raised, --deep) are the composite colours of the glass and the fallback
    when transparency is reduced or unsupported; tests/ui-contrast.test.ts checks every text role on

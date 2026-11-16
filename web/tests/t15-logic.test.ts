@@ -62,6 +62,7 @@ test('events query: repeatable params are repeated keys, blanks are omitted', ()
   assert.deepEqual([...bare.keys()].sort(), ['limit', 'sort'], 'no from/to: the API applies its documented default interval');
   assert.equal(new URL(buildUrl('http://api.test/v1', '/x', { ...buildEventsQuery({ ...EMPTY_FILTERS, from: '2026-01-01' }, null) })).searchParams.get('from'), null,
     'half an interval is never sent');
+  assert.ok(!EVENT_ORIGINS.some(origin => origin === 'eonet' || origin === 'firms'), 'no origin filter that GET /world/events never returns');
 });
 
 test('the filter identity ignores cursor and page size, so cursor pages merge only within one filter set', () => {
@@ -154,7 +155,7 @@ test('layers: a toggle is enabled only with its flag on and the API reporting th
   });
   const layers = [layer('events', true), layer('exposure', true), layer('facilities', true), layer('hazards', false)];
   const flags = (on: string[]) => (flag: string) => on.includes(flag);
-  assert.deepEqual(LAYER_IDS, ['events', 'exposure', 'facilities', 'hazards', 'airports']);
+  assert.deepEqual(LAYER_IDS, ['events', 'exposure', 'facilities', 'hazards'], 'GET /world/layers no longer lists airports');
   assert.equal(layerState('events', layers, flags([])).enabled, true);
   assert.equal(layerState('facilities', layers, flags([])).reason, 'flag_off');
   assert.equal(layerState('facilities', layers, flags(['world_layer_facilities'])).enabled, true);

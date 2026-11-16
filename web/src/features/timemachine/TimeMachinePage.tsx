@@ -26,7 +26,7 @@ import {
   BoundaryNote, FundingOptions, ScenarioCards, SnapshotCompare, VerdictHeader, fundingLabel,
 } from '../../components/run/Results';
 import { CancelButton, MoveFormCard, QuestionForm } from '../decision/DecisionDeskPage';
-import { VintageStatus } from './VintageStatus';
+import { Note } from '../../components/common/Note';
 import { RUN_STATUS, labelOf } from '../../lib/labels';
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct, fmtSignedPct } from '../../lib/format';
 import { describeRequest, moveOf, roundSize, validateMoveForm, type MoveForm } from '../../lib/move';
@@ -195,7 +195,7 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
                 <LimitationList codes={presets.data.notices} compactAfter={0} title={tr({ en: 'Notes', fr: 'Remarques' })} />
               </>
             )}
-            <VintageStatus />
+            <Note>{tr({ en: 'No macro data vintage is fetched: macro series revised after the date stay withheld in replays.', fr: 'Aucun millésime de données macroéconomiques n’est récupéré : les séries macro révisées après la date restent retenues dans les rejeux.' })}</Note>
           </Card>
         </div>
         <div>

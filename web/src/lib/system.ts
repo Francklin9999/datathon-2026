@@ -89,19 +89,19 @@ export const ROLE_CARDS: readonly RoleCard[] = [
       fr: 'Exécute les questions de recherche avec les outils de recherche et renvoie des preuves citées, pas des conclusions. Une page non enregistrée comme preuve ne peut pas être citée.',
     },
     tools: [
-      ...LOOKUP_TOOLS, 'edgar.find_company', 'edgar.list_filings', 'edgar.filing_text', 'edgar.company_facts', 'gdelt.search',
-      'web.fetch', 'web.browse', 'attention.pageviews', 'emissions.facilities', 'etf.holdings', 'world.search_events', 'research.save_evidence',
+      ...LOOKUP_TOOLS, 'gdelt.search',
+      'web.fetch', 'attention.pageviews', 'emissions.facilities', 'etf.holdings', 'world.search_events', 'research.save_evidence',
     ],
     toolsNote: {
-      en: 'Cannot call quant or rule tools. web.browse and emissions.facilities exist only when their feature flags are on; attention.pageviews and etf.holdings only with reviewed configuration (a ticker-to-article mapping, a dated issuer holdings file). Not executed in a historical replay.',
-      fr: 'Ne peut pas appeler les outils de calcul ou de règles. web.browse et emissions.facilities n’existent que si leurs indicateurs sont activés ; attention.pageviews et etf.holdings, seulement avec une configuration vérifiée (une correspondance titre-article, un fichier de positions daté de l’émetteur). Non exécuté dans un rejeu historique.',
+      en: 'Cannot call quant or rule tools. web.fetch reads allow-listed official pages only. emissions.facilities exists only when its feature flag is on; attention.pageviews and etf.holdings only with reviewed configuration (a ticker-to-article mapping, a dated issuer holdings file). No SEC EDGAR tool is offered: SEC access was refused. Not executed in a historical replay.',
+      fr: 'Ne peut pas appeler les outils de calcul ou de règles. web.fetch ne lit que des pages officielles autorisées. emissions.facilities n’existe que si son indicateur est activé ; attention.pageviews et etf.holdings, seulement avec une configuration vérifiée (une correspondance titre-article, un fichier de positions daté de l’émetteur). Aucun outil SEC EDGAR n’est proposé : l’accès a été refusé par la SEC. Non exécuté dans un rejeu historique.',
     },
   },
   {
     role: 'quant', nature: 'code', steps: ['quant'],
     purpose: {
-      en: 'Deterministic code. Computes the mandatory metric set and the calculations the plan asked for. Every number leaves it as a fact with its dataset, method and row counts.',
-      fr: 'Code déterministe. Calcule l’ensemble obligatoire de mesures et les calculs demandés par le plan. Chaque nombre en sort sous forme de fait avec son jeu de données, sa méthode et ses nombres de lignes.',
+      en: 'Deterministic code. Computes the mandatory metric set and, for a requested move, up to four optional analyses the plan selected (correlation with holdings, asset metrics, a calendar year, a stress window). Every number leaves it as a fact with its dataset, method and row counts.',
+      fr: 'Code déterministe. Calcule l’ensemble obligatoire de mesures et, pour un mouvement demandé, jusqu’à quatre analyses optionnelles choisies par le plan (corrélation avec les positions, mesures de l’actif, une année civile, une fenêtre de stress). Chaque nombre en sort sous forme de fait avec son jeu de données, sa méthode et ses nombres de lignes.',
     },
     tools: [
       'quant.asset_metrics', 'quant.calendar_year_return', 'quant.portfolio_snapshot', 'quant.portfolio_metrics', 'quant.apply_move',
@@ -211,7 +211,7 @@ export const ARCHITECTURE: readonly ArchNode[] = [
   },
   {
     id: 'research', title: { en: 'Public research adapters', fr: 'Adaptateurs de recherche publics' },
-    role: { en: 'SEC EDGAR, the cached news index and allow-listed pages. Results enter a run only as saved evidence.', fr: 'SEC EDGAR, l’index de nouvelles en cache et des pages autorisées. Les résultats n’entrent dans une exécution que comme preuves enregistrées.' },
+    role: { en: 'The GDELT news index and allow-listed official pages (web.fetch). Results enter a run only as saved evidence.', fr: 'L’index de nouvelles GDELT et des pages officielles autorisées (web.fetch). Les résultats n’entrent dans une exécution que comme preuves enregistrées.' },
     sendsTo: [],
   },
 ];

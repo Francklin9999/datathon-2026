@@ -37,42 +37,6 @@ export function fmtPts(value: number, lang: Lang, digits = 1): string {
   return `${fmtNumber(value, lang, digits)} pts`;
 }
 
-const SUPERSCRIPT: Readonly<Record<string, string>> = {
-  '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻',
-};
-
-/**
- * Compact scientific notation for values that span orders of magnitude (a covariance matrix):
- * `sig` significant digits, a true minus sign and a superscript exponent. 1.199e-5 → "1.20×10⁻⁵"
- * ("1,20×10⁻⁵" in French); an exponent of zero is left out (2.5 → "2.50"); zero is "0" and a
- * non-finite value "—".
- */
-export function fmtSci(value: number, lang: Lang, sig = 3): string {
-  if (!Number.isFinite(value)) return '—';
-  if (value === 0) return '0';
-  const parts = new Intl.NumberFormat(locale(lang), {
-    notation: 'scientific', minimumSignificantDigits: sig, maximumSignificantDigits: sig,
-  }).formatToParts(Math.abs(value));
-  let mantissa = '';
-  let exponent = '';
-  let inExponent = false;
-  for (const part of parts) {
-    if (part.type === 'exponentSeparator') inExponent = true;
-    else if (!inExponent) mantissa += part.value;
-    else if (part.type === 'exponentMinusSign') exponent += '-';
-    else if (part.type === 'exponentInteger') exponent += part.value;
-  }
-  const sign = value < 0 ? '−' : '';
-  if (exponent === '' || exponent === '0') return `${sign}${mantissa}`;
-  return `${sign}${mantissa}×10${[...exponent].map(c => SUPERSCRIPT[c] ?? c).join('')}`;
-}
-
-/** The value with up to 15 significant digits and no exponent, for a cell's title next to fmtSci. */
-export function fmtExact(value: number, lang: Lang): string {
-  if (!Number.isFinite(value)) return '—';
-  return new Intl.NumberFormat(locale(lang), { maximumSignificantDigits: 15 }).format(value);
-}
-
 export function fmtMoney(value: number, currency: Currency, lang: Lang, digits = 0): string {
   return new Intl.NumberFormat(locale(lang), {
     style: 'currency', currency, currencyDisplay: 'code',
@@ -143,7 +107,7 @@ export function comparatorSymbol(comparator: string): string {
 /**
  * Look up the fact ID for a metric field in a `factIds` map. The contract leaves the keys
  * undocumented: the run fixture uses field names ("volatilityPct") while the live API uses the
- * stem ("volatility"). Both are accepted (docs/T13-T14-HANDOFF.md, contract note 2).
+ * stem ("volatility"). Both are accepted (contracts/schemas.md, PortfolioSnapshot.metrics.factIds).
  */
 export function factIdFor(map: Record<string, string> | undefined, field: string): string | undefined {
   if (!map) return undefined;
@@ -153,7 +117,7 @@ export function factIdFor(map: Record<string, string> | undefined, field: string
 /**
  * Fill a rule label's "{threshold}" placeholder. Contract fixtures write the unit after the
  * placeholder ("above {threshold}% of the portfolio"), so a bare number is inserted there;
- * otherwise the value is formatted with its unit (see docs/T13-T14-HANDOFF.md, contract notes).
+ * otherwise the value is formatted with its unit (see contracts/schemas.md, PolicyRule.label).
  */
 export function fillThreshold(template: string, threshold: number | null, unit: Unit, lang: Lang): string {
   if (threshold === null) return template.replace('{threshold}', '—');

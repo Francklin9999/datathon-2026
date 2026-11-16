@@ -257,7 +257,7 @@ export function EventPanel({ eventId, profile, runId, onSelectEvent, onSelectCou
               </button>
               <span className="small muted">{tr({ en: 'Writes an audited explanation for this event.', fr: 'Rédige une explication auditée pour cet événement.' })}</span>
             </div>
-            {creating && <Loading label={tr({ en: 'Creating the run…', fr: 'Création de l’exécution…' })} />}
+            {creating && <Loading label={tr({ en: 'Starting…', fr: 'Lancement…' })} />}
             {createError && (
               <ErrorState error={createError} onRetry={() => void briefMe()}
                 title={tr({ en: 'The event brief could not be started. No brief was written; the event details above are unaffected.', fr: 'La note d’événement n’a pas pu être lancée. Aucune note n’a été rédigée ; les détails de l’événement ci-dessus ne sont pas touchés.' })} />
@@ -283,7 +283,7 @@ function EventBriefRun({ runId, eventId, profile, onSelectEvent, onDismiss }: {
       </div>
       {polled.loading && !run && <Loading />}
       {polled.error && <ErrorState error={polled.error} onRetry={polled.reload}
-        {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This run does not exist or belongs to another session.', fr: 'Cette exécution n’existe pas ou appartient à une autre session.' }) } : {})} />}
+        {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This analysis does not exist or belongs to another session.', fr: 'Cette analyse n’existe pas ou appartient à une autre session.' }) } : {})} />}
       {polled.pollError && (
         <p className="small muted" role="status">{tr({ en: 'Connection lost, retrying…', fr: 'Connexion perdue, nouvel essai…' })}</p>
       )}
@@ -306,7 +306,7 @@ function EventBriefBody({ run, eventId, profile, onSelectEvent }: {
 
   if (run.kind !== 'event_brief') {
     return (
-      <Unavailable title={tr({ en: 'This run is not an event brief.', fr: 'Cette exécution n’est pas une note d’événement.' })}>
+      <Unavailable title={tr({ en: 'This analysis is not an event brief.', fr: 'Cette analyse n’est pas une note d’événement.' })}>
         <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'Open it in Evidence & Audit', fr: 'L’ouvrir dans Preuves et audit' })}</Link>
       </Unavailable>
     );
@@ -355,12 +355,12 @@ function EventBriefBody({ run, eventId, profile, onSelectEvent }: {
           )}
           <BriefView brief={result.brief} />
           <p className="row-actions small">
-            <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'Open Evidence & Audit for this run', fr: 'Ouvrir Preuves et audit pour cette exécution' })}</Link>
+            <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'Open Evidence & Audit for this analysis', fr: 'Ouvrir Preuves et audit pour cette analyse' })}</Link>
           </p>
         </>
       )}
       <details open={!result}>
-        <summary className="h4">{tr({ en: 'Execution trace', fr: 'Trace d’exécution' })} · {labelOf(RUN_STATUS, run.status, lang)}</summary>
+        <summary className="h4">{tr({ en: 'Steps', fr: 'Étapes' })}, {labelOf(RUN_STATUS, run.status, lang).toLowerCase()}</summary>
         <RunTimeline run={run} />
       </details>
     </FactScopeProvider>
@@ -381,7 +381,7 @@ export function CountryPanel({ iso3, profile, from, to, onSelectEvent, onClose }
   const data = detail.data;
   const macroScope = useMemo<FactScope | null>(() => (data ? {
     kind: 'local',
-    label: { en: `Macro facts returned with the country panel for ${iso3}. Not part of any run ledger.`, fr: `Faits macro renvoyés avec le panneau du pays ${iso3}. Hors de tout registre d’exécution.` },
+    label: { en: `Macro facts returned with the country panel for ${iso3}. Not part of any analysis ledger.`, fr: `Faits macro renvoyés avec le panneau du pays ${iso3}. Hors de tout registre d’analyse.` },
     facts: Object.fromEntries(data.macro.map(fact => [fact.id, fact])),
   } : null), [data, iso3]);
 

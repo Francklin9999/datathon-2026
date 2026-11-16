@@ -1,7 +1,7 @@
 /**
  * Client wiring that waited on web/src/api/client.ts: account valuations (api-core#17), the run
- * trace's budgets on Agents & System (api-core#6), drafts kept across a conflict reload
- * (web-pages-core#9) and the capabilities note (web-markets-risk-planning#12).
+ * trace's budgets on Agents & System (api-core#6) and drafts kept across a conflict reload
+ * (web-pages-core#9).
  */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -158,13 +158,6 @@ test('the known valuation limitation matches the backend sentence and has a Fren
   assert.equal(text.en, sentence);
   assert.notEqual(text.fr, sentence);
   assert.equal(valuationLimitationText('Some new sentence.'), null);
-});
-
-test('the Source availability note this build translates is the one the backend sends', () => {
-  const backend = read('../../backend/aplomb/intelligence/capabilities.py');
-  const note = /'note': '([^']+)'/.exec(backend)?.[1];
-  assert.ok(note, 'capabilities() no longer returns a literal note');
-  assert.ok(read('../src/features/markets/SourceAvailability.tsx').includes(`'${note}'`), 'update CAPABILITY_NOTE and its French');
 });
 
 test('a stashed draft is restored only on a newer profile version and only once used', () => {

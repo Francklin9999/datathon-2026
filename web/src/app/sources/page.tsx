@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { SourcesPage } from '../../features/sources/SourcesPage';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Sources & data passports' };
+export const metadata: Metadata = { title: 'Sources' };
 
 // ?datasetId=&dataVersion= are read on the client (web/SPEC.md §4).
 export default function Page() {

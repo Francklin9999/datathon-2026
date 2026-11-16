@@ -21,5 +21,5 @@ export function getApiClient(): ApiClient {
   return client;
 }
 
-/** Research and intelligence routes without contract models (api/research.ts). */
+/** Routes without contract models (api/research.ts): the 13F filings and comparison, and the World investor map. */
 export const researchFetch = createResearchFetch({ baseUrl: BASE_URL, getSessionId, fetchImpl: sharedFetch });

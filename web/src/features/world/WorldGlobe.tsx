@@ -16,10 +16,10 @@ import { profileKey, useApp } from '../../state/app';
 import { EVENT_CATEGORY, labelOf } from '../../lib/labels';
 import { fmtDate, fmtPct } from '../../lib/format';
 import { countryLabel, decodeCountries, isKnownIso3, regionIso3, type CountryFeature, type Topology } from '../../lib/geo';
-import { CATEGORY_COLORS, EXPOSURE_BREAKS, EXPOSURE_COLORS, OBSERVATION_COLORS, PIN_COLORS, pinColor, type GlobeHover, type GlobePin } from './globeStyle';
+import { CATEGORY_COLORS, EXPOSURE_BREAKS, EXPOSURE_COLORS, PIN_COLORS, observationColor, pinColor, type GlobeHover, type GlobePin } from './globeStyle';
 import type { InvestorMapEntry } from './investorMap';
 import type { GlobeViewProps, MapCommand } from './GlobeView';
-import { eventSummary, WORLD_MODES, type GeographicArea } from '../../lib/world';
+import { eventSummary, observationModeTitle, type GeographicArea } from '../../lib/world';
 import { sourceLang } from './WorldPanels';
 
 function GlobeLoading() {
@@ -267,7 +267,7 @@ export function WorldGlobe({
           <p className="world-hover-meta">
             <span className="stage-dot" style={{ background: pinColor(hover.pin!, null) }} />
             {previewEvent ? labelOf(EVENT_CATEGORY, previewEvent.category, lang)
-              : previewObservation ? tr(WORLD_MODES.find(mode => mode.id === previewObservation.mode)!.title)
+              : previewObservation ? tr(observationModeTitle(previewObservation.mode))
               : previewReference ? tr(previewReference.sourceName) : tr({ en: 'Fictional location', fr: 'Lieu fictif' })}
           </p>
           <strong className="world-hover-title" lang={previewEvent ? sourceLang(previewEvent) : undefined}>{hover.pin?.label}</strong>
@@ -379,7 +379,7 @@ export function WorldGlobe({
         <div className="stage-block">
           <h2 className="stage-heading">{tr({ en: 'Reading the globe', fr: 'Lire le globe' })}</h2>
           <ul className="stage-legend">
-            {observationModes.map(mode => <li key={`observation:${mode}`}><span className="stage-dot" style={{ background: OBSERVATION_COLORS[mode] }} aria-hidden="true" />{tr({ en: 'Data', fr: 'Données' })}: {tr(WORLD_MODES.find(item => item.id === mode)!.title)}</li>)}
+            {observationModes.map(mode => <li key={`observation:${mode}`}><span className="stage-dot" style={{ background: observationColor(mode) }} aria-hidden="true" />{tr({ en: 'Data', fr: 'Données' })}: {tr(observationModeTitle(mode))}</li>)}
             {investors.length > 0 && <li><span className="stage-dot" style={{ background: '#F8D47A' }} aria-hidden="true" />{tr({ en: 'Fictional residence', fr: 'Résidence fictive' })}</li>}
             {investors.length > 0 && <li><span className="stage-dot" style={{ background: '#6AE0CF' }} aria-hidden="true" />{tr({ en: 'Fictional wallet custody location', fr: 'Lieu fictif de garde du portefeuille' })}</li>}
             {investors.length > 0 && <li><span className="stage-arc stage-investor-arc" aria-hidden="true" />{tr({ en: 'Fictional residence-to-wallet link', fr: 'Lien fictif entre la résidence et le portefeuille' })}</li>}

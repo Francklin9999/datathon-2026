@@ -11,6 +11,7 @@ import { PrivateAssets } from './PrivateAssets';
 import { Accounts } from './Accounts';
 import { AddRule } from './AddRule';
 import { RiskDiagnostics } from './RiskDiagnostics';
+import { FocusCandidates } from '../risk/FocusCandidates';
 import { ORIGIN } from './portfolioLabels';
 import './portfolio.css';
 import type {
@@ -98,6 +99,7 @@ function PortfolioContent({ profile }: { profile: Profile }) {
           {overviewState}
           {overview.data && scope && <FactScopeProvider scope={scope}><Risk overview={overview.data} /></FactScopeProvider>}
           <RiskDiagnostics profile={profile} />
+          <FocusCandidates profile={profile} />
           {overview.data && <LimitationList compactAfter={0} codes={overview.data.limitations} />}
         </>}
         {tab === 'rules' && <>

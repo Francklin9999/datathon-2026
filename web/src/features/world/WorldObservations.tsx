@@ -12,7 +12,7 @@ import { Empty, ErrorState, Loading } from '../../components/common/States';
 import { ExternalLink } from '../../components/common/ExternalLink';
 import { countryLabel } from '../../lib/geo';
 import { fmtDateTime } from '../../lib/format';
-import { FEED_PAGE_SIZE, OBSERVATION_OVERVIEW_LIMIT, WORLD_MODES, type WorldMode } from '../../lib/world';
+import { FEED_PAGE_SIZE, OBSERVATION_OVERVIEW_LIMIT, WORLD_MODES, type ObservationMode, type WorldMode } from '../../lib/world';
 import type { GlobePin } from './globeStyle';
 import { PortfolioAssessment } from './PortfolioAssessment';
 
@@ -37,7 +37,8 @@ export function WorldObservations({ mode, bbox, country, q, from, to, selectedId
   const [state, setState] = useState<ObservationState>(INITIAL);
   const [nonce, setNonce] = useState(0);
   const [feedLimit, setFeedLimit] = useState(FEED_PAGE_SIZE);
-  const sourceMode = mode === 'portfolio' || mode === 'overview' ? undefined : mode;
+  // Only news, macro or environment is sent: the API answers 422 for any other mode.
+  const sourceMode: ObservationMode | undefined = mode === 'portfolio' || mode === 'overview' ? undefined : mode;
   const query = useMemo<WorldObservationsQuery>(() => ({
     ...(profileId ? { profileId } : {}),
     ...(sourceMode ? { mode: sourceMode } : {}), ...(bbox ? { bbox } : {}),

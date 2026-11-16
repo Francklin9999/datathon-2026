@@ -46,7 +46,7 @@ export const RUN_KIND: Labels<RunKind> = {
   event_brief: l('Event brief', "Note d'événement"),
   replay: l('Historical replay', 'Rejeu historique'),
   profile_draft: l('Profile draft', 'Brouillon de profil'),
-  sabotage: l('Sabotage demonstration', 'Démonstration de sabotage'),
+  sabotage: l('Audit test', 'Test d’audit'),
 };
 
 export const STEP_TYPE: Labels<StepType> = {
@@ -351,14 +351,14 @@ export const EXPOSURE_BASIS: Labels<CountryExposure['basis']> = {
   mixed: l('Listing country and fund look-through', 'Pays de cotation et transparence des fonds'),
 };
 
-export const WORLD_LAYER: Labels<WorldLayer['layerId']> = {
+// 'airports' stays in the contract for compatibility only: GET /world/layers no longer lists it.
+export const WORLD_LAYER: Labels<Exclude<WorldLayer['layerId'], 'airports'>> = {
   events: l('Events', 'Événements'),
   exposure: l('Portfolio exposure by country', 'Exposition du portefeuille par pays'),
   facilities: l('Emissions facilities', 'Installations émettrices'),
   // Fallback only: the page shows the API's own layer title, which says what is loaded (earthquakes
   // today). This label must not name a hazard type the dataset may not contain.
   hazards: l('Natural hazards', 'Aléas naturels'),
-  airports: l('Airports · static reference', 'Aéroports · référence statique'),
 };
 
 export const MATCH_CONFIDENCE: Labels<Facility['matchConfidence']> = {
@@ -417,7 +417,7 @@ export const FEATURE_FLAG: Labels<FeatureFlag> = {
   time_machine: l('Time Machine', 'Machine à remonter le temps'),
   profile_creator: l('Profile creator', 'Création de profils'),
   goal_requests: l('Goal requests', 'Requêtes par objectif'),
-  sabotage_demo: l('Sabotage demonstration', 'Démonstration de sabotage'),
+  sabotage_demo: l('Audit test', 'Test d’audit'),
   research_open_web: l('Open-web research', 'Recherche sur le Web ouvert'),
   guardrails: l('Bedrock Guardrails', 'Garde-fous Bedrock'),
   on_demand_tickers: l('On-demand tickers', 'Symboles à la demande'),

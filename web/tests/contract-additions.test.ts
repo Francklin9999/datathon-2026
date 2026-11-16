@@ -5,8 +5,6 @@
  */
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createApiClient } from '../src/api/client';
-import { ApiRequestError } from '../src/api/errors';
 import type { RuleCheck, RuleDifference } from '../src/contracts/types';
 import { validateContract } from '../src/contracts/validate';
 import { holdingReturnsOf } from '../src/lib/overviewReturns';
@@ -83,50 +81,4 @@ test('holding returns: every holding from 1.6.0, the top five before', () => {
   ] });
   assert.deepEqual(current.get('SPY'), { pct: 12.5, factId: 'F-2' });
   assert.deepEqual(current.get('CASH.CAD'), { pct: null, factId: null });
-});
-
-// research#7 -----------------------------------------------------------------------------------------
-
-function clientReturning(status: number, body: unknown, seen: string[]) {
-  return createApiClient({
-    baseUrl: 'http://api.test/v1', getSessionId: () => 's_00000000-0000-4000-8000-000000000001',
-    fetchImpl: async input => { seen.push(String(input)); return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } }); },
-  });
-}
-
-test('research client methods: paths, queries and the snake_case connection rows of a 1.4.0 API', async () => {
-  const seen: string[] = [];
-  const rows = { providers: [
-    // 1.4.0 chain row: no signup_url and no credential_variable.
-    { id: 'alchemy', credential_present: true, rights_confirmed: true, supported_operation: 'head', documentation_url: 'https://d' },
-    { id: 'tiingo', signup_url: 'https://s', credential_variable: 'T', credential_present: false, rights_confirmed: true, supported_operation: 'x' },
-  ] };
-  const connections = await clientReturning(200, rows, seen).marketConnections();
-  assert.equal(connections.providers[0]?.credential_present, true);
-  const observation = { status: 'available', provider: 'finnhub', observation: { company: { ticker: 'AAPL' } }, source_url: 'https://f',
-    source_sha256: 'a'.repeat(64), retrieved_at: '2026-11-15T00:00:00+00:00', limitations: ['x'] };
-  await clientReturning(200, observation, seen).marketObservation('twelve-data', { symbol: 'AAPL', mic: 'XNGS' });
-  await clientReturning(200, { ...observation, provider: 'tiingo', sources: [] }, seen).tiingoHistory('AAPL', { start: '2026-10-01', end: '2026-11-01' });
-  assert.deepEqual(seen.slice(0, 3), [
-    'http://api.test/v1/research/market-connections',
-    'http://api.test/v1/research/market-provider/twelve-data?symbol=AAPL&mic=XNGS',
-    'http://api.test/v1/research/tiingo/AAPL?start=2026-10-01&end=2026-11-01',
-  ]);
-  // A body off the contract is an invalid_response error, not a silently wrong panel.
-  const bad = await clientReturning(200, { status: 'available', provider: 'x' }, seen).marketObservation('finnhub', { symbol: 'AAPL' }).catch((e: unknown) => e);
-  assert.ok(bad instanceof ApiRequestError && bad.code === 'invalid_response');
-});
-
-test('regional research client method validates both answer kinds', async () => {
-  const seen: string[] = [];
-  const frame = { region: 'KR', identifier: '00126380', identifierType: 'OpenDART corporate code', provider: 'OpenDART', kind: 'financials',
-    mic: null, currency: null, retrievedAt: '2026-11-15T00:00:00Z', availableAt: '2026-11-15T00:00:00Z', publicationAt: null,
-    sourceUrl: 'https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json', availabilityBasis: 'capture', historicalReplayEligibleBeforeCapture: false,
-    requestedStart: '2026-10-01', requestedEnd: '2026-11-01', fiscalYear: '2025', reportCode: '11011', statementType: 'CFS',
-    prices: [], filings: [], company: null, financials: [], ownership: [] };
-  const client = clientReturning(200, { ...frame, status: 'unavailable', reason: 'provider_credentials_or_usage_rights_not_configured' }, seen);
-  const result = await client.regionalResearch({ region: 'KR', identifier: '00126380', start: '2026-10-01', end: '2026-11-01', kind: 'financials',
-    report_code: '11011', statement_type: 'CFS', fiscal_year: '2025' });
-  assert.equal(result.status, 'unavailable');
-  assert.equal(seen[0], 'http://api.test/v1/intelligence/regional?region=KR&identifier=00126380&start=2026-10-01&end=2026-11-01&kind=financials&report_code=11011&statement_type=CFS&fiscal_year=2025');
 });

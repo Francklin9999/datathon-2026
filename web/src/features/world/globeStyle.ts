@@ -8,10 +8,11 @@
  * to the exposed countries it names; earthquakes are small dots sized by magnitude.
  */
 import type { EventCategory, I18nText, WorldEventItem, WorldObservation, WorldPortfolioAssessment } from '../../contracts/types';
+import type { ObservationMode } from '../../lib/world';
 
 export interface GlobePin {
   id: string;
-  kind: 'event' | 'facility' | 'hazard' | 'airport' | 'cluster' | 'observation' | 'investor' | 'wallet';
+  kind: 'event' | 'facility' | 'hazard' | 'cluster' | 'observation' | 'investor' | 'wallet';
   lat: number;
   lng: number;
   /** Plain text shown in the caption on hover. */
@@ -85,9 +86,14 @@ export function sourceGeometry(geometry: Record<string, unknown> | null | undefi
   return empty;
 }
 
+/** Size (degrees) of the grouping cells at a camera altitude: 12 far out, 6 half-way, 0 (no grouping) close in. */
+export function clusterDegrees(altitude: number): number {
+  return altitude >= 2 ? 12 : altitude >= 1.2 ? 6 : 0;
+}
+
 /** Spatial display grouping only. It never merges source records or changes source coordinates. */
 export function clusterPins(pins: readonly GlobePin[], altitude: number, selectedId: string | null): GlobePin[] {
-  const degrees = altitude >= 2 ? 12 : altitude >= 1.2 ? 6 : 0;
+  const degrees = clusterDegrees(altitude);
   const valid = pins.filter(pin => Number.isFinite(pin.lat) && Number.isFinite(pin.lng) && Math.abs(pin.lat) <= 90 && Math.abs(pin.lng) <= 180);
   if (!degrees) return valid;
   const cells = new Map<string, GlobePin[]>();
@@ -120,14 +126,18 @@ export const CATEGORY_COLORS: Record<EventCategory, string> = {
   other: '#C5CAD6',
 };
 
-export const OBSERVATION_COLORS: Record<WorldObservation['mode'], string> = {
-  news: '#7FD1FF', macro: '#2EC4B6', trade: '#B28CFF', energy: '#F28C38',
-  hazards: '#FFC27A', conflicts: '#F2667A', aviation: '#BCA9F5',
-  environment: '#6FD0C5', infrastructure: '#D0D8E8',
+/** Colours of the modes GET /world/observations serves; the contract still lists modes it no longer returns. */
+export const OBSERVATION_COLORS: Record<ObservationMode, string> = {
+  news: '#7FD1FF', macro: '#2EC4B6', environment: '#6FD0C5',
 };
 
+/** Colour of an observation; a mode that is no longer served takes the news colour. */
+export function observationColor(mode: WorldObservation['mode'] | undefined): string {
+  return mode === 'macro' || mode === 'environment' ? OBSERVATION_COLORS[mode] : OBSERVATION_COLORS.news;
+}
+
 export const PIN_COLORS = {
-  selected: '#FFFFFF', facility: '#6FD0C5', hazard: '#FFC27A', airport: '#BCA9F5',
+  selected: '#FFFFFF', facility: '#6FD0C5', hazard: '#FFC27A',
 } as const;
 
 export function pinColor(pin: GlobePin, selectedId: string | null): string {
@@ -135,10 +145,9 @@ export function pinColor(pin: GlobePin, selectedId: string | null): string {
   if (pin.kind === 'cluster') return '#D8E8FF';
   if (pin.kind === 'investor') return '#F8D47A';
   if (pin.kind === 'wallet') return '#6AE0CF';
-  if (pin.kind === 'observation') return OBSERVATION_COLORS[pin.observation?.mode ?? 'news'];
+  if (pin.kind === 'observation') return observationColor(pin.observation?.mode);
   if (pin.kind === 'facility') return PIN_COLORS.facility;
   if (pin.kind === 'hazard') return PIN_COLORS.hazard;
-  if (pin.kind === 'airport') return PIN_COLORS.airport;
   return CATEGORY_COLORS[pin.category ?? 'other'] ?? CATEGORY_COLORS.other;
 }
 

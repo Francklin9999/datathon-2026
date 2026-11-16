@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import type { AirportReference, Facility, Hazard } from '../../contracts/types';
+import type { Facility, Hazard } from '../../contracts/types';
 import { ExternalLink } from '../../components/common/ExternalLink';
 import { useApp } from '../../state/app';
 import { countryLabel } from '../../lib/geo';
@@ -41,22 +41,6 @@ export function hazardPin(hazard: Hazard): GlobePin {
         fr: 'Enregistrement de feu de forêt sourcé. Le point ne décrit ni le périmètre du feu ni les pertes.',
       },
       assessment: hazard.assessment ?? null,
-    },
-  };
-}
-
-export function airportPin(airport: AirportReference): GlobePin {
-  return {
-    id: airport.airportId, kind: 'airport', lat: airport.lat, lng: airport.lon,
-    label: `${airport.ident} · ${airport.name}`, countryLevel: false, weight: .15,
-    reference: {
-      sourceName: { en: 'OurAirports', fr: 'OurAirports' }, sourceUrl: airport.sourceUrl,
-      datasetId: 'world_airports', countryIso3: airport.countryIso3, capturedAt: airport.capturedAt,
-      summary: {
-        en: 'Large scheduled-service airport in the captured OurAirports registry. This static reference has no aircraft movements or current operating status.',
-        fr: 'Grand aéroport avec service régulier dans le registre OurAirports capturé. Cette référence statique ne fournit ni mouvements aériens ni état opérationnel actuel.',
-      },
-      assessment: airport.assessment ?? null,
     },
   };
 }

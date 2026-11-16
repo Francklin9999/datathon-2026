@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type {
-  AirportsResponse, EventCategory, FacilitiesResponse, HazardsResponse, Period, Profile, WorldEvent, WorldEventItem,
+  EventCategory, FacilitiesResponse, HazardsResponse, Period, Profile, WorldEvent, WorldEventItem,
   WorldExposureResponse, WorldLayer, WorldLayersResponse,
 } from '../../contracts/types';
 import { ThemeTag as THEMES } from '../../contracts/catalog';
@@ -35,8 +35,8 @@ import { fmtDate, fmtDateTime, fmtNumber, fmtPct } from '../../lib/format';
 import { countryLabel, countryName, isKnownIso3, regionIso3 } from '../../lib/geo';
 import { tickerSuggestions, type Suggestion } from '../../lib/suggest';
 import {
-  EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, FEED_PAGE_SIZE, GEOGRAPHIC_AREAS, WORLD_MODES, validBbox, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, spatialReferencePins, buildEventsQuery, clampRange,
-  defaultRange, eventSelectionPatch, exposureFactId, filtersKey, hasCoordinates, insideBbox, isResidualExposure, layerState, mergeEventPages, mergeSelection,
+  EMPTY_FILTERS, EVENT_CATEGORIES, EVENT_ORIGINS, FEED_PAGE_SIZE, GEOGRAPHIC_AREAS, WORLD_MODES, validBbox, LAYER_IDS, MAX_PINS, MAX_RANGE_DAYS, NO_LISTING_COUNTRY, buildEventsQuery, clampRange,
+  defaultRange, eventSelectionPatch, exposureFactId, filtersKey, hasCoordinates, isResidualExposure, layerState, mergeEventPages, mergeSelection,
   rangeIssue, selectionQuery, visibleEvents, type LayerId, type LayerUnavailable, type RangeIssue, type WorldFilters,
   type WorldSelection, type WorldSelectionPatch, type WorldMode,
 } from '../../lib/world';
@@ -45,7 +45,7 @@ import { WorldGlobe } from './WorldGlobe';
 import type { GlobePin } from './globeStyle';
 import { WorldNavigation } from './WorldNavigation';
 import { WorldObservations } from './WorldObservations';
-import { airportPin, facilityPin, hazardPin, ReferenceDetail } from './WorldReferences';
+import { facilityPin, hazardPin, ReferenceDetail } from './WorldReferences';
 import { investorMapPins, parseInvestorMap, type InvestorMapResponse } from './investorMap';
 import './world.css';
 
@@ -152,7 +152,7 @@ function WorldContent({ profile }: { profile: Profile }) {
     signal => getApiClient().worldLayers(signal));
   const layerItems: WorldLayer[] | null = layers.data?.items ?? null;
   const layerCoverage = layerItems?.find(layer => layer.layerId === 'events')?.coverage ?? null;
-  const [layersOn, setLayersOn] = useState<Record<LayerId, boolean>>({ events: true, exposure: true, facilities: false, hazards: false, airports: false });
+  const [layersOn, setLayersOn] = useState<Record<LayerId, boolean>>({ events: true, exposure: true, facilities: false, hazards: false });
   const layerStates = useMemo(() => Object.fromEntries(LAYER_IDS.map(id => {
     const state = layerState(id, layerItems, feature);
     // Without a layer list, the two core layers follow their own endpoints (feed, exposure).
@@ -305,12 +305,6 @@ function WorldContent({ profile }: { profile: Profile }) {
   const hazards = useQuery<HazardsResponse>(hazardsOn && pKey && applied ? `world-hazards|${pKey}|${applied.from}|${applied.to}|${applied.bbox ?? ''}` : null,
     signal => getApiClient().worldHazards({ profileId: profile.profileId, limit: EXTRA_LAYER_LIMIT, ...(applied?.from && applied.to ? { from: applied.from, to: applied.to } : {}), ...(applied?.bbox ? { bbox: applied.bbox } : {}) }, signal));
 
-  const airportsOn = isOn('airports');
-  const airports = useQuery<AirportsResponse>(airportsOn && pKey ? `world-airports|${pKey}|${countryIso3 ?? ''}|${appliedCountry}` : null,
-    signal => getApiClient().worldAirports({ profileId: profile.profileId, limit: 2000, ...((countryIso3 || appliedCountry) ? { country: [countryIso3 || appliedCountry] } : {}) }, signal));
-  const airportRows = useMemo(() => (airports.data?.items ?? []).filter(row => !applied?.bbox || insideBbox(row.lat, row.lon, applied.bbox)), [airports.data, applied?.bbox]);
-  const airportPins = useMemo(() => spatialReferencePins(airportRows, MAX_PINS), [airportRows]);
-
   // ----- every located event is offered to the zoom-dependent geographic grouping -----
   const eventsOn = isOn('events');
   useLayoutEffect(() => { setObservationId(null); }, [pKey, mode, applied?.bbox, countryIso3, appliedCountry]);
@@ -327,8 +321,7 @@ function WorldContent({ profile }: { profile: Profile }) {
     })) : []),
     ...(facilitiesOn ? facilityPins.map(facility => facilityPin(facility, facilities.data?.capturedAt)) : []),
     ...(hazardsOn ? hazardPins.map(hazardPin) : []),
-    ...(airportsOn ? airportPins.map(airportPin) : []),
-  ], [observationPins, investorPins, eventsOn, facilitiesOn, hazardsOn, airportsOn, eventPins, facilityPins, hazardPins, airportPins, facilities.data?.capturedAt]);
+  ], [observationPins, investorPins, eventsOn, facilitiesOn, hazardsOn, eventPins, facilityPins, hazardPins, facilities.data?.capturedAt]);
 
   const selectedEvent = useMemo(() => (eventId ? loaded.find(event => event.eventId === eventId) ?? null : null), [eventId, loaded]);
   const openDetails = useCallback(() => {
@@ -378,7 +371,7 @@ function WorldContent({ profile }: { profile: Profile }) {
   const reset = () => {
     const base = coverage ? { ...EMPTY_FILTERS, ...defaultRange(coverage) } : EMPTY_FILTERS;
     setDraft(base); setApplied(base); setFormIssue(null); setRelevantOnly(false); setArea(''); setMode('overview');
-    setLayersOn({ events: true, exposure: true, facilities: false, hazards: false, airports: false });
+    setLayersOn({ events: true, exposure: true, facilities: false, hazards: false });
     setInvestorsOn(true);
   };
   const countryOptions = useMemo(() => {
@@ -581,7 +574,7 @@ function WorldContent({ profile }: { profile: Profile }) {
 
       {mode !== 'portfolio' && <WorldObservations mode={mode} bbox={applied?.bbox ?? ''} country={countryIso3 && isKnownIso3(countryIso3) ? countryIso3 : appliedCountry}
         q={applied?.q ?? ''} from={applied?.from ?? ''} to={applied?.to ?? ''} selectedId={observationId} onPins={setObservationPins} onSelect={selectObservation} onGeometry={setObservationGeometry} />}
-      {mode !== 'aviation' && mode !== 'infrastructure' && <Card id="feed" className="world-feed" section={tr({ en: 'Feed', fr: 'Fil' })} tour="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
+      <Card id="feed" className="world-feed" section={tr({ en: 'Feed', fr: 'Fil' })} tour="world-feed" title={tr({ en: 'Event feed', fr: 'Fil d’événements' })}
         actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={feed.loading || applied === null}>{tr({ en: 'Reload', fr: 'Recharger' })}</button>}>
         <div role="status" aria-live="polite" className="small feed-counts">
           {(current || keptAfterFailure) && feed.total !== null && (
@@ -643,7 +636,7 @@ function WorldContent({ profile }: { profile: Profile }) {
           <ErrorState error={feed.moreError} onRetry={retryRemaining}
             title={tr({ en: 'Some events could not be loaded. Retry to add the remaining events to the globe.', fr: 'Certains événements n’ont pas pu être chargés. Réessayez pour ajouter les événements restants au globe.' })} />
         )}
-      </Card>}
+      </Card>
 
       <Sheet open={Boolean(eventId)} title={tr({ en: 'Event details', fr: 'Détails de l’événement' })} origin={null} onClose={closeEvent}>
         {eventId && <EventPanel eventId={eventId} profile={profile} runId={runId}
@@ -788,22 +781,6 @@ function WorldContent({ profile }: { profile: Profile }) {
           )}
         </Card>
       )}
-
-      {airportsOn && <Card title={tr({ en: 'Airport reference', fr: 'Référence aéroportuaire' })}>
-        {airports.loading && <Loading />}
-        {airports.error && <ErrorState error={airports.error} onRetry={airports.reload} />}
-        {airports.data && <>
-          <p className="small muted">{tr({
-            en: `OurAirports · ${airportRows.length} references in this area from ${airports.data.items.length} loaded of ${airports.data.total} matching country records; ${airportPins.length} spatially sampled pins. Captured ${airports.data.capturedAt}. Current static reference; independent of event dates. No aircraft movements, operating status, company relationship or financial impact is established.`,
-            fr: `OurAirports · ${airportRows.length} références dans cette zone parmi ${airports.data.items.length} chargées sur ${airports.data.total} enregistrements du pays ; ${airportPins.length} épingles réparties dans l’espace. Capture : ${airports.data.capturedAt}. Référence statique actuelle, indépendante des dates des événements. Aucun mouvement aérien, état opérationnel, lien d’entreprise ou impact financier établi.`,
-          })}</p>
-          <p className="small"><ExternalLink href="https://github.com/davidmegginson/ourairports-data/blob/main/LICENSE">{tr({ en: 'OurAirports public-domain dedication', fr: 'OurAirports : dédicace au domaine public' })}</ExternalLink> · <ExternalLink href="https://datacatalog.worldbank.org/public-licenses">{tr({ en: 'Country-code crosswalk: World Bank, CC BY 4.0', fr: 'Correspondance des codes pays : Banque mondiale, CC BY 4.0' })}</ExternalLink></p>
-          <div className="table-scroll" role="region" aria-label={tr({ en: 'Airport references', fr: 'Références aéroportuaires' })} tabIndex={0}>
-            <table><thead><tr><th>{tr({ en: 'Airport', fr: 'Aéroport' })}</th><th>{tr({ en: 'Country', fr: 'Pays' })}</th><th>{tr({ en: 'Source coordinates', fr: 'Coordonnées de la source' })}</th></tr></thead>
-            <tbody>{airportRows.map(row => <tr key={row.airportId}><th scope="row"><button type="button" className="linklike" aria-haspopup="dialog" onClick={() => onPin(airportPin(row))}>{row.ident} · {row.name}</button></th><td>{row.countryIso3 ?? row.countryIso2 ?? '—'}</td><td className="num">{row.lat.toFixed(3)}, {row.lon.toFixed(3)}</td></tr>)}</tbody></table>
-          </div>
-        </>}
-      </Card>}
 
       {hazardsOn && (
         <Card id="hazards" title={hazardsTitle}>

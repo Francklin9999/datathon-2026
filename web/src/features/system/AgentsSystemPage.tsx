@@ -159,7 +159,7 @@ function ArchitectureCard() {
       </>
     ),
     research: (
-      <span className="block">{tr({ en: 'Open-web research flag', fr: 'Indicateur de recherche sur le Web ouvert' })}: <strong>{on('research_open_web') ? tr({ en: 'on', fr: 'activé' }) : tr({ en: 'off', fr: 'désactivé' })}</strong></span>
+      <span className="block">{tr({ en: 'Research reads allow-listed official pages with web.fetch; there is no browser and no open-web search.', fr: 'La recherche lit des pages officielles autorisées avec web.fetch ; il n’y a ni navigateur ni recherche sur le Web ouvert.' })}</span>
     ),
   };
   return (
@@ -295,7 +295,7 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
             <dd className="v"><Link href={`/agents-system/?runId=${encodeURIComponent(run.parentRunId)}#run-detail`}>{tr({ en: 'The earlier analysis', fr: 'L’analyse antérieure' })}</Link></dd></div>
         )}
         {run.flags.sabotage && (
-          <div className="kv"><dt className="k">{tr({ en: 'Sabotage demonstration', fr: 'Démonstration de sabotage' })}</dt><dd className="v">{labelOf(SABOTAGE_MODE, run.flags.sabotage, lang)}</dd></div>
+          <div className="kv"><dt className="k">{tr({ en: 'Audit test', fr: 'Test d’audit' })}</dt><dd className="v">{labelOf(SABOTAGE_MODE, run.flags.sabotage, lang)}</dd></div>
         )}
       </dl>
 
