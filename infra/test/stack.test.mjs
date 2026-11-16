@@ -68,14 +68,12 @@ test('real handlers/artifacts and bounded model IAM are required',()=>{
     const legacy={...appConfig(dir),dataVersion:'snap-20261114-sourced'}; delete legacy.dataAsOf;
     validateApplication(legacy); assert.equal(legacy.dataAsOf,'2026-11-12');
     // The backend registers no research tool without a contact (research/core.py contact_user_agent):
-    // a warning for the deployed config, an error once research_open_web is listed.
+    // a warning for the deployed config.
     for(const sourceUserAgent of ['Aplomb research contact: approved-team-contact',
       'Aplomb datathon demo (github.com/Francklin9999/datathon-2026)','a@b.c']) {
       const warn=console.warn; const warnings=[]; console.warn=(text)=>warnings.push(text);
       try { validateApplication({...appConfig(dir),sourceUserAgent}); } finally { console.warn=warn; }
       assert.match(warnings.join('\n'),/sourceUserAgent needs a contact/,sourceUserAgent);
-      assert.throws(()=>validateApplication({...appConfig(dir),sourceUserAgent,features:['research_open_web']}),
-        /sourceUserAgent needs a contact/,sourceUserAgent);
     }
     validateApplication({...appConfig(dir),sourceUserAgent:'Aplomb research (https://example.org/contact)'});
     const missing=appConfig(dir); missing.modelResourceArns=missing.modelResourceArns.slice(0,2);
@@ -158,23 +156,13 @@ test('release changes publish new isolated IAM and retain old version delivery c
   } finally {fs.rmSync(dir,{recursive:true});}
 });
 
-test('AgentCore browser access exists only with research_open_web, on the worker, for the managed browser',()=>{
+test('no role gets AgentCore access, even with research_open_web listed (the browser tool was removed)',()=>{
   const dir=artifact();
   const browserStatements=t=>Object.entries(t.Resources).filter(([,r])=>r.Type==='AWS::IAM::Policy')
     .flatMap(([id,r])=>r.Properties.PolicyDocument.Statement.map(s=>({id,s})))
     .filter(({s})=>(Array.isArray(s.Action)?s.Action:[s.Action]).some(a=>a.startsWith('bedrock-agentcore:')));
   try {
-    const off=Template.fromStack(new AplombStack(new App(),'Off',{application:appConfig(dir)})).toJSON();
-    assert.deepEqual(browserStatements(off),[]);
     const on=Template.fromStack(new AplombStack(new App(),'On',{application:{...appConfig(dir),features:['research_open_web']}})).toJSON();
-    const found=browserStatements(on);
-    assert.equal(found.length,1);
-    assert.match(found[0].id,/^WorkerRole/);
-    assert.deepEqual(found[0].s.Action,['bedrock-agentcore:StartBrowserSession','bedrock-agentcore:StopBrowserSession',
-      'bedrock-agentcore:ConnectBrowserAutomationStream']);
-    const resources=JSON.stringify(found[0].s.Resource);
-    assert.ok(resources.includes(':aws:browser/aws.browser.v1') && !resources.includes('*'));
-    const worker=Object.values(on.Resources).find(r=>r.Type==='AWS::Lambda::Function'&&r.Properties.Handler==='aplomb.agents.worker.handler');
-    assert.equal(worker.Properties.Environment.Variables.APLOMB_FEATURE_RESEARCH_OPEN_WEB,'true');
+    assert.deepEqual(browserStatements(on),[]);
   } finally {fs.rmSync(dir,{recursive:true});}
 });

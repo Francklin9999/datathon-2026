@@ -15,7 +15,7 @@ from dataclasses import dataclass, replace
 from datetime import date, datetime
 from html.parser import HTMLParser
 from typing import Callable
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urldefrag, urljoin, urlsplit
 
 
 class ResearchError(ValueError):
@@ -66,6 +66,19 @@ def policy_for(host: str) -> DomainPolicy:
         if host == policy.domain:  # exact registry; no implicit trust of subdomains
             return policy
     raise ResearchError("domain_not_allowlisted")
+
+
+def allowed_link(href: str) -> str | None:
+    """``href`` without its fragment when it is an https URL on an allow-listed host, else None."""
+    url, _ = urldefrag(href)
+    parsed = urlsplit(url)
+    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or parsed.port not in (None, 443):
+        return None
+    try:
+        policy_for(parsed.hostname)
+    except ResearchError:
+        return None
+    return url
 
 
 def bounded_resolve(host, port, **kwargs):
@@ -208,12 +221,15 @@ class TextParser(HTMLParser):
         super().__init__()
         self.parts, self.hidden = [], 0
 
+    # Like script, style and noscript, the <title> is not page text. Official pages repeat it as the heading
+    # of the release after some 7,500 characters of menus; web.fetch starts its passage at the first match of
+    # its query, so a query on the title must reach that heading, not the <title> at the top of the page.
     def handle_starttag(self, tag, attrs):
-        if tag in ("script", "style", "noscript"):
+        if tag in ("script", "style", "noscript", "title"):
             self.hidden += 1
 
     def handle_endtag(self, tag):
-        if tag in ("script", "style", "noscript"):
+        if tag in ("script", "style", "noscript", "title"):
             self.hidden = max(0, self.hidden - 1)
 
     def handle_data(self, text):

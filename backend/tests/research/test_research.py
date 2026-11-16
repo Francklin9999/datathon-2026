@@ -316,6 +316,22 @@ def test_official_event_source_is_captured_and_scoped_to_run(host, publisher):
         svc.save_evidence(data, doc.document_id, ResearchContext("RUN-other", NOW.date()), ledger)
 
 
+def test_a_title_query_reaches_the_announcement_not_the_menus():
+    """Bank of Canada and Federal Reserve pages repeat their title as the release heading after about 7,500
+    characters of menus. web.fetch starts at the first match of query, so the <title> is left out of the page
+    text: a query on the title opens the heading and the announcement, not the menus at the top of the page."""
+    title = "Bank of Canada maintains the policy rate at 2¼%"
+    menus = "".join(f"<li><a href='/m/{i}'>Menu entry {i}</a></li>" for i in range(700))
+    page = (f"<html><head><title>{title} - Bank of Canada</title></head><body><nav><ul>{menus}</ul></nav>"
+            f"<h1>{title}</h1><p>The Bank of Canada today held its target for the overnight rate at 2.25%.</p></body></html>")
+    svc = service(Recorded(response(page, **{"content-type": "text/html; charset=utf-8"})))
+    ctx = SimpleNamespace(run_id=CTX.run_id, as_of=str(CTX.as_of), historical=False, research_context=CTX)
+    url = "https://www.bankofcanada.ca/2026/06/fad-press-release-2026-06-10/"
+    result = research_tool_handlers(svc)["web.fetch"][1](ctx, url=url, query=title)
+    passage = result.data["passages"][0]["text"]
+    assert passage.endswith("held its target for the overnight rate at 2.25%.") and "- Bank of Canada" not in passage
+
+
 def test_gdelt_rejects_local_addresses_ports_invalid_timestamps_and_tracking_duplicates():
     key = ("issuer", "2026-01-01", "2026-02-01", None)
     base = {"title": "Report", "url": "https://example.org/a?utm_source=x", "domain": "example.org", "seendate": "20260101T120000Z"}
