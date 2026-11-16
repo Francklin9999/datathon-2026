@@ -248,12 +248,12 @@ export default function GlobeView({
     return () => cancelAnimationFrame(frame);
   }, [ready, width, height]);
 
-  // Idle rotation, slow, unless motion is reduced or the person took control.
+  // Idle rotation (about one turn every 50 s at 60 fps) unless motion is reduced or the person took control.
   useEffect(() => {
     if (!ready || !globe.current) return;
     const controls = globe.current.controls();
     controls.autoRotate = rotate && !reducedMotion;
-    controls.autoRotateSpeed = 0.35;
+    controls.autoRotateSpeed = 1.2;
     controls.enableDamping = !reducedMotion;
   }, [rotate, reducedMotion, ready]);
 
