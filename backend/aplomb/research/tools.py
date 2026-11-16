@@ -145,9 +145,9 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, bro
     ``attention.pageviews`` only with a verified article mapping and ``etf.holdings`` only with an issuer file.
 
     The four ``edgar.*`` tools exist only with ``sec=True``. The owner removed every SEC source from
-    active coverage after HTTP 403 refusals (intelligence/data/source_dispositions.json SRC-034..SRC-042,
-    "removed: owner excluded SEC access-refused sources"; intelligence/capabilities.py family ``sec``
-    is ``removed``), so the application composition does not offer them and no research call is spent
+    active coverage after HTTP 403 refusals (docs/parallel/reports/agent-2/SOURCES.csv SRC-034..SRC-042,
+    "removed: owner excluded SEC access-refused sources"), so the application composition does not
+    offer them and no research call is spent
     on a refused source. ``sec=True`` is for an accepted SEC access (docs/19-OWNER-ACTIONS.md item 1)
     and for tests."""
     from aplomb.agents.registry import ToolResult

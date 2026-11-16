@@ -80,6 +80,8 @@ class AssetsResponse(WireModel):
     total: Count
 
 
+# EntityCandidate .. EntitySearchResponse: GET /intelligence/entities was removed with the Markets
+# research surface; kept only while web/src/api/client.ts references the model (no route returns it).
 class EntityCandidate(WireModel):
     lei: String
     legal_name: String
@@ -922,6 +924,8 @@ class EmptyRequest(WireModel):
 
 # --- Credentialed research sources and regional research (1.6.0, api.md "Credentialed research
 # sources"). These payloads already existed with these exact keys; the models only describe them.
+# The keyed-market and regional routes were removed with the Markets research surface; these models
+# stay only while web/src/api/client.ts references them (no route returns them).
 # The keyed-market routes keep their snake_case keys (README convention exception), so their models
 # turn the camelCase alias generator off. Timestamps are the providers' or the capture's own text
 # (offsets such as +00:00 occur), hence String rather than ISODateTime.

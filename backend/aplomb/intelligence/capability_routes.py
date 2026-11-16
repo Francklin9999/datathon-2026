@@ -1,14 +1,14 @@
-"""Read-only source capability inventory; contains no account or credential values."""
+"""Read-only source-capabilities shim for the current Markets page (see capabilities.py)."""
 from fastapi import APIRouter, Depends
 
 from .capabilities import capabilities
 
 
-def capability_router(settings, session_dependency):
+def capability_router(session_dependency):
     router = APIRouter()
 
     @router.get('/v1/intelligence/source-capabilities')
     def source_capabilities(_sid: str = Depends(session_dependency)):
-        return capabilities(settings)
+        return capabilities()
 
     return router
