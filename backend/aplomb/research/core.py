@@ -221,12 +221,15 @@ class TextParser(HTMLParser):
         super().__init__()
         self.parts, self.hidden = [], 0
 
+    # Like script, style and noscript, the <title> is not page text. Official pages repeat it as the heading
+    # of the release after some 7,500 characters of menus; web.fetch starts its passage at the first match of
+    # its query, so a query on the title must reach that heading, not the <title> at the top of the page.
     def handle_starttag(self, tag, attrs):
-        if tag in ("script", "style", "noscript"):
+        if tag in ("script", "style", "noscript", "title"):
             self.hidden += 1
 
     def handle_endtag(self, tag):
-        if tag in ("script", "style", "noscript"):
+        if tag in ("script", "style", "noscript", "title"):
             self.hidden = max(0, self.hidden - 1)
 
     def handle_data(self, text):

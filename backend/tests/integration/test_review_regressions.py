@@ -438,6 +438,8 @@ def test_an_event_brief_asks_the_researcher_to_read_its_official_source_with_web
     assert run.status == "succeeded", run.error
     question = next(q for q in seen[0]["questions"] if q["id"] == "Q-EVENT-SOURCE")
     assert url in question["question"] and question["preferred_tools"] == ["web.fetch", "research.save_evidence"]
+    # The exact title reaches the page heading above the announcement (test_a_title_query_reaches_the_announcement_not_the_menus).
+    assert "query: the exact title" in question["question"]
     assert calls == [{"url": url, "query": "policy rate", "max_chars": 6000}]
     research = next(step for step in run.steps if step.type == "research")
     assert [c.tool for c in research.tool_calls] == ["web.fetch"] and research.tool_calls[0].ok

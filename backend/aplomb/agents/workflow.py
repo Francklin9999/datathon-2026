@@ -1064,11 +1064,14 @@ def _event_source_question(e, registry):
     url = next((link for source in event.sources if (link := allowed_link(source.url))), None)
     if url is None:
         return None
+    # web.fetch starts its passage near the first match of query. The exact title matches the page's own
+    # heading, right above the announcement (the HTML <title> is not page text); a shorter phrase of it,
+    # such as the institution's name, can first match the menus that fill the top of central-bank pages.
     return ResearchQuestion(
         id=EVENT_SOURCE_QUESTION_ID, subject=event.event_id,
         question=f"What does the official source of the event \"{event.title}\" state? Read it with web.fetch "
-                 f"(url {url}, query: a short phrase of the title), then save one verbatim "
-                 "quote of what was announced with research.save_evidence (subject: the event).",
+                 f"(url {url}, query: the exact title, or a shorter phrase of it if no passage matches), then save "
+                 "one verbatim quote of what was announced with research.save_evidence (subject: the event).",
         preferred_tools=["web.fetch", "research.save_evidence"])
 
 
