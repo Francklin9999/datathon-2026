@@ -528,7 +528,7 @@ Session-owned, read-only. Built only from what the worker recorded; nothing is r
 
 - `steps[]`: role, actor, status, timings, model, token usage, `modelCalls[]` (per physical attempt: model, outcome, provider error **code** only, `next` = `retry` | `repair` | `fallback`) and `toolCalls[]` (redacted errors).
 - `budgets[]`: `{ name, used, limit }` for `llm_calls`, `research_calls`, `revisions`, `rewrites`, `scenarios`, `wall_clock_ms`.
-- `events[]`: `resumed`, `step_reused_from_checkpoint`, `model_output_reused`, `model_retry`, `model_schema_repair`, `model_fallback`, `step_failed`, `run_failed`; `generation`, `claims`, `checkpoints`; `limitations[]`.
+- `events[]`: `resumed`, `step_reused_from_checkpoint`, `model_output_reused`, `model_retry`, `model_schema_repair`, `model_fallback`, `step_failed`, `run_failed`, `plan_task_skipped` (`task`: 1-based position in the plan's quant tasks, `tool`, `reason`: a plan quant task that was not run, `agents/SPEC.md` §4.3); `generation`, `claims`, `checkpoints`; `limitations[]`.
 - `claimAudit[]`: per brief sentence, its status, failed audit codes and check families (`numeric`, `comparison`, `reference`, `policy`, `source_quote`, `source_interpretation`, `temporal`, `guardrail`, `structure`), and cited fact/evidence/rule IDs. `briefs[]` adds global checks and whether the signed ledger hash matches the restored checkpoint.
 - `sources[]`: up to 12 evidence items with the SHA-256 of the full captured source, Unicode-character excerpt/quote offsets and excerpts (untrusted data), or `unavailable` when no verified same-run capture exists.
 

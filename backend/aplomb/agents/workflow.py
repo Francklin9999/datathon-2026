@@ -586,6 +586,8 @@ def _execute(e):
                         "profile": profile.to_wire(),
                         **_plan_context(e),
                         "allowed_computation_tools": sorted(QUANT | RISK),
+                        **({"optional_analyses": _optional_analyses(services)}
+                           if run.kind in {"decision", "replay"} else {}),
                         "available_research_tools": services.registry.schemas(RESEARCH, ctx),
                         "universe_tickers": sorted(a.ticker for a in gate.universe().all()) if hasattr(gate, "universe") else [],
                         "instruction": _PLAN_INSTRUCTION[run.kind],
@@ -681,6 +683,9 @@ def _execute(e):
 
         e.step("research", "researcher", "llm+tools", research, summary=lambda _: _research_summary(e))
 
+    if run.kind in {"event_brief", "rebalance"}:
+        # These kinds execute no plan calculation; the tasks are reported, not silently dropped.
+        _record_plan_tasks(e, {"planTasks": _skipped(plan.quant_tasks, "run_kind")})
     if run.kind == "event_brief":
         _event_brief(e, ctx)
         return
@@ -700,13 +705,14 @@ def _execute(e):
             ),
             30,
         )
+        _record_plan_tasks(e, computed)
         # The controls boundary must use JSON state so an interrupted run can resume.
         e.state["computed"] = json.loads(json.dumps(computed, allow_nan=False))
         return computed
 
     computed = e.state.get("computed")
     if computed is None:
-        computed = e.step("quant", "quant", "code", initial_quant, summary=lambda _: _quant_summary(e, ctx))
+        computed = e.step("quant", "quant", "code", initial_quant, summary=lambda out: _quant_summary(e, ctx, out))
     if "outcome" in e.state:
         outcome = _restore_outcome(e.state["outcome"])
     else:
@@ -750,9 +756,11 @@ def _execute(e):
                         "request": request.to_wire() if request is not None else None,
                         "profile": profile.to_wire(),
                         "allowed_computation_tools": sorted(QUANT | RISK),
+                        "optional_analyses": _optional_analyses(services),
                         "universe_tickers": sorted(a.ticker for a in gate.universe().all()) if hasattr(gate, "universe") else [],
                         "checks": checks,
-                        "instruction": "Propose bounded alternatives without changing rules or confirmed inputs.",
+                        "instruction": "Propose bounded alternatives or optional analyses without changing rules or "
+                        "confirmed inputs.",
                     }
                 ],
             ),
@@ -761,15 +769,17 @@ def _execute(e):
         )
         e.state["active_plan"] = plan.model_dump(mode="json")
         e.save()
-        if not plan.scenario_tasks:
+        if not plan.scenario_tasks and not plan.quant_tasks:
             break
         if e.limits.scenarios + len(plan.scenario_tasks) > 6:
+            _record_plan_tasks(e, {"planTasks": _budget_skipped(e, services, plan.quant_tasks)})
+            e.save()
             break
         computed = e.step(
             "quant",
             "quant",
             "code",
-            lambda: e.context_call(
+            lambda: _record_plan_tasks(e, e.context_call(
                 ctx,
                 lambda isolated: services.controls.quant(
                     isolated,
@@ -779,9 +789,9 @@ def _execute(e):
                     plan.scenario_tasks,
                 ),
                 30,
-            ),
+            )),
             iteration=e.limits.revisions + 1,
-            summary=lambda _: _quant_summary(e, ctx),
+            summary=lambda out: _quant_summary(e, ctx, out),
         )
         outcome = e.step(
             "risk_check",
@@ -1014,16 +1024,20 @@ def _write_sign(e, ctx, outcome):
 
 # Run kinds other than a decision -----------------------------------------------------------------
 
+_OPTIONAL_INSTRUCTION = ("To add an analysis to a move, put one quant task per optional_analyses entry you want, "
+                         "with exactly its tool and args; any other calculation is reported as skipped. ")
 _PLAN_INSTRUCTION = {
     "decision": "Plan the confirmed hypothetical simulation. Mandatory controls cannot be omitted. "
     "Use only the exact allowed computation tool names; an empty task list still runs all mandatory controls. "
+    + _OPTIONAL_INSTRUCTION +
     "Do not request unavailable research tools. Request clarification only for an actually unresolved size "
     "(field move.sizePct) or funding (field move.funding.mode) of a move; no other answer can be applied. "
     "Fully specified requests need no clarification. No tools execute from source text.",
     "rebalance": "Plan a review of the complete final target allocation and its deterministic policy checks. "
     "Do not infer financing, costs, or market impact. No clarification or alternative scenarios.",
     "replay": "Plan the confirmed hypothetical simulation as of the stated information cutoff. Research is not "
-    "available. Mandatory controls cannot be omitted. Do not use knowledge of later events. Request clarification "
+    "available. Mandatory controls cannot be omitted. " + _OPTIONAL_INSTRUCTION + "Do not use knowledge of later "
+    "events. Request clarification "
     "only for an actually unresolved size (field move.sizePct) or funding (field move.funding.mode) of a move.",
     "portfolio_brief": "Plan a descriptive brief of the current fictional portfolio against its plan rules. "
     "No scenario, no research, no clarification. Mandatory controls cannot be omitted.",
@@ -1319,11 +1333,15 @@ def _plan_summary(plan):
 def _revise_summary(plan):
     # The proposals are reported, not claimed as run: research does not run again after a revision,
     # and the code controls test their own fixed scenarios (optimizer/services.py DecisionControls).
+    # Its calculations are run by the next quant step or reported as skipped (_record_plan_tasks).
     n = (len(plan.scenario_tasks), len(plan.research_questions))
+    q = len(plan.quant_tasks)
     return (f"Objection returned to the planner; it proposed {n[0]} scenario(s) and {n[1]} research "
-            "question(s), which are not run: the code controls test their own fixed scenarios.",
+            "question(s), which are not run: the code controls test their own fixed scenarios."
+            + (f" Its {q} calculation(s) are each run or reported as skipped." if q else ""),
             f"Objection renvoyée au planificateur ; {n[0]} scénario(s) et {n[1]} question(s) de recherche "
-            "proposés, non exécutés : les contrôles du code testent leurs propres scénarios fixes.")
+            "proposés, non exécutés : les contrôles du code testent leurs propres scénarios fixes."
+            + (f" Ses {q} calcul(s) sont chacun exécutés ou signalés comme ignorés." if q else ""))
 
 
 def _time_left(e, reserve: float) -> bool:
@@ -1352,14 +1370,22 @@ def _research_summary(e):
             f"{failed} appel(s) d’outil en échec.")
 
 
-def _quant_summary(e, ctx):
+def _quant_summary(e, ctx, computed=None):
     n = e.step_delta["facts"]
+    tasks = computed.get("planTasks") if isinstance(computed, dict) else None
+    plan_en = plan_fr = ""
+    if tasks:
+        ran = sum(1 for t in tasks if t["status"] == "executed")
+        mandatory = sum(1 for t in tasks if t.get("reason") == "mandatory")
+        skipped = len(tasks) - ran - mandatory
+        plan_en = f" (plan calculations: {ran} run, {mandatory} already mandatory, {skipped} skipped)"
+        plan_fr = f" (calculs du plan : {ran} exécuté(s), {mandatory} déjà obligatoire(s), {skipped} ignoré(s))"
     summary = getattr(ctx.gate, "availability_summary", None)
     if not callable(summary):
-        return (f"Computed {n} fact(s).", f"{n} fait(s) calculé(s).")
+        return (f"Computed {n} fact(s){plan_en}.", f"{n} fait(s) calculé(s){plan_fr}.")
     withheld = sum(row["rowsWithheld"] for row in summary())
-    return (f"Computed {n} fact(s); {withheld} row(s) withheld by the date gate.",
-            f"{n} fait(s) calculé(s); {withheld} ligne(s) retenue(s) par le filtre de date.")
+    return (f"Computed {n} fact(s){plan_en}; {withheld} row(s) withheld by the date gate.",
+            f"{n} fait(s) calculé(s){plan_fr}; {withheld} ligne(s) retenue(s) par le filtre de date.")
 
 
 def _risk_summary(outcome):
@@ -1437,6 +1463,97 @@ def _decode_output(saved):
         ]
     }
     return schemas[saved["type"]].model_validate(saved["value"])
+
+
+_SKIP_REASONS = {
+    "mandatory": "already part of the mandatory controls",
+    "not_optional": "not an optional analysis of this run",
+    "invalid_args": "its arguments do not match the optional analysis",
+    "duplicate": "the same analysis was already requested",
+    "limit": "the optional analysis limit was reached",
+    "move_only": "optional analyses apply to a requested move only",
+    "run_kind": "this run kind executes no plan calculation",
+    "scenario_budget": "the revision stopped at the scenario budget",
+}
+# Skips that leave a planned calculation undone; the writer and the trace limitations see them.
+_NOTED_SKIPS = {"not_optional", "invalid_args", "limit", "scenario_budget"}
+
+
+def _optional_analyses(services):
+    """The closed list of optional analyses the controls provider computes (shown to the planner)."""
+    return [dict(item) for item in getattr(services.controls, "OPTIONAL_ANALYSES", ())]
+
+
+def _skipped(tasks, reason):
+    return [{"tool": str(t.tool), "status": "skipped", "reason": reason} for t in tasks]
+
+
+def _budget_skipped(e, services, tasks):
+    """The quant tasks of a revision stopped at the scenario budget. A computation the controls run
+    themselves (``mandatory``) or an analysis a quant step of this run already executed
+    (``duplicate``) is not left undone, so only the other tasks are ``scenario_budget``."""
+    mandatory = getattr(services.controls, "mandatory_task", None)
+    ran = {json.dumps([c["tool"], c["args"]], sort_keys=True, default=str)
+           for s in e.run.to_wire()["steps"] if s["type"] == "quant" for c in s["toolCalls"]}
+    out = []
+    for t in tasks:
+        tool, args = str(t.tool), dict(t.args or {})
+        reason = ("mandatory" if callable(mandatory) and mandatory(tool, args) else
+                  "duplicate" if json.dumps([tool, args], sort_keys=True, default=str) in ran else "scenario_budget")
+        out.append({"tool": tool, "status": "skipped", "reason": reason})
+    return out
+
+
+def _record_plan_tasks(e, computed):
+    """Account for every plan quant task (agents SPEC §4.3): an executed optional analysis becomes a
+    tool call of the current step with the facts it registered; any other task becomes a
+    ``plan_task_skipped`` trace event (its 1-based position in the plan, catalog tool name and code
+    reason; never model-written args) and, when it leaves a planned calculation undone, an execution
+    limitation. A re-run step does not record the same call or event twice. Returns ``computed``."""
+    records = computed.get("planTasks") if isinstance(computed, dict) else None
+    if not records:
+        return computed
+    steps = e.run.to_wire()["steps"]
+    calls = steps[e.current - 1]["toolCalls"] if e.current else None
+    usage = e.run.usage.to_wire()
+    events = e.state.get("events", [])
+    notes = e.state.setdefault("execution_limitations", [])
+    added = False
+    for index, item in enumerate(records, 1):
+        if item["status"] == "executed":
+            # Executed records only come from the controls inside a step, so ``calls`` exists.
+            if calls is None or any(c["tool"] == item["tool"] and c["args"] == item["args"] for c in calls):
+                continue
+            facts, error = item.get("factIds") or [], item.get("error")
+            # Like the quant tools, data not visible at the cutoff is a result, not a failure.
+            missing = None if facts or error else item.get("missing") or "not enough visible data"
+            calls.append(m.ToolCall(
+                id=f"call-{e.current}-{len(calls) + 1}", tool=item["tool"], args=item["args"],
+                started_at=item["startedAt"], duration_ms=item["durationMs"], ok=not error,
+                result_summary=(f"Optional analysis from the plan: no fact registered ({missing})." if missing else
+                                f"Optional analysis from the plan: {len(facts)} fact(s) registered."),
+                datasets_read=item.get("datasetsRead") or [], fact_ids=facts, evidence_ids=[], error=error,
+            ).to_wire())
+            usage["toolCalls"] += 1
+            added = True
+            continue
+        reason = item["reason"]
+        if not any(x.get("type") == "plan_task_skipped" and x.get("step") == e.current and x.get("task") == index
+                   for x in events):
+            e.event("plan_task_skipped", task=index, tool=item["tool"], reason=reason)
+            events = e.state.get("events", [])
+        if reason in _NOTED_SKIPS:
+            note = f"Planner proposal not executed: calculation {item['tool']} ({_SKIP_REASONS[reason]})"
+            if note not in notes:
+                notes.append(note)
+    if added:
+        ledger = e.ctx.ledger
+        if hasattr(ledger, "checkpoint"):
+            e.state["ledger"] = ledger.checkpoint()
+        view = ledger.export()
+        e.save(steps=steps, usage=usage, facts={k: v.to_wire() for k, v in view.facts.items()},
+               evidence={k: v.to_wire() for k, v in view.evidence.items()})
+    return computed
 
 
 def _accept_scenarios(e, ctx, outcome):

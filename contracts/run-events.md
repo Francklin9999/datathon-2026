@@ -47,7 +47,7 @@ Fixed order within an iteration. The controls (`risk_check`, `audit`, `sign`) ar
 |---|---|---|---|---|---|
 | 1 | `plan` | planner | llm | Reads the request and the profile; produces an analysis plan: scenarios to test, quant tasks, research questions, or a clarifying question | model ID, usage, the plan summary (counts of tasks), tool calls to read-only lookup tools |
 | 2 | `research` | researcher | llm+tools | Executes the research questions with the research tools; returns evidence with citations | one `ToolCall` per tool invocation, `evidenceIds` |
-| 3 | `quant` | quant | code | Executes the mandatory metric set plus the tasks the plan asked for | one `ToolCall` per quant function, `datasetsRead` with row counts and `rowsWithheld`, `factIds` |
+| 3 | `quant` | quant | code | Executes the mandatory metric set plus the optional analyses the plan selected (`agents/SPEC.md` §4.3) | one `ToolCall` per optional analysis run, `datasetsRead` with row counts and `rowsWithheld`, `factIds`; a plan task that is not run is a `plan_task_skipped` trace event (`api.md` §5.9) |
 | 4 | `risk_check` | risk_officer | code | Evaluates every enabled rule for every scenario; computes verdicts, funding comparison, largest compatible size | `factIds` of rule checks, counts by status |
 | 5 | `revise` | planner | llm | Only when step 4 raised a conflict, a tension or `nee`, and the iteration budget allows: decides what else to test (alternatives, other funding, more research) or to ask the user | model ID, usage, what was added |
 | 6 | `write` | writer | llm | Drafts the brief using tokens that refer to facts, rules and evidence | model ID, usage, sentence count |
@@ -117,9 +117,9 @@ Summaries are produced by code. English templates (French equivalents live next 
 |---|---|
 | plan | `Planned {nScenarios} scenario(s), {nQuant} calculation(s), {nResearch} research question(s).` or `Asked the user for: {field}.` |
 | research | `Ran {nCalls} search(es) across {nTools} tool(s); kept {nEvidence} source(s), rejected {nRejected}.` |
-| quant | `Computed {nFacts} fact(s); {nWithheld} row(s) withheld by the date gate.` or, when the gate reports no availability summary, `Computed {nFacts} fact(s).` |
+| quant | `Computed {nFacts} fact(s); {nWithheld} row(s) withheld by the date gate.` or, when the gate reports no availability summary, `Computed {nFacts} fact(s).` When the plan had quant tasks, ` (plan calculations: {nRun} run, {nMandatory} already mandatory, {nSkipped} skipped)` follows `fact(s)`. |
 | risk_check | `Checked {nRules} rule(s) on {nScenarios} scenario(s): {conflict} conflict, {tension} tension, {pass} fit, {nee} not enough evidence.` |
-| revise | `Objection returned to the planner; added {nScenarios} scenario(s) and {nResearch} research question(s).` |
+| revise | `Objection returned to the planner; it proposed {nScenarios} scenario(s) and {nResearch} research question(s), which are not run: the code controls test their own fixed scenarios.` When the revised plan has quant tasks, ` Its {nQuant} calculation(s) are each run or reported as skipped.` follows. |
 | write | `Drafted {nSentences} sentence(s) with {nTokens} reference(s).` |
 | audit | `{nChecked} sentence(s) checked, {nStruck} struck, {nRepaired} repaired.` |
 | sign | `Result signed. Ledger hash {hash8}.` |
