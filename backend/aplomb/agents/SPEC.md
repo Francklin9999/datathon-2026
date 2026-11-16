@@ -33,7 +33,7 @@ interface AnalysisPlan {
 }
 ```
 
-Validate every ticker/tool/enum and cap task counts. The interpretation describes the confirmed structured input; it cannot silently change size or funding. Unspecified size/funding may cause a clarification or a clearly recorded automatic-funding comparison. Unsupported/ambiguous parsing returns missing fields; no untyped prose becomes a tool call. Refuse execution/personalized-advice requests through `ParsedRequest.refused` and keep the manual simulation path available.
+Validate every ticker/tool/enum and cap task counts. A tool name outside the catalog fails the plan schema. `quantTasks` select optional analyses from the closed list of the controls provider (`OPTIONAL_ANALYSES` in `optimizer/services.py`): `quant.correlation` and `quant.asset_metrics` (no args; the requested asset against up to eight current holdings, or alone), `quant.calendar_year_return` (`{year}`) and `quant.stress_replay` (`{window_id: "rate_cycle" | Period}`), the last two on the before and after portfolios; at most four per quant step. The interpretation describes the confirmed structured input; it cannot silently change size or funding. Unspecified size/funding may cause a clarification or a clearly recorded automatic-funding comparison. Unsupported/ambiguous parsing returns missing fields; no untyped prose becomes a tool call. Refuse execution/personalized-advice requests through `ParsedRequest.refused` and keep the manual simulation path available.
 
 ## 4. Decision workflow
 
@@ -47,11 +47,11 @@ Execute real plan step; if missing input persists, checkpoint and enter waiting_
 
 ### 4.3 Mandatory code controls
 
-For every decision, regardless of plan: before snapshot, requested after snapshot, reporting-currency volatility/drawdown/2022 stress where available, single-name/sector/group exposures, enabled-rule checks, explicit/auto funding resolution and first-conflict boundary. Register request-size and threshold assumptions. These cannot be disabled by model output. Additional research/quant tasks are bounded and recorded.
+For every decision, regardless of plan: before snapshot, requested after snapshot, reporting-currency volatility/drawdown/2022 stress where available, single-name/sector/group exposures, enabled-rule checks, explicit/auto funding resolution and first-conflict boundary. Register request-size and threshold assumptions. These cannot be disabled by model output. Additional research/quant tasks are bounded and recorded: for a move, each optional analysis the plan selected runs after the mandatory set on the run window, registers facts the writer may cite and is recorded as a tool call of the quant step. Every other quant task is a `plan_task_skipped` trace event with its reason (`mandatory`, `not_optional`, `invalid_args`, `duplicate`, `limit`, `move_only`, `run_kind`, `scenario_budget`); the four that leave a planned calculation undone (`not_optional`, `invalid_args`, `limit`, `scenario_budget`) are also execution limitations. Goal requests, portfolio briefs, event briefs and rebalance reviews run no optional analysis.
 
 ### 4.4 Revision and write
 
-After conflict/tension/nee the Planner can ask for additional evidence, alternatives or funding tests, up to two revise loops. It cannot loosen rules. Each newly tested scenario gets real quant/risk steps and stable scenario IDs, <=6 scenarios total. Exhausted budget becomes a limitation; keep core figures and proceed to write if safe. Write from immutable ledger view, checks and scenario metadata using [token grammar](../ledger/SPEC.md). Writer has no tools and cannot modify the ledger.
+After conflict/tension/nee the Planner can ask for additional evidence, alternatives, funding tests or optional analyses, up to two revise loops. It cannot loosen rules. A revision with scenario or quant tasks gets real quant/risk steps: its optional analyses run there; its scenario and research proposals are reported, not run (the controls test their own fixed scenarios with stable scenario IDs, <=6 scenarios total). Exhausted budget becomes a limitation; keep core figures and proceed to write if safe. Write from immutable ledger view, checks and scenario metadata using [token grammar](../ledger/SPEC.md). Writer has no tools and cannot modify the ledger.
 
 ### 4.5 Audit and sign
 

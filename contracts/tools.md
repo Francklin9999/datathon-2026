@@ -65,6 +65,8 @@ The Planner requests these by name in its plan; it does not call them itself. A 
 
 Windows are `WindowSpec` objects. Variants refer to portfolios registered in the run by `quant.apply_move`.
 
+**Optional analyses.** For a decision or replay of a move, a plan task selects one of four optional analyses, computed by the code controls on the run window after the mandatory set: `quant.correlation` (no args: the requested asset against up to eight current holdings, cash excluded), `quant.asset_metrics` (no args: the requested asset), `quant.calendar_year_return` (`year`) and `quant.stress_replay` (`window_id`: `"rate_cycle"` or a custom `Period`), the last two on the before and after portfolios. At most four run per quant step, each recorded as a `ToolCall` of that step. Any other task (a computation the mandatory set already runs, another tool, invalid args, a duplicate, past the limit, or a run that is not a move) is not run and is reported as a `plan_task_skipped` trace event with its reason (`agents/SPEC.md` §4.3).
+
 ---
 
 ## 4. Rule and optimizer tools (executed by code)

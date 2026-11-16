@@ -2,9 +2,16 @@
 
 from __future__ import annotations
 
+import json
+import time
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
 from aplomb.api.errors import ServiceError
 from aplomb.contracts import models as m
 from aplomb.datastore import Snapshot
+from aplomb.datastore.constants import CASH_TICKERS
 from aplomb.quant import LocalLedger, QuantEngine, Unavailable
 from aplomb.rules.engine import RuleInputs, quick_statuses, verdict_of_statuses
 
@@ -12,6 +19,100 @@ from .check import assess, prepare
 from .derive import derive_thresholds
 
 PROPOSAL_VALUE = 100000.0  # fictional starting capital of a proposed portfolio (labelled hypothetical)
+
+# Optional analyses a plan can select for a requested move (agents SPEC §4.3). Closed list: the
+# planner names one in ``quant_tasks`` with exactly these arguments; the code computes it on the
+# run window and registers ledger facts the writer can cite. Nothing here can skip or change the
+# mandatory controls, which run before it whatever the plan says.
+OPTIONAL_ANALYSES = [
+    {"tool": "quant.correlation", "args": {},
+     "computes": "Correlation of the requested asset's daily returns with each current holding (up to 8, cash excluded)."},
+    {"tool": "quant.asset_metrics", "args": {},
+     "computes": "Return, volatility, largest fall and worst 12-month return of the requested asset."},
+    {"tool": "quant.calendar_year_return", "args": {"year": "a completed calendar year inside the visible history"},
+     "computes": "Portfolio return over that calendar year, before and after the move."},
+    {"tool": "quant.stress_replay", "args": {"window_id": "\"rate_cycle\" or {\"start\": ISO date, \"end\": ISO date}"},
+     "computes": "Portfolio return over the 2022-2023 rate-hiking cycle or a custom period, before and after the move."},
+]
+# Plan tasks that name a computation the mandatory controls always run for a move.
+MANDATORY_TASKS = frozenset({"quant.portfolio_snapshot", "quant.portfolio_metrics", "quant.apply_move",
+                             "quant.compare_funding", "rules.check", "optimizer.max_compatible_size"})
+MAX_OPTIONAL_ANALYSES = 4
+MAX_CORRELATED_HOLDINGS = 8
+
+
+class _NoArgs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class _YearArgs(_NoArgs):
+    year: int = Field(ge=1900, le=2100)
+
+
+class _StressArgs(_NoArgs):
+    window_id: Literal["rate_cycle"] | m.Period = "rate_cycle"
+
+
+def _correlation(engine, profile, prepared, win, args) -> list[str]:
+    ticker, before = prepared["move"]["ticker"], prepared["weightsBefore"]
+    held = sorted((t for t, w in before.items() if w > 0 and t != ticker and t not in CASH_TICKERS),
+                  key=lambda t: (-before[t], t))[:MAX_CORRELATED_HOLDINGS]
+    return [v.fact_id for t in held for v in engine.correlation([ticker, t]).values() if v.fact_id]
+
+
+def _asset_metrics(engine, profile, prepared, win, args) -> list[str]:
+    return [v.fact_id for v in engine.asset_metrics(prepared["move"]["ticker"]).values() if v.fact_id]
+
+
+def _variants(prepared):
+    return (("before", prepared["weightsBefore"], 1.0), ("after", prepared["weightsAfter"], prepared["valueFactor"]))
+
+
+def _calendar_year(engine, profile, prepared, win, args) -> list[str]:
+    """Portfolio return over one calendar year (``M_RET_CALENDAR_YEAR``), as ``quant.calendar_year_return``."""
+    year = args.year
+    i0, i1 = engine._named_range(f"{year - 1}-12-31", f"{year}-12-31")
+    out = []
+    for variant, weights, _ in _variants(prepared):
+        value = (engine.portfolio_levels(weights, i0, i1)[-1] - 1.0) * 100.0
+        qualified = f"{variant}:year:{year}"
+        out.append(engine.add_series_fact(
+            metric="return.calendar_year", value=value, subject={"type": "portfolio", "id": engine.subject_id, "variant": qualified},
+            variant_key=qualified, window_code=str(year), tickers=list(weights), i0=i0, i1=i1, method_id="M_RET_CALENDAR_YEAR",
+            label={"en": f"Portfolio return, calendar {year}, {engine.subject_id} ({variant}), {engine.currency}",
+                   "fr": f"Rendement du portefeuille, année civile {year}, {engine.subject_id} ({variant}), {engine.currency}"}))
+    return out
+
+
+def _stress(engine, profile, prepared, win, args) -> list[str]:
+    out = []
+    for variant, weights, factor in _variants(prepared):
+        view = engine.view(weights, variant, profile.portfolio.total_value * factor, window=win)
+        if args.window_id == "rate_cycle":
+            meas = view.measure("stress.rate_cycle")
+        else:
+            p = args.window_id
+            meas = view._replay("return.period", str(p.start), str(p.end),
+                                (f"{p.start} to {p.end}", f"{p.start} au {p.end}"), custom=True)
+        if meas.fact_id:
+            out.append(meas.fact_id)
+    return out
+
+
+_ANALYSES = {"quant.correlation": (_NoArgs, _correlation), "quant.asset_metrics": (_NoArgs, _asset_metrics),
+             "quant.calendar_year_return": (_YearArgs, _calendar_year), "quant.stress_replay": (_StressArgs, _stress)}
+
+
+def _task_parts(task) -> tuple[str, dict]:
+    if isinstance(task, dict):
+        return str(task.get("tool")), dict(task.get("args") or {})
+    return str(task.tool), dict(task.args or {})
+
+
+def skipped_tasks(tasks, reason: str) -> list[dict]:
+    """Plan tasks recorded as not executed, with the reason (never silently dropped). Model-written
+    args are kept only on an executed task, after its argument model validated them."""
+    return [{"tool": tool, "status": "skipped", "reason": reason} for tool, _ in map(_task_parts, tasks or ())]
 
 
 def _control_outcome_type():
@@ -105,9 +206,51 @@ class DecisionControls:
     selected). A rebalance scenario is added when the current portfolio already conflicts
     (D-14). At most six scenarios. A goal with no candidate (target already met, or no eligible
     asset) yields one no-change scenario carrying the reason, with no move.
+
+    The plan's quant tasks only add work: for a move, each task naming an ``OPTIONAL_ANALYSES``
+    entry is computed after the mandatory set; ``planTasks`` in the returned state accounts for
+    every task (executed with its fact IDs, or skipped with a reason).
     """
 
     MAX_SCENARIOS = 6
+    OPTIONAL_ANALYSES = OPTIONAL_ANALYSES
+
+    @staticmethod
+    def _plan_tasks(ctx, engine, profile, prepared, win, tasks) -> list[dict]:
+        out, seen = [], set()
+        clock = getattr(ctx.ledger, "clock", None)
+        for tool, args in map(_task_parts, tasks or ()):
+            record = {"tool": tool, "status": "skipped"}
+            key = json.dumps([tool, args], sort_keys=True, default=str)
+            if tool in MANDATORY_TASKS or (tool == "quant.stress_replay" and args.get("window_id") == "2022"):
+                out.append({**record, "reason": "mandatory"})
+            elif tool not in _ANALYSES:
+                out.append({**record, "reason": "not_optional"})
+            elif key in seen:
+                out.append({**record, "reason": "duplicate"})
+            elif len(seen) >= MAX_OPTIONAL_ANALYSES:
+                out.append({**record, "reason": "limit"})
+            else:
+                schema, compute = _ANALYSES[tool]
+                try:
+                    parsed = schema.model_validate(args)
+                except ValidationError:
+                    out.append({**record, "reason": "invalid_args"})
+                    continue
+                seen.add(key)
+                started_at = clock() if callable(clock) else f"{ctx.as_of}T00:00:00Z"
+                start, reads = time.perf_counter(), len(engine.market.reads)
+                missing = error = None
+                try:
+                    fact_ids = list(dict.fromkeys(compute(engine, profile, prepared, win, parsed)))
+                except Unavailable as exc:
+                    fact_ids, missing = [], exc.reason
+                except Exception as exc:  # optional work never fails the run: the mandatory set already ran
+                    fact_ids, error = [], f"The optional analysis failed ({type(exc).__name__})."
+                out.append({**record, "args": args, "status": "executed", "factIds": fact_ids, "missing": missing, "error": error,
+                            "startedAt": started_at, "durationMs": max(0.0, (time.perf_counter() - start) * 1000),
+                            "datasetsRead": [r.to_wire() for r in engine.market.reads[reads:]]})
+        return out
 
     def _engine(self, ctx, window: dict) -> QuantEngine:
         clock = getattr(ctx.ledger, "clock", None)
@@ -136,20 +279,22 @@ class DecisionControls:
                 clock = getattr(ctx.ledger, "clock", None)
                 now = clock() if callable(clock) else f"{ctx.as_of}T00:00:00Z"
                 funding = register_goal_funding(ctx, now)
-            return {"kind": "baseline", "window": win, "prepared": prepared, "goalFunding": funding}
+            return {"kind": "baseline", "window": win, "prepared": prepared, "goalFunding": funding,
+                    "planTasks": skipped_tasks(tasks, "move_only")}
         req = self._wire(request)
         if req.get("type") == "goal":
             goal = m.ExposureGoal.model_validate(req["goal"])
             engine.view(prepare(engine, profile, profile.rules, None, False)["weightsBefore"], "before",
                         profile.portfolio.total_value, window=win).snapshot()
-            return {"kind": "goal", "window": win, "goal": goal.to_wire()}
+            return {"kind": "goal", "window": win, "goal": goal.to_wire(), "planTasks": skipped_tasks(tasks, "move_only")}
         if req.get("type") != "move":
             raise RuntimeError(f"Unsupported decision request type {req.get('type')!r}")
         move = m.ProposedMove.model_validate(req["move"])
         prepared = prepare(engine, profile, profile.rules, move, compare=True)
         engine.view(prepared["weightsBefore"], "before", profile.portfolio.total_value, window=win).snapshot()
         engine.view(prepared["weightsAfter"], "after", profile.portfolio.total_value * prepared["valueFactor"], window=win).snapshot()
-        return {"kind": "move", "window": win, "prepared": prepared}
+        return {"kind": "move", "window": win, "prepared": prepared,
+                "planTasks": self._plan_tasks(ctx, engine, profile, prepared, win, tasks)}
 
     def risk(self, ctx, computed: dict):
         from .scenarios import alternatives, goal_candidates, no_change, rebalance
