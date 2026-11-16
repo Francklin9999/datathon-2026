@@ -7,6 +7,8 @@ import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
 import { ErrorState } from '../../components/common/States';
 import { fmtMoney } from '../../lib/format';
+import { labelOf } from '../../lib/labels';
+import { REQUIREMENT_STATE } from './portfolioLabels';
 
 export function RequirementsScenario({ profile }: { profile: Profile }) {
   const { tr, lang } = useApp();
@@ -41,7 +43,7 @@ export function RequirementsScenario({ profile }: { profile: Profile }) {
       <div className="field"><label htmlFor="requirements-flows">{tr({ en: 'Additional cash flows: DATE SIGNED_AMOUNT per line', fr: 'Flux supplémentaires : DATE MONTANT_SIGNÉ par ligne' })}</label><textarea id="requirements-flows" rows={4} maxLength={20000} value={flows} onChange={e => { setFlows(e.target.value); clear(); }} /><p className="small muted">{tr({ en: 'Example format: 2027-01-31 500. Positive adds liquid capital; negative withdraws. Do not duplicate spending already in the requirements.', fr: 'Format : 2027-01-31 500. Positif ajoute du capital; négatif retire. Ne dupliquez pas les dépenses déjà saisies.' })}</p></div>
     </div><button className="btn" type="submit">{tr({ en: 'Calculate entered requirements', fr: 'Calculer les besoins saisis' })}</button></fieldset></form>
     {invalid && <p role="alert">{tr({ en: 'Each cash-flow line needs an ISO date and finite signed amount.', fr: 'Chaque flux exige une date ISO et un montant signé fini.' })}</p>}{error && <ErrorState error={error} />}
-    {result && <div role="status"><p><strong>{result.state.replaceAll('_', ' ')}</strong> · {result.currency}</p>{!!result.missingInputs.length && <p>{tr({ en: 'Missing inputs', fr: 'Entrées manquantes' })}: {result.missingInputs.join('; ')}</p>}{result.endingValue !== null && <p>{tr({ en: 'Modeled ending liquid value', fr: 'Valeur liquide finale modélisée' })}: {fmtMoney(result.endingValue, result.currency, lang)}</p>}{result.shortfallDate && <p>{tr({ en: 'First shortfall', fr: 'Premier déficit' })}: {result.shortfallDate} · {fmtMoney(result.shortfall ?? 0, result.currency, lang)}</p>}
+    {result && <div role="status"><p><strong>{labelOf(REQUIREMENT_STATE, result.state, lang)}</strong> · {result.currency}</p>{!!result.missingInputs.length && <p>{tr({ en: 'Missing inputs', fr: 'Entrées manquantes' })}: {result.missingInputs.join('; ')}</p>}{result.endingValue !== null && <p>{tr({ en: 'Modeled ending liquid value', fr: 'Valeur liquide finale modélisée' })}: {fmtMoney(result.endingValue, result.currency, lang)}</p>}{result.shortfallDate && <p>{tr({ en: 'First shortfall', fr: 'Premier déficit' })}: {result.shortfallDate} · {fmtMoney(result.shortfall ?? 0, result.currency, lang)}</p>}
       {!!result.events.length && <div className="table-scroll" role="region" tabIndex={0} aria-label={tr({ en: 'Requirement scenario events', fr: 'Événements du scénario' })}><table><thead><tr><th>Date</th><th>{tr({ en: 'Requirements', fr: 'Besoins' })}</th><th>{tr({ en: 'Liquid balance', fr: 'Solde liquide' })}</th><th>{tr({ en: 'Minimum reserve', fr: 'Réserve minimale' })}</th></tr></thead><tbody>{result.events.map((event, i) => <tr key={i}><td>{event.date}</td><td>{event.requirements.join(', ')}</td><td>{fmtMoney(event.balance, result.currency, lang)}</td><td>{fmtMoney(event.reserve, result.currency, lang)}</td></tr>)}</tbody></table></div>}
       {result.assumptions.map(a => <p className="small muted" key={a}>{a}</p>)}
     </div>}

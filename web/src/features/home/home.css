@@ -1,0 +1,12 @@
+/* Home: the figures of the previous period stay on screen, dimmed, while the new period loads. */
+.dash-grid .widget-body,
+.period-update,
+.period-update ~ .line-chart { transition: opacity .2s cubic-bezier(0.22, 1, 0.36, 1); }
+/* The whole grid while the overview loads; only the chart widget while just its benchmark changes. */
+.dash-grid[aria-busy='true'] .widget-body,
+.dash-grid:not([aria-busy='true']) .period-update[aria-busy='true'],
+.dash-grid:not([aria-busy='true']) .period-update[aria-busy='true'] ~ .line-chart { opacity: .55; }
+html[data-anim='off'] :is(.dash-grid .widget-body, .period-update, .period-update ~ .line-chart) { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-anim='on']) :is(.dash-grid .widget-body, .period-update, .period-update ~ .line-chart) { transition: none; }
+}

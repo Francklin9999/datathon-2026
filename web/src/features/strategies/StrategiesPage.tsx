@@ -32,7 +32,7 @@ import {
   type RemovedStrategy, type SavedStrategy, type StrategiesUnavailable, type StrategyKind,
 } from '../../lib/strategies';
 
-export const KIND_ICON: Record<StrategyKind, LucideIcon> = { rebalance: RefreshCcw, contribute: PiggyBank, risk_guard: ShieldHalf };
+const KIND_ICON: Record<StrategyKind, LucideIcon> = { rebalance: RefreshCcw, contribute: PiggyBank, risk_guard: ShieldHalf };
 
 export function StrategiesPage() {
   return <ProfileGate>{profile => <StrategiesContent key={profile.profileId} profile={profile} />}</ProfileGate>;
@@ -47,11 +47,11 @@ function useSavedStrategies(profileId: string) {
 }
 
 /**
- * The simulation of one strategy for the session window (shared with Home's widget through the cache).
- * Nothing is requested while the connected API is too old (or of another major) to simulate strategies:
- * `compat` says so, and the callers show a notice instead of a 404.
+ * The simulation of one strategy for the session window. Nothing is requested while the connected API
+ * is too old (or of another major) to simulate strategies: `compat` says so, and the callers show a
+ * notice instead of a 404.
  */
-export function useStrategySimulation(profile: Profile, config: StrategyConfig | null) {
+function useStrategySimulation(profile: Profile, config: StrategyConfig | null) {
   const app = useApp();
   const compat = strategiesCompatibility(app.meta);
   const request = simulationRequest(compat, profileKey(app), app.windowCode, config);
@@ -61,7 +61,7 @@ export function useStrategySimulation(profile: Profile, config: StrategyConfig |
 }
 
 /** Why strategies cannot be simulated with the connected API, or null when they can. */
-export function useStrategiesUnavailable(): StrategiesUnavailable | null {
+function useStrategiesUnavailable(): StrategiesUnavailable | null {
   const { meta } = useApp();
   return strategiesUnavailable(strategiesCompatibility(meta), meta?.contractVersion);
 }
@@ -162,7 +162,7 @@ function StrategiesContent({ profile }: { profile: Profile }) {
         </>
       ) : (
         <div className="strategy-layout">
-          <aside ref={listRef} className="strategy-list" aria-label={tr({ en: 'Your strategies', fr: 'Vos stratégies' })}>
+          <aside ref={listRef} className="strategy-list" data-tour="strategies-list" aria-label={tr({ en: 'Your strategies', fr: 'Vos stratégies' })}>
             {list.map(s => {
               const Icon = KIND_ICON[s.config.kind];
               return (
@@ -238,11 +238,12 @@ function StrategyWorkspace({ profile, strategy, unavailable, onChange, onDelete 
           <label className="switch">
             <input type="checkbox" checked={strategy.active} onChange={e => onChange({ ...strategy, active: e.target.checked })} />
             <span className="switch-track" aria-hidden="true"><span className="switch-thumb" /></span>
-            <span className="switch-label">{tr({ en: 'Active on Home', fr: 'Active sur l’accueil' })}</span>
+            <span className="switch-label">{tr({ en: 'Active', fr: 'Active' })}</span>
           </label>
-          <button type="button" className="icon-btn details-btn" onClick={onDelete}
-            aria-label={tr({ en: `Delete ${strategy.name}`, fr: `Supprimer ${strategy.name}` })} title={tr({ en: 'Delete', fr: 'Supprimer' })}>
+          <button type="button" className="btn ghost btn-sm strategy-delete" onClick={onDelete}
+            aria-label={tr({ en: `Delete ${strategy.name}`, fr: `Supprimer ${strategy.name}` })}>
             <Trash2 aria-hidden="true" size={14} strokeWidth={2} />
+            {tr({ en: 'Delete', fr: 'Supprimer' })}
           </button>
         </>
       )}>
@@ -435,7 +436,7 @@ function Results({ sim, profile, lang, stale }: { sim: StrategySimulation; profi
   };
   const delta = (a: number | null, z: number | null, fmt: (n: number) => string) => (a === null || z === null ? null : fmt(a - z));
   return (
-    <div className="strategy-results" aria-busy={stale}>
+    <div className="strategy-results" data-tour="strategies-results" aria-busy={stale}>
       <div className="strategy-kpis">
         <Kpi label={contribute ? tr({ en: 'Gain on invested', fr: 'Gain sur investi' }) : tr({ en: 'Ending value', fr: 'Valeur finale' })}
           value={contribute ? money(m.gain) : money(m.endValue)}
@@ -504,7 +505,7 @@ function TradeRows({ trades, money }: { trades: readonly StrategyTrade[]; money:
   const { tr, lang } = useApp();
   return (
     <table className="rank-table trade-table">
-      <caption className="sr-only">{tr({ en: 'Trades', fr: 'Opérations' })}</caption>
+      <caption className="sr-only">{tr({ en: 'Simulated trades', fr: 'Opérations simulées' })}</caption>
       <thead>
         <tr>
           <th scope="col">{tr({ en: 'Asset', fr: 'Actif' })}</th>
@@ -531,7 +532,7 @@ function NextAction({ sim, money }: { sim: StrategySimulation; money: (n: number
   const next = sim.nextAction;
   // Largest trades first, so the six shown are the six that matter most; the sheet lists them all.
   const trades = useMemo(() => [...next.trades].sort((x, y) => Math.abs(y.amount) - Math.abs(x.amount)), [next.trades]);
-  const title = tr({ en: 'Next action', fr: 'Prochaine action' });
+  const title = tr({ en: 'Next simulated action', fr: 'Prochaine action simulée' });
   return (
     <Card title={title} className="strategy-next" actions={trades.length > 6 ? (
       <button type="button" className="btn ghost btn-sm" aria-haspopup="dialog" onClick={e => sheet.show(e.currentTarget)}>
@@ -540,11 +541,13 @@ function NextAction({ sim, money }: { sim: StrategySimulation; money: (n: number
     ) : undefined}>
       <p className="next-state" data-due={next.due ? 'true' : undefined}>
         <span className="next-dot" aria-hidden="true" />
-        {next.due ? tr({ en: 'Due now', fr: 'À faire maintenant' }) : tr({ en: 'Nothing due', fr: 'Rien à faire' })}
+        {next.due
+          ? tr({ en: 'The rule would act today', fr: 'La règle agirait aujourd’hui' })
+          : tr({ en: 'The rule would not act today', fr: 'La règle n’agirait pas aujourd’hui' })}
       </p>
       <p className="next-summary">{tr(next.summary)}</p>
       {trades.length > 0 && <TradeRows trades={trades.slice(0, 6)} money={money} />}
-      <p className="small muted">{tr({ en: 'Proposed only: no order is placed.', fr: 'Proposé seulement : aucun ordre n’est passé.' })}</p>
+      <p className="small muted">{tr({ en: 'A simulation, not advice: nothing is bought or sold and no order is placed.', fr: 'Une simulation, pas un conseil : rien n’est acheté ni vendu et aucun ordre n’est passé.' })}</p>
       <Sheet open={sheet.open} origin={sheet.origin} onClose={sheet.hide} title={title}>
         {sheet.open && <TradeRows trades={trades} money={money} />}
       </Sheet>
@@ -556,6 +559,7 @@ function Activity({ sim, money }: { sim: StrategySimulation; money: (n: number) 
   const { tr, lang } = useApp();
   const sheet = useSheet();
   const latest = useMemo(() => [...sim.actions].reverse(), [sim.actions]);
+  const activityTitle = tr({ en: 'Simulated trades in this replay of history', fr: 'Opérations simulées dans ce rejeu de l’historique' });
   const row = (a: StrategySimulation['actions'][number], open: boolean) => (
     <li key={`${a.date}-${a.kind}`} className="activity-item">
       <span className={`activity-kind kind-${a.kind}`}>{tr(ACTION_KIND[a.kind])}</span>
@@ -566,7 +570,7 @@ function Activity({ sim, money }: { sim: StrategySimulation; money: (n: number) 
     </li>
   );
   return (
-    <Card title={tr({ en: 'What it did', fr: 'Ce qu’elle a fait' })} className="strategy-activity" actions={latest.length > 4 ? (
+    <Card title={activityTitle} className="strategy-activity" actions={latest.length > 4 ? (
       <button type="button" className="btn ghost btn-sm" aria-haspopup="dialog" onClick={e => sheet.show(e.currentTarget)}>
         {tr({ en: `All ${latest.length}`, fr: `Les ${latest.length}` })}
       </button>
@@ -574,10 +578,10 @@ function Activity({ sim, money }: { sim: StrategySimulation; money: (n: number) 
       {latest.length === 0
         ? <p className="small muted">{tr({ en: 'The trigger never fired in this window.', fr: 'Le déclencheur ne s’est jamais activé sur cette période.' })}</p>
         : <ol className="activity-list">{latest.slice(0, 4).map(a => row(a, false))}</ol>}
-      <Sheet open={sheet.open} origin={sheet.origin} onClose={sheet.hide} title={tr({ en: 'What it did', fr: 'Ce qu’elle a fait' })}>
+      <Sheet open={sheet.open} origin={sheet.origin} onClose={sheet.hide} title={activityTitle}>
         {sheet.open && (
           <>
-            {sim.actionsTruncated && <p className="figure-note">{tr({ en: 'The latest 200 actions are listed.', fr: 'Les 200 dernières actions sont listées.' })}</p>}
+            {sim.actionsTruncated && <p className="figure-note">{tr({ en: 'The latest 200 simulated actions are listed.', fr: 'Les 200 dernières actions simulées sont listées.' })}</p>}
             <ol className="activity-list">{latest.map(a => row(a, true))}</ol>
           </>
         )}

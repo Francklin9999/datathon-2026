@@ -1,0 +1,42 @@
+/* Labs: the tool list (left, above on phones) and the panel of the one selected tool. */
+.labs-layout { display: grid; grid-template-columns: minmax(250px, 300px) minmax(0, 1fr); gap: 20px; align-items: start; }
+
+/* The list stays in view beside long tools; it scrolls on its own when taller than the window. */
+.labs-nav { position: sticky; top: calc(var(--topbar-h, 60px) + 24px); max-height: calc(100vh - var(--topbar-h, 60px) - 40px);
+  overflow-y: auto; overscroll-behavior: contain; padding: 14px 10px; border-radius: var(--r-card);
+  background: var(--glass-card); border: 1px solid var(--glass-line); box-shadow: var(--card-shadow); }
+.labs-cat + .labs-cat { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.labs-cat-title { margin: 0 0 6px; padding: 0 10px; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--text-3); }
+.labs-tools { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.labs-checking { margin: 6px 10px 0; }
+
+.labs-tool-btn { display: flex; align-items: flex-start; gap: 10px; width: 100%; min-height: 44px; padding: 9px 10px; text-align: left;
+  border: 0; border-radius: var(--r-ctl); background: transparent; color: var(--text); cursor: pointer; font: inherit;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
+.labs-tool-btn:hover { background: var(--glass-inset); }
+.labs-tool-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.labs-tool-btn[aria-current='true'] { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent-line); }
+.labs-tool-btn[aria-current='true'] .labs-tool-icon { color: var(--accent-text); }
+.labs-tool-icon { flex: none; margin-top: 1px; color: var(--text-2); }
+.labs-tool-text { display: grid; gap: 2px; min-width: 0; }
+.labs-tool-name { font-size: 14px; font-weight: 500; line-height: 1.3; }
+.labs-tool-purpose { font-size: 12.5px; line-height: 1.4; color: var(--text-2); }
+
+.labs-panel { min-width: 0; }
+.labs-panel-head { display: flex; align-items: flex-start; gap: 12px; margin: 4px 0 16px; }
+.labs-panel-icon { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px;
+  border-radius: var(--r-ctl); background: var(--accent-soft); color: var(--accent-text); }
+.labs-panel-title { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.01em; color: var(--text); outline: none; }
+.labs-panel-title:focus-visible { box-shadow: 0 0 0 2px var(--focus); border-radius: var(--r-chip); }
+.labs-panel-purpose { margin: 2px 0 0; color: var(--text-2); font-size: 14px; line-height: 1.45; }
+.labs-panel-body { min-width: 0; }
+
+.labs-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.labs-inline-btn { margin-top: 10px; }
+
+/* Phones and narrow windows: the list goes above the panel and no longer scrolls on its own. */
+@media (max-width: 900px) {
+  .labs-layout { grid-template-columns: minmax(0, 1fr); }
+  .labs-nav { position: static; max-height: none; overflow: visible; }
+  .labs-tools { grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+}

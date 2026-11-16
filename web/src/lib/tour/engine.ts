@@ -13,6 +13,11 @@ export interface TourStep {
   route?: string;
   /** Value of the `data-tour` attribute to highlight; absent for a centred message. */
   target?: string;
+  /**
+   * Id of the tab that holds the target (Tabs: `{idBase}-tab-{id}`, e.g. 'portfolio-tab-risk'). While the
+   * target is not on screen, the tab is clicked once (unless already selected) and the search goes on.
+   */
+  open?: string;
   title: I18NText;
   body: I18NText;
   placement?: Placement;

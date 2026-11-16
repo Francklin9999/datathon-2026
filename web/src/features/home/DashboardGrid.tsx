@@ -34,7 +34,7 @@ const GAP_PX = 16;
 const STACK_BELOW_PX = 880;
 /** Pointer travel before a press on a header becomes a drag (a click stays a click). */
 const DRAG_THRESHOLD_PX = 5;
-const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const FLIP_MS = 460;
 const ENTER_MS = 520;
 /** Elements a press on the header should leave alone (they have their own action). */
@@ -74,7 +74,7 @@ type Gesture =
   | { kind: 'move'; id: string; grabX: number; grabY: number; pointerX: number; pointerY: number }
   | { kind: 'resize'; id: string; startX: number; startY: number; w: number; h: number };
 
-export function DashboardGrid({ widgets, defaults, resetToken, announce, labels, onCustomizedChange }: {
+export function DashboardGrid({ widgets, defaults, resetToken, announce, labels, onCustomizedChange, busy = false }: {
   widgets: readonly WidgetDef[];
   defaults: readonly LayoutItem[];
   /** Changing this value restores the default layout. */
@@ -83,6 +83,8 @@ export function DashboardGrid({ widgets, defaults, resetToken, announce, labels,
   labels: { moved: (title: string, position: number, total: number) => string; resized: (title: string, w: number, h: number) => string };
   /** Whether the layout differs from the default (to offer a reset). */
   onCustomizedChange?: (customized: boolean) => void;
+  /** True while the figures on screen belong to the previous period and the new one loads (dimmed, aria-busy). */
+  busy?: boolean;
 }) {
   const limits = useMemo(() => Object.fromEntries(widgets.map(w => [w.id, w.limits])), [widgets]);
   const byId = useMemo(() => new Map(widgets.map(w => [w.id, w])), [widgets]);
@@ -329,7 +331,7 @@ export function DashboardGrid({ widgets, defaults, resetToken, announce, labels,
 
   return (
     <div ref={grid} className="dash-grid" data-tour="arrange" data-fresh={fresh ? 'true' : undefined} data-movable={movable ? 'true' : undefined} data-stacked={stacked ? 'true' : undefined}
-      data-gesture={activeGesture ? activeGesture.kind : undefined}>
+      data-gesture={activeGesture ? activeGesture.kind : undefined} {...(busy ? { 'aria-busy': true } : {})}>
       {activeGesture?.kind === 'move' && <div ref={slot} className="drop-slot" aria-hidden="true" />}
       {layout.map(item => {
         const def = byId.get(item.id);

@@ -1,0 +1,28 @@
+/* Portfolio page: tab panel states, the Add a rule card and the inline rule editor. */
+
+/* A new period keeps the figures on screen, dimmed, until the new ones land. */
+#portfolio-panel-holdings[aria-busy='true'] .card,
+#portfolio-panel-risk[aria-busy='true'] .card { opacity: .6; transition: opacity var(--dur-fast, 160ms) var(--ease); }
+
+/* Add a rule: the kind selector, then one form. */
+#add-rule .segmented { margin-bottom: 14px; max-width: 100%; }
+.add-rule-body[hidden] { display: none; }
+.add-rule-form > p:first-child { margin-top: 0; }
+.add-rule-form fieldset { min-width: 0; }
+.add-rule-form .btn { margin-top: 10px; }
+.add-rule-form h3 { margin-top: 18px; }
+
+/* Inline rule editor in the Plan rules table. */
+.rule-enabled { display: inline-flex; gap: 6px; align-items: center; min-height: 44px; }
+.rule-edit-actions { margin-top: 4px; }
+.rule-preview { margin-top: 16px; }
+
+/* Holdings: the per-row source fold stays compact. */
+.holding-source > summary { min-height: 32px; display: inline-flex; align-items: center; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+  #portfolio-panel-holdings[aria-busy='true'] .card,
+  #portfolio-panel-risk[aria-busy='true'] .card { transition: none; }
+}
+html[data-anim='off'] #portfolio-panel-holdings .card,
+html[data-anim='off'] #portfolio-panel-risk .card { transition: none; }

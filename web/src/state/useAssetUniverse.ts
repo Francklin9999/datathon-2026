@@ -16,7 +16,7 @@ export const ASSET_UNIVERSE_LIMIT = 500;
 const CHANGED = 'aplomb:assets-changed';
 const NONE: readonly Asset[] = [];
 
-/** Cache key of the universe read: pages that list the universe themselves (Markets) share it. */
+/** Cache key of the universe read: pages that list the universe themselves (Labs instrument discovery) share it. */
 export function assetUniverseKey(dataVersion: string): string {
   return `assets|universe|${dataVersion}`;
 }

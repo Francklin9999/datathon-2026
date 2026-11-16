@@ -1,0 +1,23 @@
+/* Shared primitives: Tabs panels, Note, ConfirmButton, Redirect (components/ui/Tabs.tsx,
+   components/common/Note.tsx, components/ui/ConfirmButton.tsx, components/common/Redirect.tsx). */
+
+/* Tabs reuse the segmented look; the panel fades and rises on change (gated with the other motion). */
+.tabs { margin-bottom: 16px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab-panel { outline: none; animation: tab-in var(--dur-menu) var(--ease) backwards; }
+.tab-panel:focus-visible { box-shadow: 0 0 0 2px var(--focus); border-radius: var(--r-card); }
+@keyframes tab-in { from { opacity: 0; transform: translateY(4px); } }
+
+/* Note: one quiet look for short caveats and hints inside cards. */
+.note { display: flex; align-items: flex-start; gap: 8px; margin: 8px 0 0; padding: 10px 12px; border-radius: 12px;
+  background: var(--glass-inset); color: var(--text-2); font-size: 13px; line-height: 1.45; }
+.note-icon { flex: none; margin-top: 2px; color: var(--text-3); }
+.note-caution { background: var(--tension-bg); }
+.note-caution .note-icon { color: var(--tension-fg); }
+
+/* ConfirmButton: the armed pair sits on one line and wraps cleanly. */
+.confirm-group { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.redirect-note { margin: 24px 0; color: var(--text-2); }
+
+/* Motion: gated with everything else in motion.css. */

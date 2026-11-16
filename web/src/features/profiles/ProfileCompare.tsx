@@ -5,6 +5,7 @@ import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
 import { FinancialComparison } from './FinancialComparison';
 import { fmtMoney } from '../../lib/format';
+import { RISK_LEVEL, labelOf } from '../../lib/labels';
 
 /** Compare explicit saved inputs. No persona-based ranking or inferred suitability. */
 export function ProfileCompare({ profiles }: { profiles: Profile[] }) {
@@ -14,7 +15,7 @@ export function ProfileCompare({ profiles }: { profiles: Profile[] }) {
   const a = profiles.find(p => p.profileId === left);
   const b = profiles.find(p => p.profileId === right);
   const rows: [string, (p: Profile) => string][] = [
-    [tr({ en: 'Risk tolerance', fr: 'Tolérance au risque' }), p => p.riskLevel.replaceAll('_', ' ')],
+    [tr({ en: 'Risk tolerance', fr: 'Tolérance au risque' }), p => labelOf(RISK_LEVEL, p.riskLevel, lang)],
     [tr({ en: 'Horizon (years)', fr: 'Horizon (années)' }), p => `${p.horizonYears.min} – ${p.horizonYears.max ?? '∞'}`],
     [tr({ en: 'Reporting currency', fr: 'Devise de présentation' }), p => p.reportingCurrency],
     [tr({ en: 'Modeled capital', fr: 'Capital modélisé' }), p => fmtMoney(p.portfolio.totalValue, p.reportingCurrency, lang)],

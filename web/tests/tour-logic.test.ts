@@ -103,6 +103,25 @@ test('tour scripts: every step target is an anchor rendered somewhere in the app
   }
 });
 
+test('tour scripts: a step that opens a tab names a tab the app renders', () => {
+  const texts = sourceFiles(SRC).map(file => readFileSync(file, 'utf8'));
+  let opens = 0;
+  for (const tour of ALL_TOURS) {
+    for (const step of tour.steps) {
+      if (!step.open) continue;
+      opens += 1;
+      assert.ok(step.target, `${tour.id}/${step.id}: a tab is opened only to reach a target`);
+      // Tabs ids are `${idBase}-tab-${id}` (components/ui/Tabs.tsx tabId).
+      const match = /^([a-z0-9-]+?)-tab-([a-z0-9-]+)$/.exec(step.open);
+      assert.ok(match, `${tour.id}/${step.id}: open must be a tab id, {idBase}-tab-{id}`);
+      const [, base, id] = match;
+      assert.ok(texts.some(text => text.includes(`idBase="${base}"`) && text.includes(`id: '${id}'`)),
+        `${tour.id}/${step.id}: no Tabs with idBase="${base}" and a tab '${id}'`);
+    }
+  }
+  assert.ok(opens > 0, 'the Portfolio tour opens its tabs');
+});
+
 test('tour scripts: the rail step names every page of the rail', () => {
   const rail = BASIC_TOUR.steps.find(step => step.id === 'rail');
   assert.ok(rail);

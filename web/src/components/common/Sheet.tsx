@@ -11,10 +11,13 @@ import { useId, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useApp } from '../../state/app';
+import { DUR, EASE, useAnimationsAllowed } from '../../lib/ui/theme';
 import { useDialogFocus, useMounted } from '../ui/useDialogFocus';
 
-const SPRING = { type: 'spring', visualDuration: 0.45, bounce: 0.12 } as const;
-const EXIT = { duration: 0.22, ease: [0.32, 0.72, 0, 1] } as const;
+/** The one curve: in at the entrance duration, out at the menu duration; instant when motion is off. */
+const ENTER = { duration: DUR.enter, ease: EASE } as const;
+const EXIT = { duration: DUR.menu, ease: EASE } as const;
+const NONE = { duration: 0 } as const;
 
 /** Drift toward the opener as a fraction of its distance from the viewport centre. */
 function driftFrom(origin: DOMRect | null): { x: number; y: number } {
@@ -36,20 +39,23 @@ export function Sheet({ open, title, onClose, origin, children }: {
   const panel = useRef<HTMLDivElement | null>(null);
   const titleId = useId();
   const mounted = useMounted();
+  const animate = useAnimationsAllowed();
   useDialogFocus(open && mounted, panel, onClose);
   if (!mounted) return null;
+  const enter = animate ? ENTER : NONE;
+  const exit = animate ? EXIT : NONE;
   const drift = driftFrom(origin);
   const hidden = { opacity: 0, scale: 0.9, x: drift.x, y: drift.y };
   return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div key="backdrop" className="backdrop" onClick={onClose} aria-hidden="true"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: EXIT }} transition={{ duration: 0.22 }} />
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: exit }} transition={animate ? EXIT : NONE} />
       )}
       {open && (
         <div key="layer" className="sheet-layer">
           <motion.div className="sheet" role="dialog" aria-modal="true" aria-labelledby={titleId} ref={panel} tabIndex={-1}
-            initial={hidden} animate={{ opacity: 1, scale: 1, x: 0, y: 0 }} exit={{ ...hidden, transition: EXIT }} transition={SPRING}>
+            initial={hidden} animate={{ opacity: 1, scale: 1, x: 0, y: 0 }} exit={{ ...hidden, transition: exit }} transition={enter}>
             <div className="sheet-head">
               <h2 id={titleId} className="sheet-title">{title}</h2>
               <button type="button" className="icon-btn icon-btn-sm sheet-close" onClick={onClose}

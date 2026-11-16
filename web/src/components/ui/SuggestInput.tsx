@@ -4,9 +4,14 @@
  * selection. Suggestions are ranked locally (lib/suggest.ts) on every keystroke, so they keep up with
  * typing. Down opens and moves, Up moves back, Enter takes the highlighted row, Escape closes. The
  * typed text stays as typed unless a row is chosen, so free text (an on-demand ticker) still works.
+ * The list renders in a portal on document.body, fixed under the field (above it when there is no
+ * room below), so no card, widget or drawer clips it; focus never leaves the field.
  */
 import { useEffect, useMemo, useRef, useState, type InputHTMLAttributes, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { browseSuggestions, buildSuggestIndex, matchSpan, rankSuggestions, type Suggestion } from '../../lib/suggest';
+import { portalTarget } from './popoverPlacement';
+import { usePopoverPosition, usePresence } from './usePopover';
 
 /** Rows listed for typed text. */
 const SUGGEST_LIMIT = 8;
@@ -39,10 +44,13 @@ export function SuggestInput({ id, value, onChange, suggestions, listLabel, onPi
   const marked = browsed ? '' : value;
   const [active, setActive] = useState(-1);
   const [byKeys, setByKeys] = useState(false);
+  const input = useRef<HTMLInputElement | null>(null);
   const list = useRef<HTMLUListElement | null>(null);
   const listId = `${id}-suggestions`;
   const shown = open && results.length > 0;
   const current = active < results.length ? active : -1;
+  const presence = usePresence(shown, list);
+  const place = usePopoverPosition(presence.present, input, list, { minWidth: 240, exactWidth: true });
 
   useEffect(() => {
     if (shown && current >= 0) list.current?.querySelector<HTMLElement>(`[data-index="${current}"]`)?.scrollIntoView({ block: 'nearest' });
@@ -77,7 +85,7 @@ export function SuggestInput({ id, value, onChange, suggestions, listLabel, onPi
 
   return (
     <div className="suggest">
-      <input {...field} id={id} type={type} role="combobox" autoComplete="off" spellCheck={false} value={value}
+      <input {...field} ref={input} id={id} type={type} role="combobox" autoComplete="off" spellCheck={false} value={value}
         aria-autocomplete="list" aria-expanded={shown}
         {...(shown ? { 'aria-controls': listId } : {})}
         {...(shown && current >= 0 ? { 'aria-activedescendant': `${listId}-${current}` } : {})}
@@ -85,8 +93,9 @@ export function SuggestInput({ id, value, onChange, suggestions, listLabel, onPi
         onKeyDown={onKeyDown}
         onClick={event => { field.onClick?.(event); setOpen(true); setBrowse(true); }}
         onBlur={event => { field.onBlur?.(event); close(); }} />
-      {shown && (
-        <ul ref={list} id={listId} role="listbox" aria-label={listLabel} className="popover suggest-list"
+      {presence.present && results.length > 0 && createPortal(
+        <ul ref={list} id={listId} role="listbox" aria-label={listLabel} className="popover popover-portal suggest-list"
+          style={place.style} data-side={place.side} {...(presence.leaving ? { 'data-leaving': '', inert: true } : {})}
           data-keys={byKeys ? 'true' : undefined} onMouseDown={event => event.preventDefault()}>
           {results.map((item, i) => (
             <li key={item.value} id={`${listId}-${i}`} role="option" aria-selected={i === current} data-index={i}
@@ -97,7 +106,8 @@ export function SuggestInput({ id, value, onChange, suggestions, listLabel, onPi
               {item.meta && <span className="option-meta">{item.meta}</span>}
             </li>
           ))}
-        </ul>
+        </ul>,
+        portalTarget(),
       )}
     </div>
   );

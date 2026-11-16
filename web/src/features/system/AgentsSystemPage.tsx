@@ -1,23 +1,23 @@
 'use client';
 /**
  * Agents & System (T15, web/page-specs/agents-system.md): what actually ran. A static role map and
- * the approved service diagram annotated with the real `/meta` state, then a session run picker whose
- * selected run shows only the steps, tool calls, datasets and usage recorded in its payload. Nothing
+ * the approved service diagram annotated with the real `/meta` state. The analyses are listed once, in
+ * Evidence; ?runId= (its "See steps" action) shows only the steps, tool calls, datasets and usage
+ * recorded in that analysis's payload. Nothing
  * is inferred from timers, no "skipped" placeholder exists, and the session capability is never shown.
  */
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import type { Run, RunSummary, RunsResponse, Step, ToolCall } from '../../contracts/types';
+import { FileSearch, ListChecks } from 'lucide-react';
+import type { Run, Step, ToolCall } from '../../contracts/types';
 import { API_BASE, FIXTURES_ENABLED, getApiClient } from '../../api/index';
-import { asApiError, isAbort, type ApiRequestError } from '../../api/errors';
 import { useApp } from '../../state/app';
 import { useRun } from '../../state/useRun';
 import { Card, PageHeader } from '../../components/common/Page';
-import { Empty, ErrorState, Loading } from '../../components/common/States';
+import { ErrorState, Loading } from '../../components/common/States';
 import { RunStatusBadge } from '../../components/common/Badges';
-import { TargetReview } from './TargetReview';
-import { RunsTable } from '../../components/run/RunsTable';
+import { evidenceHref } from '../../components/run/RunsTable';
 import {
   ACTOR, AGENT_ROLE, ERROR_CODE, FEATURE_FLAG, RUN_KIND, RUN_STATUS, SABOTAGE_MODE, STEP_TYPE, labelOf,
 } from '../../lib/labels';
@@ -25,12 +25,11 @@ import { fmtDate, fmtDateTime, fmtDuration, fmtNumber } from '../../lib/format';
 import { isTerminal } from '../../lib/runs';
 import { useQuery } from '../../state/useQuery';
 import {
-  ARCHITECTURE, ROLE_CARDS, applyLiveStatus, budgetLimits, formatArgs, guardrailReading, listRowIsBehind, refreshRunRows,
+  ARCHITECTURE, ROLE_CARDS, budgetLimits, formatArgs, guardrailReading,
   runBudget, runGuardrailAudit, stepDeviations, stepProduced, workNature, siteBuildIdentity, type ArchNodeId,
   type GuardrailReading, type WorkNature,
 } from '../../lib/system';
 
-const PAGE_SIZE = 20;
 const MAX_ID_LINKS = 12;
 
 const NATURE_LABEL: Record<WorkNature, { en: string; fr: string }> = {
@@ -41,23 +40,35 @@ const NATURE_LABEL: Record<WorkNature, { en: string; fr: string }> = {
 const NATURE_CLASS: Record<WorkNature, string> = { model: 's-tension', code: 's-pass', mixed: 's-nee' };
 
 export function AgentsSystemPage() {
-  const { tr, profile } = useApp();
+  const { tr } = useApp();
   const params = useSearchParams();
   const runId = params.get('runId');
-  // The selected run's live state, so its picker row does not keep the status read at page open.
-  const [live, setLive] = useState<Run | null>(null);
   return (
     <>
       <PageHeader tour="system-header" title={tr({ en: 'What actually ran', fr: 'Ce qui a réellement tourné' })}>
         <p className="page-sub">{tr({ en: 'Code computes every figure and verdict; AI plans, researches and explains. Here is what each analysis recorded.', fr: 'Le code calcule chaque chiffre et verdict ; l’IA planifie, cherche et explique. Voici ce que chaque analyse a enregistré.' })}</p>
       </PageHeader>
+      {runId ? <RunDetail key={runId} runId={runId} /> : <ChooseAnalysis />}
       <RoleMap />
-      {profile && <TargetReview key={`${profile.profileId}:${profile.version}`} profile={profile} />}
-      <RunPicker selectedId={runId} live={live && live.runId === runId ? live : null} />
-      {runId && <RunDetail key={runId} runId={runId} onRun={setLive} />}
       <ArchitectureCard />
       <BuildIdentity />
     </>
+  );
+}
+
+/** Without ?runId: the analyses are listed once, in Evidence, whose "See steps" action comes back here. */
+function ChooseAnalysis() {
+  const { tr } = useApp();
+  return (
+    <Card id="run-detail" tour="system-pick" title={tr({ en: 'Choose an analysis in Evidence to see its steps', fr: 'Choisissez une analyse dans Preuves pour voir ses étapes' })}>
+      <p className="small">{tr({
+        en: 'Each analysis records its steps, tool calls, model use and budget. In Evidence, find it in the list and choose See steps.',
+        fr: 'Chaque analyse enregistre ses étapes, appels d’outil, usage du modèle et budget. Dans Preuves, trouvez-la dans la liste et choisissez Voir les étapes.',
+      })}</p>
+      <div className="row-actions">
+        <Link className="btn btn-sm" href="/evidence-audit/"><ListChecks size={16} aria-hidden="true" />{tr({ en: 'Go to the analyses', fr: 'Aller aux analyses' })}</Link>
+      </div>
+    </Card>
   );
 }
 
@@ -100,7 +111,7 @@ function RoleMap() {
   const { tr, lang } = useApp();
   return (
     <Card id="roles" section={tr({ en: 'Roles', fr: 'Rôles' })} tour="roles" title={tr({ en: 'Roles: who may do what', fr: 'Rôles : qui peut faire quoi' })}
-      info={tr({ en: 'How the system is designed, not a record that any of these ran. The selected analysis below shows what ran.', fr: 'La conception du système, pas la preuve que ces rôles ont tourné. L’analyse sélectionnée ci-dessous montre ce qui a tourné.' })}>
+      info={tr({ en: 'How the system is designed, not a record that any of these ran. An analysis’s steps show what ran.', fr: 'La conception du système, pas la preuve que ces rôles ont tourné. Les étapes d’une analyse montrent ce qui a tourné.' })}>
       <ul className="role-grid">
         {ROLE_CARDS.map(card => (
           <li key={card.role} className="role-card">
@@ -152,7 +163,7 @@ function ArchitectureCard() {
     ),
   };
   return (
-    <details className="fold section-fold" id="architecture" data-section={tr({ en: 'Architecture', fr: 'Architecture' })}>
+    <details className="fold section-fold" id="architecture" data-section={tr({ en: 'Architecture', fr: 'Architecture' })} data-tour="architecture">
       <summary>{tr({ en: 'Architecture and configuration', fr: 'Architecture et configuration' })}</summary>
       <div className="fold-body">
       <div className="state state-unavailable" role="note">
@@ -203,102 +214,28 @@ function ArchitectureCard() {
   );
 }
 
-interface PickerState { items: RunSummary[]; nextCursor: string | null; loading: boolean; error: ApiRequestError | null; loaded: boolean }
-
-function RunPicker({ selectedId, live }: { selectedId: string | null; live: Run | null }) {
-  const { tr, lang, sessionId, profiles } = useApp();
-  const [state, setState] = useState<PickerState>({ items: [], nextCursor: null, loading: false, error: null, loaded: false });
-  const [nonce, setNonce] = useState(0);
-
-  // The session's run list changes as runs are created: always fetch it fresh when the page opens.
-  useEffect(() => {
-    if (!sessionId) return undefined;
-    const controller = new AbortController();
-    setState({ items: [], nextCursor: null, loading: true, error: null, loaded: false });
-    getApiClient().runs({ limit: PAGE_SIZE }, controller.signal).then(
-      (page: RunsResponse) => setState({ items: page.items, nextCursor: page.nextCursor, loading: false, error: null, loaded: true }),
-      error => { if (!isAbort(error) && !controller.signal.aborted) setState(s => ({ ...s, loading: false, error: asApiError(error) })); },
-    );
-    return () => controller.abort();
-  }, [sessionId, nonce]);
-
-  // The polled run's status replaces its row's status (never a terminal one). Once the run is terminal
-  // while its row is not, the list is read again so the row's verdict and duration come from GET /runs.
-  const liveRunId = live?.runId ?? null;
-  const liveRunStatus = live?.status ?? null;
-  const liveStatus = useMemo(
-    () => (liveRunId && liveRunStatus ? { runId: liveRunId, status: liveRunStatus } : null), [liveRunId, liveRunStatus]);
-  const rows = useMemo(() => applyLiveStatus(state.items, liveStatus), [state.items, liveStatus]);
-  const behind = listRowIsBehind(state.items, liveStatus);
-  useEffect(() => {
-    if (!behind || !sessionId) return undefined;
-    const controller = new AbortController();
-    // A failure keeps the snapshot as it is; the Refresh button still reloads the whole list.
-    getApiClient().runs({ limit: PAGE_SIZE }, controller.signal).then(
-      (page: RunsResponse) => { if (!controller.signal.aborted) setState(s => ({ ...s, items: refreshRunRows(s.items, page.items) })); },
-      () => undefined,
-    );
-    return () => controller.abort();
-  }, [behind, sessionId]);
-
-  const more = async () => {
-    if (!state.nextCursor) return;
-    const cursor = state.nextCursor;
-    setState(s => ({ ...s, loading: true, error: null }));
-    try {
-      const page = await getApiClient().runs({ limit: PAGE_SIZE, cursor });
-      setState(s => ({
-        items: [...s.items, ...page.items.filter(item => !s.items.some(existing => existing.runId === item.runId))],
-        nextCursor: page.nextCursor, loading: false, error: null, loaded: true,
-      }));
-    } catch (error) {
-      setState(s => ({ ...s, loading: false, error: asApiError(error) }));
-    }
-  };
-
-  return (
-    <Card id="runs" section={tr({ en: 'Analyses', fr: 'Analyses' })} tour="system-runs" title={tr({ en: 'Analyses started in this browser', fr: 'Analyses lancées dans ce navigateur' })}
-      info={tr({ en: 'Every analysis started in this browser, for every profile and on earlier visits too. Another browser or device does not see them. Pick one to see what it recorded.', fr: 'Toutes les analyses lancées dans ce navigateur, pour tous les profils et aussi lors de visites précédentes. Un autre navigateur ou appareil ne les voit pas. Choisissez-en une pour voir ce qu’elle a enregistré.' })}
-      actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={state.loading}>{tr({ en: 'Refresh', fr: 'Actualiser' })}</button>}>
-      {state.loaded && state.items.length === 0 && !state.error && (
-        <Empty>{tr({ en: 'No analysis yet in this session. Start one from Home, Decide, World or Replay.', fr: 'Aucune analyse dans cette session. Lancez-en une depuis l’Accueil, Décider, Monde ou Rejouer.' })}</Empty>
-      )}
-      {state.items.length > 0 && (
-        <RunsTable items={rows} selectedId={selectedId}
-          linkFor={id => `/agents-system/?runId=${encodeURIComponent(id)}#run-detail`} />
-      )}
-      {state.loading && <Loading />}
-      {state.error && <ErrorState error={state.error} onRetry={() => (state.loaded && state.nextCursor ? void more() : setNonce(n => n + 1))} />}
-      {state.loaded && state.nextCursor && !state.loading && (
-        <p className="row-actions small">
-          <button type="button" className="btn ghost btn-sm" onClick={() => void more()}>{tr({ en: 'Load more', fr: 'Charger plus' })}</button>
-        </p>
-      )}
-    </Card>
-  );
-}
-
 const GUARDRAIL_TEXT: Record<GuardrailReading, { en: string; fr: string }> = {
-  no_brief: { en: 'This run has no signed brief, so no guardrail record exists for it.', fr: 'Cette exécution n’a pas de note signée ; aucun enregistrement de garde-fou n’existe pour elle.' },
-  applied: { en: 'Configured (flag on) and applied to this run’s brief.', fr: 'Configuré (indicateur activé) et appliqué à la note de cette exécution.' },
-  applied_flag_off: { en: 'Applied to this run’s brief, although /meta now reports the flag off.', fr: 'Appliqué à la note de cette exécution, bien que /meta déclare maintenant l’indicateur désactivé.' },
-  configured_not_applied: { en: 'Configured (flag on) but not applied to this run’s brief.', fr: 'Configuré (indicateur activé) mais non appliqué à la note de cette exécution.' },
+  no_brief: { en: 'This analysis has no signed brief, so no guardrail record exists for it.', fr: 'Cette analyse n’a pas de note signée ; aucun enregistrement de garde-fou n’existe pour elle.' },
+  applied: { en: 'Configured (flag on) and applied to this analysis’s brief.', fr: 'Configuré (indicateur activé) et appliqué à la note de cette analyse.' },
+  applied_flag_off: { en: 'Applied to this analysis’s brief, although /meta now reports the flag off.', fr: 'Appliqué à la note de cette analyse, bien que /meta déclare maintenant l’indicateur désactivé.' },
+  configured_not_applied: { en: 'Configured (flag on) but not applied to this analysis’s brief.', fr: 'Configuré (indicateur activé) mais non appliqué à la note de cette analyse.' },
   not_configured: { en: 'Not configured (flag off) and not applied.', fr: 'Non configuré (indicateur désactivé) et non appliqué.' },
 };
 
-function RunDetail({ runId, onRun }: { runId: string; onRun: (run: Run | null) => void }) {
+function RunDetail({ runId }: { runId: string }) {
   const { tr, lang, announce, profiles, feature } = useApp();
-  const router = useRouter();
   const polled = useRun(runId, finished => announce(`${labelOf(RUN_KIND, finished.kind, lang)}: ${labelOf(RUN_STATUS, finished.status, lang)}`));
   const run = polled.run;
-  useEffect(() => { onRun(run); }, [run, onRun]);
   const headingRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => { headingRef.current?.focus(); }, [runId]);
 
   return (
-    <div ref={headingRef} tabIndex={-1} id="run-detail" className="focus-target">
+    <div ref={headingRef} tabIndex={-1} id="run-detail" className="focus-target" data-tour="run-detail">
       <Card title={`${tr({ en: 'Selected analysis', fr: 'Analyse sélectionnée' })}${run ? `, ${labelOf(RUN_KIND, run.kind, lang).toLowerCase()}` : ''}`}
-        actions={<button type="button" className="btn ghost btn-sm" onClick={() => router.push('/agents-system/#runs')}>{tr({ en: 'Close', fr: 'Fermer' })}</button>}>
+        actions={<>
+          <Link className="btn ghost btn-sm" href={evidenceHref(runId)}><FileSearch size={16} aria-hidden="true" />{tr({ en: 'Open evidence', fr: 'Ouvrir les preuves' })}</Link>
+          <Link className="btn ghost btn-sm" href="/evidence-audit/">{tr({ en: 'All analyses', fr: 'Toutes les analyses' })}</Link>
+        </>}>
         {polled.loading && !run && <Loading />}
         {polled.error && <ErrorState error={polled.error} onRetry={polled.reload}
           {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This analysis does not exist or belongs to another session.', fr: 'Cette analyse n’existe pas ou appartient à une autre session.' }) } : {})} />}
@@ -325,7 +262,6 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
   const limits = budgetLimits(trace.data, run.runId);
   const guardrailAudit = runGuardrailAudit(run);
   const reading = guardrailReading(guardrailsConfigured, guardrailAudit);
-  const auditHref = `/evidence-audit/?runId=${encodeURIComponent(run.runId)}`;
   const question = run.status === 'waiting_input' ? run.question : null;
   const continueHref = run.kind === 'replay' ? `/time-machine/?runId=${encodeURIComponent(run.runId)}`
     : run.kind === 'decision' ? `/decision-desk/?runId=${encodeURIComponent(run.runId)}` : null;
@@ -335,9 +271,9 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
       <StateLine run={run} />
       {question && (
         <div className="state" role="note">
-          <p className="state-title">{tr({ en: 'Question the run is waiting on', fr: 'Question attendue par l’exécution' })}</p>
+          <p className="state-title">{tr({ en: 'Question the analysis is waiting on', fr: 'Question attendue par l’analyse' })}</p>
           <p>{tr(question.text)}</p>
-          {continueHref && <Link href={continueHref}>{tr({ en: 'Answer it where the run was started', fr: 'Y répondre là où l’exécution a été lancée' })}</Link>}
+          {continueHref && <Link href={continueHref}>{tr({ en: 'Answer it where the analysis was started', fr: 'Y répondre là où l’analyse a été lancée' })}</Link>}
         </div>
       )}
       {run.error && (
@@ -355,8 +291,8 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
         <div className="kv"><dt className="k">{tr({ en: 'Information cutoff', fr: 'Date limite d’information' })}</dt><dd className="v">{fmtDate(run.asOf, lang)}{run.flags.timeMachine && <span className="tag">{tr({ en: 'Time Machine', fr: 'Machine à remonter le temps' })}</span>}</dd></div>
         <div className="kv"><dt className="k">{tr({ en: 'Data snapshot', fr: 'Instantané de données' })}</dt><dd className="v mono break">{run.dataVersion}</dd></div>
         {run.parentRunId && (
-          <div className="kv"><dt className="k">{tr({ en: 'Derived from run', fr: 'Dérivée de l’exécution' })}</dt>
-            <dd className="v"><Link href={`/agents-system/?runId=${encodeURIComponent(run.parentRunId)}#run-detail`}>{tr({ en: 'Open it', fr: 'L’ouvrir' })}</Link></dd></div>
+          <div className="kv"><dt className="k">{tr({ en: 'Derived from', fr: 'Dérivée de' })}</dt>
+            <dd className="v"><Link href={`/agents-system/?runId=${encodeURIComponent(run.parentRunId)}#run-detail`}>{tr({ en: 'The earlier analysis', fr: 'L’analyse antérieure' })}</Link></dd></div>
         )}
         {run.flags.sabotage && (
           <div className="kv"><dt className="k">{tr({ en: 'Sabotage demonstration', fr: 'Démonstration de sabotage' })}</dt><dd className="v">{labelOf(SABOTAGE_MODE, run.flags.sabotage, lang)}</dd></div>
@@ -364,7 +300,7 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
       </dl>
 
       <details className="fold"><summary>{tr({ en: 'Budget used', fr: 'Budget utilisé' })}</summary><div className="fold-body">
-      <div className="table-scroll" role="region" aria-label={tr({ en: 'Run budget', fr: 'Budget de l’exécution' })} tabIndex={0}>
+      <div className="table-scroll" role="region" aria-label={tr({ en: 'Analysis budget', fr: 'Budget de l’analyse' })} tabIndex={0}>
         <table className="data-table">
           <thead>
             <tr>
@@ -389,9 +325,9 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
       </div>
       <p className="small muted">
         {limits.source === 'trace'
-          ? tr({ en: 'Limits as reported by this run’s trace from the API’s settings. The first duration is the contract’s target, the second the hard limit.', fr: 'Limites telles que la trace de cette exécution les rapporte d’après les réglages de l’API. La première durée est la cible du contrat, la seconde la limite stricte.' })
+          ? tr({ en: 'Limits as reported by this analysis’s trace from the API’s settings. The first duration is the contract’s target, the second the hard limit.', fr: 'Limites telles que la trace de cette analyse les rapporte d’après les réglages de l’API. La première durée est la cible du contrat, la seconde la limite stricte.' })
           : trace.error
-            ? tr({ en: 'The API did not return this run’s trace, so the contract defaults are shown. A deployment can only set lower limits.', fr: 'L’API n’a pas renvoyé la trace de cette exécution : les limites par défaut du contrat sont affichées. Un déploiement ne peut fixer que des limites plus basses.' })
+            ? tr({ en: 'The API did not return this analysis’s trace, so the contract defaults are shown. A deployment can only set lower limits.', fr: 'L’API n’a pas renvoyé la trace de cette analyse : les limites par défaut du contrat sont affichées. Un déploiement ne peut fixer que des limites plus basses.' })
             : tr({ en: 'Contract defaults. A deployment can only set lower limits.', fr: 'Valeurs par défaut du contrat. Un déploiement ne peut fixer que des limites plus basses.' })}
       </p>
       </div></details>
@@ -418,10 +354,9 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
         </>
       )}
 
-      <p className="row-actions small">
-        <Link href={auditHref}>{tr({ en: 'See the evidence and audit', fr: 'Voir les preuves et l’audit' })}</Link>
-        {!isTerminal(run.status) && <span className="muted">{tr({ en: 'Still running: this view updates.', fr: 'En cours : cette vue se met à jour.' })}</span>}
-      </p>
+      {!isTerminal(run.status) && (
+        <p className="row-actions small muted" role="status">{tr({ en: 'Still in progress: this view updates.', fr: 'En cours : cette vue se met à jour.' })}</p>
+      )}
     </>
   );
 }

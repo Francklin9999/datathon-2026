@@ -12,6 +12,18 @@ export function PortfolioAssessment({ assessment, children }: {
   children?: ReactNode;
 }) {
   const { tr, lang, profile } = useApp();
+  // An older API sends no assessment field at all: show the linked holdings it does return.
+  if (profile && assessment === undefined) {
+    return <section className="world-event-exposure" data-assessed="false"
+      aria-label={tr({ en: 'Portfolio exposure', fr: 'Exposition du portefeuille' })}>
+      <p className="eyebrow">{tr({ en: 'Portfolio exposure', fr: 'Exposition du portefeuille' })} · {profile.name}</p>
+      {children}
+      <p className="small muted">{tr({
+        en: 'The full portfolio check needs a newer version of the API.',
+        fr: 'La vérification complète du portefeuille nécessite une version plus récente de l’API.',
+      })}</p>
+    </section>;
+  }
   if (!profile || !assessment || assessment.profileId !== profile.profileId) {
     return <section className="world-event-exposure" role="status" data-assessed="false">
       <p className="eyebrow">{tr({ en: 'Portfolio exposure', fr: 'Exposition du portefeuille' })}</p>

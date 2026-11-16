@@ -4,9 +4,12 @@
  * alternative (DESIGN.md "accessible table alternative for charts"). Values are drawn as given.
  * Gradient area under the first series, recessive grid, crosshair + tooltip on hover. `fill` sizes the
  * drawing to its container (a dashboard widget) instead of a fixed aspect ratio; `compact` keeps the
- * caption for screen readers only and moves the unit into the legend line.
+ * caption for screen readers only and moves the unit into the legend line. The tooltip renders in a
+ * portal, fixed at the cursor and kept inside the viewport, so a widget's overflow never clips it.
  */
-import { useId, useMemo, useRef, useState, type PointerEvent, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import { portalTarget } from '../ui/popoverPlacement';
 import { useElementSize } from '../ui/useElementSize';
 import { useFresh } from '../ui/useFresh';
 import type { Lang } from '../../contracts/types';
@@ -37,6 +40,9 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
   const id = useId();
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [hover, setHover] = useState<number | null>(null);
+  // Viewport box of the drawing at the last pointer move: where the fixed tooltip goes.
+  const [box, setBox] = useState<{ left: number; top: number; width: number } | null>(null);
+  const tipRef = useRef<HTMLDivElement | null>(null);
   const { ref: frameRef, size } = useElementSize<HTMLDivElement>(fill);
   const W = fill && size ? size.w : BASE.w;
   const H = fill && size ? Math.max(120, size.h) : BASE.h;
@@ -59,6 +65,26 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
     return { lo, hi, y, plotted, baseXs: base ? base.xy.map(p => p.x) : [] };
   }, [series, W, H]);
 
+  // The tooltip sits beside the cursor (after it, centred on it, or before it near the right edge) and
+  // never past the viewport's sides; it goes away when the page scrolls under a still pointer.
+  useLayoutEffect(() => {
+    const tip = tipRef.current;
+    if (!tip || hover === null || !box) return;
+    const width = tip.offsetWidth;
+    const anchor = Number.parseFloat(tip.style.left);
+    const align = tip.dataset.align;
+    const desired = align === 'end' ? anchor - width : align === 'start' ? anchor : anchor - width / 2;
+    const max = document.documentElement.clientWidth - width - 8;
+    tip.style.transform = `translateX(${Math.round(Math.max(8, Math.min(desired, max)) - anchor)}px)`;
+  });
+  useEffect(() => {
+    if (hover === null) return undefined;
+    const clear = () => setHover(null);
+    window.addEventListener('scroll', clear, true);
+    window.addEventListener('resize', clear);
+    return () => { window.removeEventListener('scroll', clear, true); window.removeEventListener('resize', clear); };
+  }, [hover]);
+
   if (!model) return null;
   const { lo, hi, y, plotted, baseXs } = model;
   // Round values inside the padded range: the padded top is not a value the series reached.
@@ -71,6 +97,7 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
   const hoverPoint = hover === null ? undefined : basePoints[hover];
   const hoverX = hover === null ? undefined : baseXs[hover];
   const animKey = `${first?.date}|${last?.date}|${basePoints.length}`;
+  const tipX = box && hoverX !== undefined ? box.left + (hoverX / W) * box.width : null;
 
   const onMove = (event: PointerEvent<SVGRectElement>) => {
     const rect = svgRef.current?.getBoundingClientRect();
@@ -78,6 +105,7 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
     const vx = ((event.clientX - rect.left) / rect.width) * W;
     const i = nearestIndex(baseXs, vx);
     setHover(i < 0 ? null : i);
+    setBox(prev => (prev && prev.left === rect.left && prev.top === rect.top && prev.width === rect.width ? prev : { left: rect.left, top: rect.top, width: rect.width }));
   };
 
   const legend = (
@@ -126,9 +154,10 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
           <rect x={PAD.l} y={PAD.t} width={W - PAD.l - PAD.r} height={baseline - PAD.t} fill="transparent"
             onPointerMove={onMove} onPointerLeave={() => setHover(null)} />
         </svg>
-        {hoverPoint && hoverX !== undefined && (
-          <div className="chart-tip" aria-hidden="true"
-            style={{ left: `${(hoverX / W) * 100}%`, transform: `translateX(${hoverX > W * 0.7 ? '-100%' : hoverX < W * 0.3 ? '0%' : '-50%'})` }}>
+        {hoverPoint && hoverX !== undefined && tipX !== null && box && createPortal(
+          <div className="chart-tip" aria-hidden="true" ref={tipRef}
+            data-align={hoverX > W * 0.7 ? 'end' : hoverX < W * 0.3 ? 'start' : 'center'}
+            style={{ left: tipX, top: Math.max(8, box.top) }}>
             <span className="chart-tip-date">{fmtDate(hoverPoint.date, lang)}</span>
             {plotted.map(s => {
               const v = s.byDate.get(hoverPoint.date)?.value;
@@ -140,7 +169,8 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
                 </span>
               );
             })}
-          </div>
+          </div>,
+          portalTarget(),
         )}
       </div>
       <figcaption id={`${id}-cap`} className={compact ? 'sr-only' : 'small muted'}>{caption} ({unitLabel})</figcaption>

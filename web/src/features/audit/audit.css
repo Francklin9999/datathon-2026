@@ -1,0 +1,3 @@
+/* Evidence: the two actions of each analysis row stay side by side, sized to their words. */
+.runs-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.runs-actions .btn { flex: none; }

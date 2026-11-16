@@ -1,0 +1,15 @@
+/* Decision Desk: asset panel, compare card and the collapsed target allocation card. */
+.asset-panel-body { transition: opacity var(--dur-fast) var(--ease); }
+.asset-panel-body[data-stale='true'] { opacity: .6; }
+.asset-panel-id { margin: 0 0 12px; }
+
+.target-fold > summary { min-height: 64px; padding-top: 10px; padding-bottom: 10px; }
+.target-fold-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.target-fold-sub { font-size: 13px; font-weight: 400; color: var(--text-2); }
+.target-section { margin-top: 18px; padding-top: 4px; border-top: 1px solid var(--glass-line); }
+.target-section > .h4 { margin-top: 14px; margin-bottom: 4px; }
+
+html[data-anim='off'] .asset-panel-body { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .asset-panel-body { transition: none; }
+}

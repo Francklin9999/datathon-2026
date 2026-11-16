@@ -12,7 +12,7 @@ import { UiProviders } from '../components/ui/ThemeProvider';
 import { ANIM_BOOT_SCRIPT, MOTION_BOOT_SCRIPT, SIDEBAR_BOOT_SCRIPT, THEME_BOOT_SCRIPT } from '../lib/ui/theme';
 
 export const metadata: Metadata = {
-  title: { default: 'Aplomb — simulation only', template: '%s · Aplomb' },
+  title: { default: 'Aplomb · Simulation only', template: '%s · Aplomb' },
   description: 'Fictional-profile portfolio decision audit. Simulation only. Not financial advice.',
 };
 

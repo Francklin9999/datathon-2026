@@ -1,6 +1,6 @@
 'use client';
 /** Page header, card and the selected-profile gate shared by every page. */
-import { Maximize2 } from 'lucide-react';
+import { ChevronRight, GripHorizontal } from 'lucide-react';
 import { createContext, useContext, type CSSProperties, type ReactNode } from 'react';
 import type { Profile } from '../../contracts/types';
 import { useApp } from '../../state/app';
@@ -13,7 +13,7 @@ const CardDetailsContext = createContext<((from: HTMLElement) => void) | null>(n
 
 /**
  * Inside a Card that has `details`: opens its details sheet from `from` (a visible "N more" button in
- * the body, beside the ⤢ in the header). Null elsewhere.
+ * the body, beside "Details" in the header). Null elsewhere.
  */
 export function useCardDetails(): ((from: HTMLElement) => void) | null {
   return useContext(CardDetailsContext);
@@ -47,8 +47,8 @@ export interface CardDetails {
 
 /**
  * Card. `section` names it in the page's section dock (needs an `id`); `info` folds a note behind an
- * "i" beside the title; `tour` anchors a tutorial step; `details` adds a ⤢ button that opens the rest
- * in a sheet. Inside a dashboard grid the header is the grip (drag to move), the grabber at the top
+ * "i" beside the title; `tour` anchors a tutorial step; `details` adds a small "Details" pill that opens
+ * the rest in a sheet. Inside a dashboard grid the header is the grip (drag to move), the grabber at the top
  * edge is the keyboard handle and the corner handle resizes.
  */
 export function Card({ title, children, actions, id, className, section, info, tour, details }: {
@@ -75,7 +75,9 @@ export function Card({ title, children, actions, id, className, section, info, t
       {widget && movable && (
         <button type="button" className="widget-grabber" onPointerDown={widget.onMovePointerDown} onKeyDown={widget.onMoveKeyDown}
           aria-label={`${tr({ en: 'Move', fr: 'Déplacer' })} ${widget.title}. ${tr({ en: 'Drag, or use the arrow keys.', fr: 'Glissez, ou utilisez les flèches.' })}`}
-          title={tr({ en: 'Drag to move', fr: 'Glisser pour déplacer' })} />
+          title={tr({ en: 'Move', fr: 'Déplacer' })} data-tour="widget-move">
+          <GripHorizontal aria-hidden="true" size={16} strokeWidth={2} />
+        </button>
       )}
       {(title || actions || details) && (
         <div className="card-head" {...(widget && movable ? { onPointerDown: widget.onMovePointerDown } : {})}>
@@ -89,10 +91,11 @@ export function Card({ title, children, actions, id, className, section, info, t
             <div className="card-actions">
               {actions}
               {details && (
-                <button type="button" className="icon-btn details-btn" aria-haspopup="dialog"
-                  aria-label={`${tr({ en: 'Details', fr: 'Détails' })}${title ? `, ${title}` : ''}`} title={tr({ en: 'Details', fr: 'Détails' })}
+                <button type="button" className="details-btn" aria-haspopup="dialog" data-tour="card-details"
+                  {...(title ? { 'aria-label': `${tr({ en: 'Details', fr: 'Détails' })}, ${title}` } : {})}
                   onClick={event => sheet.show(event.currentTarget)}>
-                  <Maximize2 aria-hidden="true" size={13} strokeWidth={2} />
+                  <span>{tr({ en: 'Details', fr: 'Détails' })}</span>
+                  <ChevronRight aria-hidden="true" size={14} strokeWidth={2} />
                 </button>
               )}
             </div>

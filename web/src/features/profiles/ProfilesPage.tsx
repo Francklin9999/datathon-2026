@@ -5,7 +5,7 @@
  * must be confirmed before Save. Defaults are copied to a new ID; custom profiles use version
  * checks (409 keeps the unsaved form). No real contact or account information is requested.
  */
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { AssetClass, I18NText, Lang, PartialProfile, ProfileDraftResult, InvestmentGoal, Profile, ProfilesResponse, Run, ThemeTag } from '../../contracts/types';
 import { ThemeTag as THEMES } from '../../contracts/catalog';
 import { getApiClient } from '../../api/index';
@@ -14,6 +14,9 @@ import { useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
 import { useRun } from '../../state/useRun';
 import { Card, PageHeader } from '../../components/common/Page';
+import { Note } from '../../components/common/Note';
+import { ConfirmButton } from '../../components/ui/ConfirmButton';
+import { Trash2 } from 'lucide-react';
 import { ErrorState, Loading, Unavailable } from '../../components/common/States';
 import { RunStatusBadge } from '../../components/common/Badges';
 import { RunTimeline } from '../../components/run/RunTimeline';
@@ -26,13 +29,12 @@ import { SupportedUniverse } from '../../components/common/SupportedUniverse';
 import { useAssetUniverse } from '../../state/useAssetUniverse';
 import { isSupportedTicker, unsupportedTickersMessage } from '../../lib/universe';
 import {
-  EMPTY_PROFILE_FORM, applyDraft, draftQuestion, draftReviewRows, formFromProfile, formPositions, partialFromForm,
+  DATE_FIELD_LABEL, EMPTY_PROFILE_FORM, INPUT_ORIGIN_LABEL, applyDraft, isAdvancedField, draftQuestion, draftReviewRows, formFromProfile, formPositions, partialFromForm,
   profileFieldLabel, rebaseForm, toCreateRequest, validateProfileForm, type ProfileForm, type ProfileFormIssue,
 } from '../../lib/profileForm';
 import { CustomThemeInputs } from './CustomThemeInputs';
 import { AllocationInputs } from './AllocationInputs';
 import { InvestorInputs } from './InvestorInputs';
-import { ProfileCompare } from './ProfileCompare';
 import { horizonText } from '../home/HomePage';
 
 const RISK_LEVELS = Object.keys(RISK_LEVEL) as (keyof typeof RISK_LEVEL)[];
@@ -134,12 +136,22 @@ function ProfilesContent() {
   const currencySuggestions = useMemo<Suggestion[]>(() => (meta?.reportingCurrencies ?? ['CAD', 'USD']).map(code => ({ value: code, label: currencyName(code, lang) })), [meta, lang]);
   const investorTypeSuggestions = useMemo<Suggestion[]>(() => INVESTOR_TYPES.map(type => ({ value: type.value, label: tr(type.label) })), [tr]);
   const needsConfirmation = provisional.length > 0 || unresolved.length > 0;
+  // "More details" stays folded until the user opens it, or until one of its fields needs attention.
+  const [moreOpen, setMoreOpen] = useState(false);
+  const advancedAttention = (submitted && issues.some(i => i.code !== 'unsupported' && i.code !== 'holdings' && isAdvancedField(i.field)))
+    || provisional.some(isAdvancedField) || unresolved.some(u => isAdvancedField(u.field));
+  useEffect(() => { if (advancedAttention) setMoreOpen(true); }, [advancedAttention]);
 
   const set = (patch: Partial<ProfileForm>) => setForm(f => ({ ...f, ...patch }));
   const setGoal = (index: number, patch: Partial<InvestmentGoal>) => setForm(f => ({ ...f, investorContext: { ...f.investorContext,
     objectives: f.investorContext?.objectives?.map((g, i) => i === index ? { ...g, ...patch } : g) ?? [] } }));
   const load = (next: ProfileForm, mode: Editing) => {
     setForm(next); setEditing(mode); setProvisional([]); setUnresolved([]); setConfirmed(false); setSubmitted(false); setSaveError(null);
+  };
+  /** Edit and Edit a copy fill the form below: move focus to its first field so the change is visible. */
+  const openInForm = (next: ProfileForm, mode: Editing) => {
+    load(next, mode);
+    window.requestAnimationFrame(() => document.getElementById('pf-name')?.focus());
   };
 
   const save = async () => {
@@ -207,18 +219,23 @@ function ProfilesContent() {
         <p className="page-sub">{tr({ en: 'Fictional profiles only: don’t enter real personal details.', fr: 'Profils fictifs seulement : n’entrez aucune donnée personnelle réelle.' })}</p>
       </PageHeader>
 
-      <Card title={tr({ en: 'Profiles in this session', fr: 'Profils de cette session' })}>
+      <Card title={tr({ en: 'Profiles in this session', fr: 'Profils de cette session' })} tour="profiles-list">
+        <Note>{tr({ en: 'Edit a copy opens the profile in the form below under a new name; Save an exact copy stores an identical profile right away.', fr: 'Modifier une copie ouvre le profil dans le formulaire ci-dessous sous un nouveau nom ; Enregistrer une copie exacte crée tout de suite un profil identique.' })}</Note>
         <ul className="list-plain">
           {profiles.map(p => (
             <li key={p.profileId}>
               <strong>{p.name}</strong>{' '}
-              <span className="small muted">· {p.isDefault ? tr({ en: 'default (read-only; copy to change)', fr: 'par défaut (lecture seule ; copiez pour modifier)' }) : tr({ en: 'custom', fr: 'personnalisé' })} · {labelOf(RISK_LEVEL, p.riskLevel, lang)} · {horizonText(p, tr)} · {fmtMoney(p.portfolio.totalValue, p.portfolio.currency, lang)}</span>
+              <span className="small muted">· {p.isDefault ? tr({ en: 'default, read-only: edit a copy to change it', fr: 'par défaut, lecture seule : modifiez une copie pour le changer' }) : tr({ en: 'custom', fr: 'personnalisé' })} · {labelOf(RISK_LEVEL, p.riskLevel, lang)} · {horizonText(p, tr)} · {fmtMoney(p.portfolio.totalValue, p.portfolio.currency, lang)}</span>
               <div className="row-actions" style={{ marginTop: 4 }}>
-                <button type="button" className="btn ghost btn-sm" onClick={() => load(formFromProfile(p, tr({ en: ' (copy)', fr: ' (copie)' })), { mode: 'create', fromDraftRunId: null })}>{tr({ en: 'Copy', fr: 'Copier' })}</button>
-                <button type="button" className="btn ghost btn-sm" onClick={() => void duplicate(p)}>{tr({ en: 'Duplicate exactly', fr: 'Dupliquer à l’identique' })}</button>
-                {!p.isDefault && <button type="button" className="btn ghost btn-sm" onClick={() => load(formFromProfile(p), { mode: 'update', profileId: p.profileId, version: p.version })}>{tr({ en: 'Edit', fr: 'Modifier' })}</button>}
-                {!p.isDefault && <button type="button" className="btn ghost btn-sm" onClick={() => void setArchive(p, true)}>{tr({ en: 'Archive', fr: 'Archiver' })}</button>}
-                {!p.isDefault && <button type="button" className="btn danger btn-sm" onClick={() => void remove(p)}>{tr({ en: 'Delete', fr: 'Supprimer' })}</button>}
+                {!p.isDefault && <button type="button" className="btn ghost btn-sm" aria-label={tr({ en: `Edit ${p.name}`, fr: `Modifier ${p.name}` })}
+                  onClick={() => openInForm(formFromProfile(p), { mode: 'update', profileId: p.profileId, version: p.version })}>{tr({ en: 'Edit', fr: 'Modifier' })}</button>}
+                <button type="button" className="btn ghost btn-sm" aria-label={tr({ en: `Edit a copy of ${p.name}`, fr: `Modifier une copie de ${p.name}` })}
+                  onClick={() => openInForm(formFromProfile(p, tr({ en: ' (copy)', fr: ' (copie)' })), { mode: 'create', fromDraftRunId: null })}>{tr({ en: 'Edit a copy', fr: 'Modifier une copie' })}</button>
+                <button type="button" className="btn ghost btn-sm" aria-label={tr({ en: `Save an exact copy of ${p.name}`, fr: `Enregistrer une copie exacte de ${p.name}` })}
+                  onClick={() => void duplicate(p)}>{tr({ en: 'Save an exact copy', fr: 'Enregistrer une copie exacte' })}</button>
+                {!p.isDefault && <button type="button" className="btn ghost btn-sm" aria-label={tr({ en: `Archive ${p.name}`, fr: `Archiver ${p.name}` })} onClick={() => void setArchive(p, true)}>{tr({ en: 'Archive', fr: 'Archiver' })}</button>}
+                {!p.isDefault && <ConfirmButton label={tr({ en: 'Delete', fr: 'Supprimer' })} confirmLabel={tr({ en: `Delete ${p.name} for good`, fr: `Supprimer ${p.name} définitivement` })}
+                  ariaLabel={tr({ en: `Delete ${p.name}`, fr: `Supprimer ${p.name}` })} icon={<Trash2 aria-hidden="true" size={14} strokeWidth={2} />} onConfirm={() => void remove(p)} />}
               </div>
             </li>
           ))}
@@ -232,8 +249,6 @@ function ProfilesContent() {
         <ul className="list-plain">{archivedProfiles.data?.items.map(p => <li key={p.profileId}>{p.name}{' '}<button type="button" className="btn ghost btn-sm" onClick={() => void setArchive(p, false)}>{tr({ en: 'Restore', fr: 'Restaurer' })}</button></li>)}</ul>
       </Card>
 
-      <ProfileCompare profiles={profiles} />
-
       <DraftFromText fields={draftFields} onApply={(run, draft) => {
         // Additive (web-pages-core#10): the draft fills the form on screen, it does not replace it.
         // An edit stays an edit of the same profile; a new profile records the draft run.
@@ -245,7 +260,7 @@ function ProfilesContent() {
         setConfirmed(false); setSubmitted(false); setSaveError(null);
       }} />
 
-      <Card id="profile-form" title={editing.mode === 'update'
+      <Card id="profile-form" tour="profile-form" title={editing.mode === 'update'
         ? tr({ en: 'Edit custom profile', fr: 'Modifier le profil' })
         : tr({ en: 'New fictional profile', fr: 'Nouveau profil fictif' })}>
         <form noValidate onSubmit={e => { e.preventDefault(); void save(); }}>
@@ -296,83 +311,6 @@ function ProfilesContent() {
           </div>
 
           <fieldset style={{ marginTop: 16 }}>
-            <legend>{tr({ en: 'Investor context and multiple objectives', fr: 'Contexte et objectifs multiples' })}</legend>
-            <div className="form-grid">
-              <div className="field"><label htmlFor="pf-country">{tr({ en: 'Country (ISO two-letter code, optional)', fr: 'Pays (code ISO à deux lettres, facultatif)' })}</label>
-                <input id="pf-country" maxLength={2} pattern="[A-Z]{2}" value={form.investorContext?.country ?? ''} onChange={e => set({ investorContext: { ...form.investorContext, country: e.target.value.toUpperCase() || null } })} /></div>
-              <div className="field"><label htmlFor="pf-type">{tr({ en: 'Investor type', fr: 'Type d’investisseur' })}</label>
-                <SuggestInput id="pf-type" maxLength={80} value={form.investorContext?.investorType ?? 'individual'}
-                  onChange={value => set({ investorContext: { ...form.investorContext, investorType: value } })}
-                  suggestions={investorTypeSuggestions} listLabel={tr({ en: 'Investor types', fr: 'Types d’investisseur' })} /></div>
-            </div>
-            <p className="small muted">{tr({ en: 'Jurisdiction does not imply tax or regulatory coverage. Goal amounts use the reporting currency; feasibility is not established.', fr: 'Le pays n’implique aucune couverture fiscale ou réglementaire. Les montants utilisent la devise de présentation; leur faisabilité n’est pas établie.' })}</p>
-            {(form.investorContext?.objectives ?? []).map((goal, i) => <div className="form-grid" key={i}>
-              <div className="field"><label htmlFor={`goal-name-${i}`}>{tr({ en: 'Goal', fr: 'Objectif' })} {i + 1}</label><input id={`goal-name-${i}`} maxLength={120} value={goal.name} onChange={e => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.map((g, j) => j === i ? { ...g, name: e.target.value } : g) } })} /></div>
-              <div className="field"><label htmlFor={`goal-years-${i}`}>{tr({ en: 'Years', fr: 'Années' })}</label><input id={`goal-years-${i}`} type="number" min={0.01} max={150} step="any" value={goal.horizonYears} onChange={e => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.map((g, j) => j === i ? { ...g, horizonYears: Number(e.target.value) } : g) } })} /></div>
-              {([
-                ['targetAmount', { en: 'Target amount', fr: 'Montant cible' }],
-                ['allocatedValue', { en: 'Capital allocated to this goal', fr: 'Capital affecté à cet objectif' }],
-                ['annualContribution', { en: 'Assumed yearly contribution', fr: 'Contribution annuelle supposée' }],
-                ['assumedReturnPct', { en: 'Assumed yearly return (%) — not a forecast', fr: 'Rendement annuel supposé (%) — aucune prévision' }],
-              ] as const).map(([key, text]) => <div className="field" key={key}>
-                <label htmlFor={`goal-${key}-${i}`}>{tr(text)}</label><input id={`goal-${key}-${i}`} type="number" step="any" min={key === 'assumedReturnPct' ? -99.99 : 0} value={goal[key] ?? ''} onChange={e => setGoal(i, { [key]: e.target.value === '' ? null : Number(e.target.value) })} />
-              </div>)}
-              <div className="field"><label htmlFor={`goal-priority-${i}`}>{tr({ en: 'Priority (1 = highest)', fr: 'Priorité (1 = plus élevée)' })}</label><input id={`goal-priority-${i}`} type="number" min={1} max={100} value={goal.priority} onChange={e => setGoal(i, { priority: Number(e.target.value) })} /></div>
-              {(['startDate', 'endDate', 'deadline'] as const).map(key => <div className="field" key={key}><label htmlFor={`goal-${key}-${i}`}>{key}</label><input id={`goal-${key}-${i}`} type="date" value={goal[key] ?? ''} onChange={e => setGoal(i, { [key]: e.target.value || null })} /></div>)}
-              <div className="field"><label htmlFor={`goal-origin-${i}`}>{tr({ en: 'Goal input origin', fr: 'Origine de l’objectif' })}</label><select id={`goal-origin-${i}`} value={goal.origin ?? 'user'} onChange={e => setGoal(i, { origin: e.target.value as NonNullable<InvestmentGoal['origin']> })}>{['user', 'imported', 'system_default', 'assumption'].map(o => <option key={o} value={o}>{o}</option>)}</select></div>
-              <div className="field"><label htmlFor={`goal-source-${i}`}>{tr({ en: 'Source URL (optional)', fr: 'URL source (facultative)' })}</label><input id={`goal-source-${i}`} type="url" value={goal.sourceUrl ?? ''} onChange={e => setGoal(i, { sourceUrl: e.target.value || null })} /></div>
-              <button type="button" className="btn ghost" onClick={() => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.filter((_, j) => j !== i) } })}>{tr({ en: 'Remove goal', fr: 'Retirer l’objectif' })}</button>
-            </div>)}
-            <button type="button" className="btn ghost" disabled={(form.investorContext?.objectives?.length ?? 0) >= 20} onClick={() => set({ investorContext: { ...form.investorContext, objectives: [...(form.investorContext?.objectives ?? []), { name: '', horizonYears: 1, priority: (form.investorContext?.objectives?.length ?? 0) + 1, origin: 'user' }] } })}>{tr({ en: 'Add objective', fr: 'Ajouter un objectif' })}</button>
-          </fieldset>
-
-          <CustomThemeInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} tickers={form.positions.map(p => p.ticker.trim().toUpperCase()).filter(Boolean)} />
-          <AllocationInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} />
-          <InvestorInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} />
-
-          <fieldset style={{ marginTop: 16 }}>
-            <legend>{tr({ en: 'Preferences', fr: 'Préférences' })}</legend>
-            <div className="checks">
-              {PREFERENCE_TOGGLES.map(([key, text]) => (
-                <label key={key}><input type="checkbox" checked={form[key]} onChange={e => set({ [key]: e.target.checked })} /> {tr(text)}</label>
-              ))}
-            </div>
-            <div className="form-grid" style={{ marginTop: 8 }}>
-              <div className="field">
-                <label htmlFor="pf-crypto">{tr({ en: 'Crypto interest', fr: 'Intérêt pour la crypto' })}</label>
-                <select id="pf-crypto" value={form.cryptoInterest} onChange={e => set({ cryptoInterest: e.target.value as ProfileForm['cryptoInterest'] })}>
-                  <option value="none">{tr({ en: 'None', fr: 'Aucun' })}</option>
-                  <option value="low">{tr({ en: 'Low', fr: 'Faible' })}</option>
-                  <option value="open">{tr({ en: 'Open', fr: 'Ouvert' })}</option>
-                </select>
-              </div>
-              <div className="field">
-                <label htmlFor="pf-sectors">{tr({ en: 'Excluded sectors, separated by commas', fr: 'Secteurs exclus, séparés par des virgules' })}</label>
-                <input id="pf-sectors" type="text" value={form.excludedSectors} onChange={e => set({ excludedSectors: e.target.value })} />
-              </div>
-            </div>
-            <details style={{ marginTop: 8 }}>
-              <summary className="small">{tr({ en: 'Themes of interest and excluded asset classes', fr: 'Thèmes d’intérêt et catégories exclues' })}</summary>
-              <div className="checks">
-                {THEME_TAGS.map(theme => (
-                  <label key={theme}><input type="checkbox" checked={form.themesOfInterest.includes(theme)}
-                    onChange={e => set({ themesOfInterest: e.target.checked ? [...form.themesOfInterest, theme] : form.themesOfInterest.filter(t => t !== theme) })} /> {labelOf(THEME_TAG, theme, lang)}</label>
-                ))}
-              </div>
-              <div className="checks" style={{ marginTop: 8 }}>
-                {ASSET_CLASSES.map(c => (
-                  <label key={c}><input type="checkbox" checked={form.excludedAssetClasses.includes(c)}
-                    onChange={e => set({ excludedAssetClasses: e.target.checked ? [...form.excludedAssetClasses, c] : form.excludedAssetClasses.filter(x => x !== c) })} /> {tr({ en: 'Exclude', fr: 'Exclure' })} {labelOf(ASSET_CLASS, c, lang)}</label>
-                ))}
-              </div>
-            </details>
-            <div className="field" style={{ marginTop: 8 }}>
-              <label htmlFor="pf-notes">{tr({ en: 'Notes', fr: 'Notes' })}</label>
-              <textarea id="pf-notes" value={form.notes} onChange={e => set({ notes: e.target.value })} />
-            </div>
-          </fieldset>
-
-          <fieldset style={{ marginTop: 16 }}>
             <legend>{tr({ en: 'Fictional portfolio', fr: 'Portefeuille fictif' })}</legend>
             <div className="checks">
               <label><input type="radio" name="pf-holdings" checked={!form.ownHoldings} onChange={() => set({ ownHoldings: false })} /> {tr({ en: 'Let Aplomb propose a starting mix (labelled as an assumption)', fr: 'Laisser Aplomb proposer une composition de départ (identifiée comme hypothèse)' })}</label>
@@ -408,6 +346,92 @@ function ProfilesContent() {
               </>
             )}
           </fieldset>
+
+          <fieldset style={{ marginTop: 16 }}>
+            <legend>{tr({ en: 'Preferences', fr: 'Préférences' })}</legend>
+            <div className="checks">
+              {PREFERENCE_TOGGLES.map(([key, text]) => (
+                <label key={key}><input type="checkbox" checked={form[key]} onChange={e => set({ [key]: e.target.checked })} /> {tr(text)}</label>
+              ))}
+            </div>
+          </fieldset>
+
+          <details className="fold profile-more" open={moreOpen} onToggle={e => setMoreOpen(e.currentTarget.open)} style={{ marginTop: 16 }}>
+            <summary>{tr({ en: 'More details', fr: 'Plus de détails' })}<span className="small muted">{tr({ en: 'Goals, allocation targets, investor inputs and preference details, all optional', fr: 'Objectifs, cibles de répartition, entrées investisseur et détails des préférences, tous facultatifs' })}</span></summary>
+            <div className="fold-body">
+          <fieldset style={{ marginTop: 16 }}>
+            <legend>{tr({ en: 'Investor context and goals', fr: 'Contexte et objectifs' })}</legend>
+            <div className="form-grid">
+              <div className="field"><label htmlFor="pf-country">{tr({ en: 'Country (ISO two-letter code, optional)', fr: 'Pays (code ISO à deux lettres, facultatif)' })}</label>
+                <input id="pf-country" maxLength={2} pattern="[A-Z]{2}" value={form.investorContext?.country ?? ''} onChange={e => set({ investorContext: { ...form.investorContext, country: e.target.value.toUpperCase() || null } })} /></div>
+              <div className="field"><label htmlFor="pf-type">{tr({ en: 'Investor type', fr: 'Type d’investisseur' })}</label>
+                <SuggestInput id="pf-type" maxLength={80} value={form.investorContext?.investorType ?? 'individual'}
+                  onChange={value => set({ investorContext: { ...form.investorContext, investorType: value } })}
+                  suggestions={investorTypeSuggestions} listLabel={tr({ en: 'Investor types', fr: 'Types d’investisseur' })} /></div>
+            </div>
+            <p className="small muted">{tr({ en: 'Jurisdiction does not imply tax or regulatory coverage. Goal amounts use the reporting currency; feasibility is not established.', fr: 'Le pays n’implique aucune couverture fiscale ou réglementaire. Les montants utilisent la devise de présentation; leur faisabilité n’est pas établie.' })}</p>
+            {(form.investorContext?.objectives ?? []).map((goal, i) => <div className="form-grid" key={i}>
+              <div className="field"><label htmlFor={`goal-name-${i}`}>{tr({ en: 'Goal', fr: 'Objectif' })} {i + 1}</label><input id={`goal-name-${i}`} maxLength={120} value={goal.name} onChange={e => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.map((g, j) => j === i ? { ...g, name: e.target.value } : g) } })} /></div>
+              <div className="field"><label htmlFor={`goal-years-${i}`}>{tr({ en: 'Years', fr: 'Années' })}</label><input id={`goal-years-${i}`} type="number" min={0.01} max={150} step="any" value={goal.horizonYears} onChange={e => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.map((g, j) => j === i ? { ...g, horizonYears: Number(e.target.value) } : g) } })} /></div>
+              {([
+                ['targetAmount', { en: 'Target amount', fr: 'Montant cible' }],
+                ['allocatedValue', { en: 'Capital allocated to this goal', fr: 'Capital affecté à cet objectif' }],
+                ['annualContribution', { en: 'Assumed yearly contribution', fr: 'Contribution annuelle supposée' }],
+                ['assumedReturnPct', { en: 'Assumed yearly return (%) — not a forecast', fr: 'Rendement annuel supposé (%) — aucune prévision' }],
+              ] as const).map(([key, text]) => <div className="field" key={key}>
+                <label htmlFor={`goal-${key}-${i}`}>{tr(text)}</label><input id={`goal-${key}-${i}`} type="number" step="any" min={key === 'assumedReturnPct' ? -99.99 : 0} value={goal[key] ?? ''} onChange={e => setGoal(i, { [key]: e.target.value === '' ? null : Number(e.target.value) })} />
+              </div>)}
+              <div className="field"><label htmlFor={`goal-priority-${i}`}>{tr({ en: 'Priority (1 = highest)', fr: 'Priorité (1 = plus élevée)' })}</label><input id={`goal-priority-${i}`} type="number" min={1} max={100} value={goal.priority} onChange={e => setGoal(i, { priority: Number(e.target.value) })} /></div>
+              {(['startDate', 'endDate', 'deadline'] as const).map(key => <div className="field" key={key}><label htmlFor={`goal-${key}-${i}`}>{tr(DATE_FIELD_LABEL[key])}</label><input id={`goal-${key}-${i}`} type="date" value={goal[key] ?? ''} onChange={e => setGoal(i, { [key]: e.target.value || null })} /></div>)}
+              <div className="field"><label htmlFor={`goal-origin-${i}`}>{tr({ en: 'Where this goal comes from', fr: 'Origine de l’objectif' })}</label><select id={`goal-origin-${i}`} value={goal.origin ?? 'user'} onChange={e => setGoal(i, { origin: e.target.value as NonNullable<InvestmentGoal['origin']> })}>{(Object.keys(INPUT_ORIGIN_LABEL) as (keyof typeof INPUT_ORIGIN_LABEL)[]).map(o => <option key={o} value={o}>{tr(INPUT_ORIGIN_LABEL[o])}</option>)}</select></div>
+              <div className="field"><label htmlFor={`goal-source-${i}`}>{tr({ en: 'Source URL (optional)', fr: 'URL source (facultative)' })}</label><input id={`goal-source-${i}`} type="url" value={goal.sourceUrl ?? ''} onChange={e => setGoal(i, { sourceUrl: e.target.value || null })} /></div>
+              <button type="button" className="btn ghost" onClick={() => set({ investorContext: { ...form.investorContext, objectives: form.investorContext!.objectives!.filter((_, j) => j !== i) } })}>{tr({ en: 'Remove goal', fr: 'Retirer l’objectif' })}</button>
+            </div>)}
+            <button type="button" className="btn ghost" disabled={(form.investorContext?.objectives?.length ?? 0) >= 20} onClick={() => set({ investorContext: { ...form.investorContext, objectives: [...(form.investorContext?.objectives ?? []), { name: '', horizonYears: 1, priority: (form.investorContext?.objectives?.length ?? 0) + 1, origin: 'user' }] } })}>{tr({ en: 'Add goal', fr: 'Ajouter un objectif' })}</button>
+          </fieldset>
+
+          <CustomThemeInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} tickers={form.positions.map(p => p.ticker.trim().toUpperCase()).filter(Boolean)} />
+          <AllocationInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} />
+          <InvestorInputs value={form.investorContext} onChange={investorContext => set({ investorContext })} />
+
+          <fieldset style={{ marginTop: 16 }}>
+            <legend>{tr({ en: 'Preference details', fr: 'Détails des préférences' })}</legend>
+            <div className="form-grid" style={{ marginTop: 8 }}>
+              <div className="field">
+                <label htmlFor="pf-crypto">{tr({ en: 'Crypto interest', fr: 'Intérêt pour la crypto' })}</label>
+                <select id="pf-crypto" value={form.cryptoInterest} onChange={e => set({ cryptoInterest: e.target.value as ProfileForm['cryptoInterest'] })}>
+                  <option value="none">{tr({ en: 'None', fr: 'Aucun' })}</option>
+                  <option value="low">{tr({ en: 'Low', fr: 'Faible' })}</option>
+                  <option value="open">{tr({ en: 'Open', fr: 'Ouvert' })}</option>
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="pf-sectors">{tr({ en: 'Excluded sectors, separated by commas', fr: 'Secteurs exclus, séparés par des virgules' })}</label>
+                <input id="pf-sectors" type="text" value={form.excludedSectors} onChange={e => set({ excludedSectors: e.target.value })} />
+              </div>
+            </div>
+            <details style={{ marginTop: 8 }}>
+              <summary className="small">{tr({ en: 'Themes of interest and excluded asset classes', fr: 'Thèmes d’intérêt et catégories exclues' })}</summary>
+              <div className="checks">
+                {THEME_TAGS.map(theme => (
+                  <label key={theme}><input type="checkbox" checked={form.themesOfInterest.includes(theme)}
+                    onChange={e => set({ themesOfInterest: e.target.checked ? [...form.themesOfInterest, theme] : form.themesOfInterest.filter(t => t !== theme) })} /> {labelOf(THEME_TAG, theme, lang)}</label>
+                ))}
+              </div>
+              <div className="checks" style={{ marginTop: 8 }}>
+                {ASSET_CLASSES.map(c => (
+                  <label key={c}><input type="checkbox" checked={form.excludedAssetClasses.includes(c)}
+                    onChange={e => set({ excludedAssetClasses: e.target.checked ? [...form.excludedAssetClasses, c] : form.excludedAssetClasses.filter(x => x !== c) })} /> {tr({ en: 'Exclude', fr: 'Exclure' })} {labelOf(ASSET_CLASS, c, lang)}</label>
+                ))}
+              </div>
+            </details>
+            <div className="field" style={{ marginTop: 8 }}>
+              <label htmlFor="pf-notes">{tr({ en: 'Notes', fr: 'Notes' })}</label>
+              <textarea id="pf-notes" value={form.notes} onChange={e => set({ notes: e.target.value })} />
+            </div>
+          </fieldset>
+            </div>
+          </details>
 
           <p className="small muted" style={{ marginTop: 12 }}>{tr({ en: 'Rules are derived by code from these fields (editable assumptions, not regulatory limits).', fr: 'Les règles sont dérivées par le code à partir de ces champs (hypothèses modifiables, pas des limites réglementaires).' })}</p>
 
@@ -480,7 +504,7 @@ function DraftFromText({ fields, onApply }: { fields: PartialProfile; onApply: (
   };
   const busy = run !== null && (run.status === 'queued' || run.status === 'running');
   return (
-    <Card title={tr({ en: 'Or describe the fictional investor in words', fr: 'Ou décrivez l’investisseur fictif en mots' })}>
+    <Card tour="profile-draft" title={tr({ en: 'Or describe the fictional investor in words', fr: 'Ou décrivez l’investisseur fictif en mots' })}>
       <div className="field">
         <label htmlFor="draft-text">{tr({ en: 'Description', fr: 'Description' })}</label>
         <textarea id="draft-text" aria-describedby="draft-text-hint" value={text} maxLength={2000} onChange={e => setText(e.target.value)} />

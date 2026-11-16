@@ -173,3 +173,82 @@ test('sidebar state is a stored preference applied before first paint', () => {
   assert.equal(isSidebarState('expanded'), true);
   assert.equal(isSidebarState('wide'), false);
 });
+
+import { readFileSync } from 'node:fs';
+import { longestTransitionMs, placePopover } from '../src/components/ui/popoverPlacement';
+import { DUR, EASE, readAnimationsAllowed } from '../src/lib/ui/theme';
+
+const viewport = { width: 390, height: 800 };
+
+test('placePopover: below the trigger, at least as wide as it, inside the viewport', () => {
+  const p = placePopover({ top: 100, left: 20, bottom: 140, width: 160 }, { width: 120, height: 200 }, viewport, { minWidth: 220 });
+  assert.equal(p.side, 'bottom');
+  assert.equal(p.top, 146);
+  assert.equal(p.left, 20);
+  assert.equal(p.minWidth, 220);
+  assert.equal(p.width, undefined);
+  // Near the right edge it slides left instead of overflowing.
+  const right = placePopover({ top: 100, left: 300, bottom: 140, width: 80 }, { width: 240, height: 100 }, viewport);
+  assert.equal(right.left, 390 - 8 - 240);
+});
+
+test('placePopover: flips above when there is no room below, and caps its height', () => {
+  const p = placePopover({ top: 700, left: 20, bottom: 740, width: 200 }, { width: 200, height: 300 }, viewport);
+  assert.equal(p.side, 'top');
+  assert.equal(p.top, 700 - 6 - 300);
+  const tall = placePopover({ top: 100, left: 20, bottom: 140, width: 200 }, { width: 200, height: 2000 }, viewport);
+  assert.equal(tall.side, 'bottom');
+  assert.equal(tall.maxHeight, 360);
+});
+
+test('placePopover: exact width follows the trigger and never passes the viewport', () => {
+  const p = placePopover({ top: 10, left: 0, bottom: 50, width: 600 }, { width: 100, height: 100 }, viewport, { exactWidth: true, minWidth: 240 });
+  assert.equal(p.width, 390 - 16);
+  assert.equal(p.left, 8);
+});
+
+test('longestTransitionMs reads computed transition lists', () => {
+  assert.equal(longestTransitionMs('0.2s, 0.15s', '0s, 0.1s'), 250);
+  assert.equal(longestTransitionMs('200ms', '0s'), 200);
+  assert.equal(longestTransitionMs('0s', '0s'), 0);
+  assert.equal(longestTransitionMs('', ''), 0);
+});
+
+test('motion: one curve and the duration tokens, shared by CSS and JavaScript', () => {
+  const tokens = readFileSync(new URL('../src/styles/tokens.css', import.meta.url), 'utf8');
+  assert.match(tokens, /--ease: cubic-bezier\(0\.22, 1, 0\.36, 1\);/);
+  assert.deepEqual([...EASE], [0.22, 1, 0.36, 1]);
+  assert.match(tokens, new RegExp(`--dur-menu: ${DUR.menu * 1000}ms;`));
+  assert.match(tokens, new RegExp(`--dur-enter: ${DUR.enter * 1000}ms;`));
+  assert.match(tokens, new RegExp(`--dur-draw: ${DUR.draw * 1000}ms;`));
+  for (const token of ['--h-ctl: 40px', '--h-ctl-sm: 32px', '--r-inset: 14px', '--fs-12', '--fs-13', '--fs-15', '--fs-17', '--fs-20']) assert.ok(tokens.includes(token), token);
+  // Outside a browser nothing animates.
+  assert.equal(readAnimationsAllowed(), false);
+});
+
+test('motion gate: every duration token goes to 0s on Off, on a hidden page and under reduced motion unless On', () => {
+  const motion = readFileSync(new URL('../src/styles/motion.css', import.meta.url), 'utf8');
+  assert.match(motion, /html\[data-anim='off'\], html\[data-motion='off'\] \{\s*--dur-fast: 0s; --dur-menu: 0s; --dur-enter: 0s; --dur-draw: 0s;/);
+  assert.match(motion, /@media \(prefers-reduced-motion: reduce\) \{\s*html:not\(\[data-anim='on'\]\) \{\s*--dur-fast: 0s;/);
+  assert.match(motion, /animation-duration: 0s !important; animation-delay: 0s !important;/);
+  // No other file of the shared layers carries its own reduced-motion switch.
+  for (const file of ['components.css', 'dashboard.css', 'pages.css', 'tour.css', 'primitives.css', 'base.css']) {
+    const css = readFileSync(new URL(`../src/styles/${file}`, import.meta.url), 'utf8');
+    assert.doesNotMatch(css, /prefers-reduced-motion/, file);
+  }
+});
+
+test('buttons wrap inside their pill and keep the control heights', () => {
+  const css = readFileSync(new URL('../src/styles/components.css', import.meta.url), 'utf8');
+  const btn = css.slice(css.indexOf('.btn {'), css.indexOf('}', css.indexOf('.btn {')));
+  assert.match(btn, /white-space: normal/);
+  assert.match(btn, /text-wrap: balance/);
+  assert.match(btn, /min-height: var\(--h-ctl\)/);
+  assert.match(btn, /opacity var\(--dur-fast\)/);
+  assert.match(css, /\.btn-sm \{ min-height: var\(--h-ctl-sm\);/);
+  // One definition each.
+  assert.equal(css.match(/^\.scope-note \{/gm)?.length, 1);
+  assert.equal(css.match(/^\.figure-note \{/gm)?.length, 1);
+  const dashboard = readFileSync(new URL('../src/styles/dashboard.css', import.meta.url), 'utf8');
+  assert.doesNotMatch(dashboard, /^\.(scope|figure)-note \{/m);
+});

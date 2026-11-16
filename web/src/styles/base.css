@@ -1,9 +1,14 @@
 /* Reset, typography, utilities, scrollbars and the ambient field the glass floats over. */
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-/* Scroll padding keeps focus and scroll targets clear of the fixed top bar and of the section dock
-   (--dock-clearance, shell.css; zero on phones, where the dock is hidden). */
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 96px; scroll-padding-bottom: var(--dock-clearance); }
+/* Scroll padding keeps focus and scroll targets clear of the fixed top bar (768 px and up; on phones
+   the bar scrolls with the page) and of the section dock (--dock-clearance, shell.css; zero on phones,
+   where the dock is hidden). The scrollbar gutter is always reserved, so a page that starts or stops
+   scrolling (a fold opening, a sheet locking the page) never shifts sideways. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scrollbar-gutter: stable; scroll-padding-bottom: var(--dock-clearance); }
+@media (min-width: 768px) {
+  html { scroll-padding-top: 96px; }
+}
 body {
   min-height: 100vh;
   background: var(--bg);
@@ -51,14 +56,16 @@ summary { cursor: pointer; }
 .mono { font-family: var(--mono); }
 .serif { font-family: var(--sans); }
 .num { font-variant-numeric: tabular-nums lining-nums; }
-.small { font-size: 13px; }
+.small { font-size: var(--fs-13); }
 .muted { color: var(--text-2); }
 .block { display: block; }
 .break { overflow-wrap: anywhere; word-break: break-word; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+/* Vertical rhythm for a group of related blocks (fields, notes, rows). */
+.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 /* Small context label: sentence case, quiet. */
-.eyebrow { font-size: 13px; font-weight: 400; color: var(--text-3); }
-.h4 { font-size: 15px; font-weight: 600; margin: 20px 0 10px; letter-spacing: -.005em; }
+.eyebrow { font-size: var(--fs-13); font-weight: 400; color: var(--text-3); }
+.h4 { font-size: var(--fs-15); font-weight: 600; margin: 20px 0 10px; letter-spacing: -.005em; }
 .error-text { color: var(--conflict-fg); }
 .skip-link { position: absolute; left: -9999px; top: 8px; z-index: 100; background: var(--accent); color: var(--accent-contrast); padding: 8px 12px; border-radius: var(--r-ctl); font-weight: 500; }
 .skip-link:focus { left: 8px; }
@@ -70,7 +77,3 @@ summary { cursor: pointer; }
 ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
 ::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); border: 2px solid transparent; background-clip: padding-box; }
 ::-webkit-scrollbar-corner { background: transparent; }
-
-@media (prefers-reduced-motion: reduce) {
-  * { scroll-behavior: auto !important; }
-}

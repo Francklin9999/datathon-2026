@@ -54,11 +54,14 @@ test('animations: the setting wins over the system, a hidden page never animates
   assert.equal(animationsAllowed('on', false, true), false);
 });
 
-test('animations: the setting also drives motion (drawers, sheets): Off reduces, On never, Auto follows the system', async () => {
-  const { motionReducedFor } = await import('../src/lib/ui/theme');
-  assert.equal(motionReducedFor('off'), 'always');
-  assert.equal(motionReducedFor('on'), 'never');
-  assert.equal(motionReducedFor(undefined), 'user');
+test('animations: the same gate drives motion (MotionConfig, drawers, sheets)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
+  // One gate (lib/ui/theme.ts animationsAllowed, tested above): no component reads the setting on its own.
+  assert.match(read('../src/components/ui/ThemeProvider.tsx'), /reducedMotion=\{allowed \? 'never' : 'always'\}/);
+  for (const file of ['ThemeProvider.tsx', 'Sheet.tsx', 'Drawer.tsx'].map(name => (name === 'ThemeProvider.tsx' ? `../src/components/ui/${name}` : `../src/components/common/${name}`))) {
+    assert.match(read(file), /useAnimationsAllowed\(\)/, `${file} follows the motion gate`);
+  }
 });
 
 test('count-up: dates, labels and identifiers are left alone', () => {

@@ -8,13 +8,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../state/app';
 import { COUNT_UP_MS, easeOutCubic, formatLike, parseFigure } from '../../lib/ui/countup';
-import { animationsAllowed } from '../../lib/ui/theme';
-
-function motionAllowed(): boolean {
-  if (typeof window === 'undefined') return false;
-  const root = document.documentElement;
-  return animationsAllowed(root.dataset.anim, window.matchMedia('(prefers-reduced-motion: reduce)').matches, root.dataset.motion === 'off');
-}
+import { readAnimationsAllowed as motionAllowed } from '../../lib/ui/theme';
 
 export function CountUp({ text }: { text: string }) {
   const { lang } = useApp();

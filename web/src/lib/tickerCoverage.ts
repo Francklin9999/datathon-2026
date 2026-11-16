@@ -1,6 +1,6 @@
 /**
- * Ticker coverage on the pages that take tickers outside the move form: Markets discovery, the
- * account and target-allocation editors (Portfolio, Decide, System) and the Replay run gate.
+ * Ticker coverage on the pages that take tickers outside the move form: Labs instrument discovery,
+ * the account and target-allocation editors (Portfolio, Decide) and the Replay run gate.
  * Built on lib/universe.ts; every check returns "no issue" until the universe read has completed
  * (useAssetUniverse().ready), so a slow or failed read never blocks input.
  *
@@ -90,7 +90,7 @@ export const REPLAY_FIX_MOVE: I18NText = {
   fr: 'Corrigez les détails du mouvement ci-dessus pour lancer le rejeu.',
 };
 
-/** Markets: the discovery count, e.g. "31 of 31 instruments · snapshot snap-…". */
+/** Instrument discovery (Labs): the count, e.g. "31 of 31 instruments · snapshot snap-…". */
 export function instrumentCountLine(shown: number, total: number, dataVersion: string | null): I18NText {
   const noun = total === 1 ? 'instrument' : 'instruments';
   return {
@@ -99,7 +99,7 @@ export function instrumentCountLine(shown: number, total: number, dataVersion: s
   };
 }
 
-/** Markets: a search with no match says what the snapshot covers, from the loaded data. */
+/** Instrument discovery (Labs): a search with no match says what the snapshot covers, from the loaded data. */
 export function noMatchingInstrument(query: string, total: number, dataVersion: string | null, markets: readonly string[]): I18NText {
   const q = query.trim();
   const covers = total === 1 ? 'instrument' : 'instruments';
@@ -113,7 +113,7 @@ export function noMatchingInstrument(query: string, total: number, dataVersion: 
   return { en, fr };
 }
 
-/** Markets: clears the search. */
+/** Instrument discovery (Labs): clears the search. */
 export function showAllInstruments(total: number): I18NText {
   return { en: `Show all ${total}`, fr: `Tout afficher (${total})` };
 }

@@ -44,6 +44,8 @@ export interface GlobeViewProps {
   /** Portfolio weight (percent) by ISO3 for the exposure layer; null = layer off. */
   exposure: ReadonlyMap<string, number> | null;
   rotate: boolean;
+  /** Nothing to draw (stage off-screen, tab hidden, a sheet over the page): the render loop stops. */
+  paused?: boolean;
   reducedMotion: boolean;
   lang: Lang;
   height: number;
@@ -134,7 +136,7 @@ function layoutLabels(globe: GlobeMethods, pins: readonly GlobePin[], labels: re
 const fmtPct = (value: number, lang: Lang) => `${new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', { maximumFractionDigits: 0 }).format(value)}${lang === 'fr' ? ' %' : '%'}`;
 
 export default function GlobeView({
-  pins, investors, selectedProfileId, selectedId, selectedGeometry: standaloneGeometry, selectedCountry, countries, exposure, rotate, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract, area, command, onClusters, onViewport, onReady,
+  pins, investors, selectedProfileId, selectedId, selectedGeometry: standaloneGeometry, selectedCountry, countries, exposure, rotate, paused = false, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract, area, command, onClusters, onViewport, onReady,
 }: GlobeViewProps) {
   const globe = useRef<GlobeMethods | undefined>(undefined);
   const holder = useRef<HTMLDivElement | null>(null);
@@ -244,6 +246,14 @@ export default function GlobeView({
     controls.autoRotateSpeed = 0.35;
     controls.enableDamping = !reducedMotion;
   }, [rotate, reducedMotion, ready]);
+
+  // Stop the render loop while nobody can see the globe; resume where it was.
+  useEffect(() => {
+    const g = globe.current;
+    if (!ready || !g) return;
+    if (paused) g.pauseAnimation();
+    else g.resumeAnimation();
+  }, [paused, ready]);
 
   // Stop rotating as soon as the globe is grabbed.
   useEffect(() => {

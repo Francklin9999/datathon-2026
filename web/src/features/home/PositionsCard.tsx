@@ -1,8 +1,8 @@
 'use client';
 /**
  * Positions in scope (snapshot.positions filtered by asset class and minimum weight), largest first.
- * The widget shows as many rows as its height holds (resizing it shows more); "+N" and the details
- * button open the whole list with values and the link to the portfolio.
+ * The widget shows as many rows as its height holds (resizing it shows more); "Show all N" and the
+ * details button open the whole list with values and the link to the portfolio.
  */
 import Link from 'next/link';
 import type { Currency, OverviewResponse } from '../../contracts/types';
@@ -16,7 +16,7 @@ import { fmtMoney, fmtPct } from '../../lib/format';
 import { fitCount } from '../../lib/ui/layout';
 import { filterPositions, type DashboardScope } from '../../lib/ui/scope';
 
-/** Row, header and "+N" heights in px (dashboard.css .rank-table, .more-row), a pixel of slack for borders. */
+/** Row, header and "Show all N" heights in px (dashboard.css .rank-table, .more-row), a pixel of slack for borders. */
 const ROW_PX = 45;
 const HEAD_PX = 26;
 const MORE_PX = 36;
@@ -62,7 +62,7 @@ export function PositionsCard({ overview, scope }: { overview: OverviewResponse;
   const share = shown.reduce((sum, p) => sum + p.weightPct, 0);
   const { ref, size } = useElementSize<HTMLDivElement>();
   const sheet = useSheet();
-  // Rows that fit; when some are left out, keep room for the "+N" button.
+  // Rows that fit; when some are left out, keep room for the "Show all N" button.
   const fitAll = size ? fitCount(size.h - HEAD_PX, ROW_PX, shown.length) : Math.min(shown.length, 5);
   const visible = fitAll < shown.length && size ? fitCount(size.h - HEAD_PX - MORE_PX, ROW_PX, shown.length) : fitAll;
   const hidden = shown.length - visible;
@@ -86,8 +86,8 @@ export function PositionsCard({ overview, scope }: { overview: OverviewResponse;
             {hidden > 0 && (
               <div className="more-row">
                 <button type="button" className="more-btn" aria-haspopup="dialog" onClick={event => sheet.show(event.currentTarget)}
-                  aria-label={tr({ en: `Show all ${shown.length} positions`, fr: `Afficher les ${shown.length} positions` })}>
-                  +{hidden}
+                  title={tr({ en: `${hidden} more not shown here`, fr: `${hidden} de plus non affichées ici` })}>
+                  {tr({ en: `Show all ${shown.length}`, fr: `Tout afficher (${shown.length})` })}
                 </button>
               </div>
             )}

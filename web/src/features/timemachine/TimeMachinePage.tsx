@@ -148,14 +148,15 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
     <>
       <PageHeader tour="tm-header"
         title={tr(TITLE)}>
-        <p className="page-sub">{tr({ en: `Pick a date, a move for ${profile.name}, then reveal what happened next.`, fr: `Choisissez une date, un mouvement pour ${profile.name}, puis révélez la suite.` })}</p>
+        <p className="page-sub">{tr({ en: `Pick a past date and a move for ${profile.name}. The analysis sees only the data of that date; you reveal what happened next when you choose.`, fr: `Choisissez une date passée et un mouvement pour ${profile.name}. L’analyse ne voit que les données de cette date ; vous révélez la suite quand vous le décidez.` })}</p>
       </PageHeader>
 
       <FixedWarning />
 
       <div className="cols">
         <div>
-          <Card id="cutoff" section={tr({ en: 'Date', fr: 'Date' })} tour="tm-cutoff" title={tr({ en: 'Information cutoff', fr: 'Date limite d’information' })}>
+          <Card id="cutoff" section={tr({ en: 'Date', fr: 'Date' })} tour="tm-cutoff" title={tr({ en: 'Pick a past date', fr: 'Choisir une date passée' })}
+            info={tr({ en: 'The information cutoff: the replay uses only data that was available at the end of this day.', fr: 'La date limite d’information : le rejeu n’utilise que les données disponibles à la fin de ce jour.' })}>
             {presets.loading && <Loading label={tr({ en: 'Loading the dates the data supports…', fr: 'Chargement des dates prises en charge par les données…' })} />}
             {presets.error && (
               <ErrorState error={presets.error} onRetry={presets.reload}
@@ -183,7 +184,7 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
                   </ul>
                 )}
                 <div className="field" style={{ marginTop: 12 }}>
-                  <label htmlFor="tm-asof">{tr({ en: 'Cutoff date', fr: 'Date limite' })}</label>
+                  <label htmlFor="tm-asof">{tr({ en: 'Or enter a cutoff date', fr: 'Ou saisir une date limite' })}</label>
                   <input id="tm-asof" type="date" value={asOf} min={presets.data.earliestAsOf} max={presets.data.latestAsOf}
                     onChange={e => chooseAsOf(e.target.value)} aria-invalid={Boolean(asOf && dateIssue)} aria-describedby="tm-asof-hint" />
                   <span id="tm-asof-hint" className="hint">
@@ -199,11 +200,11 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
         </div>
         <div>
           <MoveFormCard profile={profile} form={form} update={update} maxSize={maxSize} currentWeight={currentWeight} issues={shownIssues} goal={null} />
-          <Card id="tm-start" section={tr({ en: 'Start', fr: 'Lancer' })} tour="tm-start" title={tr({ en: 'Run the replay', fr: 'Lancer le rejeu' })}>
+          <Card id="tm-start" section={tr({ en: 'Start', fr: 'Lancer' })} tour="tm-start" title={tr({ en: 'Start the replay', fr: 'Lancer le rejeu' })}>
             <p className="small">
               {move
                 ? `${describeRequest({ type: 'move', move }, lang)}, ${fundingLabel(move.funding, lang)}`
-                : tr({ en: 'No move set yet: choose an asset and a size above 0.', fr: 'Aucun mouvement défini : choisissez un actif et une taille supérieure à 0.' })}
+                : tr({ en: 'No move set yet: choose an asset and a size above 0', fr: 'Aucun mouvement défini : choisissez un actif et une taille supérieure à 0' })}
               {', '}
               {asOf && !dateIssue
                 ? <>{tr({ en: 'cutoff', fr: 'date limite' })} <strong>{fmtDate(asOf, lang)}</strong></>
@@ -212,14 +213,14 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
             <div className="row-actions">
               <button type="button" className="btn" disabled={!canStart} onClick={() => void start()}
                 aria-describedby={shownIssues.length > 0 ? 'tm-start-reason' : undefined}>
-                {tr({ en: 'Run historical replay', fr: 'Lancer le rejeu historique' })}
+                {tr({ en: 'Start replay', fr: 'Lancer le rejeu' })}
               </button>
               {shownIssues.length > 0 && <span id="tm-start-reason" className="small muted">{tr(REPLAY_FIX_MOVE)}</span>}
             </div>
             {creating && <Loading label={tr({ en: 'Starting…', fr: 'Lancement…' })} />}
             {createError && (
               <ErrorState error={createError}
-                {...(createError.code === 'upstream_unavailable' ? { title: tr({ en: 'The replay could not be started: the run service is unavailable. Nothing was computed.', fr: 'Le rejeu n’a pas pu être lancé : le service d’exécution est indisponible. Rien n’a été calculé.' }) } : {})}>
+                {...(createError.code === 'upstream_unavailable' ? { title: tr({ en: 'The replay could not be started: the analysis service is unavailable. Nothing was computed.', fr: 'Le rejeu n’a pas pu être lancé : le service d’analyse est indisponible. Rien n’a été calculé.' }) } : {})}>
                 <CreateRefusal error={createError} />
               </ErrorState>
             )}
@@ -228,7 +229,7 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
       </div>
 
       {runId && (
-        <Card id="replay-run" section={tr({ en: 'Result', fr: 'Résultat' })} tour="tm-result" title={tr({ en: 'Replay', fr: 'Rejeu' })}>
+        <Card id="replay-run" section={tr({ en: 'Result', fr: 'Résultat' })} tour="tm-result" title={tr({ en: 'Replay result', fr: 'Résultat du rejeu' })}>
           {polled.loading && !run && <Loading />}
           {polled.error && <ErrorState error={polled.error} onRetry={polled.reload}
             {...(polled.error.code === 'not_found' ? { title: tr({ en: 'This replay does not exist or belongs to another session.', fr: 'Ce rejeu n’existe pas ou appartient à une autre session.' }) } : {})} />}
@@ -244,7 +245,7 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
             </p>
           )}
           {run && run.kind !== 'replay' && (
-            <Unavailable title={tr({ en: 'This run is not a historical replay.', fr: 'Cette exécution n’est pas un rejeu historique.' })}>
+            <Unavailable title={tr({ en: 'This analysis is not a historical replay.', fr: 'Cette analyse n’est pas un rejeu historique.' })}>
               <Link href={`/evidence-audit/?runId=${encodeURIComponent(run.runId)}`}>{tr({ en: 'Open it in Evidence & Audit', fr: 'L’ouvrir dans Preuves et audit' })}</Link>
             </Unavailable>
           )}
@@ -292,10 +293,10 @@ function GatePanel({ replay, dataVersion }: { replay: ReplayResult; dataVersion:
   const datasets = replay.gate.datasets;
   return (
     <details className="fold">
-      <summary id="gate-title">{tr({ en: 'Date gate: what the run could and could not read', fr: 'Filtre de date : ce que l’exécution a pu lire ou non' })}</summary>
+      <summary id="gate-title">{tr({ en: 'Date gate: what the analysis could and could not read', fr: 'Filtre de date : ce que l’analyse a pu lire ou non' })}</summary>
       <div className="fold-body">
       {datasets.length === 0 ? (
-        <p className="small muted">{tr({ en: 'The run reported no gated dataset.', fr: 'L’exécution n’a signalé aucun jeu de données filtré.' })}</p>
+        <p className="small muted">{tr({ en: 'The analysis reported no gated dataset.', fr: 'L’analyse n’a signalé aucun jeu de données filtré.' })}</p>
       ) : (
         <div className="table-scroll" role="region" aria-label={tr({ en: 'Rows visible and withheld per dataset', fr: 'Lignes visibles et retenues par jeu de données' })} tabIndex={0}>
           <table className="data-table">
@@ -468,7 +469,7 @@ function RevealPanel({ run }: { run: Run }) {
 
   return (
     <section className="reveal" aria-labelledby="reveal-title">
-      <h3 className="h4" id="reveal-title">{tr({ en: 'Later outcomes', fr: 'Résultats ultérieurs' })}</h3>
+      <h3 className="h4" id="reveal-title" data-tour="tm-reveal">{tr({ en: 'Later outcomes', fr: 'Résultats ultérieurs' })}</h3>
       {!state.result && (
         <p className="small">{tr({ en: 'Still hidden. Revealing does not change the verdict, the brief or the signed ledger above; it adds a separate, deterministic ledger of what the fixed scenarios did afterwards.', fr: 'Toujours masqués. La révélation ne change ni le verdict, ni la note, ni le registre signé ci-dessus ; elle ajoute un registre distinct et déterministe de ce que les scénarios figés ont fait ensuite.' })}</p>
       )}
@@ -480,7 +481,7 @@ function RevealPanel({ run }: { run: Run }) {
               aria-invalid={Boolean(issue)} aria-describedby="tm-until-hint" />
             <span id="tm-until-hint" className="hint">
               {tr({ en: 'After', fr: 'Après le' })} {fmtDate(replay.asOf, lang)}, {tr({ en: 'no later than', fr: 'au plus tard le' })} {fmtDate(bounds.max, lang)} ({tr({ en: 'last date in the data snapshot', fr: 'dernière date de l’instantané' })}).{' '}
-              {tr({ en: 'Empty = last date.', fr: 'Vide = dernière date.' })}
+              {tr({ en: 'Leave empty for the last date.', fr: 'Laissez vide pour la dernière date.' })}
             </span>
             {issue && <span className="field-error" role="alert">{tr(UNTIL_ISSUE[issue])}</span>}
           </div>
@@ -579,10 +580,10 @@ function RevealView({ run, replay, reveal, hashCheck, hashBefore, headingRef }: 
         <p><VerdictBadge verdict={replay.decision.verdict} /> <span className="small">{tr({ en: 'verdict at the cutoff', fr: 'verdict à la date limite' })} {fmtDate(replay.asOf, lang)}</span></p>
         <p className="mono small break">{hashBefore ?? '—'}</p>
         <p className="small" role="status">
-          {hashCheck === 'checking' && tr({ en: 'Re-reading the run to compare the signed hash…', fr: 'Relecture de l’exécution pour comparer l’empreinte signée…' })}
-          {hashCheck === 'same' && <><span aria-hidden="true">✓ </span>{tr({ en: 'Checked: the run was re-read after the reveal and its signed ledger hash is identical.', fr: 'Vérifié : l’exécution a été relue après la révélation et l’empreinte de son registre signé est identique.' })}</>}
-          {hashCheck === 'changed' && <strong className="error-text"><span aria-hidden="true">✕ </span>{tr({ en: 'Warning: the run re-read after the reveal reports a different signed hash. Treat this result as unreliable.', fr: 'Attention : l’exécution relue après la révélation indique une empreinte différente. Considérez ce résultat comme non fiable.' })}</strong>}
-          {hashCheck === 'unverified' && tr({ en: 'Not checked: the run could not be re-read after the reveal. The hash shown is the one loaded before it.', fr: 'Non vérifié : l’exécution n’a pas pu être relue après la révélation. L’empreinte affichée est celle chargée avant.' })}
+          {hashCheck === 'checking' && tr({ en: 'Re-reading the analysis to compare the signed hash…', fr: 'Relecture de l’analyse pour comparer l’empreinte signée…' })}
+          {hashCheck === 'same' && <><span aria-hidden="true">✓ </span>{tr({ en: 'Checked: the analysis was re-read after the reveal and its signed ledger hash is identical.', fr: 'Vérifié : l’analyse a été relue après la révélation et l’empreinte de son registre signé est identique.' })}</>}
+          {hashCheck === 'changed' && <strong className="error-text"><span aria-hidden="true">✕ </span>{tr({ en: 'Warning: the analysis re-read after the reveal reports a different signed hash. Treat this result as unreliable.', fr: 'Attention : l’analyse relue après la révélation indique une empreinte différente. Considérez ce résultat comme non fiable.' })}</strong>}
+          {hashCheck === 'unverified' && tr({ en: 'Not checked: the analysis could not be re-read after the reveal. The hash shown is the one loaded before it.', fr: 'Non vérifié : l’analyse n’a pas pu être relue après la révélation. L’empreinte affichée est celle chargée avant.' })}
         </p>
         <p className="small muted">{tr({ en: 'The brief above was written without these outcomes and is not rewritten.', fr: 'La note ci-dessus a été rédigée sans ces résultats et n’est pas réécrite.' })}</p>
       </div>

@@ -1,9 +1,10 @@
 'use client';
-/** Viewport-clamped tooltip; hidden descriptions never participate in page layout. */
+/** Viewport-clamped tooltip in a portal; hidden descriptions never participate in page layout. It fades in and out in place (components.css .info-bubble). */
 import { Info } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { useApp } from '../../state/app';
+import { portalTarget } from './popoverPlacement';
 
 export function InfoTip({ text, label, align = 'center' }: { text: string; label?: string; align?: 'start' | 'center' | 'end' }) {
   const { tr } = useApp();
@@ -47,7 +48,7 @@ export function InfoTip({ text, label, align = 'center' }: { text: string; label
         <Info aria-hidden="true" size={13} strokeWidth={2} />
       </button>
       {mounted && createPortal(<span ref={bubble} className="info-bubble" role="tooltip" id={id}
-        data-open={open ? '' : undefined} style={{ left: position.left, top: position.top }}>{text}</span>, document.body)}
+        data-open={open ? '' : undefined} style={{ left: position.left, top: position.top }}>{text}</span>, portalTarget())}
     </span>
   );
 }

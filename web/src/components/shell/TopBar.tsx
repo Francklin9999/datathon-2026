@@ -54,7 +54,7 @@ export function PersonaSwitcher() {
   return (
     <div className="persona" data-tour="persona">
       <Listbox label={caption} value={profile.profileId} options={options} onChange={selectProfile}
-        triggerClassName="persona-trigger"
+        triggerClassName="persona-trigger" popoverClassName="persona-pop"
         {...(feature('profile_creator') ? {
           footer: (close: () => void) => (
             <Link href="/profiles/" className="popover-action" onClick={close}>
@@ -65,7 +65,7 @@ export function PersonaSwitcher() {
         renderTrigger={selected => (
           <>
             <span className="avatar" aria-hidden="true">{profile.initial}</span>
-            <span className="persona-body" aria-hidden="true">
+            <span className="persona-body" aria-hidden="true" title={selected?.label ?? profile.name}>
               <span className="persona-caption">{caption}</span>
               <span className="persona-name">{selected?.label ?? profile.name}</span>
             </span>
@@ -245,7 +245,8 @@ export function CommandBar() {
             <Mic aria-hidden="true" size={17} strokeWidth={1.9} />
           </button>
         )}
-        <button type="submit" className="command-submit" disabled={!text.trim()} aria-label={tr({ en: 'Send to Decide', fr: 'Envoyer vers Décider' })}>
+        <button type="submit" className="command-submit" disabled={!text.trim()} aria-label={tr({ en: 'Send to Decide', fr: 'Envoyer vers Décider' })}
+          title={tr({ en: 'Send to Decide', fr: 'Envoyer vers Décider' })}>
           <ArrowUp aria-hidden="true" size={18} strokeWidth={2} />
         </button>
       </div>
@@ -255,23 +256,11 @@ export function CommandBar() {
   );
 }
 
-/** The simulation note: short on the bar, the full disclaimer for assistive technology and on hover. */
-export function SimPill() {
-  const { tr, meta } = useApp();
-  const full = tr(meta?.disclaimer ?? FALLBACK_DISCLAIMER);
-  return (
-    <p className="sim-pill" role="note" title={full} data-tour="disclaimer">
-      <Info aria-hidden="true" size={14} strokeWidth={1.75} />
-      <span className="sim-text" aria-hidden="true">{tr({ en: 'Simulation, not advice', fr: 'Simulation, pas un conseil' })}</span>
-      <span className="sr-only">{full}</span>
-    </p>
-  );
-}
-
-/** A round chrome button that opens a small popover; Escape or a click outside closes it. */
-export function ChromeMenu({ label, icon, tour, children, wide = false }: {
-  label: string; icon: ReactNode; tour: string; children: (close: () => void) => ReactNode; wide?: boolean;
-}) {
+/**
+ * A popover anchored to a button: Escape closes it and returns focus to the button, a click outside
+ * closes it. Shared by the simulation note and the round chrome menus.
+ */
+function usePopover() {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement | null>(null);
   const button = useRef<HTMLButtonElement | null>(null);
@@ -284,6 +273,37 @@ export function ChromeMenu({ label, icon, tour, children, wide = false }: {
     document.addEventListener('keydown', onKey);
     return () => { document.removeEventListener('pointerdown', onDown); document.removeEventListener('keydown', onKey); };
   }, [open]);
+  return { open, setOpen, root, button, id };
+}
+
+/** The simulation note: short on the bar; a press opens the full disclaimer. */
+export function SimPill() {
+  const { tr, meta } = useApp();
+  const full = tr(meta?.disclaimer ?? FALLBACK_DISCLAIMER);
+  const short = tr({ en: 'Simulation, not advice', fr: 'Simulation, pas un conseil' });
+  const { open, setOpen, root, button, id } = usePopover();
+  return (
+    <div className="menu-anchor sim-anchor" ref={root}>
+      <button ref={button} type="button" className="sim-pill" aria-expanded={open} aria-controls={id} title={short}
+        onClick={() => setOpen(o => !o)} data-tour="disclaimer">
+        <Info aria-hidden="true" size={14} strokeWidth={1.75} />
+        <span className="sim-text">{short}</span>
+      </button>
+      {open && (
+        <div id={id} className="settings-pop sim-pop glass-pop" role="dialog" aria-label={tr({ en: 'About this simulation', fr: 'À propos de cette simulation' })}>
+          <p className="sim-pop-title">{tr({ en: 'About this simulation', fr: 'À propos de cette simulation' })}</p>
+          <p className="sim-pop-body">{full}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** A round chrome button that opens a small popover; Escape or a click outside closes it. */
+export function ChromeMenu({ label, icon, tour, children, wide = false }: {
+  label: string; icon: ReactNode; tour: string; children: (close: () => void) => ReactNode; wide?: boolean;
+}) {
+  const { open, setOpen, root, button, id } = usePopover();
   return (
     <div className="menu-anchor" ref={root}>
       <button ref={button} type="button" className="chrome-btn" aria-expanded={open} aria-controls={id} aria-label={label} title={label}
@@ -365,7 +385,7 @@ export function SettingsMenu() {
 export function MenuButton({ onOpen }: { onOpen: () => void }) {
   const { tr } = useApp();
   return (
-    <button type="button" className="chrome-btn menu-btn" onClick={onOpen} aria-haspopup="dialog" aria-label={tr({ en: 'Menu', fr: 'Menu' })}>
+    <button type="button" className="chrome-btn menu-btn" onClick={onOpen} aria-haspopup="dialog" aria-label={tr({ en: 'Menu', fr: 'Menu' })} title={tr({ en: 'Menu', fr: 'Menu' })}>
       <Menu aria-hidden="true" size={18} strokeWidth={1.75} />
     </button>
   );

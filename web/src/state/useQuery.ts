@@ -54,17 +54,31 @@ export interface QueryState<T> {
   error: ApiRequestError | null;
   loading: boolean;
   reload: () => void;
+  /** True while `data` belongs to a previous key, kept on screen as the new key loads (keepPreviousFrom). */
+  stale?: boolean;
+}
+
+export interface QueryOptions {
+  /**
+   * While a new key loads, keep showing the last settled data if this returns true for its key, so a
+   * period change does not empty the page. Only for keys of the same subject (same profile, another
+   * window): a persona switch must never show the previous persona's numbers.
+   */
+  keepPreviousFrom?: (previousKey: string) => boolean;
 }
 
 interface InternalState<T> { key: string | null; data: T | null; error: ApiRequestError | null; loading: boolean }
 
-export function useQuery<T>(key: string | null, fetcher: (signal: AbortSignal) => Promise<T>): QueryState<T> {
+export function useQuery<T>(key: string | null, fetcher: (signal: AbortSignal) => Promise<T>, options?: QueryOptions): QueryState<T> {
   const [state, setState] = useState<InternalState<T>>(() => ({
     key, data: key && cache.has(key) ? (cache.get(key) as T) : null, error: null, loading: key !== null && !cache.has(key),
   }));
   const [nonce, setNonce] = useState(0);
   const fetcherRef = useRef(fetcher);
   useEffect(() => { fetcherRef.current = fetcher; });
+  // The last data that settled for its own key: what keepPreviousFrom may keep on screen.
+  const settled = useRef<{ key: string; data: T } | null>(null);
+  if (state.key !== null && state.key === key && state.data !== null && !state.loading) settled.current = { key: state.key, data: state.data };
 
   useEffect(() => {
     if (key === null) {
@@ -116,12 +130,17 @@ export function useQuery<T>(key: string | null, fetcher: (signal: AbortSignal) =
     setNonce(n => n + 1);
   }, [key]);
 
-  // Never expose data that belongs to a previous key.
+  // Never expose data that belongs to a previous key, unless the caller allows it for that key.
   const current = state.key === key;
+  const data = current ? state.data : null;
+  const loading = current ? state.loading : key !== null;
+  const kept = data === null && loading && settled.current && settled.current.key !== key
+    && options?.keepPreviousFrom?.(settled.current.key) ? settled.current.data : null;
   return {
-    data: current ? state.data : null,
+    data: kept ?? data,
     error: current ? state.error : null,
-    loading: current ? state.loading : key !== null,
+    loading,
     reload,
+    stale: kept !== null,
   };
 }

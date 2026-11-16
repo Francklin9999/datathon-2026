@@ -1,6 +1,7 @@
 /**
  * Layout and shell guards (QA 4.1, 4.2, 4.3, 4.6, 4.8): the dock clearance, legend and plan-health
- * lines that wrap instead of an ellipsis, the covariance number format, one label per rail link and
+ * lines that wrap instead of an ellipsis, the covariance number format, one always-visible label per
+ * rail link, the rail's place under the top bar and
  * the 404 page's list of pages. Geometry itself needs a browser (tests/browser-smoke.mjs); these pin
  * the rules and the pure logic.
  */
@@ -9,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { fmtExact, fmtSci } from '../src/lib/format';
 import { fitHeights, fitRowsWithMore } from '../src/lib/ui/layout';
-import { NAV_ENTRIES, SOURCES_ENTRY, isActivePath, visibleNavEntries } from '../src/lib/ui/nav';
+import { FOOTER_ENTRIES, NAV_ENTRIES, isActivePath, visibleNavEntries, visibleNavGroups } from '../src/lib/ui/nav';
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
 const shellCss = read('../src/styles/shell.css');
@@ -45,7 +46,9 @@ test('4.1 dock: --dock-h is the dock\'s real height (padding + the 44 px "+")', 
 
 test('4.1 dock: the page end and every scroll or focus target clear the dock', () => {
   assert.match(rule(baseCss, 'html'), /scroll-padding-bottom:\s*var\(--dock-clearance\)/);
-  assert.match(rule(baseCss, 'html'), /scroll-padding-top:\s*96px/);
+  // The top bar is fixed from 768 px only (on phones it scrolls with the page).
+  assert.doesNotMatch(rule(baseCss, 'html'), /scroll-padding-top/);
+  assert.match(baseCss, /@media \(min-width: 768px\) \{\s*html \{ scroll-padding-top: 96px; \}/);
   assert.match(rule(shellCss, '.page'), /padding:\s*32px 36px calc\(var\(--dock-clearance\) \+ 30px\)/);
   // Phones hide the dock, so nothing is reserved for it there.
   const phone = shellCss.slice(shellCss.indexOf('@media (max-width: 767px)'));
@@ -116,15 +119,32 @@ test('4.3 covariance table: sticky ticker column and cells that do not wrap', ()
   assert.doesNotMatch(source, /fmtNumber\(numeric\(v\)!, lang, 8\)/);
 });
 
-test('4.6 rail: each link holds its label once; the tooltip comes from data-label', () => {
-  const source = read('../src/components/shell/NavRail.tsx');
-  const link = source.slice(source.indexOf('function NavLink'), source.indexOf('export function NavList'));
-  // The label as text content: once (.nav-text). The tooltip span has it only as an attribute.
-  assert.equal(link.match(/>\{label\}</g)?.length, 1);
-  assert.match(link, /<span className="nav-text">\{label\}<\/span>/);
-  assert.match(link, /<span className="nav-tip" aria-hidden="true" data-label=\{label\} \/>/);
+test('4.6 rail: each link holds its label once, always visible (no tooltip copy)', () => {
+  const source = read('../src/components/shell/NavLink.tsx');
+  const link = source.slice(source.indexOf('export function NavLink'));
+  assert.equal(link.match(/\{tr\(item\.label\)\}/g)?.length, 1);
+  assert.match(link, /<span className="nav-text">\{tr\(item\.label\)\}<\/span>/);
   assert.match(link, /aria-current=\{active \? 'page' : undefined\}/);
-  assert.match(shellCss, /\.nav-tip::after \{ content: attr\(data-label\); \}/);
+  assert.doesNotMatch(link, /nav-tip/);
+  // Compact rail: a 12 px caption under the icon that wraps instead of being cut.
+  const caption = rule(shellCss, '.rail .nav-text');
+  assert.match(caption, /font-size:\s*12px/);
+  assert.match(caption, /white-space:\s*normal/);
+  assert.doesNotMatch(caption, /ellipsis|nowrap/);
+  assert.match(rule(shellCss, '.rail .nav-link'), /flex-direction:\s*column/);
+});
+
+test('4.6 rail: under the top bar, scrolling inside, and covered by the top bar and its popovers', () => {
+  const rail = rule(shellCss, '.rail');
+  assert.doesNotMatch(rail, /top:\s*50%|translateY/);
+  assert.match(rail, /top:\s*var\(--rail-top\)/);
+  assert.match(rail, /max-height:\s*calc\(100dvh - var\(--rail-top\) - var\(--gap-shell\)\)/);
+  assert.match(rule(shellCss, '.rail-scroll'), /overflow-y:\s*auto/);
+  const z = (decls: string) => Number(decls.match(/z-index:\s*(\d+)/)?.[1]);
+  const topbar = z(rule(shellCss, '.topbar'));
+  assert.ok(topbar > z(rail), 'top bar above the rail');
+  assert.ok(topbar > z(rule(shellCss, '.dock')), 'top bar above the dock');
+  assert.match(rule(shellCss, '.page'), /margin:\s*16px 0 0 calc\(var\(--rail-current\) \+ var\(--gap-shell\)\)/);
 });
 
 test('4.6 isActivePath: Home only on itself, other pages on their subpaths', () => {
@@ -136,15 +156,17 @@ test('4.6 isActivePath: Home only on itself, other pages on their subpaths', () 
 });
 
 test('4.8 visibleNavEntries: flagged pages hide only once /meta reports them off', () => {
-  const all = visibleNavEntries({ metaLoaded: false, feature: () => false, withSources: true });
-  assert.deepEqual(all.map(e => e.href), [...NAV_ENTRIES.map(e => e.href), SOURCES_ENTRY.href]);
+  const all = visibleNavEntries({ metaLoaded: false, feature: () => false, withFooter: true });
+  assert.deepEqual(all.map(e => e.href), [...NAV_ENTRIES.map(e => e.href), ...FOOTER_ENTRIES.map(e => e.href)]);
   const off = (flag: string) => flag !== 'world_explorer' && flag !== 'time_machine';
   const hrefs = visibleNavEntries({ metaLoaded: true, feature: off }).map(e => e.href);
   assert.ok(!hrefs.includes('/world-explorer/'));
   assert.ok(!hrefs.includes('/time-machine/'));
   assert.ok(hrefs.includes('/') && hrefs.includes('/decision-desk/'));
-  assert.ok(!hrefs.includes('/sources/'));
-  for (const entry of [...NAV_ENTRIES, SOURCES_ENTRY]) {
+  assert.ok(!hrefs.includes('/sources/') && !hrefs.includes('/labs/'));
+  // A group left without pages disappears (Explore holds only World).
+  assert.ok(!visibleNavGroups({ metaLoaded: true, feature: off }).some(group => group.id === 'explore'));
+  for (const entry of [...NAV_ENTRIES, ...FOOTER_ENTRIES]) {
     assert.ok(entry.label.en.trim() && entry.label.fr.trim(), entry.href);
   }
 });
