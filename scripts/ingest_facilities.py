@@ -29,7 +29,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.out.exists():
         parser.error('Choose a new output directory')
-    if args.capture:
+    capture_gzip = args.capture.read_bytes() if args.capture and args.capture.suffix == '.gz' else None
+    if capture_gzip is not None:
+        payload = gzip.decompress(capture_gzip)
+    elif args.capture:
         payload = read_capture(args.capture)
     else:
         with urlopen(SOURCE, timeout=20) as response:
@@ -42,7 +45,9 @@ def main(argv=None):
     now = args.captured_at or datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     rows, meta = normalize(projected, now, original_sha256=original_sha256)
     args.out.mkdir(parents=True)
-    (args.out / 'facilities_source.csv.gz').write_bytes(gzip.compress(projected, mtime=0))
+    # Only an already projected capture can be retained without re-encoding it.
+    (args.out / 'facilities_source.csv.gz').write_bytes(
+        capture_gzip if capture_gzip is not None and projected == payload else gzip.compress(projected, mtime=0))
     (args.out / 'facilities.json').write_text(json.dumps(rows, ensure_ascii=False, sort_keys=True, indent=1) + '\n')
     (args.out / 'facilities_manifest.json').write_text(json.dumps(meta, indent=2, ensure_ascii=False) + '\n')
     load_facilities(args.out)

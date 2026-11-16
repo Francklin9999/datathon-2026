@@ -32,15 +32,23 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.out.exists():
         parser.error('Choose a new output directory')
-    payload = read_capture(args.capture) if args.capture else http_get(SOURCE_URL, timeout=20)
-    crosswalk = read_capture(args.crosswalk_capture) if args.crosswalk_capture else http_get(CROSSWALK_URL, timeout=15)
+    # Preserve supplied archives; recompression can differ across zlib implementations.
+    airport_gzip = args.capture.read_bytes() if args.capture and args.capture.suffix == '.gz' else None
+    crosswalk_gzip = (args.crosswalk_capture.read_bytes()
+                      if args.crosswalk_capture and args.crosswalk_capture.suffix == '.gz' else None)
+    payload = (gzip.decompress(airport_gzip) if airport_gzip is not None else
+               read_capture(args.capture) if args.capture else http_get(SOURCE_URL, timeout=20))
+    crosswalk = (gzip.decompress(crosswalk_gzip) if crosswalk_gzip is not None else
+                 read_capture(args.crosswalk_capture) if args.crosswalk_capture else http_get(CROSSWALK_URL, timeout=15))
     now = args.captured_at or datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     rows, manifest = parse_airports(payload, crosswalk, now)
     args.out.mkdir(parents=True)
     (args.out / 'airports.json').write_text(json.dumps(rows, ensure_ascii=False, sort_keys=True, indent=1) + '\n')
     (args.out / 'airports_manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    (args.out / 'airports.csv.gz').write_bytes(gzip.compress(payload, mtime=0))
-    (args.out / 'country_crosswalk.json.gz').write_bytes(gzip.compress(crosswalk, mtime=0))
+    (args.out / 'airports.csv.gz').write_bytes(
+        airport_gzip if airport_gzip is not None else gzip.compress(payload, mtime=0))
+    (args.out / 'country_crosswalk.json.gz').write_bytes(
+        crosswalk_gzip if crosswalk_gzip is not None else gzip.compress(crosswalk, mtime=0))
     load_airports(args.out)
     print(f"Verified {len(rows)} airport references; {manifest['rejected']} rejected")
 
