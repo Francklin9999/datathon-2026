@@ -7,6 +7,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field
 
+from aplomb.api.errors import unavailable
 from aplomb.intelligence.entities import Evidence
 
 from .cashflows import requirement_scenario
@@ -170,7 +171,7 @@ def requirements_scenario(profile_id: str, body: RequirementsInput, request: Req
                           x_aplomb_session: Annotated[str | None, Header()] = None) -> dict:
     provider = request.app.state.services.profiles
     if provider is None:
-        raise HTTPException(status_code=503, detail='Profile service unavailable')
+        raise unavailable('Profile service')
     # The router is registered with the existing session-validation dependency.
     profile = provider.get(x_aplomb_session, profile_id)
     requirements = profile.investor_context.requirements if profile.investor_context else []

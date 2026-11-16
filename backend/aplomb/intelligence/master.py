@@ -170,11 +170,11 @@ class InstrumentMaster:
 US_MICS = {'XNAS': 'Nasdaq', 'XNYS': 'New York Stock Exchange', 'ARCX': 'NYSE Arca',
            'XASE': 'NYSE American', 'BATS': 'Cboe BZX U.S. Equities Exchange'}
 MIC_ROUTES = {
-    **{mic: {'region': 'US', 'exchange': name, 'filings': 'sec_edgar', 'financials': 'sec_companyfacts',
+    # SEC EDGAR filings and companyfacts were removed by the owner (capabilities.py 'sec').
+    **{mic: {'region': 'US', 'exchange': name, 'filings': 'unavailable', 'financials': 'unavailable',
              'prices': 'tiingo_on_demand',
-             'requirement': 'SEC EDGAR needs a descriptive APLOMB_SOURCE_USER_AGENT contact and live access '
-                            '(prior SEC requests returned 403); Tiingo prices need APLOMB_TIINGO_TOKEN and cover '
-                            'U.S. listed non-fund equities only.'}
+             'requirement': 'SEC filings and financials were removed by the owner after HTTP 403; '
+                            'Tiingo prices need APLOMB_TIINGO_TOKEN and cover U.S. listed non-fund equities only.'}
        for mic, name in US_MICS.items()},
     'XTKS': {'region': 'JP', 'exchange': 'Tokyo Stock Exchange', 'filings': 'unavailable',
              'financials': 'jquants_statements', 'prices': 'jquants_tse_daily',
@@ -197,14 +197,6 @@ PROVIDER_ROUTES = {
                     'prices': 'coinmetrics_community',
                     'requirement': 'Daily reference rate; requires APLOMB_COINMETRICS_NONCOMMERCIAL=1 (CC BY-NC).'},
 }
-
-
-def source_route(mic: str | None, kind: str):
-    """Avoid silently routing a non-US listing to the US-specific SEC provider."""
-    route = MIC_ROUTES.get(mic or '')
-    if route is None or kind not in ('filings', 'prices', 'financials'):
-        return 'unavailable'
-    return route[kind]
 
 
 def route_hint(mic: str | None, *, asset_class: str | None = None, provider: str | None = None):

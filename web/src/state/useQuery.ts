@@ -24,8 +24,25 @@ export function prefetchQuery<T>(key: string | null, fetcher: (signal: AbortSign
 /** Delays before retrying a read that failed for a transient reason. */
 const READ_RETRIES = [800, 2000] as const;
 
-export function isTransient(error: ApiRequestError): boolean {
+/** Longest server-requested wait (Retry-After) a read sits through before showing the error. */
+const MAX_RATE_LIMIT_WAIT_MS = 10_000;
+
+function isTransient(error: ApiRequestError): boolean {
   return error.code === 'network' || error.status === 502 || error.status === 503 || error.status === 504;
+}
+
+/**
+ * Delay before retry `attempt` (0-based) of a failed read, or null to show the error now.
+ * Transient failures and 429 rate_limited are retried; a 429 waits at least its Retry-After.
+ */
+export function readRetryDelay(error: ApiRequestError, attempt: number): number | null {
+  const base = READ_RETRIES[attempt];
+  if (base === undefined) return null;
+  if (error.code === 'rate_limited') {
+    const wait = Math.max(base, error.retryAfterMs ?? 0);
+    return wait <= MAX_RATE_LIMIT_WAIT_MS ? wait : null;
+  }
+  return isTransient(error) ? base : null;
 }
 
 export function invalidateQueries(predicate: (key: string) => boolean): void {
@@ -71,9 +88,11 @@ export function useQuery<T>(key: string | null, fetcher: (signal: AbortSignal) =
         error => {
           if (controller.signal.aborted || isAbort(error)) return;
           const apiError = asApiError(error);
-          // A cold or briefly overloaded API can fail a read (network or 502–504): try again quietly.
-          if (n < READ_RETRIES.length && isTransient(apiError)) {
-            retryTimer = setTimeout(() => attempt(n + 1), READ_RETRIES[n]);
+          // A cold, briefly overloaded or rate-limiting API can fail a read (network, 429, 502–504):
+          // try again quietly, honouring Retry-After.
+          const delay = readRetryDelay(apiError, n);
+          if (delay !== null) {
+            retryTimer = setTimeout(() => attempt(n + 1), delay);
             return;
           }
           setState({ key, data: null, error: apiError, loading: false });

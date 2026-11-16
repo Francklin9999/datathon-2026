@@ -169,7 +169,7 @@
       "catalog_access": "D",
       "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Robots and verification access review; no source acquisition adapter.",
-      "implementation_test_evidence": "backend/aplomb/intelligence/stooq.py",
+      "implementation_test_evidence": "",
       "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
@@ -209,7 +209,7 @@
       "catalog_access": "A",
       "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC exact-CIK submissions/companyfacts acquisition, captured statements and filings, plus company-concept and frame adapters.",
-      "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/sec_extra.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
+      "implementation_test_evidence": "backend/aplomb/research/company_detail.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
       "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
@@ -219,7 +219,7 @@
       "catalog_access": "A",
       "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC exact-CIK submissions/companyfacts acquisition, captured statements and filings, plus company-concept and frame adapters.",
-      "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/sec_extra.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
+      "implementation_test_evidence": "backend/aplomb/research/company_detail.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
       "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
@@ -229,7 +229,7 @@
       "catalog_access": "A",
       "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC companyconcept exact CIK/taxonomy/concept series with revision display and immutable session capture.",
-      "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
+      "implementation_test_evidence": "docs/evidence/parallel/agent-2/sec-live-status.json",
       "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
@@ -239,7 +239,7 @@
       "catalog_access": "A",
       "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC XBRL frame exact taxonomy/concept/unit/calendar aggregation and immutable session capture.",
-      "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
+      "implementation_test_evidence": "docs/evidence/parallel/agent-2/sec-live-status.json",
       "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
@@ -249,7 +249,7 @@
       "catalog_access": "A",
       "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC latest filings Atom discovery, captured per session with bounded requests.",
-      "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
+      "implementation_test_evidence": "docs/evidence/parallel/agent-2/sec-live-status.json",
       "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
@@ -279,7 +279,7 @@
       "catalog_access": "D",
       "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Latest N-CEN filing discovery and bounded source capture/field parsing.",
-      "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
+      "implementation_test_evidence": "docs/evidence/parallel/agent-2/sec-live-status.json",
       "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
@@ -409,7 +409,7 @@
       "catalog_access": "D",
       "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Rights-reviewed issuer daily holdings; no automated issuer acquisition.",
-      "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
+      "implementation_test_evidence": "",
       "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
@@ -419,7 +419,7 @@
       "catalog_access": "D",
       "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Vanguard terms reviewed; no automated issuer acquisition.",
-      "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
+      "implementation_test_evidence": "",
       "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
@@ -429,7 +429,7 @@
       "catalog_access": "D",
       "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "State Street SPDR terms reviewed; no automated issuer acquisition.",
-      "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
+      "implementation_test_evidence": "",
       "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
@@ -499,7 +499,7 @@
       "catalog_access": "A",
       "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Rights review found terms restricting automated data mining and redistribution; no acquisition adapter.",
-      "implementation_test_evidence": "backend/aplomb/intelligence/crypto_markets.py:BLOCKED",
+      "implementation_test_evidence": "",
       "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
@@ -619,7 +619,7 @@
       "catalog_access": "A",
       "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Bitcoin mainnet fee estimates, mempool state and tip adapter with session capture and UI; live probes without retention.",
-      "implementation_test_evidence": "backend/aplomb/intelligence/chain_public.py; docs/parallel/reports/agent-2/CONT-chain-public.md",
+      "implementation_test_evidence": "docs/parallel/reports/agent-2/CONT-chain-public.md",
       "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
@@ -819,7 +819,7 @@
       "catalog_access": "master catalogue",
       "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC exact-CIK submissions/companyfacts acquisition, captured statements and filings, plus company-concept and frame adapters.",
-      "implementation_test_evidence": "backend/aplomb/research/company_detail.py; backend/aplomb/research/sec_extra.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
+      "implementation_test_evidence": "backend/aplomb/research/company_detail.py; docs/parallel/reports/agent-2/CONT-company.md; docs/evidence/parallel/agent-2/sec-live-status.json",
       "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
@@ -869,7 +869,7 @@
       "catalog_access": "master catalogue",
       "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "Latest N-CEN filing discovery and bounded source capture/field parsing.",
-      "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
+      "implementation_test_evidence": "docs/evidence/parallel/agent-2/sec-live-status.json",
       "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {
@@ -909,7 +909,7 @@
       "catalog_access": "master catalogue",
       "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "Rights-reviewed issuer daily holdings; no automated issuer acquisition.",
-      "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
+      "implementation_test_evidence": "",
       "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
@@ -919,7 +919,7 @@
       "catalog_access": "master catalogue",
       "status": "removed: owner excluded unselected provider",
       "feature_and_capture": "State Street SPDR terms reviewed; no automated issuer acquisition.",
-      "implementation_test_evidence": "backend/aplomb/intelligence/issuer_holdings.py",
+      "implementation_test_evidence": "",
       "remaining_work_or_external_blocker": "Owner instructed to delete other pending providers after supplying selected accounts. Removed from active coverage and credential requests; old implementation/audit history may remain."
     },
     {
@@ -959,7 +959,7 @@
       "catalog_access": "master catalogue",
       "status": "removed: owner excluded SEC access-refused sources",
       "feature_and_capture": "SEC latest filings Atom discovery, captured per session with bounded requests.",
-      "implementation_test_evidence": "backend/aplomb/research/sec_extra.py; web/src/features/markets/SecExplorer.tsx; docs/evidence/parallel/agent-2/sec-live-status.json",
+      "implementation_test_evidence": "docs/evidence/parallel/agent-2/sec-live-status.json",
       "remaining_work_or_external_blocker": "Removed from active coverage and credential requests by explicit owner instruction. Prior HTTP403 and historical captures retained for audit; no API key requested."
     },
     {

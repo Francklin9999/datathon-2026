@@ -128,9 +128,6 @@ class LocalLedger:
     def get_fact(self, fact_id: str) -> Fact:
         return self._facts[fact_id]
 
-    def id_for_key(self, key: str) -> str | None:
-        return self._by_key.get(key)
-
     def facts(self) -> dict[str, Fact]:
         return dict(self._facts)
 

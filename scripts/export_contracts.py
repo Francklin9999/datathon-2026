@@ -112,12 +112,9 @@ def write_or_check(path, content, check):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
-    parser.add_argument("--catalog-only", action="store_true")
     args = parser.parse_args()
     for path, content in outputs(catalog_values()).items():
         write_or_check(path, content, args.check)
-    if args.catalog_only:
-        return
     from aplomb.contracts.registry import export_schema
 
     schema = export_schema()

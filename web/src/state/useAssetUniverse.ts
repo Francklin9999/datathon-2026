@@ -7,6 +7,7 @@
 import { useEffect } from 'react';
 import type { Asset, AssetsResponse } from '../contracts/types';
 import { getApiClient } from '../api/index';
+import { universeComplete } from '../lib/universe';
 import { useApp } from './app';
 import { invalidateQueries, useQuery } from './useQuery';
 
@@ -20,7 +21,20 @@ export function assetUniverseKey(dataVersion: string): string {
   return `assets|universe|${dataVersion}`;
 }
 
-export interface AssetUniverse { assets: readonly Asset[]; loading: boolean }
+export interface AssetUniverse {
+  assets: readonly Asset[];
+  loading: boolean;
+  /**
+   * The read completed: `assets` is the snapshot's whole universe, so a ticker missing from it is
+   * unsupported. False while loading, when disabled and after a failed read; validate tickers
+   * against the universe (lib/universe.ts) only when this is true.
+   */
+  ready: boolean;
+  /** Instruments in the snapshot (the response's `total`); 0 until ready. */
+  total: number;
+  /** The snapshot the universe belongs to; null until ready. */
+  dataVersion: string | null;
+}
 
 /** `enabled` false waits (Ask Aplomb reads it on first focus); every caller shares one request. */
 export function useAssetUniverse(enabled = true): AssetUniverse {
@@ -33,7 +47,15 @@ export function useAssetUniverse(enabled = true): AssetUniverse {
     window.addEventListener(CHANGED, reload);
     return () => window.removeEventListener(CHANGED, reload);
   }, [key, reload]);
-  return { assets: query.data?.items ?? NONE, loading: query.loading };
+  const data = query.data;
+  const ready = data !== null && universeComplete(data, ASSET_UNIVERSE_LIMIT);
+  return {
+    assets: data?.items ?? NONE,
+    loading: query.loading,
+    ready,
+    total: ready ? data.total : 0,
+    dataVersion: ready && meta ? meta.dataVersion : null,
+  };
 }
 
 /** After an on-demand fetch adds an asset: forget cached universes and re-read the shown one. */

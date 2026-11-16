@@ -6,7 +6,7 @@ import pytest
 from aplomb.agents.bridges import (
     CandidateFinding,
     EventRelationship,
-    candidate_priorities,
+    candidate_findings,
     event_hypotheses,
 )
 from aplomb.intelligence.entities import Evidence, Relationship
@@ -15,9 +15,10 @@ from aplomb.intelligence.entities import Evidence, Relationship
 def test_candidates_require_verified_run_owned_facts():
     verified = SimpleNamespace(verification=SimpleNamespace(status="verified"))
     ledger = SimpleNamespace(export=lambda: SimpleNamespace(facts={"F-002": verified}))
-    assert candidate_priorities(lambda *_: [CandidateFinding("risk", 75, ("F-002",))], None, None, ledger) == {"risk": 75}
+    finding = CandidateFinding("risk", 75, ("F-002",))
+    assert candidate_findings(lambda *_: [finding], None, None, ledger) == [finding]
     with pytest.raises(ValueError, match="foreign"):
-        candidate_priorities(lambda *_: [CandidateFinding("risk", 75, ("F-001",))], None, None, ledger)
+        candidate_findings(lambda *_: [CandidateFinding("risk", 75, ("F-001",))], None, None, ledger)
 
 
 def test_event_hypothesis_requires_exact_direct_links_source_and_cutoff():

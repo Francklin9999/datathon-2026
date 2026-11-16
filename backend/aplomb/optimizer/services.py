@@ -169,7 +169,7 @@ class DecisionControls:
             return ControlOutcome(check=check, scenarios=[], selected_scenario_id="", limitations=limitations)
         if computed["kind"] == "goal":
             goal = m.ExposureGoal.model_validate(computed["goal"])
-            found = goal_candidates(engine, profile, goal)
+            found = goal_candidates(engine, profile, goal, evidence=evidence)
             if found.scenarios:
                 best = found.scenarios[0]
                 prepared = prepare(engine, profile, profile.rules, m.ProposedMove.model_validate(best["moves"][0]), compare=True)
@@ -177,7 +177,7 @@ class DecisionControls:
             else:
                 # Target already met or no eligible asset: a normal outcome, never an invented trade.
                 prepared = prepare(engine, profile, profile.rules, None, False)
-                scenarios = [no_change(engine, profile, goal, found.notes)]
+                scenarios = [no_change(engine, profile, goal, found.notes, evidence=evidence)]
             check = assess(engine, profile, profile.rules, prepared, window=win, evidence=evidence)
             selected = scenarios[0]["scenarioId"]
         else:
@@ -194,18 +194,19 @@ class DecisionControls:
                 res = apply_move(prepared["weightsBefore"], prepared["move"]["ticker"], size, f["mode"], f.get("fromTickers"))
                 view = engine.view(res.weights, "scenario:sc_max_compatible", profile.portfolio.total_value * res.value_factor, window=win)
                 checks = RuleEngine(engine.ledger, engine.ctx).check_rules(
-                    profile.rules, RuleInputs(view, profile.profile_id, (prepared["move"]["ticker"],)))
+                    profile.rules, RuleInputs(view, profile.profile_id, (prepared["move"]["ticker"],), evidence))
                 verdict, counts = verdict_of(checks)
                 move = {**prepared["move"], "sizePct": size}
                 scenarios.append(self._scenario("sc_max_compatible", "max_compatible", move, verdict, counts.to_wire(),
                                                 [c.to_wire() for c in checks], view.snapshot().to_wire(), 2, False))
             if check.verdict == "conflict":
-                alts = alternatives(engine, profile, prepared["move"]["ticker"], prepared["move"]["sizePct"], max_candidates=2)
+                alts = alternatives(engine, profile, prepared["move"]["ticker"], prepared["move"]["sizePct"], max_candidates=2,
+                                    evidence=evidence)
                 for s in alts.scenarios:
                     scenarios.append({**s, "rank": len(scenarios) + 1})
             selected = "sc_requested"
         if check.baseline_conflict and len(scenarios) < self.MAX_SCENARIOS:
-            for s in rebalance(engine, profile).scenarios:
+            for s in rebalance(engine, profile, evidence).scenarios:
                 scenarios.append({**s, "rank": len(scenarios) + 1})
         scenarios = scenarios[: self.MAX_SCENARIOS]
         facts = engine.ledger.export().facts if hasattr(engine.ledger, "export") else engine.ledger.facts()

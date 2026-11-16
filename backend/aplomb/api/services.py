@@ -9,6 +9,7 @@ session resource they dereference, including nested draft/parent run IDs.
 import secrets
 import time
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Callable, Protocol
 
 from aplomb.contracts import api as a
@@ -16,7 +17,7 @@ from aplomb.contracts import models as m
 
 from .dispatcher import Dispatcher
 from .errors import Conflict, NotFound, unavailable
-from .repositories import RunRepository, timestamp
+from .repositories import TERMINAL, RunRepository, brief_lock_key, timestamp
 
 
 class ProfileService(Protocol):
@@ -82,6 +83,7 @@ class WorldService(Protocol):
     def country(self, session_id: str, iso3: str, query: dict) -> a.WorldCountryResponse: ...
     def facilities(self, session_id: str, query: dict) -> a.FacilitiesResponse: ...
     def hazards(self, session_id: str, query: dict) -> a.HazardsResponse: ...
+    def airports(self, session_id: str, query: dict) -> a.AirportsResponse: ...
 
 
 class ReplayService(Protocol):
@@ -108,6 +110,18 @@ class PreparedRun:
 
 class RunPreparer(Protocol):
     def __call__(self, session_id: str, request: a.CreateRunRequest) -> PreparedRun: ...
+
+
+RECENT_BRIEF_SECONDS = 60
+
+
+def _brief_identity(session_id: str, request: a.CreatePortfolioBriefRunRequest, prepared: PreparedRun) -> list:
+    """What makes two portfolio briefs identical: the pinned inputs, not the client's key or ``force``.
+    The brief runtime identity leaves out the build revision (see ``brief_runtime_identity``)."""
+    private = prepared.private
+    return [session_id, request.profile_id, prepared.profile_version, prepared.data_version,
+            private.get("manifestHash"), private.get("briefIdentity", private.get("runtimeSignature")),
+            prepared.input.get("window"), request.lang]
 
 
 def new_run_id(epoch: float) -> str:
@@ -150,6 +164,18 @@ class RunCoordinator:
                 )
                 return self._accepted(reserved.run)
         prepared = self.prepare(session_id, request)
+        brief_lock = None
+        if request.kind == "portfolio_brief":
+            # Server-side de-duplication, with or without an Idempotency-Key and also for force=true:
+            # an identical brief still in progress is returned, and so is one that succeeded less
+            # than a minute ago (a second tab or a double Refresh never pays for a second run).
+            brief_lock = brief_lock_key(_brief_identity(session_id, request, prepared))
+            held = self.repository.held_brief(session_id, brief_lock)
+            if held is not None and self._shareable(held.run):
+                reserved = self.repository.reserve_existing(
+                    session_id, held.run.run_id, idempotency_key, request.to_wire()
+                )
+                return self._accepted(reserved.run)
         now = timestamp(self.clock())
         run = m.Run.model_validate(
             {
@@ -186,7 +212,8 @@ class RunCoordinator:
             }
         )
         record, created = self.repository.create(
-            run, prepared.private, prepared.profile_version, idempotency_key, request.to_wire()
+            run, prepared.private, prepared.profile_version, idempotency_key, request.to_wire(),
+            brief_lock=brief_lock,
         )
         if created:
             try:
@@ -223,6 +250,16 @@ class RunCoordinator:
             self.repository.dispatch_failed(session_id, child.run_id, child_record.generation)
             raise unavailable("Worker dispatch") from exc
         return a.QueuedRunResponse(run_id=child.run_id, status="queued", poll_after_ms=1000)
+
+    def _shareable(self, run: m.Run) -> bool:
+        """An identical brief that is still in progress, or that succeeded within the last minute.
+        A failed or cancelled brief is never reused: the request creates a new run."""
+        if run.status not in TERMINAL:
+            return True
+        if run.status != "succeeded":
+            return False
+        finished = datetime.fromisoformat(run.updated_at.replace("Z", "+00:00")).timestamp()
+        return self.clock() - finished < RECENT_BRIEF_SECONDS
 
     @staticmethod
     def _accepted(run: m.Run) -> a.QueuedRunResponse | a.CachedRunResponse:
@@ -274,10 +311,6 @@ class RunCoordinator:
     def cancel(self, session_id: str, run_id: str) -> a.CancelResponse:
         self.repository.cancel(session_id, run_id)
         return a.CancelResponse(run_id=run_id, status="cancelled")
-
-    def fact(self, session_id: str, run_id: str, fact_id: str) -> a.FactResponse:
-        run = self.get(session_id, run_id)
-        return resolve_fact(session_id, run, fact_id)
 
 
 def resolve_fact(session_id: str, run: m.Run, fact_id: str) -> a.FactResponse:

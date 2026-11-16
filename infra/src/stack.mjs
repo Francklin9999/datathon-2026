@@ -80,6 +80,8 @@ export class AplombStack extends Stack {
     })).digest('hex').slice(0,12);
     const workerName = `${this.stackName}-worker`;
     const commonEnv = {APLOMB_ENV:'aws', APLOMB_WORKER_FUNCTION:workerName, APLOMB_DATA_VERSION:application.dataVersion,
+      // The API refuses a snapshot whose manifest dataAsOf differs from this (domain.SnapshotProvider).
+      APLOMB_DATA_AS_OF:application.dataAsOf,
       APLOMB_DATA_BUCKET:data.bucketName, APLOMB_DATA_PREFIX:application.dataPrefix,
       APLOMB_DATA_DIR:'/tmp/aplomb-data', APLOMB_PROFILES_TABLE:tables.Profiles.tableName,
       APLOMB_RUNS_TABLE:tables.Runs.tableName, APLOMB_CACHE_TABLE:tables.Cache.tableName,
@@ -88,7 +90,7 @@ export class AplombStack extends Stack {
         ...(application.allowedOrigins ?? ['http://localhost:3000'])].join(','),
       APLOMB_SOURCE_USER_AGENT:application.sourceUserAgent,
       ...(/^[0-9a-f]{40}$/.test(application.revision) ? {APLOMB_BUILD_REVISION:application.revision} : {}),
-      APLOMB_RUN_TARGET_SECONDS:'90',APLOMB_RUN_HARD_SECONDS:'180',
+      APLOMB_RUN_HARD_SECONDS:'180',
       APLOMB_MAX_REVISE:'2',APLOMB_MAX_LLM_CALLS:'12',APLOMB_MAX_RESEARCH_CALLS:'12',
       ...Object.fromEntries(flags.map(f=>[`APLOMB_FEATURE_${f.toUpperCase()}`,String(application.features?.includes(f) ?? false)])),
       ...(application.guardrail ? {APLOMB_GUARDRAIL_ID:application.guardrail.id,
@@ -187,7 +189,9 @@ export class AplombStack extends Stack {
         allowMethods:[apigw.CorsHttpMethod.GET,apigw.CorsHttpMethod.POST,apigw.CorsHttpMethod.PATCH,apigw.CorsHttpMethod.PUT,
           apigw.CorsHttpMethod.DELETE,apigw.CorsHttpMethod.OPTIONS],
         allowHeaders:['content-type','x-aplomb-session','idempotency-key','x-request-id','accept-language'],
-        exposeHeaders:['x-request-id','x-aplomb-data-version','x-aplomb-build'],maxAge:Duration.minutes(5)}});
+        // API Gateway ignores the backend's CORS headers once corsPreflight is set: keep this list
+        // equal to the expose_headers in backend/aplomb/api/app.py (the web reads Retry-After on 429).
+        exposeHeaders:['x-request-id','x-aplomb-data-version','x-aplomb-build','retry-after'],maxAge:Duration.minutes(5)}});
     new apigw.HttpStage(this,'HttpDefaultStage',{httpApi:http,stageName:'$default',autoDeploy:true,
       throttle:{rateLimit:100,burstLimit:200},
       accessLogSettings:{destination: new apigw.LogGroupLogDestination(accessLogs),
@@ -220,10 +224,31 @@ export function validateApplication(a) {
       a.guardrail.profileResourceArns.some(arn=>!/^arn:aws:bedrock:[a-z0-9-]+:[0-9]{12}:guardrail-profile\/[a-z0-9.-]+:[0-9]+$/.test(arn)))) {
     throw new Error('Exact Guardrail profile ARNs required');
   }
-  for (const key of ['artifact','dataVersion','dataPrefix','strongModel','fastModel','sourceUserAgent','revision']) {
+  if (typeof a.dataVersion === 'string' && /^snap-\d{8}-[a-z0-9][a-z0-9-]*$/.test(a.dataVersion) && a.dataAsOf === undefined) {
+    // A config written before dataAsOf was a stack input still synthesizes: the date comes from the
+    // repository's manifest of that snapshot (data/manifests/<dataVersion>.json).
+    const manifest = new URL(`../../data/manifests/${a.dataVersion}.json`, import.meta.url);
+    if (fs.existsSync(manifest)) a.dataAsOf = JSON.parse(fs.readFileSync(manifest,'utf8')).dataAsOf;
+  }
+  for (const key of ['artifact','dataVersion','dataAsOf','dataPrefix','strongModel','fastModel','sourceUserAgent','revision']) {
     if (typeof a[key] !== 'string' || !a[key].trim()) throw new Error(`application.${key} required`);
   }
   if (!/^snap-\d{8}-[a-z0-9][a-z0-9-]*$/.test(a.dataVersion)) throw new Error('dataVersion must be snap-YYYYMMDD-label');
+  // Must equal the snapshot manifest's dataAsOf, or every snapshot-backed route answers 503.
+  const asOf = /^(\d{4})-(\d{2})-(\d{2})$/.exec(a.dataAsOf);
+  const asOfDate = asOf && new Date(Date.UTC(+asOf[1], +asOf[2] - 1, +asOf[3]));
+  if (!asOfDate || asOfDate.getUTCFullYear() !== +asOf[1] || asOfDate.getUTCMonth() !== +asOf[2] - 1 ||
+      asOfDate.getUTCDate() !== +asOf[3]) {
+    throw new Error('dataAsOf must be the snapshot manifest date YYYY-MM-DD');
+  }
+  // Same rule as backend/aplomb/research/core.py contact_user_agent: without a contact the worker
+  // registers no research tool. The deployed config predates the rule, so that is a warning, and an
+  // error only when research_open_web is listed (that flag cannot work without one).
+  if (a.sourceUserAgent.length < 15 || !['@','https://'].some(mark=>a.sourceUserAgent.includes(mark))) {
+    const message = 'sourceUserAgent needs a contact (an https:// URL or an email) and at least 15 characters';
+    if (a.features?.includes('research_open_web')) throw new Error(message);
+    console.warn(`warning: ${message}; the worker will register no research tool`);
+  }
   if (!a.dataPrefix.endsWith('/') || a.dataPrefix.startsWith('/') || a.dataPrefix.includes('..')) {
     throw new Error('dataPrefix must be a relative immutable prefix ending /');
   }

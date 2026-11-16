@@ -144,10 +144,6 @@ _NAMES.update(_ALIASES)
 _AMBIGUOUS = {"georgia"}
 
 
-def country(iso3: str) -> Country | None:
-    return COUNTRIES.get(iso3)
-
-
 def country_name(iso3: str) -> dict[str, str]:
     """Bilingual name; an ISO3 outside the reference table is shown as its code, not guessed."""
     if iso3 == UNKNOWN_COUNTRY:

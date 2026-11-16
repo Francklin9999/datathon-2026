@@ -5,14 +5,10 @@ import { GoldenCopy } from './GoldenCopy';
 import { DefiResearch } from './DefiResearch';
 import { CryptoHistory } from './CryptoHistory';
 import { EURegulatory } from './EURegulatory';
-import { BitcoinNetwork } from './BitcoinNetwork';
 import { IssuerEvidence } from './IssuerEvidence';
 import { WikidataCandidates } from './WikidataCandidates';
-import { CompanyResearch } from './CompanyResearch';
 import { BitcoinSentiment } from './BitcoinSentiment';
 import { CompanyRegistry } from './CompanyRegistry';
-import { DisclosureExample } from './DisclosureExample';
-import { FundHoldings } from './FundHoldings';
 import { ProviderObservations } from './ProviderObservations';
 import { InstrumentMaster } from './InstrumentMaster';
 import { OpenFigi } from './OpenFigi';
@@ -25,6 +21,8 @@ import { useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
 import { ASSET_UNIVERSE_LIMIT, assetUniverseKey } from '../../state/useAssetUniverse';
 import { fold } from '../../lib/suggest';
+import { universeMarkets } from '../../lib/universe';
+import { instrumentCountLine, noMatchingInstrument, showAllInstruments } from '../../lib/tickerCoverage';
 import { getApiClient } from '../../api/index';
 import { Card, PageHeader } from '../../components/common/Page';
 import { Loading, ErrorState } from '../../components/common/States';
@@ -64,21 +62,30 @@ export function MarketsPage() {
   // Typing stays instant: the searched text is prepared once per universe and the table follows a
   // deferred query (case and accents ignored).
   const searchable = useMemo(() => (assets.data?.items ?? []).map(a => ({ asset: a, text: fold(`${a.ticker} ${a.name} ${a.market} ${a.assetClass}`) })), [assets.data]);
-  const needle = fold(useDeferredValue(query).trim());
+  const deferredQuery = useDeferredValue(query);
+  const needle = fold(deferredQuery.trim());
   const items = useMemo(() => searchable.filter(row => !needle || row.text.includes(needle)).map(row => row.asset), [searchable, needle]);
+  const markets = useMemo(() => universeMarkets(assets.data?.items ?? []), [assets.data]);
+  const total = assets.data?.total ?? 0;
+  // A search that matches nothing says what the snapshot covers instead of showing an empty table.
+  const noMatch = assets.data !== null && needle !== '' && items.length === 0;
   return <>
     <PageHeader actions={<WindowControl />} title={tr({ en: 'Markets & Stocks', fr: 'Marchés et titres' })}>
-      <p className="page-sub">{tr({ en: 'Explore the supported instrument universe and inspect reproducible historical analytics. Snapshot coverage is regional; worldwide navigation does not imply global price coverage.', fr: 'Explorez les instruments pris en charge et leurs analyses historiques reproductibles. La couverture des prix reste régionale.' })}</p>
+      <p className="page-sub">{tr({ en: 'Explore the supported instrument universe and inspect reproducible historical analytics. Snapshot coverage is regional; worldwide navigation does not imply global price coverage.', fr: 'Explorez les instruments pris en charge et leurs analyses historiques reproductibles. La couverture de l’instantané est régionale ; la navigation mondiale n’implique pas une couverture mondiale des prix.' })}</p>
     </PageHeader>
     <Card title={tr({ en: 'Instrument discovery', fr: 'Recherche de titres' })}>
       <div className="field"><label htmlFor="market-query">{tr({ en: 'Ticker, name, market or asset class', fr: 'Symbole, nom, marché ou catégorie' })}</label><input id="market-query" type="search" value={query} onChange={e => setQuery(e.target.value)} /></div>
       {assets.loading && <Loading />}{assets.error && <ErrorState error={assets.error} onRetry={assets.reload} />}
-      <p className="small muted" role="status">{items.length} / {assets.data?.total ?? 0} · {meta?.dataVersion}</p>
-      <div className="table-scroll" role="region" aria-label={tr({ en: 'Supported instruments', fr: 'Instruments pris en charge' })} tabIndex={0}>
+      {assets.data && <p className="small muted" role="status">{tr(instrumentCountLine(items.length, total, meta?.dataVersion ?? null))}</p>}
+      {noMatch && <div className="state state-empty">
+        <p className="muted">{tr(noMatchingInstrument(deferredQuery, total, meta?.dataVersion ?? null, markets))}</p>
+        <button type="button" className="btn ghost" onClick={() => setQuery('')}>{tr(showAllInstruments(total))}</button>
+      </div>}
+      {!noMatch && <div className="table-scroll" role="region" aria-label={tr({ en: 'Supported instruments', fr: 'Instruments pris en charge' })} tabIndex={0}>
         <table className="data-table"><thead><tr><th scope="col">{tr({ en: 'Instrument', fr: 'Titre' })}</th><th scope="col">{tr({ en: 'Market', fr: 'Marché' })}</th><th scope="col">{tr({ en: 'Asset class', fr: 'Catégorie' })}</th><th scope="col">{tr({ en: 'Currency', fr: 'Devise' })}</th><th scope="col">{tr({ en: 'History', fr: 'Historique' })}</th></tr></thead><tbody>
           {items.map(a => <tr key={`${a.market}:${a.ticker}`}><th scope="row"><button className="btn ghost" type="button" onClick={() => setTicker(a.ticker)} aria-pressed={ticker === a.ticker}>{a.ticker}</button><span className="block small muted">{a.name}</span></th><td>{a.market}</td><td>{a.assetClass}</td><td>{a.currency}</td><td>{a.history.firstDate} → {a.history.lastDate}</td></tr>)}
         </tbody></table>
-      </div>
+      </div>}
     </Card>
     {ticker && <div ref={resultPanel} tabIndex={-1} role="region" aria-labelledby="market-analytics-title"><Card id="market-analytics" title={ticker}>
       {analytics.loading && <Loading />}{analytics.error && <ErrorState error={analytics.error} onRetry={analytics.reload} />}
@@ -99,13 +106,10 @@ export function MarketsPage() {
     {ready('gleif') && <><EntityResearch /><IssuerEvidence /></>}
     {ready('golden_copy') && <GoldenCopy />}
     {ready('wikidata') && <WikidataCandidates />}
-    {ready('sec') && <><CompanyResearch /><FundHoldings /></>}
-    {sourceCapabilities.data?.families.some(item => item.id === 'nport_example' && item.state === 'evidence') && <details className="fold section-fold"><summary>{tr({ en: 'Preserved ETF disclosure example', fr: 'Exemple conservé de déclaration de fonds' })}</summary><DisclosureExample /></details>}
-    {ready('coinmetrics') && <ProviderObservations secAvailable={ready('sec')} />}
+    {ready('coinmetrics') && <ProviderObservations />}
     {ready('dexscreener') && <DefiResearch />}
     {ready('binance_vision') && <CryptoHistory />}
     {ready('eu') && <EURegulatory />}
-    {ready('mempool') && <BitcoinNetwork />}
     {ready('sentiment') && <BitcoinSentiment />}
     {ready('registries') && <CompanyRegistry />}
     {ready('master') && <InstrumentMaster showCoinMetrics={ready('coinmetrics')} showWikidata={ready('wikidata')} />}

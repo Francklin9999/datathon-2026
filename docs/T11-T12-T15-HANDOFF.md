@@ -9,7 +9,7 @@ World Explorer backend (T11), Time Machine backend (T12) and the three remaining
 | `npm run dev:api` | Local API on `http://localhost:8000/v1` with the active snapshot and the eight implemented feature flags on (on-demand tickers only with `APLOMB_TIINGO_TOKEN`, read from the environment or the git-ignored `.env`) ([scripts/dev_api.py](../scripts/dev_api.py)) |
 | `npm run dev:web` | Web app on `http://localhost:3000` against that API |
 | `npm run check` | Generated files, lint, Python tests, TypeScript, web tests, spec links, infra tests and synth |
-| `cd backend && uv run python -m aplomb.world.ingest --start 2021-11-12 --end 2026-11-12` | Rebuild the world bundle from the public feeds (network; not needed to run) |
+| `cd backend && uv run python -m aplomb.world.ingest --start 2021-11-12 --end 2026-11-12` | Rebuild the world bundle from the public feeds, including one bounded NASA EONET request over the last `--eonet-days` (default 28) of the window; writes `events.json`, `hazards.json` and `manifest.json` in place unless `--out` names another directory (network; not needed to run). An in-place run replaces the committed expanded bundle; to rebuild it, write to a fresh `--out` and run `scripts/expand_world_events.py` on it (see `backend/aplomb/world/SPEC.md` §8.1). `scripts/ingest_eonet.py --out NEW --start … --end …` refreshes only the EONET slice into a fresh directory |
 
 Runs and free-text parsing need `APLOMB_MODEL_STRONG`, `APLOMB_MODEL_FAST` and AWS credentials. Without model IDs they answer `503 upstream_unavailable` before anything is stored; every deterministic page keeps working.
 

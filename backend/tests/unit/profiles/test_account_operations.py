@@ -116,6 +116,46 @@ def test_account_and_candidate_routes_enforce_session_and_versions(snapshot_fx):
     assert len(candidates.json()['candidates']) <= 3
 
 
+def test_account_valuations_route_adds_private_appraisals_per_account(snapshot_fx):
+    """api.md A1.1 over HTTP: traded plus separately appraised private values, per account and combined."""
+    from aplomb.api.app import create_app
+    from aplomb.api.services import Services
+    from aplomb.api.settings import Settings
+    from fastapi.testclient import TestClient
+
+    svc = ProfileServiceImpl(make_repo(), lambda: snapshot_fx, clock=CLOCK)
+    client = TestClient(create_app(Settings(data_version=snapshot_fx.data_version, features={'profile_creator': True}),
+                                   Services(profiles=svc, capabilities={'profile_creator'})))
+    headers = {'X-Aplomb-Session': A}
+    url = '/v1/profiles/robert/account-valuations'
+    before = client.get(url, headers=headers)
+    assert before.status_code == 200, before.text
+    seed_value = svc.get(A, 'robert').portfolio.total_value
+    assert before.json()['accounts'] == [{'accountId': None, 'name': 'Primary', 'modeledTradedValue': seed_value,
+                                          'privateValue': 0.0, 'combinedValue': seed_value}]
+    created = client.post('/v1/profiles/robert/accounts', headers=headers, json={
+        'name': 'Holding', 'currency': 'CAD', 'version': 1,
+        'portfolio': {'totalValue': 1000, 'positions': [{'ticker': 'SPY', 'weightPct': 100}]}})
+    assert created.status_code == 201, created.text
+    p = created.json()
+    valued = client.post(f"/v1/profiles/robert/accounts/{p['activeAccountId']}/private-assets", headers=headers, json={
+        'version': p['version'], 'name': 'Private land', 'assetType': 'land', 'liquidityNotes': 'Illiquid',
+        'valuationDate': '2026-01-01', 'origin': 'imported', 'sourceDescription': 'Owner appraisal',
+        'nativeCurrency': 'CAD', 'nativeValue': 5000})
+    assert valued.status_code == 200, valued.text
+    summary = client.get(url, headers=headers)
+    assert summary.status_code == 200, summary.text
+    body = summary.json()
+    assert body['currency'] == 'CAD' and body['profileId'] == 'robert'
+    row = body['accounts'][-1]
+    assert (row['accountId'], row['modeledTradedValue'], row['privateValue'], row['combinedValue']) == (
+        p['activeAccountId'], 1000, 5000, 6000)
+    assert body['combinedValue'] == sum(r['combinedValue'] for r in body['accounts'])
+    assert 'excluded' in body['limitations'][0]
+    assert client.get(url, headers={'X-Aplomb-Session': B}).json()['accounts'][0]['privateValue'] == 0.0
+    assert client.get('/v1/profiles/p_0000000000/account-valuations', headers=headers).status_code == 404
+
+
 def test_private_valuations_are_additional_preserved_and_excluded_from_traded_risk(snapshot_fx):
     service = ProfileServiceImpl(make_repo(), lambda: snapshot_fx, clock=CLOCK)
     p = service.create_account(A, 'robert', a.CreateAccountRequest(name='Holding', version=1, currency='CAD',

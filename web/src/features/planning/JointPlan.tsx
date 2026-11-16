@@ -3,11 +3,12 @@ import { useState } from 'react';
 import type { Profile } from '../../contracts/types';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
-import { numeric, record, scalar, type ModelResult } from '../../api/expandedInvestor';
+import { numeric, record, rows, scalar, type Json, type ModelResult } from '../../api/expandedInvestor';
 import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
 import { ErrorState } from '../../components/common/States';
-import { fmtMoney } from '../../lib/format';
+import { fmtDate, fmtMoney } from '../../lib/format';
+import { CASHFLOW_DESCRIPTION_MAX, parseJointCashflows } from '../../lib/jointPlan';
 import { ModelResultView, ResultRows } from './ModelResult';
 
 export function JointPlan({ profile }: { profile: Profile }) {
@@ -38,12 +39,8 @@ export function JointPlan({ profile }: { profile: Profile }) {
   const clear = () => { setResult(null); setInvalid(false); setError(null); };
   const calculate = async () => {
     clear();
-    const cashflows = [];
-    for (const line of flows.split('\n').map(s => s.trim()).filter(Boolean)) {
-      const [date, amount, extra] = line.split(/\s+/);
-      if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || amount === undefined || !Number.isFinite(Number(amount)) || extra) { setInvalid(true); return; }
-      cashflows.push({ date, amount: Number(amount), origin: 'user' });
-    }
+    const cashflows = parseJointCashflows(flows);
+    if (!cashflows) { setInvalid(true); return; }
     const capitalSources = sources.filter(s => (amounts[s.id] ?? '').trim() !== '').map(s => ({ kind: s.kind, id: s.id, amount: Number(amounts[s.id]), origin: 'user', sourceDescription: 'User-selected available liquid portion of the saved reporting-currency value' }));
     if (outside.trim()) capitalSources.push({ kind: 'outside', id: 'outside-1', amount: Number(outside), origin: 'user', sourceDescription: outsideDescription });
     setBusy(true);
@@ -54,7 +51,11 @@ export function JointPlan({ profile }: { profile: Profile }) {
       liquidityAggregation: aggregation, allocationTreatment: 'shared_pool' })); }
     catch (e) { setError(asApiError(e)); } finally { setBusy(false); }
   };
-  const money = (key: string) => { const n = result ? numeric(result[key]) : null; return n === null ? '—' : fmtMoney(n, profile.reportingCurrency, lang); };
+  const money = (value: Json | undefined) => { const n = numeric(value); return n === null ? '—' : fmtMoney(n, profile.reportingCurrency, lang); };
+  const priority = record(result?.priorityPlan);
+  const conflicts = rows(result?.conflicts);
+  const shortfallDate = result?.firstShortfallDate;
+  const firstShortfall = typeof shortfallDate === 'string' ? shortfallDate : null;
   return <Card title={tr({ en: 'Joint goals, spending and liquidity plan', fr: 'Plan conjoint des objectifs, dépenses et liquidités' })}>
     <p>{tr({ en: 'Evaluate selected goals and obligations together against one shared pool. Enter the portion actually available for spending from each saved account or appraisal. The same capital cannot be entered twice. Private appraisals are not assumed liquid. One global cash-flow schedule replaces separate goal-sleeve contributions in this calculation.', fr: 'Évaluez les objectifs et obligations sélectionnés avec une réserve commune. Indiquez la part disponible de chaque compte ou évaluation. Un même capital ne peut être compté deux fois. Les actifs privés ne sont pas supposés liquides. Un calendrier global remplace les contributions séparées par objectif.' })}</p>
     <form onSubmit={e => { e.preventDefault(); void calculate(); }}><fieldset disabled={busy}><div className="form-grid">
@@ -71,12 +72,18 @@ export function JointPlan({ profile }: { profile: Profile }) {
     </fieldset>
     <fieldset><legend>{tr({ en: 'Selected goals', fr: 'Objectifs sélectionnés' })}</legend>{goals.length === 0 && <p>{tr({ en: 'No entered goals. Add them in Profiles.', fr: 'Aucun objectif saisi. Ajoutez-en dans Profils.' })}</p>}{goals.map((goal, i) => <label className="checks" key={i}><input type="checkbox" checked={goalSelection.includes(i)} onChange={e => { setGoalSelection(s => e.target.checked ? [...s, i] : s.filter(j => j !== i)); clear(); }} /> {goal.name} · {tr({ en: 'priority', fr: 'priorité' })} {goal.priority} · {goal.deadline ?? goal.endDate ?? `${goal.horizonYears}y`} · {goal.origin ?? 'unknown'}</label>)}</fieldset>
     <fieldset><legend>{tr({ en: 'Selected spending, liabilities and reserves', fr: 'Dépenses, passifs et réserves sélectionnés' })}</legend>{requirements.length === 0 && <p>{tr({ en: 'No entered requirements; none will be inferred.', fr: 'Aucun besoin saisi; aucun ne sera déduit.' })}</p>}{requirements.map((r, i) => <label className="checks" key={i}><input type="checkbox" checked={requirementSelection.includes(i)} onChange={e => { setRequirementSelection(s => e.target.checked ? [...s, i] : s.filter(j => j !== i)); clear(); }} /> {r.name} · {r.kind} · {fmtMoney(r.amount, profile.reportingCurrency, lang)} · {r.dueDate ?? tr({ en: 'date unknown', fr: 'date inconnue' })}</label>)}</fieldset>
-    <div className="field"><label htmlFor="joint-flows">{tr({ en: 'Shared external cash flows: DATE SIGNED_AMOUNT per line', fr: 'Flux externes communs : DATE MONTANT_SIGNÉ par ligne' })}</label><textarea id="joint-flows" rows={4} maxLength={20000} value={flows} onChange={e => { setFlows(e.target.value); clear(); }} /><p className="small muted">{tr({ en: 'Positive adds capital; negative withdraws. Blank explicitly assumes no additional cash flows. Do not repeat saved spending or goal contributions.', fr: 'Positif ajoute du capital; négatif retire. Vide suppose explicitement aucun flux supplémentaire. Ne répétez pas les dépenses ou contributions par objectif.' })}</p></div>
+    <div className="field"><label htmlFor="joint-flows">{tr({ en: 'Shared external cash flows: DATE SIGNED_AMOUNT [description] per line', fr: 'Flux externes communs : DATE MONTANT_SIGNÉ [description] par ligne' })}</label><textarea id="joint-flows" rows={4} maxLength={20000} value={flows} onChange={e => { setFlows(e.target.value); clear(); }} /><p className="small muted">{tr({ en: `Positive adds capital; negative withdraws. Blank explicitly assumes no additional cash flows. Do not repeat saved spending or goal contributions. An optional description (up to ${CASHFLOW_DESCRIPTION_MAX} characters) after the amount lets the plan flag a withdrawal that matches a selected requirement's name on the same day.`, fr: `Positif ajoute du capital; négatif retire. Vide suppose explicitement aucun flux supplémentaire. Ne répétez pas les dépenses ou contributions par objectif. Une description facultative (au plus ${CASHFLOW_DESCRIPTION_MAX} caractères) après le montant permet de signaler un retrait portant le nom d’un besoin sélectionné le même jour.` })}</p></div>
     <button className="btn" type="submit">{tr({ en: 'Calculate shared plan and priority alternative', fr: 'Calculer le plan commun et la variante prioritaire' })}</button></fieldset></form>
-    {invalid && <p role="alert">{tr({ en: 'Cash flows need an ISO date and a finite signed amount on every line.', fr: 'Chaque flux exige une date ISO et un montant signé fini.' })}</p>}{error && <ErrorState error={error} />}
-    {result && <><p><strong>{scalar(result.state).replaceAll('_', ' ')}</strong> · {profile.reportingCurrency}</p><dl className="kv-list">{[['capital',tr({ en: 'Selected shared capital', fr: 'Capital commun sélectionné' })],['requiredInitialCapital',tr({ en: 'Required initial capital under these assumptions', fr: 'Capital initial requis selon ces hypothèses' })],['additionalInitialCapital',tr({ en: 'Additional initial capital required', fr: 'Capital initial supplémentaire requis' })],['endingLiquidValue',tr({ en: 'Ending liquid value', fr: 'Valeur liquide finale' })]].map(([key,label]) => <div className="kv" key={key}><dt>{label}</dt><dd>{money(key!)}</dd></div>)}</dl>
+    {invalid && <p role="alert">{tr({ en: `Cash flows need an ISO date and a finite signed amount on every line; an optional description has at most ${CASHFLOW_DESCRIPTION_MAX} characters.`, fr: `Chaque flux exige une date ISO et un montant signé fini; une description facultative compte au plus ${CASHFLOW_DESCRIPTION_MAX} caractères.` })}</p>}{error && <ErrorState error={error} />}
+    {result && <><p><strong>{scalar(result.state).replaceAll('_', ' ')}</strong> · {profile.reportingCurrency}</p>
+      {!!conflicts.length && <div role="note" aria-label={tr({ en: 'Plan input conflicts', fr: 'Conflits dans les entrées du plan' })}><h3>{tr({ en: 'Input conflicts to review', fr: 'Conflits d’entrées à examiner' })}</h3><ul>{conflicts.map((c, i) => <li key={i}><strong>{scalar(c.code).replaceAll('_', ' ')}</strong>: {scalar(c.detail)}</li>)}</ul></div>}
+      <dl className="kv-list">{[['capital',tr({ en: 'Selected shared capital', fr: 'Capital commun sélectionné' })],['requiredInitialCapital',tr({ en: 'Required initial capital under these assumptions', fr: 'Capital initial requis selon ces hypothèses' })],['additionalInitialCapital',tr({ en: 'Additional initial capital required', fr: 'Capital initial supplémentaire requis' })],['endingLiquidValue',tr({ en: 'Ending liquid value', fr: 'Valeur liquide finale' })]].map(([key,label]) => <div className="kv" key={key}><dt>{label}</dt><dd>{money(result[key!])}</dd></div>)}
+        {result.state !== 'missing_inputs' && <div className="kv"><dt>{tr({ en: 'First shortfall date', fr: 'Date du premier déficit' })}</dt><dd>{firstShortfall ? fmtDate(firstShortfall, lang) : tr({ en: 'None through the plan end', fr: 'Aucun jusqu’à la fin du plan' })}</dd></div>}</dl>
       <ResultRows value={result.goals} label={tr({ en: 'Dated goal outcomes', fr: 'Résultats datés des objectifs' })} columns={[{key:'name',label:tr({ en:'Goal',fr:'Objectif' })},{key:'dueDate',label:tr({en:'Due date',fr:'Échéance'})},{key:'targetAtDue',label:`${tr({en:'Target',fr:'Cible'})} (${profile.reportingCurrency})`},{key:'state',label:tr({en:'State',fr:'État'})}]} />
-      <h3>{tr({ en: 'Priority alternative preserving essential obligations', fr: 'Variante prioritaire préservant les obligations essentielles' })}</h3><p>{scalar(record(result.priorityPlan).state).replaceAll('_',' ')}</p><ResultRows value={record(result.priorityPlan).goals} label={tr({ en: 'Priority scenario allocation', fr: 'Répartition du scénario prioritaire' })} columns={[{key:'name',label:tr({en:'Goal',fr:'Objectif'})},{key:'priority',label:tr({en:'Priority',fr:'Priorité'})},{key:'paid',label:`${tr({en:'Funded amount',fr:'Montant financé'})} (${profile.reportingCurrency})`},{key:'shortfall',label:`${tr({en:'Shortfall',fr:'Déficit'})} (${profile.reportingCurrency})`}]} />
+      <h3>{tr({ en: 'Priority alternative preserving essential obligations', fr: 'Variante prioritaire préservant les obligations essentielles' })}</h3><p>{scalar(priority.state).replaceAll('_',' ')}</p>
+      {result.priorityPlan !== null && result.priorityPlan !== undefined && <dl className="kv-list"><div className="kv"><dt>{tr({ en: 'Initial capital required for essential obligations', fr: 'Capital initial requis pour les obligations essentielles' })}</dt><dd>{money(priority.essentialRequiredInitialCapital)}</dd></div><div className="kv"><dt>{tr({ en: 'Additional capital required for essential obligations', fr: 'Capital supplémentaire requis pour les obligations essentielles' })}</dt><dd>{money(priority.additionalEssentialCapital)}</dd></div></dl>}
+      {typeof priority.limitation === 'string' && <p className="small muted">{scalar(priority.limitation)}</p>}
+      <ResultRows value={priority.goals} label={tr({ en: 'Priority scenario allocation', fr: 'Répartition du scénario prioritaire' })} columns={[{key:'name',label:tr({en:'Goal',fr:'Objectif'})},{key:'priority',label:tr({en:'Priority',fr:'Priorité'})},{key:'paid',label:`${tr({en:'Funded amount',fr:'Montant financé'})} (${profile.reportingCurrency})`},{key:'shortfall',label:`${tr({en:'Shortfall',fr:'Déficit'})} (${profile.reportingCurrency})`}]} />
       <ResultRows value={result.events} label={tr({ en: 'Shared dated cash ledger', fr: 'Registre daté commun' })} columns={[{key:'date',label:'Date'},{key:'openingValue',label:tr({en:'Opening balance',fr:'Solde initial'})},{key:'externalFlow',label:tr({en:'External flow',fr:'Flux externe'})},{key:'closingValue',label:tr({en:'Ending balance',fr:'Solde final'})},{key:'shortfall',label:tr({en:'Shortfall',fr:'Déficit'})}]} /><ModelResultView value={result} /></>}
   </Card>;
 }

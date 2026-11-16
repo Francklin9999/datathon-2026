@@ -16,8 +16,6 @@ import { SectionDock } from './SectionDock';
 import { TourProvider } from '../../features/tour/TourProvider';
 import { HelpMenu } from '../../features/tour/HelpMenu';
 
-export { NAV } from './NavRail';
-
 /**
  * Gives both side groups of the top bar the content width of the wider one (--topbar-side), so Ask
  * Aplomb sits in the exact centre of the bar; the field absorbs the difference. Re-measured when a

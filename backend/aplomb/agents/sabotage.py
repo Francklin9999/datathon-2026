@@ -172,9 +172,12 @@ def execute(e):
     before = {"status": "unaudited", "model": writer_model,
               "sections": [{"id": section.id, "sentences": [s.model_dump(mode="json") for s in section.sentences]}
                            for section in draft.sections]}
+    # The run-events.md §5 audit template; imported here because workflow imports this module.
+    from .workflow import _audit_summary
+
     brief = e.step("audit", "auditor", "code+llm", lambda: e.services.signer(
         ledger=ledger, draft=draft, lang=e.run.lang, model=writer_model, rule_checks=checks,
-        historical=False, execution=e, repair_struck=False))
+        historical=False, execution=e, repair_struck=False), summary=_audit_summary)
     caught = sabotage_caught(brief.audit, brief.sections, {INJECTED_ID})
     failed = [c for c in brief.audit.checks if not c.ok and INJECTED_ID in c.sentence_ids]
     result = m.SabotageResult(mode=e.run.input.mode, injected_instruction=instruction,

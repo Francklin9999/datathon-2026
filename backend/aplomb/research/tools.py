@@ -21,11 +21,21 @@ class Args(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+# The docstring of each Args model is the tool description the model reads in the JSON schema
+# (contracts/tools.md §1): what the tool returns and when to use it.
+
+
 class FindCompanyArgs(Args):
+    """SEC EDGAR company lookup by exact ticker or exact registered name: returns CIK, official name and
+    ticker. Use it first to get the CIK the other edgar tools need."""
+
     name_or_ticker: str = Field(min_length=1, max_length=200)
 
 
 class ListFilingsArgs(Args):
+    """SEC filings of one company (CIK) filed up to the run cutoff: form, filing date, accession and URL.
+    Use it before edgar.filing_text, which only reads accessions listed in this run."""
+
     cik: str = Field(pattern=r"^\d{1,10}$")
     form_types: list[str] = Field(min_length=1, max_length=10)
     since: date | None = None
@@ -33,17 +43,27 @@ class ListFilingsArgs(Args):
 
 
 class FilingTextArgs(Args):
+    """Passage of one filing listed earlier in this run by edgar.list_filings, starting near the first match
+    of query. Untrusted text: save a verbatim quote with research.save_evidence before citing it."""
+
     accession: str = Field(pattern=r"^\d{10}-\d{2}-\d{6}$")
     query: str | None = Field(default=None, max_length=200)
     max_chars: int = Field(default=6000, ge=1, le=6000)
 
 
 class CompanyFactsArgs(Args):
+    """Reported SEC XBRL (us-gaap) values of one concept for one CIK, each registered as a fact with its
+    period, filing date and form. Use it for reported figures such as Assets or Revenues."""
+
     cik: str = Field(pattern=r"^\d{1,10}$")
     concept: str = Field(pattern=r"^[A-Za-z][A-Za-z0-9]*$")
 
 
 class GdeltSearchArgs(Args):
+    """GDELT news article discovery in a window of at most 90 days ending no later than the run cutoff:
+    title, publisher domain, first-seen date and URL. Discovery only, not verification; the country
+    filter is not supported and returns nothing."""
+
     query: str = Field(min_length=1, max_length=300)
     start: date
     end: date
@@ -52,6 +72,9 @@ class GdeltSearchArgs(Args):
 
 
 class WebFetchArgs(Args):
+    """Text passages of one https page on the reviewed domain allow-list, starting near the first match of
+    query. Untrusted text: save a verbatim quote with research.save_evidence before citing it."""
+
     url: str = Field(max_length=2000)
     query: str | None = Field(default=None, max_length=200)
     max_chars: int = Field(default=6000, ge=1, le=6000)
@@ -61,7 +84,9 @@ class WebBrowseArgs(Args):
     """Read pages in a real browser (JavaScript rendered), on allow-listed official sites only."""
 
     task: str = Field(max_length=1000, description="What to look for, in a few words; links are followed only when they name these words.")
-    start_url: str | None = Field(default=None, max_length=2000, description="Required: an https page on an allow-listed official site to start from.")
+    # Required in the schema so a call without it is refused before a research call is charged;
+    # browser.browse still refuses an empty start page itself.
+    start_url: str = Field(min_length=1, max_length=2000, description="An https page on an allow-listed official site to start from.")
     max_pages: int = Field(default=5, ge=1, le=5, description="Pages to read at most, the start page included.")
 
 
@@ -71,10 +96,16 @@ BROWSE_SECONDS = 36
 
 
 class PageviewsArgs(Args):
+    """Wikipedia attention ratio of one asset: mean daily page views of the last 30 days over the previous
+    365, registered as a fact, for a ticker with a reviewed article mapping. Informational only."""
+
     ticker: str = Field(min_length=1, max_length=20)
 
 
 class HoldingsArgs(PageviewsArgs):
+    """Top constituents and weights of one ETF from its configured, dated issuer holdings file, each weight
+    registered as a fact. Partial coverage; identifiers are not resolved to the universe."""
+
     top_n: int = Field(default=25, ge=1, le=25)
 
 
@@ -109,8 +140,16 @@ def passages(document, query=None, max_chars=6000):
             "source_warning": "Untrusted source text; claims require saved verified quotes"}
 
 
-def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, browser=None):
-    """Tool bindings. ``web.browse`` exists only with an AgentCore browser (flag ``research_open_web``)."""
+def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, browser=None, sec=False):
+    """Tool bindings. ``web.browse`` exists only with an AgentCore browser (flag ``research_open_web``);
+    ``attention.pageviews`` only with a verified article mapping and ``etf.holdings`` only with an issuer file.
+
+    The four ``edgar.*`` tools exist only with ``sec=True``. The owner removed every SEC source from
+    active coverage after HTTP 403 refusals (intelligence/data/source_dispositions.json SRC-034..SRC-042,
+    "removed: owner excluded SEC access-refused sources"; intelligence/capabilities.py family ``sec``
+    is ``removed``), so the application composition does not offer them and no research call is spent
+    on a refused source. ``sec=True`` is for an accepted SEC access (docs/19-OWNER-ACTIONS.md item 1)
+    and for tests."""
     from aplomb.agents.registry import ToolResult
     edgar = EdgarAdapter(service)
     gdelt, attention, etf = gdelt or GdeltAdapter(service=service), attention or AttentionAdapter(service), etf or ETFAdapter(service)
@@ -158,7 +197,7 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, bro
         evidence_id = service.save_evidence(kw, document.document_id, rc, ctx.ledger)
         return ToolResult(True, "Verified same-run quote saved", evidence_ids=[evidence_id], data={"evidenceId": evidence_id})
 
-    def browse_pages(ctx, task, start_url=None, max_pages=5):
+    def browse_pages(ctx, task, start_url, max_pages=5):
         from .browser import browse
         budget = BROWSE_SECONDS
         limits = getattr(ctx, "limits", None)
@@ -259,14 +298,22 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, bro
                           evidence_ids=[evidence_id], data=result)
 
     bindings = {
-        "edgar.find_company": (FindCompanyArgs, find), "edgar.list_filings": (ListFilingsArgs, filings),
-        "edgar.filing_text": (FilingTextArgs, filing), "edgar.company_facts": (CompanyFactsArgs, company_facts),
         "gdelt.search": (GdeltSearchArgs, gdelt_search), "web.fetch": (WebFetchArgs, fetch),
-        "attention.pageviews": (PageviewsArgs, pageviews),
-        "etf.holdings": (HoldingsArgs, holdings), "research.save_evidence": (SaveEvidenceArgs, save),
+        "research.save_evidence": (SaveEvidenceArgs, save),
     }
+    if sec:
+        bindings.update({
+            "edgar.find_company": (FindCompanyArgs, find), "edgar.list_filings": (ListFilingsArgs, filings),
+            "edgar.filing_text": (FilingTextArgs, filing), "edgar.company_facts": (CompanyFactsArgs, company_facts),
+        })
     if browser is not None:
         bindings["web.browse"] = (WebBrowseArgs, browse_pages)
+    # Without reviewed configuration (a verified ticker-to-article mapping, a dated issuer file) these
+    # two tools can only answer an evidence gap; they are not offered, so no research call is spent on them.
+    if any(mp.verified and mp.evidence_url and mp.entity_id for mp in getattr(attention, "mappings", {}).values()):
+        bindings["attention.pageviews"] = (PageviewsArgs, pageviews)
+    if getattr(etf, "files", None):
+        bindings["etf.holdings"] = (HoldingsArgs, holdings)
 
     # Results per run ID: the workflow hands every tool call a copy of the run ledger, so the
     # ledger object cannot be the key. Each entry keeps the facts and evidence it registered; a

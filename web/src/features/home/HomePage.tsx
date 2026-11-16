@@ -1,15 +1,16 @@
 'use client';
 /**
  * Home — Portfolio Analyst Brief (T13, web/page-specs/home.md) as a dashboard: a scope bar (period,
- * benchmark, asset classes, minimum weight, chart view) drives every widget, and the widgets can be
+ * benchmark, asset classes, minimum weight, chart view; ScopeBar says which control reaches which widget) drives the widgets, and the widgets can be
  * moved by their header and resized from their corner at any time (stored layout). A widget never
  * scrolls: it shows the essentials and opens the rest in a details sheet (⤢). Deterministic overview and performance load in parallel; the
- * cached brief is fetched separately and at most one automatic portfolio_brief run is created per
- * cache key (HOME-02). Refresh creates a real run.
+ * cached brief is fetched separately. At most one portfolio_brief run is written automatically per
+ * session, profile and data version, and only when no brief of that data version exists (HOME-02,
+ * lib/briefAuto.ts); otherwise the latest brief is shown with a note. Refresh creates a real run.
  */
 import Link from 'next/link';
 import { RotateCcw } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   AssetsResponse, CachedBriefResponse, I18NText, OverviewResponse, PerformanceResponse, Profile, RuleCheck, RuleStatus, Run, WindowCode,
 } from '../../contracts/types';
@@ -19,25 +20,29 @@ import { profileKey, useApp } from '../../state/app';
 import { prefetchQuery, useQuery, type QueryState } from '../../state/useQuery';
 import { useRun } from '../../state/useRun';
 import { Card, ProfileGate } from '../../components/common/Page';
-import { SheetSection } from '../../components/common/Sheet';
-import { useElementSize } from '../../components/ui/useElementSize';
+import { Sheet, SheetSection, useSheet } from '../../components/common/Sheet';
 import { ErrorState, Loading, Unavailable } from '../../components/common/States';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { FactChip, FactScopeProvider, LimitationList, type FactScope } from '../../components/common/FactDrawer';
 import { RunStatusBadge, StatusBadge, VerdictBadge } from '../../components/common/Badges';
 import { LineChart, SeriesTable, type Series } from '../../components/common/LineChart';
 import { BriefView, SentenceText } from '../../components/run/BriefView';
 import { RunTimeline } from '../../components/run/RunTimeline';
-import { NEE_REASON, OBJECTIVE, RISK_LEVEL, RUN_STATUS, WINDOW, labelOf } from '../../lib/labels';
-import { fmtDate, fmtSignedPct, fmtUnit } from '../../lib/format';
-import { portfolioSummary } from '../../lib/brief';
+import { NEE_REASON, OBJECTIVE, RUN_STATUS, STEP_TYPE, WINDOW, labelOf } from '../../lib/labels';
+import { fmtDate, fmtMoney, fmtSignedPct, fmtUnit } from '../../lib/format';
+import {
+  briefDisplay, briefProgress, briefStaleReason, briefWindowNote, briefWindowOf, portfolioSummary, shouldAutoRunBrief, staleNote,
+} from '../../lib/brief';
+import { autoBriefKey, autoBriefUsed, markAutoBrief } from '../../lib/briefAuto';
 import { isTerminal } from '../../lib/runs';
-import { fitCount, type LayoutItem, type WidgetLimits } from '../../lib/ui/layout';
+import type { LayoutItem, WidgetLimits } from '../../lib/ui/layout';
 import { ASSET_GROUPS, scopeWindow, scopeWindowKey, type DashboardScope } from '../../lib/ui/scope';
-import { drawdownSeries, indexSeries, periodChangePct } from '../../lib/ui/series';
+import { drawdownSeries, indexSeries, periodChangePct, periodEnds } from '../../lib/ui/series';
 import { Reveal } from '../../components/ui/Reveal';
 import { CountUp } from '../../components/ui/CountUp';
 import { AllocationCard } from './AllocationCard';
 import { AutomationsCard } from './AutomationsCard';
+import { ClosestToLimit } from './ClosestToLimit';
 import { DashboardGrid, type WidgetDef } from './DashboardGrid';
 import { KeyFigures, KeyFiguresSkeleton } from './KeyFigures';
 import { DiversificationCard, HorizonsCard, StressCard } from './FigureCards';
@@ -47,8 +52,6 @@ import { useDashboardScope } from './useDashboardScope';
 
 /** Run started for each cache key in this page load (survives navigation between pages). */
 const startedRuns = new Map<string, string>();
-/** Cache keys for which an automatic brief run was already requested in this page load. */
-const autoRequested = new Set<string>();
 
 /**
  * Default arrangement (12 columns × 32 px rows, 16 px gaps: a widget of h rows is 48h − 16 px tall)
@@ -91,8 +94,8 @@ function briefKey(base: string, windowCode: WindowCode, lang: string): string {
 /** Where the brief's figures come from: the whole portfolio and the global window, not the dashboard scope. */
 function briefScope(windowCode: WindowCode, tr: (t: I18NText) => string): string {
   return tr({
-    en: `Whole portfolio, ${labelOf(WINDOW, windowCode, 'en').toLowerCase()} window. Dashboard filters don’t apply.`,
-    fr: `Portefeuille complet, fenêtre ${labelOf(WINDOW, windowCode, 'fr').toLowerCase()}. Les filtres du tableau ne s’appliquent pas.`,
+    en: `Whole portfolio, ${labelOf(WINDOW, windowCode, 'en').toLowerCase()} window. The custom range and the asset-class and minimum-weight filters don’t apply.`,
+    fr: `Portefeuille complet, fenêtre ${labelOf(WINDOW, windowCode, 'fr').toLowerCase()}. La plage personnalisée et les filtres de classes d’actifs et de poids minimum ne s’appliquent pas.`,
   });
 }
 
@@ -114,6 +117,10 @@ function HomeContent({ profile }: { profile: Profile }) {
     signal => client.overview(profile.profileId, windowSpec, signal));
   const performance = useQuery<PerformanceResponse>(base && `performance|${base}|${windowKey}|${scope.benchmark ?? '-'}`,
     signal => client.performance(profile.profileId, windowSpec, signal, scope.benchmark));
+  // The first and last day the API resolved for the window on screen: a new custom Range starts there.
+  const shownId = overview.data?.returns.factIds.selectedPct;
+  const shownFact = shownId ? overview.data?.facts[shownId] : undefined;
+  const shownPeriod = shownFact?.period ? { start: shownFact.period.start, end: shownFact.period.end } : null;
   // The brief lookup starts with the overview instead of waiting for its widget to mount.
   useEffect(() => {
     prefetchQuery(base && briefKey(base, windowCode, lang), signal => client.brief(profile.profileId, lang, signal));
@@ -153,7 +160,7 @@ function HomeContent({ profile }: { profile: Profile }) {
       { id: 'horizons', title: t('Longer horizons', 'Horizons plus longs'), limits: LIMITS.horizons!, render: () => <HorizonsCard overview={data} /> },
       { id: 'stress', title: t('Stress test', 'Test de résistance'), limits: LIMITS.stress!, render: () => <StressCard overview={data} /> },
       { id: 'diversification', title: t('Diversification', 'Diversification'), limits: LIMITS.diversification!, render: () => <DiversificationCard overview={data} /> },
-      { id: 'brief', title: t('Portfolio brief', 'Note de portefeuille'), section: t('Brief', 'Note'), limits: LIMITS.brief!, render: () => <AnalystBrief profile={profile} scopeNote={briefScope(windowCode, tr)} /> },
+      { id: 'brief', title: t('Portfolio brief', 'Note de portefeuille'), section: t('Brief', 'Note'), limits: LIMITS.brief!, render: () => <AnalystBrief profile={profile} scopeNote={briefScope(windowCode, tr)} customRange={scope.period.mode === 'custom' ? period : null} /> },
     ];
   }, [data, performance, scope, period, profile, tr, windowCode]);
 
@@ -184,9 +191,10 @@ function HomeContent({ profile }: { profile: Profile }) {
       </Reveal>
 
       <ScopeBar scope={scope} setScope={setScope} windowCode={windowCode} setWindow={setWindow}
-        dataAsOf={meta?.dataAsOf ?? new Date().toISOString().slice(0, 10)} groups={groups} benchmarks={benchmarks} tr={tr} lang={lang} />
+        dataAsOf={meta?.dataAsOf ?? new Date().toISOString().slice(0, 10)} shownPeriod={shownPeriod}
+        groups={groups} benchmarks={benchmarks} tr={tr} lang={lang} announce={announce} />
 
-      {overview.error && <AnalystBrief profile={profile} scopeNote={briefScope(windowCode, tr)} />}
+      {overview.error && <AnalystBrief profile={profile} scopeNote={briefScope(windowCode, tr)} customRange={scope.period.mode === 'custom' ? period : null} />}
       {overview.error && (
         <ErrorState error={overview.error} onRetry={overview.reload}
           title={tr({ en: 'The portfolio overview is unavailable for this scope. No summary figures are shown.', fr: 'L’aperçu du portefeuille est indisponible pour ce périmètre. Aucun chiffre de synthèse n’est affiché.' })} />
@@ -208,7 +216,10 @@ function PerformanceCard({ state, scope, period }: { state: QueryState<Performan
   const { tr, lang } = useApp();
   const data = state.data;
   const title = tr({ en: 'Past performance', fr: 'Performance passée' });
-  const info = tr({ en: 'Today’s weights applied to past prices: a hypothetical history, not account gains.', fr: 'Pondérations actuelles appliquées aux prix passés : un historique hypothétique, pas des gains réels.' });
+  const info = tr({
+    en: 'Today’s weights applied to past prices: a hypothetical history, not account gains. The line starts from the profile’s fictional capital on the first day of the period.',
+    fr: 'Pondérations actuelles appliquées aux prix passés : un historique hypothétique, pas des gains réels. La courbe part du capital fictif du profil au premier jour de la période.',
+  });
   if (!data || data.series.length < 2) {
     return (
       <Card title={title} tour="performance" info={info}>
@@ -229,6 +240,16 @@ function PerformanceCard({ state, scope, period }: { state: QueryState<Performan
   const caption = `${period}, ${fmtDate(data.series[0]?.date ?? '', lang)} → ${fmtDate(data.series[data.series.length - 1]?.date ?? '', lang)}`;
   const own = periodChangePct(data.series);
   const bench = data.benchmark ? periodChangePct(data.benchmark.series) : null;
+  // Value view: say where the line starts (the fictional capital) and ends, so its end is not read as "today's value".
+  const ends = scope.chartMode === 'value' ? periodEnds(data.series) : null;
+  const currency = data.currency;
+  const money = (value: number) => fmtMoney(value, currency, lang);
+  const endsText = ends
+    ? tr({
+      en: `${money(ends.first.value)} on ${fmtDate(ends.first.date, lang)} → ${money(ends.last.value)} on ${fmtDate(ends.last.date, lang)}`,
+      fr: `${money(ends.first.value)} le ${fmtDate(ends.first.date, lang)} → ${money(ends.last.value)} le ${fmtDate(ends.last.date, lang)}`,
+    })
+    : null;
   return (
     <Card title={title} tour="performance" info={info} details={{
       render: () => (
@@ -244,6 +265,7 @@ function PerformanceCard({ state, scope, period }: { state: QueryState<Performan
       <p className="period-change">
         {own !== null && <span>{tr({ en: 'Over the period', fr: 'Sur la période' })} <strong><CountUp text={fmtSignedPct(own, lang)} /></strong></span>}
         {data.benchmark && bench !== null && <span>{data.benchmark.ticker} <strong><CountUp text={fmtSignedPct(bench, lang)} /></strong></span>}
+        {endsText && <span>{endsText}</span>}
       </p>
       <LineChart series={series} lang={lang} unitLabel={unit} caption={caption} digits={digits} area={scope.chartMode !== 'drawdown'} fill compact />
     </Card>
@@ -261,17 +283,12 @@ function closestToLimit(checks: readonly RuleCheck[], n: number): RuleCheck[] {
     .slice(0, n);
 }
 
-/** Height of one nearest-limit line in the Plan health widget (dashboard.css .limit-lines). */
-const LIMIT_ROW_PX = 30;
-
 function PlanHealth({ overview, period }: { overview: OverviewResponse; period: string }) {
   const { tr, lang } = useApp();
   const nee = overview.ruleChecks.filter(c => c.status === 'nee');
   const counts = overview.counts;
   const total = STATUS_ORDER.reduce((sum, status) => sum + counts[status], 0);
   const closest = closestToLimit(overview.ruleChecks, 3);
-  const { ref, size } = useElementSize<HTMLDivElement>();
-  const room = size ? fitCount(size.h - 28, LIMIT_ROW_PX, closest.length, 0) : 0;
   const figure = (value: number | null, factId: string | null, unit: RuleCheck['unit']) => {
     const text = fmtUnit(value, unit, lang);
     return factId ? <FactChip factId={factId} display={text} /> : <span className="num">{text}</span>;
@@ -323,36 +340,33 @@ function PlanHealth({ overview, period }: { overview: OverviewResponse; period: 
           </div>
         ))}
       </dl>
-      <div ref={ref} className="health-rest">
-        {room > 0 && (
-          <>
-            <h3 className="eyebrow health-rest-title">{tr({ en: 'Closest to their limit', fr: 'Les plus proches de leur limite' })}</h3>
-            <ul className="limit-lines">
-              {closest.slice(0, room).map(check => (
-                <li key={check.ruleId} title={tr(check.detail)}><span className="limit-line-text">{tr(check.detail)}</span></li>
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
+      <ClosestToLimit checks={closest} />
     </Card>
   );
 }
 
-function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: string }) {
+function AnalystBrief({ profile, scopeNote, customRange }: { profile: Profile; scopeNote?: string; customRange: string | null }) {
   const app = useApp();
   const { tr, lang, windowCode, announce, sessionId, meta } = app;
   const base = profileKey(app);
   const cacheKey = base && briefKey(base, windowCode, lang);
+  const autoKey = sessionId && meta ? autoBriefKey(sessionId, profile.profileId, meta.dataVersion) : null;
   const cached = useQuery<CachedBriefResponse>(cacheKey, signal => getApiClient().brief(profile.profileId, lang, signal));
   // The run started for a key outlives this component: coming back to a persona, window, language
   // or to Home shows that run (or its progress) again instead of an empty card (HOME-02).
   const [runId, setRunId] = useState<string | null>(() => (cacheKey ? startedRuns.get(cacheKey) ?? null : null));
   const [createError, setCreateError] = useState<ApiRequestError | null>(null);
   const [creating, setCreating] = useState(false);
+  // The last brief that succeeded in this card: it stays on screen while a newer one is written.
+  const [lastGood, setLastGood] = useState<Run | null>(null);
+  const sheet = useSheet();
 
   // A new key (profile version, data, window, language) shows that key's own run, never stale prose.
-  useEffect(() => { setRunId(cacheKey ? startedRuns.get(cacheKey) ?? null : null); setCreateError(null); }, [cacheKey]);
+  useEffect(() => {
+    setRunId(cacheKey ? startedRuns.get(cacheKey) ?? null : null);
+    setCreateError(null);
+    setLastGood(null);
+  }, [cacheKey]);
 
   const start = useCallback(async (force: boolean) => {
     if (!sessionId || !meta) return;
@@ -375,26 +389,37 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
 
   // The lookup returns the latest brief of this profile and language whatever its window.
   const cachedRun = cached.data?.run ?? null;
-  const cachedWindow = cachedRun?.input.kind === 'portfolio_brief' ? cachedRun.input.window.code : null;
-  const sameWindow = cachedRun !== null && cachedWindow === windowCode;
 
+  // At most one automatic run per session, profile and data version, remembered across reloads and
+  // consumed by the first loaded lookup (so a language or window switch never writes one), and only
+  // when no brief of the current data version exists. Otherwise the brief is shown with a note.
   useEffect(() => {
-    if (!cacheKey || !cached.data || (cached.data.run && sameWindow) || runId) return;
-    if (autoRequested.has(cacheKey)) return;
-    autoRequested.add(cacheKey);
-    void start(false);
-  }, [cacheKey, cached.data, sameWindow, runId, start]);
+    if (!autoKey || !meta || !cached.data || runId) return;
+    if (autoBriefUsed(autoKey)) return;
+    markAutoBrief(autoKey);
+    if (shouldAutoRunBrief(cached.data.run, meta.dataVersion)) void start(false);
+  }, [autoKey, meta, cached.data, runId, start]);
 
   const polled = useRun(runId, finished => announce(`${tr({ en: 'Portfolio brief', fr: 'Note de portefeuille' })}: ${labelOf(RUN_STATUS, finished.status, lang)}`));
-  const run: Run | null = runId ? polled.run : cachedRun;
-  const stale = !runId && Boolean(cached.data?.stale);
-  const otherWindow = !runId && cachedRun !== null && !sameWindow ? cachedWindow : null;
-  const busy = creating || (run !== null && !isTerminal(run.status));
+  const current = runId ? polled.run : null;
+  useEffect(() => {
+    if (current && current.status === 'succeeded') setLastGood(current);
+  }, [current]);
+  const view = briefDisplay(runId, current, lastGood ?? cachedRun);
+  const shown = view.shown;
+  const refreshing = creating || (view.refreshing && !polled.error);
+  const step = briefProgress(current);
+  const stepText = step ? labelOf(STEP_TYPE, step, lang).toLocaleLowerCase(lang) : null;
+  const staleReason = shown && shown.runId === cachedRun?.runId ? briefStaleReason(cached.data, meta?.dataVersion ?? null) : null;
+  const windowNote = shown ? briefWindowNote(briefWindowOf(shown), windowCode, customRange) : null;
+  const detailsRun = shown ?? current;
+  const busy = creating || (current !== null && !isTerminal(current.status));
+  const empty = Boolean(cached.data && !cachedRun) && !runId && !creating && !createError;
 
   return (
     <Card id="analyst-brief" title={tr({ en: 'Portfolio brief', fr: 'Note de portefeuille' })} tour="brief"
       {...(scopeNote ? { info: scopeNote } : {})}
-      {...(run ? { details: { render: () => <BriefRun run={run} full /> } } : {})}
+      {...(detailsRun ? { details: { render: () => <BriefRun run={detailsRun} full /> } } : {})}
       actions={(
         <button type="button" className="btn ghost btn-sm" onClick={() => void start(true)} disabled={busy}>
           {tr({ en: 'Refresh brief', fr: 'Actualiser la note' })}
@@ -410,15 +435,57 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
             : tr({ en: 'The brief could not be started. The figures above are unaffected.', fr: 'La note n’a pas pu être lancée. Les chiffres ci-dessus restent valables.' })} />
       )}
       {polled.error && <ErrorState error={polled.error} onRetry={polled.reload} />}
-      {stale && run && (
-        <p className="stale-note">{tr({ en: 'This brief was written for an earlier profile or data version. Refresh to update it.', fr: 'Cette note a été rédigée pour une version antérieure du profil ou des données. Actualisez pour la mettre à jour.' })}</p>
+      {empty && (
+        <p className="small muted">{tr({ en: 'No brief has been written for this selection yet. Use Refresh brief to write one.', fr: 'Aucune note n’a encore été rédigée pour cette sélection. Utilisez « Actualiser la note » pour en rédiger une.' })}</p>
       )}
-      {otherWindow && run && (
-        <p className="stale-note">{tr({ en: `This brief was written for the ${labelOf(WINDOW, otherWindow, 'en')} window, not the one selected.`, fr: `Cette note a été rédigée pour la fenêtre ${labelOf(WINDOW, otherWindow, 'fr')}, pas pour celle qui est choisie.` })}</p>
+      {refreshing && (
+        <p className="small muted" role="status">
+          {shown
+            ? tr(stepText ? { en: `Refreshing… Current step: ${stepText}.`, fr: `Actualisation… Étape en cours : ${stepText}.` } : { en: 'Refreshing…', fr: 'Actualisation…' })
+            : tr(stepText ? { en: `Writing the brief… Current step: ${stepText}.`, fr: `Rédaction de la note… Étape en cours : ${stepText}.` } : { en: 'Writing the brief…', fr: 'Rédaction de la note…' })}
+        </p>
       )}
-      {run && <BriefRun run={run} full={false} />}
-      {runId && !run && !polled.error && <Loading label={tr({ en: 'Writing the brief…', fr: 'Rédaction de la note…' })} />}
+      {view.refreshFailed && (
+        <p className="stale-note">{tr({ en: 'The new brief could not be written. The previous brief is still shown.', fr: 'La nouvelle note n’a pas pu être rédigée. La note précédente reste affichée.' })}</p>
+      )}
+      {staleReason && <p className="stale-note">{tr(staleNote(staleReason))}</p>}
+      {windowNote && <p className="stale-note">{tr(windowNote)}</p>}
+      {shown?.status === 'succeeded' && (
+        <p className="brief-tools small">
+          <button type="button" className="btn ghost btn-sm" aria-haspopup="dialog" onClick={event => sheet.show(event.currentTarget)}>
+            {tr({ en: 'Read the full brief', fr: 'Lire la note complète' })}
+          </button>
+        </p>
+      )}
+      {shown && <BriefRun run={shown} full={false} dim={refreshing} />}
+      {!shown && refreshing && <BriefSkeleton />}
+      {shown?.status === 'succeeded' && (
+        <Sheet open={sheet.open} origin={sheet.origin} onClose={sheet.hide} title={tr({ en: 'Portfolio brief', fr: 'Note de portefeuille' })}>
+          {sheet.open && <BriefRun run={shown} full />}
+        </Sheet>
+      )}
     </Card>
+  );
+}
+
+/** Placeholder of the widget while the first brief is written: two summary lines and three focus cards. */
+function BriefSkeleton() {
+  return (
+    <>
+      <div className="brief-summary" aria-hidden="true">
+        <Skeleton width="92%" />
+        <Skeleton width="68%" />
+      </div>
+      <div className="focus-grid" aria-hidden="true">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="focus-card">
+            <Skeleton width="55%" height={16} />
+            <Skeleton />
+            <Skeleton width="80%" />
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -426,7 +493,7 @@ function AnalystBrief({ profile, scopeNote }: { profile: Profile; scopeNote?: st
  * A brief run. In the widget: its status, or the executive summary and the focus cards, clamped. In
  * the sheet (`full`): everything, with the steps, the method and the audit link.
  */
-function BriefRun({ run, full }: { run: Run; full: boolean }) {
+function BriefRun({ run, full, dim = false }: { run: Run; full: boolean; dim?: boolean }) {
   const { tr, feature } = useApp();
   const scope = useMemo<FactScope>(() => ({ kind: 'run', runId: run.runId, facts: run.facts, evidence: run.evidence }), [run]);
   const result = run.result?.kind === 'portfolio_brief' ? run.result.portfolioBrief : null;
@@ -442,15 +509,17 @@ function BriefRun({ run, full }: { run: Run; full: boolean }) {
     );
   }
   const summary = portfolioSummary(result.brief);
+  // While a newer brief is written this one stays in place, greyed (no wrapper: the grid keeps filling the widget).
+  const dimmed = dim ? ' is-refreshing' : '';
   return (
     <FactScopeProvider scope={scope}>
       {summary.length > 0 && (
-        <div className={full ? 'brief-section' : 'brief-summary'}>
+        <div className={full ? 'brief-section' : `brief-summary${dimmed}`} {...(dim ? { 'aria-busy': true } : {})}>
           {full && <h3 className="h4">{tr({ en: 'Executive summary', fr: 'Résumé exécutif' })}</h3>}
           {summary.map(s => <p key={s.id}><SentenceText sentence={s} /></p>)}
         </div>
       )}
-      <div className={full ? 'grid-3' : 'focus-grid'}>
+      <div className={full ? 'grid-3' : `focus-grid${dimmed}`} {...(dim ? { 'aria-busy': true } : {})}>
         {result.focusCards.map((card, i) => (
           <article key={i} className={full ? 'scenario' : 'focus-card'}>
             <h3 className="h4">{tr(card.title)}</h3>

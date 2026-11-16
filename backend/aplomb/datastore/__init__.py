@@ -32,7 +32,6 @@ from .types import (
     GateMode,
     MasterCalendar,
     PriceFrame,
-    merge_reads,
 )
 from .universe import AssetHistory, AssetRecord, Universe
 
@@ -40,5 +39,5 @@ __all__ = [
     "AssetHistory", "AssetRecord", "CachedObjectStore", "DataSlice", "DataStore", "DatasetMissing",
     "DatasetNotFound", "DatasetRead", "DatastoreError", "FxSeries", "GateMode", "IngestionError",
     "InvalidGateRequest", "LocalDataStore", "MasterCalendar", "PriceFrame", "Snapshot",
-    "SnapshotIntegrityError", "TemporalGate", "Universe", "UnknownSeries", "UnknownTicker", "merge_reads",
+    "SnapshotIntegrityError", "TemporalGate", "Universe", "UnknownSeries", "UnknownTicker",
 ]

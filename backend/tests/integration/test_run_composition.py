@@ -527,3 +527,146 @@ def test_open_web_is_advertised_only_when_the_worker_registers_the_research_tool
     meta = client.get("/v1/meta", headers=session()).json()
     assert meta["features"]["research_open_web"] is advertised
     assert bool(build_registry(cfg).schemas({"web.browse"})) is advertised
+
+
+# Composition pins: brief cache identity, pinned snapshot date, Guardrail flag, AWS dispatch ------
+
+
+def test_runtime_release_or_manifest_change_makes_the_cached_brief_stale():
+    from types import SimpleNamespace
+
+    from aplomb.api.runtime import brief_lookup
+    from aplomb.api.storage import MemoryStore
+    from tests.unit.datastore._support import starter_snapshot
+
+    store, headers = MemoryStore(), session()
+    sid = headers["X-Aplomb-Session"]
+    body = {"kind": "portfolio_brief", "profileId": "robert", "lang": "en"}
+    cfg = settings()
+    old = TestClient(create_app(cfg, default_services(cfg, store=store, gateway=ScriptedGateway())))
+    run = run_to_end(old, headers, body)
+    assert run["status"] == "succeeded", run["error"]
+    assert old.post("/v1/runs", json=body, headers=headers).status_code == 200        # same runtime: cache hit
+    # A code-only redeploy (another build revision, same models, Guardrail, limits and flags) keeps
+    # serving the brief: zero new runs while the data version is unchanged.
+    redeployed = cfg.model_copy(update={"build_revision": "a" * 40})
+    same = TestClient(create_app(redeployed, default_services(redeployed, store=store, gateway=ScriptedGateway())))
+    kept = ok(same.get("/v1/profiles/robert/brief", headers=headers), "CachedBriefResponse")
+    assert kept["run"]["runId"] == run["runId"] and kept["stale"] is False
+    again = same.post("/v1/runs", json=body, headers=headers)
+    assert again.status_code == 200 and again.json()["runId"] == run["runId"]
+    # A runtime release (here a limit; equally a model, fallback, Guardrail, flag or data-prefix change)
+    # with the same data and profile versions must not serve the brief the previous runtime wrote.
+    released = redeployed.model_copy(update={"max_llm_calls": cfg.max_llm_calls - 1})
+    services = default_services(released, store=store, gateway=ScriptedGateway())
+    new = TestClient(create_app(released, services))
+    cached = ok(new.get("/v1/profiles/robert/brief", headers=headers), "CachedBriefResponse")
+    assert cached["run"]["runId"] == run["runId"] and cached["stale"] is True
+    fresh = run_to_end(new, headers, body)                                            # 202: a new brief
+    assert fresh["runId"] != run["runId"] and fresh["status"] == "succeeded", fresh["error"]
+    assert ok(new.get("/v1/profiles/robert/brief", headers=headers), "CachedBriefResponse")["stale"] is False
+    # Same data version but another pinned manifest digest: stale as well.
+    repository = services.runs.repository
+    current = brief_lookup(repository, services.profiles, starter_snapshot, released)
+    assert current(sid, "robert", "en")[1] is False
+    changed = SimpleNamespace(data_version=STARTER_VERSION, manifest={"tampered": True})
+    found, stale = brief_lookup(repository, services.profiles, lambda: changed, released)(sid, "robert", "en")
+    assert found.run_id == fresh["runId"] and stale is True
+
+
+def test_a_brief_recorded_before_the_brief_identity_is_not_stale_on_a_redeploy():
+    """Records written before ``briefIdentity`` was pinned are not compared on runtime, as the
+    release that wrote them did not."""
+    from aplomb.api.runtime import brief_lookup
+    from aplomb.api.storage import MemoryStore
+    from tests.unit.datastore._support import starter_snapshot
+
+    store, headers = MemoryStore(), session()
+    sid = headers["X-Aplomb-Session"]
+    cfg = settings()
+    services = default_services(cfg, store=store, gateway=ScriptedGateway())
+    run = run_to_end(TestClient(create_app(cfg, services)), headers,
+                     {"kind": "portfolio_brief", "profileId": "robert", "lang": "en"})
+    repository = services.runs.repository
+    record = repository.get(sid, run["runId"])
+    assert "briefIdentity" in record.private
+    # Rewrite the STATE item as an older release stored it (no briefIdentity).
+    state = store.get("runs", f"RUN#{run['runId']}", "STATE")
+    state["private"] = {k: v for k, v in state["private"].items() if k != "briefIdentity"}
+    store._items[store._key("runs", f"RUN#{run['runId']}", "STATE")]["value"] = state
+    assert brief_lookup(repository, services.profiles, starter_snapshot, cfg)(sid, "robert", "en")[1] is False
+    # Review 2026-11-15: the deployed release never compared runtime, and its signature carries the
+    # build revision; the first redeploy must not turn every existing brief stale.
+    released = cfg.model_copy(update={"build_revision": "c" * 40})
+    assert brief_lookup(repository, services.profiles, starter_snapshot, released)(sid, "robert", "en")[1] is False
+
+
+@pytest.mark.parametrize("body", [
+    {"kind": "portfolio_brief", "profileId": "robert", "lang": "en"},
+    {"kind": "replay", "profileId": "robert", "lang": "en", "request": TSLA_25, "asOf": "2023-06-30"},
+])
+def test_worker_reopens_a_pinned_version_with_that_snapshot_date(body):
+    """A run pinned to an older version is reopened with that version's own dataAsOf, not the date of
+    the snapshot the worker currently serves (SnapshotProvider refuses a mismatched date)."""
+    from types import SimpleNamespace
+
+    from aplomb.api.composition import create_repositories
+    from aplomb.api.errors import ServiceError
+    from aplomb.api.runtime import RunPreparerImpl, gate_factory
+    from aplomb.api.storage import MemoryStore
+    from aplomb.contracts import api as a
+    from aplomb.optimizer.services import build_domain_services
+    from tests.unit.datastore._support import starter_snapshot
+
+    cfg = settings()
+    profile_repo, _ = create_repositories(cfg, MemoryStore())
+    profiles, _ = build_domain_services(profile_repo, starter_snapshot)
+    model = a.CreatePortfolioBriefRunRequest if body["kind"] == "portfolio_brief" else a.CreateReplayRunRequest
+    prepared = RunPreparerImpl(profiles, starter_snapshot, models_configured=True, settings=cfg)(
+        "s_" + str(uuid.uuid4()), model.model_validate(body))
+    assert prepared.private["dataAsOf"] == starter_snapshot().data_as_of
+    served = SimpleNamespace(data_version="snap-20261120-newer", data_as_of="2026-11-20")
+    open_gate = gate_factory(lambda: served, cfg.model_copy(update={"data_as_of": "2026-11-20"}))
+    gate = open_gate(prepared.private)
+    assert gate.mode == ("historical" if body["kind"] == "replay" else "current")
+    unpinned = {k: v for k, v in prepared.private.items() if k != "dataAsOf"}
+    with pytest.raises(ServiceError, match="APLOMB_DATA_AS_OF"):
+        open_gate(unpinned)
+
+
+def test_guardrail_policy_follows_its_flag():
+    from aplomb.agents.guardrails import BedrockOutputPolicy
+    from aplomb.api.composition import create_repositories
+    from aplomb.api.runtime import build_agent_services
+    from aplomb.api.storage import MemoryStore
+    from tests.unit.datastore._support import starter_snapshot
+
+    configured = settings().model_copy(update={"guardrail_id": "abc123", "guardrail_version": "1"})
+    _, repository = create_repositories(configured, MemoryStore())
+    off = build_agent_services(configured, repository, starter_snapshot, gateway=ScriptedGateway())
+    assert off.guardrail is None                       # an ID and version alone do not enable it
+    enabled = configured.model_copy(update={"features": {**configured.features, FeatureFlag.GUARDRAILS: True}})
+    on = build_agent_services(enabled, repository, starter_snapshot, gateway=ScriptedGateway())
+    assert isinstance(on.guardrail, BedrockOutputPolicy)
+
+
+def test_aws_api_composition_builds_no_worker_services(monkeypatch):
+    import aplomb.api.runtime as runtime
+    from aplomb.api.composition import create_repositories
+    from aplomb.api.dispatcher import LambdaDispatcher, LocalDispatcher
+    from aplomb.api.storage import MemoryStore
+    from aplomb.optimizer.services import build_domain_services
+    from tests.unit.datastore._support import starter_snapshot
+
+    built = []
+    original = runtime.build_agent_services
+    monkeypatch.setattr(runtime, "build_agent_services", lambda *args, **kw: built.append(1) or original(*args, **kw))
+    aws = settings().model_copy(update={"environment": "aws", "data_bucket": "bucket", "profiles_table": "profiles",
+                                        "runs_table": "runs", "cache_table": "cache", "worker_function": "worker"})
+    profile_repo, run_repo = create_repositories(settings(), MemoryStore())
+    profiles, _ = build_domain_services(profile_repo, starter_snapshot)
+    coordinator, _, _ = runtime.build_run_services(aws, run_repo, profiles, starter_snapshot, gateway=ScriptedGateway())
+    assert isinstance(coordinator.dispatcher, LambdaDispatcher) and built == []
+    coordinator, _, _ = runtime.build_run_services(settings(), run_repo, profiles, starter_snapshot,
+                                                   gateway=ScriptedGateway())
+    assert isinstance(coordinator.dispatcher, LocalDispatcher) and built == [1]

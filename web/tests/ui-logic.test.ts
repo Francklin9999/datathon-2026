@@ -1,4 +1,4 @@
-/** Glass UI pure logic: theme resolution, keyboard navigation, chart/donut geometry, rolling text. */
+/** Glass UI pure logic: theme resolution, keyboard navigation, chart/donut geometry. */
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { THEME_BOOT_SCRIPT, resolveTheme } from '../src/lib/ui/theme';
@@ -93,17 +93,6 @@ test('areaPath closes the line down to the baseline', () => {
 test('linePath joins points in order', () => {
   assert.equal(linePath([{ x: 0, y: 1 }, { x: 2, y: 3 }]), 'M0.00,1.00 L2.00,3.00');
   assert.equal(linePath([]), '');
-});
-
-import { rollSegments } from '../src/lib/ui/roll';
-
-test('rollSegments flags only ASCII digits and keeps every character', () => {
-  const segs = rollSegments('+10.3%');
-  assert.equal(segs.map(s => s.ch).join(''), '+10.3%');
-  assert.deepEqual(segs.map(s => s.digit), [false, true, true, false, true, false]);
-  assert.equal(rollSegments('CAD 600,000').filter(s => s.digit).length, 6);
-  assert.equal(rollSegments('5,71\u202f%').map(s => s.ch).join(''), '5,71\u202f%');
-  assert.deepEqual(rollSegments(''), []);
 });
 
 import { themeToApply } from '../src/lib/ui/theme';

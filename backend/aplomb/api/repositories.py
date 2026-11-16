@@ -12,6 +12,15 @@ from .errors import Conflict, NotFound, unavailable
 from .storage import Store, Write, canonical
 
 TERMINAL = frozenset({"succeeded", "failed", "cancelled"})
+# Identical portfolio briefs share one run: the lock outlives the longest possible run by this much.
+BRIEF_LOCK_SK = "LOCK"
+BRIEF_LOCK_GRACE_SECONDS = 60
+
+
+def brief_lock_key(identity: list) -> str:
+    """Cache-table key of the in-flight lock for one brief identity (session, profile and its
+    version, data version, manifest digest, brief runtime identity, window, language)."""
+    return "BRIEF#" + hashlib.sha256(canonical(identity)).hexdigest()
 
 
 def timestamp(epoch: float) -> str:
@@ -207,7 +216,13 @@ class RunRepository:
         profile_version: int | None,
         idempotency_key: str | None = None,
         request_body: dict | None = None,
+        brief_lock: str | None = None,
     ) -> tuple[RunRecord, bool]:
+        """Persist a new run, or return ``(existing, False)``.
+
+        ``brief_lock`` (a ``BRIEF#…`` key from ``brief_lock_key``) is written in the same transaction
+        as the run. When another creation holds it with a run that is not finished, that run is
+        returned instead, so concurrent identical briefs (two tabs, a double Refresh) share one run."""
         if idempotency_key is not None and not 1 <= len(idempotency_key) <= 128:
             from .errors import ServiceError
 
@@ -225,8 +240,26 @@ class RunRepository:
                 if prior["digest"] != digest:
                     raise Conflict("Idempotency-Key was already used with a different request")
                 return self._read(prior["runId"], run.session_id), False
+            lock = self.store.get("cache", brief_lock, BRIEF_LOCK_SK) if brief_lock else None
+            if lock and lock["expiresAt"] > self.clock():
+                held = self._held(run.session_id, lock["runId"])
+                if held is not None and held.run.status not in TERMINAL:
+                    return held, False
             record = RunRecord(run, 1, 1, None, 0, None, private, profile_version)
             writes = self._writes(record, None)
+            if brief_lock:
+                expected_lock = lock["revision"] if lock else None
+                held_until = int(self.clock()) + self.hard_seconds + BRIEF_LOCK_GRACE_SECONDS
+                writes.append(
+                    Write(
+                        "cache",
+                        brief_lock,
+                        BRIEF_LOCK_SK,
+                        {"revision": (expected_lock or 0) + 1, "runId": run.run_id, "expiresAt": held_until},
+                        expected_lock,
+                        {"expiresAt": held_until},
+                    )
+                )
             if idempotency_key:
                 expected = prior["revision"] if prior else None
                 reservation = {
@@ -249,9 +282,23 @@ class RunRepository:
                 self.store.transact(writes)
                 return record, True
             except Conflict:
-                if not idempotency_key:
+                if not idempotency_key and not brief_lock:
                     raise
         raise Conflict("Concurrent run creation; retry with the same key")
+
+    def _held(self, session_id: str, run_id: str) -> RunRecord | None:
+        try:
+            return self.get(session_id, run_id)
+        except NotFound:
+            return None
+
+    def held_brief(self, session_id: str, brief_lock: str) -> RunRecord | None:
+        """The run that holds an unexpired brief lock of this session, in its current state (the
+        queue and hard-budget watchdogs apply), or None."""
+        lock = self.store.get("cache", brief_lock, BRIEF_LOCK_SK)
+        if not lock or lock["expiresAt"] <= self.clock():
+            return None
+        return self._held(session_id, lock["runId"])
 
     def idempotent(self, session_id: str, key: str | None, body: dict) -> RunRecord | None:
         """Resolve a retry before preparing mutable profile/data dependencies."""
@@ -629,46 +676,4 @@ class ProfileRepository:
                     expected_version,
                 )
             ]
-        )
-
-
-class CacheRepository:
-    REQUIRED = frozenset(
-        {
-            "session",
-            "profileId",
-            "profileVersion",
-            "snapshot",
-            "currency",
-            "asOf",
-            "window",
-            "language",
-            "flags",
-            "methodVersion",
-        }
-    )
-
-    def __init__(self, store: Store, clock: Callable[[], float] = time.time):
-        self.store, self.clock = store, clock
-
-    def key(self, namespace: str, dimensions: dict) -> str:
-        if not self.REQUIRED <= dimensions.keys():
-            raise ValueError("User cache keys require all pinned context dimensions")
-        return f"CACHE#{namespace}#{hashlib.sha256(canonical(dimensions)).hexdigest()}"
-
-    def get(self, namespace: str, dimensions: dict) -> dict | None:
-        item = self.store.get("cache", self.key(namespace, dimensions), "VALUE")
-        return item["value"] if item and item["expiresAt"] > self.clock() else None
-
-    def put(self, namespace: str, dimensions: dict, value: dict, ttl: int) -> None:
-        pk = self.key(namespace, dimensions)
-        old = self.store.get("cache", pk, "VALUE")
-        revision = old["revision"] if old else None
-        item = {
-            "revision": (revision or 0) + 1,
-            "value": value,
-            "expiresAt": int(self.clock()) + ttl,
-        }
-        self.store.transact(
-            [Write("cache", pk, "VALUE", item, revision, {"expiresAt": item["expiresAt"]})]
         )

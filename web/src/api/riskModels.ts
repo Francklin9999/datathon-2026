@@ -1,4 +1,7 @@
-/** Narrow runtime validation for the additive risk model port; core contracts stay version 1.4.0. */
+/**
+ * Narrow runtime validation for POST /risk/scenario (api.md A1.9). The route is outside the
+ * generated contract registry (contracts/README.md, "Outside the generated registry") and returns fractions.
+ */
 export interface SensitivityScenarioRequest {
   asOf: string;
   weights: Record<string, number>;

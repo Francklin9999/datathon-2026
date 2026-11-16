@@ -42,7 +42,3 @@ class RequestParser:
         except Exception as exc:
             # api.md 4.1: a model failure or unusable output answers 503; the manual form stays usable.
             raise unavailable("Request parser model") from exc
-
-
-def parse_request(profile, text, lang, *, gateway):
-    return RequestParser(gateway).parse_request(profile, text, lang)

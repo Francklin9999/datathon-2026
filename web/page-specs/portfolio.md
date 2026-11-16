@@ -10,7 +10,7 @@ Use selected profile plus overview/performance; frontier is fetched lazily when 
 
 Holdings table: asset/name/class, weight, market value and supported trailing return; sum weights footer. Allocation by group and direct-equity sector, country exposure clearly labelled listing-country proxy. Risk cards: vol, drawdown, 2022 signed return with rule loss magnitude distinction, HHI/effective N and correlation matrix when <=20 positions. Every rule row: R code, editable-assumption label, threshold/value/status/headroom, derivation explanation and fact/source links.
 
-Editing respects PolicyRule bounds and step. Fixed sim.only cannot be disabled. Restoring derived rules asks the user to distinguish preserving user edits (reset=false) versus resetting them (reset=true); show resulting plan and invalidate prior signed briefs. Holdings editor P1 validates distinct tickers, nonnegative weights, 100±0.01 total and positive capital; version conflict prompts reload with edits preserved locally. No actual transfer/order action.
+Editing respects PolicyRule bounds and step. Fixed sim.only cannot be disabled. Restoring derived rules asks the user to distinguish preserving user edits (reset=false) versus resetting them (reset=true); show resulting plan and invalidate prior signed briefs. Holdings editor P1 validates distinct tickers, nonnegative weights, 100±0.01 total and positive capital; version conflict prompts reload with edits preserved locally (in memory, for the reload that remounts the editors at a newer version; the editor says the entries were kept and asks to check them before saving; `web/src/lib/draftStore.ts`). No actual transfer/order action.
 
 ## Frontier
 

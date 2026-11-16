@@ -1,6 +1,7 @@
 'use client';
 /**
- * The analyses of this session as one table, shared by Evidence and System: filter chips by state
+ * The analyses started in this browser (its session, every profile unless the page filters by
+ * profile) as one table, shared by Evidence and System: filter chips by state
  * (with counts), then title, kind, profile, status, verdict, date and duration. Run IDs stay out of
  * sight; each title links to the page that inspects the run.
  */
@@ -23,16 +24,15 @@ const FILTERS: readonly { value: Filter; label: I18NText }[] = [
   { value: 'failed', label: { en: 'Failed or cancelled', fr: 'Échouées ou annulées' } },
 ];
 
-export function RunsTable({ items, linkFor, selectedId = null, statusOf }: {
+export function RunsTable({ items, linkFor, selectedId = null }: {
+  /** Rows as displayed; a page polling one run passes them through lib/system applyLiveStatus. */
   items: readonly RunSummary[];
   linkFor: (runId: string) => string;
   selectedId?: string | null;
-  /** Live status for a run being polled elsewhere on the page. */
-  statusOf?: (item: RunSummary) => RunStatus;
 }) {
   const { tr, lang, profiles } = useApp();
   const [filter, setFilter] = useState<Filter>('all');
-  const status = (item: RunSummary) => statusOf?.(item) ?? item.status;
+  const status = (item: RunSummary) => item.status;
   const count = (f: Filter) => (f === 'all' ? items.length : items.filter(i => GROUP[status(i)] === f).length);
   const shown = filter === 'all' ? items : items.filter(i => GROUP[status(i)] === filter);
   return (
@@ -44,7 +44,7 @@ export function RunsTable({ items, linkFor, selectedId = null, statusOf }: {
           </button>
         ))}
       </div>
-      <div className="table-scroll runs-table" role="region" aria-label={tr({ en: 'Analyses of this session', fr: 'Analyses de cette session' })} tabIndex={0}>
+      <div className="table-scroll runs-table" role="region" aria-label={tr({ en: 'Analyses started in this browser', fr: 'Analyses lancées dans ce navigateur' })} tabIndex={0}>
         <table className="data-table">
           <thead>
             <tr>

@@ -53,11 +53,6 @@ export function useApp(): AppState {
   return value;
 }
 
-/** Shorthand for bilingual inline text. */
-export function useTr(): (text: I18NText) => string {
-  return useApp().tr;
-}
-
 export function AppProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<Phase>('booting');
   const [bootError, setBootError] = useState<ApiRequestError | null>(null);

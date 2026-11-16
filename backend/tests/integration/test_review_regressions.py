@@ -393,6 +393,15 @@ def test_sabotage_modes_never_ask_the_writer_to_lie(mode):
     assert len(asked) == before
     assert child.result.sabotage.caught
     assert child.result.sabotage.failed_checks
+    # run-events.md §2.1 and §5: a code-built write, then the real audit with its count summary.
+    assert [(s.type, s.actor) for s in child.steps] == [("write", "code"), ("audit", "code+llm")]
+    brief = child.result.sabotage.brief_after_audit
+    sentences = [x for section in brief.sections for x in section.sentences]
+    struck = sum(1 for x in sentences if x.audit.status == "struck")
+    repaired = sum(1 for x in sentences if x.audit.status == "repaired")
+    assert child.steps[1].summary.en == (
+        f"{brief.audit.sentences_checked} sentence(s) checked, {struck} struck, {repaired} repaired."
+    )
 
 
 def _with_browse(harness, calls):
@@ -429,6 +438,57 @@ def test_an_event_brief_asks_the_researcher_to_read_its_official_source_when_the
     assert calls == [{"task": "policy rate", "start_url": url, "max_pages": 2}]
     research = next(step for step in run.steps if step.type == "research")
     assert [c.tool for c in research.tool_calls] == ["web.browse"] and research.tool_calls[0].ok
+
+
+def test_the_researcher_is_told_the_cutoff_and_hosts_and_the_summary_counts_tool_calls():
+    """QA 7.1/7.2: the researcher gets the information cutoff and the allowed hosts; the step summary
+    counts research calls, saved sources and failed calls (not 'searches' and 'rejected' sources)."""
+    from aplomb.research.core import POLICIES
+
+    url = "https://www.bankofcanada.ca/2026/06/fad-press-release-2026-06-01/"
+    event = official("Bank of Canada maintains its policy rate", url, "2026-06-01")
+    seen, calls = [], []
+
+    def researcher(message):
+        seen.append(message)
+        if message["observations"]:
+            return {"actions": [], "done": True}
+        return {"actions": [{"tool": "web.browse", "args": {"task": "policy rate", "start_url": url}},
+                            {"tool": "web.fetch", "args": {"url": "https://investor.nvidia.com/"}}]}
+
+    harness = Harness(ScriptedGateway(researcher=researcher), synthetic_dataset(event))
+    _with_browse(harness, calls)
+    run, _ = harness.drive(harness.create({"kind": "event_brief", "profileId": "robert", "lang": "en", "eventId": event["eventId"]}))
+    assert run.status == "succeeded", run.error
+    assert seen[0]["information_cutoff"] == run.as_of
+    assert seen[0]["allowed_source_hosts"] == [p.domain for p in POLICIES]
+    research = next(step for step in run.steps if step.type == "research")
+    assert [(c.tool, c.ok) for c in research.tool_calls] == [("web.browse", True), ("web.fetch", False)]
+    assert research.summary.en == "Made 2 research call(s) with 2 tool(s); saved 0 source(s); 1 tool call(s) failed."
+    assert research.summary.fr == ("2 appel(s) de recherche avec 2 outil(s) ; 0 source(s) retenue(s) ; "
+                                   "1 appel(s) d’outil en échec.")
+
+
+def test_the_writer_is_told_to_write_rule_tokens_without_status_jargon():
+    """QA 4.5a: the instruction gives the '{{rule:ID}}: {{status:ID}}' pattern, keeps the A12 requirement and no
+    longer says 'code-owned policy statuses'; a portfolio brief is not asked to go through every plan rule."""
+    asked = []
+
+    def writer(message):
+        asked.append(message)
+        return default_draft(message)
+
+    harness = Harness(ScriptedGateway(writer=writer))
+    run, _ = harness.drive(harness.create(decision_body()))
+    assert run.status == "succeeded", run.error
+    instruction = asked[0]["instruction"]
+    assert "Mention a plan rule as {{rule:ID}}: {{status:ID}}" in instruction
+    assert "Assumptions must cite EVERY conflict/tension rule with rule/status tokens." in instruction
+    assert "code-owned policy statuses" not in instruction
+    brief, _ = harness.drive(harness.create({"kind": "portfolio_brief", "profileId": "robert", "lang": "en"}))
+    assert brief.status == "succeeded", brief.error
+    purpose = asked[-1]["purpose"]
+    assert "against each plan rule" not in purpose and "do not list the other rules one by one" in purpose
 
 
 def test_no_source_question_without_the_browser_or_for_a_source_off_the_allowlist():

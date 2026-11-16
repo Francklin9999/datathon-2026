@@ -19,7 +19,7 @@ from aplomb.contracts import models as m
 
 from .constants import LISTED_ASSET_CLASSES, TIERS
 from .errors import DatasetNotFound, UnknownTicker
-from .ondemand import publish_on_demand
+from .ondemand import PriceProvider, publish_on_demand
 from .providers import ProviderError
 from .snapshot import Snapshot
 
@@ -31,7 +31,7 @@ class OnDemandPublisher:
     version switches to the new one only when the asset is accepted.
     """
 
-    def __init__(self, provider, data_root: Path, snapshot, *, clock: Callable[[], datetime] | None = None) -> None:
+    def __init__(self, provider: PriceProvider, data_root: Path, snapshot, *, clock: Callable[[], datetime] | None = None) -> None:
         self.provider = provider
         self.data_root = Path(data_root)
         self.snapshot = snapshot  # SnapshotProvider-like: callable + switch(version)

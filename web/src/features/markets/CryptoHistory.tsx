@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
 import { Card } from '../../components/common/Page';
+import { VISION_FALLBACK_SYMBOLS, visionVenue, type VisionVenue } from '../../lib/cryptoVenues';
 import { useApp } from '../../state/app';
 
 type Candle = { open_time: string; close_time: string; open: string; high: string; low: string; close: string; volume: string };
@@ -15,14 +16,29 @@ export function CryptoHistory() {
   const [result, setResult] = useState<History | null>(null);
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [venue, setVenue] = useState<VisionVenue | null>(null);
   const generation = useRef(0);
-  useEffect(() => { generation.current++; setResult(null); setError(false); setBusy(false); }, [sessionId]);
+  useEffect(() => {
+    generation.current++; setResult(null); setError(false); setBusy(false); setVenue(null);
+    if (!sessionId) return;
+    const controller = new AbortController();
+    // The backend venue catalogue is the source of truth; the fallback list stays while it loads or if it fails.
+    researchFetch('/intelligence/crypto-markets/venues', { signal: controller.signal })
+      .then(r => r.ok ? r.json() : Promise.reject()).then(body => {
+        const loaded = visionVenue(body);
+        if (!loaded) return;
+        setVenue(loaded);
+        setSymbol(current => loaded.symbols.includes(current) ? current : loaded.symbols[0] ?? current);
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [sessionId]);
+  const symbols = venue?.symbols ?? VISION_FALLBACK_SYMBOLS;
   async function load(event: React.FormEvent) {
     event.preventDefault(); const current = ++generation.current;
     setBusy(true); setError(false); setResult(null);
     try {
-      const response = await fetch(`${API_BASE}/intelligence/crypto-markets/vision/${encodeURIComponent(symbol)}/${encodeURIComponent(day)}?interval=1d`,
-        { headers: { 'X-Aplomb-Session': sessionId ?? '' } });
+      const response = await researchFetch(`/intelligence/crypto-markets/vision/${encodeURIComponent(symbol)}/${encodeURIComponent(day)}?interval=1d`);
       if (!response.ok) throw new Error();
       const data = await response.json() as History;
       if (!data || !Array.isArray(data.candles) || !data.checksum?.verified) throw new Error();
@@ -32,9 +48,11 @@ export function CryptoHistory() {
   }
   return <Card title={tr({ en: 'Crypto exchange history', fr: 'Historique de marché crypto' })}>
     <p>{tr({ en: 'Daily Binance Vision spot candles for personal noncommercial research. Stablecoin quotes such as USDT and USDC are distinct assets, not US dollars.', fr: 'Chandelles quotidiennes Binance Vision pour la recherche personnelle non commerciale. Les cours en USDT et USDC utilisent des actifs distincts du dollar américain.' })}</p>
+    {venue && <><p className="small">{tr({ en: 'Licence', fr: 'Licence' })}: {venue.licence}</p>
+      <ul className="small muted">{venue.limitations.map(note => <li key={note}>{note}</li>)}</ul></>}
     <form onSubmit={load}>
       <div className="field"><label htmlFor="crypto-history-pair">{tr({ en: 'Exact market', fr: 'Marché exact' })}</label><select id="crypto-history-pair" value={symbol} disabled={busy} onChange={e => { setSymbol(e.target.value); setResult(null); }}>
-        {['BTCUSDT','BTCUSDC','BTCEUR','ETHUSDT','ETHUSDC','ETHEUR','SOLUSDT','SOLUSDC'].map(item => <option key={item} value={item}>{item}</option>)}
+        {symbols.map(item => <option key={item} value={item}>{item}</option>)}
       </select></div>
       <div className="field"><label htmlFor="crypto-history-date">{tr({ en: 'Completed UTC date', fr: 'Date UTC terminée' })}</label><input id="crypto-history-date" type="date" value={day} disabled={busy} onChange={e => { setDay(e.target.value); setResult(null); }} required /></div>
       <button className="btn" disabled={busy || !sessionId}>{busy ? tr({ en: 'Loading…', fr: 'Chargement…' }) : tr({ en: 'Load daily history', fr: 'Charger l’historique quotidien' })}</button>

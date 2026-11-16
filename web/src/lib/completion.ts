@@ -18,7 +18,7 @@ export interface Completion {
  * Request phrases per language (the interface language is tried first). Openers only start a request
  * ("add 5% of NVDA" never becomes "add 5% of Add"); connectors only follow something.
  */
-export const PHRASES: Record<Lang, { openers: readonly string[]; connectors: readonly string[] }> = {
+const PHRASES:Record<Lang, { openers: readonly string[]; connectors: readonly string[] }> = {
   en: {
     openers: ['add', 'more exposure to'],
     connectors: ['funded from cash', 'funded from bonds', 'funded pro rata', 'with new money', 'lose at most'],

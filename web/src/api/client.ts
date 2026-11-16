@@ -13,6 +13,7 @@ import { expandedResult } from './expandedInvestor';
 import { focusResult, targetsResult } from './focusModels';
 import { factorFitResult, fundLookThroughResult } from './investorModels';
 import { sensitivityScenarioResult, type SensitivityScenarioRequest } from './riskModels';
+import { accountValuationsResult, runTraceResult } from './readModels';
 import { ApiRequestError } from './errors';
 
 export interface ClientConfig {
@@ -286,6 +287,12 @@ export function createApiClient(config: ClientConfig) {
       call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts/${enc(accountId)}/refresh`, { body: { version, ...(asOf ? { asOf } : {}) } }),
     transferAccount: (profileId: string, sourceAccountId: string, destinationAccountId: string, amountReporting: number, version: number) =>
       call('Profile', 'POST', `/profiles/${enc(profileId)}/accounts/${enc(sourceAccountId)}/transfer`, { body: { version, destinationAccountId, amountReporting } }),
+    /** Server-computed traded, private and combined value per account (api.md A1.1). */
+    accountValuations: async (profileId: string, signal?: AbortSignal) => {
+      const { body, meta } = await raw('GET', `/profiles/${enc(profileId)}/account-valuations`, { signal });
+      try { return accountValuationsResult(body); }
+      catch { throw new ApiRequestError({ status: meta.status, code: 'invalid_response', requestId: meta.requestId, message: 'Invalid account valuations response' }); }
+    },
     deleteProfile: async (profileId: string): Promise<void> => {
       await raw('DELETE', `/profiles/${enc(profileId)}`);
     },
@@ -339,6 +346,12 @@ export function createApiClient(config: ClientConfig) {
     cancel: (runId: string) => call('CancelResponse', 'POST', `/runs/${enc(runId)}/cancel`, { body: {} }),
     fact: (runId: string, factId: string, signal?: AbortSignal) =>
       call('FactResponse', 'GET', `/runs/${enc(runId)}/facts/${enc(factId)}`, { signal }),
+    /** Recorded execution trace (api.md §5.9); only the run id and its budgets are validated and returned. */
+    runTrace: async (runId: string, signal?: AbortSignal) => {
+      const { body, meta } = await raw('GET', `/runs/${enc(runId)}/trace`, { signal });
+      try { return runTraceResult(body); }
+      catch { throw new ApiRequestError({ status: meta.status, code: 'invalid_response', requestId: meta.requestId, message: 'Invalid run trace response' }); }
+    },
     sabotage: (runId: string, body: SabotageRequest) =>
       call('QueuedRunResponse', 'POST', `/runs/${enc(runId)}/sabotage`, { body }),
 
@@ -369,6 +382,19 @@ export function createApiClient(config: ClientConfig) {
     datasets: (signal?: AbortSignal) => call('DatasetsResponse', 'GET', '/datasets', { signal }),
     dataset: (datasetId: string, signal?: AbortSignal) =>
       call('DatasetPassport', 'GET', `/datasets/${enc(datasetId)}`, { signal }),
+
+    // Credentialed research sources and regional research (models since contract 1.6.0; the keys,
+    // snake_case for the market routes, are the ones the 1.4.0 API already sent).
+    marketConnections: (signal?: AbortSignal) =>
+      call('MarketConnectionsResponse', 'GET', '/research/market-connections', { signal }),
+    marketObservation: (provider: string, query: { symbol: string; mic?: string; kind?: string }, signal?: AbortSignal) =>
+      call('MarketObservationResponse', 'GET', `/research/market-provider/${enc(provider)}`, { query: { ...query }, signal }),
+    tiingoHistory: (symbol: string, query: { start: string; end: string }, signal?: AbortSignal) =>
+      call('MarketObservationResponse', 'GET', `/research/tiingo/${enc(symbol)}`, { query: { ...query }, signal }),
+    regionalResearch: (query: {
+      region: string; identifier: string; start: string; end: string; kind: string;
+      fiscal_year?: string; report_code?: string; statement_type?: string;
+    }, signal?: AbortSignal) => call('RegionalResearchResponse', 'GET', '/intelligence/regional', { query: { ...query }, signal }),
   };
 }
 

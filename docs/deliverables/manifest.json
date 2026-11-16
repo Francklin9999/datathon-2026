@@ -167,12 +167,12 @@
     {
       "file": "../../scripts/qa_smoke.py",
       "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T04:49:23.652342+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
+      "capturedAt": "2026-11-15T22:52:34+00:00",
+      "codeRevision": "932a1d553a58403d2003b6be5573fe1ae995ea01",
       "runId": null,
       "dataVersion": "snap-20261113-starter",
       "kind": "illustrative",
-      "sha256": "62b75c3b76bf840b238822e0ad89b8c5803f89d2975efb88262fe79b6b796803"
+      "sha256": "d43e4530c1ad96a143ce20810f6653ba022295306b7e43dd0c8bd252c0ee8abd"
     },
     {
       "file": "../../scripts/check_specs.py",
@@ -187,12 +187,12 @@
     {
       "file": "../../tests/test_qa_smoke.py",
       "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T04:49:23.652342+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
+      "capturedAt": "2026-11-15T22:52:34+00:00",
+      "codeRevision": "932a1d553a58403d2003b6be5573fe1ae995ea01",
       "runId": null,
       "dataVersion": "snap-20261113-starter",
       "kind": "illustrative",
-      "sha256": "0d72cad37bfb086c007479d353ad4c534320825f23069fe0092cd0afe2e9c988"
+      "sha256": "84dad20239749222cca749c0938dba5f7fc2b18c80c32b0ea74d04a8a96322a7"
     },
     {
       "file": "../../tests/browser_api.py",
@@ -217,12 +217,12 @@
     {
       "file": "../../tests/browser-smoke.mjs",
       "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T04:49:23.652342+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
+      "capturedAt": "2026-11-16T00:37:22+00:00",
+      "codeRevision": "a2cdd7e3b9f3d10a70ec0223dee4a7c99a3f9aef",
       "runId": null,
       "dataVersion": "snap-20261113-starter",
       "kind": "illustrative",
-      "sha256": "23214437dd129481564094ef16099882f4b8ce6a0cf03bcf59a061b7cd6ba35b"
+      "sha256": "5d0f5f6eb34c329f6802a4f9543adc9b6a16476d5a668ab304ce3984654f9df0"
     },
     {
       "file": "../../infra/evidence/aws-architecture-2026-11-14.json",

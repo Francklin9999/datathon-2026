@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import type { Fact, ReplayResult, Run, Step, WorldEventItem, WorldLayer } from '../src/contracts/types';
+import type { Fact, ReplayResult, Run, RunSummary, Step, WorldEventItem, WorldLayer } from '../src/contracts/types';
 import { FeatureFlag, ThemeTag } from '../src/contracts/catalog';
 import { validateContract } from '../src/contracts/validate';
 import { buildUrl } from '../src/api/client';
@@ -20,8 +20,8 @@ import {
   asOfIssue, factForValue, replayRefusal, revealBounds, revealRequest, revealSeries, revealableReplay, signedLedgerHash, untilIssue,
 } from '../src/lib/replay';
 import {
-  ARCHITECTURE, REDACTED, ROLE_CARDS, STEP_CONTRACT, formatArgs, guardrailReading, redactArgs, runBudget, runGuardrailAudit,
-  stepDeviations, stepProduced, workNature,
+  ARCHITECTURE, REDACTED, ROLE_CARDS, STEP_CONTRACT, applyLiveStatus, formatArgs, guardrailReading, listRowIsBehind, redactArgs,
+  refreshRunRows, runBudget, runGuardrailAudit, stepDeviations, stepProduced, workNature,
 } from '../src/lib/system';
 
 const fixtureRun = (): Run => validateContract('Run',
@@ -354,6 +354,39 @@ test('step ↔ role/actor mapping follows run-events.md §2 and flags recorded d
   assert.deepEqual(stepDeviations({ type: 'quant', agent: 'quant', actor: 'llm' }), [{ field: 'actor', recorded: 'llm', contract: 'code' }]);
   assert.deepEqual(stepDeviations({ type: 'write', agent: 'planner', actor: 'llm' }), [{ field: 'agent', recorded: 'planner', contract: 'writer' }]);
   assert.equal(stepDeviations({ type: 'audit', agent: 'auditor', actor: 'code' }).length, 1);
+  // run-events.md §2.1 kind overrides: a profile draft's audit and a sabotage run's write are code.
+  assert.deepEqual(stepDeviations({ type: 'audit', agent: 'auditor', actor: 'code' }, 'profile_draft'), []);
+  assert.deepEqual(stepDeviations({ type: 'write', agent: 'writer', actor: 'code' }, 'sabotage'), []);
+  assert.deepEqual(stepDeviations({ type: 'audit', agent: 'auditor', actor: 'code+llm' }, 'sabotage'), []);
+  assert.deepEqual(stepDeviations({ type: 'write', agent: 'writer', actor: 'code' }, 'decision'), [{ field: 'actor', recorded: 'code', contract: 'llm' }]);
+  assert.deepEqual(stepDeviations({ type: 'write', agent: 'writer', actor: 'llm' }, 'sabotage'), [{ field: 'actor', recorded: 'llm', contract: 'code' }]);
+});
+
+test('run picker: the polled run drives its row status, a terminal row is final, and verdict/duration are re-read', () => {
+  const row = (runId: string, patch: Partial<RunSummary> = {}): RunSummary => ({
+    runId, kind: 'decision', status: 'running', profileId: null, createdAt: '2026-11-14T10:00:00Z',
+    title: { en: runId, fr: runId }, verdict: null, durationMs: null, ...patch,
+  });
+  const items = [row('r1'), row('r2', { status: 'succeeded', verdict: 'compatible', durationMs: 4000 })];
+  assert.deepEqual(applyLiveStatus(items, null), items);
+  assert.equal(applyLiveStatus(items, { runId: 'r1', status: 'succeeded' })[0]?.status, 'succeeded');
+  // A terminal status already in the list is never replaced by an older, non-terminal poll.
+  assert.equal(applyLiveStatus(items, { runId: 'r2', status: 'running' })[1]?.status, 'succeeded');
+  assert.equal(applyLiveStatus(items, { runId: 'r1', status: 'succeeded' })[0]?.verdict, null, 'verdict is not derived');
+
+  assert.equal(listRowIsBehind(items, null), false);
+  assert.equal(listRowIsBehind(items, { runId: 'r1', status: 'running' }), false);
+  assert.equal(listRowIsBehind(items, { runId: 'r1', status: 'succeeded' }), true);
+  assert.equal(listRowIsBehind(items, { runId: 'r2', status: 'succeeded' }), false);
+  assert.equal(listRowIsBehind(items, { runId: 'absent', status: 'failed' }), false);
+
+  const fresh = [row('r0'), row('r1', { status: 'succeeded', verdict: 'conflict', durationMs: 9000 })];
+  const merged = refreshRunRows(items, fresh);
+  assert.deepEqual(merged.map(item => item.runId), ['r1', 'r2'], 'order and row count are kept; new rows are not added');
+  assert.equal(merged[0]?.verdict, 'conflict');
+  assert.equal(merged[0]?.durationMs, 9000);
+  assert.equal(merged[1], items[1], 'a row absent from the fresh page is kept as loaded');
+  assert.equal(listRowIsBehind(merged, { runId: 'r1', status: 'succeeded' }), false);
 });
 
 test('tool-call arguments are redacted defensively and the session capability never survives', () => {

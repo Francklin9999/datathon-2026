@@ -9,7 +9,7 @@ export interface WidgetLimits { minW: number; maxW: number; minH: number; maxH: 
 
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 
-export function clampItem(item: LayoutItem, limits: WidgetLimits | undefined): LayoutItem {
+function clampItem(item: LayoutItem, limits: WidgetLimits | undefined): LayoutItem {
   if (!limits) return item;
   return { id: item.id, w: clamp(Math.round(item.w), limits.minW, Math.min(GRID_COLS, limits.maxW)), h: clamp(Math.round(item.h), limits.minH, limits.maxH) };
 }
@@ -107,4 +107,30 @@ export function fitCount(availablePx: number, itemPx: number, total: number, min
   if (total <= 0) return 0;
   const n = Math.floor(Math.max(0, availablePx) / Math.max(1, itemPx));
   return Math.min(total, Math.max(min, n));
+}
+
+/**
+ * How many leading rows of measured `heights` fit whole in `availablePx` (at least `min`, at most
+ * the number of rows). For rows that wrap, so each has its own height.
+ */
+export function fitHeights(availablePx: number, heights: readonly number[], min = 0): number {
+  let used = 0;
+  let n = 0;
+  for (const h of heights) {
+    used += Math.max(0, h);
+    if (used > availablePx) break;
+    n += 1;
+  }
+  return Math.min(heights.length, Math.max(min, n));
+}
+
+/**
+ * Rows to show when the ones left out are announced by a "more" control of `morePx`: every row when
+ * all fit; otherwise the rows that fit beside the control, and the control only if it fits itself.
+ */
+export function fitRowsWithMore(availablePx: number, heights: readonly number[], morePx: number): { shown: number; more: boolean } {
+  const all = fitHeights(availablePx, heights);
+  if (all === heights.length) return { shown: all, more: false };
+  if (availablePx < morePx) return { shown: 0, more: false };
+  return { shown: fitHeights(availablePx - morePx, heights), more: true };
 }

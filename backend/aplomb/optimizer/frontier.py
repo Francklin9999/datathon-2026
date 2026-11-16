@@ -47,10 +47,6 @@ def _matvec(S, w):
     return [math.fsum(row[j] * w[j] for j in range(len(w))) for row in S]
 
 
-def _quad(S, w):
-    return math.fsum(wi * si for wi, si in zip(w, _matvec(S, w)))
-
-
 def solve(S, blocks: list[tuple[list[int], float]], linear: list[float] | None = None) -> list[float]:
     """Minimize w'Sw - linear'w over a product of scaled simplexes (index block, block sum)."""
     n = len(S)

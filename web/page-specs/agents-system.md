@@ -10,8 +10,8 @@ Select a session run and display genuine steps, actor, iteration, model ID, meas
 
 ## Operational display
 
-Show run budget totals and terminal/waiting state, errors with request ID, configured vs applied Guardrails and data snapshot date. Do not claim `/health` or model configuration proves a Bedrock call occurred. Actual usage/model fields and operator capture are separate evidence. Never expose cloud credentials, session capability, raw hidden reasoning, or cached copyrighted full documents.
+Show run budget totals and terminal/waiting state (limits from `GET /runs/{runId}/trace`, which reports the API's configured limits; when the trace is unavailable, the run-events.md §4 contract defaults, labelled as such), errors with request ID, configured vs applied Guardrails and data snapshot date. Do not claim `/health` or model configuration proves a Bedrock call occurred. Actual usage/model fields and operator capture are separate evidence. Never expose cloud credentials, session capability, raw hidden reasoning, or cached copyrighted full documents.
 
 ## Verification
 
-SYS-01 roles/actors match run data. SYS-02 failed tool remains visible. SYS-03 no inferred steps from timers. SYS-04 metadata service flags reflect reality. SYS-05 run ownership/redaction. SYS-06 keyboard list and mobile detail. Reuse shared timeline component so this view agrees with Decision Desk and Audit.
+SYS-01 roles/actors match run data. SYS-02 failed tool remains visible. SYS-03 no inferred steps from timers. SYS-04 metadata service flags reflect reality. SYS-05 run ownership/redaction. SYS-06 keyboard list and mobile detail. Reuse the shared runs table (`RunsTable`, also used by Evidence & Audit) for the run picker. The selected run shows one per-step detail view built from the same `run.steps` that the shared timeline (`RunTimeline`) shows on Decision Desk and Audit, so the views agree without the timeline being repeated here. Each step is checked against the run-events.md §2 table and its §2.1 per-kind overrides.

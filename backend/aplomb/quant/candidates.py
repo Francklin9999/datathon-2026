@@ -97,6 +97,8 @@ def strategic_brief(profile, snapshot, now: str, limit: int = 3) -> dict:
     return {'profileId': profile.profile_id, 'profileVersion': profile.version,
             'asOf': snapshot.data_as_of, 'dataVersion': snapshot.data_version,
             'candidates': [candidate.to_wire() for _, candidate in ranked[:limit]], 'facts': ledger.wire(),
-            'limitations': ['Local fact IDs must be remapped into the run ledger before claim creation.',
-                            'Goal figures are nominal scenarios from user assumptions, not forecasts.',
+            # The fact IDs above are local to this response: a run that cites them must remap them into
+            # its own ledger first (as the goal facts are remapped into this one). A code note, not a
+            # user-facing limitation (QA 4.5b).
+            'limitations': ['Goal figures are nominal scenarios from user assumptions, not forecasts.',
                             'No model, independent review or recommendation has run.']}

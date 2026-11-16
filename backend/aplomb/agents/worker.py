@@ -5,14 +5,6 @@ import time
 
 from .workflow import AgentServices, execute_run
 
-_factory = None
-
-
-def configure(factory):
-    """Application composition injects a lazy AgentServices factory once at startup."""
-    global _factory, _services
-    _factory, _services = factory, None
-
 
 def make_handler(services: AgentServices):
     def worker(event, context=None):
@@ -46,14 +38,11 @@ _services = None
 
 
 def handler(event, context=None):
-    """Lambda entry point. Uses the configured factory, else the default application composition
-    (built lazily on the first invocation, from the process environment)."""
+    """Lambda entry point. Builds the application composition lazily on the first invocation,
+    from the process environment (``aplomb.api.runtime.default_agent_services``)."""
     global _services
     if _services is None:
-        if _factory is not None:
-            _services = _factory()
-        else:
-            from aplomb.api.runtime import default_agent_services
+        from aplomb.api.runtime import default_agent_services
 
-            _services = default_agent_services()
+        _services = default_agent_services()
     return make_handler(_services)(event, context)

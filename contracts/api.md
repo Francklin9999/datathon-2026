@@ -44,14 +44,12 @@ Every non-2xx response has the body `ApiError`:
 | 2.6 | GET `/intelligence/entities` | P1 | Bounded official GLEIF legal-entity candidates; q 2–120 characters, limit 1–20; not a security-issuer link |
 | 2.7 | GET `/intelligence/listings` | P1 | Captured instrument-master listings at `as_of`; optional exact `ticker`, `mic`, `isin` filters |
 | 2.8 | GET `/intelligence/listings/{listingId}` | P1 | One captured listing record at `as_of` |
-| 2.9 | GET `/intelligence/security-issuer` | P1 | Exact captured ISIN↔LEI pair check (`isin`, `lei`); no fuzzy identity |
 | 2.10 | GET `/intelligence/wikidata-candidates` | P1 | Wikidata candidates for an exact `isin`; candidates only, unavailable without a source contact configuration |
 | 2.11 | GET `/intelligence/sec-structured` | P1 | Session-owned SEC structured disclosure feed capture; `503` when the source is unavailable |
 | 2.12 | GET `/intelligence/sec-data-library` | P1 | Session-owned SEC DERA data library capture; `503` when the source is unavailable |
 | 2.13 | GET `/intelligence/coinmetrics/{asset}` | P1 | Coin Metrics Community observation capture; `503` when unavailable or use is not permitted |
 | 2.14 | GET `/intelligence/disclosures/aapu` | P1 | Dated partial ETF look-through example at `as_of`; uncovered weights stay unknown |
 | 2.15 | GET `/intelligence/regional` | P1 | Regional research by `region`, `identifier`, `start`, `end`, `kind` (overview/financials/ownership), optional `fiscal_year` |
-| 2.16 | GET `/research/company/{cik}` | P1 | Source-backed company detail by exact SEC CIK; `country` other than `USA` is unavailable |
 | 2.1 | GET `/assets` | P0 | Search the universe |
 | 2.5 | GET `/assets/{ticker}/analytics` | P1 | Deterministic asset metrics and their facts; `currency`, `window`, optional `start`/`end` |
 | A1.1 | GET `/profiles/{profileId}/account-valuations` | P1 | Traded plus separately appraised private asset values |
@@ -106,7 +104,8 @@ Every non-2xx response has the body `ApiError`:
 | 3.13 | POST `/profiles/{profileId}/strategies/simulate` | P1 | Simulate a standing strategy on history |
 | 4.1 | POST `/requests/parse` | P0 | Free text → structured request |
 | 4.2 | POST `/check` | P0 | Deterministic rule check (slider, threshold edits) |
-| 4.2b | POST `/check/batch` | P0 | Up to five ordered independent checks |
+| 4.2b | POST `/check/batch` | P0 | Up to five ordered independent checks; a pair also gets rule-by-rule `differences` |
+| 4.3 | POST `/rebalance/check` | P0 (no feature flag) | Read-only before/after policy comparison of a complete target allocation (see "Target allocation review") |
 | 5.1 | POST `/runs` | P0 | Start a run |
 | 5.2 | GET `/runs/{runId}` | P0 | Poll a run |
 | 5.3 | GET `/runs` | P0 | List runs of the session |
@@ -122,7 +121,7 @@ Every non-2xx response has the body `ApiError`:
 | 6.4 | GET `/world/exposure` | P1 | Portfolio weight by country |
 | 6.5 | GET `/world/countries/{iso3}` | P1 | Country panel |
 | 6.6 | GET `/world/facilities` | P1 | Emissions facilities |
-| 6.7 | GET `/world/hazards` | P1 | Earthquakes and wildfires |
+| 6.7 | GET `/world/hazards` | P1 | Earthquakes and wildfires (the packaged bundle currently holds USGS earthquakes only) |
 | 6.8 | GET `/world/observations` | P1 | Source-backed world observations; optional `profileId` adds a completed holdings assessment to every item. `mode`, `bbox`, `country`, `from`, `to`, `asOf`, `q`, `scope` (`all`/`providers`), `mapOnly` (boolean), `order` (`date`/`coverage`), `limit`, `cursor`. Coverage order interleaves source datasets and geographic cells; cursors bind these options and the assessed holdings. |
 | 6.9 | GET `/world/airports` | P1 | Static airport references and optional portfolio assessments |
 | 7.1 | GET `/replay/presets` | P1 | Time Machine dates on offer |
@@ -143,7 +142,7 @@ Every non-2xx response has the body `ApiError`:
 
 ```json
 {
-  "contractVersion": "1.5.0",
+  "contractVersion": "1.6.0",
   "dataVersion": "snap-20261113-starter",
   "dataAsOf": "2026-11-12",
   "environment": "aws",
@@ -285,8 +284,11 @@ Query: `window` (`full` default, `1y`, `3y`, `5y`, `ytd`).
   counts: VerdictCounts;
   facts: Record<FactId, Fact>;
   limitations: LimitationCode[];
+  holdingReturns?: { ticker: Ticker; return1yPct: number | null; return1yFactId: FactId | null }[];  // 1.6.0
 }
 ```
+
+`holdingReturns` (1.6.0, additive) has one entry per position with a positive weight, in the profile's holding order: the trailing 1-year return in the reporting currency (`return.period`, window `1y`, the same figure as `topPositions[].return1yPct`) and the fact that carries it. Both are `null` for a `CASH.*` position or when the history is too short. `topPositions` keeps only the five largest holdings. An API before 1.6.0 omits the key; clients then have a return for the top five only.
 
 A return over a window longer than the available history is `null` (plan §5: "only show calculations supported by the available history"). `riskCategory` is the lowest risk level whose volatility budget (A-02) is at or above the measured volatility.
 
@@ -326,7 +328,7 @@ Returns the latest succeeded `portfolio_brief` run for this profile version, dat
 
 Query: `lang`.
 
-`200` → `{ run: Run | null; stale: boolean }`. `run` is null when none exists; the client then calls `POST /runs` with kind `portfolio_brief`. `stale` is true when the profile or data version changed since the run.
+`200` → `{ run: Run | null; stale: boolean }`. `run` is null when none exists; the client then calls `POST /runs` with kind `portfolio_brief`. `stale` is true when, since the run, the profile version, the data version or the pinned data-manifest digest changed, or the brief was written under another runtime configuration: models (including a configured fallback model), Guardrail id or version, feature flags, run limits or data prefix. A redeploy that changes only the build revision does not make a brief stale.
 
 ---
 
@@ -420,6 +422,7 @@ Deterministic evaluation of one move against a profile's rules. **No model call.
   window?: WindowSpec;                       // default full
   asOf?: ISODate;                            // default data date; earlier dates go through the temporal gate
   compareFunding?: boolean;                  // default: true when move.funding.mode = "auto"
+  knowledgeMode?: "current" | "historical" | null;   // "current" requires asOf = data date (else 422); an earlier asOf is always historical
 }
 // response 200
 CheckResult
@@ -451,7 +454,21 @@ Example request and abridged response (values are `[CONTROL]` numbers from `cont
 
 Errors: `404 not_found` (profile or ticker), `422 insufficient_data` (ticker has no price on or before `asOf`), `422 validation_error` (`sizePct` ≤ 0 or > 100 − current weight for non-`new_money` funding; `from_holdings` without `fromTickers`).
 
-Batch variant for the compare view: `POST /check/batch` with `{ items: CheckRequest[] }` (max 5) → `{ results: (CheckResult | ApiError)[] }` — P0.
+Batch variant for the compare view: `POST /check/batch` with `{ items: CheckRequest[] }` (max 5) → `{ results: (CheckResult | ApiError)[]; differences?: RuleDifference[] }` — P0.
+
+`differences` (1.6.0, additive) is present only when the batch has exactly two items and both are `CheckResult`s. It aligns the two results' `ruleChecks` by `ruleId` (rules SPEC §6, computed by code); A is the first item, B the second:
+
+```ts
+interface RuleDifference {
+  ruleId: RuleId;
+  reason: "threshold_differs" | "portfolio_differs" | "rule_only_in_a" | "rule_only_in_b" | "same";
+  statusA: RuleStatus | null; statusB: RuleStatus | null;      // null on the side without the rule
+  thresholdA: number | null; thresholdB: number | null;
+  valueA: number | null; valueB: number | null;
+}
+```
+
+`same` means equal status, threshold and value; otherwise `threshold_differs` when the thresholds differ, else `portfolio_differs`. An API before 1.6.0 omits the key; clients treat it as optional.
 
 `CheckRequest` is the request shape above. `maxCompatibleSizePct` is a first-conflict grid boundary, not certification that every rule passes; preserve tension/nee disclosures. `counts` totals all returned statuses, including informational flag/simulation checks. The eight counted Robert checks in the control table are accompanied by three `info` checks.
 
@@ -466,6 +483,7 @@ Starts an asynchronous run (D-06). Returns immediately.
 ```ts
 // request — one of
 { kind: "decision";        profileId: ProfileId; lang: Lang; request: DecisionRequest; originalText?: string; window?: WindowSpec }
+{ kind: "rebalance";       profileId: ProfileId; profileVersion: number; lang: Lang; positions: Position[] /* complete target, 1–40 */; window?: WindowSpec }
 { kind: "portfolio_brief"; profileId: ProfileId; lang: Lang; window?: WindowSpec; force?: boolean }
 { kind: "event_brief";     profileId: ProfileId; lang: Lang; eventId: EventId }
 { kind: "replay";          profileId: ProfileId; lang: Lang; request: DecisionRequest; asOf: ISODate; window?: WindowSpec }
@@ -477,7 +495,9 @@ Starts an asynchronous run (D-06). Returns immediately.
 Rules:
 
 - `portfolio_brief` without `force`: if a non-stale brief exists (3.12), the response is `200` with that run's `runId` and `status: "succeeded"`.
+- `portfolio_brief`, with or without `force`: identical requests are de-duplicated on the server. Identical means the same session, profile and profile version, data version, data-manifest digest, brief runtime configuration (3.12; the build revision is not part of it), window and language. While an identical brief is queued or running, the response is `202` with that run's `runId`; if one succeeded less than 60 seconds ago, the response is `200` with its `runId` and `status: "succeeded"`. A failed or cancelled brief is never reused.
 - `replay`: `asOf` must be one of the dates accepted by 7.1; otherwise `422 validation_error`.
+- `rebalance`: the request is validated and compared exactly like `POST /rebalance/check` (see "Target allocation review" below) before the run is created: weights that do not sum to 100%, duplicate securities or an empty target → `422 validation_error`; an unsupported security → `404 not_found`; a `profileVersion` other than the current one → `409 conflict`. The run then reviews that deterministic comparison (steps in `run-events.md` §2.1); its result is `{ kind: "rebalance"; rebalance: ReviewedRebalance }` (`schemas.md` §9). No orders are placed or simulated.
 - `event_brief`, `replay`, `profile_draft` return `501 feature_disabled` when their flags are off.
 - A `decision` request of type `goal` returns `501` when `goal_requests` is off.
 
@@ -565,7 +585,9 @@ The cursor binds the filters, data version, profile and effective holdings. Swit
 
 ### 6.3 GET `/world/events/{eventId}`
 
-Query: `profileId` (optional). `200` → `{ event: WorldEvent; related: WorldEvent[] /* same country ±7 days, max 10 */; exposures: HoldingExposure[] /* code-only matches; linkType never "documented_exposure" here */; assessment?: WorldPortfolioAssessment | null }`.
+Query: `profileId` (optional). `200` → `{ event: WorldEvent; related: WorldEvent[] /* same country ±7 days, max 10 */; exposures: HoldingExposure[] /* code-only matches; linkType never "documented_exposure" here */; geographicRelationships: WorldGeographicRelationship[] /* default [] */; assessment?: WorldPortfolioAssessment | null }`.
+
+`geographicRelationships` holds at most one `EVENT_OCCURRED_AT` edge (`schemas.md` §10) from the event to its source-supported point (`point:<lat>,<lon>`) or country (`country:<ISO3>`), with its source, normalized-record hash, retrieval time and limitations; it is empty when the source gives neither. A location edge is not an exposure, an ownership link or an impact.
 
 Supplying `profileId` screens every positive-weight holding in the session's effective portfolio. The completed `assessment` includes the profile, calculation time, holdings checked, unique matched weight, source names/themes/countries checked, matching holdings and actual coverage gaps. Each holding appears once with its strongest match: named issuer, theme proxy, then listing country. All impacts remain `not_established`. An empty match list is a completed negative screen using the available source fields; unresolved source geography and holdings without a listing country are disclosed. Coordinates alone do not establish operating exposure. Static registry company-name mentions do not create ownership or reviewed issuer-to-security relationships.
 
@@ -589,15 +611,17 @@ Facility captures expose optional `capturedAt` and `dataVersion` alongside `repo
 
 Query: `profileId` (optional), `from`, `to`, `type`, `bbox`, `limit`. `200` → `{ items: Hazard[]; total: number }`. With `profileId`, every item includes `assessment`, reusing the related fields of the corresponding source event when available.
 
+`type` accepts `earthquake` or `wildfire`, but the packaged world bundle currently contains USGS earthquakes only, so `type=wildfire` returns an empty list. The packaged NASA FIRMS provider captures are not loaded as hazards.
+
 ### 6.8 GET `/world/observations`
 
-Query: optional `profileId`, `mode`, `bbox`, `country` (repeatable), `from`, `to`, `asOf`, `q`, `scope` (`all` or `providers`, default `all`), `mapOnly` (boolean, default false), `order` (`date` or `coverage`, default `date`), `limit` (default 250, max 500), `cursor`. `200` → `WorldObservationsResponse`.
+Query: optional `profileId`, `mode`, `bbox`, `country` (repeatable), `from`, `to`, `asOf`, `q`, `scope` (`all` or `providers`, default `all`), `mapOnly` (boolean, default false), `order` (`date` or `coverage`, default `date`), `limit` (default 250, max 500), `cursor`. `200` → `WorldObservationsResponse` (`schemas.md` §10): `items`, `total`, `nextCursor`, `dataVersion`, `capturedAt` and `modes` (availability, count and reason per mode). Each `WorldObservation` keeps its original source URL, `retrievedAt`, optional `publishedAt`, `occurredAt` with its `timeBasis` (`source_observation`, `reference_period`, `event_date` or `capture_only`; `reference_period` marks a period display anchor, not an observed instant), `datasetId`, limitations, and either a point `location` or source polygon `geometry`. `location: null` means source point coordinates were not established; no pin is invented.
 
 With `profileId`, each item includes a completed `WorldPortfolioAssessment`, even when no holdings match or source geography is unavailable. Country resolution uses explicit source codes, names and supported place strings; GDELT FIPS codes are never interpreted as ISO alpha-2. Provider source coordinates, time basis, limitations and capture gating remain intact. A cursor binds the filters, source versions, profile and effective holdings; changing the portfolio requires a fresh first page. Omitting `profileId` preserves unscoped source access.
 
 ### 6.9 GET `/world/airports`
 
-Query: optional `profileId`, `country` (repeatable), `bbox`, `q`, `limit` (default and max 2,000). `200` → `AirportsResponse`. Every returned reference includes `assessment` when `profileId` is supplied. The current static capture does not support historical `asOf` queries; it establishes neither aircraft movements nor an airport-to-company relationship.
+Current static references for large scheduled-service airports. Query: optional `profileId`, `country` (ISO3, repeatable), `bbox`, `q`, `limit` (1–2,000, default 2,000). `200` → `AirportsResponse` (`schemas.md` §10). Every returned reference includes `assessment` when `profileId` is supplied. `asOf` is rejected (`422 validation_error`): this captured reference has no historical vintages. Results keep the original source URL and capture time. The capture establishes neither aircraft movements nor an airport-to-company relationship or financial impact.
 
 ---
 
@@ -677,10 +701,6 @@ GET /replay/presets → POST /runs kind=replay (asOf) → poll → POST /runs/{i
 ```
 
 
-| GET `/world/airports` | Current static large scheduled-service airport references | `AirportsResponse` |
-
-Airport queries accept repeated ISO3 `country`, `q`, `bbox`, and `limit` (1–2000). `asOf` is rejected: this captured reference has no historical vintages. Results retain original source URL and capture time. Coordinates establish no company relationship or financial impact.
-
 ### Global profile and analytics additions (1.2.0)
 
 Create/replace profile requests accept optional `investorContext`: country code (two uppercase
@@ -707,7 +727,10 @@ edits. Optional creation `currency` identifies the native currency of the explic
 `PortfolioAccount.nativeValuation` retains the original capital/currency, reporting value, conversion rate, snapshot and valuation date, source rows/passports and independently executed check codes. Account portfolios remain stored in reporting currency so individual and aggregate analyses share one base. These are fixed fictional capital inputs, not current asset valuations, currency trades, forecasts or transfer instructions. No spread, fees or taxes are inferred. Switching accounts does not silently revalue native capital. Editing capital explicitly in reporting currency clears the earlier native receipt. Holdings-only edits preserve it. Snapshot/version, source row identity, quote set, currency direction and multiplication are checked independently against the pinned dataset. Dates and rate inputs remain inspectable.
 All account operations require session ownership, optimistic version and profile_creator.
 
+### Target allocation review
 
+| Method and path | Purpose | Response |
+|---|---|---|
 | POST `/rebalance/check` | Full target allocation, including reductions and removals | `RebalanceResponse` |
 
 `RebalanceRequest` contains `profileId`, the current `profileVersion`, the complete target `positions` and optional `window`. Target weights must sum to 100%; duplicate or unsupported securities, stale profiles and empty targets are rejected. This is a read-only comparison at constant modeled capital. Omitted holdings have zero final weight. Before/after policy results, metrics, allocation changes and the calculation ledger share the pinned snapshot and reporting currency. No maximum purchase-size boundary is inferred for a multi-asset rebalance. No orders, tax lots, execution costs, spreads, liquidity, new financing, independent model review or research are implied. Missing evidence remains insufficient. The existing incremental purchase endpoint retains its existing semantics.
@@ -715,41 +738,26 @@ All account operations require session ownership, optimistic version and profile
 
 ### Agent 2 research API additions (contract version remains 1.4.0)
 
-These additive research routes require the session header. Source captures use the existing session-owned store; source URLs, hashes, retrieval/availability, limitations and source-specific failure states remain inspectable. The branch-local research payloads use snake_case and must be reconciled with generated client models during integration. A route is not a claim of live source access or complete worldwide coverage. Rights-gated sources return unavailable until their documented entitlement is configured. See `docs/parallel/reports/agent-2/CONT-*.md` and `SOURCES.csv` for exact request arguments, source scope and verification.
+These additive research routes require the session header. Source captures use the existing session-owned store; source URLs, hashes, retrieval/availability, limitations and source-specific failure states remain inspectable. These research payloads use snake_case keys and are outside the generated registry: their handlers return plain dictionaries with no model in `backend/aplomb/contracts/`, so there are no generated types and `validateContract` cannot check them. The web reads them with local checks in each calling feature module; `contracts/README.md` ("Outside the generated registry") lists them with the A1.x routes in the same situation. Typing the routes of the table below is not done. Since 1.6.0 the credentialed market routes (next section) and GET `/intelligence/regional` (2.15) do have models and typed client methods. A route is not a claim of live source access or complete worldwide coverage. Rights-gated sources return unavailable until their documented entitlement is configured. See `docs/parallel/reports/agent-2/CONT-*.md` and `SOURCES.csv` for exact request arguments, source scope and verification.
 
 | Method and path | Purpose |
 |---|---|
 | GET `/intelligence/bitcoin-sentiment` | intelligence → bitcoin-sentiment |
-| GET `/intelligence/chains/bitcoin` | intelligence → chains → bitcoin |
 | GET `/intelligence/company-registry/{jurisdiction}/{number}` | intelligence → company-registry → {jurisdiction} → {number} |
-| GET `/intelligence/crypto-markets/compare/{asset}` | intelligence → crypto-markets → compare → {asset} |
-| GET `/intelligence/crypto-markets/market/{venue}/{symbol}` | intelligence → crypto-markets → market → {venue} → {symbol} |
 | GET `/intelligence/crypto-markets/venues` | intelligence → crypto-markets → venues |
 | GET `/intelligence/crypto-markets/vision/{symbol}/{day}` | intelligence → crypto-markets → vision → {symbol} → {day} |
 | GET `/intelligence/defi/pair/{chain}/{pool}` | intelligence → defi → pair → {chain} → {pool} |
-| GET `/intelligence/defi/protocol/{slug}` | intelligence → defi → protocol → {slug} |
 | GET `/intelligence/defi/sources` | intelligence → defi → sources |
 | GET `/intelligence/eu/eba-market-risk/{lei}` | intelligence → eu → eba-market-risk → {lei} |
 | GET `/intelligence/eu/esma-entity/{lei}` | intelligence → eu → esma-entity → {lei} |
 | GET `/intelligence/funds` | intelligence → funds |
 | GET `/intelligence/funds/{fund_id}` | intelligence → funds → {fund id} |
-| GET `/intelligence/gleif-golden/entity/{lei}` | intelligence → gleif-golden → entity → {lei} |
 | GET `/intelligence/gleif-golden/metadata` | intelligence → gleif-golden → metadata |
-| GET `/intelligence/issuer-holdings/rights` | intelligence → issuer-holdings → rights |
-| GET `/intelligence/issuer-holdings/{issuer}/{fund_ticker}` | intelligence → issuer-holdings → {issuer} → {fund ticker} |
 | GET `/intelligence/master/coverage` | intelligence → master → coverage |
 | GET `/intelligence/master/crosswalk` | intelligence → master → crosswalk |
 | GET `/intelligence/openfigi` | intelligence → openfigi |
 | GET `/intelligence/relationships` | intelligence → relationships |
 | GET `/intelligence/relationships/captures/{sha256}` | intelligence → relationships → captures → {sha256} |
-| GET `/intelligence/stooq/daily` | intelligence → stooq → daily |
-| GET `/research/sec/concept/{cik}` | research → sec → concept → {cik} |
-| GET `/research/sec/frames` | research → sec → frames |
-| GET `/research/sec/latest-filings` | research → sec → latest-filings |
-| GET `/research/sec/ncen/{cik}` | research → sec → ncen → {cik} |
-| GET `/timemachine/point-in-time/{cik}` | timemachine → point-in-time → {cik} |
-| GET `/timemachine/point-in-time/{cik}/published-later` | timemachine → point-in-time → {cik} → published-later |
-| GET `/timemachine/sec-ticker-candidates` | timemachine → sec-ticker-candidates |
 | GET `/timemachine/vintages/status` | timemachine → vintages → status |
 | POST `/intelligence/funds/{series_id}` | intelligence → funds → {series id} |
 | POST `/intelligence/gleif-golden/delta/{lei}` | intelligence → gleif-golden → delta → {lei} |
@@ -762,11 +770,13 @@ These additive research routes require the session header. Source captures use t
 
 All routes require `X-Aplomb-Session`, use server-side account credentials, and retain session-owned source captures. Provider symbols alone never prove a global issuer identity. Original publication before retrieval remains unknown.
 
-| Method and path | Behavior |
-|---|---|
-| GET `/research/market-connections` | Credential presence, supported operation and official signup links; no secret values. |
-| GET `/research/market-provider/{provider}` | Bounded, session-owned observations from a selected connected provider; `symbol`, optional `mic` and `kind`. |
-| GET `/research/tiingo/{symbol}` | Supported US non-fund equity metadata/history for `start` and `end`, bounded to one year; internal account use only. |
+| Method and path | Behavior | Response (1.6.0) |
+|---|---|---|
+| GET `/research/market-connections` | Credential presence, supported operation and official signup links (`signup_url` is null where none is recorded: coinmarketcap, blockscout, alchemy, goldrush); no secret values. | `MarketConnectionsResponse` |
+| GET `/research/market-provider/{provider}` | Bounded, session-owned observations from a selected connected provider; `symbol`, optional `mic` and `kind`. | `MarketObservationResponse` |
+| GET `/research/tiingo/{symbol}` | Supported US non-fund equity metadata/history for `start` and `end`, bounded to one year; internal account use only. | `MarketObservationResponse` (with `sources` instead of `source_url`/`source_sha256`) |
+
+Typed in 1.6.0 (research#7) without changing a key: these three payloads, unlike the rest of the API, use **snake_case** keys, and their models (`backend/aplomb/contracts/api.py`) keep them. `MarketObservationResponse.observation` is provider-specific (`{ [key: string]: unknown }`): quote fields, `bars`, `company`, `statements`, chain `balances`/`chains`, as written in the bullets below. GET `/intelligence/regional` returns `RegionalResearchResponse` (camelCase, its keys unchanged too): `status` `ok` or `unavailable` (with `reason`), the capture frame, and the `prices`, `filings`, `company`, `financials` and `ownership` lists; amounts are exact decimal strings. In a 1.4.0 API the chain connection rows lacked `signup_url` and `credential_variable` and the tiingo row lacked `documentation_url`, so these keys are optional. Web client: `marketConnections`, `marketObservation`, `tiingoHistory`, `regionalResearch` in `web/src/api/client.ts`.
 
 - `GET /v1/research/market-provider/{provider}?symbol=...&mic=...&kind=...`: `alpha-vantage` supports `quote`, `overview`, `income`, `balance`, `cashflow`; `twelve-data` requires an exact MIC for thirty daily bars; `finnhub` returns a company profile. Other kinds are rejected for these two providers. Quota/entitlement errors are explicit and never replaced with fixtures.
 - `GET /v1/research/tiingo/{symbol}?start=YYYY-MM-DD&end=YYYY-MM-DD`: up to one year of supported US non-fund equity metadata/history. Internal account use only.

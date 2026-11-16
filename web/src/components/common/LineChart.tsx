@@ -11,7 +11,7 @@ import { useElementSize } from '../ui/useElementSize';
 import { useFresh } from '../ui/useFresh';
 import type { Lang } from '../../contracts/types';
 import { fmtDate, fmtNumber } from '../../lib/format';
-import { areaPath, chartLineProps, chartScale, linePath, nearestIndex } from '../../lib/ui/chart';
+import { areaPath, axisTicks, chartLineProps, chartScale, linePath, nearestIndex } from '../../lib/ui/chart';
 
 export interface Series { label: string; points: readonly { date: string; value: number }[]; color: string; dashed?: boolean }
 
@@ -61,7 +61,8 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
 
   if (!model) return null;
   const { lo, hi, y, plotted, baseXs } = model;
-  const ticks = [lo, (lo + hi) / 2, hi];
+  // Round values inside the padded range: the padded top is not a value the series reached.
+  const ticks = axisTicks(lo, hi, digits);
   const base = plotted[0];
   const basePoints = series[0]?.points ?? [];
   const first = basePoints[0];
@@ -135,7 +136,7 @@ export function LineChart({ series, lang, unitLabel, caption, digits = 0, area =
                 <span key={s.label} className="chart-tip-row">
                   <span className={`swatch${s.dashed ? ' swatch-dashed' : ''}`} style={s.dashed ? { color: s.color } : { background: s.color }} />
                   <span className="chart-tip-label">{s.label}</span>
-                  <strong className="num">{fmtNumber(v, lang, 0)}</strong>
+                  <strong className="num">{fmtNumber(v, lang, digits)}</strong>
                 </span>
               );
             })}

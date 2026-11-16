@@ -47,12 +47,18 @@ Implemented in `backend/aplomb/world/` with the standard library only.
 | `dataset.py` | `load_bundle()` verifies every file against the manifest SHA-256 and row counts; `BundleProvider` loads lazily |
 | `service.py` | `WorldServiceImpl`: the `WorldService` protocol of the API plus `search_events` for the `world.search_events` tool |
 | `assessment.py` | Source-supported country and corporate-name resolution, disclosed theme rules for screening every provider and reference record |
-| `passports.py` | Passports of `world_events` and `natural_hazards` once loaded; `WorldDatastoreService` overlays them on `GET /datasets` |
-| `bundle/` | The committed bundle: `events.json`, `hazards.json`, `manifest.json` |
+| `airports.py` | Current-only OurAirports reference layer (`/world/airports`); no aircraft movements |
+| `facilities.py` | ECCC GHGRP annual facility emissions (`/world/facilities`); no fuzzy security matching or ESG scoring |
+| `country_macro.py` | World Bank WDI annual country indicators: bounded capture and immutable snapshot for the country panel |
+| `geo_boundaries.py` | Bounding-box queries over the captured metropolitan France ADM1 polygons |
+| `relationships.py` | `EVENT_OCCURRED_AT` geographic edges served in `/world/events/{eventId}`; no ownership or financial claim |
+| `providers/` | Content-addressed provider captures (`snapshot.py` loader and publisher, per-source capture modules, `ingest.py` manual refresh CLI) served by `/world/observations` |
+| `passports.py` | Passports of `world_events` and `natural_hazards` once loaded, plus one per provider capture; `WorldDatastoreService` overlays them on `GET /datasets` |
+| `bundle/` | The committed bundle: `events.json`, `hazards.json`, `manifest.json`; `airports*.json`, `facilities*.json`, `country_macro*.json` (each with its manifest); `providers/<datasetId>-<date>-<sha16>/` captures |
 
 ### 8.1 What is loaded, and what is not
 
-Build of 2026-11-15 (`snap-20261115-world`), window 2021-11-12 to 2026-11-12, every source answered:
+First build of 2026-11-15 (`snap-20261115-world`), window 2021-11-12 to 2026-11-12, every source answered. The bundle now committed is a later version (§8.4); this table records the first build:
 
 | Source | Items | Location precision | Category |
 |---|---|---|---|
@@ -61,19 +67,24 @@ Build of 2026-11-15 (`snap-20261115-world`), window 2021-11-12 to 2026-11-12, ev
 | Federal Reserve Board monetary-policy press feed (recent items only) | 15 | country | monetary_policy |
 | Statistics Canada, The Daily: the 58 CPI releases already listed in `macro_release_dates` | 58 | country | macro_release |
 
-Not loaded, and stated as such in the manifest and the Sources page: GDELT (the article index returned no usable batch on the build date and its items carry no source-supported event location, O-07), facility emissions (cut-list item 2), NASA FIRMS (needs a key). The two press feeds list recent releases only, so official events before autumn 2026 are limited to the CPI releases. This is a cited sample, not world coverage; `total`, `coverage` and the passports describe loaded data only.
+A NASA EONET v3 capture (2026-10-15 to 2026-11-12, bounded to the first 500 records: 480 items, 20 rejected) was added afterwards as `snap-20261115-world-eonet-570970dd`.
 
-Rebuild (network needed, about one minute; the API never needs it):
+Not part of the event bundle, and stated as such in `manifest.json` `notIngested` and on the Sources page: GDELT (the article index is not fetched at build time, O-07; bounded GDELT captures are separate `world_gdelt_*` provider observations), facility emissions (ECCC GHGRP is served separately as `emissions_facilities`; EPA facility emissions are not loaded) and NASA FIRMS (bounded MODIS detections are separate `world_firms_*` provider observations). The two press feeds list recent releases only, so official events before autumn 2026 are limited to the CPI releases. This is a cited sample, not world coverage; `total`, `coverage` and the passports describe loaded data only.
+
+Rebuild (network needed; the API never needs it). Step 1 rebuilds the base bundle, including EONET over the last `--eonet-days` days of the window (default 28, at most 366, first 500 records). It writes **in place** unless `--out` is given, and an in-place run replaces the committed expanded bundle of §8.4, so build into a fresh directory and expand it:
 
 ```bash
-cd backend && uv run python -m aplomb.world.ingest --start 2021-11-12 --end 2026-11-12
+cd backend
+uv run python -m aplomb.world.ingest --start 2021-11-12 --end 2026-11-12 --out /tmp/world-base
+uv run python ../scripts/expand_world_events.py --base /tmp/world-base --out /tmp/world-expanded \
+  --start 2025-11-12 --end 2026-11-12 --min-magnitude 5
 ```
 
-A source that fails is recorded with its error and contributes nothing; if no event at all can be read the existing bundle is left untouched. The build date becomes the version label and fixes the importance scores.
+Check the output, then copy `events.json`, `hazards.json` and `manifest.json` into `bundle/`. A source that fails is recorded with its error and contributes nothing; if no event at all can be read the existing bundle is left untouched. The build date becomes the version label and fixes the importance scores. `scripts/ingest_eonet.py` refreshes only EONET into a fresh `--out`. The other layers have their own capture commands: `scripts/ingest_airports.py`, `scripts/ingest_facilities.py`, `scripts/ingest_world_bank.py` and `python -m aplomb.world.providers.ingest --source <name>` (provider captures, each a new content-addressed directory; earlier versions are never deleted).
 
 ### 8.2 Decisions taken in this track
 
-- **Bundle location.** The bundle lives inside the Python package (about 0.8 MB) rather than in the S3 snapshot prefix, so the Lambda artifact, local runs and tests read the same verified files with no extra upload. It has its own version label; `X-Aplomb-Data-Version` stays the price snapshot.
+- **Bundle location.** The bundle lives inside the Python package (on disk, about 123 MB with `providers/` and 4.8 MB without it, per `du -sh` on 2026-11-15) rather than in the S3 snapshot prefix, so the Lambda artifact, local runs and tests read the same verified files with no extra upload. It has its own version label; `X-Aplomb-Data-Version` stays the price snapshot.
 - **Location is mandatory in the wire type.** `WorldEvent.location` needs coordinates, so an item without a source-supported place cannot be represented and is rejected at ingestion (counted per source in the manifest). An earthquake whose place string names no country keeps `countryIso3 = null` and an empty `relatedCountries`.
 - **Country resolution.** Only the country named at the end of the source place string (or a U.S. state after a comma) is accepted; ambiguous names such as "Georgia" resolve to nothing. An ISO3 outside the reference table is displayed as its code.
 - **Company mentions.** `COMPANY_ALIASES` in `ingest.py` lists unambiguous corporate names only: a bare "Apple", "Amazon", "Tesla" or "Fortis" is not a mention. No event of the current bundle names a holding.
@@ -83,11 +94,12 @@ A source that fails is recorded with its error and contributes nothing; if no ev
 - **Defaults.** Events: the last 30 days of the dataset. Country panel: the last 366 days. Hazards: the whole dataset. A cursor is bound to its filter set and data version; reusing it with other filters is a `validation_error`.
 - **Event brief cutoff and provenance.** An `event_brief` run pins the event, its code-matched holdings and the manifest record of its source at creation. Its information cutoff (`asOf`) is the later of the price data date and the bundle build date. The cited event fact is available from the source's stated publication time, or from the retrieval time when the source states none; no time is assumed.
 - **Bounding box.** `minLon` greater than `maxLon` is a box that crosses the dateline; it is accepted by the API and evaluated as two boxes.
-- **Facilities.** No registry is loaded: the layer reports `available = false`, the capability is not advertised and the endpoint answers `501`.
+- **Facilities.** ECCC GHGRP reporting year 2024 is loaded (`emissions_facilities`, 1,863 rows, `snap-20261115-eccc-6c708ab589`). With `APLOMB_FEATURE_WORLD_LAYER_FACILITIES=true` (`dev:api` sets it; the flag defaults to `false`, and the AWS stack enables it only when `world_layer_facilities` is in `application.features`) the layer reports `available = true`, the capability is advertised and `GET /world/facilities` answers `200`; otherwise the route answers `feature_disabled`. The research tool `emissions.facilities` is offered only in a run whose cutoff is on or after the capture day. Rows carry no security match (`ticker = null`, `matchConfidence = none`). The capture has no historical vintages, so a request with `asOf` is a `validation_error` (422).
+- **Provider captures.** A damaged capture (checksum, row count or schema) drops only its own source; the other sources are still served, and `/world/observations` gives the integrity reason only for the modes of the damaged sources (every empty mode when the source's mode cannot be told from its ID).
 
 ### 8.3 Verification
 
-`uv run pytest backend/tests/unit/world` (44 tests, offline): WLD-01 identity and merge, WLD-02 ambiguous places and company names, WLD-03 importance at the build date and deterministic bundle, WLD-04 country weights and unknown bucket for the three personas, WLD-05 filters, cursors, bounding boxes and the dateline, WLD-07 links without impact, WLD-08 failed source, tampered bundle and unavailable layers; WLD-06 has no data to test (no facility registry). Parser inputs in the tests are synthetic payloads in the source formats; the committed bundle is checked for integrity, contract validity and identity. `backend/tests/integration/test_run_composition.py` exercises every world endpoint and the `event_brief` run through HTTP.
+`uv run pytest backend/tests/unit/world` (offline; run it from the repository root, some tests read `data/inputs/` by relative path): WLD-01 identity and merge, WLD-02 ambiguous places and company names, WLD-03 importance at the build date and deterministic bundle, WLD-04 country weights and unknown bucket for the three personas, WLD-05 filters, cursors, bounding boxes and the dateline, WLD-07 links without impact, WLD-08 failed source, tampered bundle and unavailable layers; WLD-06 has no probable match to test (facility rows carry no security match). Parser inputs in the tests are synthetic payloads in the source formats; the committed bundle is checked for integrity, contract validity and identity. `backend/tests/integration/test_run_composition.py` exercises every world endpoint and the `event_brief` run through HTTP.
 
 ### 8.4 Extended globe coverage
 

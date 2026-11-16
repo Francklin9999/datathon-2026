@@ -14,7 +14,25 @@ from .nyfed_sofr import read_capture as read_sofr
 from .treasury_inputs import read_debt, read_par
 
 router = APIRouter()
-INPUTS = Path(__file__).resolve().parents[3] / 'data' / 'inputs'
+# Capture folders read by this route. infra/scripts/package-backend.sh copies exactly these
+# into the Lambda artifact (tests/unit/datastore/test_financial_inputs_api.py checks it).
+CAPTURE_FOLDERS = ('risk-nyfed', 'risk-cftc', 'risk-treasury')
+
+
+def resolve_inputs(module_file: str | Path = __file__) -> Path:
+    """Locate data/inputs in the repo layout or the packaged Lambda layout.
+
+    Repo: <repo>/backend/aplomb/datastore/<module> -> <repo>/data/inputs.
+    Lambda artifact: /var/task/aplomb/datastore/<module> -> /var/task/data/inputs.
+    When neither exists the repo path is returned, so every capture reports
+    capture_unavailable instead of raising.
+    """
+    here = Path(module_file).resolve()
+    candidates = [here.parents[3] / 'data' / 'inputs', here.parents[2] / 'data' / 'inputs']
+    return next((path for path in candidates if path.is_dir()), candidates[0])
+
+
+INPUTS = resolve_inputs()
 
 
 def load(folder: str, stem: str, suffix: str, parser):

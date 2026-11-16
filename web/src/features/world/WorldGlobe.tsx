@@ -28,7 +28,7 @@ function GlobeLoading() {
 
 const GlobeView = dynamic<GlobeViewProps>(() => import('./GlobeView'), { ssr: false, loading: () => <GlobeLoading /> });
 
-export function webglAvailable(): boolean {
+function webglAvailable(): boolean {
   try {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
@@ -41,7 +41,7 @@ export function webglAvailable(): boolean {
 }
 
 /** Follows the animation setting first, then `prefers-reduced-motion`, including changes while open. */
-export function useReducedMotion(): boolean {
+function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(true);
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -209,7 +209,7 @@ export function WorldGlobe({
       {showGlobe ? tr({ en: 'Hide globe · use the accessible feed', fr: 'Masquer le globe · utiliser le fil accessible' }) : tr({ en: 'Show optional globe', fr: 'Afficher le globe facultatif' })}
     </button>
     {showGlobe &&
-    <section ref={stageRef} className="world-stage" data-expanded={expanded || undefined}
+    <section ref={stageRef} className="world-stage" data-tour="world-globe" data-expanded={expanded || undefined}
       aria-label={tr({ en: 'World map of the events and of the portfolio’s countries', fr: 'Carte du monde des événements et des pays du portefeuille' })}>
       <div id="world-map-stage" className="stage-globe" aria-hidden="true">
         {globe}

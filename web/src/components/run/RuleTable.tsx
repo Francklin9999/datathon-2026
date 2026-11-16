@@ -11,12 +11,23 @@
 import type { ReactNode } from 'react';
 import type { PolicyRule, RuleCheck } from '../../contracts/types';
 import { NEE_REASON, labelOf } from '../../lib/labels';
-import { comparatorSymbol, fmtUnit, ruleSentence } from '../../lib/format';
+import { comparatorSymbol, fmtDate, fmtUnit, isInformationalReturn, ruleSentence, ruleValueText } from '../../lib/format';
 import { useApp } from '../../state/app';
 import { StatusBadge } from '../common/Badges';
-import { FactChip } from '../common/FactDrawer';
+import { FactChip, useScopedFact } from '../common/FactDrawer';
 
-export { ruleSentence };
+/**
+ * The dates an informational return was measured over (its value fact's period). The rate-cycle
+ * replay covers 2 Mar 2022 – 13 Jul 2023, not the calendar-2022 replay nor the selected window.
+ */
+function MeasuredPeriod({ factId }: { factId: string | null }) {
+  const { tr, lang } = useApp();
+  const period = useScopedFact(factId)?.period;
+  if (!period) return null;
+  const start = fmtDate(period.start, lang);
+  const end = fmtDate(period.end, lang);
+  return <span className="block small muted">{tr({ en: `Measured from ${start} to ${end}`, fr: `Mesuré du ${start} au ${end}` })}</span>;
+}
 
 export function RuleTable({ checks, rules, caption, renderEdit }: {
   checks: readonly RuleCheck[];
@@ -50,6 +61,7 @@ export function RuleTable({ checks, rules, caption, renderEdit }: {
               <tr key={`${check.ruleId}-${check.code}`} className={`row-${check.status}`}>
                 <th scope="row" className="rule-cell">
                   <span className="block rule-sentence"><span className="rule-code">{check.code}</span>{ruleSentence(rule, check, lang)}</span>
+                  {isInformationalReturn(check) && <MeasuredPeriod factId={check.valueFactId} />}
                   {rule && !rule.enabled && <span className="tag tag-muted">{tr({ en: 'disabled in the current plan', fr: 'désactivée dans le plan actuel' })}</span>}
                   {check.neeReason && (
                     <span className="block small nee-reason">{labelOf(NEE_REASON, check.neeReason, lang)}</span>
@@ -74,8 +86,8 @@ export function RuleTable({ checks, rules, caption, renderEdit }: {
                 </th>
                 <td className="num-col">
                   {check.valueFactId
-                    ? <FactChip factId={check.valueFactId} display={fmtUnit(check.value, check.unit, lang)} />
-                    : <span className="num">{fmtUnit(check.value, check.unit, lang)}</span>}
+                    ? <FactChip factId={check.valueFactId} display={ruleValueText(check, lang)} />
+                    : <span className="num">{ruleValueText(check, lang)}</span>}
                 </td>
                 <td className="num-col">
                   <span className="muted">{comparatorSymbol(check.comparator)} </span>

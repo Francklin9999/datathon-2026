@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
 import { Card } from '../../components/common/Page';
 import { useApp } from '../../state/app';
 
@@ -24,9 +24,10 @@ export function DefiResearch() {
     generation.current++; setResult(null); setError(''); setSources([]); setBusy(false);
     if (!sessionId) return;
     const controller = new AbortController();
-    fetch(`${API_BASE}/intelligence/defi/sources`, { signal: controller.signal, headers: { 'X-Aplomb-Session': sessionId } })
-      .then(r => r.ok ? r.json() : Promise.reject()).then(body => { if (Array.isArray(body.providers)) setSources(body.providers); })
-      .catch(() => undefined);
+    researchFetch('/intelligence/defi/sources', { signal: controller.signal })
+      .then(r => r.ok ? r.json() : Promise.reject()).then(body => { if (!Array.isArray(body?.providers)) throw new Error(); setSources(body.providers); })
+      // Without the status list the pool button stays disabled, so say why instead of failing silently.
+      .catch(() => { if (!controller.signal.aborted) setError(tr({ en: 'Source status unavailable. Reload the page to try again.', fr: 'État de la source indisponible. Rechargez la page pour réessayer.' })); });
     return () => controller.abort();
   }, [sessionId]);
   const isReady = (id: string) => sources.some(source => source.id === id && source.status === 'configured');
@@ -34,7 +35,7 @@ export function DefiResearch() {
     const current = ++generation.current;
     setBusy(true); setError(''); setResult(null);
     try {
-      const response = await fetch(`${API_BASE}${path}`, { headers: { 'X-Aplomb-Session': sessionId ?? '' } });
+      const response = await researchFetch(path);
       if (!response.ok) throw new Error();
       const body = await response.json() as RecordResult;
       if (!body || typeof body.source_sha256 !== 'string' || !Array.isArray(body.limitations)) throw new Error();
@@ -47,7 +48,7 @@ export function DefiResearch() {
     return typeof value === 'string' || typeof value === 'number' ? String(value) : '—';
   };
   return <Card title={tr({ en: 'On-chain market research', fr: 'Recherche sur les marchés en chaîne' })}>
-    <p>{tr({ en: 'Look up one exact pool or provider protocol. Prices, liquidity and total value locked are provider estimates, not verified portfolio values.', fr: 'Recherchez un bassin exact ou un protocole du fournisseur. Les prix, la liquidité et la valeur bloquée sont des estimations, et non des valeurs de portefeuille vérifiées.' })}</p>
+    <p>{tr({ en: 'Look up one exact pool. Price, liquidity and 24-hour volume are provider estimates, not verified portfolio values.', fr: 'Recherchez un bassin exact. Le prix, la liquidité et le volume sur 24 heures sont des estimations du fournisseur, et non des valeurs de portefeuille vérifiées.' })}</p>
     <ul className="small">{sources.map(source => <li key={source.id}><a href={source.docs_url} target="_blank" rel="noreferrer">{source.id}</a> — {source.status.replaceAll('_', ' ')} · <a href={source.terms_url} target="_blank" rel="noreferrer">{tr({ en: 'terms', fr: 'conditions' })}</a></li>)}</ul>
     <form onSubmit={e => { e.preventDefault(); void request(`/intelligence/defi/pair/${encodeURIComponent(chain)}/${encodeURIComponent(pool.trim())}`); }}>
       <div className="field"><label htmlFor="defi-chain">{tr({ en: 'Chain', fr: 'Chaîne' })}</label>

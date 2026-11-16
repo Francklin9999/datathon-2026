@@ -1167,9 +1167,15 @@ class ProfileServiceImpl:
         risk_ids = {k: v for k, v in {"volatility": pm.fact_ids.get("vol.annualized"), "maxDrawdown": pm.fact_ids.get("drawdown.max"),
                                       "worst12m": wid, "stress2022": pm.fact_ids.get("stress.replay_2022")}.items() if v}
 
+        # Trailing 1-year return of every held position (api.md §3.9 holdingReturns); the top list reuses it.
+        held = [x for x in profile.portfolio.positions if x.weight_pct > 0]
+        one_year = {p.ticker: eng.asset_metrics(p.ticker, {"code": "1y"})["return.period"] if not p.ticker.startswith("CASH.") else None
+                    for p in held}
+        holding_returns = [{"ticker": p.ticker, "return1yPct": one_year[p.ticker].value if one_year[p.ticker] else None,
+                            "return1yFactId": one_year[p.ticker].fact_id if one_year[p.ticker] else None} for p in held]
         top = []
-        for p in sorted((x for x in profile.portfolio.positions if x.weight_pct > 0), key=lambda x: -x.weight_pct)[:5]:
-            r1 = eng.asset_metrics(p.ticker, {"code": "1y"})["return.period"] if not p.ticker.startswith("CASH.") else None
+        for p in sorted(held, key=lambda x: -x.weight_pct)[:5]:
+            r1 = one_year[p.ticker]
             top.append({"ticker": p.ticker, "name": view.assets[p.ticker].name, "weightPct": p.weight_pct,
                         "marketValue": p.weight_pct / 100.0 * profile.portfolio.total_value,
                         "return1yPct": r1.value if r1 else None, "assetClass": view.assets[p.ticker].asset_class})
@@ -1196,7 +1202,7 @@ class ProfileServiceImpl:
                      "stress2022Pct": pm.stress2022_pct, "riskCategory": category, "factIds": risk_ids},
             "concentration": {"hhi": pm.hhi, "effectiveN": pm.effective_n, "topPositions": top},
             "correlation": correlation, "ruleChecks": [c.to_wire() for c in checks], "verdict": verdict,
-            "counts": counts.to_wire(), "facts": facts, "limitations": limitations,
+            "counts": counts.to_wire(), "facts": facts, "limitations": limitations, "holdingReturns": holding_returns,
         })
 
     def performance(self, session_id: str, profile_id: str, query: dict) -> a.PerformanceResponse:

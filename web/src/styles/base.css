@@ -1,7 +1,9 @@
 /* Reset, typography, utilities, scrollbars and the ambient field the glass floats over. */
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 96px; }
+/* Scroll padding keeps focus and scroll targets clear of the fixed top bar and of the section dock
+   (--dock-clearance, shell.css; zero on phones, where the dock is hidden). */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 96px; scroll-padding-bottom: var(--dock-clearance); }
 body {
   min-height: 100vh;
   background: var(--bg);

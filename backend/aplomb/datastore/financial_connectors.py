@@ -79,7 +79,7 @@ PROVIDERS = {
             'Requires purchased/entitled files and display rights. Formats vary; records retain original source columns.'),
         Provider('fred', 'FRED credit spreads and STLFSI4', ('SRC-031', 'MASTER-015'),
             'https://fred.stlouisfed.org/docs/api/fred/series_observations.html',
-            'https://fred.stlouisfed.org/legal/terms/', 'FRED', ('APLOMB_FRED_API_KEY',),
+            'https://fred.stlouisfed.org/legal/terms/', 'FRED', ('APLOMB_FRED_KEY',),
             'Written permission for the intended AI application is required; ICE series have additional underlying rights. Capture time is not an original vintage.'),
     )
 }

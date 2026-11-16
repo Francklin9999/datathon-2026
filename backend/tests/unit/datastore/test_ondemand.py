@@ -119,5 +119,113 @@ class OnDemand(unittest.TestCase):
         self.base_unchanged()
 
 
+GLOBAL_FX = "snap-20261115-globalfx"  # data/manifests/active.json: what dev:api serves
+
+
+class OnDemandOnGlobalFx(unittest.TestCase):
+    """T5.4: a parent published by global_fx.publish_global_fx carries boc_global_fx.json and the
+    fx_boc_global dataset, which ingest rejects and cannot rebuild. Every on-demand fetch on the
+    active snapshot was rejected ('unexpected input file boc_global_fx.json')."""
+
+    @classmethod
+    def setUpClass(cls):
+        from aplomb.datastore.global_fx import materialize_pinned_global_fx
+
+        from ._support import REPO
+
+        cls.root = temp_root()
+        materialize_pinned_global_fx(cls.root, REPO / "data", GLOBAL_FX)
+
+    def setUp(self):
+        self.before = tree_digest(self.root)
+
+    def fetched_on_master(self, ticker: str = "NEWCO") -> FetchedAsset:
+        snap = LocalDataStore(self.root).open(GLOBAL_FX)
+        days = snap.gate(snap.data_as_of, "current").master_calendar().dates[-300:]
+        rows = tuple({"date": d, "open": 10 + i / 100, "high": 11 + i / 100, "low": 9 + i / 100,
+                      "close": 10 + i / 100, "adj_close": 10 + i / 100, "volume": 500} for i, d in enumerate(days))
+        return fetched(300, ticker=ticker, rows=rows)
+
+    def parent_unchanged(self, *, activated: bool = False):
+        """Every file present before is byte-identical, the active pointer too unless activated."""
+        after = tree_digest(self.root)
+        for path, data in self.before.items():
+            if not (activated and path == "manifests/active.json"):
+                self.assertEqual(after.get(path), data, path)
+        if not activated:
+            self.assertEqual(after.get("manifests/active.json"), self.before.get("manifests/active.json"))
+
+    def test_child_keeps_the_parent_global_fx_capture(self):
+        from aplomb.datastore.service import DatastoreService
+
+        version = "snap-20261115-od-newco-1"
+        r = publish_on_demand(self.root, GLOBAL_FX, version, self.fetched_on_master(), clock=fixed_clock)
+        self.assertTrue(r.accepted, r.rejected_reason)
+        self.assertEqual(r.data_version, version)
+        self.parent_unchanged()
+        store = LocalDataStore(self.root)
+        parent, child = store.open(GLOBAL_FX), store.open(version)
+        self.assertEqual(child.manifest["parentVersion"], GLOBAL_FX)
+        # The on-demand publication time (as for a plain ingest), not the FX capture's retrieval time.
+        self.assertEqual(child.manifest["createdAt"], "2026-11-14T22:00:00Z")
+        self.assertEqual(child.data_as_of, parent.data_as_of)
+        fx_parent, fx_child = parent.manifest["datasets"]["fx_boc_global"], child.manifest["datasets"]["fx_boc_global"]
+        self.assertEqual(fx_child["sha256"], fx_parent["sha256"])
+        self.assertEqual(fx_child["details"], fx_parent["details"])
+        raw = {s["file"]: s for s in child.manifest["sources"]}["boc_global_fx.json"]
+        self.assertEqual(raw["sha256Bytes"], {s["file"]: s for s in parent.manifest["sources"]}["boc_global_fx.json"]["sha256Bytes"])
+        current_parent, current_child = parent.gate(parent.data_as_of, "current"), child.gate(child.data_as_of, "current")
+        self.assertEqual(current_child.global_fx("JPY").rows, current_parent.global_fx("JPY").rows)
+        self.assertTrue(current_child.global_fx("JPY").rows)
+        self.assertEqual(DatastoreService(lambda: child).reporting_currencies(),
+                         DatastoreService(lambda: parent).reporting_currencies())
+        self.assertEqual(len(DatastoreService(lambda: child).reporting_currencies()), 9)
+        self.assertIn("NEWCO", current_child.universe())
+        self.assertNotIn("NEWCO", current_parent.universe())
+        # The intermediate ingest is never published, and no staging is left behind.
+        self.assertEqual(sorted(p.name for p in (self.root / "manifests").glob("*.json") if "base" in p.name), [])
+        self.assertFalse((self.root / ".staging").exists())
+
+    def test_activation_and_a_second_fetch_on_the_child(self):
+        first = publish_on_demand(self.root, GLOBAL_FX, "snap-20261115-od-alpha-1", self.fetched_on_master("ALPHA"),
+                                  clock=fixed_clock, activate=True)
+        self.assertTrue(first.accepted, first.rejected_reason)
+        self.assertEqual(LocalDataStore(self.root).active_version(), "snap-20261115-od-alpha-1")
+        second = publish_on_demand(self.root, "snap-20261115-od-alpha-1", "snap-20261115-od-beta-1",
+                                   self.fetched_on_master("BETA"), clock=fixed_clock)
+        self.assertTrue(second.accepted, second.rejected_reason)
+        child = LocalDataStore(self.root).open("snap-20261115-od-beta-1")
+        universe = child.gate(child.data_as_of, "current").universe()
+        self.assertIn("ALPHA", universe)
+        self.assertIn("BETA", universe)
+        self.assertIn("fx_boc_global", child.manifest["datasets"])
+        self.assertEqual(child.manifest["parentVersion"], "snap-20261115-od-alpha-1")
+        self.assertEqual(LocalDataStore(self.root).active_version(), "snap-20261115-od-alpha-1")
+        self.parent_unchanged(activated=True)
+
+    def test_existing_version_is_rejected_without_writing(self):
+        version = "snap-20261115-od-gamma-1"
+        self.assertTrue(publish_on_demand(self.root, GLOBAL_FX, version, self.fetched_on_master("GAMMA"), clock=fixed_clock).accepted)
+        self.before = tree_digest(self.root)
+        again = publish_on_demand(self.root, GLOBAL_FX, version, self.fetched_on_master("DELTA"), clock=fixed_clock)
+        self.assertFalse(again.accepted)
+        self.assertIn("already exists", again.rejected_reason["en"])
+        self.assertEqual(again.data_version, GLOBAL_FX)
+        self.assertEqual(tree_digest(self.root), self.before)
+
+
+class ProviderProtocol(unittest.TestCase):
+
+    def test_live_adapter_matches_the_documented_protocol(self):
+        import inspect
+
+        from aplomb.datastore.ondemand import PriceProvider
+        from aplomb.datastore.providers import TiingoProvider
+
+        expected = list(inspect.signature(PriceProvider.fetch).parameters)
+        self.assertEqual(expected, ["self", "ticker", "start", "end"])
+        self.assertEqual(list(inspect.signature(TiingoProvider.fetch).parameters), expected)
+
+
 if __name__ == "__main__":
     unittest.main()

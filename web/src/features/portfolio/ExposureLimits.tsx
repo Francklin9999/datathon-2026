@@ -5,15 +5,17 @@ import { useApp } from '../../state/app';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
 import { Card } from '../../components/common/Page';
-import { ErrorState } from '../../components/common/States';
+import { ProfileWriteError } from '../../components/common/States';
 
 export function ExposureLimits({ profile }: { profile: Profile }) {
-  const { tr, applyProfile } = useApp();
+  const { tr, applyProfile, feature } = useApp();
   const [dimension, setDimension] = useState<'country' | 'currency'>('currency');
   const [key, setKey] = useState('USD');
   const [threshold, setThreshold] = useState('50');
   const [error, setError] = useState<ApiRequestError | null>(null);
   const [busy, setBusy] = useState(false);
+  // This card only adds limits (a profile_creator write); saved limits are profile rules, read by the Rules card.
+  if (!feature('profile_creator')) return null;
   const save = async () => { setBusy(true); setError(null); try {
     applyProfile(await getApiClient().addExposureLimit(profile.profileId, dimension, key, Number(threshold), profile.version));
   } catch (e) { setError(asApiError(e)); } finally { setBusy(false); } };
@@ -24,6 +26,6 @@ export function ExposureLimits({ profile }: { profile: Profile }) {
       <div className="field"><label htmlFor="limit-key">{dimension === 'country' ? 'ISO 3166 alpha-3' : 'ISO 4217'}</label><input id="limit-key" maxLength={3} pattern="[A-Z]{3}" value={key} onChange={e => setKey(e.target.value.toUpperCase())} /></div>
       <div className="field"><label htmlFor="limit-max">{tr({ en: 'Maximum weight (%)', fr: 'Poids maximal (%)' })}</label><input id="limit-max" type="number" min={0} max={100} step="any" value={threshold} onChange={e => setThreshold(e.target.value)} /></div>
     </div><button className="btn" disabled={busy || !/^[A-Z]{3}$/.test(key) || threshold === '' || !Number.isFinite(Number(threshold)) || Number(threshold) < 0 || Number(threshold) > 100}>{tr({ en: 'Save user limit', fr: 'Enregistrer la limite' })}</button></form>}
-    {error && <ErrorState error={error} />}
+    {error && <ProfileWriteError error={error} />}
   </Card>;
 }

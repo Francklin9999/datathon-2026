@@ -169,3 +169,82 @@ def test_strategy_simulation(client):
     assert unknown.status_code == 422 and unknown.json()["error"]["code"] == "validation_error"
     assert client.post("/v1/profiles/p_0000000000/strategies/simulate", json={"strategy": {"kind": "rebalance", "trigger": "band"}},
                        headers=H).status_code == 404
+
+
+# The exact bodies the web sends: wireConfig(defaultConfig(kind)) in web/src/lib/strategies.ts, plus the
+# rebalance "On drift" variant (trigger "band"). web/tests/strategies-logic.test.ts pins the same literals.
+WEB_STRATEGY_BODIES = {
+    "rebalance-calendar": {"kind": "rebalance", "trigger": "calendar", "costBps": 10, "frequency": "quarterly"},
+    "rebalance-band": {"kind": "rebalance", "trigger": "band", "costBps": 10, "bandPts": 5},
+    "contribute": {"kind": "contribute", "amount": 500, "frequency": "monthly", "allocation": "underweight", "costBps": 0},
+    "risk_guard": {"kind": "risk_guard", "triggerDrawdownPct": 8, "shiftPct": 50, "reentryDrawdownPct": 3, "costBps": 10},
+}
+
+
+@pytest.mark.parametrize("window", ["full", "1y", "3y", "5y", "ytd"])
+@pytest.mark.parametrize("name", list(WEB_STRATEGY_BODIES))
+def test_strategy_simulation_every_kind_and_window(client, name, window):
+    """QA 1(c): every strategy the web can save simulates in every preset window (All, 1Y, 3Y, 5Y, YTD)."""
+    body = ok(client.post("/v1/profiles/robert/strategies/simulate",
+                          json={"strategy": WEB_STRATEGY_BODIES[name], "window": {"code": window}}, headers=H), "StrategySimulation")
+    assert body["window"]["code"] == window
+    assert len(body["series"]) == len(body["baseline"]) >= 2
+    assert body["series"][-1]["date"] == body["baseline"][-1]["date"]
+    assert body["method"] == "M_STRATEGY_SIM"
+    assert body["strategy"]["kind"] == WEB_STRATEGY_BODIES[name]["kind"]
+    assert (body["invested"] is not None) == (name == "contribute")
+
+
+def test_strategy_trigger_fields(client):
+    """QA 1(b): "On drift" is the UI label of trigger "band"; each trigger keeps only its own field."""
+    url = "/v1/profiles/robert/strategies/simulate"
+    calendar = ok(client.post(url, json={"strategy": {**WEB_STRATEGY_BODIES["rebalance-calendar"], "bandPts": 5},
+                                         "window": {"code": "1y"}}, headers=H), "StrategySimulation")
+    assert "bandPts" not in calendar["strategy"] and calendar["strategy"]["frequency"] == "quarterly"
+    band = ok(client.post(url, json={"strategy": {"kind": "rebalance", "trigger": "band"}, "window": {"code": "1y"}}, headers=H),
+              "StrategySimulation")
+    assert band["strategy"]["bandPts"] == 5 and "frequency" not in band["strategy"]
+    drift = client.post(url, json={"strategy": {"kind": "rebalance", "trigger": "drift"}}, headers=H)
+    assert drift.status_code == 422 and drift.json()["error"]["code"] == "validation_error"
+
+
+def test_strategy_simulation_route_is_registered():
+    """QA 1(a): a site built for contract >= 1.5.0 calls this route; losing it must fail CI, not production.
+
+    An unregistered path answers 404 not_found (what the 1.4.0 API returned); a registered POST route
+    answers a GET with 422 validation_error ("Unsupported request", the mapped 405).
+    """
+    app = create_default_app(settings())
+    assert "/v1/profiles/{profile_id}/strategies/simulate" in {getattr(route, "path", None) for route in app.routes}
+    response = TestClient(app).get("/v1/profiles/robert/strategies/simulate", headers=H)
+    assert response.status_code == 422 and response.json()["error"]["code"] == "validation_error"
+
+
+def test_batch_of_two_profiles_explains_the_differences(client):
+    """datastore-profiles-rules-strategies#4: the compare view's rule alignment (rules SPEC §6, RUL-11) over HTTP."""
+    fresh = {"X-Aplomb-Session": "s_" + str(uuid.uuid4())}  # unedited default rules
+    move = {"ticker": "TSLA", "sizePct": 25, "funding": {"mode": "pro_rata"}}
+    body = ok(client.post("/v1/check/batch", json={"items": [{"profileId": "robert", "move": move},
+                                                             {"profileId": "amira", "move": move}]}, headers=fresh),
+              "BatchCheckResponse")
+    robert, amira = ({c["ruleId"]: c for c in r["ruleChecks"]} for r in body["results"])
+    diff = {d["ruleId"]: d for d in body["differences"]}
+    assert set(diff) == set(robert) | set(amira)
+    position = diff["cap.position"]
+    assert (position["reason"], position["statusA"], position["statusB"]) == ("threshold_differs", "conflict", "tension")
+    assert (position["thresholdA"], position["thresholdB"]) == (robert["cap.position"]["threshold"], amira["cap.position"]["threshold"])
+    assert (position["valueA"], position["valueB"]) == (robert["cap.position"]["value"], amira["cap.position"]["value"])
+    assert diff["cap.growth_assets"]["reason"] == "rule_only_in_a" and diff["cap.growth_assets"]["statusB"] is None
+    assert diff["floor.diversifiers"]["reason"] == "rule_only_in_b" and diff["floor.diversifiers"]["thresholdA"] is None
+    assert diff["sim.only"]["reason"] == "same"
+    # Only a pair of checked results is aligned: one item, three items or a failed item get no key.
+    single = ok(client.post("/v1/check/batch", json={"items": [{"profileId": "robert", "move": move}]}, headers=fresh),
+                "BatchCheckResponse")
+    assert "differences" not in single
+    failed = ok(client.post("/v1/check/batch", json={"items": [{"profileId": "robert", "move": move},
+                                                               {"profileId": "p_0000000000", "move": move}]}, headers=fresh),
+                "BatchCheckResponse")
+    assert failed["results"][1]["error"]["code"] == "not_found" and "differences" not in failed
+    triple = ok(client.post("/v1/check/batch", json={"items": [{"profileId": p, "move": move} for p in ("robert", "amira", "mateo")]},
+                            headers=fresh), "BatchCheckResponse")
+    assert "differences" not in triple

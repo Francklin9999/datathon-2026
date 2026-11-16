@@ -2,7 +2,7 @@
 
 import threading
 
-from .repositories import CacheRepository, ProfileRepository, RunRepository
+from .repositories import ProfileRepository, RunRepository
 from .settings import Settings
 from .storage import DynamoStore, FileStore, MemoryStore, S3Blobs
 
@@ -63,5 +63,4 @@ def create_repositories(settings: Settings, store=None):
         RunRepository(
             store, hard_seconds=settings.run_hard_seconds, lease_seconds=settings.lease_seconds
         ),
-        CacheRepository(store),
     )

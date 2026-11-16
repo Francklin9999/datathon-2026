@@ -15,8 +15,7 @@ import { useApp } from '../../state/app';
 import { useRun } from '../../state/useRun';
 import { Card, PageHeader } from '../../components/common/Page';
 import { Empty, ErrorState, Loading } from '../../components/common/States';
-import { RunStatusBadge, VerdictBadge } from '../../components/common/Badges';
-import { RunTimeline } from '../../components/run/RunTimeline';
+import { RunStatusBadge } from '../../components/common/Badges';
 import { TargetReview } from './TargetReview';
 import { RunsTable } from '../../components/run/RunsTable';
 import {
@@ -24,9 +23,11 @@ import {
 } from '../../lib/labels';
 import { fmtDate, fmtDateTime, fmtDuration, fmtNumber } from '../../lib/format';
 import { isTerminal } from '../../lib/runs';
+import { useQuery } from '../../state/useQuery';
 import {
-  ARCHITECTURE, ROLE_CARDS, RUN_LIMITS, formatArgs, guardrailReading, runBudget, runGuardrailAudit, stepDeviations,
-  stepProduced, workNature, siteBuildIdentity, type ArchNodeId, type GuardrailReading, type WorkNature,
+  ARCHITECTURE, ROLE_CARDS, applyLiveStatus, budgetLimits, formatArgs, guardrailReading, listRowIsBehind, refreshRunRows,
+  runBudget, runGuardrailAudit, stepDeviations, stepProduced, workNature, siteBuildIdentity, type ArchNodeId,
+  type GuardrailReading, type WorkNature,
 } from '../../lib/system';
 
 const PAGE_SIZE = 20;
@@ -221,6 +222,25 @@ function RunPicker({ selectedId, live }: { selectedId: string | null; live: Run 
     return () => controller.abort();
   }, [sessionId, nonce]);
 
+  // The polled run's status replaces its row's status (never a terminal one). Once the run is terminal
+  // while its row is not, the list is read again so the row's verdict and duration come from GET /runs.
+  const liveRunId = live?.runId ?? null;
+  const liveRunStatus = live?.status ?? null;
+  const liveStatus = useMemo(
+    () => (liveRunId && liveRunStatus ? { runId: liveRunId, status: liveRunStatus } : null), [liveRunId, liveRunStatus]);
+  const rows = useMemo(() => applyLiveStatus(state.items, liveStatus), [state.items, liveStatus]);
+  const behind = listRowIsBehind(state.items, liveStatus);
+  useEffect(() => {
+    if (!behind || !sessionId) return undefined;
+    const controller = new AbortController();
+    // A failure keeps the snapshot as it is; the Refresh button still reloads the whole list.
+    getApiClient().runs({ limit: PAGE_SIZE }, controller.signal).then(
+      (page: RunsResponse) => { if (!controller.signal.aborted) setState(s => ({ ...s, items: refreshRunRows(s.items, page.items) })); },
+      () => undefined,
+    );
+    return () => controller.abort();
+  }, [behind, sessionId]);
+
   const more = async () => {
     if (!state.nextCursor) return;
     const cursor = state.nextCursor;
@@ -237,16 +257,15 @@ function RunPicker({ selectedId, live }: { selectedId: string | null; live: Run 
   };
 
   return (
-    <Card id="runs" section={tr({ en: 'Analyses', fr: 'Analyses' })} tour="system-runs" title={tr({ en: 'Analyses of this session', fr: 'Analyses de cette session' })}
-      info={tr({ en: 'Only analyses started from this browser session are listed. Pick one to see what it recorded.', fr: 'Seules les analyses lancées depuis cette session de navigateur sont listées. Choisissez-en une pour voir ce qu’elle a enregistré.' })}
+    <Card id="runs" section={tr({ en: 'Analyses', fr: 'Analyses' })} tour="system-runs" title={tr({ en: 'Analyses started in this browser', fr: 'Analyses lancées dans ce navigateur' })}
+      info={tr({ en: 'Every analysis started in this browser, for every profile and on earlier visits too. Another browser or device does not see them. Pick one to see what it recorded.', fr: 'Toutes les analyses lancées dans ce navigateur, pour tous les profils et aussi lors de visites précédentes. Un autre navigateur ou appareil ne les voit pas. Choisissez-en une pour voir ce qu’elle a enregistré.' })}
       actions={<button type="button" className="btn ghost btn-sm" onClick={() => setNonce(n => n + 1)} disabled={state.loading}>{tr({ en: 'Refresh', fr: 'Actualiser' })}</button>}>
       {state.loaded && state.items.length === 0 && !state.error && (
         <Empty>{tr({ en: 'No analysis yet in this session. Start one from Home, Decide, World or Replay.', fr: 'Aucune analyse dans cette session. Lancez-en une depuis l’Accueil, Décider, Monde ou Rejouer.' })}</Empty>
       )}
       {state.items.length > 0 && (
-        <RunsTable items={state.items} selectedId={selectedId}
-          linkFor={id => `/agents-system/?runId=${encodeURIComponent(id)}#run-detail`}
-          statusOf={item => (live && live.runId === item.runId ? live.status : item.status)} />
+        <RunsTable items={rows} selectedId={selectedId}
+          linkFor={id => `/agents-system/?runId=${encodeURIComponent(id)}#run-detail`} />
       )}
       {state.loading && <Loading />}
       {state.error && <ErrorState error={state.error} onRetry={() => (state.loaded && state.nextCursor ? void more() : setNonce(n => n + 1))} />}
@@ -297,8 +316,13 @@ function StateLine({ run }: { run: Run }) {
 }
 
 function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profileName: string | null; guardrailsConfigured: boolean }) {
-  const { tr, lang } = useApp();
+  const { tr, lang, sessionId } = useApp();
   const budget = useMemo(() => runBudget(run), [run]);
+  // Limits the API reports for this run; read once per run. Until it answers, or when it cannot
+  // (fixture mode, an API without the route, another session), the contract defaults are shown.
+  const trace = useQuery(sessionId ? `run-trace|${sessionId}|${run.runId}` : null,
+    signal => getApiClient().runTrace(run.runId, signal));
+  const limits = budgetLimits(trace.data, run.runId);
   const guardrailAudit = runGuardrailAudit(run);
   const reading = guardrailReading(guardrailsConfigured, guardrailAudit);
   const auditHref = `/evidence-audit/?runId=${encodeURIComponent(run.runId)}`;
@@ -346,21 +370,30 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
             <tr>
               <th scope="col">{tr({ en: 'Measure', fr: 'Mesure' })}</th>
               <th scope="col" className="num-col">{tr({ en: 'Recorded', fr: 'Enregistré' })}</th>
-              <th scope="col" className="num-col">{tr({ en: 'Contract default limit', fr: 'Limite par défaut du contrat' })}</th>
+              <th scope="col" className="num-col">{limits.source === 'trace'
+                ? tr({ en: 'Limit set on this API', fr: 'Limite fixée sur cette API' })
+                : tr({ en: 'Contract default limit', fr: 'Limite par défaut du contrat' })}</th>
             </tr>
           </thead>
           <tbody>
-            <tr><th scope="row">{tr({ en: 'Model calls', fr: 'Appels de modèle' })}</th><td className="num-col num">{fmtNumber(budget.llmCalls, lang, 0)}</td><td className="num-col num">{RUN_LIMITS.llmCalls}</td></tr>
+            <tr><th scope="row">{tr({ en: 'Model calls', fr: 'Appels de modèle' })}</th><td className="num-col num">{fmtNumber(budget.llmCalls, lang, 0)}</td><td className="num-col num">{fmtNumber(limits.llmCalls, lang, 0)}</td></tr>
             <tr><th scope="row">{tr({ en: 'Input tokens', fr: 'Jetons en entrée' })}</th><td className="num-col num">{fmtNumber(budget.inputTokens, lang, 0)}</td><td className="num-col">—</td></tr>
             <tr><th scope="row">{tr({ en: 'Output tokens', fr: 'Jetons en sortie' })}</th><td className="num-col num">{fmtNumber(budget.outputTokens, lang, 0)}</td><td className="num-col">—</td></tr>
             <tr><th scope="row">{tr({ en: 'Tool calls (all)', fr: 'Appels d’outil (tous)' })}</th><td className="num-col num">{fmtNumber(budget.toolCalls, lang, 0)}</td><td className="num-col">—</td></tr>
-            <tr><th scope="row">{tr({ en: 'Research tool calls (in recorded research steps)', fr: 'Appels d’outils de recherche (dans les étapes de recherche enregistrées)' })}</th><td className="num-col num">{fmtNumber(budget.researchToolCalls, lang, 0)}</td><td className="num-col num">{RUN_LIMITS.researchToolCalls}</td></tr>
-            <tr><th scope="row">{tr({ en: 'Revision loops (recorded revision steps)', fr: 'Boucles de révision (étapes de révision enregistrées)' })}</th><td className="num-col num">{fmtNumber(budget.reviseLoops, lang, 0)}</td><td className="num-col num">{RUN_LIMITS.reviseLoops}</td></tr>
+            <tr><th scope="row">{tr({ en: 'Research tool calls (in recorded research steps)', fr: 'Appels d’outils de recherche (dans les étapes de recherche enregistrées)' })}</th><td className="num-col num">{fmtNumber(budget.researchToolCalls, lang, 0)}</td><td className="num-col num">{fmtNumber(limits.researchToolCalls, lang, 0)}</td></tr>
+            <tr><th scope="row">{tr({ en: 'Revision loops (recorded revision steps)', fr: 'Boucles de révision (étapes de révision enregistrées)' })}</th><td className="num-col num">{fmtNumber(budget.reviseLoops, lang, 0)}</td><td className="num-col num">{fmtNumber(limits.reviseLoops, lang, 0)}</td></tr>
             <tr><th scope="row">{tr({ en: 'Failed tool calls (recorded)', fr: 'Appels d’outil en échec (enregistrés)' })}</th><td className="num-col num">{fmtNumber(budget.failedToolCalls, lang, 0)}</td><td className="num-col">—</td></tr>
-            <tr><th scope="row">{tr({ en: 'Wall-clock duration', fr: 'Durée réelle' })}</th><td className="num-col num">{fmtDuration(budget.durationMs, lang)}</td><td className="num-col num">{fmtDuration(RUN_LIMITS.wallClockTargetMs, lang)} / {fmtDuration(RUN_LIMITS.wallClockHardMs, lang)}</td></tr>
+            <tr><th scope="row">{tr({ en: 'Wall-clock duration', fr: 'Durée réelle' })}</th><td className="num-col num">{fmtDuration(budget.durationMs, lang)}</td><td className="num-col num">{fmtDuration(limits.wallClockTargetMs, lang)} / {fmtDuration(limits.wallClockHardMs, lang)}</td></tr>
           </tbody>
         </table>
       </div>
+      <p className="small muted">
+        {limits.source === 'trace'
+          ? tr({ en: 'Limits as reported by this run’s trace from the API’s settings. The first duration is the contract’s target, the second the hard limit.', fr: 'Limites telles que la trace de cette exécution les rapporte d’après les réglages de l’API. La première durée est la cible du contrat, la seconde la limite stricte.' })
+          : trace.error
+            ? tr({ en: 'The API did not return this run’s trace, so the contract defaults are shown. A deployment can only set lower limits.', fr: 'L’API n’a pas renvoyé la trace de cette exécution : les limites par défaut du contrat sont affichées. Un déploiement ne peut fixer que des limites plus basses.' })
+            : tr({ en: 'Contract defaults. A deployment can only set lower limits.', fr: 'Valeurs par défaut du contrat. Un déploiement ne peut fixer que des limites plus basses.' })}
+      </p>
       </div></details>
 
       <h3 className="h4">{tr({ en: 'Guardrail: configured versus applied', fr: 'Garde-fou : configuré ou appliqué' })}</h3>
@@ -380,7 +413,7 @@ function RunBody({ run, profileName, guardrailsConfigured }: { run: Run; profile
       {run.steps.length > 0 && (
         <>
           <div className="step-details">
-            {run.steps.map(step => <StepDetail key={step.seq} step={step} runId={run.runId} />)}
+            {run.steps.map(step => <StepDetail key={step.seq} step={step} runId={run.runId} kind={run.kind} />)}
           </div>
         </>
       )}
@@ -452,10 +485,10 @@ function ToolCallDetail({ call }: { call: ToolCall }) {
   );
 }
 
-function StepDetail({ step, runId }: { step: Step; runId: string }) {
+function StepDetail({ step, runId, kind }: { step: Step; runId: string; kind: Run['kind'] }) {
   const { tr, lang } = useApp();
   const produced = stepProduced(step);
-  const deviations = stepDeviations(step);
+  const deviations = stepDeviations(step, kind);
   const failedCalls = step.toolCalls.filter(call => !call.ok).length;
   const statusText = step.status === 'running' ? tr({ en: 'Running', fr: 'En cours' }) : step.status === 'failed' ? tr({ en: 'Failed', fr: 'Échec' }) : tr({ en: 'Done', fr: 'Terminé' });
   return (

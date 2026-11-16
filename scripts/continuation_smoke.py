@@ -48,7 +48,7 @@ def main():
     assert next(r for r in profile['rules'] if r['ruleId'] == 'cap.currency.USD')['origin'] == 'user'
     clone = call('POST', f'/profiles/{pid}/duplicate', 'Profile', {'name': 'Independent duplicate'}, 201)
     assert clone['profileId'] != pid
-    assert next(r for r in clone['rules'] if r['ruleId'] == 'cap.currency.USD')['origin'] == 'imported'
+    assert next(r for r in clone['rules'] if r['ruleId'] == 'cap.currency.USD')['origin'] == 'user'  # duplicate() keeps origins
     archived = call('PATCH', f'/profiles/{pid}/archive', 'Profile', {'archived': True, 'version': profile['version']})
     assert pid not in {p['profileId'] for p in call('GET', '/profiles', 'ProfilesResponse')['items']}
     assert pid in {p['profileId'] for p in call('GET', '/profiles/archived', 'ProfilesResponse')['items']}

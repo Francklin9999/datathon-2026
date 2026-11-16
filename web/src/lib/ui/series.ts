@@ -19,6 +19,13 @@ export function drawdownSeries(points: readonly SeriesPoint[]): SeriesPoint[] {
   });
 }
 
+/** First and last plotted points (the amounts the value chart starts and ends at); null with fewer than two. */
+export function periodEnds(points: readonly SeriesPoint[]): { first: SeriesPoint; last: SeriesPoint } | null {
+  const first = points[0];
+  const last = points[points.length - 1];
+  return points.length >= 2 && first && last ? { first, last } : null;
+}
+
 /** Change from the first to the last plotted point, in percent; null with fewer than two points. */
 export function periodChangePct(points: readonly SeriesPoint[]): number | null {
   const first = points[0]?.value;

@@ -12,7 +12,9 @@ Every immutable capture retains original-byte SHA256 (`content_hash`), extracted
 
 Cache keys contain adapter version, URL/args, retrieval day, asOf, mode and data version. Hits retain original retrieval time, relabel run-local document context and mark `from_cache`; no stale cross-day hit is silently reused. Redirect aliases are reattached on hits.
 
-`ResearchService.save_figure` is a code-facing path through T10 `add_quote_figure`: exact source literal and explicit compatible unit must occur in a verified quote. It creates `quote.figure` with source URL and unknown availability date; it does not infer publication timing or arithmetic. Raw source prose remains untrusted data and has no registration/profile authority.
+Numeric research values enter the ledger only from structured sources (`edgar.company_facts` XBRL rows, `etf.holdings` issuer CSV weights, the `attention.pageviews` ratio), each reparsed by the ledger. A figure quoted in prose is not registered: the former code-only `ResearchService.save_figure` had no tool or route reaching it and was removed (wiring audit research#11). T10 `add_quote_figure` stays in the ledger. Raw source prose remains untrusted data and has no registration/profile authority.
+
+The four `edgar.*` bindings exist only with `research_tool_handlers(..., sec=True)`. The application composition (`api/runtime.build_registry`) does not pass it: the owner removed every SEC source after HTTP 403 refusals (`intelligence/data/source_dispositions.json` SRC-034..SRC-042, "removed: owner excluded SEC access-refused sources"), so the researcher is not offered a source recorded as refusing. Re-enabling needs the accepted SEC access of docs/19-OWNER-ACTIONS.md item 1.
 
 ## Supported catalog behavior and precise limitations
 

@@ -54,5 +54,24 @@ class FailureEvidence(unittest.TestCase):
             self.assertEqual(report.read_text(), "original evidence")
 
 
+class StaticDisclaimer(unittest.TestCase):
+    HEAD = ('<html><head><meta name="description" content="Fictional-profile portfolio decision audit. '
+            'Simulation only. Not financial advice."/></head>')
+    NOTE = ('<p class="sim-pill" role="note" title="Simulation only. Fictional profiles. Not financial advice."'
+            ' data-tour="disclaimer"><svg></svg><span class="sim-text" aria-hidden="true">Simulation, not advice'
+            '</span><span class="sr-only">Simulation only. Fictional profiles. Not financial advice.</span></p>')
+
+    def test_rendered_note_satisfies_the_check(self):
+        self.assertTrue(QA.has_disclaimer(self.HEAD + "<body><header>" + self.NOTE + "</header></body></html>"))
+
+    def test_head_metadata_alone_does_not_count(self):
+        self.assertFalse(QA.has_disclaimer(self.HEAD + "<body><main><h1>Home</h1></main></body></html>"))
+
+    def test_phrases_outside_the_note_do_not_count(self):
+        body = ('<body><p class="sim-pill" role="note" title="Simulation, not advice">Simulation, not advice</p>'
+                '<p>Simulation only. Not financial advice.</p></body></html>')
+        self.assertFalse(QA.has_disclaimer(self.HEAD + body))
+
+
 if __name__ == "__main__":
     unittest.main()

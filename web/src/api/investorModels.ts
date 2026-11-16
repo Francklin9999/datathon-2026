@@ -24,7 +24,7 @@ export interface FundLookThroughResult {
   limitations: string[];
 }
 
-export interface FundEvidence {
+interface FundEvidence {
   source_id: string;
   url: string;
   content_sha256: string;

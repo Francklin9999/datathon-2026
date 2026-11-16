@@ -119,6 +119,8 @@ def parse_draft(
 ) -> tuple[list[BriefSection], list[dict]]:
     sections, checks, ids, section_ids = [], [], set(), set()
     rule_map = {str(r.rule_id): r for r in rules}
+    # A08 compares cited evidence and prose quotations only; with neither, it had nothing to check.
+    quotes_compared = False
 
     def failure(code, sid, detail):
         checks.append(dict(code=code, ok=False, kind="code", detail=detail, sentenceIds=[sid]))
@@ -194,6 +196,8 @@ def parse_draft(
             cited_quotes = [
                 ledger.evidence[s["evidenceId"]].quote for s in segments if s["t"] == "evidence"
             ]
+            if quotes or any(s["t"] == "evidence" for s in segments):
+                quotes_compared = True
             if any(
                 " ".join(q.split()) not in {" ".join(c.split()) for c in cited_quotes if c}
                 for q in quotes
@@ -229,6 +233,13 @@ def parse_draft(
         ("A08", "Cited evidence verification and writer quotations checked"),
     ):
         if not any(item["code"] == code and not item["ok"] for item in checks):
+            if code == "A08" and not quotes_compared:
+                # Pass by absence, not by comparison: say so and attach no sentence.
+                checks.append(
+                    dict(code=code, ok=True, kind="code",
+                         detail="No cited evidence or quotations to verify", sentenceIds=[])
+                )
+                continue
             checks.append(
                 dict(code=code, ok=True, kind="code", detail=detail, sentenceIds=sorted(ids))
             )

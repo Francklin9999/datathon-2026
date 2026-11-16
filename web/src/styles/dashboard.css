@@ -6,7 +6,7 @@
 .dash-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
 /* Scope bar: what every widget below shows. */
-.scope-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 22px; padding: 14px 18px; margin-bottom: 18px;
+.scope-bar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px 22px; padding: 14px 18px; margin-bottom: 18px;
   background: var(--glass-card); border: 1px solid var(--glass-line); border-radius: var(--r-card); box-shadow: var(--card-shadow); }
 .scope-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .scope-label { font-size: 12px; color: var(--text-3); }
@@ -26,12 +26,17 @@
 .scope-field .popover { top: calc(100% + 6px); left: 0; }
 .scope-error { color: var(--conflict-fg); font-size: 12px; }
 .scope-end { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; align-self: center; }
-.scope-reset { margin-left: 0; }
+.scope-hint { font-size: 12px; color: var(--text-3); }
+/* Non-default scope: named above the bar, with Reset and the persistence note. */
+.scope-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 8px; font-size: 13px; color: var(--text-2); }
+.scope-saved { font-size: 12px; color: var(--text-3); }
+/* A period segment never shrinks under its label: the control wraps instead (the pill follows offsetTop). */
+.scope-bar .segmented { flex-wrap: wrap; max-width: 100%; }
+.scope-bar .segment { flex-shrink: 0; }
+/* Phones only: the filters other than the period fold into a disclosure. Wider: the wrapper is transparent. */
+.scope-filters { display: contents; }
+.scope-filters-toggle { display: none; }
 .scope-note { margin: 0 0 8px; font-size: 12px; color: var(--text-3); }
-.layout-btn[aria-pressed='true'] { background: var(--ink-fill); color: var(--ink-fill-text); }
-.grid-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; min-height: 36px; margin: -6px 0 14px; padding: 8px 8px 8px 16px;
-  border-radius: var(--r-pill); background: var(--accent-soft); }
-.grid-tools-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
 
 /* Grid. Widgets are always arrangeable: the header is the grip, the grabber at the top edge the
    keyboard handle, the corner handle resizes. A widget never scrolls (overflow hidden) and keeps the
@@ -118,15 +123,18 @@
 .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
 .donut-center-value { font-size: 28px; font-weight: 650; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; }
 .donut-center-label { font-size: 12px; color: var(--text-3); margin-top: 4px; }
-.meter-list { display: flex; flex-direction: column; min-width: 0; width: 100%; }
-.meter-row { display: grid; grid-template-columns: 8px minmax(72px, 1fr) minmax(40px, 1.4fr) auto; align-items: center; gap: 10px; min-height: 32px; padding: 0 8px; border-radius: 8px;
-  transition: background-color var(--dur-fast) var(--ease); }
+/* The list is the grid and each row a subgrid, so every bar starts at the same x while the name
+   column takes the longest name it can. A name that does not fit wraps (never an ellipsis); the bar
+   is the part that shrinks, and values are never cut. */
+.meter-list { display: grid; grid-template-columns: 8px minmax(min-content, auto) minmax(24px, 1fr) auto; column-gap: 10px; min-width: 0; width: 100%; }
+.meter-row { grid-column: 1 / -1; display: grid; grid-template-columns: 8px minmax(0, auto) minmax(24px, 1fr) auto; grid-template-columns: subgrid; align-items: center; column-gap: 10px;
+  min-height: 32px; padding: 4px 8px; border-radius: 8px; transition: background-color var(--dur-fast) var(--ease); }
 .meter-row[data-active] { background: var(--glass-inset); }
 .meter-dot { width: 8px; height: 8px; border-radius: 50%; }
-.meter-name { font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meter-name { font-size: 13px; line-height: 1.3; min-width: 0; white-space: normal; overflow-wrap: break-word; }
 .meter-bar { display: block; height: 6px; border-radius: 3px; background: var(--glass-inset); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
 .meter-bar > span { display: block; height: 100%; border-radius: 3px; }
-.meter-value { font-size: 13px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.meter-value { font-size: 13px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .alloc-note { margin-top: 12px; font-size: 12px; color: var(--text-3); }
 @container (min-width: 560px) {
   .donut { grid-template-columns: 176px minmax(0, 1fr); justify-items: stretch; }
@@ -152,7 +160,6 @@
 .rank-ticker { display: block; font-weight: 600; font-size: 13px; }
 .rank-name { display: block; font-size: 12px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rank-table .num-col { font-weight: 500; }
-.list-count { margin-top: 12px; font-size: 12px; color: var(--text-3); }
 
 /* Plan health: the verdict, then counts as tiles, then the rules nearest their limit. */
 .health-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 16px; }
@@ -167,11 +174,17 @@
 .rule-code { display: inline-block; margin-right: 6px; font-family: var(--mono); font-size: 12px; color: var(--text-3); }
 .limit-figs { margin-top: 4px; color: var(--text-2); }
 
-/* Below the counts: the rules nearest their limit, one line each, as many as fit. */
+/* Below the counts: the rules nearest their limit, as many whole sentences as fit. A sentence wraps
+   (never an ellipsis, so no figure is cut); a row that does not fit is not shown at all and a button
+   opens the Details sheet, which lists them all. Rows not shown stay in the layout, out of the flow and
+   invisible, so their wrapped height can be measured (HomePage.tsx PlanHealth, fitHeights). */
 .health-rest { margin-top: 14px; overflow: hidden; }
 .health-rest-title { margin-bottom: 4px; font-size: 12px; font-weight: 500; color: var(--text-3); }
-.limit-lines li { height: 30px; line-height: 30px; font-size: 13px; color: var(--text-2); border-top: 1px solid var(--line); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.limit-lines { position: relative; }
+.limit-lines li { padding: 6px 0; line-height: 1.45; font-size: 13px; color: var(--text-2); border-top: 1px solid var(--line); min-width: 0; white-space: normal; overflow-wrap: break-word; }
 .limit-lines li:first-child { border-top: 0; }
+.limit-lines li[data-unfit] { position: absolute; top: 0; left: 0; right: 0; visibility: hidden; }
+.health-rest .more-row { margin-top: 0; }
 
 /* Portfolio brief: the summary and focus cards, clamped; everything in the sheet. */
 .brief-summary { margin-bottom: 12px; }
@@ -198,6 +211,9 @@
 @media (max-width: 767px) {
   .dash-header { align-items: flex-start; }
   .scope-end { margin-left: 0; }
-  .grid-tools { border-radius: 18px; }
+  .scope-bar .segmented { border-radius: 18px; }
+  .scope-filters-toggle { display: inline-flex; align-self: flex-end; }
+  .scope-filters:not([data-open]) { display: none; }
+  .scope-filters[data-open] { display: flex; flex-direction: column; gap: 14px; flex-basis: 100%; min-width: 0; }
   .rank-name { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 }

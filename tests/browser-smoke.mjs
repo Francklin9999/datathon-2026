@@ -7,6 +7,13 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const [site, directory, debugging = 'http://127.0.0.1:9227'] = process.argv.slice(2);
+// Every page of the static app, derived like scripts/qa_smoke.py so new pages cannot be skipped.
+const appDirectory = path.join(import.meta.dirname, '..', 'web', 'src', 'app');
+const routes = (await fs.readdir(appDirectory, { recursive: true }))
+  .filter(file => path.basename(file) === 'page.tsx')
+  .map(file => path.dirname(file).split(path.sep).filter(part => part && part !== '.').join('/'))
+  .map(route => (route ? `/${route}/` : '/'))
+  .sort();
 if (!site || !directory) throw new Error('Provide site URL and a fresh evidence directory');
 await fs.mkdir(directory, { recursive: true });
 const reportPath = path.join(directory, 'browser.json');
@@ -59,7 +66,7 @@ const report = {
 try {
   for (const width of [375, 768, 1440]) {
     await call('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 375 });
-    for (const route of ['/', '/portfolio/', '/profiles/', '/decision-desk/', '/evidence-audit/', '/sources/', '/world-explorer/', '/time-machine/', '/agents-system/']) {
+    for (const route of routes) {
       const before = exceptions.length;
       await call('Page.navigate', { url: new URL(route, site).href });
       const deadline = Date.now() + 15000;
@@ -70,14 +77,17 @@ try {
       await pause(1000);
       const state = await evaluate(`(() => {
         const text = document.body.innerText;
-        const note = document.querySelector('.disclaimer');
+        // The top-bar simulation note (SimPill): short visible text, the full disclaimer in its title and sr-only text.
+        const note = document.querySelector('.sim-pill[role="note"]');
+        const noteText = note ? note.title + ' ' + note.textContent : '';
         return {
           title: document.querySelector('h1')?.innerText ?? '',
           hydrated: !!document.querySelector('next-route-announcer'),
-          personaLoaded: text.includes('Robert'),
-          disclaimer: !!note && note.getBoundingClientRect().width > 0 && text.includes('Simulation only.') && text.includes('Not financial advice.'),
+          // The switcher name is not displayed at some widths, so read its text content as well.
+          personaLoaded: text.includes('Robert') || (document.querySelector('.persona-name')?.textContent ?? '').includes('Robert'),
+          disclaimer: !!note && note.getBoundingClientRect().width > 0 && noteText.includes('Simulation only.') && noteText.includes('Not financial advice.'),
           viewport: innerWidth, pageWidth: document.documentElement.scrollWidth,
-          loading: text.includes('Loading investor profiles'),
+          loading: text.includes('Loading profiles'),
           main: document.querySelector('main')?.innerText.slice(0, 800) ?? '',
         };
       })()`);
@@ -96,6 +106,8 @@ try {
   }
   await call('Page.navigate', { url: new URL('/decision-desk/', site).href });
   await pause(1500);
+  // The comparison lives in a <details> fold that is closed by default; hidden panes have no innerText.
+  await evaluate(`(() => { const fold = document.getElementById('compare'); if (fold) fold.open = true; })()`);
   async function setField(id, value, select = false) {
     await evaluate(`(() => {
       const e = document.getElementById(${JSON.stringify(id)});
@@ -120,7 +132,9 @@ try {
     const expected = size === 25 ? ['Conflict', 'Conflict'] : ['Conflict', 'Tension'];
     const passed = panes.length === 2 && verdicts.length === 2 && verdicts.every((verdict, i) => verdict.toLowerCase().includes(expected[i].toLowerCase()))
       && panes[0].includes('6.0') && panes[1].includes('11.0')
-      && (size !== 25 || (['16.96', '25.31', '21.88'].every(value => text.includes(value)) && /6 conflict\s+1 tension\s+1 fit/.test(counts)));
+      // Each count renders its figure and then a labelled figure ("6\n6 conflict"), so allow text between labels.
+      // The preview table shows one decimal: volatility 16.96 -> 17.0%, drawdown 25.31 -> 25.3%, 2022 replay -21.88 -> -21.9%.
+      && (size !== 25 || (['17.0%', '25.3%', '21.9%'].every(value => text.includes(value)) && /6 conflict[\s\S]*?1 tension[\s\S]*?1 fit/.test(counts)));
     report.decisionChecks.push({size, passed, verdicts, counts, panes, visibleText: text.slice(0, 16000)});
     console.log(`${passed ? 'PASS' : 'FAIL'} decision compare ${size}`);
     if (size === 25) {

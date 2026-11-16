@@ -10,7 +10,7 @@ POST `/v1/runs` now accepts `{kind:"rebalance",profileId,profileVersion,lang,pos
 
 ## Source/identity interfaces
 
-`intelligence/master_repository.py` publishes immutable validated listing records and source assertions with source bytes in the owning session. `crosswalk` resolves exact ISIN source assertions, preserving direct/derived/unverified classes. `openfigi.py` publishes direct provider identifier assertions from exact one-job ISIN mapping; no legal issuer inference. `gleif_relations.py` and `relationship_graph.py` expose dated relationships. `fund_pipeline.py` exports `holdings_snapshot` and `look_through` for Agent 1's consumers; live SEC acquisition is aside until accepted access.
+`intelligence/master_repository.py` publishes immutable validated listing records and source assertions with source bytes in the owning session. `crosswalk` resolves exact ISIN source assertions, preserving direct/derived/unverified classes. `openfigi.py` publishes direct provider identifier assertions from exact one-job ISIN mapping; no legal issuer inference. `gleif_relations.py` and `relationship_graph.py` expose dated relationships. `fund_pipeline.py` exports `look_through` (served by `GET /v1/intelligence/funds/{fund_id}`); live SEC acquisition is aside until accepted access.
 
 Public routes are indexed in `contracts/api.md`; source-specific arguments/results and original source references are described in CONT reports. New research response bodies are branch-local snake_case; the integrator must reconcile them with shared generated response schemas/TypeScript clients. No common version bump was made.
 

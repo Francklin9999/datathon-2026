@@ -3,21 +3,36 @@
  * BriefView (T14): renders typed segments only, never HTML from the model (WEB-08). Normal mode
  * hides struck sentences; audit mode shows them struck with failed codes and the auditor's note.
  * Code-owned content is shown as text, never as an identifier: a sentence that is a limitation code
- * reads as that limitation, a raw status value as the status word, a section id as its heading.
+ * reads as that limitation, a raw status value as the status word, a section id as its heading, a
+ * rule token as the rule's short name with its profile code as a secondary label ("Growth-asset
+ * limit (R3)"). Removed sentences are never shown here: a pluralised note links to the run's audit.
  */
+import Link from 'next/link';
 import type { Brief, Segment, Sentence } from '../../contracts/types';
-import { limitationCodeOf, sectionTitle, statusWord, visibleSentences, type BriefMode } from '../../lib/brief';
+import { limitationCodeOf, removedNote, sectionTitle, statusWord, struckSentences, visibleSentences, type BriefMode } from '../../lib/brief';
 import { LIMITATION, SENTENCE_AUDIT, labelOf } from '../../lib/labels';
+import { ruleName } from '../../lib/ruleNames';
 import { fmtDateTime } from '../../lib/format';
 import { useApp } from '../../state/app';
-import { EvidenceChip, FactChip } from '../common/FactDrawer';
+import { EvidenceChip, FactChip, useFactScope } from '../common/FactDrawer';
+
+function RuleRef({ ruleId, display }: { ruleId: string; display: string }) {
+  const { lang } = useApp();
+  const name = ruleName(ruleId, lang);
+  if (!name) return <span className="rule-ref mono" title={ruleId}>{display}</span>;
+  return (
+    <span className="rule-ref" title={ruleId}>
+      {name}{display && display !== name && <> <span className="mono muted">({display})</span></>}
+    </span>
+  );
+}
 
 function SegmentView({ segment }: { segment: Segment }) {
   const { lang } = useApp();
   switch (segment.t) {
     case 'text': return <>{segment.text}</>;
     case 'fact': return <FactChip factId={segment.factId} display={segment.display} />;
-    case 'rule': return <span className="rule-ref mono" title={segment.ruleId}>{segment.display}</span>;
+    case 'rule': return <RuleRef ruleId={segment.ruleId} display={segment.display} />;
     case 'status': return <strong className="status-word">{statusWord(segment.display, lang)}</strong>;
     case 'evidence': return <EvidenceChip evidenceId={segment.evidenceId} display={segment.display} />;
     default: return null;
@@ -56,24 +71,33 @@ export function SentenceView({ sentence, mode }: { sentence: Sentence; mode: Bri
   );
 }
 
-export function BriefView({ brief, mode = 'normal', headingLevel = 3 }: { brief: Brief; mode?: BriefMode; headingLevel?: 2 | 3 }) {
+/** The run's Evidence page at the first removed sentence; the Evidence list outside a run scope. */
+function removedHref(runId: string | null, firstStruck: string | undefined): string {
+  if (!runId) return '/evidence-audit/';
+  return `/evidence-audit/?runId=${encodeURIComponent(runId)}${firstStruck ? `#sentence-${encodeURIComponent(firstStruck)}` : ''}`;
+}
+
+export function BriefView({ brief, mode = 'normal' }: { brief: Brief; mode?: BriefMode }) {
   const { tr, lang } = useApp();
-  const Heading = headingLevel === 2 ? 'h2' : 'h3';
+  const scope = useFactScope();
+  const runId = scope && scope.kind !== 'local' ? scope.runId : null;
   return (
     <div className="brief">
       {brief.sections.map(section => {
         const sentences = visibleSentences(section, mode);
-        const hidden = section.sentences.length - sentences.length;
+        const struck = struckSentences(section);
+        const hidden = mode === 'normal' ? struck.length : 0;
+        const note = removedNote(hidden);
         return (
           <section key={section.id} className="brief-section">
-            <Heading className="brief-heading">{sectionTitle(section, lang)}</Heading>
+            <h3 className="brief-heading">{sectionTitle(section, lang)}</h3>
             {sentences.length === 0 && (
               <p className="muted small">{tr({ en: 'No sentence in this section.', fr: 'Aucune phrase dans cette section.' })}</p>
             )}
             {sentences.map(sentence => <SentenceView key={sentence.id} sentence={sentence} mode={mode} />)}
-            {mode === 'normal' && hidden > 0 && (
+            {hidden > 0 && (
               <p className="small muted">
-                {tr({ en: `The auditor removed ${hidden} sentence(s); see Evidence.`, fr: `L’auditeur a retiré ${hidden} phrase(s) ; voir Preuves.` })}
+                {tr(note.text)} <Link href={removedHref(runId, struck[0]?.id)}>{tr(note.link)}</Link>
               </p>
             )}
           </section>

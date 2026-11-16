@@ -74,14 +74,13 @@ type Gesture =
   | { kind: 'move'; id: string; grabX: number; grabY: number; pointerX: number; pointerY: number }
   | { kind: 'resize'; id: string; startX: number; startY: number; w: number; h: number };
 
-export function DashboardGrid({ widgets, defaults, resetToken, announce, labels, onStackedChange, onCustomizedChange }: {
+export function DashboardGrid({ widgets, defaults, resetToken, announce, labels, onCustomizedChange }: {
   widgets: readonly WidgetDef[];
   defaults: readonly LayoutItem[];
   /** Changing this value restores the default layout. */
   resetToken: number;
   announce: (message: string) => void;
   labels: { moved: (title: string, position: number, total: number) => string; resized: (title: string, w: number, h: number) => string };
-  onStackedChange?: (stacked: boolean) => void;
   /** Whether the layout differs from the default (to offer a reset). */
   onCustomizedChange?: (customized: boolean) => void;
 }) {
@@ -122,7 +121,6 @@ export function DashboardGrid({ widgets, defaults, resetToken, announce, labels,
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-  useEffect(() => { onStackedChange?.(stacked); }, [stacked, onStackedChange]);
 
   const widgetEl = (id: string) => grid.current?.querySelector<HTMLElement>(`:scope > [data-widget="${id}"]`) ?? null;
   const titleOf = (id: string) => byId.get(id)?.title ?? id;

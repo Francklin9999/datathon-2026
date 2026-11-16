@@ -125,6 +125,15 @@ test('fixture adapter serves only what contract fixtures contain', async () => {
   assert.ok(missingFact instanceof ApiRequestError);
   assert.equal(missingFact.code, 'not_found');
   assert.equal((await client.runs({})).items.length, 1);
+  assert.equal((await client.profile('robert')).profileId, 'robert');
+  const missingProfile = await client.profile('p_abcdefghij').catch((e: unknown) => e);
+  assert.ok(missingProfile instanceof ApiRequestError);
+  assert.equal(missingProfile.code, 'not_found');
+});
+
+test('fixture /meta reports the contract version of the generated schema', async () => {
+  const schema = JSON.parse(readFileSync(new URL('../../contracts/generated/schema.json', import.meta.url), 'utf8'));
+  assert.equal((await fixtureClient().meta()).contractVersion, schema['x-contract-version']);
 });
 
 test('fixture adapter never invents data for endpoints without fixtures', async () => {
@@ -134,6 +143,7 @@ test('fixture adapter never invents data for endpoints without fixtures', async 
     () => client.check({ profileId: 'robert', move: null }),
     () => client.datasets(),
     () => client.brief('robert', 'en'),
+    () => client.archivedProfiles(),
   ];
   for (const call of calls) {
     const error = await call().catch((e: unknown) => e);

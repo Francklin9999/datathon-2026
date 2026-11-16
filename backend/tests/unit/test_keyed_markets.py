@@ -4,7 +4,13 @@ from datetime import datetime, timezone
 
 import pytest
 from aplomb.api.storage import MemoryStore
-from aplomb.research.keyed_markets import KeyedSourceError, capture, normalize, request_spec
+from aplomb.research.keyed_markets import (
+    KeyedSourceError,
+    capture,
+    connection_status,
+    normalize,
+    request_spec,
+)
 
 
 def test_exact_listing_and_operation_required():
@@ -49,3 +55,18 @@ def test_capture_owner_and_original_are_retained(monkeypatch):
     assert a['source_sha256'] == b['source_sha256']
     assert a['available_at'] != b['available_at']
     assert 'private-test-secret' not in json.dumps(a)
+
+
+def test_connection_rows_share_one_shape_without_secret_values(monkeypatch):
+    monkeypatch.setenv('APLOMB_ALCHEMY_KEY', 'private-test-secret')
+    monkeypatch.setenv('APLOMB_TIINGO_TOKEN', 'private-test-token')
+    rows = connection_status()['providers']
+    keys = {'id', 'signup_url', 'documentation_url', 'credential_variable', 'credential_present',
+            'rights_confirmed', 'supported_operation'}
+    assert {'tiingo', 'fmp', 'alchemy'} <= {row['id'] for row in rows}
+    assert all(set(row) == keys for row in rows)
+    assert all(row['signup_url'] is None or row['signup_url'].startswith('https://') for row in rows)
+    alchemy = next(row for row in rows if row['id'] == 'alchemy')
+    assert alchemy['credential_variable'] == 'APLOMB_ALCHEMY_KEY' and alchemy['credential_present']
+    dumped = json.dumps(rows)
+    assert 'private-test-secret' not in dumped and 'private-test-token' not in dumped

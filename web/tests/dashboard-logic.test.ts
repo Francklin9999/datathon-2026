@@ -1,13 +1,20 @@
 /** Dashboard pure logic: widget layout (move / resize / restore), series views and data scope. */
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   fitCount, isDefaultLayout, keyboardMove, keyboardResize, moveItem, normalizeLayout, reorderTarget, resizeItem, sizeFromPointer,
   type LayoutItem, type WidgetLimits,
 } from '../src/lib/ui/layout';
-import { drawdownSeries, indexSeries, periodChangePct } from '../src/lib/ui/series';
+import { drawdownSeries, indexSeries, periodChangePct, periodEnds } from '../src/lib/ui/series';
 import * as SECTIONS from '../src/lib/ui/sections';
-import { DEFAULT_SCOPE, filterPositions, normalizeScope, scopeWindow, scopeWindowKey, validateRange } from '../src/lib/ui/scope';
+import {
+  DEFAULT_SCOPE, defaultRange, filterPositions, hiddenFilterCount, isScopeDefault, normalizeScope, scopeSummary, scopeWindow,
+  scopeWindowKey, validateRange, yearsBefore, type DashboardScope,
+} from '../src/lib/ui/scope';
+import { axisTicks, chartScale } from '../src/lib/ui/chart';
+import { fmtSignedPct, fmtUnit, ruleValueText } from '../src/lib/format';
+import { LOWEST_12M_LABEL, LOWEST_12M_SHORT, lowestRollingNote } from '../src/lib/ui/figures';
 
 const LIMITS: Record<string, WidgetLimits> = {
   a: { minW: 4, maxW: 12, minH: 2, maxH: 8 },
@@ -188,4 +195,149 @@ test('activeSection: a chosen section stays active while on screen; otherwise th
   const low = boxes.map(b => ({ ...b, top: b.top + 1000, bottom: b.bottom + 1000 }));
   assert.equal(activeSection(low, { ...base, preferred: null }), 'figures');
   assert.equal(activeSection([], { ...base, preferred: null }), null);
+});
+
+// QA 5c / 4.4: the non-default badge and the phone "Filters" count.
+const CUSTOM_3Y = { mode: 'custom', start: '2023-11-12', end: '2026-11-12' } as const;
+const ONE_FIELD: DashboardScope[] = [
+  { ...DEFAULT_SCOPE, period: CUSTOM_3Y },
+  { ...DEFAULT_SCOPE, benchmark: 'SPY' },
+  { ...DEFAULT_SCOPE, assetGroups: ['equity'] },
+  { ...DEFAULT_SCOPE, minWeight: 2 },
+  { ...DEFAULT_SCOPE, chartMode: 'drawdown' },
+  { ...DEFAULT_SCOPE, chartMode: 'indexed' },
+];
+
+test('isScopeDefault is true only for the default scope', () => {
+  assert.equal(isScopeDefault(DEFAULT_SCOPE), true);
+  assert.equal(isScopeDefault(normalizeScope(null)), true);
+  for (const scope of ONE_FIELD) assert.equal(isScopeDefault(scope), false, JSON.stringify(scope));
+});
+
+test('scopeSummary names each non-default field, in both languages', () => {
+  assert.deepEqual(scopeSummary(DEFAULT_SCOPE, 'en'), []);
+  const scope: DashboardScope = { ...DEFAULT_SCOPE, period: CUSTOM_3Y, assetGroups: ['equity'] };
+  assert.deepEqual(scopeSummary(scope, 'en'), ['Nov 12, 2023 to Nov 12, 2026', 'Equity only']);
+  assert.deepEqual(scopeSummary(scope, 'fr'), ['du 12 nov. 2023 au 12 nov. 2026', 'Actions seulement']);
+  // Asset classes in the fixed ASSET_GROUPS order, whatever the order they were chosen in.
+  assert.deepEqual(scopeSummary({ ...DEFAULT_SCOPE, assetGroups: ['commodity', 'equity'] }, 'en'), ['Equity + Commodities only']);
+  assert.deepEqual(scopeSummary({ ...DEFAULT_SCOPE, minWeight: 2 }, 'en'), ['positions ≥ 2 %']);
+  assert.deepEqual(scopeSummary({ ...DEFAULT_SCOPE, benchmark: 'SPY' }, 'en'), ['benchmark SPY']);
+  assert.deepEqual(scopeSummary({ ...DEFAULT_SCOPE, benchmark: 'SPY' }, 'fr'), ['indice SPY']);
+  assert.deepEqual(scopeSummary({ ...DEFAULT_SCOPE, chartMode: 'indexed' }, 'en'), ['Base 100 chart']);
+  assert.deepEqual(scopeSummary({ ...DEFAULT_SCOPE, chartMode: 'indexed' }, 'fr'), ['graphique Base 100']);
+  assert.deepEqual(scopeSummary({ ...DEFAULT_SCOPE, chartMode: 'drawdown' }, 'fr'), ['graphique Repli']);
+});
+
+test('scopeSummary is empty exactly when isScopeDefault', () => {
+  for (const scope of [DEFAULT_SCOPE, ...ONE_FIELD]) {
+    for (const lang of ['en', 'fr'] as const) assert.equal(scopeSummary(scope, lang).length === 0, isScopeDefault(scope));
+  }
+});
+
+test('hiddenFilterCount counts the active filters folded on phones, not the period', () => {
+  assert.equal(hiddenFilterCount(DEFAULT_SCOPE), 0);
+  assert.equal(hiddenFilterCount({ ...DEFAULT_SCOPE, benchmark: 'SPY', assetGroups: ['equity'] }), 2);
+  assert.equal(hiddenFilterCount({ ...DEFAULT_SCOPE, minWeight: 5, chartMode: 'drawdown' }), 2);
+  assert.equal(hiddenFilterCount({ ...DEFAULT_SCOPE, period: CUSTOM_3Y }), 0);
+});
+
+// QA 5a / 5b / 4.4: the scope bar says what each control changes; phones fold the filters (source text:
+// no DOM in node tests, the layout itself needs the browser smoke).
+test('scope bar copy matches what the controls change, and phones fold the filters', () => {
+  const bar = readFileSync(new URL('../src/features/home/ScopeBar.tsx', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/styles/dashboard.css', import.meta.url), 'utf8');
+  assert.ok(bar.includes("'Filters Allocation and Positions only'") && bar.includes("'Ne filtre que Répartition et Positions'"));
+  assert.ok(bar.includes("'Filters Positions only'") && bar.includes("'Ne filtre que Positions'"));
+  // The tooltip no longer claims a 1-year fixed horizon, a benchmark effect on risk, or a weight filter on Allocation.
+  assert.ok(!bar.includes('1, 3, 5'));
+  assert.ok(bar.includes('minimum weight filters Positions only') && bar.includes('Benchmark adds a comparison line to Past performance'));
+  assert.ok(bar.includes("'Saved in this browser.'") && bar.includes("'Enregistré dans ce navigateur.'"));
+  assert.ok(!bar.includes('threeYearsBefore'));
+  const phone = css.slice(css.indexOf('@media (max-width: 767px)'));
+  assert.match(css, /\.scope-filters \{ display: contents; \}/);
+  assert.match(phone, /\.scope-filters:not\(\[data-open\]\) \{ display: none; \}/);
+  assert.match(phone, /\.scope-filters-toggle \{ display: inline-flex;/);
+  assert.match(css, /\.scope-bar \.segment \{ flex-shrink: 0; \}/);
+  assert.match(css, /\.scope-bar \.segmented \{ flex-wrap: wrap;/);
+});
+
+// QA 5d: a new custom Range starts from the window on screen.
+test('defaultRange follows the period of the window on screen', () => {
+  assert.deepEqual(defaultRange('3y', '2026-11-12', { start: '2023-11-10', end: '2026-11-12' }), { start: '2023-11-10', end: '2026-11-12' });
+  // All: the resolved full period from the overview.
+  assert.deepEqual(defaultRange('full', '2026-11-12', { start: '2021-11-12', end: '2026-11-12' }), { start: '2021-11-12', end: '2026-11-12' });
+});
+
+test('defaultRange counts the preset back from the data date when no period is shown', () => {
+  assert.deepEqual(defaultRange('1y', '2026-11-12'), { start: '2025-11-12', end: '2026-11-12' });
+  assert.deepEqual(defaultRange('3y', '2026-11-12', null), { start: '2023-11-12', end: '2026-11-12' });
+  assert.deepEqual(defaultRange('5y', '2026-11-12'), { start: '2021-11-12', end: '2026-11-12' });
+  assert.deepEqual(defaultRange('ytd', '2026-11-12'), { start: '2025-12-31', end: '2026-11-12' });
+  assert.deepEqual(defaultRange('full', '2026-11-12'), { start: '2023-11-12', end: '2026-11-12' }); // documented fallback
+});
+
+test('defaultRange ignores an unusable shown period', () => {
+  const preset = { start: '2025-11-12', end: '2026-11-12' };
+  assert.deepEqual(defaultRange('1y', '2026-11-12', { start: '2025-11-12', end: '2026-11-13' }), preset); // after the data date
+  assert.deepEqual(defaultRange('1y', '2026-11-12', { start: '2026-11-12', end: '2026-11-12' }), preset); // start not before end
+  assert.deepEqual(defaultRange('1y', '2026-11-12', { start: 'bad', end: '2026-11-12' }), preset);
+});
+
+test('yearsBefore clamps 29 February like the engine, so Range works on a leap-day data date', () => {
+  assert.equal(yearsBefore('2028-02-29', 1), '2027-02-28');
+  assert.equal(yearsBefore('2028-02-29', 3), '2025-02-28');
+  assert.equal(yearsBefore('2028-02-29', 4), '2024-02-29');
+  assert.equal(yearsBefore('2026-11-12', 3), '2023-11-12');
+  const range = defaultRange('3y', '2028-02-29');
+  assert.equal(validateRange(range.start, range.end, '2028-02-29'), null);
+  assert.equal(normalizeScope({ period: { mode: 'custom', ...range } }).period.mode, 'custom');
+});
+
+// QA 6.1: the value chart starts at the fictional capital; its padded top is not a data peak.
+test('periodEnds returns the first and last plotted points', () => {
+  assert.deepEqual(periodEnds([{ date: '2021-11-12', value: 600000 }, { date: '2026-11-12', value: 900096.11 }]),
+    { first: { date: '2021-11-12', value: 600000 }, last: { date: '2026-11-12', value: 900096.11 } });
+  assert.equal(periodEnds([{ date: '2021-11-12', value: 600000 }]), null);
+  assert.equal(periodEnds([]), null);
+});
+
+test('axisTicks puts labels on round values inside the padded range', () => {
+  // Robert, full window (QA 6.1): the old top label was the padded bound 918,942.
+  const { lo, hi } = chartScale([554290.24, 901578.09]);
+  assert.deepEqual(axisTicks(lo, hi, 0), [600000, 700000, 800000, 900000]);
+  for (const [a, b, digits] of [[lo, hi, 0], [99, 101, 0], [-8.4, 0.4, 1], [95, 160, 0], [0.001, 0.0042, 4]] as const) {
+    const ticks = axisTicks(a, b, digits);
+    assert.ok(ticks.length >= 2 && ticks.length <= 6, `${a}..${b}: ${ticks}`);
+    for (const t of ticks) {
+      assert.ok(t >= a && t <= b, `${t} outside ${a}..${b}`);
+      assert.equal(Number(t.toFixed(digits)), t, `${t} is not round at ${digits} digits`);
+    }
+  }
+  assert.deepEqual(axisTicks(99, 101, 0), [99, 100, 101]);
+  assert.deepEqual(axisTicks(-8.4, 0.4, 1), [-7.5, -5, -2.5, 0]);
+});
+
+// QA 6.2: positive "worst 12 months" is explained.
+test('lowest rolling 12-month return: label and positive-value note', () => {
+  assert.match(LOWEST_12M_LABEL.en, /^Lowest rolling 12-month return/);
+  assert.match(LOWEST_12M_SHORT.fr, /^Plus faible rendement glissant sur 12 mois/);
+  assert.equal(lowestRollingNote(-4.157759714223541), null);
+  assert.equal(lowestRollingNote(null), null);
+  assert.equal(lowestRollingNote(0), null);
+  const note = lowestRollingNote(8.65430917934531);
+  assert.ok(note && note.en.startsWith('Positive') && note.fr.startsWith('Positif'));
+});
+
+// QA 6.3: R10's informational return is signed with two decimals, never "0.0%".
+test('ruleValueText: informational returns are signed with two decimals; other checks keep their unit format', () => {
+  const r10 = { comparator: 'none', threshold: null, unit: 'pct', value: -0.019448840688596203 } as const;
+  assert.equal(ruleValueText(r10, 'en'), '−0.02%');
+  assert.equal(ruleValueText(r10, 'fr'), fmtSignedPct(-0.019448840688596203, 'fr', 2));
+  assert.equal(ruleValueText({ ...r10, value: 3.456 }, 'en'), '+3.46%');
+  assert.equal(ruleValueText({ ...r10, value: null }, 'en'), '—');
+  // A cap row, and a conditional policy (comparator "none" with a threshold), are unchanged.
+  assert.equal(ruleValueText({ comparator: '<=', threshold: 55, unit: 'pct', value: 5 }, 'en'), '5.0%');
+  assert.equal(ruleValueText({ comparator: 'none', threshold: 10, unit: 'pct', value: -0.0194 }, 'en'), fmtUnit(-0.0194, 'pct', 'en'));
+  assert.equal(ruleValueText({ comparator: 'none', threshold: null, unit: 'pts', value: 1.25 }, 'en'), fmtUnit(1.25, 'pts', 'en'));
 });

@@ -9,9 +9,12 @@
  * fetched first; that fetch is retried with backoff, and after `TERMINAL_FETCH_ATTEMPTS`
  * consecutive failures the poller stops and reports an error (the last non-terminal payload stays
  * visible, nothing is fabricated). `onTerminal` fires once, when the complete terminal run is shown.
+ *
+ * Each poll request has a deadline (POLL_TIMEOUT_MS): one that never answers counts as a lost
+ * connection, so the view says so and the next poll is scheduled with backoff.
  */
 import type { Run } from '../contracts/types';
-import { asApiError, isAbort, type ApiRequestError } from '../api/errors';
+import { ApiRequestError, asApiError, isAbort } from '../api/errors';
 import { contiguousCompletedSeq, isTerminal, mergeRunDelta, nextPollDelay } from './runs';
 
 export interface RunPollerView {
@@ -24,13 +27,21 @@ export interface RunPollerView {
 }
 
 /** Attempts at the complete terminal run (the first one included) before an error is reported. */
-export const TERMINAL_FETCH_ATTEMPTS = 5;
+const TERMINAL_FETCH_ATTEMPTS = 5;
 
 const FATAL: ReadonlySet<string> = new Set(['not_found', 'validation_error', 'feature_disabled', 'invalid_response']);
+
+/**
+ * Deadline for one poll request. A GET that never answers is abandoned and handled like a lost
+ * connection (pollError, backoff, retry), instead of freezing the view with no further poll.
+ */
+export const POLL_TIMEOUT_MS = 20_000;
 
 export interface RunPollerOptions {
   /** `since` is the completed-step watermark for a delta, or null for the complete run. */
   fetchRun: (since: number | null, signal: AbortSignal) => Promise<Run>;
+  /** Default POLL_TIMEOUT_MS. */
+  pollTimeoutMs?: number | undefined;
   onChange: (view: RunPollerView) => void;
   /** Called at most once per poller, with the complete terminal run. */
   onTerminal?: ((run: Run) => void) | undefined;
@@ -50,6 +61,7 @@ export function createRunPoller(options: RunPollerOptions): RunPoller {
   const isHidden = options.isHidden ?? (() => false);
   const setTimer = options.setTimer ?? ((fn: () => void, ms: number): unknown => setTimeout(fn, ms));
   const clearTimer = options.clearTimer ?? ((handle: unknown) => clearTimeout(handle as ReturnType<typeof setTimeout>));
+  const pollTimeoutMs = options.pollTimeoutMs ?? POLL_TIMEOUT_MS;
 
   /** Last payload shown. Never a terminal status that came from a delta. */
   let current: Run | null = null;
@@ -87,10 +99,24 @@ export function createRunPoller(options: RunPollerOptions): RunPoller {
     const previous = current;
     const since = !forceFull && !awaitingFull && previous ? contiguousCompletedSeq(previous.steps) : 0;
     let payload: Run;
+    let timedOut = false;
+    let deadline: unknown = null;
+    // Settles on its own, even if the abandoned request never rejects (e.g. still queued in the limiter).
+    const expired = new Promise<never>((_, reject) => {
+      deadline = setTimer(() => {
+        timedOut = true;
+        reject(new ApiRequestError({ status: 0, code: 'network', message: `Run poll timed out after ${Math.round(pollTimeoutMs / 1000)} s` }));
+        mine.abort();
+      }, pollTimeoutMs);
+    });
     try {
-      payload = await options.fetchRun(since > 0 ? since : null, mine.signal);
+      payload = await Promise.race([options.fetchRun(since > 0 ? since : null, mine.signal), expired]);
     } catch (caught) {
-      if (stopped || mine.signal.aborted || isAbort(caught)) return;
+      clearTimer(deadline);
+      // Superseded by a newer tick, or stopped: say nothing. A timed-out poll is a lost connection;
+      // any other abort means superseded or stopped.
+      if (stopped || controller !== mine) return;
+      if (!timedOut && (mine.signal.aborted || isAbort(caught))) return;
       const apiError = asApiError(caught);
       if (FATAL.has(apiError.code)) {
         emit({ error: apiError, pollError: null, loading: false });
@@ -108,6 +134,7 @@ export function createRunPoller(options: RunPollerOptions): RunPoller {
       schedule(nextPollDelay(status, failures, apiError.retryAfterMs));
       return;
     }
+    clearTimer(deadline);
     if (stopped || mine.signal.aborted) return;
     failures = 0;
     const merged: Run = previous && since > 0 ? mergeRunDelta(previous, payload) : payload;

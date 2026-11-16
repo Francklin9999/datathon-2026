@@ -33,11 +33,6 @@ def parse_date(value: object, field: str = "date") -> date:
         raise ValueError(f"{field}: invalid calendar date {value!r}") from exc
 
 
-def iso_date(value: object, field: str = "date") -> str:
-    """Normalize to an ISO date string after strict validation."""
-    return parse_date(value, field).isoformat()
-
-
 def ts(d: date, hour: int = 0, minute: int = 0, second: int = 0, millis: int = 0) -> str:
     """UTC timestamp string for a date and time of day."""
     return f"{d.isoformat()}T{hour:02d}:{minute:02d}:{second:02d}.{millis:03d}Z"

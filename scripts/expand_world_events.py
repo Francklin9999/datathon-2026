@@ -77,9 +77,7 @@ def expand(base: Path, out: Path, capture_dir: Path, start: str, end: str, minim
     next(item for item in manifest["sources"] if item["id"] == source["id"])["items"] = sum(
         event["origin"] == "usgs" for event in events
     )
-    # These sources are separate observation/registry layers, rather than verified feed events.
-    for item in manifest["notIngested"]:
-        item["reason"] = "Not merged into the verified event feed. Separately loaded source observations and reference layers retain their own coverage and provenance."
+    # notIngested keeps build_bundle's per-source reasons (each names where that source is served instead).
     files["manifest.json"] = json.dumps(manifest, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
     write_bundle(files, out)
     verified = load_bundle(out)

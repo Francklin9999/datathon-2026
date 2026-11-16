@@ -1,17 +1,29 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
-  EMPTY_PROGRESS, holeRect, isVisibleRect, markDone, maskPath, onRoute, parseProgress, placeBubble, VIEWPORT_MARGIN,
+  BUBBLE_GAP, EMPTY_PROGRESS, holeRect, isVisibleRect, markDone, maskPath, onRoute, parseProgress, placeBubble, VIEWPORT_MARGIN,
 } from '../src/lib/tour/engine';
 import { ALL_TOURS, BASIC_TOUR } from '../src/features/tour/tours';
 
 const VP = { width: 1280, height: 800 };
 const BUBBLE = { width: 360, height: 180 };
+const SRC = fileURLToPath(new URL('../src/', import.meta.url));
+
+function sourceFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) return sourceFiles(path);
+    return /\.tsx?$/.test(entry.name) ? [path] : [];
+  });
+}
 
 test('tour: the bubble goes on the preferred side when it fits', () => {
   const pos = placeBubble({ top: 100, left: 400, width: 200, height: 40 }, BUBBLE, VP, 'bottom');
   assert.equal(pos.placement, 'bottom');
-  assert.equal(pos.top, 100 + 40 + 14);
+  assert.equal(pos.top, 100 + 40 + BUBBLE_GAP);
   assert.equal(pos.left, 400 + 100 - 180);
 });
 
@@ -74,5 +86,32 @@ test('tour scripts: unique ids, both languages, valid routes', () => {
       if (step.route) assert.match(step.route, /^\/([a-z-]+\/)?$/, `${tour.id}/${step.id} route`);
       if (step.target) assert.match(step.target, /^[a-z0-9-]+$/, `${tour.id}/${step.id} target`);
     }
+  }
+});
+
+test('tour scripts: every step target is an anchor rendered somewhere in the app', () => {
+  const anchors = new Set<string>();
+  for (const file of sourceFiles(SRC)) {
+    const text = readFileSync(file, 'utf8');
+    for (const match of text.matchAll(/(?:data-tour|tour)="([a-z0-9-]+)"|tour: '([a-z0-9-]+)'/g)) anchors.add(match[1] ?? match[2]!);
+  }
+  for (const tour of ALL_TOURS) {
+    for (const step of tour.steps) {
+      if (!step.target) continue;
+      assert.ok(anchors.has(step.target), `${tour.id}/${step.id}: no element carries data-tour="${step.target}"`);
+    }
+  }
+});
+
+test('tour scripts: the rail step names every page of the rail', () => {
+  const rail = BASIC_TOUR.steps.find(step => step.id === 'rail');
+  assert.ok(rail);
+  // The rail's entries (NavRail.tsx attaches the icons).
+  const nav = readFileSync(join(SRC, 'lib/ui/nav.ts'), 'utf8');
+  const labels = [...nav.matchAll(/label: \{ en: '([^']+)', fr: '([^']+)' \}/g)];
+  assert.ok(labels.length >= 10, 'NavRail labels not found');
+  for (const [, en, fr] of labels) {
+    assert.ok(rail.body.en.includes(en!), `rail step (en) omits ${en}`);
+    assert.ok(rail.body.fr.includes(fr!), `rail step (fr) omits ${fr}`);
   }
 });

@@ -5,22 +5,38 @@ import { useApp } from '../../state/app';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
 import { Card } from '../../components/common/Page';
-import { ErrorState } from '../../components/common/States';
+import { DraftRestoredNote, ProfileWriteError } from '../../components/common/States';
 import { ExternalLink } from '../../components/common/ExternalLink';
+import { SupportedUniverse } from '../../components/common/SupportedUniverse';
+import { useAssetUniverse } from '../../state/useAssetUniverse';
+import { checkTickers } from '../../lib/tickerCoverage';
 import { fmtMoney, fmtNumber } from '../../lib/format';
+import { dropDraft, stashDraft } from '../../lib/draftStore';
+import { useRestoredDraft } from '../../state/useDraft';
+
+interface AccountsDraft { name: string; capital: string; currency: string; ticker: string; asOf: string; source: string; destination: string; amount: string }
 
 export function Accounts({ profile }: { profile: Profile }) {
-  const { tr, lang, applyProfile, feature, meta } = useApp();
-  const [name, setName] = useState('');
-  const [capital, setCapital] = useState('');
-  const [currency, setCurrency] = useState(profile.reportingCurrency);
-  const [ticker, setTicker] = useState('');
-  const [asOf, setAsOf] = useState('');
-  const [source, setSource] = useState('');
-  const [destination, setDestination] = useState('');
-  const [amount, setAmount] = useState('');
+  const { tr, lang, applyProfile: apply, feature, meta } = useApp();
+  const draftKey = `accounts|${profile.profileId}`;
+  // Every successful write here forgets a stashed draft, so the remount it causes starts from the saved profile.
+  const applyProfile = (saved: Profile) => { dropDraft(draftKey); apply(saved); };
+  // Input typed before a conflict reload; a transfer account the reloaded profile no longer has is not reselected.
+  const restored = useRestoredDraft<AccountsDraft>(draftKey, profile.version);
+  const known = (id: string | undefined) => (id && profile.accounts?.some(a => a.accountId === id) ? id : '');
+  const [name, setName] = useState(restored?.name ?? '');
+  const [capital, setCapital] = useState(restored?.capital ?? '');
+  const [currency, setCurrency] = useState(restored?.currency ?? profile.reportingCurrency);
+  const [ticker, setTicker] = useState(restored?.ticker ?? '');
+  const [asOf, setAsOf] = useState(restored?.asOf ?? '');
+  const [source, setSource] = useState(known(restored?.source));
+  const [destination, setDestination] = useState(known(restored?.destination));
+  const [amount, setAmount] = useState(restored?.amount ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<ApiRequestError | null>(null);
+  // The initial holding is checked against the snapshot before the write (the server refuses it after).
+  const universe = useAssetUniverse();
+  const tickerCheck = checkTickers([ticker], universe, feature('on_demand_tickers'));
   if (!feature('profile_creator')) return null;
   const select = async (id: string) => {
     setBusy(true); setError(null);
@@ -76,11 +92,17 @@ export function Accounts({ profile }: { profile: Profile }) {
         <div className="field"><label htmlFor="account-name">{tr({ en: 'Account label', fr: 'Libellé du compte' })}</label><input id="account-name" maxLength={80} value={name} onChange={e => setName(e.target.value)} /></div>
         <div className="field"><label htmlFor="account-capital">{tr({ en: 'Fictional native capital', fr: 'Capital fictif en devise native' })} · {currency}</label><input id="account-capital" type="number" min={.01} step="any" value={capital} onChange={e => setCapital(e.target.value)} /></div>
         <div className="field"><label htmlFor="account-currency">{tr({ en: 'Native account currency', fr: 'Devise native du compte' })}</label><select id="account-currency" value={currency} onChange={e => setCurrency(e.target.value)}>{(meta?.reportingCurrencies ?? [profile.reportingCurrency]).map(c => <option key={c} value={c}>{c}</option>)}</select></div>
-        <div className="field"><label htmlFor="account-ticker">{tr({ en: 'Initial holding (100%)', fr: 'Position initiale (100 %)' })}</label><input id="account-ticker" value={ticker} onChange={e => setTicker(e.target.value)} /></div>
+        <div className="field"><label htmlFor="account-ticker">{tr({ en: 'Initial holding (100%)', fr: 'Position initiale (100 %)' })}</label>
+          <input id="account-ticker" value={ticker} onChange={e => setTicker(e.target.value)} aria-invalid={tickerCheck.blocking}
+            aria-describedby={`${tickerCheck.message ? 'account-ticker-issue ' : ''}account-ticker-universe`} />
+          {tickerCheck.message && <span id="account-ticker-issue" className={tickerCheck.blocking ? 'field-error' : 'hint'}>{tr(tickerCheck.message)}</span>}
+          <SupportedUniverse id="account-ticker-universe" />
+        </div>
       </div>
-      <button className="btn" type="button" disabled={busy || !name.trim() || !ticker.trim() || !Number.isFinite(Number(capital)) || Number(capital) <= 0} onClick={() => void create()}>{tr({ en: 'Create and select account', fr: 'Créer et sélectionner le compte' })}</button>
+      <button className="btn" type="button" disabled={busy || !name.trim() || !ticker.trim() || tickerCheck.blocking || !Number.isFinite(Number(capital)) || Number(capital) <= 0} onClick={() => void create()}>{tr({ en: 'Create and select account', fr: 'Créer et sélectionner le compte' })}</button>
     </details>
     {busy && <p role="status">{tr({ en: 'Saving account selection…', fr: 'Enregistrement de la sélection…' })}</p>}
-    {error && <ErrorState error={error} />}
+    {restored && <DraftRestoredNote />}
+    {error && <ProfileWriteError error={error} onReload={() => stashDraft(draftKey, profile.version, { name, capital, currency, ticker, asOf, source, destination, amount } satisfies AccountsDraft)} />}
   </Card>;
 }

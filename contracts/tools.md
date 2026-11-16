@@ -92,10 +92,10 @@ Every research tool returns **evidence**, not conclusions. An evidence item need
 | `edgar.company_facts` | `cik, concept: str` | reported values with period and filing date | 1 | — |
 | `gdelt.search` | `query: str, start: date, end: date, country?: str, limit = 20` | articles: title, publisher domain, date, URL, tone | 2–3 | reads the cached batch first |
 | `web.fetch` | `url: str, query?: str, max_chars = 6000` | page title, publisher, retrieved text passages | by domain | domain must be on the allow-list |
-| `web.browse` | `task: str, start_url?: str, max_pages = 5` | pages visited with passages | by domain | `research_open_web` (O-02) |
-| `attention.pageviews` | `ticker: str` | `AttentionSignal` with fact | 1 (Wikimedia data) | — |
+| `web.browse` | `task: str, start_url: str, max_pages = 5` | pages visited with passages | by domain | `research_open_web` (O-02) |
+| `attention.pageviews` | `ticker: str` | `AttentionSignal` with fact | 1 (Wikimedia data) | registered only when a reviewed ticker→article mapping is configured |
 | `emissions.facilities` | `ticker_or_operator: str, country?: str` | matched facilities with reported emissions | 1 | `world_layer_facilities` |
-| `etf.holdings` | `ticker: str, top_n = 25` | constituents and weights with the file date | 1 | when `etf_holdings` is loaded |
+| `etf.holdings` | `ticker: str, top_n = 25` | constituents and weights with the file date | 1 | registered only when a dated issuer holdings file is configured |
 | `world.search_events` | `q?: str, country?: str, ticker?: str, start, end, limit = 20` | `WorldEvent[]` from our own dataset | as stored | — |
 | `research.save_evidence` | `type, title, publisher, url, published_at?, quote?, claim, subject` | `evidenceId` | — | the only way evidence enters the ledger |
 
@@ -124,5 +124,5 @@ Rules specific to research:
 1. Add a row here (name, args, result, facts or evidence produced).
 2. If it produces a new metric or method, add it to `catalog.md`.
 3. Implement it in the owning module with its `Args` model and a unit test that runs without network access.
-4. Register it in `backend/aplomb/agents/registry.py`.
+4. Add its name to the role allow-list (`LOOKUP`, `RESEARCH`, `QUANT` or `RISK`) in `backend/aplomb/agents/registry.py`, then register its handler in `build_registry` in `backend/aplomb/api/runtime.py` (directly, or through the owning module's handler map such as `register_domain_tools` or `research_tool_handlers`). `ToolRegistry.register` refuses a name absent from the allow-list.
 5. Tell T08 so the Planner or Researcher prompt mentions when to use it.

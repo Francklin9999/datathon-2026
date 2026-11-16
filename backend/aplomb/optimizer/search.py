@@ -24,7 +24,6 @@ class SizeSearch:
     max_size_pct: float                 # last grid size before the first conflict (0 when none)
     baseline_conflict: bool
     first_conflict_pct: float | None    # None when the whole capacity was scanned without conflict
-    capacity_pct: float
     stopped_by: str                     # "conflict" | "capacity" | "funding"
     grid: list[tuple[float, str]] = field(default_factory=list)   # (size, verdict) tested
     remaining_at_max: list[str] = field(default_factory=list)      # statuses other than pass/info at the boundary
@@ -48,7 +47,7 @@ def max_compatible_size(engine: QuantEngine, rules: list[PolicyRule], weights: d
     it can only add conflicts, never loosen a profile rule. ``max_size`` bounds the scan."""
     base = evaluate(engine, rules, weights, (), evidence, profile_id)
     if verdict_of_statuses(base.values()) == "conflict":
-        return SizeSearch(0.0, True, 0.0, capacity(weights, ticker, mode), "conflict", [(0.0, "conflict")])
+        return SizeSearch(0.0, True, 0.0, "conflict", [(0.0, "conflict")])
     cap = capacity(weights, ticker, mode)
     if max_size is not None:
         cap = min(cap, max_size)
@@ -60,17 +59,17 @@ def max_compatible_size(engine: QuantEngine, rules: list[PolicyRule], weights: d
         try:
             w = apply_move(weights, ticker, size, mode, from_tickers).weights
         except FundingError:
-            return SizeSearch(best, False, None, cap, "funding", grid, _remaining(statuses_at_best))
+            return SizeSearch(best, False, None, "funding", grid, _remaining(statuses_at_best))
         st = evaluate(engine, rules, w, (ticker,), evidence, profile_id)
         verdict = verdict_of_statuses(st.values())
         if verdict != "conflict" and extra_conflict is not None and extra_conflict(w):
             verdict = "conflict"
         grid.append((size, verdict))
         if verdict == "conflict":
-            return SizeSearch(best, False, size, cap, "conflict", grid, _remaining(statuses_at_best))
+            return SizeSearch(best, False, size, "conflict", grid, _remaining(statuses_at_best))
         best, statuses_at_best = size, st
         k += 1
-    return SizeSearch(best, False, None, cap, "capacity", grid, _remaining(statuses_at_best))
+    return SizeSearch(best, False, None, "capacity", grid, _remaining(statuses_at_best))
 
 
 def _remaining(statuses: dict[str, str]) -> list[str]:

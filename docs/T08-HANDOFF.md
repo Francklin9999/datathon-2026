@@ -9,8 +9,9 @@ fixtures. Offline tests label their synthetic control providers explicitly.
 `execute_run(run_id, generation, AgentServices)` claims the T03 repository, checkpoints
 observable steps, renews leases during long calls, and yields to cancellation/new generations.
 `worker.make_handler(services)` works with `LocalDispatcher`; `worker.handler` is the Lambda
-entry point. **The Lambda entry point requires application composition to call
-`worker.configure(lazy_services_factory)`; an unconfigured handler raises explicitly.**
+entry point. On its first invocation it builds `AgentServices` from the process
+environment through `aplomb.api.runtime.default_agent_services`; the local API composes
+the same services through `aplomb.api.runtime.build_run_services`.
 
 `AgentServices` requires `repository` and `gateway`. Optional fields are `registry`,
 `controls`, `ledger_factory`, `signer`, `gate_factory`, `store`, `logger`, `clock`, and

@@ -403,18 +403,6 @@ class RelationshipGraph:
             if node_id in (edge.subject, edge.object):
                 yield edge_id, edge, self._visible(edge, as_of, knowledge, classes)
 
-    def neighbors(self, node_id: str, as_of: date, *, knowledge: Literal['as_of', 'latest'] = 'as_of',
-                  classes: frozenset[str] = DEFAULT_CLASSES) -> tuple[list[dict], dict[str, int]]:
-        """Edges touching ``node_id`` shown at ``as_of``, plus counts of hidden edges by reason."""
-        shown, hidden = [], {}
-        for _, edge, reason in self._scan(node_id, as_of, knowledge, classes):
-            if reason:
-                hidden[reason] = hidden.get(reason, 0) + 1
-                continue
-            shown.append({**edge.wire(as_of),
-                          'direction': 'outgoing' if edge.subject == node_id else 'incoming'})
-        return shown, hidden
-
     def view(self, root: str, as_of: date, *, depth: int = 2, knowledge: Literal['as_of', 'latest'] = 'as_of',
              classes: frozenset[str] = DEFAULT_CLASSES, max_edges: int = 1000) -> dict:
         """Breadth-first neighbourhood of ``root`` with counts of what was hidden and why."""

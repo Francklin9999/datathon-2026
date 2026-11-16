@@ -10,6 +10,7 @@ import { Card } from '../../components/common/Page';
 import { FactChip } from '../../components/common/FactDrawer';
 import { CountUp } from '../../components/ui/CountUp';
 import { factIdFor, fmtNumber, fmtSignedPct } from '../../lib/format';
+import { LOWEST_12M_INFO, LOWEST_12M_LABEL, lowestRollingNote } from '../../lib/ui/figures';
 
 function Figure({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -49,15 +50,17 @@ export function StressCard({ overview }: { overview: OverviewResponse }) {
   const { tr } = useApp();
   const signed = useSigned();
   const { risk } = overview;
+  const note = lowestRollingNote(risk.worst12mPct);
   return (
     <Card title={tr({ en: 'Stress test', fr: 'Test de résistance' })}
-      info={tr({ en: 'Today’s weights replayed through past markets.', fr: 'Pondérations actuelles rejouées sur les marchés passés.' })}>
+      info={`${tr({ en: 'Today’s weights replayed through past markets.', fr: 'Pondérations actuelles rejouées sur les marchés passés.' })} ${tr(LOWEST_12M_INFO)}`}>
       <dl className="figure-list">
         <Figure label={tr({ en: '2022 replay', fr: 'Rejeu 2022' })}>{signed(risk.stress2022Pct, risk.factIds, 'stress2022Pct')}</Figure>
         {risk.worst12mPct !== null && (
-          <Figure label={tr({ en: 'Worst 12 months in the period', fr: 'Pires 12 mois de la période' })}>{signed(risk.worst12mPct, risk.factIds, 'worst12mPct')}</Figure>
+          <Figure label={tr(LOWEST_12M_LABEL)}>{signed(risk.worst12mPct, risk.factIds, 'worst12mPct')}</Figure>
         )}
       </dl>
+      {note && <p className="figure-note">{tr(note)}</p>}
     </Card>
   );
 }

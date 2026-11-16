@@ -7,7 +7,6 @@ with contextlib.redirect_stdout(io.StringIO()):
     exec(src)
 
 GROUP = {'equity':'equity','etf_equity':'equity','etf_bond':'fixed_income','etf_commodity':'commodity','crypto':'crypto'}
-GICS = {'Financials','Energy','Industrials','Utilities','Consumer Staples','Information Technology','Communication Services','Consumer Discretionary','Health Care'}
 SIGMA = {'low':6,'low_moderate':9,'moderate':12,'moderate_high':16,'high':22}
 def round5(x): return 5*round(x/5)
 def floor5(x): return 5*math.floor(x/5+1e-9)

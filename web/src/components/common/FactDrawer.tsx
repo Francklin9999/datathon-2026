@@ -29,7 +29,7 @@ export type FactScope =
    */
   | { kind: 'reveal'; runId: string; until: string; facts: Record<string, Fact> };
 
-export interface DrawerTarget { scope: FactScope; type: 'fact' | 'evidence'; id: string }
+interface DrawerTarget { scope: FactScope; type: 'fact' | 'evidence'; id: string }
 
 interface DrawerApi {
   current: DrawerTarget | null;
@@ -51,8 +51,15 @@ export function FactScopeProvider({ scope, children }: { scope: FactScope; child
   return <ScopeContext.Provider value={scope}>{children}</ScopeContext.Provider>;
 }
 
+/** The fact scope of the enclosing provider (BriefView links a run's removed sentences to its audit). */
 export function useFactScope(): FactScope | null {
   return useContext(ScopeContext);
+}
+
+/** A fact of the enclosing scope (undefined outside a FactScopeProvider or for an unknown ID). */
+export function useScopedFact(factId: string | null | undefined): Fact | undefined {
+  const scope = useFactScope();
+  return factId ? scope?.facts[factId] : undefined;
 }
 
 export function FactDrawerProvider({ children }: { children: ReactNode }) {
@@ -69,11 +76,12 @@ export function FactDrawerProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** Clickable proof chip showing the backend-formatted value. */
-/** `children` may restyle the visible value (e.g. RollingText); the accessible name always uses `display`. */
-export function FactChip({ factId, display, scope: explicit, children }: { factId: string; display?: string; scope?: FactScope; children?: ReactNode }) {
-  const contextual = useFactScope();
-  const scope = explicit ?? contextual;
+/**
+ * Clickable proof chip showing the backend-formatted value (counting up, CountUp), resolved in the
+ * enclosing FactScopeProvider's scope; the accessible name always uses the plain `display` text.
+ */
+export function FactChip({ factId, display }: { factId: string; display?: string }) {
+  const scope = useFactScope();
   const { openFact } = useFactDrawer();
   const { tr } = useApp();
   const fact = scope?.facts[factId];
@@ -83,7 +91,7 @@ export function FactChip({ factId, display, scope: explicit, children }: { factI
   return (
     <button type="button" className="chip" onClick={() => openFact(scope, factId)}
       aria-label={`${tr({ en: 'Show source for', fr: 'Voir la source de' })} ${label}: ${text}`}>
-      {children ?? <CountUp text={text} />}
+      <CountUp text={text} />
     </button>
   );
 }
@@ -217,7 +225,7 @@ function Row({ k, children }: { k: string; children: ReactNode }) {
   return <div className="kv"><dt className="k">{k}</dt><dd className="v">{children}</dd></div>;
 }
 
-export function FactDetail({ response, showUsage, onOpenInput }: {
+function FactDetail({ response, showUsage, onOpenInput }: {
   response: FactResponse; showUsage: boolean; onOpenInput: (id: string) => void;
 }) {
   const { tr, lang } = useApp();

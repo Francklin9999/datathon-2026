@@ -54,6 +54,13 @@ test('animations: the setting wins over the system, a hidden page never animates
   assert.equal(animationsAllowed('on', false, true), false);
 });
 
+test('animations: the setting also drives motion (drawers, sheets): Off reduces, On never, Auto follows the system', async () => {
+  const { motionReducedFor } = await import('../src/lib/ui/theme');
+  assert.equal(motionReducedFor('off'), 'always');
+  assert.equal(motionReducedFor('on'), 'never');
+  assert.equal(motionReducedFor(undefined), 'user');
+});
+
 test('count-up: dates, labels and identifiers are left alone', () => {
   assert.equal(parseFigure('2021-11-12', 'en'), null);
   assert.equal(parseFigure('Nov 12, 2026', 'en'), null);

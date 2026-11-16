@@ -502,10 +502,6 @@ HANDLERS = {
 }
 
 
-def domain_tool_handlers() -> dict:
-    return dict(HANDLERS)
-
-
 def register_domain_tools(registry) -> None:
     """Register every T04–T07 tool of the shared catalog in T08's registry."""
     for name, (args, fn) in HANDLERS.items():

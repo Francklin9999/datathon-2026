@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from aplomb.contracts.models import Evidence, PolicyRule, RuleCheck, VerdictCounts
 from aplomb.quant.engine import Measurement, PortfolioView
@@ -27,12 +27,6 @@ class RuleInputs:
     evidence: tuple[Evidence, ...] = ()    # controversy evidence produced by the researcher
     attention: dict | None = None          # AttentionSignal wire dict, when available
     attention_ticker: str | None = None
-
-
-@dataclass
-class RuleOutcome:
-    checks: list[RuleCheck]
-    fact_ids: list[str] = field(default_factory=list)
 
 
 def compare(rule_type: str, value: float, threshold: float) -> str:

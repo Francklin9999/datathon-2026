@@ -1,5 +1,7 @@
 # CONT — company stream (SEC company detail + disclosures)
 
+> **Current status (wiring audit, 2026-11-15):** the owner removed every SEC source (`intelligence/capabilities.py` family `sec` is `removed`), so `CompanyResearch.tsx` and `SecExplorer.tsx` never rendered. Both components, `research/company_routes.py`, `research/sec_extra.py`, `GET /v1/research/company/{cik}`, the four `GET /v1/research/sec/*` routes, their `contracts/api.md` rows and the HTTP test were deleted. `research/company_detail.py` (its `cik_id` is imported by `research/disclosures.py`) and its unit tests remain. The rest of this report is the original change log.
+
 ## Bug fixed
 `CompanyResearch.detail` was not idempotent. The only difference between two identical calls was the ledger fact `createdAt`, which came from the wall clock. The detail ledger now uses a fixed clock equal to the capture instant, so identical captures register identical facts (F-001…) with identical timestamps. The existing file `backend/tests/research/test_company_detail.py` passes: 8 tests, including `test_session_owned_idempotent_capture_and_graceful_partial_failure`. No new tests were written.
 

@@ -3,7 +3,9 @@
  * Pure: storage goes through the injected read/write functions so it can be tested. The server only
  * simulates; a saved strategy is a UI preference (at most three per profile), never an order.
  */
-import type { I18NText, StrategyConfig } from '../contracts/types';
+import type { I18NText, Meta, StrategyConfig } from '../contracts/types';
+import { FEATURE_MIN_CONTRACT, NEEDS_NEWER_API, apiCompatibility, apiVersionLine, type ApiCompatibility } from './apiCompat';
+import { describeFailure, type FailureDescription } from './failure';
 
 export type StrategyKind = StrategyConfig['kind'];
 export const MAX_STRATEGIES = 3;
@@ -78,7 +80,100 @@ export function configIssues(config: StrategyConfig): I18NText[] {
   return out;
 }
 
-/** The body sent to the API: only the fields of the chosen trigger. */
+/**
+ * What Home's Automations widget can say about one active strategy. An API too old (or of another
+ * major) to simulate strategies is never called, so it is reported first; invalid settings are never
+ * simulated either, so they are reported instead of an endless "Simulating…".
+ */
+export function automationState(config: StrategyConfig, hasNext: boolean, failed: boolean, compat: ApiCompatibility = 'supported'): 'outdated' | 'invalid' | 'next' | 'unavailable' | 'pending' {
+  if (compat === 'older' || compat === 'incompatible') return 'outdated';
+  if (configIssues(config).length > 0) return 'invalid';
+  if (hasNext) return 'next';
+  return failed ? 'unavailable' : 'pending';
+}
+
+// ----- Site/API version skew (the site deploys on every push, the API separately) -----
+
+/** Whether the connected API can simulate strategies; `unknown` while /meta loads. */
+export function strategiesCompatibility(meta: Pick<Meta, 'contractVersion'> | null | undefined): ApiCompatibility {
+  return apiCompatibility(meta, FEATURE_MIN_CONTRACT.strategies);
+}
+
+/**
+ * The simulate request for `config` and its query key, or null when nothing may be sent: the API
+ * cannot simulate strategies (or /meta has not answered), there is no session/profile key yet, or
+ * the settings have problems the form already shows.
+ */
+export function simulationRequest(compat: ApiCompatibility, base: string | null, windowCode: string, config: StrategyConfig | null): { key: string; body: StrategyConfig } | null {
+  if (compat !== 'supported' || !base || !config || configIssues(config).length > 0) return null;
+  const body = wireConfig(config);
+  return { key: `strategy|${base}|${windowCode}|${JSON.stringify(body)}`, body };
+}
+
+export interface StrategiesUnavailable {
+  /** The notice on the Strategies page. */
+  title: I18NText;
+  body: I18NText;
+  /** Which contract the feature needs and which one the API reports. */
+  version: I18NText;
+  /** Short status on a saved strategy (Strategies list, Home Automations). */
+  badge: I18NText;
+  /** On a "create" card (kind picker, Home's empty state): what creating one will not do yet. */
+  createNote: I18NText;
+}
+
+/**
+ * The copy shown when the connected API cannot simulate strategies, or null when it can (or when
+ * /meta has not answered yet: nothing is shown then). Saved strategies stay editable and deletable.
+ */
+export function strategiesUnavailable(compat: ApiCompatibility, apiVersion: string | null | undefined): StrategiesUnavailable | null {
+  if (compat !== 'older' && compat !== 'incompatible') return null;
+  const version = apiVersionLine(FEATURE_MIN_CONTRACT.strategies, apiVersion);
+  if (compat === 'older') {
+    return {
+      title: { en: 'Strategy simulations need the newer API release.', fr: 'Les simulations de stratégies exigent la nouvelle version de l’API.' },
+      body: {
+        en: 'The connected API does not offer strategy simulations yet. Your strategies are kept in this browser: you can still create, edit and delete them, and they will be simulated once the API is updated.',
+        fr: 'L’API connectée ne propose pas encore les simulations de stratégies. Vos stratégies sont conservées dans ce navigateur : vous pouvez toujours les créer, les modifier et les supprimer, et elles seront simulées dès la mise à jour de l’API.',
+      },
+      version,
+      badge: NEEDS_NEWER_API,
+      createNote: { en: 'Simulation needs the newer API release', fr: 'La simulation exige la nouvelle version de l’API' },
+    };
+  }
+  return {
+    title: { en: 'Strategy simulations are not available with the connected API.', fr: 'Les simulations de stratégies ne sont pas disponibles avec l’API connectée.' },
+    body: {
+      en: 'The connected API runs a contract version this site cannot use. Your strategies are kept in this browser: you can still create, edit and delete them.',
+      fr: 'L’API connectée utilise une version de contrat que ce site ne peut pas exploiter. Vos stratégies sont conservées dans ce navigateur : vous pouvez toujours les créer, les modifier et les supprimer.',
+    },
+    version,
+    badge: { en: 'Simulation unavailable', fr: 'Simulation indisponible' },
+    createNote: { en: 'Simulation unavailable with this API', fr: 'Simulation indisponible avec cette API' },
+  };
+}
+
+/**
+ * A failed simulation, worded for the Strategies page (lib/failure.ts does the classification and
+ * the retry budget). Strategy-specific wording replaces the generic one when the server sent no
+ * bilingual reason: a validation error means "change the settings", insufficient data "pick a longer
+ * period".
+ */
+export function strategyFailure(error: unknown, failures: number): FailureDescription {
+  const failure = describeFailure(error, { failures });
+  if (failure.kind !== 'edit' || failure.reason) return failure;
+  const code = (error as { code?: string }).code;
+  const message: I18NText = code === 'insufficient_data'
+    ? { en: 'Not enough market history for this period. Choose a longer period, such as 1Y or All.', fr: 'Historique de marché insuffisant pour cette période. Choisissez une période plus longue, par exemple 1A ou Tout.' }
+    : { en: 'These settings cannot be simulated. Change them above; the simulation runs again on its own.', fr: 'Ces réglages ne peuvent pas être simulés. Modifiez-les ci-dessus ; la simulation se relance d’elle-même.' };
+  return { ...failure, message };
+}
+
+/**
+ * The body sent to the API: only the fields of the chosen trigger. Trigger `band` is labelled
+ * "On drift" in the UI; `bandPts` is sent only for it and `frequency` only for `calendar` (the saved
+ * config keeps both, so the value survives switching the trigger back and forth).
+ */
 export function wireConfig(config: StrategyConfig): StrategyConfig {
   if (config.kind === 'rebalance') {
     const { bandPts, frequency, ...rest } = config;
@@ -114,6 +209,43 @@ export function readStrategies(profileId: string, read: (key: string) => string 
 
 export function writeStrategies(profileId: string, list: readonly SavedStrategy[], write: (key: string, value: string) => void): void {
   write(PREF(profileId), JSON.stringify(list.slice(0, MAX_STRATEGIES)));
+}
+
+/** A deleted strategy and where it was, so Undo can put it back. */
+export interface RemovedStrategy { strategy: SavedStrategy; index: number }
+
+/** How long the "deleted · Undo" notice stays on screen. */
+export const UNDO_DELETE_MS = 10_000;
+
+/** `list` without strategy `id`, plus what Undo needs; null when it is not in the list. */
+export function removeStrategy(list: readonly SavedStrategy[], id: string): { next: SavedStrategy[]; removed: RemovedStrategy } | null {
+  const index = list.findIndex(s => s.id === id);
+  if (index < 0) return null;
+  return { next: list.filter(s => s.id !== id), removed: { strategy: list[index]!, index } };
+}
+
+/**
+ * Undo a delete: the strategy back at its old place (or last, if the list got shorter). Null when it
+ * cannot come back: the list is already full, or a strategy with that id is present.
+ */
+export function restoreStrategy(list: readonly SavedStrategy[], removed: RemovedStrategy): SavedStrategy[] | null {
+  if (list.length >= MAX_STRATEGIES || list.some(s => s.id === removed.strategy.id)) return null;
+  const at = Math.max(0, Math.min(removed.index, list.length));
+  return [...list.slice(0, at), removed.strategy, ...list.slice(at)];
+}
+
+/**
+ * When the Undo notice expires while Undo holds focus, focus moves to the first control still on the
+ * page (`candidates` in order of preference), so a keyboard user does not land on <body>. Returns
+ * whether focus moved; it never moves when focus is elsewhere.
+ */
+export function moveFocusFromExpiredUndo(
+  active: unknown, undo: unknown, candidates: readonly ({ focus(): void } | null | undefined)[],
+): boolean {
+  if (undo == null || active !== undo) return false;
+  const target = candidates.find(c => c != null);
+  target?.focus();
+  return Boolean(target);
 }
 
 /** A new strategy of `kind`, named after it (numbered when the name is taken). */

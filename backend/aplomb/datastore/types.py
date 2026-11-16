@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import bisect
 from dataclasses import dataclass
-from typing import Iterable, Literal, Mapping
+from typing import Literal, Mapping
 
 GateMode = Literal["current", "historical"]
 GATE_MODES: tuple[str, ...] = ("current", "historical")
@@ -26,17 +26,6 @@ class DatasetRead:
     def to_wire(self) -> dict:
         return {"datasetId": self.dataset_id, "dataVersion": self.data_version, "rows": self.rows,
                 "rowsWithheld": self.rows_withheld}
-
-
-def merge_reads(reads: Iterable[DatasetRead]) -> tuple[DatasetRead, ...]:
-    """Sum reads per (dataset, version). Repeated reads are counted again: this is a trace
-    total of rows returned, not a count of unique physical rows (datastore SPEC §4)."""
-    totals: dict[tuple[str, str], list[int]] = {}
-    for r in reads:
-        acc = totals.setdefault((r.dataset_id, r.data_version), [0, 0])
-        acc[0] += r.rows
-        acc[1] += r.rows_withheld
-    return tuple(DatasetRead(d, v, n, w) for (d, v), (n, w) in totals.items())
 
 
 @dataclass(frozen=True)

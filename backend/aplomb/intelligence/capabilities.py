@@ -1,8 +1,9 @@
 """Conservative source capabilities and catalogue for the current application runtime.
 
 'available' denotes a demonstrated workflow within its documented supported scope.
-Sources without demonstrated access and permitted use stay aside. Current provider
-uptime remains subject to the actual request; preserved evidence is a separate state.
+Sources without demonstrated access and permitted use stay aside, and sources the owner
+excluded are 'removed' (their historical captures are kept for audit only). No other state
+is emitted. Current provider uptime remains subject to the actual request.
 """
 from __future__ import annotations
 
@@ -43,10 +44,12 @@ def capabilities(settings):
     add('sec', 'SEC live company, filings and funds', 'removed',
         'Removed by owner after HTTP403; no SEC credentials requested.',
         source_ids=('SRC-034', 'SRC-035', 'SRC-036', 'SRC-037', 'SRC-038', 'SRC-039', 'SRC-041', 'SRC-042'))
-    japan = bool(os.getenv('APLOMB_JQUANTS_KEY')) and os.getenv('APLOMB_JQUANTS_RIGHTS_CONFIRMED') == 'true'
+    # Same rule as the /intelligence/regional adapter, so the panel shows exactly when its requests work.
+    from aplomb.research.regional import configured_key
+    japan = configured_key('JQUANTS') is not None
     add('regional', 'Japan J-Quants', 'available' if japan else 'aside',
         'Daily prices, listing and financial summary captures verified; dates depend on account entitlement. Complete bounded pagination.', source_ids=('SRC-020',))
-    dart = bool(os.getenv('APLOMB_OPENDART_KEY')) and os.getenv('APLOMB_OPENDART_RIGHTS_CONFIRMED') == 'true'
+    dart = configured_key('OPENDART') is not None
     add('opendart', 'Korea OpenDART', 'available' if dart else 'aside',
         'Verified corporate filings, complete paginated interval, financial statements and ownership; account key required.')
     tiingo = bool(settings.tiingo_token) or bool(os.getenv('APLOMB_TIINGO_TOKEN'))

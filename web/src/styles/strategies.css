@@ -21,6 +21,14 @@
 .kind-purpose { font-size: 13px; line-height: 1.5; color: var(--text-2); }
 .kind-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding: 6px 12px; border-radius: var(--r-pill); background: var(--ink-fill); color: var(--ink-fill-text); font-size: 13px; font-weight: 600; }
 .kind-cancel { margin-top: 12px; }
+/* The API cannot simulate yet (version skew): said on the card, before creating. */
+.kind-note { font-size: 12px; font-weight: 500; color: var(--tension-fg); }
+
+/* "Strategy deleted · Undo" (10 s), above the page body. */
+.strategy-undo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 14px; padding: 10px 14px; border-radius: 14px;
+  border: 1px solid var(--glass-line); background: var(--glass-inset); font-size: 13px; }
+/* A failed simulation: the request ID to quote, with a copy button. */
+.request-id { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 
 /* Layout: the saved strategies, then the workspace. */
 .strategy-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 18px; align-items: start; }
@@ -33,6 +41,7 @@
 .strategy-item-body { display: flex; flex-direction: column; min-width: 0; }
 .strategy-item-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .strategy-item-meta { font-size: 12px; color: var(--text-3); }
+.strategy-item-api { color: var(--tension-fg); }
 .strategy-add { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 16px; border: 1px dashed var(--line-strong);
   background: transparent; color: var(--text-2); font-weight: 600; font-size: 13px; transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
 .strategy-add:hover:not(:disabled) { background: var(--glass-inset); color: var(--text); }

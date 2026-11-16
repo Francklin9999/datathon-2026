@@ -48,6 +48,30 @@ class CustomWindow(unittest.TestCase):
         self.assertEqual(fact["window"], SPEC)
         self.assertEqual(fact["period"], {"start": series[0]["date"], "end": series[-1]["date"]})
 
+    def test_range_seeded_from_a_preset_period_keeps_its_figures(self):
+        # The web seeds a new custom Range with the period the preset's selectedPct fact reports
+        # (web/src/lib/ui/scope.ts::defaultRange), so switching to Range alone must change no figure.
+        svc = service()
+        for code in ("full", "1y", "3y"):
+            with self.subTest(code):
+                preset = svc.overview(A, "robert", {"window": code}).to_wire()
+                period = preset["facts"][preset["returns"]["factIds"]["selectedPct"]]["period"]
+                custom = svc.overview(A, "robert", {"window": "custom", "start": period["start"], "end": period["end"]}).to_wire()
+                fact = custom["facts"][custom["returns"]["factIds"]["selectedPct"]]
+                self.assertEqual(fact["period"], period)
+                self.assertAlmostEqual(fact["value"], preset["facts"][preset["returns"]["factIds"]["selectedPct"]]["value"])
+                self.assertAlmostEqual(custom["risk"]["volatilityPct"], preset["risk"]["volatilityPct"])
+                self.assertAlmostEqual(custom["risk"]["maxDrawdownPct"], preset["risk"]["maxDrawdownPct"])
+
+    def test_value_chart_starts_at_the_fictional_capital(self):
+        # Home labels snapshot.totalValue "Fictional capital ... The history chart starts from this amount"
+        # (contracts/api.md: the series starts at the portfolio's total value on the first date).
+        svc = service()
+        for query in ({}, {"window": "1y"}, CUSTOM):
+            with self.subTest(query.get("window", "full")):
+                capital = svc.overview(A, "robert", query).to_wire()["snapshot"]["totalValue"]
+                self.assertEqual(svc.performance(A, "robert", query).to_wire()["series"][0]["value"], capital)
+
     def test_performance_series_inside_custom_range(self):
         p = service().performance(A, "robert", CUSTOM).to_wire()
         self.assertEqual(p["window"], SPEC)

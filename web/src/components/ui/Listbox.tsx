@@ -12,7 +12,7 @@ import { listboxNext, typeaheadIndex } from '../../lib/ui/listbox';
 
 export interface ListboxOption<T extends string> { value: T; label: string; meta?: string }
 
-export function Listbox<T extends string>({ label, value, options, onChange, renderTrigger, triggerClassName, className, footer }: {
+export function Listbox<T extends string>({ label, value, options, onChange, renderTrigger, triggerClassName, footer }: {
   /** Accessible name of the control (e.g. "Fictional investor"). */
   label: string;
   value: T;
@@ -20,7 +20,6 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
   onChange: (value: T) => void;
   renderTrigger: (selected: ListboxOption<T> | undefined, open: boolean) => ReactNode;
   triggerClassName?: string;
-  className?: string;
   /** Rendered under the options; receives a function that closes the popover. */
   footer?: (close: () => void) => ReactNode;
 }) {
@@ -80,7 +79,7 @@ export function Listbox<T extends string>({ label, value, options, onChange, ren
   };
 
   return (
-    <div className={`listbox${className ? ` ${className}` : ''}`} ref={root}>
+    <div className="listbox" ref={root}>
       <button ref={button} type="button" className={triggerClassName} aria-haspopup="listbox" aria-expanded={open}
         {...(open ? { 'aria-controls': `${id}-list` } : {})} aria-label={`${label}: ${selected?.label ?? value}`}
         onClick={() => (open ? close(false) : openList(false))} onKeyDown={onButtonKey}>

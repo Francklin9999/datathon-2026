@@ -8,6 +8,8 @@ import { useApp } from '../../state/app';
 import { ErrorState } from '../../components/common/States';
 import { FactChip, FactScopeProvider } from '../../components/common/FactDrawer';
 import { fmtMoney, fmtNumber, fmtPct } from '../../lib/format';
+// The deployed API 1.4.0 still lists a note for code ("Local fact IDs are per portfolio...") (QA 4.5b).
+import { splitLimitations } from '../../lib/limitations';
 
 export function FinancialComparison({ left, right }: { left: Profile; right: Profile }) {
   const { tr, lang, meta, windowSpec } = useApp();
@@ -32,9 +34,10 @@ export function FinancialComparison({ left, right }: { left: Profile; right: Pro
         const display = (key: string) => { const n = numeric(metrics[key]); if (n === null) return tr({ en: 'Unavailable', fr: 'Indisponible' }); return key === 'hhi' || key === 'effectiveN' ? fmtNumber(n, lang, 3) : fmtPct(n, lang); };
         return <FactScopeProvider key={scalar(portfolio.profileId)} scope={{ kind: 'local', label: { en: `Comparison: ${scalar(portfolio.name)}`, fr: `Comparaison : ${scalar(portfolio.name)}` }, facts }}><section><h4>{scalar(portfolio.name)} · v{scalar(portfolio.profileVersion)}</h4><p>{tr({ en: 'Converted modeled capital', fr: 'Capital modélisé converti' })}: {numeric(portfolio.capital) === null ? tr({ en: 'Unknown', fr: 'Inconnu' }) : fmtMoney(numeric(portfolio.capital)!, currency, lang)}</p><p className="small">{scalar(sample.start)} — {scalar(sample.end)} · {scalar(sample.returnObservations)} {tr({ en: 'returns', fr: 'rendements' })}</p>
           <dl className="kv-list">{([
-            ['returnPct',tr({en:'Period return',fr:'Rendement de la période'})],['volatilityPct',tr({en:'Annualized volatility',fr:'Volatilité annualisée'})],['maxDrawdownPct',tr({en:'Maximum drawdown',fr:'Baisse maximale'})],['stress2022Pct',tr({en:'2022 replay return',fr:'Rendement rejoué 2022'})],['hhi','HHI'],['effectiveN',tr({en:'Effective holdings',fr:'Positions effectives'})],
-          ] as const).map(([key,label]) => { const id = scalar(ids[key] ?? ids[key === 'returnPct' ? 'return.period' : key]); return <div className="kv" key={key}><dt>{label}</dt><dd>{id in facts ? <FactChip factId={id} display={display(key)} /> : display(key)}</dd></div>; })}</dl>
+            // [metrics key, fact metric id keying portfolio.factIds, label]
+            ['returnPct','return.period',tr({en:'Period return',fr:'Rendement de la période'})],['volatilityPct','vol.annualized',tr({en:'Annualized volatility',fr:'Volatilité annualisée'})],['maxDrawdownPct','drawdown.max',tr({en:'Maximum drawdown',fr:'Baisse maximale'})],['stress2022Pct','stress.replay_2022',tr({en:'2022 replay return',fr:'Rendement rejoué 2022'})],['hhi','concentration.hhi','HHI'],['effectiveN','concentration.effective_n',tr({en:'Effective holdings',fr:'Positions effectives'})],
+          ] as const).map(([key,factMetric,label]) => { const id = scalar(ids[factMetric]); return <div className="kv" key={key}><dt>{label}</dt><dd>{id in facts ? <FactChip factId={id} display={display(key)} /> : display(key)}</dd></div>; })}</dl>
           <details><summary>{tr({ en: 'Inspect FX conversion and missing data', fr: 'Examiner la conversion et les données manquantes' })}</summary><pre style={{ whiteSpace:'pre-wrap',overflowWrap:'anywhere' }}>{JSON.stringify({ conversion: portfolio.conversion, missing: portfolio.missing, unavailable: portfolio.unavailable },null,2)}</pre></details></section></FactScopeProvider>;
-      })}</div>{texts(result.limitations).map(s => <p className="small muted" key={s}>{s}</p>)}</>}
+      })}</div>{splitLimitations(texts(result.limitations)).shown.map(s => <p className="small muted" key={s}>{s}</p>)}</>}
   </section>;
 }

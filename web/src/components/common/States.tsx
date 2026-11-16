@@ -28,7 +28,7 @@ export function Loading({ label, variant = 'inline' }: { label?: string; variant
   );
 }
 
-export function errorTitle(error: ApiRequestError, lang: Lang): string {
+function errorTitle(error: ApiRequestError, lang: Lang): string {
   if (error.code === 'network' || error.code === 'invalid_response' || error.code === 'aborted') {
     return labelOf(CLIENT_ERROR, error.code, lang);
   }
@@ -58,6 +58,33 @@ export function ErrorState({ error, onRetry, title, children }: {
         <button type="button" className="btn ghost" onClick={onRetry}>{tr({ en: 'Retry', fr: 'Réessayer' })}</button>
       )}
     </div>
+  );
+}
+
+/**
+ * A rejected profile write. On a 409 conflict (the profile changed elsewhere, e.g. in another tab, or the
+ * edit is not allowed) it offers to reload the profiles, as Profiles does (web/page-specs/portfolio.md).
+ * `onReload` runs first, so an editor can stash its unsaved input (lib/draftStore.ts) before the
+ * reload remounts it.
+ */
+export function ProfileWriteError({ error, onReload }: { error: ApiRequestError; onReload?: () => void }) {
+  const { tr, reloadProfiles } = useApp();
+  return (
+    <ErrorState error={error}>
+      {error.code === 'conflict' && (
+        <button type="button" className="btn ghost btn-sm" onClick={() => { onReload?.(); reloadProfiles(); }}>{tr({ en: 'Reload profiles', fr: 'Recharger les profils' })}</button>
+      )}
+    </ErrorState>
+  );
+}
+
+/** Shown by an editor that restored the input it stashed before a conflict reload. */
+export function DraftRestoredNote() {
+  const { tr } = useApp();
+  return (
+    <p className="small" role="status">
+      {tr({ en: 'Your unsaved entries were kept after the reload. Check them against the reloaded profile before saving.', fr: 'Vos saisies non enregistrées ont été conservées après le rechargement. Vérifiez-les par rapport au profil rechargé avant d’enregistrer.' })}
+    </p>
   );
 }
 

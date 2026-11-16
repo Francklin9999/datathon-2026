@@ -1,7 +1,7 @@
 /** Local headless-CDP smoke; start a separate Chrome on port 9224 and the API/web on 8001/3001. No models, AWS writes or fixtures. */
 import fs from 'node:fs/promises';
 const root=process.env.APLOMB_QA_SITE || 'http://localhost:3001';
-const out=process.env.APLOMB_QA_OUTPUT || 'docs/evidence/global-platform';
+const out=process.env.APLOMB_QA_OUTPUT || 'docs/evidence/global-continuation';
 await fs.mkdir(out,{recursive:true});
 const tab=await (await fetch('http://localhost:9224/json/new?about:blank',{method:'PUT'})).json();
 const ws=new WebSocket(tab.webSocketDebuggerUrl);

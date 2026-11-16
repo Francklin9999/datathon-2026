@@ -1,14 +1,14 @@
-"""Venue-exact crypto exchange market data with explicit rights gating.
+"""Venue-exact Binance Vision daily history with explicit rights gating.
 
-Each venue adapter returns its own symbol identity (venue + venue symbol + explicit
-base/quote). A stablecoin quote such as USDT or USDC is never treated as USD, and
-quotes from different venues are never consolidated into one price. Every upstream
-response is stored as an immutable, session-owned raw capture keyed by its sha256.
+Every market keeps its own symbol identity (venue + venue symbol + explicit base/quote).
+A stablecoin quote such as USDT or USDC is never treated as USD. Every upstream file is
+stored as an immutable, session-owned raw capture keyed by its sha256.
 
-Rights status was reviewed on 2026-11-15 (see docs/parallel/reports/agent-2/
-CONT-crypto-exchanges.md). Venues whose published terms forbid this use are listed
-as blocked and have no adapter. Built venues stay disabled until the operator sets
-the venue's noncommercial acknowledgement flag.
+Rights status was reviewed on 2026-11-15; dispositions are recorded in
+data/source_dispositions.json. Only Binance Vision history is offered, and it stays
+disabled until the operator sets its noncommercial acknowledgement flag. The owner
+excluded the live Binance and Bitstamp venues; their adapters and the compare/market
+routes were removed (wiring audit, intelligence#5).
 """
 from __future__ import annotations
 
@@ -16,7 +16,6 @@ import base64
 import csv
 import hashlib
 import io
-import json
 import os
 import re
 import socket
@@ -26,7 +25,6 @@ import zipfile
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from aplomb.api.errors import Conflict
@@ -35,8 +33,6 @@ from aplomb.api.storage import Write
 MAX_JSON = 1_000_000
 MAX_ZIP = 2_000_000
 MAX_CHECKSUM = 1_000
-MAX_DEPTH = 20
-MAX_CANDLES = 60
 MIN_SPACING_SECONDS = 0.25
 
 COMPARISON_NOTE = ('Venue quotes differ; no consolidated price is computed. Rows are only compared '
@@ -55,29 +51,6 @@ class NoRedirect(HTTPRedirectHandler):
 # ---------------------------------------------------------------- venue registry
 
 VENUES = {
-    'binance': {
-        'name': 'Binance (public market data REST)', 'source_id': 'SRC-068',
-        'docs_url': 'https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints',
-        'terms_url': 'https://www.binance.com/en/about-legal/terms',
-        'flag': 'APLOMB_BINANCE_PUBLIC_NONCOMMERCIAL', 'status': 'gated',
-        'licence': 'Binance Terms of Use (operator review required; noncommercial research use only)',
-        'limitations': [
-            'Binance Terms of Use text could not be retrieved by an automated client on 2026-11-15; '
-            'the operator flag records a human terms review.',
-            '24h figures are a rolling window ending at the venue close time, not a calendar day.',
-            'Order book depth response carries an update id but no venue timestamp.'],
-    },
-    'bitstamp': {
-        'name': 'Bitstamp (public API v2)', 'source_id': 'SRC-072',
-        'docs_url': 'https://www.bitstamp.net/api/',
-        'terms_url': 'https://www.bitstamp.net/api/#section/Commercial-Use-of-Bitstamp\'s-Exchange-Data',
-        'flag': 'APLOMB_BITSTAMP_NONCOMMERCIAL', 'status': 'gated',
-        'licence': 'Bitstamp exchange data; commercial use requires a Data License Agreement',
-        'limitations': [
-            'Commercial use requires a signed Bitstamp Data License Agreement (partners@bitstamp.net).',
-            'Ticker volume is base-asset volume over the last 24 hours; no quote volume is published.',
-            'The single-market ticker response does not echo the market symbol.'],
-    },
     'binance_vision': {
         'name': 'Binance Vision historical data', 'source_id': 'SRC-069',
         'docs_url': 'https://github.com/binance/binance-public-data',
@@ -91,37 +64,15 @@ VENUES = {
     },
 }
 
-BLOCKED = {
-    'coinbase': {'name': 'Coinbase Exchange public API', 'source_id': 'SRC-070',
-                 'terms_url': 'https://www.coinbase.com/legal/market_data',
-                 'reason': 'Market Data Terms of Use forbid display to third parties, end-user applications '
-                           'and use in automated or AI agent systems without written consent.'},
-    'kraken': {'name': 'Kraken REST public endpoints', 'source_id': 'SRC-071',
-               'terms_url': 'https://www.kraken.com/legal/global-terms',
-               'reason': 'Global terms section 9 forbids automation, data extraction and third-party '
-                         'applications without prior written consent.'},
-    'coinlore': {'name': 'CoinLore API', 'source_id': 'SRC-063',
-                 'terms_url': 'https://www.coinlore.com/terms-of-use',
-                 'reason': 'Site terms forbid automated bots/data mining and redistribution without '
-                           'express written consent.'},
-}
-
-# Exact venue symbols verified against each venue's own market listing on 2026-11-15
-# (Bitstamp /api/v2/markets/, Binance /api/v3/exchangeInfo). Never derived from a ticker string.
+# Exact Binance spot symbols verified against Binance /api/v3/exchangeInfo on 2026-11-15.
+# Binance Vision files use the same symbols. Never derived from a ticker string.
 MARKETS = {
-    'binance': {
+    'binance_vision': {
         'BTCUSDT': ('BTC', 'USDT'), 'BTCUSDC': ('BTC', 'USDC'), 'BTCEUR': ('BTC', 'EUR'),
         'ETHUSDT': ('ETH', 'USDT'), 'ETHUSDC': ('ETH', 'USDC'), 'ETHEUR': ('ETH', 'EUR'),
         'SOLUSDT': ('SOL', 'USDT'), 'SOLUSDC': ('SOL', 'USDC'),
     },
-    'bitstamp': {
-        'btcusd': ('BTC', 'USD'), 'btceur': ('BTC', 'EUR'), 'btcusdt': ('BTC', 'USDT'),
-        'btcusdc': ('BTC', 'USDC'), 'ethusd': ('ETH', 'USD'), 'etheur': ('ETH', 'EUR'),
-        'ethusdt': ('ETH', 'USDT'), 'ethusdc': ('ETH', 'USDC'), 'solusd': ('SOL', 'USD'),
-        'soleur': ('SOL', 'EUR'), 'solusdc': ('SOL', 'USDC'),
-    },
 }
-MARKETS['binance_vision'] = MARKETS['binance']
 
 QUOTE_KIND = {'USD': 'fiat', 'EUR': 'fiat', 'USDT': 'stablecoin', 'USDC': 'stablecoin'}
 ASSETS = ('BTC', 'ETH', 'SOL')
@@ -129,7 +80,7 @@ INTERVALS = {'1h': 3600, '4h': 14400, '1d': 86400}
 
 
 def permitted(venue: str) -> bool:
-    return venue == 'binance_vision' and os.getenv(VENUES[venue]['flag']) == '1'
+    return venue in VENUES and os.getenv(VENUES[venue]['flag']) == '1'
 
 
 def market_identity(venue: str, symbol: str) -> dict:
@@ -147,15 +98,12 @@ def market_identity(venue: str, symbol: str) -> dict:
 def venue_catalog() -> dict:
     venues = []
     for key, info in VENUES.items():
-        if key != 'binance_vision':
-            continue
         venues.append({'venue': key, 'name': info['name'], 'source_id': info['source_id'],
                        'status': 'enabled' if permitted(key) else 'licence_not_enabled',
                        'docs_url': info['docs_url'], 'terms_url': info['terms_url'],
                        'licence': info['licence'], 'limitations': info['limitations'],
                        'markets': [market_identity(key, s) for s in MARKETS[key]]})
-    blocked = []  # Other pending venues were excluded by the owner.
-    return {'venues': venues, 'blocked': blocked, 'assets': list(ASSETS),
+    return {'venues': venues, 'assets': list(ASSETS),
             'intervals': list(INTERVALS), 'note': COMPARISON_NOTE}
 
 
@@ -191,14 +139,6 @@ def fetch(url: str, *, accept: tuple[str, ...] = ('application/json',), limit: i
     return body, modified
 
 
-def _json_get(url: str, get) -> tuple[object, bytes]:
-    body, _ = get(url)
-    try:
-        return json.loads(body), body
-    except (ValueError, UnicodeDecodeError) as exc:
-        raise CryptoMarketError('invalid_response') from exc
-
-
 # ---------------------------------------------------------------- value helpers
 
 def dec(value, *, positive: bool = False, allow_zero: bool = True) -> Decimal:
@@ -230,32 +170,6 @@ def _int(value) -> int:
         raise CryptoMarketError('invalid_response') from exc
 
 
-def spread(bid: Decimal | None, ask: Decimal | None) -> dict:
-    if bid is None or ask is None or bid <= 0 or ask <= 0:
-        return {'absolute': None, 'bps_of_mid': None, 'mid': None, 'crossed': None}
-    absolute = ask - bid
-    mid = (ask + bid) / 2
-    bps = (absolute / mid * 10000).quantize(Decimal('0.01'))
-    return {'absolute': text(absolute), 'bps_of_mid': text(bps), 'mid': text(mid), 'crossed': ask < bid}
-
-
-def _levels(rows, depth: int) -> list[dict]:
-    if not isinstance(rows, list):
-        raise CryptoMarketError('invalid_response')
-    levels = []
-    for row in rows[:depth]:
-        if not isinstance(row, list) or len(row) < 2:
-            raise CryptoMarketError('invalid_response')
-        levels.append({'price': text(dec(row[0], positive=True)), 'size': text(dec(row[1]))})
-    return levels
-
-
-def _check_order(levels: list[dict], descending: bool) -> None:
-    prices = [Decimal(level['price']) for level in levels]
-    if prices != sorted(prices, reverse=descending):
-        raise CryptoMarketError('invalid_response')
-
-
 def candle_summary(candles: list[dict]) -> dict | None:
     if not candles:
         return None
@@ -270,51 +184,7 @@ def candle_summary(candles: list[dict]) -> dict | None:
             'base_volume_total': text(sum((Decimal(c['volume']) for c in candles), Decimal(0)))}
 
 
-# ---------------------------------------------------------------- adapters
-
-class BinanceAdapter:
-    venue = 'binance'
-    base = 'https://data-api.binance.vision/api/v3/'
-
-    def __init__(self, get=fetch):
-        self.get = get
-
-    def ticker(self, symbol: str) -> tuple[dict, list[tuple[str, bytes]]]:
-        url = self.base + 'ticker/24hr?' + urlencode({'symbol': symbol})
-        data, raw = _json_get(url, self.get)
-        if not isinstance(data, dict) or data.get('symbol') != symbol:
-            raise CryptoMarketError('identity_mismatch')
-        bid, ask = dec(data.get('bidPrice')), dec(data.get('askPrice'))
-        return {'last': text(dec(data.get('lastPrice'), positive=True)),
-                'bid': text(bid), 'ask': text(ask),
-                'bid_size': text(dec(data.get('bidQty'))), 'ask_size': text(dec(data.get('askQty'))),
-                'open_24h': text(dec(data.get('openPrice'))), 'high_24h': text(dec(data.get('highPrice'))),
-                'low_24h': text(dec(data.get('lowPrice'))),
-                'volume_base_24h': text(dec(data.get('volume'))),
-                'volume_quote_24h': text(dec(data.get('quoteVolume'))),
-                'window': 'rolling 24h', 'window_start': epoch(data.get('openTime'), 'ms'),
-                'venue_time': epoch(data.get('closeTime'), 'ms'), 'venue_time_field': 'closeTime',
-                'spread': spread(bid if bid > 0 else None, ask if ask > 0 else None)}, [(url, raw)]
-
-    def candles(self, symbol: str, interval: str, limit: int) -> tuple[list[dict], list[tuple[str, bytes]]]:
-        url = self.base + 'klines?' + urlencode({'symbol': symbol, 'interval': interval, 'limit': limit})
-        data, raw = _json_get(url, self.get)
-        if not isinstance(data, list) or len(data) > limit:
-            raise CryptoMarketError('invalid_response')
-        return [_binance_kline(row, 'ms') for row in data], [(url, raw)]
-
-    def book(self, symbol: str, depth: int) -> tuple[dict, list[tuple[str, bytes]]]:
-        limit = 5 if depth <= 5 else 10 if depth <= 10 else 20
-        url = self.base + 'depth?' + urlencode({'symbol': symbol, 'limit': limit})
-        data, raw = _json_get(url, self.get)
-        if not isinstance(data, dict) or not isinstance(data.get('lastUpdateId'), int):
-            raise CryptoMarketError('invalid_response')
-        bids, asks = _levels(data.get('bids'), depth), _levels(data.get('asks'), depth)
-        _check_order(bids, True)
-        _check_order(asks, False)
-        return {'bids': bids, 'asks': asks, 'venue_time': None, 'venue_sequence': str(data['lastUpdateId']),
-                'aggregation': 'aggregated by price level'}, [(url, raw)]
-
+# ---------------------------------------------------------------- kline parsing
 
 def _binance_kline(row, unit: str) -> dict:
     if not isinstance(row, list) or len(row) < 11:
@@ -325,74 +195,6 @@ def _binance_kline(row, unit: str) -> dict:
     return {'open_time': epoch(row[0], unit), 'close_time': epoch(row[6], unit),
             'open': text(open_), 'high': text(high), 'low': text(low), 'close': text(close),
             'volume': text(dec(row[5])), 'quote_volume': text(dec(row[7])), 'trades': _int(row[8])}
-
-
-class BitstampAdapter:
-    venue = 'bitstamp'
-    base = 'https://www.bitstamp.net/api/v2/'
-
-    def __init__(self, get=fetch):
-        self.get = get
-
-    def ticker(self, symbol: str) -> tuple[dict, list[tuple[str, bytes]]]:
-        url = f'{self.base}ticker/{symbol}/'
-        data, raw = _json_get(url, self.get)
-        if not isinstance(data, dict) or data.get('market_type') not in (None, 'SPOT'):
-            raise CryptoMarketError('identity_mismatch')
-        bid, ask = dec(data.get('bid')), dec(data.get('ask'))
-        return {'last': text(dec(data.get('last'), positive=True)), 'bid': text(bid), 'ask': text(ask),
-                'bid_size': None, 'ask_size': None,
-                'open_24h': text(dec(data.get('open_24', data.get('open')))),
-                'high_24h': text(dec(data.get('high'))), 'low_24h': text(dec(data.get('low'))),
-                'volume_base_24h': text(dec(data.get('volume'))), 'volume_quote_24h': None,
-                'vwap_24h': text(dec(data.get('vwap'))),
-                'window': 'last 24 hours', 'window_start': None,
-                'venue_time': epoch(data.get('timestamp'), 's'), 'venue_time_field': 'timestamp',
-                'spread': spread(bid if bid > 0 else None, ask if ask > 0 else None)}, [(url, raw)]
-
-    def candles(self, symbol: str, interval: str, limit: int) -> tuple[list[dict], list[tuple[str, bytes]]]:
-        url = f'{self.base}ohlc/{symbol}/?' + urlencode({'step': INTERVALS[interval], 'limit': limit})
-        data, raw = _json_get(url, self.get)
-        try:
-            body = data['data']
-            pair = body['pair']
-            rows = body['ohlc']
-        except (KeyError, TypeError) as exc:
-            raise CryptoMarketError('invalid_response') from exc
-        base, quote = MARKETS['bitstamp'][symbol]
-        if pair != f'{base}/{quote}':
-            raise CryptoMarketError('identity_mismatch')
-        if not isinstance(rows, list) or len(rows) > limit:
-            raise CryptoMarketError('invalid_response')
-        step = INTERVALS[interval]
-        candles = []
-        for row in rows:
-            if not isinstance(row, dict):
-                raise CryptoMarketError('invalid_response')
-            open_, high, low, close = (dec(row.get(k), positive=True) for k in ('open', 'high', 'low', 'close'))
-            if high < max(open_, close, low) or low > min(open_, close):
-                raise CryptoMarketError('invalid_response')
-            start = _int(row.get('timestamp'))
-            candles.append({'open_time': epoch(start, 's'), 'close_time': epoch(start + step, 's'),
-                            'open': text(open_), 'high': text(high), 'low': text(low), 'close': text(close),
-                            'volume': text(dec(row.get('volume'))), 'quote_volume': None, 'trades': None})
-        return candles, [(url, raw)]
-
-    def book(self, symbol: str, depth: int) -> tuple[dict, list[tuple[str, bytes]]]:
-        url = f'{self.base}order_book/{symbol}/?' + urlencode({'group': 1})
-        data, raw = _json_get(url, self.get)
-        if not isinstance(data, dict):
-            raise CryptoMarketError('invalid_response')
-        bids, asks = _levels(data.get('bids'), depth), _levels(data.get('asks'), depth)
-        _check_order(bids, True)
-        _check_order(asks, False)
-        micro = data.get('microtimestamp')
-        venue_time = epoch(micro, 'us') if micro is not None else epoch(data.get('timestamp'), 's')
-        return {'bids': bids, 'asks': asks, 'venue_time': venue_time, 'venue_sequence': None,
-                'aggregation': 'grouped at same price (group=1)'}, [(url, raw)]
-
-
-ADAPTERS = {'binance': BinanceAdapter, 'bitstamp': BitstampAdapter}
 
 
 # ---------------------------------------------------------------- capture storage
@@ -423,18 +225,6 @@ def store_raw(store, session_id: str, venue: str, kind: str, url: str, payload: 
     return meta
 
 
-def _captured(store, session_id, venue, kind, pairs, retrieved) -> list[dict]:
-    return [store_raw(store, session_id, venue, kind, url, raw, retrieved) for url, raw in pairs]
-
-
-def _provenance(venue: str, captures: list[dict], retrieved: datetime) -> dict:
-    info = VENUES[venue]
-    return {'source_id': info['source_id'], 'docs_url': info['docs_url'], 'terms_url': info['terms_url'],
-            'licence': info['licence'], 'limitations': info['limitations'], 'captures': captures,
-            'retrieved_at': retrieved.isoformat(), 'available_at': retrieved.isoformat(),
-            'availability_basis': 'capture time; earlier venue publication is not proven'}
-
-
 def _require(venue: str, allowed) -> None:
     if venue not in VENUES:
         raise ValueError('unsupported venue')
@@ -444,88 +234,6 @@ def _require(venue: str, allowed) -> None:
 
 
 # ---------------------------------------------------------------- public operations
-
-def market_detail(store, session_id: str, venue: str, symbol: str, *, interval: str = '1d',
-                  limit: int = 30, depth: int = 10, get=fetch, allowed=None, now=None) -> dict:
-    if venue not in ADAPTERS:
-        raise ValueError('unsupported venue')
-    identity = market_identity(venue, symbol)
-    if interval not in INTERVALS:
-        raise ValueError('interval must be one of 1h, 4h, 1d')
-    if not 1 <= limit <= MAX_CANDLES:
-        raise ValueError(f'limit must be between 1 and {MAX_CANDLES}')
-    if not 1 <= depth <= MAX_DEPTH:
-        raise ValueError(f'depth must be between 1 and {MAX_DEPTH}')
-    _require(venue, allowed)
-    adapter = ADAPTERS[venue](get)
-    retrieved = now or datetime.now(timezone.utc)
-    ticker, t_raw = adapter.ticker(symbol)
-    candles, c_raw = adapter.candles(symbol, interval, limit)
-    book, b_raw = adapter.book(symbol, depth)
-    captures = (_captured(store, session_id, venue, 'ticker', t_raw, retrieved)
-                + _captured(store, session_id, venue, 'candles', c_raw, retrieved)
-                + _captured(store, session_id, venue, 'book', b_raw, retrieved))
-    best_bid = Decimal(book['bids'][0]['price']) if book['bids'] else None
-    best_ask = Decimal(book['asks'][0]['price']) if book['asks'] else None
-    book['best_bid'], book['best_ask'] = text(best_bid), text(best_ask)
-    book['spread'] = spread(best_bid, best_ask)
-    book['bid_size_total'] = text(sum((Decimal(x['size']) for x in book['bids']), Decimal(0)))
-    book['ask_size_total'] = text(sum((Decimal(x['size']) for x in book['asks']), Decimal(0)))
-    return {'market': identity, 'ticker': ticker,
-            'candles': {'interval': interval, 'items': candles, 'summary': candle_summary(candles),
-                        'note': 'Most recent candle may still be open at capture time.'},
-            'book': book, 'provenance': _provenance(venue, captures, retrieved), 'note': COMPARISON_NOTE}
-
-
-def compare(store, session_id: str, asset: str, *, venues=None, get=fetch, allowed=None, now=None) -> dict:
-    asset = asset.upper()
-    if asset not in ASSETS:
-        raise ValueError('supported assets are BTC, ETH and SOL')
-    selected = list(ADAPTERS) if not venues else list(dict.fromkeys(venues))
-    for venue in selected:
-        if venue not in ADAPTERS:
-            raise ValueError('unsupported venue')
-    retrieved = now or datetime.now(timezone.utc)
-    rows, unavailable, captures = [], [], []
-    for venue in selected:
-        try:
-            _require(venue, allowed)
-        except CryptoMarketError as exc:
-            unavailable.append({'venue': venue, 'reason': str(exc), 'terms_url': VENUES[venue]['terms_url']})
-            continue
-        adapter = ADAPTERS[venue](get)
-        for symbol, (base, _quote) in MARKETS[venue].items():
-            if base != asset:
-                continue
-            try:
-                ticker, raw = adapter.ticker(symbol)
-                meta = _captured(store, session_id, venue, 'ticker', raw, retrieved)
-            except CryptoMarketError as exc:
-                unavailable.append({'venue': venue, 'venue_symbol': symbol, 'reason': str(exc)})
-                continue
-            captures += meta
-            rows.append({'market': market_identity(venue, symbol), 'last': ticker['last'],
-                         'bid': ticker['bid'], 'ask': ticker['ask'], 'spread': ticker['spread'],
-                         'volume_base_24h': ticker['volume_base_24h'],
-                         'volume_quote_24h': ticker['volume_quote_24h'], 'window': ticker['window'],
-                         'venue_time': ticker['venue_time'], 'capture_id': meta[0]['capture_id']})
-    groups = []
-    for quote in sorted({r['market']['quote'] for r in rows}):
-        members = [r for r in rows if r['market']['quote'] == quote]
-        group = {'quote': quote, 'quote_kind': QUOTE_KIND[quote], 'venues': [r['market']['identity'] for r in members],
-                 'last_range': None}
-        if len({r['market']['venue'] for r in members}) >= 2:
-            lasts = [Decimal(r['last']) for r in members]
-            low, high = min(lasts), max(lasts)
-            group['last_range'] = {'low': text(low), 'high': text(high), 'difference': text(high - low),
-                                   'difference_bps_of_low': text(((high - low) / low * 10000).quantize(Decimal('0.01')))}
-        groups.append(group)
-    return {'asset': asset, 'rows': rows, 'quote_groups': groups, 'unavailable': unavailable,
-            'retrieved_at': retrieved.isoformat(), 'available_at': retrieved.isoformat(),
-            'captures': captures, 'note': COMPARISON_NOTE,
-            'sources': [{'venue': v, 'docs_url': VENUES[v]['docs_url'], 'terms_url': VENUES[v]['terms_url'],
-                         'licence': VENUES[v]['licence']} for v in selected]}
-
 
 VISION_BASE = 'https://data.binance.vision/data/spot/daily/klines/'
 VISION_FIRST = date(2017, 8, 17)

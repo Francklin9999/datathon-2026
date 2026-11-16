@@ -33,11 +33,13 @@ export interface StepDeviation { field: 'agent' | 'actor'; recorded: string; con
 
 /**
  * What the contract expects of one step of a run of this kind. run-events.md §2.1 overrides the §2
- * table for a profile draft: its audit is "code checks on the draft", with no model review.
+ * table for a profile draft (its audit is "code checks on the draft", with no model review) and for
+ * a sabotage run (its write step inserts one labelled sentence built by code, with no model).
  */
-export function stepContract(type: StepType, kind?: Run['kind']): { agent: AgentRole; actor: Actor } | undefined {
+function stepContract(type: StepType, kind?: Run['kind']): { agent: AgentRole; actor: Actor } | undefined {
   const base = STEP_CONTRACT[type];
   if (base && kind === 'profile_draft' && type === 'audit') return { ...base, actor: 'code' };
+  if (base && kind === 'sabotage' && type === 'write') return { ...base, actor: 'code' };
   return base;
 }
 
@@ -92,8 +94,8 @@ export const ROLE_CARDS: readonly RoleCard[] = [
       'web.fetch', 'web.browse', 'attention.pageviews', 'emissions.facilities', 'etf.holdings', 'world.search_events', 'research.save_evidence',
     ],
     toolsNote: {
-      en: 'Cannot call quant or rule tools. web.browse and emissions.facilities exist only when their feature flags are on. Not executed in a historical replay.',
-      fr: 'Ne peut pas appeler les outils de calcul ou de règles. web.browse et emissions.facilities n’existent que si leurs indicateurs sont activés. Non exécuté dans un rejeu historique.',
+      en: 'Cannot call quant or rule tools. web.browse and emissions.facilities exist only when their feature flags are on; attention.pageviews and etf.holdings only with reviewed configuration (a ticker-to-article mapping, a dated issuer holdings file). Not executed in a historical replay.',
+      fr: 'Ne peut pas appeler les outils de calcul ou de règles. web.browse et emissions.facilities n’existent que si leurs indicateurs sont activés ; attention.pageviews et etf.holdings, seulement avec une configuration vérifiée (une correspondance titre-article, un fichier de positions daté de l’émetteur). Non exécuté dans un rejeu historique.',
     },
   },
   {
@@ -308,6 +310,35 @@ export function refreshRunRows(loaded: readonly RunSummary[], fresh: readonly Ru
 
 /** Contract defaults from run-events.md §4; a deployment may override them by environment variable. */
 export const RUN_LIMITS = { llmCalls: 12, researchToolCalls: 12, reviseLoops: 2, wallClockTargetMs: 90_000, wallClockHardMs: 180_000 } as const;
+
+export interface BudgetLimits {
+  /** `trace`: every limit below was reported by GET /runs/{id}/trace; `default`: all are RUN_LIMITS. */
+  source: 'trace' | 'default';
+  llmCalls: number;
+  researchToolCalls: number;
+  reviseLoops: number;
+  /** The 90 s target is a contract figure (capped at the hard limit); the trace reports the hard limit only. */
+  wallClockTargetMs: number;
+  wallClockHardMs: number;
+}
+
+const TRACE_BUDGET = { llmCalls: 'llm_calls', researchToolCalls: 'research_calls', reviseLoops: 'revisions', wallClockHardMs: 'wall_clock_ms' } as const;
+
+/**
+ * The limits to show next to a run's recorded usage. The trace's limits are used only when the
+ * trace belongs to `runId` and reports all four configurable budgets (run-events.md §4); otherwise
+ * every limit is the contract default, so one column never mixes the two sources.
+ */
+export function budgetLimits(trace: { runId: string; budgets: readonly { name: string; limit: number }[] } | null | undefined, runId: string): BudgetLimits {
+  const fallback: BudgetLimits = { source: 'default', ...RUN_LIMITS };
+  if (!trace || trace.runId !== runId) return fallback;
+  const limit = (name: string) => trace.budgets.find(item => item.name === name)?.limit;
+  const read = Object.fromEntries(Object.entries(TRACE_BUDGET).map(([key, name]) => [key, limit(name)]));
+  if (!Object.values(read).every(value => typeof value === 'number' && Number.isFinite(value) && value >= 0)) return fallback;
+  const limits = read as Record<keyof typeof TRACE_BUDGET, number>;
+  // A deployment may lower the hard limit below the contract's 90 s target; the target never exceeds it.
+  return { source: 'trace', ...limits, wallClockTargetMs: Math.min(RUN_LIMITS.wallClockTargetMs, limits.wallClockHardMs) };
+}
 
 /** Budget use read from the run payload only: `run.usage` totals and the steps that are present. */
 export function runBudget(run: Pick<Run, 'usage' | 'steps'>) {

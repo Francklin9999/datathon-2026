@@ -60,8 +60,12 @@ TEMPLATES: dict[tuple[str, str], T] = {
                                 "Une preuve vérifiée de controverse est jointe pour {worst}; juger de son importance revient à l'investisseur."),
     ("flag.attention", "info"): _t("Public attention to {worst}: {value} of its usual level.",
                                    "Attention publique envers {worst} : {value} de son niveau habituel."),
-    ("flag.attention", "info_missing"): _t("No page-view data is loaded for {worst}; attention is not shown.",
-                                           "Aucune donnée de consultation n'est chargée pour {worst}; l'attention n'est pas affichée."),
+    # QA 7.3: say that this informational check never changes the verdict (engine.verdict_of ignores
+    # 'info'), so its missing data is not read as a research failure.
+    ("flag.attention", "info_missing"): _t("No page-view data is loaded for {worst}, so the public-attention signal is not "
+                                           "shown; this informational check never changes the verdict.",
+                                           "Aucune donnée de consultation n’est chargée pour {worst} : le signal d’attention "
+                                           "publique n’est pas affiché ; ce contrôle informatif ne change jamais le verdict."),
     ("flag.rate_cycle", "info"): _t("During the 2022–2023 rate-hiking cycle these weights returned {value} (informational).",
                                     "Pendant le cycle de hausse des taux de 2022–2023, ces pondérations ont rapporté {value} (à titre informatif)."),
     ("flag.rate_cycle", "info_missing"): _t("The rate-hiking cycle cannot be replayed with the data available.",

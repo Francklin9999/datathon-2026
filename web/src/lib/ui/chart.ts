@@ -14,6 +14,25 @@ export function chartScale(values: readonly number[], padRatio = 0.05): { lo: nu
   return { lo: min - pad, hi: max + pad };
 }
 
+/**
+ * Axis labels on round values inside the padded range [lo, hi] (a step of 1, 2, 2.5 or 5 × 10ⁿ, never
+ * finer than the displayed `digits`), so the top label is never the padded bound, which reads like a
+ * data peak the series never reached. Falls back to [lo, mid, hi] if fewer than two round values fit.
+ */
+export function axisTicks(lo: number, hi: number, digits = 0, target = 4): number[] {
+  if (!Number.isFinite(lo) || !Number.isFinite(hi) || hi <= lo) return [lo, (lo + hi) / 2, hi];
+  const rough = (hi - lo) / Math.max(1, target);
+  const magnitude = 10 ** Math.floor(Math.log10(rough));
+  const nice = [1, 2, 2.5, 5, 10].map(m => m * magnitude).find(step => step >= rough) ?? 10 * magnitude;
+  const step = Math.max(nice, 10 ** -digits);
+  const ticks: number[] = [];
+  for (let k = Math.ceil(lo / step - 1e-9); k * step <= hi + 1e-9 * step; k += 1) {
+    // Round away binary noise (0.1 + 0.2) at the step's precision.
+    ticks.push(Number((k * step).toFixed(Math.max(0, digits, -Math.floor(Math.log10(step)) + 1))));
+  }
+  return ticks.length >= 2 ? ticks : [lo, (lo + hi) / 2, hi];
+}
+
 /** Index of the x closest to `x` in an ascending list (binary search); -1 when empty. */
 export function nearestIndex(sortedXs: readonly number[], x: number): number {
   const n = sortedXs.length;

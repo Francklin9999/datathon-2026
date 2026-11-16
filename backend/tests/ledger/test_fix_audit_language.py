@@ -457,3 +457,27 @@ def test_identical_writer_templates_are_deduplicated_before_review():
     facts = next(s for s in sections if s.id == "facts")
     assert [s.id for s in facts.sentences] == ["S-F1", "S-F3"]
     assert all(next(s for s in sections if s.id == name).sentences for name in ("assumptions", "limits"))
+
+
+# Instructed rule wording (QA 4.5a) ----------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "lang,facts,assumption,limits,rendered",
+    [
+        ("en", "A computed figure is {{fact:F-001}}.", "{{rule:cap.position}}: {{status:cap.position}}.",
+         "This is a simulation based on a historical sample.", "R1: in tension."),
+        ("fr", "Une valeur calculée est {{fact:F-001}}.", "{{rule:cap.position}} : {{status:cap.position}}.",
+         "Ceci est une simulation fondée sur un échantillon historique.", "R1 : en tension."),
+    ],
+)
+def test_the_instructed_rule_status_pattern_passes_every_code_check(lang, facts, assumption, limits, rendered):
+    """The writer is told to write '{{rule:ID}}: {{status:ID}}'; that shape satisfies A12 and no check strikes it."""
+    book = ledger()
+    book.add_fact(fact())
+    signed = sign(book, draft([facts], assumptions=[assumption], limits=[limits]), lang=lang,
+                  rule_checks=(rule("tension"),))
+    assert signed.audit.status == "passed" and signed.audit.sentences_struck == 0
+    assert all(check.ok for check in signed.audit.checks)
+    assert not has_comparison(assumption)
+    assert rendered in render_text(signed.sections)

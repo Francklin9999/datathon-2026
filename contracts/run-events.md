@@ -1,6 +1,6 @@
 # contracts/run-events.md — run lifecycle and steps
 
-A **run** is one piece of agent work: auditing a decision, writing the Home brief, briefing a world event, replaying a decision at a past date, drafting a profile, or the sabotage demonstration. All six kinds share one model (`Run` in `schemas.md` §9), one storage layout and one timeline component in the UI.
+A **run** is one piece of agent work: auditing a decision, reviewing a target allocation, writing the Home brief, briefing a world event, replaying a decision at a past date, drafting a profile, or the sabotage demonstration. All seven kinds share one model (`Run` in `schemas.md` §9), one storage layout and one timeline component in the UI.
 
 The rule that makes the timeline trustworthy: **a step appears in `run.steps` only if it actually executed, with the tool calls it actually made** (brief p.15 and p.17: explanations faithful to observable actions). Nothing in a step is written by a language model; summaries are built by code from templates and counts.
 
@@ -61,13 +61,14 @@ After `revise`, steps 2–4 run again with `iteration` incremented. Maximum two 
 | Kind | Steps that can occur |
 |---|---|
 | `decision` | plan → [research] → quant → risk_check → [revise → [research] → quant → risk_check]×≤2 → write → audit → sign |
+| `rebalance` | plan → [research] → quant (imports the deterministic target comparison made when the run was created) → risk_check → write → audit → sign. No revise loop. |
 | `portfolio_brief` | plan → quant → risk_check → write → audit → sign |
-| `event_brief` | plan → research → [quant] → write → audit → sign |
+| `event_brief` | plan → [research] → quant → write → audit → sign |
 | `replay` | same as `decision`, with every data read going through the temporal gate; `research` is **not** executed (documents cannot be date-filtered reliably) |
-| `profile_draft` | plan → quant (threshold derivation) → audit (code checks on the draft) → sign |
-| `sabotage` | write (with the injected instruction) → audit → sign |
+| `profile_draft` | plan → audit (code checks on the draft; actor `code`) → sign. No threshold is derived. |
+| `sabotage` | write (one labelled false sentence built by code from the parent's facts; actor `code`, no model call) → audit. The brief is signed by the audit step; there is no separate `sign` step. |
 
-Square brackets = executed only when needed. A step that is not needed is **absent**, not present with a "skipped" status.
+Square brackets = executed only when needed. A step that is not needed is **absent**, not present with a "skipped" status. The two actors marked `code` above are the only per-kind departures from the §2 table.
 
 ---
 
@@ -99,12 +100,12 @@ GSI `bySession`: pk `SESSION#<sessionId>`, sk `<createdAt>#<runId>` (list runs o
 | Wall-clock per run | 90 s target, 180 s hard | Hard limit → status `failed`, error `upstream_unavailable`, steps kept |
 | Revise loops | 2 | The writer states that further alternatives were not explored |
 | Research tool calls per run | 12 | Remaining questions are reported as "not researched" in the limits section |
-| LLM calls per run | 12 | Run fails with `internal` and a clear message (indicates a loop) |
+| LLM calls per run | 12 | Run fails with `upstream_unavailable` ("The run reached its time or call budget; the steps already executed are kept."); calls spent by optional research only end that research |
 | Writer rewrites after audit | 1 | Second failure of A05/A12 → run `failed` |
 | Scenarios per run | 6 | Planner must rank and drop |
 | Candidate assets per goal | 8 screened, 3 kept | — |
 
-All limits are constants in `backend/aplomb/agents/limits.py`, overridable by environment variable.
+The defaults and the per-counter checks are in `backend/aplomb/agents/limits.py`. A deployment may lower, never raise, four of them by environment variable (`backend/aplomb/api/settings.py`): `APLOMB_MAX_LLM_CALLS` (≤ 12), `APLOMB_MAX_RESEARCH_CALLS` (≤ 12), `APLOMB_MAX_REVISE` (≤ 2) and `APLOMB_RUN_HARD_SECONDS` (≤ 180). Writer rewrites (1) and scenarios (6) are fixed. `GET /runs/{runId}/trace` (`api.md` §5.9) reports the limits applied by the deployment.
 
 ---
 
@@ -116,7 +117,7 @@ Summaries are produced by code. English templates (French equivalents live next 
 |---|---|
 | plan | `Planned {nScenarios} scenario(s), {nQuant} calculation(s), {nResearch} research question(s).` or `Asked the user for: {field}.` |
 | research | `Ran {nCalls} search(es) across {nTools} tool(s); kept {nEvidence} source(s), rejected {nRejected}.` |
-| quant | `Computed {nFacts} fact(s) from {nRows} row(s) in {nDatasets} dataset(s); {nWithheld} row(s) withheld by the date gate.` |
+| quant | `Computed {nFacts} fact(s); {nWithheld} row(s) withheld by the date gate.` or, when the gate reports no availability summary, `Computed {nFacts} fact(s).` |
 | risk_check | `Checked {nRules} rule(s) on {nScenarios} scenario(s): {conflict} conflict, {tension} tension, {pass} fit, {nee} not enough evidence.` |
 | revise | `Objection returned to the planner; added {nScenarios} scenario(s) and {nResearch} research question(s).` |
 | write | `Drafted {nSentences} sentence(s) with {nTokens} reference(s).` |

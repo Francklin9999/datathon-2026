@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 from aplomb.api.errors import Conflict, NotFound
-from aplomb.api.repositories import CacheRepository, ProfileRepository, RunRepository, timestamp
+from aplomb.api.repositories import ProfileRepository, RunRepository, timestamp
 from aplomb.api.services import RunCoordinator, new_run_id
 from aplomb.api.storage import FileStore, MemoryStore
 from aplomb.contracts import api as a
@@ -64,34 +64,15 @@ def test_atomic_idempotency_concurrent(durable, tmp_path, queued_run, clock):
     assert created  # explicit expiry check; no dependency on TTL cleanup timing
 
 
-def test_profile_versions_isolation_and_cache(queued_run, clock):
+def test_profile_versions_and_session_isolation():
     store = MemoryStore()
-    profiles, cache = ProfileRepository(store), CacheRepository(store, clock)
+    profiles = ProfileRepository(store)
     profiles.save(SID, "robert", {"threshold": 5}, None, overlay=True)
     assert profiles.get(OTHER_SID, "robert", overlay=True) is None
     with pytest.raises(Conflict):
         profiles.save(SID, "robert", {"threshold": 10}, None, overlay=True)
     profiles.save(SID, "robert", {"threshold": 10}, 1, overlay=True)
-    dimensions = dict(
-        session=SID,
-        profileId="robert",
-        profileVersion=2,
-        snapshot=queued_run.data_version,
-        currency="CAD",
-        asOf=queued_run.as_of,
-        window={"code": "full"},
-        language="en",
-        flags={},
-        methodVersion="v1",
-    )
-    cache.put("brief", dimensions, {"run": "first"}, 60)
-    assert cache.get("brief", dimensions) == {"run": "first"}
-    assert cache.get("brief", {**dimensions, "session": OTHER_SID}) is None
-    assert cache.get("brief", {**dimensions, "profileVersion": 3}) is None
-    clock.advance(61)
-    assert cache.get("brief", dimensions) is None
-    with pytest.raises(ValueError):
-        cache.key("brief", {"profileId": "robert"})
+    assert profiles.get(SID, "robert", overlay=True)["revision"] == 2
 
 
 def test_duplicate_claim_stale_recovery_and_cancel(queued_run, clock):

@@ -8,19 +8,20 @@
 import { useEffect, useMemo, useRef, useState, type InputHTMLAttributes, type KeyboardEvent } from 'react';
 import { browseSuggestions, buildSuggestIndex, matchSpan, rankSuggestions, type Suggestion } from '../../lib/suggest';
 
+/** Rows listed for typed text. */
+const SUGGEST_LIMIT = 8;
 /** Rows listed when browsing a field's whole list (the popover scrolls past about eight). */
 const BROWSE_LIMIT = 50;
 
 type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'value' | 'onChange' | 'type' | 'role' | 'list' | 'autoComplete'>;
 
-export function SuggestInput({ id, value, onChange, suggestions, listLabel, limit = 8, onPick, type = 'text', ...field }: FieldProps & {
+export function SuggestInput({ id, value, onChange, suggestions, listLabel, onPick, type = 'text', ...field }: FieldProps & {
   id: string;
   value: string;
   onChange: (value: string) => void;
   suggestions: readonly Suggestion[];
   /** Accessible name of the list of suggestions. */
   listLabel: string;
-  limit?: number;
   /** Instead of filling the field, act on the chosen row (open a country, for instance). */
   onPick?: (item: Suggestion) => void;
   type?: 'text' | 'search';
@@ -34,7 +35,7 @@ export function SuggestInput({ id, value, onChange, suggestions, listLabel, limi
     if (!browse) return null;
     return value.trim() ? browseSuggestions(index, value, BROWSE_LIMIT) : rankSuggestions(index, '', BROWSE_LIMIT);
   }, [browse, index, value]);
-  const results = useMemo(() => browsed ?? rankSuggestions(index, value, limit), [browsed, index, value, limit]);
+  const results = useMemo(() => browsed ?? rankSuggestions(index, value, SUGGEST_LIMIT), [browsed, index, value]);
   const marked = browsed ? '' : value;
   const [active, setActive] = useState(-1);
   const [byKeys, setByKeys] = useState(false);

@@ -2,7 +2,7 @@
 
 from typing import Annotated, Literal
 
-from pydantic import Field, model_validator
+from pydantic import ConfigDict, Field, model_validator
 from typing_extensions import TypeAliasType
 
 from .base import (
@@ -54,6 +54,7 @@ from .models import (
     RiskLevel,
     RuleCheck,
     RuleId,
+    RuleStatus,
     Run,
     RunKind,
     RunStatus,
@@ -349,6 +350,14 @@ class Concentration(WireModel):
     top_positions: list[TopPosition]
 
 
+class HoldingReturn(WireModel):
+    """Trailing 1-year return of one held position (null for cash or a too-short history)."""
+
+    ticker: Ticker
+    return1y_pct: Number | None = Field(alias="return1yPct")
+    return1y_fact_id: FactId | None = Field(alias="return1yFactId")
+
+
 class Correlation(WireModel):
     tickers: list[Ticker]
     matrix: list[list[Number]]
@@ -369,6 +378,8 @@ class OverviewResponse(WireModel):
     counts: VerdictCounts
     facts: dict[FactId, Fact]
     limitations: list[LimitationCode]
+    # 1.6.0, additive: one entry per position with a positive weight, in the profile's holding order.
+    holding_returns: list[HoldingReturn] = None
 
 
 class Benchmark(WireModel):
@@ -594,8 +605,32 @@ class BatchCheckRequest(WireModel):
     items: Annotated[list[CheckRequest], Field(max_length=5)]
 
 
+RuleDifferenceReason = TypeAliasType(
+    "RuleDifferenceReason",
+    Literal["threshold_differs", "portfolio_differs", "rule_only_in_a", "rule_only_in_b", "same"],
+)
+
+
+class RuleDifference(WireModel):
+    """One rule of a two-profile comparison, aligned by ruleId (rules SPEC §6, EF-10).
+
+    A is the first batch item, B the second. A side without that rule has nulls for its fields.
+    """
+
+    rule_id: RuleId
+    reason: RuleDifferenceReason
+    status_a: RuleStatus | None
+    status_b: RuleStatus | None
+    threshold_a: Number | None
+    threshold_b: Number | None
+    value_a: Number | None
+    value_b: Number | None
+
+
 class BatchCheckResponse(WireModel):
     results: list[CheckResult | ApiError]
+    # 1.6.0, additive: present only when the batch has exactly two items and both are CheckResults.
+    differences: list[RuleDifference] = None
 
 
 class CreateDecisionRunRequest(WireModel):
@@ -883,6 +918,205 @@ class DatasetsResponse(WireModel):
 
 class EmptyRequest(WireModel):
     pass
+
+
+# --- Credentialed research sources and regional research (1.6.0, api.md "Credentialed research
+# sources"). These payloads already existed with these exact keys; the models only describe them.
+# The keyed-market routes keep their snake_case keys (README convention exception), so their models
+# turn the camelCase alias generator off. Timestamps are the providers' or the capture's own text
+# (offsets such as +00:00 occur), hence String rather than ISODateTime.
+
+
+class _SnakeCaseWireModel(WireModel):
+    """Wire keys equal the Python field names (no camelCase alias)."""
+
+    model_config = ConfigDict(alias_generator=None)
+
+
+class MarketConnection(_SnakeCaseWireModel):
+    id: String
+    # Optional: a 1.4.0 API omitted signup_url/credential_variable on chain rows and documentation_url on tiingo.
+    signup_url: String | None = None
+    documentation_url: String | None = None
+    credential_variable: String = None
+    credential_present: Boolean
+    rights_confirmed: Boolean
+    supported_operation: String
+
+
+class MarketConnectionsResponse(_SnakeCaseWireModel):
+    providers: list[MarketConnection]
+
+
+class MarketSourceRequest(_SnakeCaseWireModel):
+    method: String
+    url: String
+    body: String | None
+
+
+class MarketCaptureSource(_SnakeCaseWireModel):
+    url: String
+    sha256: String
+    retrieved_at: String
+    available_at: String
+    published_at: String | None
+    licence: String
+
+
+class MarketObservationResponse(_SnakeCaseWireModel):
+    """GET /research/market-provider/{provider} and GET /research/tiingo/{symbol}.
+
+    `observation` is provider-specific (quote, bars, company profile, statements, chain balances);
+    api.md lists its keys per provider. Tiingo returns `sources` instead of the single-capture keys.
+    """
+
+    status: Literal["available"]
+    provider: String
+    observation: dict[str, object]
+    source_url: String = None
+    source_sha256: String = None
+    source_request: MarketSourceRequest = None
+    dataset_version: String = None
+    retrieved_at: String = None
+    available_at: String = None
+    published_at: String | None = None
+    licence: String = None
+    documentation_url: String = None
+    sources: list[MarketCaptureSource] = None
+    limitations: list[String]
+
+
+class RegionalPrice(WireModel):
+    date: String
+    close: Number | None
+    adjusted_close: Number | None
+    currency: String
+
+
+class RegionalFiling(WireModel):
+    title: String
+    date: String
+    receipt_number: String
+    url: String
+
+
+class RegionalCompany(WireModel):
+    """OpenDART sends name, englishName and stockCode; J-Quants adds the listing fields."""
+
+    name: String | None
+    english_name: String | None
+    stock_code: String | None
+    as_of: String = None
+    sector17_code: String | None = Field(None, alias="sector17Code")
+    sector17_name: String | None = Field(None, alias="sector17Name")
+    sector33_code: String | None = Field(None, alias="sector33Code")
+    sector33_name: String | None = Field(None, alias="sector33Name")
+    scale_category: String | None = None
+    market_code: String | None = None
+    market_name: String | None = None
+    margin_code: String | None = None
+    margin_name: String | None = None
+    product_category: String | None = None
+
+
+class RegionalFinancialRow(WireModel):
+    """J-Quants summary rows carry disclosureNumber; OpenDART rows carry receiptNumber and the report keys.
+
+    Amounts are exact decimal strings as reported, never floats; a missing amount is null, not zero.
+    """
+
+    disclosure_number: String = None
+    receipt_number: String = None
+    disclosed_date: String | None
+    disclosed_at: String | None
+    document_type: String | None = None
+    report_code: String = None
+    fiscal_year: String = None
+    statement_type: String = None
+    period: String | None
+    period_start: String | None
+    period_end: String | None
+    section: String | None
+    section_name: String | None = None
+    account_id: String | None
+    account_name: String | None
+    account_detail: String | None = None
+    value: String | None
+    cumulative_value: String | None = None
+    prior_period: String | None = None
+    prior_value: String | None = None
+    order: String | None = None
+    unit: String | None
+    classification: Literal["reported", "forecast"]
+    url: String | None
+
+
+class RegionalOwnershipRow(WireModel):
+    category: Literal["major_shareholder", "executive_or_major_holder"]
+    receipt_number: String
+    document_id: String | None
+    filed: String
+    filed_at: String | None
+    obligation_date: String | None
+    reporter: String | None
+    holder_count: Count | None
+    title: String | None
+    amendment: Boolean | None
+    amends_document_id: String | None
+    outstanding_shares: String | None
+    url: String
+    report_type: String | None
+    reason: String | None
+    position: String | None
+    shares: String | None
+    shares_change: String | None
+    ratio_pct: String | None
+    ratio_change_pct: String | None
+    contract_shares: String | None = None
+    contract_ratio_pct: String | None = None
+
+
+class RegionalResearchResponse(WireModel):
+    """GET /intelligence/regional. `status` "unavailable" (no usable account) has empty lists and a `reason`."""
+
+    region: Literal["JP", "KR"]
+    identifier: String
+    identifier_type: String
+    provider: String
+    kind: Literal["prices", "company", "filings", "financials", "ownership"]
+    status: Literal["ok", "unavailable"]
+    reason: String = None
+    mic: String | None
+    currency: String | None
+    retrieved_at: String
+    available_at: String
+    publication_at: String | None
+    source_url: String
+    availability_basis: String
+    historical_replay_eligible_before_capture: Boolean
+    requested_start: String
+    requested_end: String
+    fiscal_year: String = None
+    report_code: String = None
+    statement_type: String = None
+    prices: list[RegionalPrice]
+    filings: list[RegionalFiling]
+    company: RegionalCompany | None
+    listings: list[RegionalCompany] = None
+    financials: list[RegionalFinancialRow]
+    ownership: list[RegionalOwnershipRow]
+    partial: Boolean = None
+    pages_inspected: Count = None
+    total_reported: Count = None
+    source_sha256: String = None
+    company_source_sha256: String = None
+    source_hashes: dict[str, String] = None
+    page_source_sha256: dict[str, String] = None
+    source_urls: list[String] = None
+    limitations: list[String] = None
+    capture_id: String = None
+    dataset_version: String = None
+    storage: String = None
 
 
 # Resolve named forward references without importing application modules.

@@ -1,7 +1,7 @@
 import { validateContract } from '../contracts/validate';
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 export type ModelResult = { [key: string]: Json };
-export function object(value: unknown): value is ModelResult { return !!value && typeof value === 'object' && !Array.isArray(value); }
+function object(value: unknown): value is ModelResult { return !!value && typeof value === 'object' && !Array.isArray(value); }
 function finiteTree(value: unknown, depth = 0): boolean {
   if (depth > 30) return false;
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return true;

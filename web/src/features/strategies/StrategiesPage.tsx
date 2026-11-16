@@ -7,13 +7,14 @@
  */
 import Link from 'next/link';
 import { PiggyBank, Plus, RefreshCcw, ShieldHalf, Trash2, type LucideIcon } from 'lucide-react';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { Lang, Profile, StrategyConfig, StrategySimulation, StrategyTrade } from '../../contracts/types';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import type { I18NText, Lang, Profile, StrategyConfig, StrategySimulation, StrategyTrade } from '../../contracts/types';
 import { getApiClient } from '../../api/index';
 import { profileKey, useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
+import { useFailureCount } from '../../state/useFailureCount';
 import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
-import { ErrorState, Loading } from '../../components/common/States';
+import { Loading, Unavailable } from '../../components/common/States';
 import { LimitationList } from '../../components/common/FactDrawer';
 import { LineChart, type Series } from '../../components/common/LineChart';
 import { Sheet, useSheet } from '../../components/common/Sheet';
@@ -24,8 +25,10 @@ import { WindowControl } from '../../components/shell/TopBar';
 import { readPref, writePref } from '../../lib/session';
 import { fillThreshold, fmtDate, fmtMoney, fmtNumber, fmtPct, fmtSignedPct } from '../../lib/format';
 import {
-  KIND_NAME, KIND_PURPOSE, MAX_STRATEGIES, STRATEGY_KINDS, configIssues, describe, newStrategy, readStrategies, wireConfig, writeStrategies,
-  type SavedStrategy, type StrategyKind,
+  KIND_NAME, KIND_PURPOSE, MAX_STRATEGIES, STRATEGY_KINDS, UNDO_DELETE_MS, configIssues, describe, moveFocusFromExpiredUndo, newStrategy,
+  readStrategies, removeStrategy,
+  restoreStrategy, simulationRequest, strategiesCompatibility, strategiesUnavailable, strategyFailure, writeStrategies,
+  type RemovedStrategy, type SavedStrategy, type StrategiesUnavailable, type StrategyKind,
 } from '../../lib/strategies';
 
 export const KIND_ICON: Record<StrategyKind, LucideIcon> = { rebalance: RefreshCcw, contribute: PiggyBank, risk_guard: ShieldHalf };
@@ -42,31 +45,99 @@ function useSavedStrategies(profileId: string) {
   return [list, save] as const;
 }
 
-/** The simulation of one strategy for the session window (shared with Home's widget through the cache). */
+/**
+ * The simulation of one strategy for the session window (shared with Home's widget through the cache).
+ * Nothing is requested while the connected API is too old (or of another major) to simulate strategies:
+ * `compat` says so, and the callers show a notice instead of a 404.
+ */
 export function useStrategySimulation(profile: Profile, config: StrategyConfig | null) {
   const app = useApp();
-  const base = profileKey(app);
-  const body = config && configIssues(config).length === 0 ? wireConfig(config) : null;
-  const key = base && body ? `strategy|${base}|${app.windowCode}|${JSON.stringify(body)}` : null;
-  return useQuery<StrategySimulation>(key, signal => getApiClient().simulateStrategy(profile.profileId, { strategy: body!, window: { code: app.windowCode } }, signal));
+  const compat = strategiesCompatibility(app.meta);
+  const request = simulationRequest(compat, profileKey(app), app.windowCode, config);
+  const key = request?.key ?? null;
+  const query = useQuery<StrategySimulation>(key, signal => getApiClient().simulateStrategy(profile.profileId, { strategy: request!.body, window: { code: app.windowCode } }, signal));
+  return { ...query, key, compat };
+}
+
+/** Why strategies cannot be simulated with the connected API, or null when they can. */
+export function useStrategiesUnavailable(): StrategiesUnavailable | null {
+  const { meta } = useApp();
+  return strategiesUnavailable(strategiesCompatibility(meta), meta?.contractVersion);
+}
+
+function StrategiesNotice({ notice }: { notice: StrategiesUnavailable }) {
+  const { tr } = useApp();
+  return (
+    <Unavailable title={tr(notice.title)}>
+      <p>{tr(notice.body)}</p>
+      <p>{tr(notice.version)}</p>
+    </Unavailable>
+  );
 }
 
 function StrategiesContent({ profile }: { profile: Profile }) {
-  const { tr } = useApp();
+  const { tr, announce } = useApp();
+  const unavailable = useStrategiesUnavailable();
   const [list, save] = useSavedStrategies(profile.profileId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [choosing, setChoosing] = useState(false);
+  const [removed, setRemoved] = useState<RemovedStrategy | null>(null);
+  const [focusId, setFocusId] = useState<string | null>(null);
+  const undoRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLElement>(null);
   const selected = list.find(s => s.id === selectedId) ?? list[0] ?? null;
   const full = list.length >= MAX_STRATEGIES;
+
+  // The "deleted · Undo" notice goes away on its own.
+  useEffect(() => {
+    if (!removed) return undefined;
+    const timer = window.setTimeout(() => {
+      // Undo is about to unmount: keep a keyboard user's place instead of dropping focus on <body>.
+      const list = listRef.current;
+      moveFocusFromExpiredUndo(document.activeElement, undoRef.current, [
+        list?.querySelector<HTMLButtonElement>('[data-strategy-id][aria-pressed="true"]'),
+        list?.querySelector<HTMLButtonElement>('button:not([disabled])'),
+        document.querySelector<HTMLButtonElement>('.kind-picker .kind-card'),
+      ]);
+      setRemoved(null);
+    }, UNDO_DELETE_MS);
+    return () => window.clearTimeout(timer);
+  }, [removed]);
+  // After a delete the trash button is gone: focus goes to Undo; after Undo, to the restored strategy.
+  useEffect(() => { if (removed) undoRef.current?.focus(); }, [removed]);
+  useEffect(() => {
+    if (!focusId) return;
+    listRef.current?.querySelector<HTMLButtonElement>(`[data-strategy-id="${CSS.escape(focusId)}"]`)?.focus();
+    setFocusId(null);
+  }, [focusId]);
 
   const create = (kind: StrategyKind) => {
     const made = newStrategy(kind, list, tr, `st_${Date.now().toString(36)}`);
     save([...list, made]);
     setSelectedId(made.id);
     setChoosing(false);
+    setRemoved(null);
   };
   const update = (next: SavedStrategy) => save(list.map(s => (s.id === next.id ? next : s)));
-  const remove = (id: string) => { save(list.filter(s => s.id !== id)); setSelectedId(null); };
+  const remove = (id: string) => {
+    const out = removeStrategy(list, id);
+    if (!out) return;
+    save(out.next);
+    setSelectedId(null);
+    setRemoved(out.removed);
+    const name = out.removed.strategy.name;
+    announce(tr({ en: `Strategy “${name}” deleted. Undo is available for ${UNDO_DELETE_MS / 1000} seconds.`, fr: `Stratégie « ${name} » supprimée. Annulation possible pendant ${UNDO_DELETE_MS / 1000} secondes.` }));
+  };
+  const restored = removed ? restoreStrategy(list, removed) : null;
+  const undo = () => {
+    if (!removed || !restored) return;
+    save(restored);
+    setSelectedId(removed.strategy.id);
+    setChoosing(false);
+    setRemoved(null);
+    setFocusId(removed.strategy.id);
+    announce(tr({ en: `Strategy “${removed.strategy.name}” restored.`, fr: `Stratégie « ${removed.strategy.name} » rétablie.` }));
+  };
 
   return (
     <>
@@ -74,19 +145,34 @@ function StrategiesContent({ profile }: { profile: Profile }) {
         <p className="page-sub">{tr({ en: `Standing rules tested on the history of ${profile.name}’s holdings. Nothing is executed.`, fr: `Des règles permanentes testées sur l’historique des positions de ${profile.name}. Rien n’est exécuté.` })}</p>
       </PageHeader>
 
+      {removed && (
+        <p className="strategy-undo">
+          <span>{tr({ en: `Strategy “${removed.strategy.name}” deleted.`, fr: `Stratégie « ${removed.strategy.name} » supprimée.` })}</span>
+          {restored
+            ? <button ref={undoRef} type="button" className="btn ghost btn-sm" onClick={undo}>{tr({ en: 'Undo', fr: 'Annuler' })}</button>
+            : <span className="muted">{tr({ en: `It cannot be restored: you already have ${MAX_STRATEGIES} strategies.`, fr: `Impossible de la rétablir : vous avez déjà ${MAX_STRATEGIES} stratégies.` })}</span>}
+        </p>
+      )}
+
       {(list.length === 0 || choosing) ? (
-        <KindPicker onPick={create} onCancel={list.length > 0 ? () => setChoosing(false) : undefined} />
+        <>
+          {unavailable && <StrategiesNotice notice={unavailable} />}
+          <KindPicker onPick={create} onCancel={list.length > 0 ? () => setChoosing(false) : undefined} note={unavailable?.createNote} />
+        </>
       ) : (
         <div className="strategy-layout">
-          <aside className="strategy-list" aria-label={tr({ en: 'Your strategies', fr: 'Vos stratégies' })}>
+          <aside ref={listRef} className="strategy-list" aria-label={tr({ en: 'Your strategies', fr: 'Vos stratégies' })}>
             {list.map(s => {
               const Icon = KIND_ICON[s.config.kind];
               return (
-                <button key={s.id} type="button" className="strategy-item" aria-pressed={s.id === selected?.id} onClick={() => setSelectedId(s.id)}>
+                <button key={s.id} type="button" className="strategy-item" data-strategy-id={s.id} aria-pressed={s.id === selected?.id} onClick={() => setSelectedId(s.id)}>
                   <span className={`strategy-icon kind-${s.config.kind}`} aria-hidden="true"><Icon size={17} strokeWidth={2} /></span>
                   <span className="strategy-item-body">
                     <span className="strategy-item-name">{s.name}</span>
-                    <span className="strategy-item-meta">{s.active ? tr({ en: 'Active', fr: 'Active' }) : tr({ en: 'Paused', fr: 'En pause' })}</span>
+                    <span className="strategy-item-meta">
+                      {s.active ? tr({ en: 'Active', fr: 'Active' }) : tr({ en: 'Paused', fr: 'En pause' })}
+                      {unavailable && <span className="strategy-item-api"> · {tr(unavailable.badge)}</span>}
+                    </span>
                   </span>
                 </button>
               );
@@ -97,14 +183,14 @@ function StrategiesContent({ profile }: { profile: Profile }) {
               {full ? tr({ en: `${MAX_STRATEGIES} of ${MAX_STRATEGIES}`, fr: `${MAX_STRATEGIES} sur ${MAX_STRATEGIES}` }) : tr({ en: 'New strategy', fr: 'Nouvelle stratégie' })}
             </button>
           </aside>
-          {selected && <StrategyWorkspace key={selected.id} profile={profile} strategy={selected} onChange={update} onDelete={() => remove(selected.id)} />}
+          {selected && <StrategyWorkspace key={selected.id} profile={profile} strategy={selected} unavailable={unavailable} onChange={update} onDelete={() => remove(selected.id)} />}
         </div>
       )}
     </>
   );
 }
 
-function KindPicker({ onPick, onCancel }: { onPick: (kind: StrategyKind) => void; onCancel?: (() => void) | undefined }) {
+function KindPicker({ onPick, onCancel, note }: { onPick: (kind: StrategyKind) => void; onCancel?: (() => void) | undefined; note?: I18NText | undefined }) {
   const { tr } = useApp();
   return (
     <section className="kind-picker" aria-label={tr({ en: 'Choose a strategy', fr: 'Choisir une stratégie' })}>
@@ -116,6 +202,7 @@ function KindPicker({ onPick, onCancel }: { onPick: (kind: StrategyKind) => void
               <span className={`strategy-icon strategy-icon-lg kind-${kind}`} aria-hidden="true"><Icon size={22} strokeWidth={2} /></span>
               <span className="kind-name">{tr(KIND_NAME[kind])}</span>
               <span className="kind-purpose">{tr(KIND_PURPOSE[kind])}</span>
+              {note && <span className="kind-note">{tr(note)}</span>}
               <span className="kind-cta"><Plus aria-hidden="true" size={14} strokeWidth={2.25} />{tr({ en: 'Create', fr: 'Créer' })}</span>
             </button>
           );
@@ -126,8 +213,8 @@ function KindPicker({ onPick, onCancel }: { onPick: (kind: StrategyKind) => void
   );
 }
 
-function StrategyWorkspace({ profile, strategy, onChange, onDelete }: {
-  profile: Profile; strategy: SavedStrategy; onChange: (next: SavedStrategy) => void; onDelete: () => void;
+function StrategyWorkspace({ profile, strategy, unavailable, onChange, onDelete }: {
+  profile: Profile; strategy: SavedStrategy; unavailable: StrategiesUnavailable | null; onChange: (next: SavedStrategy) => void; onDelete: () => void;
 }) {
   const { tr, lang } = useApp();
   // Settings apply after a short pause, so typing a number does not run a simulation per key.
@@ -137,6 +224,8 @@ function StrategyWorkspace({ profile, strategy, onChange, onDelete }: {
     return () => window.clearTimeout(timer);
   }, [strategy.config]);
   const sim = useStrategySimulation(profile, committed);
+  // Failed attempts of this exact request (settings, window, profile): Retry stops after the third.
+  const failures = useFailureCount(sim.error, sim.key, Boolean(sim.data));
   const issues = configIssues(strategy.config);
   const money = (n: number) => fmtMoney(n, profile.reportingCurrency, lang);
   const setConfig = (config: StrategyConfig) => onChange({ ...strategy, config });
@@ -166,10 +255,60 @@ function StrategyWorkspace({ profile, strategy, onChange, onDelete }: {
         {issues.length > 0 && <ul className="field-error strategy-issues" role="alert">{issues.map((m, i) => <li key={i}>{tr(m)}</li>)}</ul>}
       </Card>
 
-      {sim.loading && !sim.data && <Loading label={tr({ en: 'Simulating on history…', fr: 'Simulation sur l’historique…' })} />}
-      {sim.error && <ErrorState error={sim.error} onRetry={sim.reload} title={tr({ en: 'The simulation is unavailable for this window.', fr: 'La simulation est indisponible pour cette période.' })} />}
-      {sim.data && <Results sim={sim.data} profile={profile} lang={lang} stale={sim.loading} />}
+      {unavailable ? <StrategiesNotice notice={unavailable} /> : (
+        <>
+          {sim.loading && !sim.data && <Loading label={tr({ en: 'Simulating on history…', fr: 'Simulation sur l’historique…' })} />}
+          {sim.error && <SimulationFailure error={sim.error} failures={failures} onRetry={sim.reload} />}
+          {sim.data && <Results sim={sim.data} profile={profile} lang={lang} stale={sim.loading} />}
+        </>
+      )}
     </div>
+  );
+}
+
+/**
+ * A failed simulation: what to do (change the settings, pick a longer period, or wait and retry), a
+ * copyable request ID, the raw server text behind "Technical details", and Retry only while it can
+ * help (a retryable failure, fewer than three failed attempts).
+ */
+function SimulationFailure({ error, failures, onRetry }: { error: unknown; failures: number; onRetry: () => void }) {
+  const { tr } = useApp();
+  const failure = strategyFailure(error, failures);
+  return (
+    <div className="state state-error" role="alert">
+      <p className="state-title">{tr({ en: 'The simulation is unavailable for this window.', fr: 'La simulation est indisponible pour cette période.' })}</p>
+      <p className="muted small">{tr(failure.message)}</p>
+      {failure.requestId && <RequestId id={failure.requestId} />}
+      <details className="tech-details">
+        <summary>{tr({ en: 'Technical details', fr: 'Détails techniques' })}</summary>
+        <p className="break">{tr(failure.title)}{failure.technical ? ` · ${failure.technical}` : ''}</p>
+      </details>
+      {failure.retry && <button type="button" className="btn ghost" onClick={onRetry}>{tr({ en: 'Retry', fr: 'Réessayer' })}</button>}
+    </div>
+  );
+}
+
+function RequestId({ id }: { id: string }) {
+  const { tr } = useApp();
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return undefined;
+    const timer = window.setTimeout(() => setCopied(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+    } catch { setCopied(false); }
+  };
+  return (
+    <p className="small request-id">
+      <span>{tr({ en: 'Request ID', fr: 'Identifiant de requête' })} <code className="mono break">{id}</code></span>
+      <button type="button" className="btn ghost btn-sm" onClick={copy}>
+        {copied ? tr({ en: 'Copied', fr: 'Copié' }) : tr({ en: 'Copy request ID', fr: 'Copier l’identifiant de requête' })}
+      </button>
+    </p>
   );
 }
 
@@ -387,16 +526,27 @@ function TradeRows({ trades, money }: { trades: readonly StrategyTrade[]; money:
 
 function NextAction({ sim, money }: { sim: StrategySimulation; money: (n: number) => string }) {
   const { tr } = useApp();
+  const sheet = useSheet();
   const next = sim.nextAction;
+  // Largest trades first, so the six shown are the six that matter most; the sheet lists them all.
+  const trades = useMemo(() => [...next.trades].sort((x, y) => Math.abs(y.amount) - Math.abs(x.amount)), [next.trades]);
+  const title = tr({ en: 'Next action', fr: 'Prochaine action' });
   return (
-    <Card title={tr({ en: 'Next action', fr: 'Prochaine action' })} className="strategy-next">
+    <Card title={title} className="strategy-next" actions={trades.length > 6 ? (
+      <button type="button" className="btn ghost btn-sm" aria-haspopup="dialog" onClick={e => sheet.show(e.currentTarget)}>
+        {tr({ en: `All ${trades.length}`, fr: `Les ${trades.length}` })}
+      </button>
+    ) : undefined}>
       <p className="next-state" data-due={next.due ? 'true' : undefined}>
         <span className="next-dot" aria-hidden="true" />
         {next.due ? tr({ en: 'Due now', fr: 'À faire maintenant' }) : tr({ en: 'Nothing due', fr: 'Rien à faire' })}
       </p>
       <p className="next-summary">{tr(next.summary)}</p>
-      {next.trades.length > 0 && <TradeRows trades={next.trades.slice(0, 6)} money={money} />}
+      {trades.length > 0 && <TradeRows trades={trades.slice(0, 6)} money={money} />}
       <p className="small muted">{tr({ en: 'Proposed only: no order is placed.', fr: 'Proposé seulement : aucun ordre n’est passé.' })}</p>
+      <Sheet open={sheet.open} origin={sheet.origin} onClose={sheet.hide} title={title}>
+        {sheet.open && <TradeRows trades={trades} money={money} />}
+      </Sheet>
     </Card>
   );
 }

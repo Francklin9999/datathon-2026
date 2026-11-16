@@ -24,7 +24,12 @@ import { AuditPanel } from '../../components/run/AuditPanel';
 import { AUDIT_CHECK, FACT_KIND, RUN_KIND, RUN_STATUS, SABOTAGE_MODE, VERIFICATION, labelOf } from '../../lib/labels';
 import { fmtDate, fmtDateTime } from '../../lib/format';
 import { RunsTable } from '../../components/run/RunsTable';
+import { ResearchOutcomeNote } from '../../components/run/ResearchOutcomeNote';
 import { briefsOf, danglingReferences } from '../../lib/brief';
+import {
+  ATTEMPT_OUTCOME, SOURCES_TRIED_ID, allAttemptsFailed, researchAttempts, researchToolLabel, runListKey, runListProfileId,
+  sentenceHashTarget, type RunListScope,
+} from '../../lib/evidence';
 import { fold } from '../../lib/suggest';
 
 const SABOTAGE_MODES: readonly SabotageMode[] = ['invented_number', 'false_comparison', 'unsupported_interpretation'];
@@ -36,21 +41,42 @@ export function EvidenceAuditPage() {
 }
 
 function RunList() {
-  const { tr, lang, sessionId } = useApp();
+  const { tr, sessionId, profile, profilesLoaded } = useApp();
+  // The browser session's runs cover every profile and earlier visits (QA 6.5: per session, not shared);
+  // the list starts on the active profile, with "All profiles" one click away.
+  const [scope, setScope] = useState<RunListScope>('profile');
+  const profileId = runListProfileId(scope, profile?.profileId);
   // The session's run list changes as runs are created: always refetch when the list is shown.
   useState(() => invalidateQueries(key => key.startsWith('runs|')));
-  const runs = useQuery<RunsResponse>(sessionId ? `runs|${sessionId}` : null, signal => getApiClient().runs({ limit: 50 }, signal));
+  // Wait for the profiles (loaded or failed) so the first read already has the right scope.
+  const runs = useQuery<RunsResponse>(sessionId && profilesLoaded ? runListKey(sessionId, profileId) : null,
+    signal => getApiClient().runs({ limit: 50, ...(profileId ? { profileId } : {}) }, signal));
   return (
     <>
       <PageHeader title={tr({ en: 'Evidence and audit', fr: 'Preuves et audit' })}>
         <p className="page-sub">{tr({ en: 'Pick an analysis to inspect its sources and audit.', fr: 'Choisissez une analyse pour examiner ses sources et son audit.' })}</p>
       </PageHeader>
-      <Card id="runs" tour="run-list" title={tr({ en: 'Analyses of this session', fr: 'Analyses de cette session' })}
-        info={tr({ en: 'Only analyses started from this browser session are listed.', fr: 'Seules les analyses lancées depuis cette session de navigateur sont listées.' })}>
-        {runs.loading && <Loading />}
+      <Card id="runs" tour="run-list" title={tr({ en: 'Analyses started in this browser', fr: 'Analyses lancées dans ce navigateur' })}
+        info={tr({
+          en: 'Every analysis started in this browser, on this visit and earlier ones, newest first. Show the active profile or all profiles. Another browser or device does not see them.',
+          fr: 'Toutes les analyses lancées dans ce navigateur, lors de cette visite et des précédentes, de la plus récente à la plus ancienne. Affichez le profil actif ou tous les profils. Un autre navigateur ou appareil ne les voit pas.',
+        })}>
+        {profile && (
+          <div className="filter-chips" role="group" aria-label={tr({ en: 'Show analyses for', fr: 'Afficher les analyses pour' })}>
+            <button type="button" className="fchip" aria-pressed={scope === 'profile'} onClick={() => setScope('profile')}>
+              {tr({ en: `This profile (${profile.name})`, fr: `Ce profil (${profile.name})` })}
+            </button>
+            <button type="button" className="fchip" aria-pressed={scope === 'all'} onClick={() => setScope('all')}>
+              {tr({ en: 'All profiles', fr: 'Tous les profils' })}
+            </button>
+          </div>
+        )}
+        {(runs.loading || (sessionId !== null && !profilesLoaded)) && <Loading />}
         {runs.error && <ErrorState error={runs.error} onRetry={runs.reload} />}
         {runs.data && runs.data.items.length === 0 && (
-          <Empty>{tr({ en: 'No analysis yet. Start one from Decide or Home.', fr: 'Aucune analyse pour l’instant. Lancez-en une depuis Décider ou l’Accueil.' })}</Empty>
+          <Empty>{profileId && profile
+            ? tr({ en: `No analysis for ${profile.name} yet in this browser. Start one from Decide or Home, or choose All profiles.`, fr: `Aucune analyse pour ${profile.name} dans ce navigateur pour l’instant. Lancez-en une depuis Décider ou l’Accueil, ou choisissez Tous les profils.` })
+            : tr({ en: 'No analysis yet. Start one from Decide or Home.', fr: 'Aucune analyse pour l’instant. Lancez-en une depuis Décider ou l’Accueil.' })}</Empty>
         )}
         {runs.data && runs.data.items.length > 0 && (
           <RunsTable items={runs.data.items} linkFor={id => `/evidence-audit/?runId=${encodeURIComponent(id)}`} />
@@ -96,6 +122,19 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
   const brief = run ? mainBrief(run) : null;
   const dangling = run ? danglingReferences(run) : [];
 
+  // "See it in Evidence" links here at #sentence-…; the sentence exists only once the brief renders.
+  const hasBrief = Boolean(brief);
+  useEffect(() => {
+    if (!hasBrief) return undefined;
+    const reveal = () => {
+      const target = sentenceHashTarget(window.location.hash);
+      if (target) document.getElementById(target)?.scrollIntoView({ block: 'center' });
+    };
+    reveal();
+    window.addEventListener('hashchange', reveal);
+    return () => window.removeEventListener('hashchange', reveal);
+  }, [hasBrief]);
+
   return (
     <>
       <PageHeader title={run ? labelOf(RUN_KIND, run.kind, lang) : tr({ en: 'Analysis', fr: 'Analyse' })}
@@ -121,10 +160,11 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
             <div className="cols">
               <Card id="brief" section={tr({ en: 'Brief', fr: 'Note' })} tour="audit-brief" title={tr({ en: 'Brief with audit marks', fr: 'Note avec marques d’audit' })}
                 info={tr({ en: 'Struck sentences appear only here, with the checks they failed.', fr: 'Les phrases rayées n’apparaissent qu’ici, avec les vérifications échouées.' })}>
+                <ResearchOutcomeNote run={run} onEvidencePage />
                 <BriefView brief={brief} mode="audit" />
               </Card>
               <Card id="audit" section={tr({ en: 'Audit', fr: 'Audit' })} tour="audit-report" title={tr({ en: 'Audit report', fr: 'Rapport d’audit' })}>
-                <AuditPanel audit={brief.audit} run={run} />
+                <AuditPanel brief={brief} run={run} />
                 <p className="small muted">{tr({
                   en: 'Checks attest the recorded references, source quotations, arithmetic relations and review performed. A matching quotation confirms what a source said; it does not prove the source is correct. Interpretation review can miss unsupported claims.',
                   fr: 'Les contrôles attestent les références, les citations, les relations numériques et la revue enregistrées. Une citation conforme confirme les propos de la source, sans prouver leur exactitude. La revue peut manquer des affirmations non étayées.',
@@ -135,6 +175,7 @@ function RunAudit({ runId, factId }: { runId: string; factId: string | null }) {
           <RuleChecksPanel run={run} />
           <FactLedger run={run} scope={scope} />
           <EvidenceList run={run} scope={scope} />
+          <SourcesTried run={run} />
           <details className="fold section-fold" id="timeline" data-section={tr({ en: 'Steps', fr: 'Étapes' })}>
             <summary>{tr({ en: 'Steps', fr: 'Étapes' })}</summary>
             <div className="fold-body"><RunTimeline run={run} /></div>
@@ -271,6 +312,71 @@ function EvidenceList({ run, scope }: { run: Run; scope: FactScope }) {
           ))}
         </ul>
       )}
+      </div>
+    </details>
+  );
+}
+
+const ATTEMPT_PILL = { saved: 's-pass', nothing: 's-info', failed: 's-tension' } as const;
+
+/**
+ * Every external-source call of the research step with a plain reason (QA 7.5), from the run payload's
+ * research toolCalls. Addresses are reduced to their host; fetched page text is never shown. Opens by
+ * default when every attempt failed, and when the page is reached at #sources-tried.
+ */
+function SourcesTried({ run }: { run: Run }) {
+  const { tr } = useApp();
+  const attempts = researchAttempts(run);
+  const ref = useRef<HTMLDetailsElement>(null);
+  const failedAll = allAttemptsFailed(attempts);
+  const [open, setOpen] = useState(failedAll);
+  // A run still in progress gets its research calls later: open when they all failed, unless the user
+  // already opened or closed the fold.
+  const userToggled = useRef(false);
+  useEffect(() => { if (failedAll && !userToggled.current) setOpen(true); }, [failedAll]);
+  useEffect(() => {
+    const reveal = () => {
+      if (window.location.hash !== `#${SOURCES_TRIED_ID}`) return;
+      setOpen(true);
+      ref.current?.scrollIntoView({ block: 'start' });
+    };
+    reveal();
+    window.addEventListener('hashchange', reveal);
+    return () => window.removeEventListener('hashchange', reveal);
+  }, []);
+  return (
+    <details ref={ref} className="fold section-fold" id={SOURCES_TRIED_ID} data-section={tr({ en: 'Sources tried', fr: 'Sources essayées' })}
+      open={open} onToggle={e => {
+        // A toggle that differs from the state came from the user, not from setOpen.
+        if (e.currentTarget.open !== open) userToggled.current = true;
+        setOpen(e.currentTarget.open);
+      }}>
+      <summary>{tr({ en: `Sources tried (${attempts.length})`, fr: `Sources essayées (${attempts.length})` })}</summary>
+      <div className="fold-body">
+        {attempts.length === 0 ? <Empty>{tr({ en: 'No external source was tried in this analysis.', fr: 'Aucune source externe n’a été essayée dans cette analyse.' })}</Empty> : (
+          <>
+            <p className="small muted">{tr({
+              en: 'Each call the research step made to an external source, and what came of it. Addresses are shown by site only.',
+              fr: 'Chaque appel de l’étape de recherche à une source externe, et ce qu’il a donné. Les adresses ne sont indiquées que par site.',
+            })}</p>
+            <ul className="list-plain">
+              {attempts.map(a => (
+                <li key={a.id}>
+                  <span className={`pill ${ATTEMPT_PILL[a.outcome]}`}>{tr(ATTEMPT_OUTCOME[a.outcome])}</span>{' '}
+                  <strong>{tr(researchToolLabel(a.tool))}</strong>
+                  {a.target && <> · <span className="mono break">{a.target}</span></>}
+                  {a.reason && <span className="block small muted">{tr(a.reason)}</span>}
+                  {a.technical && (
+                    <details className="tech-details">
+                      <summary>{tr({ en: 'Technical details', fr: 'Détails techniques' })}</summary>
+                      <p className="mono small break">{a.tool} · {a.technical}</p>
+                    </details>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </details>
   );

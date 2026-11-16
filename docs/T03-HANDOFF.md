@@ -63,7 +63,7 @@ from aplomb.api.composition import create_repositories
 from aplomb.api.dispatcher import LocalDispatcher
 from aplomb.api.services import RunCoordinator, Services
 
-profile_repo, run_repo, cache = create_repositories(settings)
+profile_repo, run_repo = create_repositories(settings)
 dispatcher = LocalDispatcher(worker_callable)  # worker_callable(event_dict)
 runs = RunCoordinator(run_repo, dispatcher, prepare_callable)
 services = Services(profiles=profile_service, checks=check_service, runs=runs)
@@ -76,8 +76,16 @@ remains T08-owned. Default composition never dispatches an absent worker.
 
 Optional `RunCoordinator.cached_brief(session_id, request)` resolves an already
 persisted succeeded portfolio brief. Its provider must verify the effective
-profile/version, snapshot, language and window. The same-context cache callback
+profile/version, snapshot (version and manifest digest), brief runtime identity
+(`brief_runtime_identity`: the runtime signature without the build revision, so a
+code-only redeploy keeps cached briefs; a brief recorded before that identity was pinned
+is not compared on runtime, as the release that wrote it did not), language and window. The same-context cache callback
 resolves through the same atomic idempotency reservations as newly-created runs.
+Identical portfolio briefs are also de-duplicated without a key and with
+`force=true`: `RunRepository.create(..., brief_lock=)` writes a `BRIEF#<sha256(identity)>`
+lock (expires after `run_hard_seconds` + 60 s) in the run's own transaction, and
+`RunCoordinator.create` returns the locked run while it is not finished, or for up
+to 60 s after it succeeded. Failed or cancelled briefs are never reused.
 
 ## Worker protocol and races
 
@@ -137,9 +145,11 @@ Dynamic spill thresholds and a conservative 3.5 MB encoded transaction cap prote
 the DynamoDB aggregate limit. A failed CAS can leave an unreferenced immutable S3
 object; lifecycle cleanup is operational. Authorization precedes blob reads.
 
-Profile repository revisions provide optimistic versions. User-cache dimensions
-require session, effective profile ID/version, snapshot, currency, as-of, window,
-language, flags and method version. Expiry is checked in code; TTL is cleanup.
+Profile repository revisions provide optimistic versions. There is no generic
+user-cache repository: the only user cache is the portfolio brief, resolved from
+the session's own runs by `aplomb.api.runtime.brief_lookup` (profile version, data
+version, manifest digest, brief runtime identity, language and window). Cache-table
+items (idempotency, brief lock, limiter) check expiry in code; TTL is cleanup.
 Sliding session quotas use atomic store transactions across HTTP processes;
 Gateway aggregate throttling does not replace session limits.
 

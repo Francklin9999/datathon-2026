@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
 import { Card } from '../../components/common/Page';
 import { useApp } from '../../state/app';
 
@@ -22,8 +22,7 @@ export function EURegulatory() {
     setBusy(true); setResult(null); setError('');
     try {
       const query = source === 'eba-market-risk' ? `?${new URLSearchParams({ period })}` : '';
-      const response = await fetch(`${API_BASE}/intelligence/eu/${source}/${encodeURIComponent(lei.trim().toUpperCase())}${query}`,
-        { headers: { 'X-Aplomb-Session': sessionId ?? '' } });
+      const response = await researchFetch(`/intelligence/eu/${source}/${encodeURIComponent(lei.trim().toUpperCase())}${query}`);
       if (!response.ok) throw new Error();
       const value = await response.json() as Result;
       if (!value || !Array.isArray(value.rows) || !Array.isArray(value.limitations)) throw new Error();

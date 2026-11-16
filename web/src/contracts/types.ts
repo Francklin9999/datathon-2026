@@ -397,6 +397,12 @@ export type NeeReason =
   | "dataset_missing";
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RuleDifferenceReason".
+ */
+export type RuleDifferenceReason =
+  "threshold_differs" | "portfolio_differs" | "rule_only_in_a" | "rule_only_in_b" | "same";
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
  * via the `definition` "Lang".
  */
 export type Lang = "en" | "fr";
@@ -724,6 +730,7 @@ export interface AplombContracts {
   HazardsResponse: HazardsResponse;
   HealthResponse: HealthResponse;
   HoldingExposure: HoldingExposure;
+  HoldingReturn: HoldingReturn;
   HoldingWeight: HoldingWeight;
   HorizonYears: HorizonYears1;
   I18nText: I18NText;
@@ -740,6 +747,11 @@ export interface AplombContracts {
   LegendItem: LegendItem;
   LimitationCode: LimitationCode;
   LlmReview: LlmReview;
+  MarketCaptureSource: MarketCaptureSource;
+  MarketConnection: MarketConnection;
+  MarketConnectionsResponse: MarketConnectionsResponse;
+  MarketObservationResponse: MarketObservationResponse;
+  MarketSourceRequest: MarketSourceRequest1;
   Meta: Meta;
   MethodId: MethodId;
   MetricCode: MetricCode;
@@ -788,6 +800,12 @@ export interface AplombContracts {
   RebalancingPreferences: RebalancingPreferences;
   RefreshAccountRequest: RefreshAccountRequest;
   Refusal: Refusal;
+  RegionalCompany: RegionalCompany;
+  RegionalFiling: RegionalFiling;
+  RegionalFinancialRow: RegionalFinancialRow;
+  RegionalOwnershipRow: RegionalOwnershipRow;
+  RegionalPrice: RegionalPrice;
+  RegionalResearchResponse: RegionalResearchResponse;
   ReplayInput: ReplayInput;
   ReplayPreset: ReplayPreset;
   ReplayPresetsResponse: ReplayPresetsResponse;
@@ -805,6 +823,8 @@ export interface AplombContracts {
   RuleCheck: RuleCheck;
   RuleCode: RuleCode;
   RuleDerivation: RuleDerivation;
+  RuleDifference: RuleDifference;
+  RuleDifferenceReason: RuleDifferenceReason;
   RuleId: RuleId;
   RuleOrigin: RuleOrigin;
   RuleOverride: RuleOverride;
@@ -1556,6 +1576,7 @@ export interface WindowSpec1 {
  */
 export interface BatchCheckResponse {
   results: (CheckResult | ApiError)[];
+  differences?: RuleDifference[];
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -1696,6 +1717,24 @@ export interface FundingOption {
   recommended: boolean;
   rank: number | null;
   note: I18NText;
+}
+/**
+ * One rule of a two-profile comparison, aligned by ruleId (rules SPEC §6, EF-10).
+ *
+ * A is the first batch item, B the second. A side without that rule has nulls for its fields.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RuleDifference".
+ */
+export interface RuleDifference {
+  ruleId: RuleId;
+  reason: RuleDifferenceReason;
+  statusA: RuleStatus | null;
+  statusB: RuleStatus | null;
+  thresholdA: number | null;
+  thresholdB: number | null;
+  valueA: number | null;
+  valueB: number | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3263,6 +3302,17 @@ export interface HealthResponse {
   time: ISODateTime;
 }
 /**
+ * Trailing 1-year return of one held position (null for cash or a too-short history).
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "HoldingReturn".
+ */
+export interface HoldingReturn {
+  ticker: Ticker;
+  return1yPct: number | null;
+  return1yFactId: FactId | null;
+}
+/**
  * User-stated objective, never a promise of an achievable return.
  *
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3289,6 +3339,79 @@ export interface InvestmentGoal {
 export interface LegendItem {
   label: I18NText;
   color: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "MarketCaptureSource".
+ */
+export interface MarketCaptureSource {
+  url: string;
+  sha256: string;
+  retrieved_at: string;
+  available_at: string;
+  published_at: string | null;
+  licence: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "MarketConnection".
+ */
+export interface MarketConnection {
+  id: string;
+  signup_url?: string | null;
+  documentation_url?: string | null;
+  credential_variable?: string;
+  credential_present: boolean;
+  rights_confirmed: boolean;
+  supported_operation: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "MarketConnectionsResponse".
+ */
+export interface MarketConnectionsResponse {
+  providers: MarketConnection[];
+}
+/**
+ * GET /research/market-provider/{provider} and GET /research/tiingo/{symbol}.
+ *
+ * `observation` is provider-specific (quote, bars, company profile, statements, chain balances);
+ * api.md lists its keys per provider. Tiingo returns `sources` instead of the single-capture keys.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "MarketObservationResponse".
+ */
+export interface MarketObservationResponse {
+  status: "available";
+  provider: string;
+  observation: {
+    [k: string]: unknown;
+  };
+  source_url?: string;
+  source_sha256?: string;
+  source_request?: MarketSourceRequest;
+  dataset_version?: string;
+  retrieved_at?: string;
+  available_at?: string;
+  published_at?: string | null;
+  licence?: string;
+  documentation_url?: string;
+  sources?: MarketCaptureSource[];
+  limitations: string[];
+}
+export interface MarketSourceRequest {
+  method: string;
+  url: string;
+  body: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "MarketSourceRequest".
+ */
+export interface MarketSourceRequest1 {
+  method: string;
+  url: string;
+  body: string | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3359,6 +3482,7 @@ export interface OverviewResponse {
     [k: string]: Fact;
   };
   limitations: LimitationCode[];
+  holdingReturns?: HoldingReturn[];
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3555,6 +3679,160 @@ export interface RebalanceStrategy {
 export interface RefreshAccountRequest {
   version: number;
   asOf?: ISODate | null;
+}
+/**
+ * OpenDART sends name, englishName and stockCode; J-Quants adds the listing fields.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RegionalCompany".
+ */
+export interface RegionalCompany {
+  name: string | null;
+  englishName: string | null;
+  stockCode: string | null;
+  asOf?: string;
+  sector17Code?: string | null;
+  sector17Name?: string | null;
+  sector33Code?: string | null;
+  sector33Name?: string | null;
+  scaleCategory?: string | null;
+  marketCode?: string | null;
+  marketName?: string | null;
+  marginCode?: string | null;
+  marginName?: string | null;
+  productCategory?: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RegionalFiling".
+ */
+export interface RegionalFiling {
+  title: string;
+  date: string;
+  receiptNumber: string;
+  url: string;
+}
+/**
+ * J-Quants summary rows carry disclosureNumber; OpenDART rows carry receiptNumber and the report keys.
+ *
+ * Amounts are exact decimal strings as reported, never floats; a missing amount is null, not zero.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RegionalFinancialRow".
+ */
+export interface RegionalFinancialRow {
+  disclosureNumber?: string;
+  receiptNumber?: string;
+  disclosedDate: string | null;
+  disclosedAt: string | null;
+  documentType?: string | null;
+  reportCode?: string;
+  fiscalYear?: string;
+  statementType?: string;
+  period: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  section: string | null;
+  sectionName?: string | null;
+  accountId: string | null;
+  accountName: string | null;
+  accountDetail?: string | null;
+  value: string | null;
+  cumulativeValue?: string | null;
+  priorPeriod?: string | null;
+  priorValue?: string | null;
+  order?: string | null;
+  unit: string | null;
+  classification: "reported" | "forecast";
+  url: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RegionalOwnershipRow".
+ */
+export interface RegionalOwnershipRow {
+  category: "major_shareholder" | "executive_or_major_holder";
+  receiptNumber: string;
+  documentId: string | null;
+  filed: string;
+  filedAt: string | null;
+  obligationDate: string | null;
+  reporter: string | null;
+  holderCount: number | null;
+  title: string | null;
+  amendment: boolean | null;
+  amendsDocumentId: string | null;
+  outstandingShares: string | null;
+  url: string;
+  reportType: string | null;
+  reason: string | null;
+  position: string | null;
+  shares: string | null;
+  sharesChange: string | null;
+  ratioPct: string | null;
+  ratioChangePct: string | null;
+  contractShares?: string | null;
+  contractRatioPct?: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RegionalPrice".
+ */
+export interface RegionalPrice {
+  date: string;
+  close: number | null;
+  adjustedClose: number | null;
+  currency: string;
+}
+/**
+ * GET /intelligence/regional. `status` "unavailable" (no usable account) has empty lists and a `reason`.
+ *
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "RegionalResearchResponse".
+ */
+export interface RegionalResearchResponse {
+  region: "JP" | "KR";
+  identifier: string;
+  identifierType: string;
+  provider: string;
+  kind: "prices" | "company" | "filings" | "financials" | "ownership";
+  status: "ok" | "unavailable";
+  reason?: string;
+  mic: string | null;
+  currency: string | null;
+  retrievedAt: string;
+  availableAt: string;
+  publicationAt: string | null;
+  sourceUrl: string;
+  availabilityBasis: string;
+  historicalReplayEligibleBeforeCapture: boolean;
+  requestedStart: string;
+  requestedEnd: string;
+  fiscalYear?: string;
+  reportCode?: string;
+  statementType?: string;
+  prices: RegionalPrice[];
+  filings: RegionalFiling[];
+  company: RegionalCompany | null;
+  listings?: RegionalCompany[];
+  financials: RegionalFinancialRow[];
+  ownership: RegionalOwnershipRow[];
+  partial?: boolean;
+  pagesInspected?: number;
+  totalReported?: number;
+  sourceSha256?: string;
+  companySourceSha256?: string;
+  sourceHashes?: {
+    [k: string]: string;
+  };
+  pageSourceSha256?: {
+    [k: string]: string;
+  };
+  sourceUrls?: string[];
+  limitations?: string[];
+  captureId?: string;
+  datasetVersion?: string;
+  storage?: string;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema

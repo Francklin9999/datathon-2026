@@ -190,6 +190,12 @@ details.fold .card { background: transparent; padding: 0; box-shadow: none; bord
 .skeleton-tile { display: flex; flex-direction: column; gap: 12px; }
 .tech-details { margin-top: 4px; font-size: 12px; color: var(--text-3); }
 .tech-details summary { color: var(--text-3); padding: 6px 0; }
+/* Supported universe beside a ticker field: a disclosure whose list scrolls inside itself. */
+.supported-universe { margin-top: 6px; color: var(--text-2); }
+.supported-universe > summary { cursor: pointer; padding: 6px 0; color: var(--text-2); }
+.supported-universe > p { margin: 4px 0; }
+.supported-universe-list { margin: 4px 0; padding: 0; list-style: none; max-height: 14rem; overflow-y: auto; overflow-wrap: anywhere; }
+.supported-universe-list > li { padding: 2px 0; }
 
 /* Drawer: a frosted sheet */
 .backdrop { position: fixed; inset: 0; z-index: 40; background: var(--scrim); }
@@ -233,6 +239,9 @@ details.fold .card { background: transparent; padding: 0; box-shadow: none; bord
 .audit-verified { color: var(--pass-fg); }
 .brief-disclaimer { margin-top: 16px; padding: 10px 14px; border-radius: var(--r-ctl); background: var(--glass-inset); color: var(--text-2); font-size: 13px; }
 .stale-note { padding: 10px 14px; border-radius: var(--r-ctl); color: var(--tension-fg); border: 1px solid var(--tension-line); background: var(--tension-bg); margin: 8px 0 12px; }
+/* Home brief: the previous brief stays in place, greyed, while a new one is written (no layout shift). */
+.is-refreshing { opacity: .55; transition: opacity .2s ease; }
+.brief-tools { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 10px; }
 
 /* Timeline */
 .timeline-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }

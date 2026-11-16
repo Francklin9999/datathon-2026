@@ -159,22 +159,6 @@ def test_edgar_parsers_structural_fixture():
     assert adapter.filing_text(result.items[0]["accession"], CTX).text == "Filing text"
 
 
-def test_quote_figure_explicit_unit_and_no_fake_arithmetic():
-    svc = service(Recorded(response("reported 42 USD today")))
-    doc = svc.fetch(URL, CTX)
-    ledger = Ledger(CTX.run_id, str(CTX.as_of), clock=lambda: NOW.isoformat().replace("+00:00", "Z"))
-    data = dict(type="filing", title="Reported figure", publisher="SEC", url=URL,
-                quote="reported 42 USD", claim={"en": "Reported", "fr": "Rapporté"},
-                subject={"type": "asset", "id": "AAPL"})
-    fact_id, evidence_id = svc.save_figure(data, doc.document_id, CTX, ledger,
-                                          value_text="42", unit_text="USD", unit="usd")
-    assert ledger.get_fact(fact_id).verification.status == "verified"
-    assert ledger.get_fact(fact_id).metric == "quote.figure"
-    assert ledger.get_fact(fact_id).available_at is None
-    with pytest.raises(ValueError):
-        svc.save_figure(data, doc.document_id, CTX, ledger, value_text="43", unit_text="USD", unit="usd")
-
-
 @pytest.mark.parametrize("response_value, reason", [
     (Response(200, {"content-type": "application/pdf"}, b"binary"), "unsupported_content_type"),
     (Response(200, {"content-type": "text/plain"}, b"x" * 4_000_001), "response_too_large"),
@@ -242,7 +226,7 @@ def test_company_facts_structured_figures_and_cutoff():
     payload = {"cik": 320193, "facts": {"us-gaap": {"Assets": {"units": {"USD": rows}}}}}
     svc = service(Recorded(response(json.dumps(payload), **{"content-type": "application/json"})))
     ledger = Ledger(CTX.run_id, str(CTX.as_of), clock=lambda: NOW.isoformat().replace("+00:00", "Z"))
-    result = research_tool_handlers(svc)["edgar.company_facts"][1](tool_context(ledger), cik="320193", concept="Assets")
+    result = research_tool_handlers(svc, sec=True)["edgar.company_facts"][1](tool_context(ledger), cik="320193", concept="Assets")
     assert result.ok, result.error
     assert len(result.fact_ids) == 1
     assert result.data["figures"][0]["figure"] == {"value": 123456, "unit": "usd", "factId": result.fact_ids[0]}
@@ -311,7 +295,7 @@ def test_sec_companyfacts_rejects_identity_mismatch_and_invalid_dates():
             {**valid, "accn": "bad"}, {**valid, "filed": "2027-01-01"}, valid]
     svc = service(Recorded(response(payload(320193, rows), **{"content-type": "application/json"})))
     ledger = Ledger(CTX.run_id, str(CTX.as_of), clock=lambda: NOW.isoformat().replace("+00:00", "Z"))
-    result = research_tool_handlers(svc)["edgar.company_facts"][1](tool_context(ledger), cik="320193", concept="Assets")
+    result = research_tool_handlers(svc, sec=True)["edgar.company_facts"][1](tool_context(ledger), cik="320193", concept="Assets")
     assert len(result.fact_ids) == 1 and result.data["figures"][0]["accession"] == valid["accn"]
 
 

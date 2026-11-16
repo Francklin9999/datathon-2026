@@ -9,8 +9,10 @@ date and a source-supported location is rejected and counted in the manifest; a 
 fails is recorded as failed. Parsers are pure functions so they are tested offline.
 
 Sources (all public, no key): USGS earthquake catalog (point locations), Bank of Canada press
-release feed, Federal Reserve monetary-policy press feed, and the Statistics Canada "The Daily"
-pages already recorded in ``data/metadata/macro_release_dates.csv`` (country-level locations).
+release feed, Federal Reserve monetary-policy press feed, the Statistics Canada "The Daily"
+pages already recorded in ``data/metadata/macro_release_dates.csv`` (country-level locations), and
+one bounded NASA EONET v3 request over the last ``--eonet-days`` of the window (first source point,
+no inferred country). When EONET answers, the version carries ``-eonet-<payload hash>``.
 """
 
 from __future__ import annotations
@@ -25,7 +27,7 @@ import sys
 import time
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Callable
@@ -193,6 +195,31 @@ def parse_eonet(payload: bytes) -> tuple[list[dict], int]:
     return events, rejected
 
 
+EONET_NAME = "NASA EONET v3 natural events"
+EONET_TERMS = "https://eonet.gsfc.nasa.gov/what-is-eonet; linked third-party content has separate terms"
+EONET_MAX_DAYS = 366
+# The committed bundle's EONET capture covers the 28 days ending on the window end (2026-10-15..2026-11-12).
+EONET_DEFAULT_DAYS = 28
+
+
+def eonet_url(start: str, end: str) -> str:
+    """Bounded EONET v3 request: every status, first 500 records of the window."""
+    return f"https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start={start}&end={end}&limit=500"
+
+
+def eonet_capture(payload: bytes) -> tuple[list[dict], dict]:
+    """Parsed EONET events and the provenance fields recorded on the ``nasa_eonet`` source."""
+    events, rejected = parse_eonet(payload)
+    return events, {"items": len(events), "rejected": rejected, "payloadSha256": hashlib.sha256(payload).hexdigest(),
+                    "note": "Bounded first 500 records; completeness not established. Observation is not publication."}
+
+
+def eonet_version_suffix(sources: list[dict]) -> str:
+    """``-eonet-<payload hash>`` when the EONET source was captured, else empty."""
+    eonet = next((s for s in sources if s["id"] == "nasa_eonet" and s.get("status") == "ok"), None)
+    return "-eonet-" + eonet["payloadSha256"][:8] if eonet else ""
+
+
 def _text(node, *names: str) -> str | None:
     for child in node:
         if child.tag.rsplit("}", 1)[-1] in names and child.text and child.text.strip():
@@ -317,10 +344,13 @@ def build_bundle(events: list[dict], hazards: list[dict], sources: list[dict], *
         "hazards": {"count": len(hazards), "coverage": span([h["occurredAt"][:10] for h in hazards])},
         "sources": sources,
         "notIngested": [
-            {"source": "GDELT", "reason": "Article index returned no usable batch on the build date and its items carry no "
-                                          "source-supported event location; not loaded (O-07)."},
-            {"source": "ECCC / EPA facility emissions", "reason": "Facility layer not loaded (cut-list item 2)."},
-            {"source": "NASA FIRMS wildfires", "reason": "Requires a key; not loaded."},
+            {"source": "GDELT", "reason": "Not part of this bundle. The article index is not fetched at build time (rate "
+                                          "limits, O-07) and its items carry no source-supported event location; bounded "
+                                          "GDELT captures are separate world_gdelt_* source observations, not world events."},
+            {"source": "ECCC / EPA facility emissions", "reason": "Not part of this bundle. ECCC facility emissions are served "
+                                                          "separately as emissions_facilities; EPA facility emissions are not loaded."},
+            {"source": "NASA FIRMS wildfires", "reason": "Not part of this bundle. Bounded FIRMS MODIS detections are separate "
+                                                 "world_firms_* source observations, not world events."},
         ],
         "method": {"importance": "min(1, 0.45*official + 0.35*min(distinctPublishers,5)/5 + 0.20*max(0, 1-ageDays/30)) at builtAt",
                    "eventId": "evt_ + first 12 hex of SHA-1 of the canonical source URL",
@@ -348,7 +378,12 @@ def http_get(url: str, timeout: float = 30.0) -> bytes:
 
 def collect(start: str, end: str, *, fetch: Callable[[str], bytes] = http_get, release_csv: Path | None = None,
             now: Callable[[], datetime] = lambda: datetime.now(timezone.utc), min_magnitude: float = 6.0,
-            pause: float = 0.4, log: Callable[[str], None] = print) -> tuple[list[dict], list[dict], list[dict]]:
+            pause: float = 0.4, log: Callable[[str], None] = print,
+            eonet_days: int | None = None) -> tuple[list[dict], list[dict], list[dict]]:
+    """Fetch every configured source. NASA EONET is attempted only when ``eonet_days`` is given
+    (the CLI passes ``--eonet-days``, default ``EONET_DEFAULT_DAYS``)."""
+    if eonet_days is not None and not 0 <= eonet_days <= EONET_MAX_DAYS:
+        raise ValueError(f"eonet_days must be between 0 and {EONET_MAX_DAYS}")
     events: list[dict] = []
     hazards: list[dict] = []
     sources: list[dict] = []
@@ -412,6 +447,18 @@ def collect(start: str, end: str, *, fetch: Callable[[str], bytes] = http_get, r
     attempt("statcan_daily", "Statistics Canada, The Daily (Consumer Price Index releases)",
             "https://www.statcan.gc.ca/dai-quo/index-eng.htm", "Statistics Canada Open Licence; https://www.statcan.gc.ca/en/terms-conditions/open-licence",
             statcan)
+
+    if eonet_days is not None:
+        # EONET: the last eonet_days of the window (one bounded request; it adds events, not hazards).
+        eonet_start = max(start, (date.fromisoformat(end) - timedelta(days=eonet_days)).isoformat())
+        eonet_request = eonet_url(eonet_start, end)
+
+        def eonet():
+            found, record = eonet_capture(fetch(eonet_request))
+            events.extend(found)
+            return record
+
+        attempt("nasa_eonet", EONET_NAME, eonet_request, EONET_TERMS, eonet)
     return events, hazards, sources
 
 
@@ -429,14 +476,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--end", required=True, help="last event date (ISO); use the price snapshot's data date")
     parser.add_argument("--out", type=Path, default=BUNDLE_DIR)
     parser.add_argument("--min-magnitude", type=float, default=6.0)
+    parser.add_argument("--eonet-days", type=int, default=EONET_DEFAULT_DAYS,
+                        help=f"NASA EONET window: the last N days of the window (0-{EONET_MAX_DAYS})")
     args = parser.parse_args(argv)
     date.fromisoformat(args.start), date.fromisoformat(args.end)
+    if not 0 <= args.eonet_days <= EONET_MAX_DAYS:
+        parser.error(f"--eonet-days must be between 0 and {EONET_MAX_DAYS}")
     built_at = datetime.now(timezone.utc)
-    events, hazards, sources = collect(args.start, args.end, min_magnitude=args.min_magnitude)
+    events, hazards, sources = collect(args.start, args.end, min_magnitude=args.min_magnitude, eonet_days=args.eonet_days)
     if not events:
         print("No event could be ingested; the existing bundle is left unchanged.", file=sys.stderr)
         return 1
-    files = build_bundle(events, hazards, sources, built_at=built_at, start=args.start, end=args.end)
+    files = build_bundle(events, hazards, sources, built_at=built_at, start=args.start, end=args.end,
+                         version_suffix=eonet_version_suffix(sources))
     write_bundle(files, args.out)
     manifest = json.loads(files["manifest.json"])
     print(f"Wrote {manifest['events']['count']} event(s) and {manifest['hazards']['count']} hazard(s) to {args.out} "

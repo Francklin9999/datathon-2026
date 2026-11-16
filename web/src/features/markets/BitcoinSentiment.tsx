@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
 import { Card } from '../../components/common/Page';
 import { useApp } from '../../state/app';
 
@@ -19,7 +19,7 @@ export function BitcoinSentiment() {
     const expected = sessionId;
     setBusy(true); setError(false); setResult(null);
     try {
-      const response = await fetch(`${API_BASE}/intelligence/bitcoin-sentiment`, { headers: { 'X-Aplomb-Session': expected ?? '' } });
+      const response = await researchFetch('/intelligence/bitcoin-sentiment');
       if (!response.ok) throw new Error('unavailable');
       const data: Sentiment = await response.json();
       if (!Array.isArray(data.observations) || !data.observations.length || !data.source?.sha256) throw new Error('invalid response');

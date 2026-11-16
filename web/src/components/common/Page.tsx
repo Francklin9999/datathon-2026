@@ -1,7 +1,7 @@
 'use client';
 /** Page header, card and the selected-profile gate shared by every page. */
 import { Maximize2 } from 'lucide-react';
-import type { CSSProperties, ReactNode } from 'react';
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react';
 import type { Profile } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { Empty, ErrorState, Loading } from './States';
@@ -9,12 +9,22 @@ import { Sheet, useSheet } from './Sheet';
 import { useWidget } from '../ui/WidgetContext';
 import { InfoTip } from '../ui/InfoTip';
 
+const CardDetailsContext = createContext<((from: HTMLElement) => void) | null>(null);
+
+/**
+ * Inside a Card that has `details`: opens its details sheet from `from` (a visible "N more" button in
+ * the body, beside the ⤢ in the header). Null elsewhere.
+ */
+export function useCardDetails(): ((from: HTMLElement) => void) | null {
+  return useContext(CardDetailsContext);
+}
+
 /**
  * Page title with one useful sentence (children) on the left and the page's controls on the right.
- * `eyebrow` is accepted for compatibility but no longer shown: the rail already names the page.
+ * There is no eyebrow above the title: the rail already names the page.
  */
 export function PageHeader({ title, children, actions, tour }: {
-  eyebrow?: string; title: string; children?: ReactNode; actions?: ReactNode; tour?: string;
+  title: string; children?: ReactNode; actions?: ReactNode; tour?: string;
 }) {
   return (
     <header className="page-header" {...(tour ? { 'data-tour': tour } : {})}>
@@ -89,7 +99,9 @@ export function Card({ title, children, actions, id, className, section, info, t
           )}
         </div>
       )}
-      {widget ? <div className="widget-body">{children}</div> : children}
+      <CardDetailsContext.Provider value={details ? sheet.show : null}>
+        {widget ? <div className="widget-body">{children}</div> : children}
+      </CardDetailsContext.Provider>
       {widget && movable && (
         <button type="button" className="widget-resize" onPointerDown={widget.onResizePointerDown} onKeyDown={widget.onResizeKeyDown}
           aria-label={`${tr({ en: 'Resize', fr: 'Redimensionner' })} ${widget.title}, ${widget.w} × ${widget.h}. ${tr({ en: 'Drag, or use the arrow keys.', fr: 'Glissez, ou utilisez les flèches.' })}`}

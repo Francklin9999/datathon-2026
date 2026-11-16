@@ -1,10 +1,11 @@
 'use client';
 import { useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
 import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
 import { ExternalLink } from '../../components/common/ExternalLink';
 import { Empty, Loading, Unavailable } from '../../components/common/States';
+import { capturePath, goldenCopyRecord, servedCaptureHash } from '../../lib/issuerEvidence';
 
 type EvidenceClass = 'direct' | 'derived' | 'model_inferred' | 'unverified';
 type Validity = 'valid' | 'not_valid' | 'unknown' | 'observed';
@@ -16,7 +17,8 @@ type Edge = {
   available_at: string; source: EdgeSource | null; derivation: string | null; path: string[];
   qualifiers: Record<string, Scalar>; validity_on_as_of?: Validity;
 };
-type Annotation = { type: 'reporting_exception' | 'none_published'; level: 'direct' | 'ultimate'; category?: string; reason?: string; reference?: string | null; source_url?: string; source_sha256?: string };
+type Annotation = { type: 'reporting_exception' | 'none_published'; level: 'direct' | 'ultimate'; category?: string; reason?: string; reference?: string | null; source_url?: string; source_sha256?: string }
+  | { kind: 'golden_copy_entity'; source: { url: string; content_sha256: string; retrieved_at: string; licence: string }; dataset_version: string };
 type GraphNode = { id: string; kind: string; label: string | null; attributes: Record<string, Scalar>; annotations: Annotation[] };
 type Entity = { lei: string; legal_name: string | null; jurisdiction: string | null; entity_status: string | null; registration_status?: string | null };
 type ParentPart = {
@@ -48,8 +50,8 @@ const isView = (v: unknown): v is GraphView => obj(v) && typeof v.root === 'stri
 const today = () => new Date().toISOString().slice(0, 10);
 const shortHash = (h: string | null | undefined) => (h ? `${h.slice(0, 12)}…` : '—');
 
-async function call(path: string, sessionId: string | null): Promise<unknown> {
-  const r = await fetch(`${API_BASE}${path}`, { headers: { 'X-Aplomb-Session': sessionId ?? '' } });
+async function call(path: string): Promise<unknown> {
+  const r = await researchFetch(path);
   const body: unknown = await r.json().catch(() => null);
   if (!r.ok) {
     const message = obj(body) && obj(body.error) && typeof body.error.message === 'string' ? body.error.message : `HTTP ${r.status}`;
@@ -69,6 +71,7 @@ export function IssuerEvidence() {
   const [data, setData] = useState<GraphView | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [captureNote, setCaptureNote] = useState<Record<string, string>>({});
 
   const classLabel = (c: EvidenceClass) => ({
     direct: tr({ en: 'Direct source', fr: 'Source directe' }),
@@ -121,9 +124,9 @@ export function IssuerEvidence() {
     if (i) params.set('isin', i);
     if (l) params.set('lei', l);
     if (!i && !l) { setError(tr({ en: 'Enter an exact ISIN or LEI.', fr: 'Saisissez un ISIN ou un LEI exact.' })); return; }
-    setBusy(true); setError(''); setData(null);
+    setBusy(true); setError(''); setData(null); setCaptureNote({});
     try {
-      const body = await call(`/intelligence/relationships?${params}`, sessionId);
+      const body = await call(`/intelligence/relationships?${params}`);
       if (!isView(body)) throw new Error('invalid response');
       setData(body);
     } catch (err) {
@@ -131,10 +134,50 @@ export function IssuerEvidence() {
     } finally { setBusy(false); }
   }
 
+  // The raw GLEIF page behind a hash, served only to the session that captured it.
+  async function downloadCapture(sha: string) {
+    const note = (text: string | null) => setCaptureNote(n => {
+      const next = { ...n };
+      if (text) next[sha] = text; else delete next[sha];
+      return next;
+    });
+    note(tr({ en: 'Downloading…', fr: 'Téléchargement…' }));
+    try {
+      const r = await researchFetch(capturePath(sha));
+      if (r.status === 404) { note(tr({ en: 'Not held by this session', fr: 'Non conservée par cette session' })); return; }
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const url = URL.createObjectURL(await r.blob());
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `gleif-capture-${sha}.json`;
+      anchor.click();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+      note(null);
+    } catch (err) {
+      note(`${tr({ en: 'Download failed', fr: 'Échec du téléchargement' })}: ${err instanceof Error ? err.message : 'unavailable'}`);
+    }
+  }
+
+  const rawCapture = (sha: string | null) => sha ? <span className="block small">
+    <button type="button" className="btn ghost btn-sm" disabled={!sessionId} onClick={() => void downloadCapture(sha)}>{tr({ en: 'Download raw capture', fr: 'Télécharger la capture brute' })}</button>
+    {captureNote[sha] && <span className="muted" aria-live="polite"> {captureNote[sha]}</span>}
+  </span> : null;
+
   const sourceCell = (url: string | null | undefined, hash: string | null | undefined) => <>
     {url ? <ExternalLink href={url}>{tr({ en: 'GLEIF record', fr: 'Fiche GLEIF' })}</ExternalLink> : '—'}
     <span className="block small mono" title={hash ?? undefined}>sha256 {shortHash(hash)}</span>
+    {rawCapture(servedCaptureHash('entity_gleif_level2', hash))}
   </>;
+
+  const goldenLine = (lei: string) => {
+    const golden = goldenCopyRecord(data?.nodes.find(n => n.id === 'lei:' + lei));
+    if (!golden) return null;
+    return <p className="small">
+      <strong>{tr({ en: 'GLEIF Golden Copy record', fr: 'Fiche GLEIF Golden Copy' })}:</strong> {golden.legalName ?? '—'} · {golden.jurisdiction ?? '—'} · {golden.entityStatus ?? '—'}
+      <span className="block small muted"><ExternalLink href={golden.source.url}>{tr({ en: 'Golden Copy file', fr: 'Fichier Golden Copy' })}</ExternalLink> · <span className="mono" title={golden.source.content_sha256}>sha256 {shortHash(golden.source.content_sha256)}</span> · {golden.datasetVersion} · {tr({ en: 'Captured', fr: 'Capturé' })} {golden.source.retrieved_at} · {golden.source.licence}</span>
+      <span className="block small muted">{tr({ en: 'This name labels the LEI in the table below. It enriches the entity only; it does not create any link.', fr: 'Ce nom désigne le LEI dans le tableau ci-dessous. Il enrichit l’entité seulement; il ne crée aucun lien.' })}</span>
+    </p>;
+  };
 
   const parentItem = (part: ParentPart | undefined, level: 'direct' | 'ultimate') => {
     const heading = level === 'direct' ? tr({ en: 'Direct parent', fr: 'Société mère directe' }) : tr({ en: 'Ultimate parent', fr: 'Société mère ultime' });
@@ -194,6 +237,7 @@ export function IssuerEvidence() {
       </section>}
       {Object.entries(data.corporate_tree).map(([key, tree]) => <section key={key}>
         <h3>{tr({ en: 'Corporate tree', fr: 'Structure du groupe' })}: {tree.entity?.legal_name ?? key} <span className="mono small">{key}</span></h3>
+        {goldenLine(key)}
         {tree.status !== 'captured' ? <Unavailable title={tree.status === 'lei_not_found' ? tr({ en: 'LEI not found in GLEIF', fr: 'LEI introuvable dans GLEIF' }) : tr({ en: 'GLEIF Level 2 unavailable', fr: 'GLEIF niveau 2 indisponible' })}>{tree.limitations.join(' ')}</Unavailable>
           : <ul aria-label={tr({ en: 'Corporate tree', fr: 'Structure du groupe' })}>
             {parentItem(tree.ultimate_parent, 'ultimate')}
@@ -220,7 +264,7 @@ export function IssuerEvidence() {
               <td>{classLabel(e.evidence_class)}{e.derivation && <span className="block small muted">{e.derivation} · {tr({ en: 'path', fr: 'chemin' })}: {e.path.join(' → ')}</span>}</td>
               <td>{e.valid_from ?? '?'} → {e.temporal === 'point_observation' ? tr({ en: '(snapshot)', fr: '(instantané)' }) : e.valid_to ?? tr({ en: 'open', fr: 'en cours' })}<span className="block small muted">{validityLabel(e.validity_on_as_of)}</span></td>
               <td className="small">{e.available_at}</td>
-              <td>{e.source ? <>{e.source.url ? <ExternalLink href={e.source.url}>{e.source.source_id}</ExternalLink> : e.source.source_id}<span className="block small mono" title={e.source.content_sha256 ?? undefined}>sha256 {shortHash(e.source.content_sha256)}</span><span className="block small muted">{e.source.licence}</span></> : tr({ en: 'Derived from the path', fr: 'Dérivé du chemin' })}</td>
+              <td>{e.source ? <>{e.source.url ? <ExternalLink href={e.source.url}>{e.source.source_id}</ExternalLink> : e.source.source_id}<span className="block small mono" title={e.source.content_sha256 ?? undefined}>sha256 {shortHash(e.source.content_sha256)}</span><span className="block small muted">{e.source.licence}</span>{rawCapture(servedCaptureHash(e.source.source_id, e.source.content_sha256))}</> : tr({ en: 'Derived from the path', fr: 'Dérivé du chemin' })}</td>
             </tr>)}
           </tbody></table>
         </div>}

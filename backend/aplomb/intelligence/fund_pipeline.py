@@ -31,9 +31,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
-from .entities import Evidence, valid_isin
+from .entities import valid_isin
 from .holdings_ingest import nport_positions
-from .overlap import Holding, HoldingsSnapshot
 
 SERIES_RE = re.compile(r'S\d{9}')
 CIK_RE = re.compile(r'\d{1,10}')
@@ -542,37 +541,3 @@ def look_through(store, session_id: str, fund_id: str, as_of: date, *, historica
     filing = {k: record[k] for k in record if k not in ('positions', 'limitations')}
     return {**base, 'status': 'available', 'filing': filing, **result,
             'limitations': [*result['limitations'], *record['limitations']]}
-
-
-def holdings_snapshot(store, session_id: str, fund_id: str, as_of: date, *,
-                      historical: bool = False) -> tuple[HoldingsSnapshot | None, dict]:
-    """Bridge to ``overlap.portfolio_lookthrough``: a dated ISIN-keyed snapshot or a reason.
-
-    Portfolio positions are ISIN/listing keyed, so a snapshot exists only for a fund
-    with a documented ISIN mapping. Evidence availability is the later of the filing
-    and the mapping, so a later mapping cannot leak into an earlier analysis.
-    """
-    view = look_through(store, session_id, fund_id, as_of, historical=historical)
-    if view['status'] != 'available':
-        return None, view
-    mapping = mapping_for(series_id=view['series_id'])
-    if mapping is None:
-        return None, {**view, 'status': 'unmapped', 'reason': 'fund_isin_mapping_undocumented'}
-    filing = view['filing']
-    weights = [c for c in view['constituents'] if 0 <= c['weight_pct'] <= 100]
-    if math.fsum(c['weight_pct'] for c in weights) > 100.01:
-        return None, {**view, 'status': 'unrepresentable', 'reason': 'covered_exceeds_net_assets'}
-    mapping_at = _mapping_available_at(mapping)
-    filing_at = datetime.fromisoformat(filing['available_at'])
-    retrieved = datetime.fromisoformat(filing['retrieved_at'])
-    evidence = Evidence(
-        source_id='fund_sec_nport_pipeline', url=filing['source_url'], content_sha256=filing['source_sha256'],
-        available_at=max(filing_at, mapping_at), retrieved_at=max(retrieved, mapping_at), licence=LICENCE,
-        limitations=(f"Fund mapping {mapping['mapping_id']}: " + '; '.join(mapping['sources']),
-                     f"Availability basis: {filing['availability_basis']}",
-                     'Derivatives, shorts and unidentified rows are not constituents; remainder is unknown.'))
-    snapshot = HoldingsSnapshot(
-        fund_id='isin:' + mapping['fund_isin'], effective_date=date.fromisoformat(filing['report_date']),
-        holdings=tuple(Holding(security_id=c['security_id'], weight_pct=c['weight_pct']) for c in weights),
-        evidence=evidence, complete=False)
-    return snapshot, view

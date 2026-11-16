@@ -39,6 +39,13 @@ POSITION_BOUNDS = {"min": 2.0, "max": 50.0, "step": 1.0}
 GROWTH_BOUNDS = {"min": 0.0, "max": 100.0, "step": 5.0}
 FLOOR_BOUNDS = {"min": 0.0, "max": 100.0, "step": 1.0}
 
+# French wording of the parameterized cap/floor families (rule_def): "Au plus 10 % dans le pays CAN ...".
+_DIMENSION_FR = {
+    "position": "dans la position", "sector": "dans le secteur", "asset_class": "dans la classe d'actifs",
+    "country": "dans le pays", "currency": "dans la devise", "theme": "dans le thème",
+}
+_QUALIFIER_FR = {"country": " (approximation par le pays de cotation)", "currency": " (approximation par la devise de cotation)"}
+
 FIXED: dict[str, RuleDef] = {
     "cap.position": RuleDef("cap", "weight.position.max_single", None, "position", None, "<=", "pct", True, POSITION_BOUNDS, True,
                             _t("No single stock or crypto asset above {threshold}% of the portfolio",
@@ -92,16 +99,13 @@ def rule_def(rule_id: str) -> RuleDef:
         operation, dimension, key = parts
         qualifier = " (listing proxy)" if dimension == "country" else " (quotation proxy)" if dimension == "currency" else ""
         comparison = "At most" if operation == "cap" else "At least"
+        comparison_fr = "Au plus" if operation == "cap" else "Au moins"
+        key_fr = (SECTOR_FR.get(next((k for k in SECTOR_FR if slug(k) == key), key), key)
+                  if dimension == "sector" else key)
         return RuleDef(operation, f"weight.{dimension}", key, dimension, key,
                        "<=" if operation == "cap" else ">=", "pct", True, FLOOR_BOUNDS, True,
                        _t(f"{comparison} {{threshold}}% in {dimension} {key}{qualifier}",
-                          f"{comparison} {{threshold}}% in {dimension} {key}{qualifier}"))
-    if rule_id.startswith(("cap.country.", "cap.currency.")):
-        dimension, key = rule_id.split(".")[1:]
-        en = "listing-country proxy" if dimension == "country" else "quotation currency"
-        fr = "pays de cotation (approximation)" if dimension == "country" else "devise de cotation"
-        return RuleDef("cap", f"weight.{dimension}", key, dimension, key, "<=", "pct", True, FLOOR_BOUNDS, True,
-                       _t(f"At most {{threshold}}% in {key} by {en}", f"Au plus {{threshold}} % en {key} par {fr}"))
+                          f"{comparison_fr} {{threshold}} % {_DIMENSION_FR[dimension]} {key_fr}{_QUALIFIER_FR.get(dimension, '')}"))
     if rule_id.startswith("exclude.sector."):
         s = rule_id[len("exclude.sector."):]
         label = next((k for k in SECTOR_FR if slug(k) == s), s.replace("_", " ").title())
@@ -116,8 +120,4 @@ def rule_def(rule_id: str) -> RuleDef:
         t = rule_id[len("exclude.ticker."):]
         return RuleDef("exclude", "weight.position", t, "position", t, "==", "pct", True, None, True,
                        _t(f"No position in {t}", f"Aucune position dans {t}"))
-    if rule_id.startswith("cap.theme."):
-        tag = rule_id[len("cap.theme."):]
-        return RuleDef("cap", "weight.theme", tag, "theme", tag, "<=", "pct", True, POSITION_BOUNDS, True,
-                       _t(f"Positions tagged {tag} at most {{threshold}}%", f"Positions étiquetées {tag} à au plus {{threshold}} %"))
     raise KeyError(f"unknown rule {rule_id!r}")

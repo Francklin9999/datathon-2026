@@ -117,7 +117,7 @@ Built by code from templates, never by a model. One template per `(ruleId family
 
 ## 6. Differences between two profiles (compare view)
 
-`explain_difference(a, b)` aligns checks by `ruleId` and returns, per rule: both statuses, both thresholds, both values, and a `reason` code: `threshold_differs`, `portfolio_differs`, `rule_only_in_a`, `rule_only_in_b`, `same`. The web compare view renders "Why the answers differ" from this list (EF-10). No model is involved.
+`explain_difference(a, b)` aligns checks by `ruleId` and returns, per rule: both statuses, both thresholds, both values, and a `reason` code: `threshold_differs`, `portfolio_differs`, `rule_only_in_a`, `rule_only_in_b`, `same`. The web compare view renders "Why the answers differ" from this list (EF-10). No model is involved. `POST /check/batch` returns it as `differences` (`RuleDifference[]`, contract 1.6.0, api.md §4.2b) when the batch holds exactly two checked results; the web component is `web/src/features/decision/CompareDifferences.tsx`.
 
 ## 7. Tests
 

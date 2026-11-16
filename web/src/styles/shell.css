@@ -2,6 +2,12 @@
    floating icon rail, one frosted page panel, and a dock for the sections of the current page. */
 /* The top bar is fixed (not sticky): typing in a field of a sticky bar makes Chrome scroll the page back
    toward the bar's resting place at the top. The shell keeps its room: 12 px above, 60 px of bar. */
+/* The section dock floats over the bottom of every page (desktop). Its size lives here once: --dock-h is
+   6 px padding + the 44 px "+" + 6 px padding, --dock-gap its distance from the window's bottom edge.
+   --dock-clearance (dock band + 16 px of air) is reserved at the end of the page panel and as the root
+   scroller's scroll-padding-bottom (base.css), so focus, find-in-page and scroll-into-view never park a
+   control under the dock. Phones hide the dock and set the clearance to zero (media block below). */
+:root { --dock-h: 56px; --dock-gap: 18px; --dock-clearance: calc(var(--dock-h) + var(--dock-gap) + 16px); }
 .shell { --rail-current: var(--rail-w); --topbar-h: 60px; position: relative; min-height: 100vh; padding: calc(12px + var(--topbar-h)) var(--gap-shell) 0; }
 html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
 .chrome { color: var(--chrome-text); }
@@ -40,7 +46,6 @@ html[data-sidebar='expanded'] .shell { --rail-current: var(--rail-w-open); }
 .persona-name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .persona-chevron { flex: none; color: var(--chrome-text-2); }
 .persona .popover { top: calc(100% + 10px); left: 0; width: 280px; }
-.persona-link { display: flex; align-items: center; gap: 8px; min-height: 40px; margin: 4px 0 0; padding: 0 10px; border-top: 1px solid var(--line); border-radius: 0 0 8px 8px; font-size: 13px; text-decoration: none; }
 
 /* Ask Aplomb: the command bar in the middle of the top bar */
 .command { position: relative; flex: 0 1 620px; min-width: 0; }
@@ -131,7 +136,9 @@ html[data-sidebar='expanded'] .rail-toggle-icon { transform: rotate(180deg); }
   transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
 .rail-toggle:hover { color: var(--chrome-text); background: var(--chrome-hover); }
 html[data-sidebar='expanded'] .rail-toggle { align-self: flex-end; }
-/* Tooltip beside a rail icon (collapsed rail only) */
+/* Tooltip beside a rail icon (collapsed rail only). The span is empty and aria-hidden: its text comes
+   from data-label, so the label exists once in the DOM (.nav-text) and the link's name is not doubled. */
+.nav-tip::after { content: attr(data-label); }
 .nav-tip { position: absolute; left: calc(100% + 14px); top: 50%; z-index: 2; transform: translate3d(-4px, -50%, 0); padding: 6px 12px; border-radius: var(--r-pill);
   background: var(--glass-pop); -webkit-backdrop-filter: var(--glass-blur-sm); backdrop-filter: var(--glass-blur-sm); color: var(--text); box-shadow: var(--shadow-pop);
   font-size: 13px; font-weight: 500; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
@@ -140,14 +147,14 @@ html[data-sidebar='expanded'] .rail-toggle { align-self: flex-end; }
 html[data-sidebar='expanded'] .nav-tip { display: none; }
 
 /* Page panel */
-.page { display: block; margin: 16px 0 0 calc(var(--rail-current) + var(--gap-shell)); min-height: calc(100vh - 104px); padding: 32px 36px 120px; border-radius: var(--r-panel);
+.page { display: block; margin: 16px 0 0 calc(var(--rail-current) + var(--gap-shell)); min-height: calc(100vh - 104px); padding: 32px 36px calc(var(--dock-clearance) + 30px); border-radius: var(--r-panel);
   outline: none; transition: margin-left var(--dur-enter) var(--ease); }
 .content { width: 100%; max-width: 1480px; margin: 0 auto; }
 .banner { margin: 16px 0 0 calc(var(--rail-current) + var(--gap-shell)); padding: 10px 16px; border-radius: var(--r-ctl); font-size: 13px; }
 
 /* Section dock */
-.dock { position: fixed; bottom: 18px; left: calc(50% + (var(--rail-current) + var(--gap-shell)) / 2); z-index: 30; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 6px; max-width: calc(100vw - var(--rail-current) - 64px); padding: 6px; border-radius: var(--r-pill);
+.dock { position: fixed; bottom: var(--dock-gap); left: calc(50% + (var(--rail-current) + var(--gap-shell)) / 2); z-index: 30; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; max-width: calc(100vw - var(--rail-current) - 64px); min-height: var(--dock-h); padding: 6px; border-radius: var(--r-pill);
   transition: left var(--dur-enter) var(--ease); }
 .dock-list { position: relative; display: flex; align-items: center; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .dock-list::-webkit-scrollbar { display: none; }
@@ -186,6 +193,7 @@ html[data-sidebar='expanded'] .nav-tip { display: none; }
   .persona-trigger { padding-right: 6px; }
 }
 @media (max-width: 767px) {
+  :root { --dock-clearance: 0px; }
   .shell { --rail-current: 0px; padding: 8px 8px 0; }
   .topbar { position: relative; top: 0; left: auto; right: auto; flex-wrap: wrap; border-radius: 26px; padding: 8px; }
   .topbar .menu-btn { display: inline-flex; }

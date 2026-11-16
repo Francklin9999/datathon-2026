@@ -192,6 +192,26 @@ class Analytics(unittest.TestCase):
         self.assertIn("LIM_SIMULATION_ONLY", o["limitations"])
         self.assertIn("LIM_CONSTANT_WEIGHTS", o["limitations"])
 
+    def test_overview_holding_returns_cover_every_holding(self):  # web-pages-core#1
+        for pid in ("robert", "amira", "mateo"):
+            svc = service()
+            o = svc.overview(A, pid, {}).to_wire()
+            held = [p.ticker for p in svc.get(A, pid).portfolio.positions if p.weight_pct > 0]
+            self.assertGreater(len(held), 5, pid)  # more holdings than the top list
+            rows = o["holdingReturns"]
+            self.assertEqual([r["ticker"] for r in rows], held, pid)
+            by_ticker = {r["ticker"]: r for r in rows}
+            for top in o["concentration"]["topPositions"]:  # same figure as the top list
+                self.assertEqual(by_ticker[top["ticker"]]["return1yPct"], top["return1yPct"])
+            for r in rows:
+                if r["ticker"].startswith("CASH."):
+                    self.assertEqual((r["return1yPct"], r["return1yFactId"]), (None, None))
+                elif r["return1yPct"] is not None:
+                    fact = o["facts"][r["return1yFactId"]]
+                    self.assertEqual(fact["value"], r["return1yPct"])
+            self.assertTrue(any(r["return1yPct"] is not None for r in rows if r["ticker"] not in
+                                {t["ticker"] for t in o["concentration"]["topPositions"]}), pid)
+
     def test_overview_windows_and_errors(self):
         o = service().overview(A, "amira", {"window": "1y"}).to_wire()
         self.assertEqual(o["window"], {"code": "1y"})

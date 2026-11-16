@@ -1,4 +1,4 @@
-"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.5.0.
+"""Pydantic v2 mirror of contracts/schemas.md, contract version 1.6.0.
 
 Boundary types only: numerical calculations, temporal gates, workflow transitions,
 and cross-resource checks remain with their owning services.

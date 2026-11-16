@@ -173,8 +173,10 @@ def test_waiting_resume_does_not_repeat_planner():
     assert [s.type for s in done.steps] == ["plan", "quant"]
 
 
-def test_fake_decision_revision_mandatory_controls_and_real_audit():
-    """Schema fixtures describe synthetic controls only; all review/sign steps execute."""
+@pytest.mark.parametrize("nee", [1, 0])
+def test_fake_decision_revision_mandatory_controls_and_real_audit(nee):
+    """Schema fixtures describe synthetic controls only; all review/sign steps execute. The planner
+    revises only when the risk check raised a conflict, tension or nee (run-events §2 step 5)."""
     from aplomb.agents import ControlOutcome
     from aplomb.agents.signing import sign_decision
     from aplomb.ledger import Ledger
@@ -238,7 +240,7 @@ def test_fake_decision_revision_mandatory_controls_and_real_audit():
         def risk(self, ctx, computed):
             calls.append("risk")
             assert computed == {"synthetic": True}
-            counts = {"pass": 0, "tension": 0, "conflict": 0, "nee": 0, "info": 0}
+            counts = {"pass": 0, "tension": 0, "conflict": 0, "nee": nee, "info": 0}
             scenario = dict(result["scenarios"][0])
             scenario.update(
                 ruleChecks=[], counts=counts, verdict="compatible", keyFactIds=["F-001"]
@@ -271,9 +273,8 @@ def test_fake_decision_revision_mandatory_controls_and_real_audit():
         scenario_tasks=[{"kind": "alternative", "ticker": "TSLA", "funding": None}],
         revise=False,
     )
-    gateway = FakeGateway(
-        [first.model_dump(), revision.model_dump(), draft(), {"findings": [], "relations": []}]
-    )
+    plans = [first.model_dump(), revision.model_dump()] if nee else [first.model_dump()]
+    gateway = FakeGateway([*plans, draft(), {"findings": [], "relations": []}])
     services = AgentServices(
         repo,
         gateway,
@@ -285,11 +286,16 @@ def test_fake_decision_revision_mandatory_controls_and_real_audit():
     execute_run(run.run_id, rec.generation, services)
     stored = repo.get(run.session_id, run.run_id).run
     assert stored.status == "succeeded", stored.error
-    assert calls == ["quant", "risk", "quant", "risk"]
-    assert gateway.roles == ["planner", "planner", "writer", "auditor"]
     assert stored.result.decision.brief.audit.status == "passed"
     assert stored.result.decision.brief.audit.guardrail.applied is False
     assert stored.steps[1].fact_ids == ["F-001"]
+    if not nee:
+        assert calls == ["quant", "risk"]
+        assert gateway.roles == ["planner", "writer", "auditor"]
+        assert [s.type for s in stored.steps] == ["plan", "quant", "risk_check", "write", "audit", "sign"]
+        return
+    assert calls == ["quant", "risk", "quant", "risk"]
+    assert gateway.roles == ["planner", "planner", "writer", "auditor"]
     assert stored.usage.llm_calls == 4
     assert [s.type for s in stored.steps] == [
         "plan",
@@ -302,6 +308,13 @@ def test_fake_decision_revision_mandatory_controls_and_real_audit():
         "audit",
         "sign",
     ]
+    revise = stored.steps[3]
+    assert revise.model == "test-only-model"
+    assert revise.summary.en == (
+        "Objection returned to the planner; it proposed 1 scenario(s) and 0 research question(s), "
+        "which are not run: the code controls test their own fixed scenarios."
+    )
+    assert "non exécutés" in revise.summary.fr
 
 
 def test_strands_gateway_constructor_usage_and_bounded_repair(monkeypatch):
@@ -371,6 +384,28 @@ def test_draft_drops_unsupported_risk_and_thresholds():
     assert {x.field for x in run.result.draft.unresolved} >= {"riskLevel", "horizonYears"}
     assert [s.actor for s in run.steps] == ["llm", "code", "code"]
     assert "profile_draft_integrity" in repo.get(run.session_id, run.run_id).private["agents"]
+
+
+def test_draft_keeps_every_field_the_text_states():
+    """QA t2: a perfect model output kept only name and risk level (the auditor dropped the rest)."""
+    raw = queued().to_wire()
+    raw["input"]["text"] = ("Kenji Sato is a fictional investor living in Japan who reports in JPY. Horizon: 10-15 "
+                            "years. Objective: growth. Risk tolerance: moderate. Risk capacity: low.")
+    run = m.Run.model_validate(raw)
+    repo, rec = repository(run)
+    profile = {"name": "Kenji Sato", "riskLevel": "moderate", "horizonYears": {"min": 10, "max": 15},
+               "objective": "growth", "reportingCurrency": "JPY",
+               "investorContext": {"country": "JP", "riskCapacity": "low"}}
+    gateway = FakeGateway([{"profile": profile, "explanations": [], "unresolved": []}])
+    execute_run(rec.run.run_id, rec.generation, AgentServices(repo, gateway))
+    finished = repo.get(run.session_id, run.run_id).run
+    assert finished.status == "succeeded", finished.error
+    assert finished.result.draft.profile.to_wire() == {**profile, "investorContext": {"riskCapacity": "low"}}
+    # The country name is not an ISO code: withheld with a question that shows the proposed code.
+    [country] = finished.result.draft.unresolved
+    assert country.field == "investorContext.country"
+    assert "JP" in country.question.en and "JP" in country.question.fr
+    assert country.question.en != country.question.fr
 
 
 def test_parser_ambiguity_and_refusal_preserve_manual_fallback():

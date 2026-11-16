@@ -956,6 +956,13 @@
             ]
           },
           "type": "array"
+        },
+        "differences": {
+          "default": null,
+          "items": {
+            "$ref": "#/$defs/RuleDifference"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -4602,6 +4609,41 @@
       "title": "HoldingExposure",
       "type": "object"
     },
+    "HoldingReturn": {
+      "description": "Trailing 1-year return of one held position (null for cash or a too-short history).",
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "return1yPct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "return1yFactId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FactId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "ticker",
+        "return1yPct",
+        "return1yFactId"
+      ],
+      "title": "HoldingReturn",
+      "type": "object"
+    },
     "HoldingWeight": {
       "properties": {
         "ticker": {
@@ -5207,6 +5249,217 @@
       "title": "LlmReview",
       "type": "object"
     },
+    "MarketCaptureSource": {
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "retrieved_at": {
+          "type": "string"
+        },
+        "available_at": {
+          "type": "string"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "licence": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "sha256",
+        "retrieved_at",
+        "available_at",
+        "published_at",
+        "licence"
+      ],
+      "title": "MarketCaptureSource",
+      "type": "object"
+    },
+    "MarketConnection": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "signup_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "documentation_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "credential_variable": {
+          "default": null,
+          "type": "string"
+        },
+        "credential_present": {
+          "type": "boolean"
+        },
+        "rights_confirmed": {
+          "type": "boolean"
+        },
+        "supported_operation": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "credential_present",
+        "rights_confirmed",
+        "supported_operation"
+      ],
+      "title": "MarketConnection",
+      "type": "object"
+    },
+    "MarketConnectionsResponse": {
+      "properties": {
+        "providers": {
+          "items": {
+            "$ref": "#/$defs/MarketConnection"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "providers"
+      ],
+      "title": "MarketConnectionsResponse",
+      "type": "object"
+    },
+    "MarketObservationResponse": {
+      "description": "GET /research/market-provider/{provider} and GET /research/tiingo/{symbol}.\n\n`observation` is provider-specific (quote, bars, company profile, statements, chain balances);\napi.md lists its keys per provider. Tiingo returns `sources` instead of the single-capture keys.",
+      "properties": {
+        "status": {
+          "const": "available",
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "observation": {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        "source_url": {
+          "default": null,
+          "type": "string"
+        },
+        "source_sha256": {
+          "default": null,
+          "type": "string"
+        },
+        "source_request": {
+          "$ref": "#/$defs/MarketSourceRequest",
+          "default": null
+        },
+        "dataset_version": {
+          "default": null,
+          "type": "string"
+        },
+        "retrieved_at": {
+          "default": null,
+          "type": "string"
+        },
+        "available_at": {
+          "default": null,
+          "type": "string"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "licence": {
+          "default": null,
+          "type": "string"
+        },
+        "documentation_url": {
+          "default": null,
+          "type": "string"
+        },
+        "sources": {
+          "default": null,
+          "items": {
+            "$ref": "#/$defs/MarketCaptureSource"
+          },
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "provider",
+        "observation",
+        "limitations"
+      ],
+      "title": "MarketObservationResponse",
+      "type": "object"
+    },
+    "MarketSourceRequest": {
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "body": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "method",
+        "url",
+        "body"
+      ],
+      "title": "MarketSourceRequest",
+      "type": "object"
+    },
     "Meta": {
       "properties": {
         "reportingCurrencies": {
@@ -5562,6 +5815,13 @@
         "limitations": {
           "items": {
             "$ref": "#/$defs/LimitationCode"
+          },
+          "type": "array"
+        },
+        "holdingReturns": {
+          "default": null,
+          "items": {
+            "$ref": "#/$defs/HoldingReturn"
           },
           "type": "array"
         }
@@ -7350,6 +7610,919 @@
       "title": "Refusal",
       "type": "object"
     },
+    "RegionalCompany": {
+      "description": "OpenDART sends name, englishName and stockCode; J-Quants adds the listing fields.",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "englishName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stockCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "asOf": {
+          "default": null,
+          "type": "string"
+        },
+        "sector17Code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sector17Name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sector33Code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sector33Name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "scaleCategory": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "marketCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "marketName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "marginCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "marginName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "productCategory": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "name",
+        "englishName",
+        "stockCode"
+      ],
+      "title": "RegionalCompany",
+      "type": "object"
+    },
+    "RegionalFiling": {
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "receiptNumber": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "date",
+        "receiptNumber",
+        "url"
+      ],
+      "title": "RegionalFiling",
+      "type": "object"
+    },
+    "RegionalFinancialRow": {
+      "description": "J-Quants summary rows carry disclosureNumber; OpenDART rows carry receiptNumber and the report keys.\n\nAmounts are exact decimal strings as reported, never floats; a missing amount is null, not zero.",
+      "properties": {
+        "disclosureNumber": {
+          "default": null,
+          "type": "string"
+        },
+        "receiptNumber": {
+          "default": null,
+          "type": "string"
+        },
+        "disclosedDate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "disclosedAt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "documentType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reportCode": {
+          "default": null,
+          "type": "string"
+        },
+        "fiscalYear": {
+          "default": null,
+          "type": "string"
+        },
+        "statementType": {
+          "default": null,
+          "type": "string"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "periodStart": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "periodEnd": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "section": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sectionName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "accountId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "accountName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "accountDetail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cumulativeValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "priorPeriod": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "priorValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "order": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "classification": {
+          "enum": [
+            "reported",
+            "forecast"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "disclosedDate",
+        "disclosedAt",
+        "period",
+        "periodStart",
+        "periodEnd",
+        "section",
+        "accountId",
+        "accountName",
+        "value",
+        "unit",
+        "classification",
+        "url"
+      ],
+      "title": "RegionalFinancialRow",
+      "type": "object"
+    },
+    "RegionalOwnershipRow": {
+      "properties": {
+        "category": {
+          "enum": [
+            "major_shareholder",
+            "executive_or_major_holder"
+          ],
+          "type": "string"
+        },
+        "receiptNumber": {
+          "type": "string"
+        },
+        "documentId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "filed": {
+          "type": "string"
+        },
+        "filedAt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "obligationDate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reporter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "holderCount": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "amendment": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "amendsDocumentId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outstandingShares": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "url": {
+          "type": "string"
+        },
+        "reportType": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "position": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "shares": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sharesChange": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ratioPct": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ratioChangePct": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contractShares": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "contractRatioPct": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "category",
+        "receiptNumber",
+        "documentId",
+        "filed",
+        "filedAt",
+        "obligationDate",
+        "reporter",
+        "holderCount",
+        "title",
+        "amendment",
+        "amendsDocumentId",
+        "outstandingShares",
+        "url",
+        "reportType",
+        "reason",
+        "position",
+        "shares",
+        "sharesChange",
+        "ratioPct",
+        "ratioChangePct"
+      ],
+      "title": "RegionalOwnershipRow",
+      "type": "object"
+    },
+    "RegionalPrice": {
+      "properties": {
+        "date": {
+          "type": "string"
+        },
+        "close": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "adjustedClose": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currency": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "date",
+        "close",
+        "adjustedClose",
+        "currency"
+      ],
+      "title": "RegionalPrice",
+      "type": "object"
+    },
+    "RegionalResearchResponse": {
+      "description": "GET /intelligence/regional. `status` \"unavailable\" (no usable account) has empty lists and a `reason`.",
+      "properties": {
+        "region": {
+          "enum": [
+            "JP",
+            "KR"
+          ],
+          "type": "string"
+        },
+        "identifier": {
+          "type": "string"
+        },
+        "identifierType": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "prices",
+            "company",
+            "filings",
+            "financials",
+            "ownership"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "unavailable"
+          ],
+          "type": "string"
+        },
+        "reason": {
+          "default": null,
+          "type": "string"
+        },
+        "mic": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrievedAt": {
+          "type": "string"
+        },
+        "availableAt": {
+          "type": "string"
+        },
+        "publicationAt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceUrl": {
+          "type": "string"
+        },
+        "availabilityBasis": {
+          "type": "string"
+        },
+        "historicalReplayEligibleBeforeCapture": {
+          "type": "boolean"
+        },
+        "requestedStart": {
+          "type": "string"
+        },
+        "requestedEnd": {
+          "type": "string"
+        },
+        "fiscalYear": {
+          "default": null,
+          "type": "string"
+        },
+        "reportCode": {
+          "default": null,
+          "type": "string"
+        },
+        "statementType": {
+          "default": null,
+          "type": "string"
+        },
+        "prices": {
+          "items": {
+            "$ref": "#/$defs/RegionalPrice"
+          },
+          "type": "array"
+        },
+        "filings": {
+          "items": {
+            "$ref": "#/$defs/RegionalFiling"
+          },
+          "type": "array"
+        },
+        "company": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RegionalCompany"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "listings": {
+          "default": null,
+          "items": {
+            "$ref": "#/$defs/RegionalCompany"
+          },
+          "type": "array"
+        },
+        "financials": {
+          "items": {
+            "$ref": "#/$defs/RegionalFinancialRow"
+          },
+          "type": "array"
+        },
+        "ownership": {
+          "items": {
+            "$ref": "#/$defs/RegionalOwnershipRow"
+          },
+          "type": "array"
+        },
+        "partial": {
+          "default": null,
+          "type": "boolean"
+        },
+        "pagesInspected": {
+          "default": null,
+          "ge": 0,
+          "type": "integer"
+        },
+        "totalReported": {
+          "default": null,
+          "ge": 0,
+          "type": "integer"
+        },
+        "sourceSha256": {
+          "default": null,
+          "type": "string"
+        },
+        "companySourceSha256": {
+          "default": null,
+          "type": "string"
+        },
+        "sourceHashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": null,
+          "type": "object"
+        },
+        "pageSourceSha256": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": null,
+          "type": "object"
+        },
+        "sourceUrls": {
+          "default": null,
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "limitations": {
+          "default": null,
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "captureId": {
+          "default": null,
+          "type": "string"
+        },
+        "datasetVersion": {
+          "default": null,
+          "type": "string"
+        },
+        "storage": {
+          "default": null,
+          "type": "string"
+        }
+      },
+      "required": [
+        "region",
+        "identifier",
+        "identifierType",
+        "provider",
+        "kind",
+        "status",
+        "mic",
+        "currency",
+        "retrievedAt",
+        "availableAt",
+        "publicationAt",
+        "sourceUrl",
+        "availabilityBasis",
+        "historicalReplayEligibleBeforeCapture",
+        "requestedStart",
+        "requestedEnd",
+        "prices",
+        "filings",
+        "company",
+        "financials",
+        "ownership"
+      ],
+      "title": "RegionalResearchResponse",
+      "type": "object"
+    },
     "ReplayInput": {
       "properties": {
         "kind": {
@@ -7955,6 +9128,99 @@
       ],
       "title": "RuleDerivation",
       "type": "object"
+    },
+    "RuleDifference": {
+      "description": "One rule of a two-profile comparison, aligned by ruleId (rules SPEC §6, EF-10).\n\nA is the first batch item, B the second. A side without that rule has nulls for its fields.",
+      "properties": {
+        "ruleId": {
+          "$ref": "#/$defs/RuleId"
+        },
+        "reason": {
+          "$ref": "#/$defs/RuleDifferenceReason"
+        },
+        "statusA": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RuleStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "statusB": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RuleStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "thresholdA": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "thresholdB": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "valueA": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "valueB": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "ruleId",
+        "reason",
+        "statusA",
+        "statusB",
+        "thresholdA",
+        "thresholdB",
+        "valueA",
+        "valueB"
+      ],
+      "title": "RuleDifference",
+      "type": "object"
+    },
+    "RuleDifferenceReason": {
+      "enum": [
+        "threshold_differs",
+        "portfolio_differs",
+        "rule_only_in_a",
+        "rule_only_in_b",
+        "same"
+      ],
+      "type": "string"
     },
     "RuleId": {
       "pattern": "^(cap\\.(position|sector|asset_class\\.crypto|growth_assets|country\\.[A-Z]{3}|currency\\.[A-Z]{3}|theme\\.(ai|semiconductors|software|cloud|ecommerce|electric_vehicles|big_tech|banks|insurance|fossil_energy|pipelines|utilities|rail_transport|consumer_staples|healthcare|retail|broad_canada|broad_us|nasdaq_growth|esg_screened|bonds_canada|bonds_us|long_treasuries|cash_like|gold|crypto|dividend_payers))|floor\\.(fixed_income|diversifiers)|limit\\.(volatility|stress_2022|drawdown)|exclude\\.(sector\\.[a-z]+(_[a-z]+)*|asset_class\\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|ticker\\.[A-Z0-9][A-Z0-9.^=-]*)|evidence\\.controversy|(cap|floor)\\.(position\\.[A-Z0-9][A-Z0-9.^=-]*|sector\\.[a-z]+(_[a-z]+)*|asset_class\\.(equity|etf_equity|etf_bond|etf_commodity|crypto|cash)|country\\.[A-Z]{3}|currency\\.[A-Z]{3}|theme\\.(ai|semiconductors|software|cloud|ecommerce|electric_vehicles|big_tech|banks|insurance|fossil_energy|pipelines|utilities|rail_transport|consumer_staples|healthcare|retail|broad_canada|broad_us|nasdaq_growth|esg_screened|bonds_canada|bonds_us|long_treasuries|cash_like|gold|crypto|dividend_payers))|custom\\.condition\\.[0-9a-f]{12}|flag\\.(attention|rate_cycle|short_history)|sim\\.only)$",
@@ -11438,6 +12704,9 @@
     "HoldingExposure": {
       "$ref": "#/$defs/HoldingExposure"
     },
+    "HoldingReturn": {
+      "$ref": "#/$defs/HoldingReturn"
+    },
     "HoldingWeight": {
       "$ref": "#/$defs/HoldingWeight"
     },
@@ -11485,6 +12754,21 @@
     },
     "LlmReview": {
       "$ref": "#/$defs/LlmReview"
+    },
+    "MarketCaptureSource": {
+      "$ref": "#/$defs/MarketCaptureSource"
+    },
+    "MarketConnection": {
+      "$ref": "#/$defs/MarketConnection"
+    },
+    "MarketConnectionsResponse": {
+      "$ref": "#/$defs/MarketConnectionsResponse"
+    },
+    "MarketObservationResponse": {
+      "$ref": "#/$defs/MarketObservationResponse"
+    },
+    "MarketSourceRequest": {
+      "$ref": "#/$defs/MarketSourceRequest"
     },
     "Meta": {
       "$ref": "#/$defs/Meta"
@@ -11630,6 +12914,24 @@
     "Refusal": {
       "$ref": "#/$defs/Refusal"
     },
+    "RegionalCompany": {
+      "$ref": "#/$defs/RegionalCompany"
+    },
+    "RegionalFiling": {
+      "$ref": "#/$defs/RegionalFiling"
+    },
+    "RegionalFinancialRow": {
+      "$ref": "#/$defs/RegionalFinancialRow"
+    },
+    "RegionalOwnershipRow": {
+      "$ref": "#/$defs/RegionalOwnershipRow"
+    },
+    "RegionalPrice": {
+      "$ref": "#/$defs/RegionalPrice"
+    },
+    "RegionalResearchResponse": {
+      "$ref": "#/$defs/RegionalResearchResponse"
+    },
     "ReplayInput": {
       "$ref": "#/$defs/ReplayInput"
     },
@@ -11680,6 +12982,12 @@
     },
     "RuleDerivation": {
       "$ref": "#/$defs/RuleDerivation"
+    },
+    "RuleDifference": {
+      "$ref": "#/$defs/RuleDifference"
+    },
+    "RuleDifferenceReason": {
+      "$ref": "#/$defs/RuleDifferenceReason"
     },
     "RuleId": {
       "$ref": "#/$defs/RuleId"
@@ -12074,6 +13382,7 @@
     "HazardsResponse",
     "HealthResponse",
     "HoldingExposure",
+    "HoldingReturn",
     "HoldingWeight",
     "HorizonYears",
     "I18nText",
@@ -12090,6 +13399,11 @@
     "LegendItem",
     "LimitationCode",
     "LlmReview",
+    "MarketCaptureSource",
+    "MarketConnection",
+    "MarketConnectionsResponse",
+    "MarketObservationResponse",
+    "MarketSourceRequest",
     "Meta",
     "MethodId",
     "MetricCode",
@@ -12138,6 +13452,12 @@
     "RebalancingPreferences",
     "RefreshAccountRequest",
     "Refusal",
+    "RegionalCompany",
+    "RegionalFiling",
+    "RegionalFinancialRow",
+    "RegionalOwnershipRow",
+    "RegionalPrice",
+    "RegionalResearchResponse",
     "ReplayInput",
     "ReplayPreset",
     "ReplayPresetsResponse",
@@ -12155,6 +13475,8 @@
     "RuleCheck",
     "RuleCode",
     "RuleDerivation",
+    "RuleDifference",
+    "RuleDifferenceReason",
     "RuleId",
     "RuleOrigin",
     "RuleOverride",
@@ -12246,13 +13568,13 @@
   "title": "AplombContracts",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://aplomb.local/contracts/1.5.0/schema.json",
-  "x-contract-version": "1.5.0",
+  "$id": "https://aplomb.local/contracts/1.6.0/schema.json",
+  "x-contract-version": "1.6.0",
   "x-spec-sha256": {
-    "schemas.md": "b33e470fa58ff0d480ef7074e8a2f5407c4a7dbef3c0d646ae49c11a96e41f6a",
-    "catalog.md": "c92377a3c0d36e055a3e2c441dce252dc79408cf98f8bb7892f2de89e3d262f7",
-    "api.md": "108e147dbb09c016678435da27139a9e0b4f2332894d328352bc043f4ae4eca2",
-    "run-events.md": "376f01427eee1c0b0ce16bfcb9a2dbd8bcd5f6a06b00d76b4768511fb4b0da8e",
-    "tools.md": "7fb05a881cebcd036728eea7e7f411165cb6a83f2ab0e6c8dfaa6ac724171609"
+    "schemas.md": "3f16f83e19f8df440ba2ec6cefc05180fc8b0b8397a1dfc51495ba2ce6391dd6",
+    "catalog.md": "ff82adac54247af09408be43a1c49373da76ff0a082361b8fdcff3ec28752b8d",
+    "api.md": "a7374bd87cf434d9017fdd32fbf099e7f851b20c9ac31b322ecb301c3ca7c3ca",
+    "run-events.md": "8edaeece09df2d96c117fe0a1bbd5a1be42398ece5e11c9723bb1344293e6a0b",
+    "tools.md": "6ceda049322ed0850eafd9141b63e6f77ab49041a828f38b657ece1fb62b3953"
   }
 }

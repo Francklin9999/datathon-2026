@@ -1,6 +1,6 @@
 'use client';
 /**
- * Key figures as tiles: an icon, a label, the figure and what it covers. The fictional value is the
+ * Key figures as tiles: an icon, a label, the figure and what it covers. The fictional capital is the
  * one cobalt tile on the page. Each figure with a factId opens its source.
  */
 import { Activity, TrendingDown, TrendingUp, Wallet, type LucideIcon } from 'lucide-react';
@@ -45,8 +45,13 @@ export function KeyFigures({ overview, period }: { overview: OverviewResponse; p
   return (
     <Card title={tr({ en: 'Key figures', fr: 'Chiffres clés' })} tour="kpis">
       <div className="kpis">
-        <Figure accent icon={Wallet} label={tr({ en: 'Fictional value', fr: 'Valeur fictive' })}
-          note={tr({ en: `${positions} positions, ${overview.snapshot.currency}`, fr: `${positions} positions, ${overview.snapshot.currency}` })}>
+        {/* The profile's fictional capital (snapshot.totalValue), not a value today: the history chart
+            re-bases this same amount to the first day of the period (contracts/api.md, performance). */}
+        <Figure accent icon={Wallet} label={tr({ en: 'Fictional capital', fr: 'Capital fictif' })}
+          note={tr({
+            en: `${positions} positions, ${overview.snapshot.currency}. The history chart starts from this amount.`,
+            fr: `${positions} positions, ${overview.snapshot.currency}. Le graphique historique part de ce montant.`,
+          })}>
           <CountUp text={fmtMoney(overview.snapshot.totalValue, overview.snapshot.currency, lang)} />
         </Figure>
         <Figure icon={TrendingUp} label={tr({ en: 'Historical return', fr: 'Rendement historique' })} note={period}>

@@ -54,15 +54,15 @@
  },
  "notIngested": [
   {
-   "reason": "Not merged into the verified event feed. Separately loaded source observations and reference layers retain their own coverage and provenance.",
+   "reason": "Not part of this bundle. The article index is not fetched at build time (rate limits, O-07) and its items carry no source-supported event location; bounded GDELT captures are separate world_gdelt_* source observations, not world events.",
    "source": "GDELT"
   },
   {
-   "reason": "Not merged into the verified event feed. Separately loaded source observations and reference layers retain their own coverage and provenance.",
+   "reason": "Not part of this bundle. ECCC facility emissions are served separately as emissions_facilities; EPA facility emissions are not loaded.",
    "source": "ECCC / EPA facility emissions"
   },
   {
-   "reason": "Not merged into the verified event feed. Separately loaded source observations and reference layers retain their own coverage and provenance.",
+   "reason": "Not part of this bundle. Bounded FIRMS MODIS detections are separate world_firms_* source observations, not world events.",
    "source": "NASA FIRMS wildfires"
   }
  ],

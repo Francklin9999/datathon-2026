@@ -1,5 +1,5 @@
 """DAT-05 (traps mapped to passports), DAT-07 (passport metadata for GET /datasets) and the
-catalog values copied in ``aplomb.datastore.constants``."""
+catalog values ``aplomb.datastore.constants`` takes from the generated catalog mirror."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ def catalog_section(title: str) -> str:
 
 
 class CatalogMirror(unittest.TestCase):
-    """The datastore's copies of catalog lists equal contracts/catalog.md."""
+    """The datastore's catalog lists equal contracts/catalog.md."""
 
     def test_dataset_ids(self):
         ids = tuple(re.findall(r"^\| `([a-z0-9_]+)` \|", catalog_section("Dataset IDs"), re.M))
@@ -40,6 +40,17 @@ class CatalogMirror(unittest.TestCase):
 
     def test_asset_flags(self):
         self.assertEqual(set(re.findall(r"`([a-z_]+)`", catalog_section("Asset flags"))), set(C.ASSET_FLAGS))
+
+    def test_named_limitation_codes_are_catalog_codes(self):
+        named = {v for k, v in vars(C).items() if k.startswith("LIM_")}
+        self.assertTrue(named)
+        self.assertLessEqual(named, C.LIMITATION_CODES)
+
+    def test_asset_class_groups_match_schema(self):
+        from aplomb.contracts.catalog import ASSET_GROUP_BY_CLASS
+
+        self.assertEqual(C.ASSET_CLASS_TO_GROUP, ASSET_GROUP_BY_CLASS)
+        self.assertEqual(C.LISTED_ASSET_CLASSES, frozenset(ASSET_GROUP_BY_CLASS) - {"cash"})
 
     def test_passport_keys_match_schema(self):
         block = re.search(r"interface DatasetPassport \{(.*?)\n\}", SCHEMAS, re.S).group(1)

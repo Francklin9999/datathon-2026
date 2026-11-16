@@ -64,6 +64,13 @@ export function animationsAllowed(pref: string | undefined, systemReduce: boolea
   return !systemReduce;
 }
 
+/** MotionConfig `reducedMotion` for the html[data-anim] value: Off reduces, On never does, Auto follows the system. */
+export function motionReducedFor(pref: string | undefined): 'always' | 'never' | 'user' {
+  if (pref === 'off') return 'always';
+  if (pref === 'on') return 'never';
+  return 'user';
+}
+
 /** Navigation rail preference: collapsed (floating icon rail, the default) or expanded (icons with labels). */
 export type SidebarState = 'expanded' | 'collapsed';
 export const SIDEBAR_PREF_KEY = 'sidebar';

@@ -8,7 +8,7 @@
  */
 import type { I18NText, PolicyRule, RuleCheck } from '../contracts/types';
 
-export const RULE_NOT_EVALUATED = {
+const RULE_NOT_EVALUATED = {
   overviewUnavailable: { en: 'Not evaluated: overview unavailable.', fr: 'Non évaluée : aperçu indisponible.' },
   disabled: {
     en: 'Not evaluated: this rule is disabled and does not count in the plan verdict. Tick “Enabled” and save to count it again.',

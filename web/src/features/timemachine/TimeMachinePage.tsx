@@ -26,14 +26,16 @@ import {
   BoundaryNote, FundingOptions, ScenarioCards, SnapshotCompare, VerdictHeader, fundingLabel,
 } from '../../components/run/Results';
 import { CancelButton, MoveFormCard, QuestionForm } from '../decision/DecisionDeskPage';
-import { PointInTimePanel, PublishedLaterPanel } from './PointInTimePanel';
+import { VintageStatus } from './VintageStatus';
 import { RUN_STATUS, labelOf } from '../../lib/labels';
 import { fmtDate, fmtDateTime, fmtNumber, fmtPct, fmtSignedPct } from '../../lib/format';
 import { describeRequest, moveOf, roundSize, validateMoveForm, type MoveForm } from '../../lib/move';
 import { isTerminal } from '../../lib/runs';
+import { REPLAY_FIX_MOVE, replayTickerIssue } from '../../lib/tickerCoverage';
+import { useAssetUniverse } from '../../state/useAssetUniverse';
 import { readPref, writePref } from '../../lib/session';
 import {
-  AS_OF_ISSUE, UNTIL_ISSUE, asOfIssue, factForValue, replayRefusal, revealBounds, revealRequest, revealSeries,
+  AS_OF_ISSUE, UNTIL_ISSUE, asOfIssue, factForValue, gatePassportHref, replayRefusal, revealBounds, revealRequest, revealSeries,
   revealableReplay, signedLedgerHash, untilIssue,
 } from '../../lib/replay';
 
@@ -77,7 +79,9 @@ function FixedWarning() {
 }
 
 function TimeMachineContent({ profile }: { profile: Profile }) {
-  const { tr, lang, sessionId, meta, announce, profiles, selectProfile } = useApp();
+  const { tr, lang, sessionId, meta, announce, profiles, selectProfile, feature } = useApp();
+  // The same cached read as the move form's suggestions: no extra request.
+  const universe = useAssetUniverse();
   const params = useSearchParams();
   const router = useRouter();
   const runId = params.get('runId');
@@ -113,7 +117,10 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
 
   const currentWeight = profile.portfolio.positions.find(p => p.ticker === form.ticker.trim().toUpperCase())?.weightPct ?? 0;
   const maxSize = form.fundingMode === 'new_money' ? 100 : Math.max(0, roundSize(100 - currentWeight));
-  const issues = validateMoveForm(form, currentWeight);
+  // There is no preview here: a ticker outside the snapshot is caught before Run, not by POST /runs.
+  const tickerIssue = replayTickerIssue(form.ticker, universe, profile.portfolio.positions.map(p => p.ticker), feature('on_demand_tickers'));
+  const formIssues = validateMoveForm(form, currentWeight);
+  const issues = tickerIssue ? [...formIssues, tickerIssue] : formIssues;
   const shownIssues = form.sizePct > 0 || form.ticker.trim() ? issues : [];
   const move = moveOf(form);
   const dateIssue = presets.data ? asOfIssue(asOf, presets.data) : null;
@@ -187,6 +194,7 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
                 <LimitationList codes={presets.data.notices} compactAfter={0} title={tr({ en: 'Notes', fr: 'Remarques' })} />
               </>
             )}
+            <VintageStatus />
           </Card>
         </div>
         <div>
@@ -202,9 +210,11 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
                 : tr({ en: 'no cutoff chosen', fr: 'aucune date limite choisie' })}
             </p>
             <div className="row-actions">
-              <button type="button" className="btn" disabled={!canStart} onClick={() => void start()}>
+              <button type="button" className="btn" disabled={!canStart} onClick={() => void start()}
+                aria-describedby={shownIssues.length > 0 ? 'tm-start-reason' : undefined}>
                 {tr({ en: 'Run historical replay', fr: 'Lancer le rejeu historique' })}
               </button>
+              {shownIssues.length > 0 && <span id="tm-start-reason" className="small muted">{tr(REPLAY_FIX_MOVE)}</span>}
             </div>
             {creating && <Loading label={tr({ en: 'Starting…', fr: 'Lancement…' })} />}
             {createError && (
@@ -216,8 +226,6 @@ function TimeMachineContent({ profile }: { profile: Profile }) {
           </Card>
         </div>
       </div>
-
-      <PointInTimePanel cutoff={asOf && !dateIssue ? asOf : ''} />
 
       {runId && (
         <Card id="replay-run" section={tr({ en: 'Result', fr: 'Résultat' })} tour="tm-result" title={tr({ en: 'Replay', fr: 'Rejeu' })}>
@@ -278,7 +286,8 @@ function CutoffBanner({ asOf }: { asOf: string }) {
   );
 }
 
-function GatePanel({ replay }: { replay: ReplayResult }) {
+/** `dataVersion` is the snapshot the replay is pinned to, so Sources can warn on drift (SRC-04). */
+function GatePanel({ replay, dataVersion }: { replay: ReplayResult; dataVersion: string }) {
   const { tr, lang } = useApp();
   const datasets = replay.gate.datasets;
   return (
@@ -302,7 +311,7 @@ function GatePanel({ replay }: { replay: ReplayResult }) {
               {datasets.map(dataset => (
                 <tr key={dataset.datasetId}>
                   <th scope="row">
-                    <Link href={`/sources/?datasetId=${encodeURIComponent(dataset.datasetId)}`} className="mono">{dataset.datasetId}</Link>
+                    <Link href={gatePassportHref(dataset.datasetId, dataVersion)} className="mono">{dataset.datasetId}</Link>
                   </th>
                   <td className="num-col num">{fmtNumber(dataset.rowsVisible, lang, 0)}</td>
                   <td className="num-col num">{fmtNumber(dataset.rowsWithheld, lang, 0)}</td>
@@ -368,7 +377,7 @@ function ReplayRun({ run, profile }: { run: Run; profile: Profile | null }) {
             <VerdictHeader verdict={decision.verdict} counts={decision.counts} />
             {decision.request.type === 'move' && <BoundaryNote sizePct={decision.maxCompatibleSizePct} counts={decision.counts} />}
             <LimitationList codes={replay.notices} title={tr({ en: 'Notices for this replay', fr: 'Avis pour ce rejeu' })} />
-            <GatePanel replay={replay} />
+            <GatePanel replay={replay} dataVersion={run.dataVersion} />
 
             {selected && (
               <>
@@ -577,7 +586,6 @@ function RevealView({ run, replay, reveal, hashCheck, hashBefore, headingRef }: 
         </p>
         <p className="small muted">{tr({ en: 'The brief above was written without these outcomes and is not rewritten.', fr: 'La note ci-dessus a été rédigée sans ces résultats et n’est pas réécrite.' })}</p>
       </div>
-      <PublishedLaterPanel cutoff={reveal.asOf} until={reveal.until} />
     </div>
   );
 }

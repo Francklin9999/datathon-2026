@@ -6,6 +6,7 @@
  */
 import type { Meta, ProfilesResponse, Run, RunSummary } from '../contracts/types';
 import { FEATURE_DEFAULTS } from '../contracts/catalog';
+import schema from '../../../contracts/generated/schema.json' with { type: 'json' };
 import { factUsage } from '../lib/brief';
 
 export const FIXTURE_BANNER = 'Development fixtures — no agents executed.';
@@ -32,7 +33,8 @@ function fixtureMeta(data: FixtureData): Meta {
     Object.keys(FEATURE_DEFAULTS).map(flag => [flag, flag === 'bilingual']),
   ) as Meta['features'];
   return {
-    contractVersion: '1.0.0',
+    // The version of the generated schema the client validates these responses against.
+    contractVersion: schema['x-contract-version'],
     dataVersion: run?.dataVersion ?? 'snap-00000000-fixture',
     dataAsOf: run?.asOf ?? '1970-01-01',
     environment: 'local',
@@ -94,7 +96,8 @@ export function createFixtureFetch(): typeof fetch {
     if (method === 'GET' && path === '/health') return respond(200, { status: 'ok', time: new Date().toISOString() }, dataVersion);
     if (method === 'GET' && path === '/meta') return respond(200, fixtureMeta(data), dataVersion);
     if (method === 'GET' && path === '/profiles') return respond(200, data.profiles, dataVersion);
-    if (method === 'GET' && parts[0] === 'profiles' && parts.length === 2) {
+    // `/profiles/archived` is its own route with no fixture; it falls through to the 503 below.
+    if (method === 'GET' && parts[0] === 'profiles' && parts.length === 2 && parts[1] !== 'archived') {
       const profile = data.profiles.items.find(p => p.profileId === parts[1]);
       return profile ? respond(200, profile, dataVersion) : fail(404, 'not_found', `No fixture profile ${parts[1]}`, dataVersion);
     }

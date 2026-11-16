@@ -133,6 +133,7 @@ def test_nested_run_routes_hide_cross_session_resources(queued_run, clock):
         ("POST", f"/v1/runs/{rid}/answers", {"questionId": "q", "value": "v"}),
         ("POST", f"/v1/runs/{rid}/sabotage", {"lang": "en"}),
         ("POST", f"/v1/runs/{rid}/reveal", {}),
+        ("GET", f"/v1/runs/{rid}/trace", None),
     ]
     for method, path, body in requests:
         assert_error(client.request(method, path, headers=headers, json=body), "not_found", 404)
@@ -205,6 +206,42 @@ def test_run_summary_reads_wrapped_verdict(fixture_payload, clock):
     response = client.get("/v1/runs", headers=HEADERS)
     assert response.status_code == 200
     assert response.json()["items"][0]["verdict"] == "conflict"
+
+
+def test_run_trace_is_owner_only_and_reports_the_configured_limits(fixture_payload, clock):
+    # contracts/api.md §5.9: budgets carry the deployment's limits, not the contract defaults.
+    run = Run.model_validate(fixture_payload)
+    repository = RunRepository(MemoryStore(), clock)
+    repository.create(run, {}, 1)
+    settings = Settings(
+        data_version="snap-20261113-starter",
+        max_llm_calls=7,
+        max_research_calls=5,
+        max_revise=1,
+        run_hard_seconds=120,
+    )
+    client = TestClient(
+        create_app(settings, Services(runs=RunCoordinator(repository, None, None, clock)))
+    )
+    path = f"/v1/runs/{run.run_id}/trace"
+    response = client.get(path, headers=HEADERS)
+    assert response.status_code == 200, response.text
+    assert response.headers["X-Aplomb-Data-Version"] == run.data_version
+    trace = response.json()
+    assert trace["runId"] == run.run_id
+    limits = {budget["name"]: budget["limit"] for budget in trace["budgets"]}
+    assert limits == {
+        "llm_calls": 7,
+        "research_calls": 5,
+        "revisions": 1,
+        "rewrites": 1,
+        "scenarios": 6,
+        "wall_clock_ms": 120_000,
+    }
+    assert [step["seq"] for step in trace["steps"]] == [step.seq for step in run.steps]
+    other = client.get(path, headers={"X-Aplomb-Session": OTHER_SID})
+    assert other.status_code == 404, other.text
+    assert other.json()["error"]["code"] == "not_found"
 
 
 def test_pinned_run_and_fact_headers_survive_current_snapshot_change(fixture_payload, clock):
@@ -280,3 +317,58 @@ def test_public_build_identity_is_validated_and_exposed_on_success_and_errors():
     assert "X-Aplomb-Build" not in TestClient(create_app(SETTINGS)).get("/v1/health").headers
     with pytest.raises(ValidationError):
         Settings(build_revision="arbitrary-provider-text")
+
+
+def test_requirements_scenario_without_profile_service_is_upstream_unavailable():
+    client = TestClient(create_app(SETTINGS))
+    body = {"asOf": "2024-01-01", "through": "2024-12-31", "liquidCapital": 100,
+            "annualReturnPct": 0, "cashflows": []}
+    response = client.post("/v1/profiles/robert/requirements-scenario", headers=HEADERS, json=body)
+    assert_error(response, "upstream_unavailable", 503)
+
+
+GOAL = {"type": "goal", "goal": {"themes": ["ai"], "assetClasses": [], "tickers": [],
+                                 "targetExposurePct": None, "maxLossPct": None, "maxVolPct": None, "notes": ""}}
+MOVE = {"type": "move", "move": {"ticker": "ZZZZ", "sizePct": 5, "funding": {"mode": "pro_rata"}}}
+
+
+def parse_client(request, *, flags=(), known=()):
+    class Profiles:
+        def get(self, sid, pid):
+            return None
+
+    class Parser:
+        def parse(self, sid, body):
+            return {"request": request, "interpretation": {"en": "i", "fr": "i"}, "confidence": "high",
+                    "missing": [], "warnings": [], "refused": None}
+
+    class Data:
+        def asset(self, sid, ticker):
+            if ticker not in known:
+                raise NotFound()
+
+    settings = SETTINGS.model_copy(update={"features": {f: True for f in FeatureFlag}})
+    services = Services(profiles=Profiles(), parser=Parser(), datastore=Data(), capabilities=set(flags))
+    return TestClient(create_app(settings, services))
+
+
+def parse(client):
+    response = client.post("/v1/requests/parse", headers=HEADERS,
+                           json={"profileId": "robert", "text": "something", "lang": "en"})
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def test_parse_withholds_goal_requests_when_the_feature_is_off():
+    blocked = parse(parse_client(GOAL))
+    assert blocked["request"] is None
+    assert [item["field"] for item in blocked["missing"]] == ["move.ticker"]
+    assert parse(parse_client(GOAL, flags={"goal_requests"}))["request"] == GOAL
+
+
+def test_parse_warns_about_unknown_tickers_only_when_on_demand_is_on():
+    warned = parse(parse_client(MOVE, flags={"on_demand_tickers"}))
+    assert warned["request"] == MOVE
+    assert len(warned["warnings"]) == 1 and "ZZZZ" in warned["warnings"][0]["en"]
+    assert parse(parse_client(MOVE))["warnings"] == []
+    assert parse(parse_client(MOVE, flags={"on_demand_tickers"}, known={"ZZZZ"}))["warnings"] == []

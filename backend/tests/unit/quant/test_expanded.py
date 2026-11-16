@@ -111,12 +111,21 @@ def test_real_http_portfolio_comparison_covariance_and_session_versions():
     assert response.status_code == 200, response.text
     result = response.json()
     assert result['sameSample'] and len(result['portfolios']) == 2
+    # QA 4.5b: no developer note about fact-ID remapping among the limitations shown on the page.
+    assert not any('fact ID' in line or 'ledger' in line for line in result['limitations'])
     assert result['portfolios'][0]['conversion']['direction'] == 'USD/CAD'
     assert result['portfolios'][0]['capital'] == pytest.approx(
         profile.portfolio.total_value * result['portfolios'][0]['conversion']['rate'])
     assert result['portfolios'][0]['sample'] == result['portfolios'][1]['sample']
     fact = result['portfolios'][0]['factIds']['return.period']
     assert fact in result['portfolios'][0]['facts']
+    # FinancialComparison.tsx looks each metric row's fact up by these fact metric ids.
+    for portfolio in result['portfolios']:
+        assert set(portfolio['metrics']) == {'returnPct', 'volatilityPct', 'maxDrawdownPct', 'stress2022Pct',
+                                             'hhi', 'effectiveN'}
+        assert set(portfolio['factIds']) == {'return.period', 'vol.annualized', 'drawdown.max', 'stress.replay_2022',
+                                             'concentration.hhi', 'concentration.effective_n'}
+        assert all(fid in portfolio['facts'] for fid in portfolio['factIds'].values())
     body['profiles'][0]['version'] += 1
     assert client.post('/v1/portfolios/compare', json=body, headers={'X-Aplomb-Session': A}).status_code == 409
     body['profiles'][0]['version'] -= 1

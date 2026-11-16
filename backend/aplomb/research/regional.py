@@ -101,8 +101,8 @@ def _fetch(url: str, headers: dict) -> bytes:
     return payload
 
 
-def _json(payload: bytes, *, exact: bool = False) -> dict:
-    """Parse strictly; with ``exact`` JSON decimals become Decimal, never binary floats."""
+def _json(payload: bytes) -> dict:
+    """Parse strictly: duplicate keys and non-object documents are refused."""
     def pairs(items):
         result = {}
         for key, value in items:
@@ -111,7 +111,7 @@ def _json(payload: bytes, *, exact: bool = False) -> dict:
             result[key] = value
         return result
     try:
-        result = json.loads(payload, object_pairs_hook=pairs, parse_float=Decimal if exact else None)
+        result = json.loads(payload, object_pairs_hook=pairs)
     except (ValueError, UnicodeError) as exc:
         raise RegionalError('provider_invalid_response') from exc
     if not isinstance(result, dict):
@@ -170,25 +170,6 @@ def _amount(row, field, unparsed, *, thousands=True):
         return None
 
 
-def _exact(value, *, signed=False):
-    """JSON number parsed as int/Decimal; floats are refused so no binary rounding occurs."""
-    if value is None:
-        return None
-    if isinstance(value, bool) or not isinstance(value, (int, Decimal)):
-        raise RegionalError('provider_invalid_amount')
-    number = Decimal(value)
-    if not number.is_finite() or (number < 0 and not signed):
-        raise RegionalError('provider_invalid_amount')
-    return number
-
-
-def _plain(number):
-    if number is None:
-        return None
-    text = format(number.normalize(), 'f')
-    return '0' if text in ('-0', '') else text
-
-
 def _text(row, field, limit):
     value = row.get(field)
     if value is None or isinstance(value, (dict, list, bool)):
@@ -236,6 +217,18 @@ def _jst(day, clock):
     except ValueError:
         return None
     return moment.astimezone(timezone.utc).isoformat().replace('+00:00', 'Z')
+
+
+def configured_key(provider: str, env=None) -> str | None:
+    """Account key for 'JQUANTS' or 'OPENDART' when usable, else None.
+
+    Usable means a non-blank key and APLOMB_<provider>_RIGHTS_CONFIRMED set to 'true' (any case).
+    The source-capability gate uses this same rule, so a panel is shown exactly when its route works.
+    """
+    env = os.environ if env is None else env
+    key = env.get('APLOMB_' + provider + '_KEY', '').strip()
+    rights = env.get('APLOMB_' + provider + '_RIGHTS_CONFIRMED', '').lower() == 'true'
+    return key if key and rights else None
 
 
 class RegionalResearch:
@@ -319,11 +312,7 @@ class RegionalResearch:
         return self._korea(identifier, first, last, stamp)
 
     def _configured(self, provider):
-        key = self.env.get('APLOMB_' + provider + '_KEY', '').strip()
-        rights = self.env.get('APLOMB_' + provider + '_RIGHTS_CONFIRMED', '').lower() == 'true'
-        if not key or not rights:
-            return None
-        return key
+        return configured_key(provider, self.env)
 
     def _base(self, region, identifier, stamp, url):
         return {'region': region, 'identifier': identifier, 'retrievedAt': stamp,

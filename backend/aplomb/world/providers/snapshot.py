@@ -93,40 +93,74 @@ def publish(directory: Path, rows: list[dict], metadata: dict, captures: list[tu
     return manifest
 
 
-def load_provider_snapshots(directory: Path = DIRECTORY, *, as_of: str | None = None) -> tuple[tuple[dict, ...], tuple[dict, ...]]:
+_VERSION_DIR = re.compile(r"([a-z][a-z0-9_]+)-\d{4}-\d{2}-\d{2}-[0-9a-f]{16}")
+
+
+def _failed_source(path: Path) -> str:
+    """Dataset ID of a damaged capture directory: its manifest's, else the one in its version name."""
+    try:
+        source = json.loads(path.read_bytes())["datasetId"]
+        if isinstance(source, str) and source:
+            return source
+    except (ValueError, OSError, KeyError, TypeError):
+        pass
+    match = _VERSION_DIR.fullmatch(path.parent.name)
+    return match.group(1) if match else path.parent.name
+
+
+def load_provider_snapshots(directory: Path = DIRECTORY, *, as_of: str | None = None,
+                            errors: list[tuple[str, str]] | None = None) -> tuple[tuple[dict, ...], tuple[dict, ...]]:
     """Latest valid version per source, with raw/normalized integrity and availability checks.
 
-    An absent directory is unavailable. Corruption raises; callers isolate optional failures.
+    An absent directory is unavailable. Corruption raises by default; callers isolate optional failures.
+    With ``errors`` (a list), a damaged capture is recorded there as ``(datasetId, message)`` and its
+    whole source is skipped, never replaced by an older version; other sources still load.
     Passing as_of gates at capture, never at an earlier observation/reference date.
     """
     if not directory.exists():
         return (), ()
     latest = {}
+    failed: set[str] = set()
     for path in sorted(directory.glob("*/manifest.json")):
-        manifest = json.loads(path.read_bytes())
-        content = (path.parent / "observations.json").read_bytes()
-        if hashlib.sha256(content).hexdigest() != manifest["sha256"]:
-            raise ValueError("Provider observation checksum mismatch")
-        rows = json.loads(content)
-        if not isinstance(rows, list) or len(rows) != manifest["rowCount"]:
-            raise ValueError("Provider row count mismatch")
-        seen = set()
-        for row in rows:
-            validate_row(row)
-            if (row["sourceId"] != manifest["datasetId"] or row["id"] in seen
-                    or row["retrievedAt"] != manifest["retrievedAt"]):
-                raise ValueError("Provider source identity or duplicate mismatch")
-            seen.add(row["id"])
-        for raw in manifest["rawCaptures"]:
-            name = raw["file"]
-            if not re.fullmatch(r"raw-\d{3}\.bin", name):
-                raise ValueError("Invalid raw capture path")
-            if hashlib.sha256((path.parent / name).read_bytes()).hexdigest() != raw["sha256"]:
-                raise ValueError("Provider raw capture checksum mismatch")
-        captured = timestamp(manifest["retrievedAt"])
-        if as_of is not None and captured > timestamp(as_of):
+        if errors is None:
+            _load_capture(path, as_of, latest)
             continue
-        source = manifest["datasetId"]
-        if source not in latest or captured > timestamp(latest[source][1]["retrievedAt"]):
-            latest[source] = (rows, manifest)
+        try:
+            _load_capture(path, as_of, latest)
+        except (ValueError, OSError, KeyError, TypeError, AttributeError) as exc:  # JSONDecodeError is a ValueError
+            source = _failed_source(path)
+            failed.add(source)
+            errors.append((source, str(exc) or type(exc).__name__))
+    for source in failed:
+        latest.pop(source, None)
     return tuple(row for rows, _ in latest.values() for row in rows), tuple(m for _, m in latest.values())
+
+
+def _load_capture(path: Path, as_of: str | None, latest: dict) -> None:
+    """Validate one capture directory and keep it in ``latest`` when it is the newest for its source."""
+    manifest = json.loads(path.read_bytes())
+    content = (path.parent / "observations.json").read_bytes()
+    if hashlib.sha256(content).hexdigest() != manifest["sha256"]:
+        raise ValueError("Provider observation checksum mismatch")
+    rows = json.loads(content)
+    if not isinstance(rows, list) or len(rows) != manifest["rowCount"]:
+        raise ValueError("Provider row count mismatch")
+    seen = set()
+    for row in rows:
+        validate_row(row)
+        if (row["sourceId"] != manifest["datasetId"] or row["id"] in seen
+                or row["retrievedAt"] != manifest["retrievedAt"]):
+            raise ValueError("Provider source identity or duplicate mismatch")
+        seen.add(row["id"])
+    for raw in manifest["rawCaptures"]:
+        name = raw["file"]
+        if not re.fullmatch(r"raw-\d{3}\.bin", name):
+            raise ValueError("Invalid raw capture path")
+        if hashlib.sha256((path.parent / name).read_bytes()).hexdigest() != raw["sha256"]:
+            raise ValueError("Provider raw capture checksum mismatch")
+    captured = timestamp(manifest["retrievedAt"])
+    if as_of is not None and captured > timestamp(as_of):
+        return
+    source = manifest["datasetId"]
+    if source not in latest or captured > timestamp(latest[source][1]["retrievedAt"]):
+        latest[source] = (rows, manifest)

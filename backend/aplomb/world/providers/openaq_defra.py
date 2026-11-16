@@ -17,7 +17,6 @@ STATION_URL = "https://api.openaq.org/v3/locations/742"
 HOURS_BASE = "https://api.openaq.org/v3/sensors/{}/hours?datetime_from=2026-03-28T00%3A00%3A00Z&datetime_to=2026-03-29T00%3A00%3A00Z&limit=1000"
 TERMS_URL = "https://uk-air.defra.gov.uk/data/"
 LICENCE_URL = "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
-OPENAQ_TERMS = "https://docs.openaq.org/about/terms"
 SENSORS = {1279: "pm25", 5083: "pm10", 7823: "no2", 5968020: "o3"}
 ATTRIBUTION = ("© Crown 2026 copyright Defra via uk-air.defra.gov.uk, licenced under the "
                "Open Government Licence (OGL). Data accessed via OpenAQ; adapted by Aplomb.")

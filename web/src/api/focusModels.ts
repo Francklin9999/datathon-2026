@@ -1,11 +1,11 @@
 import type { Fact } from '../contracts/types';
 import { validateContract } from '../contracts/validate';
-export interface FocusCandidate {
+interface FocusCandidate {
   candidateId: string; kind: string; severity: string; label: string; factIds: string[]; evidenceIds: string[];
   affectedHoldings: string[]; investigation: string; navigationTarget: string; missingInputs: string[]; claimIds: string[];
 }
-export interface FocusResult { asOf: string; candidates: FocusCandidate[]; facts: Record<string, Fact>; limitations: string[] }
-export interface TargetsResult {
+interface FocusResult { asOf: string; candidates: FocusCandidate[]; facts: Record<string, Fact>; limitations: string[] }
+interface TargetsResult {
   asOf: string; targets: { dimension: string; key: string; targetPct: number; actualPct: number | null; driftPct: number | null; driftThresholdPct: number | null; state: string; factId: string | null; origin: string; unavailableReason: string | null }[];
   facts: Record<string, Fact>; limitations: string[];
 }

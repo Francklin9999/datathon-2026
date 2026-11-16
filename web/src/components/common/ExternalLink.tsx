@@ -2,7 +2,7 @@
 /** External links open safely; non-http(s) URLs render as plain text (no javascript: links). */
 import type { ReactNode } from 'react';
 
-export function safeHttpUrl(href: string | null | undefined): string | null {
+function safeHttpUrl(href: string | null | undefined): string | null {
   if (!href) return null;
   try {
     const url = new URL(href);

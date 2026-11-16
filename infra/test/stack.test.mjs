@@ -29,7 +29,7 @@ function artifact() {
   fs.writeFileSync(path.join(dir,'aplomb-artifact.json'),JSON.stringify({runtime:'python3.12',architecture:'x86_64',lambdaRuntimeImportCheck:true,files}));
   return dir;
 }
-const appConfig = artifact => ({artifact,dataVersion:'snap-20261114-test',dataPrefix:'snapshots/test/',
+const appConfig = artifact => ({artifact,dataVersion:'snap-20261114-test',dataAsOf:'2026-11-12',dataPrefix:'snapshots/test/',
   strongModel:'us.anthropic.claude-sonnet-4-6',fastModel:'us.anthropic.claude-haiku-5-5',
   sourceUserAgent:'Aplomb test contact@example.com',revision:'test-only',modelResourceArns:[
     'arn:aws:bedrock:us-east-1:010526248118:inference-profile/us.anthropic.claude-sonnet-4-6',
@@ -60,6 +60,24 @@ test('real handlers/artifacts and bounded model IAM are required',()=>{
   try {
     const a=appConfig(dir); a.modelResourceArns=['*']; assert.throws(()=>validateApplication(a),/exact verified/);
     const invalid=appConfig(dir); invalid.dataVersion='test'; assert.throws(()=>validateApplication(invalid),/dataVersion/);
+    const noDate=appConfig(dir); delete noDate.dataAsOf; assert.throws(()=>validateApplication(noDate),/application.dataAsOf required/);
+    for(const dataAsOf of ['20261112','2026-11-31','2026-13-01']) {
+      assert.throws(()=>validateApplication({...appConfig(dir),dataAsOf}),/dataAsOf must be/,dataAsOf);
+    }
+    // A config written before dataAsOf was an input takes it from data/manifests/<dataVersion>.json.
+    const legacy={...appConfig(dir),dataVersion:'snap-20261114-sourced'}; delete legacy.dataAsOf;
+    validateApplication(legacy); assert.equal(legacy.dataAsOf,'2026-11-12');
+    // The backend registers no research tool without a contact (research/core.py contact_user_agent):
+    // a warning for the deployed config, an error once research_open_web is listed.
+    for(const sourceUserAgent of ['Aplomb research contact: approved-team-contact',
+      'Aplomb datathon demo (github.com/Francklin9999/datathon-2026)','a@b.c']) {
+      const warn=console.warn; const warnings=[]; console.warn=(text)=>warnings.push(text);
+      try { validateApplication({...appConfig(dir),sourceUserAgent}); } finally { console.warn=warn; }
+      assert.match(warnings.join('\n'),/sourceUserAgent needs a contact/,sourceUserAgent);
+      assert.throws(()=>validateApplication({...appConfig(dir),sourceUserAgent,features:['research_open_web']}),
+        /sourceUserAgent needs a contact/,sourceUserAgent);
+    }
+    validateApplication({...appConfig(dir),sourceUserAgent:'Aplomb research (https://example.org/contact)'});
     const missing=appConfig(dir); missing.modelResourceArns=missing.modelResourceArns.slice(0,2);
     assert.throws(()=>validateApplication(missing),/foundation ARN required/);
     fs.writeFileSync(path.join(dir,'shadow.py'),'unverified');
@@ -73,7 +91,14 @@ test('application has exact handlers, finite concurrency and least privilege',()
   try {
     const t=Template.fromStack(new AplombStack(new App(),'Application',{application:appConfig(dir)}));
     t.resourceCountIs('AWS::Lambda::Function',2);
-    t.hasResourceProperties('AWS::ApiGatewayV2::Api',{CorsConfiguration:{AllowMethods:Match.arrayWith(['PUT']),AllowHeaders:Match.arrayWith(['accept-language'])}});
+    t.hasResourceProperties('AWS::ApiGatewayV2::Api',{CorsConfiguration:{AllowMethods:Match.arrayWith(['PUT']),AllowHeaders:Match.arrayWith(['accept-language']),
+      // Gateway CORS replaces the backend's expose list; the web reads all four (client.ts, AgentsSystemPage).
+      ExposeHeaders:Match.arrayWith(['x-request-id','x-aplomb-data-version','x-aplomb-build','retry-after'])}});
+    for(const handler of ['aplomb.agents.worker.handler','aplomb.api.lambda_handler.handler']) {
+      t.hasResourceProperties('AWS::Lambda::Function',{Handler:handler,Environment:{Variables:Match.objectLike({
+        APLOMB_DATA_VERSION:'snap-20261114-test',APLOMB_DATA_AS_OF:'2026-11-12',APLOMB_DATA_DIR:'/tmp/aplomb-data',
+        APLOMB_RUN_HARD_SECONDS:'180',APLOMB_RUN_TARGET_SECONDS:Match.absent()})}});
+    }
     t.hasResourceProperties('AWS::ApiGatewayV2::Stage',{DefaultRouteSettings:{ThrottlingRateLimit:100,ThrottlingBurstLimit:200}});
     t.hasResourceProperties('AWS::Lambda::Function',{Handler:'aplomb.agents.worker.handler',
       Timeout:210,ReservedConcurrentExecutions:2,Runtime:'python3.12',Architectures:['x86_64']});

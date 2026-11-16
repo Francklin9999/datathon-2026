@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
 import { Card } from '../../components/common/Page';
 import { useApp } from '../../state/app';
 
@@ -17,7 +17,7 @@ export function WikidataCandidates() {
     event.preventDefault(); setBusy(true); setResult(null); setStatus('');
     try {
       const params = new URLSearchParams({ isin: isin.trim().toUpperCase() });
-      const response = await fetch(`${API_BASE}/intelligence/wikidata-candidates?${params}`, { headers: { 'X-Aplomb-Session': sessionId ?? '' } });
+      const response = await researchFetch(`/intelligence/wikidata-candidates?${params}`);
       if (!response.ok) throw new Error('unavailable');
       const body: unknown = await response.json();
       if (!body || typeof body !== 'object' || !('items' in body) || !Array.isArray(body.items) || !('source_sha256' in body)) throw new Error('invalid response');

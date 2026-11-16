@@ -382,8 +382,9 @@ def make_router(session_dependency) -> APIRouter:
                 'sampleRule': sample_rule, 'sameSample': same_sample, 'portfolios': rows,
                 'limitations': ['Constant weights rebalanced each master return period; adjusted closes already include source corporate actions.',
                                 'FX is target units per source unit via CAD, last visible quote on or before each date; no backward fill.',
-                                'Private appraisals, actual transactions, tax and costs are excluded; values are modeled.',
-                                'Local fact IDs are per portfolio; never combine their ledgers without remapping.']}
+                                # Each portfolio row has its own local fact IDs; code combining rows must remap
+                                # them. A code note, not a user-facing limitation (QA 4.5b).
+                                'Private appraisals, actual transactions, tax and costs are excluded; values are modeled.']}
 
     @router.post('/v1/risk/covariance')
     def covariance(body: CovarianceInput, request: Request, sid: str = Depends(session_dependency)):

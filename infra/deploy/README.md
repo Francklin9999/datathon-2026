@@ -4,9 +4,10 @@ Pushes to `main` run [Deploy site](https://github.com/Francklin9999/datathon-202
 
 1. Install locked dependencies and run the complete deterministic checks.
 2. Build the Next.js static export with the existing live API URL and fixtures disabled.
-3. Store the export as a GitHub artifact, including commit SHA and file hashes.
-4. Use GitHub OIDC to assume `AplombGitHubSiteDeploy`, publish to the existing private web bucket, invalidate CloudFront and wait for completion.
-5. Check the deployed revision, every exported page, all compiled static assets, a genuine 404 and API health. Save the object version IDs and results as a deployment artifact.
+3. Store the export as a GitHub artifact, including commit SHA, file hashes and the API contract version the web was generated against (`contracts/generated/schema.json`).
+4. Before uploading anything, read the live API's `GET /meta` `contractVersion` and compare it with the site's. A different major version fails the publish. An older API minor/patch only warns (a `::warning` annotation and a step-summary line), because the web shows a "needs the newer API release" notice for features the API does not serve yet; pass `--require-current-api` to `deploy_site.py publish` to make it fail instead. The API itself is released separately (see below), so this check reports the skew; it does not fix it.
+5. Use GitHub OIDC to assume `AplombGitHubSiteDeploy`, publish to the existing private web bucket, invalidate CloudFront and wait for completion.
+6. Check the deployed revision, every exported page, all compiled static assets, a genuine 404 and API health. Save the object version IDs and results as a deployment artifact.
 
 Pull requests run the same checks and build without AWS credentials or publication. Actions are pinned to commit SHAs. A manual **Run workflow** on `main` republishes the current commit. Deployments are serialized and an in-flight upload is never cancelled by a newer push.
 

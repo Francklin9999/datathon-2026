@@ -1,21 +1,30 @@
 'use client';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
+import { researchJson } from '../../api/research';
 import { Card } from '../../components/common/Page';
 import { ErrorState, Loading } from '../../components/common/States';
 import { useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
 
-type Family = { id: string; name: string; state: 'available' | 'evidence' | 'aside' | 'removed'; requirement: string; source_ids: string[] };
+type Family = { id: string; name: string; state: 'available' | 'aside' | 'removed'; requirement: string; source_ids: string[] };
 type Source = { id: string; provider: string; source_url: string; status: string; remaining_work_or_external_blocker: string };
-export type CapabilityResponse = { families: Family[]; catalogue: { rows: Source[]; source_count: number }; note: string };
+type CapabilityResponse = { families: Family[]; catalogue: { rows: Source[]; source_count: number }; note: string };
+
+const CAPABILITIES_PATH = '/intelligence/source-capabilities';
 
 export function useSourceCapabilities() {
   const { sessionId } = useApp();
-  return useQuery<CapabilityResponse>(sessionId ? `source-capabilities|${sessionId}` : null, async signal => {
-    const response = await fetch(`${API_BASE}/intelligence/source-capabilities`, { signal, headers: { 'X-Aplomb-Session': sessionId ?? '' } });
-    if (!response.ok) throw new Error('Source capability inventory unavailable');
-    return response.json() as Promise<CapabilityResponse>;
-  });
+  // researchJson keeps the server's error code, so only network and 502–504 failures are retried.
+  return useQuery<CapabilityResponse>(sessionId ? `source-capabilities|${sessionId}` : null, async signal =>
+    await researchJson(await researchFetch(CAPABILITIES_PATH, { signal }), CAPABILITIES_PATH) as CapabilityResponse);
+}
+
+/** The note the capabilities route sends today (intelligence/capabilities.py), with its French; null for any other text, which is shown as sent. */
+const CAPABILITY_NOTE = 'Available means a demonstrated workflow within its stated scope; it does not guarantee current provider uptime. Evidence-only captures are not live adapters.';
+export function capabilityNoteText(note: string): { en: string; fr: string } | null {
+  return note === CAPABILITY_NOTE
+    ? { en: CAPABILITY_NOTE, fr: 'Disponible signifie un flux démontré dans son périmètre déclaré ; cela ne garantit pas la disponibilité actuelle du fournisseur. Les captures servant uniquement de preuve ne sont pas des connecteurs en direct.' }
+    : null;
 }
 
 export function readySource(data: CapabilityResponse | null | undefined, id: string) {
@@ -27,14 +36,16 @@ export function SourceAvailability({ value, loading, error, reload }: { value: C
   const aside = value?.families.filter(item => item.state === 'aside') ?? [];
   const removed = value?.families.filter(item => item.state === 'removed') ?? [];
   const active = value?.families.filter(item => item.state === 'available') ?? [];
-  const evidence = value?.families.filter(item => item.state === 'evidence') ?? [];
+  const noteText = typeof value?.note === 'string' ? capabilityNoteText(value.note) : null;
   return <Card id="source-availability" title={tr({ en: 'Research source availability', fr: 'Disponibilité des sources de recherche' })}>
     <p>{tr({ en: 'Available sources have documented successful captures. Current availability can change, and provider coverage remains limited.', fr: 'Les sources disponibles ont des captures documentées. Leur disponibilité peut changer et leur couverture demeure limitée.' })}</p>
     {loading && <Loading />}{error && <ErrorState error={error} onRetry={reload} />}
     {value && <>
+      {typeof value.note === 'string' && value.note && (noteText
+        ? <p className="small muted">{tr(noteText)}</p>
+        : <p className="small muted" lang="en">{value.note}</p>)}
       <h3>{tr({ en: 'Available', fr: 'Disponible' })} ({active.length})</h3>
       <ul>{active.map(item => <li key={item.id}><strong>{item.name}</strong> — {tr({ en: 'capture documented', fr: 'capture documentée' })}<span className="block small muted">{item.requirement}</span></li>)}</ul>
-      {evidence.length > 0 && <details><summary>{tr({ en: 'Preserved evidence', fr: 'Preuves conservées' })} ({evidence.length})</summary><ul>{evidence.map(item => <li key={item.id}><strong>{item.name}</strong><span className="block small muted">{item.requirement}</span></li>)}</ul></details>}
       <details><summary>{tr({ en: 'Awaiting access or permission', fr: 'En attente d’accès ou de permission' })} ({aside.length})</summary><ul>{aside.map(item => <li key={item.id}><strong>{item.name}</strong><span className="block small muted">{item.requirement}</span></li>)}</ul></details>
       <details><summary>{tr({ en: 'Removed sources', fr: 'Sources retirées' })} ({removed.length})</summary><ul>{removed.map(item => <li key={item.id}>{item.requirement}</li>)}</ul></details>
       <details><summary>{tr({ en: `Assigned source catalogue (${value.catalogue.source_count} rows)`, fr: `Catalogue des sources assignées (${value.catalogue.source_count} entrées)` })}</summary>

@@ -2,12 +2,12 @@
 /**
  * Theme context: the stored preference (light / dark / system) and the resolved mode on
  * html[data-theme]. The <head> boot script already applied the right mode before paint; this only
- * keeps it in sync with the toggle and with OS changes while the preference is `system`.
+ * keeps it in sync with the theme control in Settings and with OS changes while the preference is `system`.
  */
 import { MotionConfig } from 'motion/react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { readPref, writePref } from '../../lib/session';
-import { THEME_PREF_KEY, isThemePref, themeColorFor, themeToApply, type ThemeMode, type ThemePref } from '../../lib/ui/theme';
+import { THEME_PREF_KEY, isThemePref, motionReducedFor, themeColorFor, themeToApply, type ThemeMode, type ThemePref } from '../../lib/ui/theme';
 
 interface ThemeState { theme: ThemeMode; pref: ThemePref; setPref: (pref: ThemePref) => void }
 
@@ -33,7 +33,7 @@ export function useTheme(): ThemeState {
   return value;
 }
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
+function ThemeProvider({ children }: { children: ReactNode }) {
   // null until the stored preference is read: until then the <head> boot script's choice stands.
   const [pref, setPrefState] = useState<ThemePref | null>(null);
   const [theme, setTheme] = useState<ThemeMode>('light');
@@ -67,11 +67,29 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
-/** Client-side UI providers: theme plus a global "respect the user's reduced-motion setting" rule. */
+/**
+ * The Settings animation choice (html[data-anim]) as a MotionConfig rule, kept current while the page
+ * is open; `user` (follow the system) until mounted and for Auto. Same source as CountUp and the globe.
+ */
+function useMotionReduced(): 'always' | 'never' | 'user' {
+  const [reduced, setReduced] = useState<'always' | 'never' | 'user'>('user');
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () => setReduced(motionReducedFor(root.dataset.anim));
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(root, { attributes: true, attributeFilter: ['data-anim'] });
+    return () => observer.disconnect();
+  }, []);
+  return reduced;
+}
+
+/** Client-side UI providers: theme plus a global reduced-motion rule (Settings > Animations, else the system). */
 export function UiProviders({ children }: { children: ReactNode }) {
+  const reducedMotion = useMotionReduced();
   return (
     <ThemeProvider>
-      <MotionConfig reducedMotion="user">{children}</MotionConfig>
+      <MotionConfig reducedMotion={reducedMotion}>{children}</MotionConfig>
     </ThemeProvider>
   );
 }

@@ -30,7 +30,7 @@ Owner: track **T01 (Contracts & integration)**. See `docs/04-TRACKS.md`.
 
 ## Versioning and change process
 
-- The API is served under `/v1`. The contract version is `contractVersion` in `GET /v1/meta`; this folder is version **1.5.0**.
+- The API is served under `/v1`. The contract version is `contractVersion` in `GET /v1/meta`; this folder is version **1.6.0**.
 - **Additive change** (new optional field, new endpoint, new enum value): edit the file, add a line to the changelog below, tell the affected tracks. Bump the minor version.
 - **Breaking change** (rename, removal, type change, semantic change): needs agreement of T01 plus every consumer listed in the table above. Bump the major version. During the datathon, avoid these after Saturday night.
 - Every change updates the fixtures in the same commit. A fixture that does not match `schemas.md` is a bug.
@@ -41,8 +41,8 @@ Owner: track **T01 (Contracts & integration)**. See `docs/04-TRACKS.md`.
 |---|---|---|
 | `schemas.md` types | `backend/aplomb/contracts/models.py` (Pydantic v2 models, one class per type, same names) | `web/src/contracts/types.ts` (one interface per type, same names) |
 | `catalog.md` enums | `backend/aplomb/contracts/catalog.py` (`StrEnum`s and constant tables) | `web/src/contracts/catalog.ts` |
-| `api.md` | FastAPI routers in `backend/aplomb/api/routers/` | `web/src/api/client.ts` (one function per endpoint) |
-| `fixtures/*.json` | loaded by contract tests in `backend/tests/contract/` | served by the mock client in fixture mode |
+| `api.md` | Route handlers in `create_app` (`backend/aplomb/api/app.py`), plus the module routers it includes (`aplomb.quant.*_api`, `aplomb.datastore.financial_*_api`, `aplomb.intelligence.*`, `aplomb.research.*`, `aplomb.timemachine.pit_routes`) | `web/src/api/client.ts` has a function for the core endpoints, not for every route; the intelligence, research and time-machine routes are called from feature modules (`web/src/features/markets/`, `web/src/features/timemachine/`) |
+| `fixtures/*.json` | loaded by contract tests in `backend/tests/contract/` | `profiles.json` and `run.decision.robert-tsla-25.json` are served in fixture mode (`web/src/api/fixtures.ts`); `world.events.sample.json` is read only by tests and `scripts/check_specs.py` |
 
 T01 writes the two mirrored files once and owns them. Other tracks import them and never redefine a type locally.
 
@@ -58,11 +58,38 @@ Wire validation covers shapes, closed enums, finite numbers, dates, identifiers,
 
 T01's handoff and exact consumer imports are in [the integration handoff](../docs/T01-HANDOFF.md). No HTTP service or cloud deployment is implied by the generated schema registry.
 
+### Outside the generated registry
+
+Some routes listed in `api.md` have no type in the generated registry. Their handlers return plain dictionaries or declare no generated response model, so `validateContract` cannot check them. Each response shape is written twice, once as the Python dictionary and once as a hand-written web check. No test compares the two, so a rename on either side fails only at runtime.
+
+| Route (`api.md` index) | Web check |
+|---|---|
+| A1.6 strategic-candidates, A1.7 allocation-targets | `web/src/api/focusModels.ts` |
+| A1.20 joint-plan, A1.21 compare, A1.22 covariance, A1.23 liquidity-analysis, A1.24 nested-fund-look-through, A1.25 factor-exposure, A1.26 position-details | `web/src/api/expandedInvestor.ts` |
+| A1.10 factor-fit, A1.11 fund-look-through | `web/src/api/investorModels.ts` |
+| A1.9 risk/scenario | `web/src/api/riskModels.ts` |
+| A1.8 requirements-scenario, A1.12 source-inputs, A1.13 target-funding, A1.14 providers, A1.15 provider capture | partial inline checks in `web/src/api/client.ts` |
+| A1.1 account-valuations | `web/src/api/readModels.ts` (`accountValuationsResult`) |
+| A1.16 stored provider capture | no web caller |
+| intelligence, research and time-machine routes ("Agent 2 research API additions" in `api.md`) | local checks in the calling feature modules |
+
+Since 1.6.0 the credentialed market routes (`/research/market-connections`, `/research/market-provider/{provider}`, `/research/tiingo/{symbol}`) and `/intelligence/regional` are in the registry, with typed `client.ts` methods. The three market payloads keep their snake_case keys (a documented exception to convention 1); their models switch the camelCase alias off.
+
+A1.20 joint-plan declares the Pydantic model `JointPlanResult` (`backend/aplomb/quant/joint_plan_api.py`), but that model is not in the generated registry.
+
+Some of these payloads break the global conventions above:
+
+- **Convention 3 (no fractions).** A1.9 `/risk/scenario` returns fractions and labels them `"unit": "fraction"`. A1.11 and A1.24 (fund look-through) return weights as fractions. A1.22 covariance labels its values `"fractional daily return squared"`.
+- **Convention 1 (camelCase keys).** The `sources` objects of A1.11 and A1.24 carry evidence with snake_case keys (`source_id`, `content_sha256`, `available_at`, ...). `web/src/api/investorModels.ts` mirrors these keys.
+
+Typing these routes means four steps, none of them done yet: add their models to `backend/aplomb/contracts/api.py`, set `response_model` on each route, regenerate, and switch `client.ts` to `call()`.
+
 ## Changelog
 
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-14 | First version. |
+| 1.6.0 | 2026-11-15 | Additive, all new keys optional: `BatchCheckResponse.differences` (`RuleDifference[]`, a pair of checks aligned by rule), `OverviewResponse.holdingReturns` (every holding's 1-year return and fact), and models for the existing payloads of `/research/market-connections`, `/research/market-provider/{provider}`, `/research/tiingo/{symbol}` and `/intelligence/regional` (no key changed, except that the `tiingo` entry of `/research/market-connections` now also carries `documentation_url`, optional in the model). Also additive since 1.5.0 (commit a2cdd7e, optional): `WorldPortfolioAssessment` and `assessment?` on `WorldEventResponse`, `WorldObservation`, `AirportReference`, `Facility` and `Hazard`, returned when `profileId` is supplied. A 1.6.0 site keeps working against a 1.4.0 or 1.5.0 API: it shows the extra rows only when the keys are present. |
 | 1.5.0 | 2026-11-15 | Additive: POST `/profiles/{profileId}/strategies/simulate` (standing strategies simulated on history), method `M_STRATEGY_SIM`, limitations `LIM_STRATEGY_COSTS` and `LIM_STRATEGY_EXECUTION`. |
 | 1.4.0 | 2026-11-15 | Native-currency account capital with independently checked FX receipts, reporting-currency aggregation, and complete target-allocation policy/risk comparison. |
 | 1.3.0 | 2026-11-15 | Global sourced FX, archived/duplicated profiles, explicit goal scenarios, country/currency policy caps, entity candidates, annual country context and airport references. Paired frontend/backend release required. |

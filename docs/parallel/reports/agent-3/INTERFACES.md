@@ -16,7 +16,7 @@ Current provider IDs are listed in `backend/aplomb/world/passports.py` and mirro
 
 ## Cross-agent dependency
 
-Agent 2's `backend/aplomb/api/runtime.py` tool wrapper currently calls `world.search_events(as_of=str(ctx.as_of), **args)`. For true historical replay it should call `world.search_events(as_of=str(ctx.as_of), historical=ctx.historical, **args)`. Agent 3's service supports the additive `historical` parameter and tests the capture boundary. This prevents current-only bundled events from appearing as knowledge available on an earlier date while preserving current snapshot research calls. Agent 2 owns that runtime edit and the end-to-end replay test.
+The `backend/aplomb/api/runtime.py` tool wrapper calls `world.search_events(as_of=str(ctx.as_of), historical=ctx.historical, **args)` (`backend/tests/research/test_tool_registration.py` checks that the mode is passed). Agent 3's service supports the additive `historical` parameter and tests the capture boundary. This prevents current-only bundled events from appearing as knowledge available on an earlier date while preserving current snapshot research calls. Today the registry already refuses every research tool in a historical run, so this gate is the second safeguard.
 
 Documented entity-to-security, facility operator, revenue geography and supply-chain relationships require Agent 2's verified identifiers and dated evidence; modeled impacts require Agent 1's calculations. The world service returns `not_established` for existing portfolio proxies and does not promote a matching country or name into a financial fact.
 

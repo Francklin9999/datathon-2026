@@ -65,6 +65,8 @@ def sign_decision(*, ledger, draft, lang, model, rule_checks, historical, execut
                     "instruction": "Repair failed checks, using new sentence IDs for "
                     "changed templates. Preserve the requested language, mandatory sections and every policy conflict citation. "
                     "Use the supplied verified facts with exact {{fact:ID}} references. Never invent a reference. "
+                    "Mention a plan rule as {{rule:ID}}: {{status:ID}}, without words such as policy, status, carries "
+                    "or reported with around these tokens. "
                     "Remove unsupported causal interpretations; replace a failed sentence only when evidence supports it. "
                     "Do not repeat dates, source counts or number words in free prose. Do not repeat facts across sections. "
                     "State evidence gaps once, in limits. Omit an unsupported assertion instead of weakening the auditor. "

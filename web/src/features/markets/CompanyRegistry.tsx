@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
 import { Card } from '../../components/common/Page';
 import { useApp } from '../../state/app';
 
@@ -21,7 +21,7 @@ export function CompanyRegistry() {
     event.preventDefault(); invalidate(); const request = generation.current; const expected = sessionId;
     setBusy(true);
     try {
-      const response = await fetch(`${API_BASE}/intelligence/company-registry/${region}/${encodeURIComponent(number)}`, { headers: { 'X-Aplomb-Session': expected ?? '' } });
+      const response = await researchFetch(`/intelligence/company-registry/${region}/${encodeURIComponent(number)}`);
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json() as Registry;
       if (!data.source?.sha256 || (data.status !== 'found' && data.status !== 'not_found')) throw new Error('invalid');

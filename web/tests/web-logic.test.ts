@@ -12,7 +12,7 @@ import {
 import { danglingReferences, factUsage, portfolioSummary, visibleSentences } from '../src/lib/brief';
 import { AUDIT_CHECK, ERROR_CODE, LIMITATION, NEE_REASON, labelOf } from '../src/lib/labels';
 import { validateHoldings, weightSum } from '../src/lib/holdings';
-import { EMPTY_PROFILE_FORM, applyDraft, toCreateRequest, validateProfileForm } from '../src/lib/profileForm';
+import { EMPTY_PROFILE_FORM, applyDraft, formFromProfile, rebaseForm, toCreateRequest, validateProfileForm } from '../src/lib/profileForm';
 import { factIdFor, fillThreshold } from '../src/lib/format';
 
 test('factIds accept both fixture ("volatilityPct") and live API ("volatility") keys', () => {
@@ -155,6 +155,23 @@ test('profile form: required fields block save; drafts are provisional; request 
   assert.equal(request.rules, null);
   assert.deepEqual(request.horizonYears, { min: 5, max: null });
   assert.ok(validateProfileForm({ ...complete, horizonMin: '10', horizonMax: '5' }).some(i => i.field === 'horizonMax'));
+});
+
+test('profile form: reloading after a 409 keeps unsaved edits and re-bases on the stored version (CRE-05)', () => {
+  const { items } = validateContract('ProfilesResponse', JSON.parse(readFileSync(new URL('../../contracts/fixtures/profiles.json', import.meta.url), 'utf8')));
+  const opened = items[0]!;
+  const edited = { ...formFromProfile(opened), name: 'Edited locally' };
+  const latest = { ...structuredClone(opened), version: opened.version + 1, riskLevel: opened.riskLevel === 'low' ? 'high' as const : 'low' as const };
+  const rebased = rebaseForm(edited, latest);
+  assert.equal(rebased.name, 'Edited locally', 'unsaved edits are kept');
+  assert.equal(rebased.riskLevel, opened.riskLevel, 'fields are not overwritten by the stored version');
+  assert.equal(rebased.sourceProfile?.version, latest.version);
+  assert.notEqual(rebased.sourceProfile, latest, 'the baseline is a copy');
+  const origins = toCreateRequest(rebased, null).investorContext?.inputOrigins ?? {};
+  assert.equal(origins.name, 'user');
+  assert.equal(origins.riskLevel, 'user', 'replacing the stored value marks it as a user input');
+  const other = { ...latest, profileId: 'p_abcdefghij' };
+  assert.equal(rebaseForm(edited, other), edited, 'a form for another profile is left untouched');
 });
 
 test('Home falls back to surviving facts when the executive summary was rejected', () => {

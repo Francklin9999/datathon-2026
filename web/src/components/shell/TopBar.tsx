@@ -22,7 +22,7 @@ import { SegmentedControl } from '../ui/SegmentedControl';
 import { useTheme } from '../ui/ThemeProvider';
 import { useDictation } from '../ui/useDictation';
 
-export const FALLBACK_DISCLAIMER: I18NText = {
+const FALLBACK_DISCLAIMER: I18NText = {
   en: 'Simulation only. Fictional profiles. Not financial advice.',
   fr: "Simulation uniquement. Profils fictifs. Ceci n'est pas un conseil financier.",
 };

@@ -59,6 +59,43 @@ def test_a_clarification_answer_changes_the_simulated_size():
     assert any(f["metric"] == "size.requested" and f["value"] == 5 for f in run["facts"].values())
 
 
+def test_a_revise_iteration_keeps_the_answered_request():
+    # Audit 2026-11-15: the revise loop re-ran the controls with the original 25-point request,
+    # which collided with the facts the answered 5-point request had already registered.
+    plan = {"interpretation": "Size unclear", "clarification": QUESTION, "revise": True,
+            "scenario_tasks": [{"kind": "alternative", "ticker": "NVDA"}]}
+    gateway = ScriptedGateway(plan=plan)
+    c, headers = client(gateway), session()
+    run_id = c.post("/v1/runs", json=DECISION, headers=headers).json()["runId"]
+    assert wait(c, headers, run_id)["status"] == "waiting_input"
+    assert c.post(f"/v1/runs/{run_id}/answers", json={"questionId": "q_size", "value": "5"}, headers=headers).status_code == 202
+    run = wait(c, headers, run_id, until=("succeeded", "failed"))
+    assert run["status"] == "succeeded", run["error"]
+    requested = next(s for s in run["result"]["decision"]["scenarios"] if s["scenarioId"] == "sc_requested")
+    assert requested["moves"][0]["sizePct"] == 5
+    # Review 2026-11-15: the controls ignore the planner's scenarios, so a second revision would see
+    # the same checks; the loop stops after one real planner call instead of paying for another.
+    revisions = [s for s in run["steps"] if s["type"] == "revise"]
+    assert len(revisions) == 1 and revisions[0]["model"]
+    assert gateway.roles.count("planner") == 2
+    revise_prompts = [p for role, p in gateway.prompts if role == "planner"][1:]
+    assert all("iteration" not in p for p in revise_prompts)
+    assert all(p["request"]["move"]["sizePct"] == 5 for p in revise_prompts)
+
+
+def test_a_question_whose_answer_cannot_be_applied_is_not_asked():
+    # Audit 2026-11-15: an answer about anything but a move's size or funding was accepted and ignored.
+    question = {**QUESTION, "questionId": "q_goal", "field": "objective", "options": None}
+    gateway = ScriptedGateway(plan={"interpretation": "Objective unclear", "clarification": question})
+    c, headers = client(gateway), session()
+    run = wait(c, headers, c.post("/v1/runs", json=DECISION, headers=headers).json()["runId"], until=("succeeded", "failed"))
+    assert run["status"] == "succeeded", run["error"]
+    assert run["question"] is None
+    assert run["steps"][0]["summary"]["en"].startswith("Planned ")
+    writer = next(p for role, p in gateway.prompts if role == "writer")
+    assert any("objective" in note for note in writer["execution_limitations"])
+
+
 def test_answer_parsing():
     request = m.MoveRequest.model_validate(TSLA_25) if hasattr(m, "MoveRequest") else None
     if request is None:
@@ -205,3 +242,42 @@ def test_verified_run_evidence_reaches_the_controversy_rule():
     rule = next(c for c in outcome.check.rule_checks if c.rule_id == "evidence.controversy")
     assert ledger.export().evidence["E-001"].verification.status == "verified"
     assert rule.status == "tension" and rule.evidence_ids == ["E-001"]
+
+
+def test_verified_run_evidence_reaches_every_scenario_of_the_run():
+    # Audit 2026-11-15: only sc_requested saw the run's evidence; the largest-size scenario and the
+    # alternatives built in the same run reported "not enough evidence" for the same sources.
+    from aplomb.ledger import DocumentRef, Ledger
+    from aplomb.optimizer.services import DecisionControls
+
+    harness = Harness(ScriptedGateway())
+    mateo = harness.profiles.get(harness.session, "mateo")
+    rules = [r.model_copy(update={"enabled": False}) if r.rule_id == "exclude.sector.energy" else r for r in mateo.rules]
+    profile = mateo.model_copy(update={"rules": rules})
+    ledger = Ledger("run_EVIDENCE", "2026-11-12", clock=lambda: "2026-11-14T00:00:00Z")
+    for n, (ticker, name) in enumerate([("CNQ.TO", "Canadian Natural Resources"), ("XOM", "Exxon Mobil")], 1):
+        url = f"https://www.sec.gov/example-{n}"
+        ledger.register_document(DocumentRef(f"doc-{n}", f"{name} faces a regulatory investigation into tailings releases.",
+                                             url, "run_EVIDENCE"))
+        ledger.add_evidence({"type": "filing", "tier": 1, "title": "Filing", "publisher": "SEC", "url": url,
+                             "publishedAt": "2026-01-05", "retrievedAt": "2026-11-14T00:00:00Z", "lang": "en",
+                             "quote": "faces a regulatory investigation into tailings releases",
+                             "claim": {"en": "Controversy", "fr": "Controverse"}, "subject": {"type": "asset", "id": ticker},
+                             "tool": "research.save_evidence", "documentRef": f"doc-{n}", "licence": "public domain (US gov)"})
+
+    class Ctx:
+        pass
+
+    ctx = Ctx()
+    ctx.gate, ctx.ledger, ctx.profile, ctx.as_of = harness.world.snapshot().gate("2026-11-12", "current"), ledger, profile, "2026-11-12"
+    move = {"type": "move", "move": {"ticker": "CNQ.TO", "sizePct": 20, "funding": {"mode": "pro_rata"}}}
+    controls = DecisionControls()
+    outcome = controls.risk(ctx, controls.quant(ctx, move, {"code": "full"}, [], []))
+
+    def status(scenario_id):
+        scenario = next(s for s in outcome.scenarios if s.scenario_id == scenario_id)
+        return next((c.status, c.evidence_ids) for c in scenario.rule_checks if c.rule_id == "evidence.controversy")
+
+    assert status("sc_requested") == ("tension", ["E-001"])
+    assert status("sc_max_compatible") == ("tension", ["E-001"])
+    assert status("sc_alt_xom") == ("tension", ["E-002"])

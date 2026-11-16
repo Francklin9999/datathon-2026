@@ -5,7 +5,7 @@
 import type { I18NText, ReplayPresetsResponse, ReplayResult, RevealResult, Run } from '../contracts/types';
 import { addDays, isIsoDate } from './world';
 
-export type AsOfIssue = 'missing' | 'format' | 'before_earliest' | 'after_latest';
+type AsOfIssue = 'missing' | 'format' | 'before_earliest' | 'after_latest';
 
 /** Why an as-of date cannot be sent, or null. The server stays authoritative (api.md 5.1: 422). */
 export function asOfIssue(value: string, presets: Pick<ReplayPresetsResponse, 'earliestAsOf' | 'latestAsOf'>): AsOfIssue | null {
@@ -23,7 +23,7 @@ export const AS_OF_ISSUE: Record<AsOfIssue, I18NText> = {
   after_latest: { en: 'Too late: too little data remains after this date to reveal an outcome.', fr: 'Trop tard : trop peu de données subsistent après cette date pour révéler un résultat.' },
 };
 
-export interface ReplayRefusal { earliestAsOf: string | null; latestAsOf: string | null; unknownAtAsOf: string[] }
+interface ReplayRefusal { earliestAsOf: string | null; latestAsOf: string | null; unknownAtAsOf: string[] }
 
 /**
  * What a `422` on replay creation says in `error.details`: the supported range when the date is
@@ -46,7 +46,7 @@ export function revealableReplay(run: Pick<Run, 'kind' | 'status' | 'result'> | 
   return run.result?.kind === 'replay' ? run.result.replay : null;
 }
 
-export interface RevealBounds { min: string; max: string }
+interface RevealBounds { min: string; max: string }
 
 /** `until` must be strictly after the cutoff and no later than the last date in the snapshot. */
 export function revealBounds(replay: Pick<ReplayResult, 'asOf' | 'revealAvailableUntil'>): RevealBounds | null {
@@ -54,7 +54,7 @@ export function revealBounds(replay: Pick<ReplayResult, 'asOf' | 'revealAvailabl
   return min <= replay.revealAvailableUntil ? { min, max: replay.revealAvailableUntil } : null;
 }
 
-export type UntilIssue = 'format' | 'not_after_cutoff' | 'after_snapshot' | 'no_later_data';
+type UntilIssue = 'format' | 'not_after_cutoff' | 'after_snapshot' | 'no_later_data';
 
 /** Empty `until` is valid: the API then uses the last date in the snapshot. */
 export function untilIssue(value: string, replay: Pick<ReplayResult, 'asOf' | 'revealAvailableUntil'>): UntilIssue | null {
@@ -112,4 +112,12 @@ export function signedLedgerHash(run: Pick<Run, 'result'> | null): string | null
   if (result.kind === 'replay') return result.replay.decision.brief.audit.ledgerHash;
   if (result.kind === 'decision') return result.decision.brief.audit.ledgerHash;
   return null;
+}
+
+/**
+ * Passport link for a dataset the replay's date gate read. It carries the run's pinned data version
+ * so the Sources page can warn when the current passport describes another snapshot (SRC-04).
+ */
+export function gatePassportHref(datasetId: string, dataVersion: string): string {
+  return `/sources/?datasetId=${encodeURIComponent(datasetId)}&dataVersion=${encodeURIComponent(dataVersion)}`;
 }

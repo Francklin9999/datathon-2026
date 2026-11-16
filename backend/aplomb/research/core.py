@@ -350,34 +350,3 @@ class ResearchService:
                     "licence": policy.licence, "verification": {"status": "unverified", "checks": []}}
         return ledger.add_evidence(evidence, DocumentRef(document.document_id, document.text,
                                                         document.canonical_url, context.run_id))
-
-    def save_figure(self, input: dict, document_ref: str, context: ResearchContext, ledger,
-                    *, value_text: str, unit_text: str, unit: str):
-        """Code-facing quote.figure registration; ambiguous notation/units rejected by ledger."""
-        evidence_id = self.save_evidence(input, document_ref, context, ledger)
-        document = self.documents[(context.run_id, document_ref)]
-        policy = policy_for(urlsplit(document.canonical_url).hostname)
-        if not value_text or not unit_text:
-            raise ResearchError("explicit_value_and_unit_required")
-        try:
-            value = float(value_text.replace("−", "-").replace(",", "."))
-        except ValueError as exc:
-            raise ResearchError("ambiguous_numeric_notation") from exc
-        fact = {
-            "kind": "evidence", "metric": "quote.figure", "label": {"en": input["title"], "fr": input["title"]},
-            "value": value, "unit": unit, "currency": None,
-            "subject": {**input["subject"], "variant": document.document_id},
-            "period": None, "window": None, "as_of": str(context.as_of),
-            # Retrieval is not publication/availability proof; leave unknown.
-            "available_at": None,
-            "method": {"id": "M_QUOTE_VERBATIM", "description": {"en": "Verified literal source figure", "fr": "Chiffre littéral vérifié"}, "params": {}},
-            "inputs": [], "n_obs": None,
-            "sources": [{"dataset_id": "research_documents", "data_version": context.data_version,
-                         "source_name": policy.publisher, "source_url": document.canonical_url,
-                         "retrieved_on": str(document.retrieved_at.date()), "licence": policy.licence,
-                         "rows_read": None}],
-            "limitations": [], "verification": {"status": "unverified", "checks": []},
-            "created_by": "research",
-        }
-        fact_id = ledger.add_quote_figure(fact, evidence_id, value_text=value_text, unit_text=unit_text)
-        return fact_id, evidence_id

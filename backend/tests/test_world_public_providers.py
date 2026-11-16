@@ -93,6 +93,35 @@ def test_identity_count_and_normalized_corruption(tmp_path):
         load_provider_snapshots(tmp_path)
 
 
+def test_lenient_load_skips_only_the_damaged_source(tmp_path):
+    def policy_payload(_):
+        return json.dumps({"results": [{
+            "document_number": "1", "publication_date": "2026-11-13", "title": "Policy", "type": "Notice",
+            "html_url": "https://www.federalregister.gov/documents/1"}]}).encode()
+
+    aviation_id, policy_id = SOURCES["aviation"]["datasetId"], SOURCES["policy"]["datasetId"]
+    collect("aviation", lambda _: json.dumps([metar()]).encode(), STAMP, tmp_path)
+    newer = collect("aviation", lambda _: json.dumps([metar(name="Tokyo Haneda")]).encode(),
+                    "2026-11-15T13:00:00Z", tmp_path)
+    policy = collect("policy", policy_payload, STAMP, tmp_path)
+    (tmp_path / newer["dataVersion"] / "raw-000.bin").write_bytes(b"corrupted")
+    with pytest.raises(ValueError, match="raw capture checksum"):
+        load_provider_snapshots(tmp_path)
+
+    errors = []
+    rows, manifests = load_provider_snapshots(tmp_path, errors=errors)
+    # The intact source still loads; the damaged one is dropped, not replaced by its older valid version.
+    assert [m["datasetId"] for m in manifests] == [policy_id]
+    assert {row["sourceId"] for row in rows} == {policy_id}
+    assert [source for source, _ in errors] == [aviation_id]
+    assert "raw capture checksum" in errors[0][1]
+
+    (tmp_path / policy["dataVersion"] / "manifest.json").write_bytes(b"{")
+    errors = []
+    assert load_provider_snapshots(tmp_path, errors=errors) == ((), ())
+    assert sorted(source for source, _ in errors) == sorted([aviation_id, policy_id])  # name from the version directory
+
+
 def test_publish_rejects_backdated_availability_duplicate_and_source_url(tmp_path):
     rows, _ = public.aviation(json.dumps([metar()]).encode(), STAMP)
     meta = {k: v for k, v in SOURCES["aviation"].items() if k != "parser"} | {"retrievedAt": STAMP}

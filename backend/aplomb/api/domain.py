@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 import threading
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from aplomb.datastore import (
     CachedObjectStore,
@@ -26,7 +27,10 @@ from .errors import ServiceError
 from .services import Services
 from .settings import Settings
 
-log = logging.getLogger(__name__)
+if TYPE_CHECKING:  # ondemand pulls in ingest; keep it lazy at runtime
+    from aplomb.datastore.ondemand import PriceProvider
+
+log =logging.getLogger(__name__)
 REPO_DATA_DIR = Path(__file__).resolve().parents[3] / "data"
 S3_CACHE_DIR = Path("/tmp/aplomb-data")
 
@@ -59,7 +63,8 @@ class SnapshotProvider:
                         f"{key}: object store read failed ({type(exc).__name__})"
                     ) from exc
 
-            return CachedObjectStore(fetch, S3_CACHE_DIR)
+            # APLOMB_DATA_DIR, when set, is the cache directory (the stack sets /tmp/aplomb-data).
+            return CachedObjectStore(fetch, Path(s.data_dir) if s.data_dir else S3_CACHE_DIR)
         return LocalDataStore(Path(s.data_dir) if s.data_dir else REPO_DATA_DIR)
 
     def switch(self, data_version: str) -> None:
@@ -102,7 +107,8 @@ def world_provider(profile_repo, snapshot, profiles=None):
     return WorldServiceImpl(profiles, snapshot, bundle)
 
 
-def default_services(settings: Settings, store=None, gateway=None, price_provider=None) -> Services:
+def default_services(settings: Settings, store=None, gateway=None,
+                     price_provider: PriceProvider | None = None) -> Services:
     """Domain providers for a configured snapshot; empty ``Services`` when unconfigured.
 
     Wired: datastore (T04), profiles/checks (T05-T07), runs (T03 + T08 + T10, with T09 research
@@ -121,7 +127,7 @@ def default_services(settings: Settings, store=None, gateway=None, price_provide
 
     snapshot = SnapshotProvider(settings)
     store = store if store is not None else create_store(settings)
-    profile_repo, run_repo, _ = create_repositories(settings, store)
+    profile_repo, run_repo = create_repositories(settings, store)
     profiles, checks = build_domain_services(profile_repo, snapshot)
     world = world_provider(profile_repo, snapshot, profiles)
     runs, parser, find_brief = build_run_services(settings, run_repo, profiles, snapshot, world, gateway)

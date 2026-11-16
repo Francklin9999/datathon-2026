@@ -82,13 +82,15 @@ gate.dataset(dataset_id, filters)                  # equality filters, plus "sta
 gate.describe(dataset_id)                          # passport dict
 gate.master_calendar(start=None, end=None)         # MasterCalendar: visible XIU.TO ∩ SPY dates
 gate.price_frame(tickers, start=None, end=None, calendar="master")  # PriceFrame for T05; None = no observation
-gate.fx_series(start=None, end=None)               # FxSeries.rate_on_or_before(day) -> (rate, published) | None
+gate.fx_series(start=None, end=None)               # test/diagnostic helper: FxSeries.rate_on_or_before(day) -> (rate, published) | None
 gate.universe()                                    # Universe.get/search/all/counts/cash
 gate.availability_summary()                        # per dataset rowsVisible/rowsWithheld/lastVisibleDate (T12)
 snap.datasets_response()                           # body of GET /datasets
 ```
 
-`end=None` means `as_of`. Rows are fresh dicts with source columns plus `available_at` for the gate's mode. `DataSlice.dataset_read().to_wire()` gives a `ToolCall.datasetsRead` entry; `merge_reads` sums repeated reads (trace totals, not unique I/O). Errors: `UnknownTicker`, `UnknownSeries`, `DatasetNotFound` (→ `not_found`), `DatasetMissing` (→ nee `dataset_missing`), `InvalidGateRequest` (→ `validation_error`), `SnapshotIntegrityError`, `IngestionError`.
+`end=None` means `as_of`. Rows are fresh dicts with source columns plus `available_at` for the gate's mode. `DataSlice.dataset_read().to_wire()` gives a `ToolCall.datasetsRead` entry. Errors: `UnknownTicker`, `UnknownSeries`, `DatasetNotFound` (→ `not_found`), `DatasetMissing` (→ nee `dataset_missing`), `InvalidGateRequest` (→ `validation_error`), `SnapshotIntegrityError`, `IngestionError`.
+
+Test and diagnostic helpers (no production caller; kept because the datastore tests use them): `gate.fx_series`/`FxSeries` (`rate_on`, `rate_on_or_before`), `PriceFrame.missing_dates`/`complete`, `DataSlice.last_visible_date` (the Time Machine and the agent workflow read `lastVisibleDate` from `gate.availability_summary()` instead), `SofrCapture.change_basis_points` (`nyfed_sofr.py`) and `passports.PASSPORT_KEYS`. Production FX lookups go through `gate.fx` in `quant/market.py` (`MarketData._cad_quote`), which keeps each row's `available_at`. The API never calls `active_version()`: it opens the pinned `APLOMB_DATA_VERSION`. `LocalDataStore.active_version()` is how `scripts/dev_api.py` picks that pin when none is set (it reads `data/manifests/active.json` and checks the label); `CachedObjectStore.active_version()` has no production caller.
 
 ### 7.2 Availability rules actually applied
 

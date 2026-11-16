@@ -16,7 +16,7 @@ function motionAllowed(): boolean {
   return animationsAllowed(root.dataset.anim, window.matchMedia('(prefers-reduced-motion: reduce)').matches, root.dataset.motion === 'off');
 }
 
-export function CountUp({ text, duration = COUNT_UP_MS }: { text: string; duration?: number }) {
+export function CountUp({ text }: { text: string }) {
   const { lang } = useApp();
   const parts = parseFigure(text, lang);
   const [shown, setShown] = useState(() => (parts && motionAllowed() ? formatLike(parts, 0) : text));
@@ -31,7 +31,7 @@ export function CountUp({ text, duration = COUNT_UP_MS }: { text: string; durati
     const began = performance.now();
     let frame = 0;
     const tick = () => {
-      const t = easeOutCubic((performance.now() - began) / duration);
+      const t = easeOutCubic((performance.now() - began) / COUNT_UP_MS);
       if (t >= 1) { setShown(text); current.current = target.value; return; }
       current.current = start + (target.value - start) * t;
       setShown(formatLike(target, current.current));
@@ -39,7 +39,7 @@ export function CountUp({ text, duration = COUNT_UP_MS }: { text: string; durati
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [text, lang, duration]);
+  }, [text, lang]);
 
   if (!parts) return <>{text}</>;
   return (

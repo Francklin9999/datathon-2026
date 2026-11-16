@@ -27,9 +27,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# Flags with an implemented provider. On-demand tickers is advertised only when APLOMB_TIINGO_TOKEN
-# is set (the local data directory is writable). Open-web research, guardrails and the
-# other unconfigured optional sources have no provider here, so switching them on would change nothing.
+# Flags switched on for local work; /meta still advertises each only when its provider is available
+# (api/domain.py default_services): on-demand tickers needs APLOMB_TIINGO_TOKEN (the local data
+# directory is writable) and sabotage_demo needs both model IDs. Left off: research_open_web (AgentCore
+# browser; needs AWS credentials and a contact APLOMB_SOURCE_USER_AGENT) and guardrails (the API refuses
+# to start without APLOMB_GUARDRAIL_ID and _VERSION); set their APLOMB_FEATURE_* variables to opt in.
 FEATURES = ("bilingual", "world_explorer", "world_layer_hazards", "world_layer_facilities", "time_machine", "profile_creator",
             "goal_requests", "frontier_chart", "on_demand_tickers", "sabotage_demo")
 # Git-ignored local settings (for example APLOMB_TIINGO_TOKEN). Only APLOMB_* keys are read.
@@ -60,14 +62,16 @@ def main() -> int:
     parser.add_argument("--no-reload", action="store_true")
     args = parser.parse_args()
 
-    manifests = ROOT / "data" / "manifests"
-    version = os.environ.get("APLOMB_DATA_VERSION") or json.loads((manifests / "active.json").read_text(encoding="utf-8"))["dataVersion"]
-    manifest = json.loads((manifests / f"{version}.json").read_text(encoding="utf-8"))
-    as_of = manifest["dataAsOf"]
-
     env = dict(os.environ)
     for key, value in read_env_file(ENV_FILE).items():
         env.setdefault(key, value)
+    # Resolved after the .env merge so the version materialized below is the one the server is given.
+    # The tracked pointer is read through the datastore, which also checks the version label.
+    from aplomb.datastore import LocalDataStore
+    manifests = ROOT / "data" / "manifests"
+    version = env.get("APLOMB_DATA_VERSION") or LocalDataStore(ROOT / "data").active_version()
+    manifest = json.loads((manifests / f"{version}.json").read_text(encoding="utf-8"))
+    as_of = manifest["dataAsOf"]
     defaults = {
         "APLOMB_ENV": "local",
         "APLOMB_DATA_VERSION": version,

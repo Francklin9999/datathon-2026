@@ -57,7 +57,6 @@ class Descriptor:
     availability_rule: dict
     # For planned datasets only (loaded ones take these from the organizer metadata).
     planned_source: str = "Not selected yet"
-    planned_owner: str = ""
     # Set where the text above describes the loaded dataset; a planned passport shows these instead.
     planned_access_method: str | None = None
     planned_processing: tuple[dict, ...] | None = None
@@ -206,7 +205,6 @@ DESCRIPTORS: dict[str, Descriptor] = {
         ("LIM_SIMULATION_ONLY",),
         t("Fictional assumptions; not time-gated.", "Hypothèses fictives; non filtrées dans le temps."),
         planned_source="backend/aplomb/profiles (T06), fictional personas (A-13)",
-        planned_owner="T06",
         planned_access_method="provided by the profiles module (T06)",
         planned_processing=(t("Personas file not readable; nothing is ingested by the datastore.",
                               "Fichier de personas illisible; rien n'est ingéré par le magasin de données."),),
@@ -226,7 +224,6 @@ DESCRIPTORS: dict[str, Descriptor] = {
         (LIM_MACRO_LAG_ASSUMED,),
         t("A record is available from its publication time.", "Un enregistrement est disponible à partir de son heure de publication."),
         planned_source="Not selected yet (open item O-05)",
-        planned_owner="T04",
         planned_access_method="planned: official release calendars and vintage archives (O-05)",
         planned_processing=(t("Not loaded: no source selected yet (O-05).", "Non chargé : aucune source choisie (O-05)."),),
     ),
@@ -239,7 +236,6 @@ DESCRIPTORS: dict[str, Descriptor] = {
         (LIM_ETF_NO_LOOKTHROUGH,),
         t("Available from the issuer publication time; partial coverage preserved.", "Disponible à partir de la publication de l'émetteur; couverture partielle conservée."),
         planned_source="ETF issuer holdings documents (planned, T09)",
-        planned_owner="T09",
     ),
     "world_airports": Descriptor(
         t("OurAirports reference", "Référence OurAirports"),
@@ -266,7 +262,6 @@ DESCRIPTORS: dict[str, Descriptor] = {
         (),
         t("Occurrence, publication and retrieval times kept separate.", "Heures d'occurrence, de publication et de récupération distinctes."),
         planned_source="GDELT and official releases (planned, T11)",
-        planned_owner="T11",
     ),
     "world_aviation_weather": Descriptor(
         t("Aviation weather", "Météo aéronautique"),
@@ -812,7 +807,6 @@ DESCRIPTORS: dict[str, Descriptor] = {
         ("LIM_ATTENTION_PROXY",),
         t("A day's count is available after that UTC day ends.", "Le décompte d'un jour est disponible après la fin de ce jour UTC."),
         planned_source="Wikimedia analytics API (planned, T09)",
-        planned_owner="T09",
     ),
     "emissions_facilities": Descriptor(
         t("Facility emissions", "Émissions des installations"),
@@ -823,7 +817,6 @@ DESCRIPTORS: dict[str, Descriptor] = {
         ("LIM_REGISTRY_MATCH",),
         t("Available from the registry publication date.", "Disponible à partir de la date de publication du registre."),
         planned_source="ECCC GHG reporting and EPA GHGRP (planned, T11)",
-        planned_owner="T11",
     ),
     "natural_hazards": Descriptor(
         t("Natural hazards", "Aléas naturels"),
@@ -834,7 +827,6 @@ DESCRIPTORS: dict[str, Descriptor] = {
         (),
         t("Available from the feed publication time.", "Disponible à partir de l'heure de publication du flux."),
         planned_source="USGS earthquake feeds and NASA FIRMS (planned, T11)",
-        planned_owner="T11",
     ),
     "research_documents": Descriptor(
         t("Research documents", "Documents de recherche"),
@@ -846,7 +838,6 @@ DESCRIPTORS: dict[str, Descriptor] = {
         t("Publication date kept separately from retrieval; unknown publication dates are not invented.",
           "Date de publication distincte de la récupération; une date inconnue n'est pas inventée."),
         planned_source="Research adapters (planned, T09)",
-        planned_owner="T09",
     ),
     "filings_index": Descriptor(
         t("SEC filings index", "Index des dépôts SEC"),
@@ -857,7 +848,6 @@ DESCRIPTORS: dict[str, Descriptor] = {
         (),
         t("Available from the filing date.", "Disponible à partir de la date de dépôt."),
         planned_source="SEC EDGAR APIs (planned, T09)",
-        planned_owner="T09",
     ),
 }
 

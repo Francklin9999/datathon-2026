@@ -9,10 +9,6 @@ RISK_FR = {"low": "faible", "low_moderate": "faible à modéré", "moderate": "m
 RISK_EN = {"low": "low", "low_moderate": "low-to-moderate", "moderate": "moderate", "moderate_high": "moderate-to-high", "high": "high"}
 
 
-def fmt_threshold(value: float) -> str:
-    return f"{value:g}"
-
-
 def make_rule(rule_id: str, code: str, *, threshold: float | None, origin: str, rationale: dict,
               derivation: dict | None, updated_at: str, enabled: bool = True) -> dict:
     d = rule_def(rule_id)

@@ -35,6 +35,8 @@ import { CorrelationHeatmap } from './CorrelationHeatmap';
 import { CountUp } from '../../components/ui/CountUp';
 import { factIdFor, fmtMoney, fmtNumber, fmtPct, fmtSignedPct, fmtUnit } from '../../lib/format';
 import { disabledRules, planRuleRows } from '../../lib/planRules';
+import { LOWEST_12M_INFO, LOWEST_12M_SHORT } from '../../lib/ui/figures';
+import { holdingReturnsOf } from '../../lib/overviewReturns';
 
 export function PortfolioPage() {
   return <ProfileGate>{profile => <PortfolioContent key={profile.profileId} profile={profile} />}</ProfileGate>;
@@ -89,7 +91,7 @@ function PortfolioContent({ profile }: { profile: Profile }) {
 function Holdings({ overview, profile }: { overview: OverviewResponse; profile: Profile }) {
   const { tr, lang } = useApp();
   const snapshot = overview.snapshot;
-  const returns = new Map(overview.concentration.topPositions.map(p => [p.ticker, p.return1yPct]));
+  const returns = holdingReturnsOf(overview);
   const total = snapshot.positions.reduce((s, p) => s + p.weightPct, 0);
   return (
     <Card id="holdings" section={tr({ en: 'Holdings', fr: 'Positions' })} tour="holdings" title={tr({ en: 'Holdings', fr: 'Positions' })}>
@@ -120,7 +122,8 @@ function Holdings({ overview, profile }: { overview: OverviewResponse; profile: 
                   <td className="num-col num">
                     {r === undefined
                       ? <span className="muted" title={tr({ en: 'Not supplied for this holding', fr: 'Non fourni pour cette position' })}>—</span>
-                      : r === null ? tr({ en: 'Unavailable', fr: 'Indisponible' }) : fmtSignedPct(r, lang)}
+                      : r.pct === null ? tr({ en: 'Unavailable', fr: 'Indisponible' })
+                        : r.factId ? <FactChip factId={r.factId} display={fmtSignedPct(r.pct, lang)} /> : fmtSignedPct(r.pct, lang)}
                   </td>
                 </tr>
               );
@@ -174,12 +177,12 @@ export function Risk({ overview }: { overview: OverviewResponse }) {
   };
   return (
     <Card id="risk" section={tr({ en: 'Risk', fr: 'Risque' })} tour="risk" title={tr({ en: 'Historical risk', fr: 'Risque historique' })}
-      info={tr({ en: 'Measured on this sample of past prices. The 2022 replay is signed; the stress rule compares the loss as a positive number.', fr: 'Mesuré sur cet échantillon de prix passés. Le rejeu 2022 est signé ; la règle de stress compare la perte en nombre positif.' })}>
+      info={`${tr({ en: 'Measured on this sample of past prices. The 2022 replay is signed; the stress rule compares the loss as a positive number.', fr: 'Mesuré sur cet échantillon de prix passés. Le rejeu 2022 est signé ; la règle de stress compare la perte en nombre positif.' })} ${tr(LOWEST_12M_INFO)}`}>
       <div className="tiles">
         <div className="tile"><span className="eyebrow block">{tr({ en: 'Annualized volatility', fr: 'Volatilité annualisée' })}</span><span className="big">{cell(risk.volatilityPct, 'volatilityPct')}</span></div>
         <div className="tile"><span className="eyebrow block">{tr({ en: 'Maximum drawdown', fr: 'Baisse maximale' })}</span><span className="big">{cell(risk.maxDrawdownPct, 'maxDrawdownPct')}</span></div>
         <div className="tile"><span className="eyebrow block">{tr({ en: '2022 replay return', fr: 'Rendement rejoué 2022' })}</span><span className="big">{cell(risk.stress2022Pct, 'stress2022Pct', true)}</span></div>
-        <div className="tile"><span className="eyebrow block">{tr({ en: 'Worst 12 months', fr: 'Pires 12 mois' })}</span><span className="big">{cell(risk.worst12mPct, 'worst12mPct', true)}</span></div>
+        <div className="tile"><span className="eyebrow block">{tr(LOWEST_12M_SHORT)}</span><span className="big">{cell(risk.worst12mPct, 'worst12mPct', true)}</span></div>
         <div className="tile"><span className="eyebrow block">{tr({ en: 'Effective positions', fr: 'Positions effectives' })}</span><span className="big num" title={`HHI ${fmtNumber(concentration.hhi, lang, 3)}`}><CountUp text={fmtNumber(concentration.effectiveN, lang, 1)} /></span></div>
       </div>
       <h3 className="h4">{tr({ en: 'Correlation of daily returns', fr: 'Corrélation des rendements quotidiens' })}</h3>

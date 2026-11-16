@@ -2,7 +2,7 @@
 import type { Position } from '../contracts/types';
 
 export const MAX_POSITIONS = 40;
-export const WEIGHT_TOLERANCE = 0.01;
+const WEIGHT_TOLERANCE = 0.01;
 
 export interface HoldingsIssue { code: 'empty' | 'too_many' | 'duplicate' | 'negative' | 'sum' | 'capital'; detail: string }
 

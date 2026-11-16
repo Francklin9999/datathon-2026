@@ -87,7 +87,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         redoc_url=None,
         openapi_url=None,
     )
-    app.state.settings, app.state.services = settings, services
+    app.state.services = services
     store = services.runs.repository.store if services.runs else create_store(settings)
     from aplomb.intelligence.discovery import EntityDiscovery
     entity_discovery = EntityDiscovery(store)
@@ -225,11 +225,6 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     from aplomb.intelligence.golden_routes import golden_router
     app.include_router(golden_router(store, session))
 
-    from aplomb.intelligence.chain_routes import chain_router
-    app.include_router(chain_router(store, session))
-
-    from aplomb.research.company_routes import company_router
-    app.include_router(company_router(settings, store, session))
     from aplomb.research.keyed_markets import keyed_market_router
     app.include_router(keyed_market_router(store, session))
     from aplomb.intelligence.sentiment_routes import sentiment_router
@@ -238,8 +233,6 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     app.include_router(capability_router(settings, session))
     from aplomb.intelligence.registry_routes import registry_router
     app.include_router(registry_router(store, session))
-    from aplomb.research.sec_extra import sec_extra_router
-    app.include_router(sec_extra_router(settings, store, session))
     from aplomb.intelligence.wikidata_routes import wikidata_router
     app.include_router(wikidata_router(settings, store, session))
     from aplomb.intelligence.master_routes import master_router
@@ -247,7 +240,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     from aplomb.intelligence.openfigi import openfigi_router
     app.include_router(openfigi_router(store, session))
     from aplomb.timemachine.pit_routes import point_in_time_router
-    app.include_router(point_in_time_router(store, session, feature))
+    app.include_router(point_in_time_router(session, feature))
     from aplomb.intelligence.defi_routes import defi_router
     app.include_router(defi_router(store, session))
     from aplomb.intelligence.eu_routes import eu_router
@@ -355,7 +348,8 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         except ValueError as exc:
             raise ServiceError("validation_error", str(exc)) from exc
 
-    # crypto-exchanges stream: venue-exact exchange market data, rights-gated per venue.
+    # crypto-exchanges stream: Binance Vision daily history only, rights-gated (the owner
+    # excluded the live venues, so their compare/market routes were removed).
     def crypto_unavailable(exc):
         # Stable reason codes from crypto_markets only; never upstream text.
         return ServiceError("upstream_unavailable", "Crypto venue data is unavailable", {"reason": str(exc)})
@@ -364,27 +358,6 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     def crypto_market_venues(sid: Session):
         from aplomb.intelligence.crypto_markets import venue_catalog
         return venue_catalog()
-
-    @app.get("/v1/intelligence/crypto-markets/compare/{asset}")
-    def crypto_market_compare(asset: str, sid: Session):
-        from aplomb.intelligence.crypto_markets import CryptoMarketError, compare
-        try:
-            return compare(store, sid, asset)
-        except CryptoMarketError as exc:
-            raise crypto_unavailable(exc) from exc
-        except ValueError as exc:
-            raise ServiceError("validation_error", str(exc)) from exc
-
-    @app.get("/v1/intelligence/crypto-markets/market/{venue}/{symbol}")
-    def crypto_market_detail(venue: str, symbol: str, sid: Session, interval: str = "1d",
-                             limit: int = Query(30, ge=1, le=60), depth: int = Query(10, ge=1, le=20)):
-        from aplomb.intelligence.crypto_markets import CryptoMarketError, market_detail
-        try:
-            return market_detail(store, sid, venue, symbol, interval=interval, limit=limit, depth=depth)
-        except CryptoMarketError as exc:
-            raise crypto_unavailable(exc) from exc
-        except ValueError as exc:
-            raise ServiceError("validation_error", str(exc)) from exc
 
     @app.get("/v1/intelligence/crypto-markets/vision/{symbol}/{day}")
     def crypto_market_vision(symbol: str, day: str, sid: Session, interval: str = "1d"):
@@ -395,50 +368,6 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
             return vision_daily(store, sid, symbol, date.fromisoformat(day), interval=interval)
         except CryptoMarketError as exc:
             raise crypto_unavailable(exc) from exc
-        except ValueError as exc:
-            raise ServiceError("validation_error", str(exc)) from exc
-
-    # funds-prices stream: rights-gated issuer holdings and Stooq (no network access).
-    @app.get("/v1/intelligence/issuer-holdings/rights")
-    def issuer_holdings_rights(sid: Session):
-        from aplomb.intelligence.issuer_holdings import rights_status
-        return rights_status()
-
-    @app.get("/v1/intelligence/issuer-holdings/{issuer}/{fund_ticker}")
-    def issuer_holdings_fund(issuer: str, fund_ticker: str, sid: Session):
-        from aplomb.intelligence.issuer_holdings import (
-            IssuerHoldingsBlocked,
-            acquire,
-            blocked_response,
-        )
-        try:
-            return acquire(issuer, fund_ticker)
-        except IssuerHoldingsBlocked as exc:
-            return blocked_response(exc, fund_ticker)
-        except ValueError as exc:
-            raise ServiceError("validation_error", str(exc)) from exc
-
-    @app.get("/v1/intelligence/stooq/daily")
-    def stooq_daily(
-        sid: Session,
-        symbol: str = Query(min_length=1, max_length=24),
-        start: str = Query(pattern=r"^\d{4}-\d{2}-\d{2}$"),
-        end: str = Query(pattern=r"^\d{4}-\d{2}-\d{2}$"),
-    ):
-        from datetime import date
-
-        from aplomb.intelligence.stooq import (
-            StooqBlocked,
-            blocked_response,
-            daily_prices,
-            validate_request,
-        )
-        try:
-            begin, finish = date.fromisoformat(start), date.fromisoformat(end)
-            request = validate_request(symbol, begin, finish)
-            return daily_prices(symbol, begin, finish)
-        except StooqBlocked:
-            return blocked_response(request)
         except ValueError as exc:
             raise ServiceError("validation_error", str(exc)) from exc
 
@@ -497,18 +426,6 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         except FundPipelineError as exc:
             raise fund_pipeline_error(exc) from None
 
-    @app.get("/v1/intelligence/security-issuer")
-    def security_issuer(sid: Session, isin: str = Query(min_length=12, max_length=12),
-                        lei: str = Query(min_length=20, max_length=20)):
-        from aplomb.intelligence.exact import capture_pair
-        from aplomb.intelligence.gleif import GLEIFError
-        try:
-            return capture_pair(store, sid, isin, lei)
-        except GLEIFError as exc:
-            raise unavailable("GLEIF exact security/issuer lookup") from exc
-        except ValueError as exc:
-            raise ServiceError("validation_error", str(exc)) from exc
-
     @app.get("/v1/intelligence/relationships")
     def relationship_graph_view(sid: Session, lei: str | None = Query(None, min_length=20, max_length=20),
                                 isin: str | None = Query(None, min_length=12, max_length=12),
@@ -538,7 +455,8 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
             raise NotFound("Capture not held by this session")
         return Response(raw, media_type="application/json")
 
-    @app.get("/v1/intelligence/regional")
+    @app.get("/v1/intelligence/regional", response_model=a.RegionalResearchResponse,
+             response_model_exclude_unset=True)
     def regional_research(sid: Session, region: str = Query(min_length=2, max_length=2),
                           identifier: str = Query(min_length=1, max_length=8),
                           start: str = Query(pattern=r"^\d{4}-\d{2}-\d{2}$"),
@@ -807,7 +725,28 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     )
     def parse(body: a.ParseRequest, sid: Session):
         require(services.profiles, "Profile service").get(sid, body.profile_id)
-        return require(services.parser, "Request parser").parse(sid, body)
+        parsed = m.ParsedRequest.model_validate(require(services.parser, "Request parser").parse(sid, body))
+        request = parsed.request
+        # api.md §4.1: with goal_requests off, a goal is not returned; `missing` asks for an asset.
+        if request is not None and request.type == "goal" and not feature_enabled("goal_requests"):
+            missing = [item for item in parsed.missing if item.field != "move.ticker"]
+            missing.append(m.MissingField(field="move.ticker", question=m.I18nText(
+                en="Goal requests are turned off. Which specific asset should be tested?",
+                fr="Les objectifs sont désactivés. Quel actif précis faut-il tester ?",
+            )))
+            return parsed.model_copy(update={"request": None, "missing": missing})
+        # api.md §4.1: an unknown ticker is fetched on demand, when that feature is on.
+        if request is not None and request.type == "move" and feature_enabled("on_demand_tickers"):
+            try:
+                require(services.datastore, "Asset datastore").asset(sid, request.move.ticker)
+            except NotFound:
+                ticker = request.move.ticker
+                warning = m.I18nText(
+                    en=f"{ticker} is not in the dataset yet; it can be fetched on demand from the form.",
+                    fr=f"{ticker} n’est pas encore dans les données ; il peut être récupéré à la demande depuis le formulaire.",
+                )
+                return parsed.model_copy(update={"warnings": [*parsed.warnings, warning]})
+        return parsed
 
     @app.post("/v1/rebalance/check", response_model=a.RebalanceResponse, response_model_exclude_unset=True)
     def rebalance_check(body: a.RebalanceRequest, sid: Session):
@@ -843,6 +782,12 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
                         request.state.request_id
                     )
                 )
+        # api.md §4.2b: two checked profiles get the rule-by-rule alignment (rules SPEC §6).
+        if len(results) == 2 and all(isinstance(r, m.CheckResult) for r in results):
+            from aplomb.rules.engine import explain_difference
+
+            differences = explain_difference(results[0].rule_checks, results[1].rule_checks)
+            return a.BatchCheckResponse(results=results, differences=differences)
         return a.BatchCheckResponse(results=results)
 
     @app.post(

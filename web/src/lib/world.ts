@@ -251,7 +251,7 @@ export function thinPins<T extends Pick<WorldEvent, 'eventId' | 'importance' | '
 export type LayerId = WorldLayer['layerId'];
 export const LAYER_IDS: readonly LayerId[] = ['events', 'exposure', 'facilities', 'hazards', 'airports'];
 /** Feature flag gating a layer, when it has one (api.md 6.6, 6.7). */
-export const LAYER_FLAG: Partial<Record<LayerId, string>> = {
+const LAYER_FLAG: Partial<Record<LayerId, string>> = {
   facilities: 'world_layer_facilities', hazards: 'world_layer_hazards',
 };
 
@@ -321,7 +321,7 @@ export function briefOtherProfileId(runProfileId: string | null, selectedProfile
 }
 
 /** Shown instead of the run's statement when the code matched no holding: nothing was "identified". */
-export const NO_LINK_STATEMENT: I18NText = {
+const NO_LINK_STATEMENT: I18NText = {
   en: 'No documented link between this event and a holding was found by the code matches. Financial impact not established.',
   fr: 'Aucun lien documenté entre cet événement et une position n’a été trouvé par les correspondances du code. Impact financier non établi.',
 };

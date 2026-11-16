@@ -197,7 +197,7 @@ class CompanyResearch:
     def _store(self, owner, session_id, section, url, doc, normalized, published_at=None):
         source = {"url": doc.canonical_url, "sha256": doc.content_hash, "section": section,
                   "retrieved_at": doc.retrieved_at.isoformat(), "available_at": doc.retrieved_at.isoformat(),
-                  "captured_text_sha256": hashlib.sha256(doc.text.encode()).hexdigest(),
+                  "captured_text_sha256": doc.text_hash,
                   "published_at": published_at, "provider": "SEC EDGAR", "version": "sha256:" + doc.content_hash,
                   "licence": SEC_LICENCE}
         item = {"revision": 1, "sessionId": session_id, "raw": doc.text, "source": source,

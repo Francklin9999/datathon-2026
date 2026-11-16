@@ -6,7 +6,7 @@
  * checks (409 keeps the unsaved form). No real contact or account information is requested.
  */
 import { useMemo, useState, type ReactNode } from 'react';
-import type { AssetClass, I18NText, Lang, ProfileDraftResult, InvestmentGoal, Profile, ProfilesResponse, Run, ThemeTag } from '../../contracts/types';
+import type { AssetClass, I18NText, Lang, PartialProfile, ProfileDraftResult, InvestmentGoal, Profile, ProfilesResponse, Run, ThemeTag } from '../../contracts/types';
 import { ThemeTag as THEMES } from '../../contracts/catalog';
 import { getApiClient } from '../../api/index';
 import { asApiError, type ApiRequestError } from '../../api/errors';
@@ -22,9 +22,12 @@ import { fmtMoney } from '../../lib/format';
 import { MAX_POSITIONS, weightSum } from '../../lib/holdings';
 import type { Suggestion } from '../../lib/suggest';
 import { SuggestInput } from '../../components/ui/SuggestInput';
+import { SupportedUniverse } from '../../components/common/SupportedUniverse';
+import { useAssetUniverse } from '../../state/useAssetUniverse';
+import { isSupportedTicker, unsupportedTickersMessage } from '../../lib/universe';
 import {
-  EMPTY_PROFILE_FORM, applyDraft, formFromProfile, formPositions, toCreateRequest, validateProfileForm,
-  type ProfileForm, type ProfileFormIssue,
+  EMPTY_PROFILE_FORM, applyDraft, draftQuestion, draftReviewRows, formFromProfile, formPositions, partialFromForm,
+  profileFieldLabel, rebaseForm, toCreateRequest, validateProfileForm, type ProfileForm, type ProfileFormIssue,
 } from '../../lib/profileForm';
 import { CustomThemeInputs } from './CustomThemeInputs';
 import { AllocationInputs } from './AllocationInputs';
@@ -58,23 +61,11 @@ function currencyName(code: string, lang: Lang): string {
   try { return new Intl.DisplayNames([lang === 'fr' ? 'fr-CA' : 'en-CA'], { type: 'currency' }).of(code) ?? ''; } catch { return ''; }
 }
 
-const FIELD_LABEL: Record<string, I18NText> = {
-  name: { en: 'Name', fr: 'Nom' },
-  age: { en: 'Age', fr: 'Âge' },
-  riskLevel: { en: 'Risk level', fr: 'Niveau de risque' },
-  horizonMin: { en: 'Horizon minimum', fr: 'Horizon minimum' },
-  horizonMax: { en: 'Horizon maximum', fr: 'Horizon maximum' },
-  objective: { en: 'Objective', fr: 'Objectif' },
-  experience: { en: 'Experience', fr: 'Expérience' },
-  investorContext: { en: 'Investor policy inputs', fr: 'Entrées du plan investisseur' },
-  reportingCurrency: { en: 'Reporting currency', fr: 'Devise de présentation' },
-  capital: { en: 'Fictional capital', fr: 'Capital fictif' },
-  positions: { en: 'Holdings', fr: 'Positions' },
-};
+const label = (field: string, tr: (t: I18NText) => string) => tr(profileFieldLabel(field));
 
-const label = (field: string, tr: (t: I18NText) => string) => tr(FIELD_LABEL[field] ?? { en: field, fr: field });
-
-function issueText(issue: ProfileFormIssue, tr: (t: I18NText) => string): string {
+/** The ticker issue names the snapshot (`dataVersion`) the supported list belongs to. */
+function issueText(issue: ProfileFormIssue, tr: (t: I18NText) => string, dataVersion = ''): string {
+  if (issue.code === 'unsupported') return `${label('positions', tr)}: ${tr(unsupportedTickersMessage(issue.tickers, dataVersion))}`;
   if (issue.code === 'holdings') {
     const { code, detail } = issue.issue;
     const messages: Record<typeof code, I18NText> = {
@@ -131,7 +122,15 @@ function ProfilesContent() {
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<ApiRequestError | null>(null);
-  const issues = useMemo(() => validateProfileForm(form), [form]);
+  const universe = useAssetUniverse();
+  // Holdings are checked against the snapshot only once its whole universe is loaded.
+  const knownAssets = universe.ready ? universe.assets : undefined;
+  const dataVersion = universe.dataVersion ?? meta?.dataVersion ?? '';
+  const issues = useMemo(() => validateProfileForm(form, knownAssets), [form, knownAssets]);
+  const draftFields = useMemo(() => partialFromForm(form), [form]);
+  // A server refusal of unknown tickers (422 details.unknown), worded like the field check.
+  const unknownDetail = saveError?.code === 'validation_error' ? saveError.details?.unknown : undefined;
+  const unknownOnSave = Array.isArray(unknownDetail) ? unknownDetail.filter((t): t is string => typeof t === 'string') : [];
   const currencySuggestions = useMemo<Suggestion[]>(() => (meta?.reportingCurrencies ?? ['CAD', 'USD']).map(code => ({ value: code, label: currencyName(code, lang) })), [meta, lang]);
   const investorTypeSuggestions = useMemo<Suggestion[]>(() => INVESTOR_TYPES.map(type => ({ value: type.value, label: tr(type.label) })), [tr]);
   const needsConfirmation = provisional.length > 0 || unresolved.length > 0;
@@ -160,6 +159,20 @@ function ProfilesContent() {
     } catch (error) {
       setSaveError(asApiError(error));
     } finally { setSaving(false); }
+  };
+
+  /** After a 409: fetch the stored version of the profile being edited and keep the unsaved form (CRE-05). */
+  const reloadAfterConflict = async () => {
+    if (editing.mode !== 'update') { reloadProfiles(); return; }
+    const { profileId } = editing;
+    try {
+      const latest = await getApiClient().profile(profileId);
+      applyProfile(latest);
+      setEditing(e => (e.mode === 'update' && e.profileId === latest.profileId ? { ...e, version: latest.version } : e));
+      setForm(f => rebaseForm(f, latest));
+      setSaveError(null);
+      announce(tr({ en: `Latest version of ${latest.name} loaded. Your unsaved form is kept; save again to replace it.`, fr: `Dernière version de ${latest.name} chargée. Votre formulaire non enregistré est conservé ; enregistrez de nouveau pour la remplacer.` }));
+    } catch (error) { setSaveError(asApiError(error)); }
   };
 
   const duplicate = async (profile: Profile) => {
@@ -221,11 +234,15 @@ function ProfilesContent() {
 
       <ProfileCompare profiles={profiles} />
 
-      <DraftFromText onApply={(run, draft) => {
-        const { form: next, filled } = applyDraft(EMPTY_PROFILE_FORM, draft.profile);
-        load(next, { mode: 'create', fromDraftRunId: run.runId });
-        setProvisional(filled);
+      <DraftFromText fields={draftFields} onApply={(run, draft) => {
+        // Additive (web-pages-core#10): the draft fills the form on screen, it does not replace it.
+        // An edit stays an edit of the same profile; a new profile records the draft run.
+        const { form: next, filled } = applyDraft(form, draft.profile);
+        setForm(next);
+        setEditing(e => (e.mode === 'create' ? { mode: 'create', fromDraftRunId: run.runId } : e));
+        setProvisional(p => [...new Set([...p, ...filled])]);
         setUnresolved(draft.unresolved);
+        setConfirmed(false); setSubmitted(false); setSaveError(null);
       }} />
 
       <Card id="profile-form" title={editing.mode === 'update'
@@ -235,11 +252,11 @@ function ProfilesContent() {
           {submitted && issues.length > 0 && (
             <div className="error-summary" role="alert">
               <p className="state-title">{tr({ en: 'Please fix the following before saving:', fr: 'Veuillez corriger ce qui suit avant d’enregistrer :' })}</p>
-              <ul className="bullets small">{issues.map((issue, i) => <li key={i}>{issueText(issue, tr)}</li>)}</ul>
+              <ul className="bullets small">{issues.map((issue, i) => <li key={i}>{issueText(issue, tr, dataVersion)}</li>)}</ul>
             </div>
           )}
           {provisional.length > 0 && (
-            <p className="stale-note">{tr({ en: 'Fields filled from your text are provisional until you confirm them:', fr: 'Les champs remplis à partir de votre texte sont provisoires jusqu’à confirmation :' })} <span className="mono">{provisional.join(', ')}</span></p>
+            <p className="stale-note">{tr({ en: 'Fields filled from your text are provisional until you confirm them:', fr: 'Les champs remplis à partir de votre texte sont provisoires jusqu’à confirmation :' })} {provisional.map(field => label(field, tr)).join(', ')}</p>
           )}
           <div className="form-grid">
             <Field id="pf-name" text={label('name', tr)} issues={fieldIssues('name')}>
@@ -372,7 +389,9 @@ function ProfilesContent() {
                     <tbody>
                       {form.positions.map((p, i) => (
                         <tr key={i}>
-                          <td><input aria-label={`${tr({ en: 'Ticker', fr: 'Symbole' })} ${i + 1}`} type="text" value={p.ticker} onChange={e => updatePosition(i, { ticker: e.target.value.toUpperCase() })} /></td>
+                          <td><input aria-label={`${tr({ en: 'Ticker', fr: 'Symbole' })} ${i + 1}`} type="text" value={p.ticker} aria-describedby={universe.ready ? 'pf-universe' : undefined}
+                            aria-invalid={knownAssets && p.ticker.trim() && !isSupportedTicker(knownAssets, p.ticker) ? true : undefined}
+                            onChange={e => updatePosition(i, { ticker: e.target.value.toUpperCase() })} /></td>
                           <td><input aria-label={`${tr({ en: 'Weight', fr: 'Poids' })} ${i + 1}`} type="number" min={0} step={0.01} value={p.weightPct} onChange={e => updatePosition(i, { weightPct: e.target.value })} /></td>
                           <td><button type="button" className="btn ghost btn-sm" onClick={() => set({ positions: form.positions.filter((_, j) => j !== i) })}>{tr({ en: 'Remove', fr: 'Retirer' })}</button></td>
                         </tr>
@@ -381,10 +400,11 @@ function ProfilesContent() {
                     <tfoot><tr><th scope="row">{tr({ en: 'Total', fr: 'Total' })}</th><td className="num" aria-live="polite">{sum.toFixed(2)} %</td><td /></tr></tfoot>
                   </table>
                 </div>
+                <SupportedUniverse id="pf-universe" />
                 <div className="row-actions">
                   <button type="button" className="btn ghost btn-sm" disabled={form.positions.length >= MAX_POSITIONS} onClick={() => set({ positions: [...form.positions, { ticker: '', weightPct: '' }] })}>{tr({ en: 'Add holding', fr: 'Ajouter une position' })}</button>
                 </div>
-                {fieldIssues('positions').map((issue, i) => <p key={i} className="field-error">{issueText(issue, tr)}</p>)}
+                {fieldIssues('positions').map((issue, i) => <p key={i} className="field-error">{issueText(issue, tr, dataVersion)}</p>)}
               </>
             )}
           </fieldset>
@@ -394,7 +414,7 @@ function ProfilesContent() {
           {unresolved.length > 0 && (
             <div className="state" style={{ marginTop: 12 }}>
               <p className="state-title">{tr({ en: 'Questions the draft could not resolve', fr: 'Questions que le brouillon n’a pas pu résoudre' })}</p>
-              <ul className="bullets small">{unresolved.map(u => <li key={u.field}>{FIELD_LABEL[u.field] ? `${tr(FIELD_LABEL[u.field]!)}: ` : ''}{tr(u.question)}</li>)}</ul>
+              <ul className="bullets small">{unresolved.map(u => <li key={u.field}>{label(u.field, tr)}: {tr(draftQuestion(u))}</li>)}</ul>
             </div>
           )}
           {needsConfirmation && (
@@ -410,8 +430,10 @@ function ProfilesContent() {
             <button type="button" className="btn ghost" onClick={() => load(EMPTY_PROFILE_FORM, { mode: 'create', fromDraftRunId: null })}>{tr({ en: 'Clear', fr: 'Effacer' })}</button>
           </div>
           {saveError && (
-            <ErrorState error={saveError} {...(saveError.code === 'conflict' ? { title: tr({ en: 'This profile changed since you opened it, or is read-only. Your unsaved form is kept.', fr: 'Ce profil a changé depuis son ouverture, ou est en lecture seule. Votre formulaire non enregistré est conservé.' }) } : {})}>
-              {saveError.code === 'conflict' && <button type="button" className="btn ghost btn-sm" onClick={reloadProfiles}>{tr({ en: 'Reload profiles', fr: 'Recharger les profils' })}</button>}
+            <ErrorState error={saveError} {...(saveError.code === 'conflict'
+              ? { title: tr({ en: 'This profile changed since you opened it, or is read-only. Your unsaved form is kept.', fr: 'Ce profil a changé depuis son ouverture, ou est en lecture seule. Votre formulaire non enregistré est conservé.' }) }
+              : unknownOnSave.length > 0 ? { title: tr(unsupportedTickersMessage(unknownOnSave, dataVersion)) } : {})}>
+              {saveError.code === 'conflict' && <button type="button" className="btn ghost btn-sm" onClick={() => void reloadAfterConflict()}>{tr({ en: 'Reload profiles', fr: 'Recharger les profils' })}</button>}
             </ErrorState>
           )}
         </form>
@@ -431,18 +453,28 @@ function Field({ id, text, issues, children }: { id: string; text: string; issue
   );
 }
 
-function DraftFromText({ onApply }: { onApply: (run: Run, draft: ProfileDraftResult) => void }) {
+/**
+ * Text draft: the values already in the form are sent as confirmed `fields`, and Apply fills the form
+ * on screen. The review lists every field taken from the text and every field withheld, with its reason.
+ */
+function DraftFromText({ fields, onApply }: { fields: PartialProfile; onApply: (run: Run, draft: ProfileDraftResult) => void }) {
   const { tr, lang } = useApp();
   const [text, setText] = useState('');
   const [runId, setRunId] = useState<string | null>(null);
+  const [sent, setSent] = useState<PartialProfile>({});
   const [error, setError] = useState<ApiRequestError | null>(null);
   const polled = useRun(runId);
   const run = polled.run;
   const draft = run?.result?.kind === 'profile_draft' ? run.result.draft : null;
+  const review = useMemo(() => (draft ? draftReviewRows(draft, sent) : null), [draft, sent]);
   const start = async () => {
     setError(null);
     try {
-      const created = await getApiClient().createRun({ kind: 'profile_draft', lang, text: text.trim() });
+      const body = Object.keys(fields).length > 0
+        ? { kind: 'profile_draft' as const, lang, text: text.trim(), fields }
+        : { kind: 'profile_draft' as const, lang, text: text.trim() };
+      const created = await getApiClient().createRun(body);
+      setSent(fields);
       setRunId(created.runId);
     } catch (e) { setError(asApiError(e)); }
   };
@@ -451,8 +483,8 @@ function DraftFromText({ onApply }: { onApply: (run: Run, draft: ProfileDraftRes
     <Card title={tr({ en: 'Or describe the fictional investor in words', fr: 'Ou décrivez l’investisseur fictif en mots' })}>
       <div className="field">
         <label htmlFor="draft-text">{tr({ en: 'Description', fr: 'Description' })}</label>
-        <textarea id="draft-text" value={text} maxLength={2000} onChange={e => setText(e.target.value)} />
-        <span className="hint">{tr({ en: 'Fields are proposed for review; nothing is saved until you confirm.', fr: 'Les champs sont proposés pour révision ; rien n’est enregistré sans confirmation.' })}</span>
+        <textarea id="draft-text" aria-describedby="draft-text-hint" value={text} maxLength={2000} onChange={e => setText(e.target.value)} />
+        <span className="hint" id="draft-text-hint">{tr({ en: 'Fields are proposed for review; nothing is saved until you confirm. Values already in the form are kept unless your description states a different one.', fr: 'Les champs sont proposés pour révision ; rien n’est enregistré sans confirmation. Les valeurs déjà saisies sont conservées, sauf si votre description en indique une autre.' })}</span>
       </div>
       <div className="row-actions"><button type="button" className="btn ghost" disabled={!text.trim() || busy} onClick={() => void start()}>{tr({ en: 'Draft a profile', fr: 'Rédiger un brouillon' })}</button></div>
       {error && <ErrorState error={error} />}
@@ -464,11 +496,26 @@ function DraftFromText({ onApply }: { onApply: (run: Run, draft: ProfileDraftRes
           <details><summary className="small">{tr({ en: 'Execution trace', fr: 'Trace d’exécution' })}</summary><RunTimeline run={run} /></details>
         </div>
       )}
-      {run && draft && (
+      {run && draft && review && (
         <div className="state">
           <p className="state-title">{tr({ en: 'Draft ready — review before applying', fr: 'Brouillon prêt — vérifiez avant de l’appliquer' })}</p>
-          <ul className="bullets small">{draft.explanations.map(e => <li key={e.field}>{FIELD_LABEL[e.field] ? `${tr(FIELD_LABEL[e.field]!)}: ` : ''}{tr(e.text)}</li>)}</ul>
-          {draft.unresolved.length > 0 && <p className="small">{tr({ en: `${draft.unresolved.length} question(s) remain open.`, fr: `${draft.unresolved.length} question(s) restent ouvertes.` })}</p>}
+          <p className="small"><strong>{tr({ en: 'Proposed from your text', fr: 'Proposé à partir de votre texte' })}</strong></p>
+          {review.proposed.length === 0
+            ? <p className="small muted">{tr({ en: 'Nothing could be taken from your text.', fr: 'Rien n’a pu être tiré de votre texte.' })}</p>
+            : <ul className="bullets small">{review.proposed.map(row => (
+              <li key={row.field}>
+                {tr(row.label)}{row.value ? `: ${tr(row.value)}` : ''}
+                {row.alreadyInForm && <span className="muted"> ({tr({ en: 'already in the form', fr: 'déjà dans le formulaire' })})</span>}
+                {!row.applied && <span className="muted"> ({tr({ en: 'not applied: the form has no field for it', fr: 'non appliqué : le formulaire n’a pas de champ pour cette valeur' })})</span>}
+                {row.explanation && <span className="muted"> — {tr(row.explanation)}</span>}
+              </li>
+            ))}</ul>}
+          <p className="small"><strong>{tr({ en: 'Not applied: needs your answer', fr: 'Non appliqué : votre réponse est requise' })}</strong></p>
+          {review.withheld.length === 0
+            ? <p className="small muted">{review.proposed.length > 0
+              ? tr({ en: 'Every field the draft proposed was found in your text.', fr: 'Chaque champ proposé par le brouillon figure dans votre texte.' })
+              : tr({ en: 'No open questions.', fr: 'Aucune question ouverte.' })}</p>
+            : <ul className="bullets small">{review.withheld.map(row => <li key={row.field}>{tr(row.label)}: {tr(row.question)}</li>)}</ul>}
           <button type="button" className="btn btn-sm" onClick={() => onApply(run, draft)}>{tr({ en: 'Apply draft to the form (provisional)', fr: 'Appliquer le brouillon au formulaire (provisoire)' })}</button>
         </div>
       )}

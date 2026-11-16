@@ -6,24 +6,14 @@
 .enter > :not(.kpis), .enter > .kpis > * { animation: enter-in var(--dur-enter) var(--ease) backwards; animation-delay: calc(min(var(--i, 0), 5) * 50ms); }
 @keyframes enter-in { from { opacity: 0; transform: translate3d(0, 8px, 0); } }
 
-/* Rolling figures: each digit rises into its own clipped cell; tabular numerals keep widths fixed. */
-.roll { display: inline-block; white-space: nowrap; }
-.roll-glyphs { display: inline-flex; align-items: baseline; }
-.roll-cell { display: inline-block; overflow: hidden; vertical-align: bottom; height: 1.15em; line-height: 1.15; }
-.roll-digit { display: inline-block; }
-/* Only while fresh (useFresh): a widget moved in the DOM never replays the roll. */
-.roll-glyphs[data-fresh] .roll-digit { animation: roll-up var(--dur-enter) var(--ease) backwards; animation-delay: calc(80ms + var(--d, 0) * 24ms); }
-.roll-static { display: inline-block; line-height: 1.15; }
-@keyframes roll-up { from { transform: translate3d(0, 100%, 0); opacity: 0; } }
-
 /* Hidden tab or preview (html[data-motion="off"], set by the boot script): nothing waits on a frame. */
 html[data-motion='off'] *, html[data-motion='off'] *::before, html[data-motion='off'] *::after { animation: none !important; transition: none !important; }
 
 /* Reduced motion (system) unless the person turned animations on; or animations turned off. */
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-anim='on']) :is(.enter > *, .enter > .kpis > *, .roll-digit) { animation: none; }
+  html:not([data-anim='on']) :is(.enter > *, .enter > .kpis > *) { animation: none; }
 }
-html[data-anim='off'] :is(.enter > *, .enter > .kpis > *, .roll-digit) { animation: none; }
+html[data-anim='off'] :is(.enter > *, .enter > .kpis > *) { animation: none; }
 
 /* Charts draw themselves once when they appear (and again when their data changes: they are re-keyed),
    only while fresh (LineChart's Drawn group), so moving a widget never redraws them.

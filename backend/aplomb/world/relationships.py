@@ -64,16 +64,3 @@ def event_geography(event: dict, provenance: dict) -> Relationship | None:
         evidence_class="direct", valid_from=date.fromisoformat(event["occurredAt"]),
         evidence=evidence,
     )
-
-
-def facility_geography(facility: dict, manifest: dict) -> Relationship:
-    """FACILITY_LOCATED_IN country from a checksum-verified registry row."""
-    evidence = _evidence(
-        manifest["datasetId"], facility["sourceUrl"], facility, manifest["capturedAt"],
-        manifest["licence"], f"{facility['reportingYear']}-12-31T00:00:00Z",
-    )
-    return Relationship(
-        subject_id=facility["facilityId"], relation="FACILITY_LOCATED_IN",
-        object_id=f"country:{facility['countryIso3']}", evidence_class="direct",
-        valid_from=date(facility["reportingYear"], 1, 1), evidence=evidence,
-    )

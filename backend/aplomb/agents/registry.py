@@ -78,19 +78,29 @@ class ToolContext:
 class ToolRegistry:
     def __init__(self):
         self._tools: dict[str, tuple[type[BaseModel], Callable]] = {}
+        self._available: dict[str, Callable[[ToolContext], bool]] = {}
 
-    def register(self, name: str, args: type[BaseModel], function: Callable):
+    def register(self, name: str, args: type[BaseModel], function: Callable,
+                 available: Callable[[ToolContext], bool] | None = None):
+        """``available(ctx)``, when given, hides the tool from a run where it can only answer an
+        evidence gap, so no research call is spent on it."""
         if name not in LOOKUP | RESEARCH | QUANT | RISK:
             raise ValueError("Tool is absent from the shared catalog")
         if name in self._tools:
             raise ValueError("Duplicate tool")
         self._tools[name] = (args, function)
+        if available is not None:
+            self._available[name] = available
 
-    def schemas(self, names):
+    def _offered(self, name: str, ctx: ToolContext | None) -> bool:
+        check = self._available.get(name)
+        return check is None or ctx is None or bool(check(ctx))
+
+    def schemas(self, names, ctx: ToolContext | None = None):
         return [
             {"name": name, "schema": schema.model_json_schema()}
             for name, (schema, _) in self._tools.items()
-            if name in names
+            if name in names and self._offered(name, ctx)
         ]
 
     def validate(self, role: str, name: str, args: dict, ctx: ToolContext):
@@ -102,6 +112,8 @@ class ToolRegistry:
         }.get(role, set())
         if name not in allowed or name not in self._tools:
             raise ValueError("Tool is unavailable for this role")
+        if not self._offered(name, ctx):
+            raise ValueError("Tool is unavailable at this run's cutoff")
         if ctx.historical and name in RESEARCH:
             raise ValueError("Research is disabled in historical runs")
         if ctx.gate is None and name != "profile.get":

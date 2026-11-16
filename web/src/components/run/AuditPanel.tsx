@@ -2,11 +2,16 @@
 /**
  * Audit report (T14): A01–A14 results by kind, struck/rewrite counts, guardrail ("Not applied"
  * when not configured, never implied executed) and ledger integrity metadata with copy/download.
+ * Next to the verdict: the research counts (kept, failed, cited). A passing A08 on a brief that
+ * cites no evidence had nothing to compare and reads "No external quotes to verify" (lib/evidence).
  */
 import { useState } from 'react';
-import type { AuditReport, Run } from '../../contracts/types';
+import type { Brief, Run } from '../../contracts/types';
 import { AUDIT_CHECK, labelOf } from '../../lib/labels';
 import { fmtDateTime } from '../../lib/format';
+import {
+  NO_QUOTES_DETAIL, NO_QUOTES_TO_VERIFY, evidenceCitations, quoteCheckHadNothingToVerify, researchCountsLine, researchOutcome,
+} from '../../lib/evidence';
 import { useApp } from '../../state/app';
 
 const KIND_LABEL = {
@@ -21,9 +26,12 @@ const STATUS_TEXT = {
   failed: { en: 'Audit failed', fr: 'Audit échoué' },
 } as const;
 
-export function AuditPanel({ audit, run }: { audit: AuditReport; run: Run }) {
+export function AuditPanel({ brief, run }: { brief: Brief; run: Run }) {
   const { tr, lang } = useApp();
   const [copied, setCopied] = useState(false);
+  const audit = brief.audit;
+  const cited = evidenceCitations(brief).length;
+  const research = researchCountsLine(researchOutcome(run), cited, run.flags.timeMachine || run.kind === 'replay');
 
   const copy = async () => {
     try {
@@ -58,6 +66,7 @@ export function AuditPanel({ audit, run }: { audit: AuditReport; run: Run }) {
           {tr({ en: 'Covers the checks below only.', fr: 'Ne couvre que les vérifications ci-dessous.' })}
         </span>
       </p>
+      <p className="small">{tr(research)}</p>
       <p className="small">
         {audit.sentencesChecked} {tr({ en: 'sentence(s) checked', fr: 'phrase(s) vérifiée(s)' })}, {audit.sentencesStruck} {tr({ en: 'struck', fr: 'rayée(s)' })}, {audit.rewrites} {tr({ en: 'rewrite(s)', fr: 'réécriture(s)' })}
       </p>
@@ -82,17 +91,22 @@ export function AuditPanel({ audit, run }: { audit: AuditReport; run: Run }) {
             </tr>
           </thead>
           <tbody>
-            {audit.checks.map((check, i) => (
-              <tr key={`${check.code}-${i}`} className={check.ok ? '' : 'row-conflict'}>
-                <th scope="row"><span className="mono">{check.code}</span> <span className="small block muted">{labelOf(AUDIT_CHECK, check.code, lang)}</span></th>
-                <td>{check.ok
-                  ? <span className="pill s-pass"><span aria-hidden="true">✓ </span>{tr({ en: 'Passed', fr: 'Réussi' })}</span>
-                  : <span className="pill s-conflict"><span aria-hidden="true">✕ </span>{tr({ en: 'Failed', fr: 'Échoué' })}</span>}</td>
-                <td className="small">{tr(KIND_LABEL[check.kind])}</td>
-                <td className="small">{check.detail}</td>
-                <td className="small mono">{check.sentenceIds.length ? check.sentenceIds.map(id => <a key={id} href={`#sentence-${id}`}>{id} </a>) : '—'}</td>
-              </tr>
-            ))}
+            {audit.checks.map((check, i) => {
+              const nothingToVerify = quoteCheckHadNothingToVerify(check, brief);
+              return (
+                <tr key={`${check.code}-${i}`} className={check.ok ? '' : 'row-conflict'}>
+                  <th scope="row"><span className="mono">{check.code}</span> <span className="small block muted">{labelOf(AUDIT_CHECK, check.code, lang)}</span></th>
+                  <td>{nothingToVerify
+                    ? <span className="pill s-info">{tr(NO_QUOTES_TO_VERIFY)}</span>
+                    : check.ok
+                      ? <span className="pill s-pass"><span aria-hidden="true">✓ </span>{tr({ en: 'Passed', fr: 'Réussi' })}</span>
+                      : <span className="pill s-conflict"><span aria-hidden="true">✕ </span>{tr({ en: 'Failed', fr: 'Échoué' })}</span>}</td>
+                  <td className="small">{tr(KIND_LABEL[check.kind])}</td>
+                  <td className="small">{nothingToVerify ? tr(NO_QUOTES_DETAIL) : check.detail}</td>
+                  <td className="small mono">{!nothingToVerify && check.sentenceIds.length ? check.sentenceIds.map(id => <a key={id} href={`#sentence-${id}`}>{id} </a>) : '—'}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

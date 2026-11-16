@@ -18,7 +18,6 @@ from aplomb.api.errors import Conflict
 from aplomb.api.storage import Write
 
 CA_API = 'https://ised-isde.canada.ca/cc/lgcy/api/corporations/'
-CA_DOCS = 'https://ised-isde.canada.ca/site/corporations-canada/en/accessing-federal-corporation-json-datasets'
 CA_TERMS = 'https://open.canada.ca/en/open-government-licence-canada'
 IE_API = 'https://opendata.cro.ie/api/3/action/datastore_search'
 IE_DATASET = 'https://opendata.cro.ie/dataset/companies'

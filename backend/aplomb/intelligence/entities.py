@@ -80,36 +80,6 @@ class Evidence(Model):
         return self.available_at <= cutoff and (not historical or self.retrieved_at <= cutoff)
 
 
-class Instrument(Model):
-    ticker: str = Field(pattern=r'^[A-Z0-9][A-Z0-9.=_-]{0,39}$')
-    exchange_mic: str = Field(pattern=r'^[A-Z0-9]{4}$')
-    valid_from: date
-    valid_to: date | None = None
-    currency: str = Field(pattern=r'^[A-Z]{3}$')
-    isin: str | None = None
-    name: str = Field(min_length=1, max_length=200)
-    evidence: Evidence
-
-    @field_validator('isin')
-    @classmethod
-    def check_isin(cls, value):
-        if value is not None and not valid_isin(value):
-            raise ValueError('invalid ISIN checksum')
-        return value
-
-    @model_validator(mode='after')
-    def dates(self):
-        if self.valid_to and self.valid_to < self.valid_from:
-            raise ValueError('listing end precedes start')
-        return self
-
-    @property
-    def listing_id(self) -> str:
-        """Deterministic exchange/symbol/lifecycle ID; not a claim about the issuer."""
-        token = f'{self.exchange_mic}|{self.ticker}|{self.valid_from.isoformat()}'
-        return 'listing_' + hashlib.sha256(token.encode('utf-8')).hexdigest()[:24]
-
-
 RelationshipType = Literal[
     'SECURITY_ISSUED_BY', 'ENTITY_PARENT_OF', 'FACILITY_OPERATED_BY',
     'ENTITY_HEADQUARTERED_IN', 'COMPANY_REPORTS_REVENUE_IN', 'FACILITY_LOCATED_IN',
@@ -146,23 +116,3 @@ class Relationship(Model):
         token = '|'.join((self.subject_id, self.relation, self.object_id, str(self.valid_from),
                           self.evidence.source_id, self.evidence.content_sha256))
         return 'rel_' + hashlib.sha256(token.encode()).hexdigest()[:24]
-
-
-class RelationshipStore:
-    """Immutable, source-backed relations; caller stores serialized records in S3/DynamoDB.
-
-    Status defaults to directly documented and explicitly derived relationships; candidate and
-    model-inferred relationships are only exposed on request and never become proven edges.
-    """
-    def __init__(self, relationships: list[Relationship]):
-        self._relations = tuple(relationships)
-        ids = [r.relationship_id for r in self._relations]
-        if len(ids) != len(set(ids)):
-            raise ValueError('duplicate relationship provenance')
-
-    def find(self, subject_id: str, as_of: date, *, historical: bool = False,
-             include_unverified: bool = False) -> list[Relationship]:
-        return [r for r in self._relations if r.subject_id == subject_id and r.valid_from <= as_of
-                and (r.valid_to is None or as_of <= r.valid_to)
-                and r.evidence.visible(as_of, historical=historical)
-                and (include_unverified or r.evidence_class in ('direct', 'derived'))]

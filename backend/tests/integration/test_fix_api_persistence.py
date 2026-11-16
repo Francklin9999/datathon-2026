@@ -419,6 +419,24 @@ def test_s3_snapshot_failures_answer_503_upstream_unavailable(case, tmp_path, mo
     assert fake.keys[0] == ("private-bucket-name", f"snapshots/x/manifests/{STARTER_VERSION}.json")
 
 
+def test_aws_snapshot_cache_uses_the_configured_data_dir(tmp_path, monkeypatch):
+    # infra sets APLOMB_DATA_DIR=/tmp/aplomb-data; it must be the S3 cache, not a decorative value.
+    import boto3
+
+    monkeypatch.setattr(boto3, "Session", lambda **kwargs: SimpleNamespace(client=lambda name, **kw: FakeS3(bytes)))
+    configured = SnapshotProvider(aws_settings().model_copy(update={"data_dir": str(tmp_path)}))._store()
+    assert configured.cache_dir == tmp_path
+    assert SnapshotProvider(aws_settings())._store().cache_dir == domain.S3_CACHE_DIR
+
+
+def test_snapshot_dated_differently_from_data_as_of_answers_upstream_unavailable():
+    # The stack must pass the manifest's dataAsOf (APLOMB_DATA_AS_OF); any other date is refused.
+    with pytest.raises(ServiceError) as refused:
+        SnapshotProvider(settings(data_as_of="2026-11-27"))()
+    assert (refused.value.code, refused.value.status) == ("upstream_unavailable", 503)
+    assert "APLOMB_DATA_AS_OF is 2026-11-27" in refused.value.message
+
+
 def test_snapshot_provider_maps_unexpected_open_failures_and_retries_later(monkeypatch):
     calls = []
 

@@ -30,16 +30,17 @@ Choose a supported Python runtime and compatible architecture; build native depe
 | `APLOMB_ENV` | local or aws |
 | `AWS_REGION` | Region selected by operator; SDK-standard variable |
 | `APLOMB_DATA_VERSION` | Immutable snapshot ID |
-| `APLOMB_DATA_DIR` | Local starter/normalized snapshot root |
+| `APLOMB_DATA_AS_OF` | The snapshot manifest's `dataAsOf`; any other snapshot date answers 503 (stack input `dataAsOf`) |
+| `APLOMB_DATA_DIR` | Local starter/normalized snapshot root; in AWS, the `/tmp` cache directory for S3 snapshot objects |
 | `APLOMB_DATA_BUCKET`, `APLOMB_DATA_PREFIX` | AWS snapshot/evidence location |
 | `APLOMB_PROFILES_TABLE`, `APLOMB_RUNS_TABLE`, `APLOMB_CACHE_TABLE` | DynamoDB names |
 | `APLOMB_WORKER_FUNCTION` | Async worker name/ARN |
 | `APLOMB_MODEL_STRONG`, `APLOMB_MODEL_FAST` | Actual Bedrock model/profile IDs |
 | `APLOMB_GUARDRAIL_ID`, `APLOMB_GUARDRAIL_VERSION` | Both required when flag on |
 | `APLOMB_ALLOWED_ORIGINS` | Comma-separated exact web/local origins |
-| `APLOMB_SOURCE_USER_AGENT` | Approved descriptive public-source user agent |
+| `APLOMB_SOURCE_USER_AGENT` | Approved descriptive public-source user agent naming a contact (an `https://` URL or an email); without one no research tool is registered |
 | `APLOMB_FEATURE_<UPPERCASE_CATALOG_FLAG>` | Explicit bool override per feature |
-| `APLOMB_RUN_TARGET_SECONDS`, `APLOMB_RUN_HARD_SECONDS` | Defaults 90/180 |
+| `APLOMB_RUN_HARD_SECONDS` | Default 180 (the 90 s target is a design aim, not a setting) |
 | `APLOMB_MAX_REVISE`, `APLOMB_MAX_LLM_CALLS`, `APLOMB_MAX_RESEARCH_CALLS` | Defaults 2/12/12 |
 | `NEXT_PUBLIC_APLOMB_API_BASE` | Browser-visible base ending `/v1`; never credentials |
 | `NEXT_PUBLIC_APLOMB_FIXTURES` | false in actual submission/live build |

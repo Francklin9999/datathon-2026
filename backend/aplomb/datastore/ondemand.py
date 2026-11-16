@@ -5,9 +5,17 @@ are the parent's raw files plus the addition. The parent snapshot is never modif
 needs the new asset must pin the new version before it starts. A rejected or failed fetch
 publishes nothing and leaves ``manifests/active.json`` unchanged.
 
-No live price provider is wired here: the Yahoo terms for live fetching are unverified
-(data/SOURCES.md). A provider adapter implements ``PriceProvider`` and returns a
-``FetchedAsset`` with its own retrieval timestamp; tests use synthetic providers.
+A parent published by ``global_fx.publish_global_fx`` (the Bank of Canada multi-currency
+capture, dataset ``fx_boc_global``) carries a raw file and a dataset that ``ingest`` can neither
+accept nor rebuild. Such a child is composed in two steps: the organizer and on-demand files are
+ingested, then the parent's exact capture is re-applied by ``publish_global_fx`` (which validates
+it again). Both steps run in a private staging root, so only the final version is published and
+its ``parentVersion`` names the real parent.
+
+A provider adapter implements ``PriceProvider`` and returns a ``FetchedAsset`` with its own
+retrieval timestamp. The live adapter is ``providers.TiingoProvider``, built in
+``api/domain.py`` when ``APLOMB_TIINGO_TOKEN`` is set and the data directory is local; Yahoo is
+not used for live fetching (data/SOURCES.md). Tests inject synthetic providers.
 """
 
 from __future__ import annotations
@@ -15,13 +23,26 @@ from __future__ import annotations
 import csv
 import io
 import json
+import os
+import secrets
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
 from .constants import CASH_TICKERS, CURRENCIES, LISTED_ASSET_CLASSES, MIN_ROWS_ON_DEMAND
 from .errors import IngestionError, SnapshotIntegrityError, UnknownTicker
-from .ingest import Clock, SourceBundle, ingest_bundle, system_clock
+from .global_fx import publish_global_fx
+from .ingest import (
+    Clock,
+    SourceBundle,
+    _remove_if_empty,
+    _write_manifest,
+    ingest_bundle,
+    set_active_version,
+    system_clock,
+    validate_version_label,
+)
 from .integrity import canonical_sha256
 from .quality import fmt_number, fmt_volume, parse_finite
 from .schemas import RAW_HEADERS
@@ -45,7 +66,7 @@ class FetchedAsset:
 
 
 class PriceProvider(Protocol):
-    def fetch(self, ticker: str) -> FetchedAsset: ...
+    def fetch(self, ticker: str, start: str, end: str) -> FetchedAsset: ...
 
 
 @dataclass(frozen=True)
@@ -119,7 +140,13 @@ def _existing_rows(data: bytes | None) -> list[list[str]]:
     return [r for r in reader if r]
 
 
-def _parent_bundle(data_root: Path, base_version: str) -> SourceBundle:
+#: Written by ``global_fx.publish_global_fx``; never an ``ingest`` input.
+GLOBAL_FX_DATASET = "fx_boc_global"
+GLOBAL_FX_RAW = "boc_global_fx.json"
+
+
+def _parent_bundle(data_root: Path, base_version: str) -> tuple[SourceBundle, dict]:
+    """The parent's raw files (hash-checked against its manifest) and the manifest itself."""
     manifest = json.loads((data_root / "manifests" / f"{base_version}.json").read_text(encoding="utf-8"))
     files, origins = {}, {}
     for src in manifest["sources"]:
@@ -131,7 +158,67 @@ def _parent_bundle(data_root: Path, base_version: str) -> SourceBundle:
             raise SnapshotIntegrityError(f"{src['path']} does not match the {base_version} manifest")
         files[src["file"]] = data
         origins[src["file"]] = src.get("origin", "")
-    return SourceBundle(files, origins)
+    return SourceBundle(files, origins), manifest
+
+
+def _global_fx_capture(manifest: dict, files: dict[str, bytes]) -> tuple[bytes, dict] | None:
+    """The parent's Bank of Canada capture and the metadata ``publish_global_fx`` re-validates it
+    with (rebuilt from the parent manifest), or None when the parent has no global FX dataset."""
+    fx = manifest.get("datasets", {}).get(GLOBAL_FX_DATASET)
+    if fx is None:
+        return None
+    source = next((s for s in manifest["sources"] if s["file"] == GLOBAL_FX_RAW), None)
+    if source is None or GLOBAL_FX_RAW not in files:
+        raise SnapshotIntegrityError(f"{manifest['dataVersion']}: {GLOBAL_FX_DATASET} has no {GLOBAL_FX_RAW} source")
+    details = fx["details"]
+    metadata = {"sourceUrl": details["sourceUrl"], "retrievedAt": details["retrievedAt"],
+                "series": list(details["currencies"]), "rawSha256": source["sha256Bytes"]}
+    for key in ("captureDirectory", "captureStem"):
+        if key in details:
+            metadata[key] = details[key]
+    return files[GLOBAL_FX_RAW], metadata
+
+
+def _publish_with_global_fx(data_root: Path, bundle: SourceBundle, base_version: str, new_version: str,
+                            capture: tuple[bytes, dict], *, clock: Clock, activate: bool) -> None:
+    """Publish ``new_version`` = ingest(``bundle``) + the parent's global FX capture.
+
+    Both steps run in a private root under ``.staging``; only the final raw and normalized
+    directories move into ``data_root``, and its manifest is written last (the commit point), as
+    ``ingest_bundle`` does. Raises ``IngestionError`` when either step rejects its input.
+    """
+    validate_version_label(new_version)
+    targets = [data_root / "raw" / new_version, data_root / "normalized" / new_version]
+    if (data_root / "manifests" / f"{new_version}.json").exists() or any(path.exists() for path in targets):
+        raise IngestionError(f"snapshot {new_version} already exists; publish a new version label")
+    # Only ever published inside the private root, so any valid label distinct from the target works.
+    intermediate = f"snap-{new_version[5:13]}-on-demand-base"
+    if intermediate == new_version:
+        intermediate += "-2"
+    work = data_root / ".staging" / f"{new_version}.compose-{secrets.token_hex(6)}"
+    moved: list[Path] = []
+    try:
+        built = ingest_bundle(bundle, work, intermediate, clock=clock, activate=False, parent_version=base_version)
+        payload, metadata = capture
+        manifest = publish_global_fx(work, intermediate, new_version, payload, metadata)
+        # The intermediate is not published: the child descends from the real parent and keeps the
+        # on-demand publication time (publish_global_fx stamps the capture's retrieval time).
+        manifest["parentVersion"] = base_version
+        manifest["createdAt"] = built.manifest["createdAt"]
+        for target in targets:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            os.replace(work / target.parent.name / new_version, target)
+            moved.append(target)
+        _write_manifest(data_root, new_version, manifest)  # commit point
+    except BaseException:
+        for path in moved:
+            shutil.rmtree(path, ignore_errors=True)
+        raise
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+        _remove_if_empty(data_root / ".staging")
+    if activate:
+        set_active_version(data_root, new_version)
 
 
 def publish_on_demand(data_root: Path | str, base_version: str, new_version: str, fetched: FetchedAsset, *,
@@ -154,9 +241,14 @@ def publish_on_demand(data_root: Path | str, base_version: str, new_version: str
     if reason is not None:
         return OnDemandResult(fetched.ticker, False, reason, base_version, None, base_passport)
 
-    parent = _parent_bundle(data_root, base_version)
+    parent, parent_manifest = _parent_bundle(data_root, base_version)
+    capture = _global_fx_capture(parent_manifest, parent.files)
     files = dict(parent.files)
     origins = dict(parent.origins)
+    if capture is not None:
+        # Re-applied after ingest (_publish_with_global_fx); ingest rejects it as an input.
+        del files[GLOBAL_FX_RAW]
+        origins.pop(GLOBAL_FX_RAW, None)
     asset_rows = _existing_rows(files.get("ondemand_assets.csv"))
     asset_rows.append([fetched.ticker, fetched.name, fetched.asset_class, fetched.market, fetched.currency,
                        fetched.sector or "", fetched.provider, fetched.source_url or "",
@@ -172,8 +264,12 @@ def publish_on_demand(data_root: Path | str, base_version: str, new_version: str
     files["ondemand_prices.csv"] = _encode("ondemand_prices.csv", price_rows)
     origins["ondemand_assets.csv"] = origins["ondemand_prices.csv"] = f"on-demand fetch ({fetched.provider})"
     try:
-        ingest_bundle(SourceBundle(files, origins), data_root, new_version, clock=clock, activate=activate,
-                      parent_version=base_version)
+        if capture is None:
+            ingest_bundle(SourceBundle(files, origins), data_root, new_version, clock=clock, activate=activate,
+                          parent_version=base_version)
+        else:
+            _publish_with_global_fx(data_root, SourceBundle(files, origins), base_version, new_version, capture,
+                                    clock=clock, activate=activate)
     except IngestionError as exc:
         return OnDemandResult(fetched.ticker, False,
                               _reason(f"Validation failed: {exc}", f"Échec de la validation : {exc}"),

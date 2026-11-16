@@ -33,8 +33,8 @@ def _api(payload: bytes) -> tuple[dict, list]:
 
 
 def parse(source: bytes, indicator: bytes, data: bytes, licence: bytes, stamp: str) -> tuple[list[dict], dict]:
-    source_head, sources = _api(source)
-    indicator_head, indicators = _api(indicator)
+    _, sources = _api(source)
+    _, indicators = _api(indicator)
     data_head, values = _api(data)
     if (len(sources) != 1 or sources[0].get("id") != "3" or sources[0].get("code") != "WGI"
             or len(indicators) != 1 or indicators[0].get("id") != INDICATOR

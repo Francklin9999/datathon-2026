@@ -1,43 +1,16 @@
 'use client';
 import { useId, useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { getApiClient } from '../../api/index';
+import { ApiRequestError } from '../../api/errors';
 import { ExternalLink } from '../../components/common/ExternalLink';
 import { Card } from '../../components/common/Page';
 import { Empty, Loading, Unavailable } from '../../components/common/States';
+import type { RegionalResearchResponse } from '../../contracts/types';
 import { useApp } from '../../state/app';
 
-type Kind = 'prices' | 'company' | 'filings' | 'financials' | 'ownership';
-
-type Company = {
-  name: string | null; englishName: string | null; stockCode: string | null; asOf?: string;
-  sector17Code?: string | null; sector17Name?: string | null; sector33Code?: string | null; sector33Name?: string | null;
-  scaleCategory?: string | null; marketCode?: string | null; marketName?: string | null; marginName?: string | null;
-};
-
-type FinancialRow = {
-  disclosureNumber?: string; receiptNumber?: string; disclosedDate: string | null; disclosedAt: string | null;
-  documentType?: string | null; period: string | null; periodStart: string | null; periodEnd: string | null;
-  section: string | null; sectionName?: string | null; accountId: string | null; accountName: string | null;
-  accountDetail?: string | null; value: string | null; cumulativeValue?: string | null; priorPeriod?: string | null;
-  priorValue?: string | null; unit: string | null; classification: string; url: string | null;
-};
-
-type OwnershipRow = {
-  category: string; receiptNumber: string | null; documentId: string | null; filed: string; filedAt: string | null;
-  reporter: string | null; reportType: string | null; reason: string | null; position: string | null;
-  shares: string | null; sharesChange: string | null; ratioPct: string | null; ratioChangePct: string | null;
-  amendment: boolean | null; url: string | null;
-};
-
-type RegionalResult = {
-  status: 'ok' | 'unavailable'; reason?: string; kind?: Kind; provider: string; identifier: string; identifierType: string;
-  sourceUrl: string; sourceUrls?: string[]; retrievedAt: string; availableAt: string; partial?: boolean;
-  datasetVersion?: string; sourceSha256?: string; sourceHashes?: Record<string, string>; companySourceSha256?: string;
-  prices: { date: string; close: number | null; adjustedClose: number | null; currency: string }[];
-  filings: { date: string; title: string; url: string; receiptNumber: string }[];
-  company: Company | null; financials?: FinancialRow[]; ownership?: OwnershipRow[]; limitations?: string[];
-  fiscalYear?: string; reportCode?: string; statementType?: string;
-};
+type Kind = RegionalResearchResponse['kind'];
+/** GET /intelligence/regional, validated against the generated contract (1.6.0, research#7). */
+type RegionalResult = RegionalResearchResponse;
 
 const KINDS: Record<'JP' | 'KR', Kind[]> = { JP: ['prices', 'company', 'financials'], KR: ['filings', 'financials', 'ownership'] };
 
@@ -90,26 +63,21 @@ export function RegionalResearch({ allowedRegions = ['JP', 'KR'] }: { allowedReg
     if (!sessionId || !identifier || !start || !end) return;
     setLoading(true); setError(null); setResult(null);
     try {
-      const query = new URLSearchParams({ region, identifier, start, end, kind });
-      if (region === 'KR' && kind === 'financials') {
-        query.set('report_code', reportCode); query.set('statement_type', statementType);
-        if (fiscalYear) query.set('fiscal_year', fiscalYear);
-      }
-      const response = await fetch(`${API_BASE}/intelligence/regional?${query}`, { headers: { 'X-Aplomb-Session': sessionId } });
-      if (!response.ok) {
-        let code = '';
-        try {
-          const body = await response.json();
-          code = typeof body?.error?.code === 'string' ? body.error.code : typeof body?.detail === 'string' ? body.detail : '';
-        } catch { /* body is not JSON */ }
-        setError(response.status === 503 || code === 'upstream_unavailable'
-          ? tr({ en: 'The provider did not return a usable response. Try again later.', fr: 'Le fournisseur n’a pas renvoyé de réponse exploitable. Réessayez plus tard.' })
-          : tr({ en: 'The request was rejected. Check the identifier, dates and report selection.', fr: 'La requête a été refusée. Vérifiez l’identifiant, les dates et le rapport choisi.' }));
-        return;
-      }
-      setResult(await response.json() as RegionalResult);
-    } catch {
-      setError(tr({ en: 'The source could not be queried. Try again later.', fr: 'La source ne peut être interrogée. Réessayez plus tard.' }));
+      const financialsQuery = region === 'KR' && kind === 'financials'
+        ? { report_code: reportCode, statement_type: statementType, ...(fiscalYear ? { fiscal_year: fiscalYear } : {}) }
+        : {};
+      setResult(await getApiClient().regionalResearch({ region, identifier, start, end, kind, ...financialsQuery }));
+    } catch (e) {
+      // An HTTP error answer: the provider failed (503/upstream_unavailable) or the request was refused.
+      // No answer, or a body that is not the contract: the source could not be queried.
+      const status = e instanceof ApiRequestError ? e.status : 0;
+      const code = e instanceof ApiRequestError ? e.code : null;
+      const answered = status >= 400;
+      setError(answered && (status === 503 || code === 'upstream_unavailable')
+        ? tr({ en: 'The provider did not return a usable response. Try again later.', fr: 'Le fournisseur n’a pas renvoyé de réponse exploitable. Réessayez plus tard.' })
+        : answered
+          ? tr({ en: 'The request was rejected. Check the identifier, dates and report selection.', fr: 'La requête a été refusée. Vérifiez l’identifiant, les dates et le rapport choisi.' })
+          : tr({ en: 'The source could not be queried. Try again later.', fr: 'La source ne peut être interrogée. Réessayez plus tard.' }));
     } finally { setLoading(false); }
   }
 

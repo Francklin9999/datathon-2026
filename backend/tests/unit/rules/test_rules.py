@@ -210,6 +210,17 @@ class TemplatesAndComparisons(unittest.TestCase):
         for rid, d in FIXED.items():
             self.assertTrue(d.label["en"] and d.label["fr"], rid)
 
+    def test_parameterized_cap_floor_labels_are_french(self):
+        # The generic cap/floor family used to copy its English sentence into the French label.
+        for rid in ("cap.country.CAN", "cap.currency.USD", "cap.theme.ai", "floor.sector.energy", "cap.position.TSLA"):
+            label = rule_def(rid).label
+            self.assertNotEqual(label["fr"], label["en"], rid)
+            self.assertIn("{threshold} %", label["fr"], rid)
+        self.assertEqual(rule_def("cap.country.CAN").label["fr"],
+                         "Au plus {threshold} % dans le pays CAN (approximation par le pays de cotation)")
+        self.assertEqual(rule_def("floor.sector.energy").label["fr"], "Au moins {threshold} % dans le secteur Énergie")
+        self.assertEqual(rule_def("cap.theme.ai").bounds["max"], 100.0)  # stored theme caps above 50 % stay valid
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -31,7 +31,6 @@ class Settings(BaseModel):
     features: dict[FeatureFlag, bool] = Field(
         default_factory=lambda: {flag: False for flag in FeatureFlag}
     )
-    run_target_seconds: int = Field(default=90, gt=0)
     run_hard_seconds: int = Field(default=180, gt=0, le=180)
     max_revise: int = Field(default=2, ge=0, le=2)
     max_llm_calls: int = Field(default=12, ge=0, le=12)
@@ -46,8 +45,6 @@ class Settings(BaseModel):
         self.features = {flag: self.features.get(flag, False) for flag in FeatureFlag}
         if "*" in self.allowed_origins:
             raise ValueError("CORS requires explicit origins")
-        if self.run_target_seconds > self.run_hard_seconds:
-            raise ValueError("run target exceeds hard budget")
         if self.environment == "aws":
             required = (
                 "data_bucket",

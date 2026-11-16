@@ -13,13 +13,11 @@ from aplomb.api.errors import NotFound, ServiceError
 from aplomb.api.repositories import ProfileRepository
 from aplomb.api.storage import MemoryStore
 from aplomb.contracts import models as m
-from aplomb.intelligence.entities import RelationshipStore
 from aplomb.optimizer.services import build_domain_services
 from aplomb.world import WorldDataError, WorldServiceImpl, load_bundle, world_passports
 from aplomb.world import ingest as ing
 from aplomb.world.dataset import WorldDataset
 from aplomb.world.geo import UNKNOWN_COUNTRY, country_name, in_bbox, resolve_place_country
-from aplomb.world.relationships import facility_geography
 
 from tests.unit.datastore._support import starter_snapshot
 
@@ -224,6 +222,22 @@ def test_packaged_bundle_is_real_cited_and_contract_valid():
     assert {n["source"] for n in ds.manifest["notIngested"]} >= {"GDELT"}
 
 
+def test_not_ingested_reasons_match_the_loaded_layers():
+    # The committed manifest carries the reasons build_bundle writes, and they name where facility
+    # emissions and FIRMS detections are served instead of calling them "not loaded".
+    built = json.loads(ing.build_bundle([], [], [], built_at=BUILT, start="2026-01-01", end="2026-01-02")["manifest.json"])
+    committed = load_bundle().manifest["notIngested"]
+    assert committed == built["notIngested"]
+    reasons = {n["source"]: n["reason"] for n in committed}
+    assert "emissions_facilities" in reasons["ECCC / EPA facility emissions"]
+    assert "world_firms_" in reasons["NASA FIRMS wildfires"] and "key" not in reasons["NASA FIRMS wildfires"]
+    from aplomb.world.facilities import load_facilities
+    from aplomb.world.providers import load_provider_snapshots
+    assert load_facilities()[1]["datasetId"] == "emissions_facilities"
+    loaded = {m["datasetId"] for m in load_provider_snapshots(errors=[])[1]}
+    assert {"world_firms_modis_europe", "world_gdelt_event_metadata"} <= loaded
+
+
 def test_layers_report_what_is_loaded(world):
     layers = {layer.layer_id: layer for layer in world.layers(SID, {}).items}
     ds = world.dataset()
@@ -360,6 +374,44 @@ def test_overview_balances_sources_and_places_without_duplicate_event_markers(wo
     assert service.observations(SID, {**query, "asOf": "2026-11-14"}).total == 0
 
 
+def test_one_damaged_provider_capture_disables_only_its_own_mode(world, tmp_path, monkeypatch):
+    import shutil
+
+    import aplomb.world.providers as providers
+    from aplomb.world.providers.snapshot import DIRECTORY
+
+    def capture(source):
+        return next(path for path in sorted(DIRECTORY.iterdir()) if path.name.startswith(source + "-2"))
+
+    hazard, aviation = capture("world_firms_modis_europe"), capture("world_aviation_weather")
+    for path in (hazard, aviation):
+        shutil.copytree(path, tmp_path / path.name)
+    strict = providers.load_provider_snapshots
+    monkeypatch.setattr(providers, "load_provider_snapshots",
+                        lambda directory=None, **kw: strict(tmp_path, **kw))
+
+    def statuses():
+        service = WorldServiceImpl(world.profiles, world.snapshot, world.dataset, clock=lambda: BUILT)
+        page = service.observations(SID, {"scope": "providers"})
+        return service, page, {s.mode: s for s in page.modes}
+
+    (tmp_path / hazard.name / "observations.json").write_bytes(b"[]")
+    service, page, modes = statuses()
+    assert [source for source, _ in service._provider_failures] == ["world_firms_modis_europe"]
+    assert {item.dataset_id for item in page.items} == {"world_aviation_weather"}
+    assert modes["aviation"].available and modes["aviation"].reason is None
+    assert not modes["hazards"].available
+    assert modes["hazards"].reason == "Provider capture failed integrity validation."
+    assert modes["macro"].reason == "No geolocated authorized capture is loaded."
+
+    # A damaged source whose mode cannot be told from its ID: every empty mode may be the affected one.
+    shutil.rmtree(tmp_path / hazard.name)
+    (tmp_path / aviation.name / "observations.json").write_bytes(b"[]")
+    service, page, modes = statuses()
+    assert page.total == 0 and [source for source, _ in service._provider_failures] == ["world_aviation_weather"]
+    assert all(s.reason == "Provider capture failed integrity validation." for s in modes.values())
+
+
 @pytest.mark.parametrize("query", [
     {"scope": "unverified"}, {"order": "random"}, {"mapOnly": "true"},
 ])
@@ -368,7 +420,7 @@ def test_observation_overview_options_are_validated(world, query):
         world.observations(SID, query)
 
 
-def test_event_and_facility_geography_are_evidenced_without_ownership(world):
+def test_event_geography_is_evidenced_without_ownership(world):
     event = next(e for e in world.dataset().events if e["location"]["precision"] == "point")
     detail = world.event(SID, event["eventId"], {}).to_wire()
     edge = detail["geographicRelationships"][0]
@@ -377,14 +429,6 @@ def test_event_and_facility_geography_are_evidenced_without_ownership(world):
     assert edge["objectId"].startswith("point:")
     assert edge["sourceUrl"] == event["sources"][0]["url"]
     assert len(edge["normalizedRecordSha256"]) == 64
-    facility = world.facilities(SID, {"limit": 1}).items[0].to_wire()
-    from aplomb.world.facilities import load_facilities
-    _, manifest = load_facilities()
-    relation = facility_geography(facility, manifest)
-    assert relation.relation == "FACILITY_LOCATED_IN" and relation.object_id == "country:CAN"
-    assert relation.subject_id == facility["facilityId"]
-    assert RelationshipStore([relation]).find(relation.subject_id, date(2026, 11, 14), historical=True) == []
-    assert RelationshipStore([relation]).find(relation.subject_id, date(2026, 11, 15), historical=True) == [relation]
 
 
 def test_filters_pagination_and_cursor_binding(world):

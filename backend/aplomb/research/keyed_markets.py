@@ -187,7 +187,8 @@ def connection_status():
                                                    'twelve-data': 'thirty daily bars by exact MIC',
                                                    'finnhub': 'company profile by exact provider symbol'}[provider]}
                           for provider,info in PROVIDERS.items()]}
-    result['providers'].append({'id':'tiingo','signup_url':'https://www.tiingo.com/account/api/token', 'credential_variable':'APLOMB_TIINGO_TOKEN','credential_present':bool(os.getenv('APLOMB_TIINGO_TOKEN')), 'rights_confirmed':True,'supported_operation':'US non-fund equity daily history, internal account use'})
+    from aplomb.datastore.providers import TiingoProvider
+    result['providers'].append({'id':'tiingo','signup_url':'https://www.tiingo.com/account/api/token', 'documentation_url':TiingoProvider.source_url, 'credential_variable':'APLOMB_TIINGO_TOKEN','credential_present':bool(os.getenv('APLOMB_TIINGO_TOKEN')), 'rights_confirmed':True,'supported_operation':'US non-fund equity daily history, internal account use'})
     result['providers'].extend(stock_accounts.connection_status())
     result['providers'].extend(chain_accounts.connection_status())
     return result
@@ -260,11 +261,16 @@ def keyed_market_router(store,session_dependency):
     router=APIRouter()
     limiter=SessionLimiter(store)
 
-    @router.get('/v1/research/market-connections')
+    from aplomb.contracts import api as contracts
+
+    # Contract 1.6.0 models of the existing snake_case payloads (api.md "Credentialed research sources").
+    @router.get('/v1/research/market-connections', response_model=contracts.MarketConnectionsResponse,
+                response_model_exclude_unset=True)
     def connections(_sid:str=Depends(session_dependency)):
         return connection_status()
 
-    @router.get('/v1/research/market-provider/{provider}')
+    @router.get('/v1/research/market-provider/{provider}', response_model=contracts.MarketObservationResponse,
+                response_model_exclude_unset=True)
     def observation(provider:str,symbol:str=Query(min_length=1,max_length=120),
                     mic:str|None=Query(default=None,min_length=4,max_length=4),kind:str=Query(default='quote',pattern=r'^(quote|overview|income|balance|cashflow)$'),sid:str=Depends(session_dependency)):
         limiter.take(sid,'keyed-market',4,60)
@@ -276,7 +282,8 @@ def keyed_market_router(store,session_dependency):
             raise ServiceError('validation_error' if validation else 'upstream_unavailable',
                                'Market source request rejected' if validation else 'Market source unavailable',
                                {'reason':code}) from None
-    @router.get('/v1/research/tiingo/{symbol}')
+    @router.get('/v1/research/tiingo/{symbol}', response_model=contracts.MarketObservationResponse,
+                response_model_exclude_unset=True)
     def tiingo(symbol:str,start:str=Query(pattern=r'^\d{4}-\d{2}-\d{2}$'),
                end:str=Query(pattern=r'^\d{4}-\d{2}-\d{2}$'),sid:str=Depends(session_dependency)):
         limiter.take(sid,'tiingo-research',4,60)

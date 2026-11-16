@@ -7,11 +7,12 @@ import { Card } from '../../components/common/Page';
 import { Loading, ErrorState } from '../../components/common/States';
 import { FactChip, FactScopeProvider } from '../../components/common/FactDrawer';
 import { fmtMoney } from '../../lib/format';
+import { goalFundingKey } from '../../lib/portfolioEditors';
 
 export function GoalFunding({ profile }: { profile: Profile }) {
   const app = useApp();
   const { tr, lang } = app;
-  const goals = useQuery<GoalFundingResponse>(profileKey(app) ? `goals|${profileKey(app)}` : null,
+  const goals = useQuery<GoalFundingResponse>(goalFundingKey(profileKey(app), profile),
     signal => getApiClient().goalFunding(profile.profileId, signal));
   if (!profile.investorContext?.objectives?.length) return null;
   return <Card title={tr({ en: 'Goal funding scenarios', fr: 'Scénarios de financement des objectifs' })}>

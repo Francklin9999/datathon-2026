@@ -8,6 +8,12 @@ import { Card } from '../../components/common/Page';
 import { ErrorState, Loading } from '../../components/common/States';
 import { ExternalLink } from '../../components/common/ExternalLink';
 
+// GET /risk/providers names the server setting that confirms data-use rights; the client type does not declare it.
+const permissionSetting = (p: object) => {
+  const value = (p as { permissionSetting?: unknown }).permissionSetting;
+  return typeof value === 'string' && /^APLOMB_SOURCE_[A-Z_]+_RIGHTS_CONFIRMED$/.test(value) ? value : null;
+};
+
 export function FinancialProviders() {
   const { sessionId, tr } = useApp();
   const providers = useQuery(sessionId ? `financial-providers|${sessionId}` : null, signal => getApiClient().financialProviders(signal));
@@ -28,7 +34,8 @@ export function FinancialProviders() {
   return <Card title={tr({ en: 'Additional public financial feeds', fr: 'Autres sources financières publiques' })}>
     <p>{tr({ en: 'Free anonymous-access sources only. Paid feeds are excluded; account, login and API-key sources are set aside. Public download access and permission to reuse data are separate. A feed awaiting data-use permission cannot be fetched.', fr: 'Sources gratuites accessibles sans connexion. Les sources payantes sont exclues; celles avec compte, connexion ou clé API sont mises de côté. L’accès public et le droit de réutilisation sont distincts. Sans permission d’utilisation, aucune acquisition n’est effectuée.' })}</p>
     {providers.loading && <Loading />}{providers.error && <ErrorState error={providers.error} onRetry={providers.reload} />}
-    {providers.data && <><div className="table-scroll" role="region" tabIndex={0} aria-label={tr({ en: 'Public provider availability', fr: 'Disponibilité des fournisseurs publics' })}><table><thead><tr><th>{tr({ en: 'Source', fr: 'Source' })}</th><th>{tr({ en: 'Availability', fr: 'Disponibilité' })}</th><th>{tr({ en: 'Scope', fr: 'Portée' })}</th></tr></thead><tbody>{providers.data.providers.map(p => <tr key={p.id}><th scope="row"><ExternalLink href={p.documentation}>{p.name}</ExternalLink></th><td>{p.status === 'permission_required' ? tr({ en: 'Awaiting data-use permission', fr: 'Permission d’utilisation requise' }) : p.status.replaceAll('_', ' ')}</td><td>{p.limitation}</td></tr>)}</tbody></table></div>
+    {providers.data && <><div className="table-scroll" role="region" tabIndex={0} aria-label={tr({ en: 'Public provider availability', fr: 'Disponibilité des fournisseurs publics' })}><table><thead><tr><th>{tr({ en: 'Source', fr: 'Source' })}</th><th>{tr({ en: 'Availability', fr: 'Disponibilité' })}</th><th>{tr({ en: 'Scope', fr: 'Portée' })}</th></tr></thead><tbody>{providers.data.providers.map(p => <tr key={p.id}><th scope="row"><ExternalLink href={p.documentation}>{p.name}</ExternalLink></th><td>{p.status === 'permission_required' ? <>{tr({ en: 'Awaiting data-use permission', fr: 'Permission d’utilisation requise' })}{permissionSetting(p) && <span className="block small muted">{tr({ en: 'Server setting', fr: 'Paramètre serveur' })}: <span className="mono" style={{ overflowWrap: 'anywhere' }}>{permissionSetting(p)}</span></span>}</> : p.status.replaceAll('_', ' ')}</td><td>{p.limitation}</td></tr>)}</tbody></table></div>
+      {Array.isArray(providers.data.limitations) && <ul className="small muted">{providers.data.limitations.map(l => <li key={l}>{l}</li>)}</ul>}
       <details><summary>{tr({ en: 'Set-aside sources', fr: 'Sources mises de côté' })}</summary><ul>{providers.data.setAside.map(p => <li key={p.id}>{p.name}: {p.reason}</li>)}</ul></details>
       <form onSubmit={e => { e.preventDefault(); void capture(); }}><fieldset disabled={busy}><div className="form-grid">
         <div className="field"><label htmlFor="financial-provider">{tr({ en: 'Public source', fr: 'Source publique' })}</label><select id="financial-provider" required value={id} onChange={e => { setId(e.target.value); reset(); }}><option value="">—</option>{providers.data.providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
@@ -40,6 +47,7 @@ export function FinancialProviders() {
     </>}
     {error && <ErrorState error={error} />}
     {result && <div role="status"><p><strong>{result.label}</strong> · {result.unit} · {result.records.length} {tr({ en: 'source records', fr: 'observations sources' })}</p><p className="small">{tr({ en: 'Observation cutoff', fr: 'Date limite' })}: {result.asOf} · {tr({ en: 'Known since capture', fr: 'Connu depuis la capture' })}: {result.availableAt}</p><ExternalLink href={result.source.sourceUrl}>{tr({ en: 'Original provider', fr: 'Fournisseur original' })}</ExternalLink><p className="small mono" style={{ overflowWrap: 'anywhere' }}>{result.source.rawSha256} · {result.version}</p>
+      <p className="small">{tr({ en: 'Capture ID', fr: 'Identifiant de capture' })}: <span className="mono" style={{ overflowWrap: 'anywhere' }}>{result.captureId}</span>{result.provider === 'fama-french' ? tr({ en: ' · Paste it into “Permitted captured factor ID” in Factor exposure of the active portfolio.', fr: ' · Collez-le dans « Identifiant de capture autorisée » de l’exposition factorielle du portefeuille actif.' }) : ''}</p>
       <div className="table-scroll" role="region" tabIndex={0} aria-label={tr({ en: 'Captured source records', fr: 'Observations capturées' })}><table><thead><tr><th>#</th><th>{tr({ en: 'Reported fields', fr: 'Champs publiés' })}</th></tr></thead><tbody>{result.records.map((row, i) => <tr key={i}><td>{i + 1}</td><td><pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{JSON.stringify(row, null, 2)}</pre></td></tr>)}</tbody></table></div>{result.limitations.map(l => <p className="small muted" key={l}>{l}</p>)}
     </div>}
   </Card>;

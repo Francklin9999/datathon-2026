@@ -35,8 +35,8 @@ export const BASIC_TOUR: Tour = {
       id: 'rail', route: '/', target: 'rail', placement: 'right', optional: true,
       title: { en: 'Move between pages', fr: 'Passez d’une page à l’autre' },
       body: {
-        en: 'Home, Portfolio, Decide, World, Evidence, Replay and System. Hover an icon for its name; the arrow at the bottom shows the labels.',
-        fr: 'Accueil, Portefeuille, Décider, Monde, Preuves, Rejouer et Système. Survolez une icône pour son nom ; la flèche du bas affiche les libellés.',
+        en: 'Home, Portfolio, Markets, Risk, Decide, Strategies, World, Evidence, Replay, System and Sources. Hover an icon for its name; the arrow at the bottom shows the labels.',
+        fr: 'Accueil, Portefeuille, Marchés, Risques, Décider, Stratégies, Monde, Preuves, Rejouer, Système et Sources. Survolez une icône pour son nom ; la flèche du bas affiche les libellés.',
       },
     },
     {
@@ -88,7 +88,7 @@ export const BASIC_TOUR: Tour = {
 
 const t = (en: string, fr: string) => ({ en, fr });
 
-export const ADVANCED_TOURS: readonly Tour[] = [
+const ADVANCED_TOURS: readonly Tour[] = [
   {
     id: 'dashboard', route: '/',
     title: t('Read the dashboard', 'Lire le tableau de bord'),
@@ -126,7 +126,7 @@ export const ADVANCED_TOURS: readonly Tour[] = [
       { id: 'preview', route: '/decision-desk/', target: 'preview', title: t('Instant rule check', 'Vérification instantanée'),
         body: t('Computed by code, with no AI: the verdict, the count per status and the largest size before the first rule conflict.', 'Calculée par le code, sans IA : le verdict, le nombre par statut et la taille maximale avant le premier conflit.') },
       { id: 'analyze', route: '/decision-desk/', target: 'analyze', title: t('Analyze the evidence', 'Analysez les preuves'),
-        body: t('Starts the audited AI analysis: scenarios, funding options and a brief whose every sentence is checked.', 'Lance l’analyse IA auditée : scénarios, options de financement et une note dont chaque phrase est vérifiée.') },
+        body: t('Runs the AI analysis: scenarios, funding options and an explanation whose every sentence is checked against the figures.', 'Lance l’analyse par IA : scénarios, options de financement et une explication dont chaque phrase est vérifiée par rapport aux chiffres.') },
       { id: 'compare', route: '/decision-desk/', target: 'compare', optional: true, title: t('Compare two investors', 'Comparez deux investisseurs'),
         body: t('Run the same move on another profile: different rules can give different verdicts.', 'Appliquez le même mouvement à un autre profil : des règles différentes peuvent donner d’autres verdicts.') },
     ],
@@ -152,13 +152,13 @@ export const ADVANCED_TOURS: readonly Tour[] = [
     summary: t('Sources, audit marks and the sabotage test.', 'Sources, marques d’audit et test de sabotage.'),
     steps: [
       { id: 'runs', route: '/evidence-audit/', target: 'run-list', title: t('Your analyses', 'Vos analyses'),
-        body: t('Every analysis started in this session. Filter by state, then open one.', 'Toutes les analyses lancées dans cette session. Filtrez par état, puis ouvrez-en une.') },
+        body: t('Every analysis started in this browser, for the active profile or all profiles. Filter by state, then open one.', 'Toutes les analyses lancées dans ce navigateur, pour le profil actif ou pour tous les profils. Filtrez par état, puis ouvrez-en une.') },
       { id: 'inside', route: '/evidence-audit/', title: t('Inside an analysis', 'Dans une analyse'),
         body: t('You see the brief with its audit marks, the audit report, the rule checks, then folded: the fact ledger, the evidence, the steps and the data used.', 'Vous voyez la note avec ses marques d’audit, le rapport d’audit, les vérifications, puis repliés : le registre des faits, les preuves, les étapes et les données.') },
       { id: 'facts', route: '/evidence-audit/', title: t('Follow any figure', 'Suivez n’importe quel chiffre'),
         body: t('Click a figure with a dotted underline: a panel shows how it was computed, from which data, and which sentences use it.', 'Cliquez un chiffre souligné en pointillé : un panneau montre son calcul, ses données et les phrases qui l’utilisent.') },
       { id: 'sabotage', route: '/evidence-audit/', title: t('The sabotage test', 'Le test de sabotage'),
-        body: t('On a finished decision, start a labelled copy where the writer is told to lie, and see whether the auditor catches it.', 'Sur une décision terminée, lancez une copie identifiée où le rédacteur reçoit l’ordre de mentir, et voyez si l’auditeur le détecte.') },
+        body: t('On a finished decision, Aplomb copies the signed brief, inserts one labelled false sentence built from its own figures and audits it again. No model is asked to lie; see whether the auditor catches it.', 'Sur une décision terminée, Aplomb copie la note signée, y insère une phrase fausse identifiée construite à partir de ses propres chiffres et relance l’audit. Aucun modèle n’est invité à mentir ; voyez si l’auditeur la détecte.') },
     ],
   },
   {

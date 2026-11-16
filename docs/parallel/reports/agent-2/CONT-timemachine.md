@@ -1,5 +1,7 @@
 # CONT — timemachine stream (point-in-time SEC data)
 
+> **Current status (wiring audit, 2026-11-15):** the SEC part described below has been removed. The owner removed every SEC source (`intelligence/capabilities.py` family `sec` is `removed`; SRC-034/035 are `removed: owner excluded SEC access-refused sources`), so the panels never rendered. `sec_pit.py`, `PointInTimePanel.tsx` and the three SEC routes (`/point-in-time/{cik}`, `/point-in-time/{cik}/published-later`, `/sec-ticker-candidates`) were deleted. Still present: `records.py` (tested on synthetic records), `alfred_access()` and `GET /v1/timemachine/vintages/status` in `pit_routes.py`, whose ALFRED status line is now shown by `web/src/features/timemachine/VintageStatus.tsx` in the Time Machine cutoff card. The rest of this report is the original change log.
+
 ## Added
 
 - `backend/aplomb/timemachine/sec_pit.py` (new): SEC point-in-time reconstruction.

@@ -59,6 +59,8 @@ Every code used in a payload is listed here. Adding a value is an additive contr
 | `gate.rows_withheld` | Rows hidden by the temporal gate | count | timemachine |
 | `quote.figure` | A figure quoted verbatim from a cited document | text | research |
 
+Reserved, not produced in this release: `price.last`, `fx.usdcad`, `value.position`, `macro.change`, `emissions.facility_total` and `gate.rows_withheld`. These codes stay valid on the wire, but no backend module emits a fact with these metrics. The "Produced by" column names the module that was planned to produce them.
+
 ---
 
 ## 2. Method IDs (`MethodId`)
@@ -103,6 +105,8 @@ Each method is described once, with its formula, in the spec of the module that 
 | `M_STRATEGY_SIM` | Day-by-day holdings that drift with asset returns from today's weights; a standing strategy acts at the close of the day its trigger is observed (rebalance, contribute, de-risk, re-risk). Compared with the same holdings never touched | strategies §2 |
 | `M_GATE_COUNT` | Count of rows with `availableAt` after `asOf` | timemachine §2 |
 
+Reserved, not produced in this release: `M_EVENT_IMPORTANCE`. The world bundle builder computes an importance score for each event, but no fact carries this method ID.
+
 ---
 
 ## 3. Rule IDs (`RuleId`)
@@ -129,6 +133,8 @@ Each method is described once, with its formula, in the spec of the module that 
 | `sim.only` | sim | — | none | every run | no |
 
 Sector slugs: lower-case sector label with spaces replaced by `_` (`energy`, `information_technology`, `consumer_discretionary`, …).
+
+Reserved, not produced in this release: `flag.short_history`. No rule definition exists for it in `backend/aplomb/rules/definitions.py`, so no run carries it. Short history is still reported in two places: as the asset flag `short_history` (§9) and as the not-enough-evidence reason `short_history` (§4).
 
 ---
 
@@ -316,14 +322,22 @@ Tags are assumptions (`LIM_THEME_TAGS`). The assignment of tags to assets lives 
 
 ## 11. Feature flags (`FeatureFlag`)
 
-Returned by `GET /meta`; the web app hides what is off. Defaults are for the first deployment.
+Returned by `GET /meta`; the web app hides what is off.
+
+The Default column is the configuration intended for the first deployment. It is generated into `FEATURE_DEFAULTS`, and no runtime code applies it. At runtime every flag is off unless the environment sets `APLOMB_FEATURE_<FLAG>=true` (`backend/aplomb/api/settings.py`). Each environment sets its own flags:
+
+- `FEATURES` in `scripts/dev_api.py`, for `npm run dev:api`
+- `application.features` in the infra configuration (`infra/src/stack.mjs`)
+- a local `.env`, based on `.env.example`
+
+These lists can differ from this column. Fixture mode reports every flag off except `bilingual` (`web/src/api/fixtures.ts`).
 
 | Flag | Default | Cut-list link (D-02) |
 |---|---|---|
 | `bilingual` | true | cut 1 |
 | `world_explorer` | true | — |
-| `world_layer_facilities` | false until the dataset exists | cut 2 |
-| `world_layer_hazards` | false until the dataset exists | cut 2 |
+| `world_layer_facilities` | false; the dataset (`emissions_facilities`) now ships in the world bundle, so an environment may turn it on | cut 2 |
+| `world_layer_hazards` | false; the dataset (`natural_hazards`) now ships in the world bundle, so an environment may turn it on | cut 2 |
 | `time_machine` | true | cut 3 |
 | `profile_creator` | true | cut 4 |
 | `goal_requests` | true | cut 4 |

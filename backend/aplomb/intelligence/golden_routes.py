@@ -1,12 +1,14 @@
-"""Current Golden Copy metadata and narrowly scoped delta acquisition."""
-from datetime import date
+"""Current Golden Copy metadata and narrowly scoped delta acquisition.
 
-from fastapi import APIRouter, Depends, Query
+Stored entity records reach the UI through GET /v1/intelligence/relationships
+(relationship_graph uses golden_copy.latest_entity); there is no separate entity route.
+"""
+from fastapi import APIRouter, Depends
 
 from aplomb.api.errors import ServiceError, unavailable
 from aplomb.api.limiter import SessionLimiter
 
-from .golden_copy import GoldenCopyError, discover, ingest_delta, latest_entity
+from .golden_copy import GoldenCopyError, discover, ingest_delta
 
 
 def golden_router(store, session_dependency):
@@ -31,17 +33,5 @@ def golden_router(store, session_dependency):
             raise unavailable('Bounded GLEIF intraday delta') from exc
         except ValueError as exc:
             raise ServiceError('validation_error', 'Valid LEI checksum required') from exc
-
-    @router.get('/v1/intelligence/gleif-golden/entity/{lei}')
-    def stored_entity(lei: str, sid: str = Depends(session_dependency), as_of: str | None = Query(default=None)):
-        try:
-            cutoff = date.fromisoformat(as_of) if as_of else None
-            item = latest_entity(store, sid, lei.upper(), cutoff)
-        except GoldenCopyError as exc:
-            raise unavailable('Stored GLEIF Golden Copy record') from exc
-        except ValueError as exc:
-            raise ServiceError('validation_error', 'Valid LEI and ISO date required') from exc
-        return {'status': 'captured' if item else 'not_captured',
-                'entity': item['entity'] if item else None, 'source': item['source'] if item else None}
 
     return router

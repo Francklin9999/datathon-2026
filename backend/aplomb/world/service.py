@@ -224,11 +224,30 @@ class WorldServiceImpl:
         return {"builtAt": ds.built_at, "retrievedAt": record.get("retrievedAt", ds.built_at),
                 "licence": record.get("terms", "unknown"), "sourceName": record.get("name", event["sources"][0]["publisher"])}
 
+    # (datasetId, message) for each provider capture that failed validation and is not served.
+    _provider_failures: tuple[tuple[str, str], ...] = ()
+
     @cached_property
     def _provider_capture(self) -> tuple[tuple[dict, ...], tuple[dict, ...]]:
+        """Valid provider captures. A damaged capture drops only its own source (recorded in
+        _provider_failures); the other sources are still served."""
         from .providers import load_provider_snapshots
 
-        return load_provider_snapshots()
+        errors: list[tuple[str, str]] = []
+        capture = load_provider_snapshots(errors=errors)
+        self._provider_failures = tuple(errors)
+        return capture
+
+    def _failed_provider_modes(self) -> set[str] | None:
+        """Observation modes whose provider capture failed; None when a failed source's mode is unknown."""
+        modes: set[str] = set()
+        for source, _ in self._provider_failures:
+            prefix = source.split("_", 1)[0]
+            mode = PROVIDER_MODES.get(source) or (prefix if prefix in OBSERVATION_MODES else None)
+            if mode is None:
+                return None
+            modes.add(mode)
+        return modes
 
     @cached_property
     def _provider_contexts(self) -> dict[str, dict]:
@@ -242,12 +261,16 @@ class WorldServiceImpl:
         disables those providers; it does not break the core event feed.
         """
         ds = self.dataset()
+        integrity_error = "Provider capture failed integrity validation."
         try:
             provider_rows, provider_meta = self._provider_capture
-            provider_error = None
+            # Only the modes of the damaged sources carry the reason. When a damaged source's mode
+            # cannot be told from its ID, every empty mode carries it (it may be the one affected).
+            failed_modes = self._failed_provider_modes()
         except (ValueError, OSError, KeyError, TypeError):
+            # The provider directory itself could not be read: every empty mode may be affected.
             provider_rows, provider_meta = (), ()
-            provider_error = "Provider capture failed integrity validation."
+            failed_modes = None
 
         mode = query.get("mode")
         if mode is not None and mode not in OBSERVATION_MODES:
@@ -338,7 +361,9 @@ class WorldServiceImpl:
         for row in rows:
             counts[row["mode"]] += 1
         statuses = [{"mode": key, "available": counts[key] > 0, "count": counts[key],
-                     "reason": None if counts[key] else (provider_error or "No geolocated authorized capture is loaded.")}
+                     "reason": None if counts[key] else (
+                         integrity_error if failed_modes is None or key in failed_modes
+                         else "No geolocated authorized capture is loaded.")}
                     for key in OBSERVATION_MODES]
         if mode:
             rows = [r for r in rows if r["mode"] == mode]

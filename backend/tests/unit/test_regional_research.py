@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from urllib.parse import parse_qs, urlparse
 
 import pytest
-from aplomb.research.regional import RegionalError, RegionalResearch
+from aplomb.research.regional import RegionalError, RegionalResearch, configured_key
 
 
 def NOW():
@@ -144,3 +144,20 @@ def test_http_authorized_fixture_uses_session_store_and_never_returns_key(monkey
     assert response.json()['datasetVersion'].startswith('regional-')
     assert 'credential-should-not-appear' not in response.text
     assert 'credential-should-not-appear' not in (tmp_path / 'state.json').read_text()
+
+
+@pytest.mark.parametrize('key, rights, usable', [
+    ('account-key', 'true', True), ('account-key', 'TRUE', True), ('  ', 'true', False),
+    ('account-key', 'false', False), ('', 'true', False)])
+def test_capability_gate_uses_the_adapter_rule(monkeypatch, key, rights, usable):
+    from aplomb.api.settings import Settings
+    from aplomb.intelligence.capabilities import capabilities
+    for provider, family in (('JQUANTS', 'regional'), ('OPENDART', 'opendart')):
+        monkeypatch.setenv('APLOMB_' + provider + '_KEY', key)
+        monkeypatch.setenv('APLOMB_' + provider + '_RIGHTS_CONFIRMED', rights)
+        env = {'APLOMB_' + provider + '_KEY': key, 'APLOMB_' + provider + '_RIGHTS_CONFIRMED': rights}
+        assert (RegionalResearch(env=env)._configured(provider) is not None) is usable
+        assert (configured_key(provider) is not None) is usable
+    states = {item['id']: item['state'] for item in capabilities(Settings())['families']}
+    expected = 'available' if usable else 'aside'
+    assert states['regional'] == expected and states['opendart'] == expected

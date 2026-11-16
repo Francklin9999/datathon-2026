@@ -18,7 +18,6 @@ const PROGRESS_PREF = 'tour.v1';
 interface TourContextValue {
   tours: readonly Tour[];
   progress: TourProgress;
-  activeId: string | null;
   start: (tourId: string) => void;
 }
 
@@ -88,7 +87,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
   }, [progress, save, announce, tr]);
 
   const showWelcome = loaded && !progress.welcomed && !active && phase === 'ready' && profile !== null;
-  const value = useMemo<TourContextValue>(() => ({ tours: ALL_TOURS, progress, activeId: active?.tour.id ?? null, start }), [progress, active, start]);
+  const value = useMemo<TourContextValue>(() => ({ tours: ALL_TOURS, progress, start }), [progress, start]);
 
   return (
     <TourContext.Provider value={value}>

@@ -722,6 +722,72 @@ interface Hazard {
   assessment?: WorldPortfolioAssessment | null; // included when profileId is supplied
 }
 
+interface WorldGeographicRelationship {  // GET /world/events/{eventId} → geographicRelationships (api.md §6.3)
+  relationshipId: string;
+  relation: "EVENT_OCCURRED_AT" | "FACILITY_LOCATED_IN";   // the event route emits EVENT_OCCURRED_AT only
+  subjectId: string;                     // the event id
+  objectId: string;                      // "point:<lat>,<lon>" or "country:<ISO3>"
+  evidenceClass: "direct" | "derived" | "candidate" | "model_inferred";
+  sourceId: string;
+  sourceUrl: string;
+  normalizedRecordSha256: string;
+  retrievedAt: ISODateTime;
+  limitations: string[];
+}                                        // a location edge only: never an exposure, ownership or impact
+
+interface WorldObservationLocation {
+  lat: number;                           // −90…90
+  lon: number;                           // −180…180
+  countryIso3: string | null;
+  precision: "point" | "city" | "country" | "polygon_anchor";
+  geometry?: object | null;              // original source geometry for a polygon anchor
+}
+
+interface WorldObservationSource { name: string; url: string }
+
+interface WorldObservation {             // one source-backed item of GET /world/observations (api.md §6.8)
+  id: string;
+  mode: "news" | "macro" | "trade" | "energy" | "hazards" | "conflicts" | "aviation" | "environment" | "infrastructure";
+  title: string;
+  summary: string;
+  occurredAt: ISODateTime;
+  timeBasis: "source_observation" | "reference_period" | "event_date" | "capture_only";   // reference_period = a display anchor for a period (e.g. a month), not an observed instant
+  publishedAt: ISODateTime | null;
+  retrievedAt: ISODateTime;
+  location: WorldObservationLocation | null;   // null: source point coordinates were not established
+  geometry?: object | null;              // source polygon without an invented pin
+  countryIso3?: string | null;           // can carry a sourced national reporting area when location is null
+  source: WorldObservationSource;
+  datasetId: string;
+  limitations: string[];
+  assessment?: WorldPortfolioAssessment | null; // included when profileId is supplied
+}
+
+interface WorldModeStatus { mode: string; available: boolean; count: number; reason: string | null }
+
+interface WorldObservationsResponse {
+  items: WorldObservation[];
+  total: number;
+  nextCursor: string | null;
+  dataVersion: string | null;
+  capturedAt: ISODateTime | null;
+  modes: WorldModeStatus[];              // availability, count and reason per mode
+}
+
+interface AirportReference {             // static OurAirports capture (api.md §6.9)
+  airportId: string;
+  ident: string;
+  name: string;
+  lat: number; lon: number;
+  countryIso2: string | null;
+  countryIso3: string | null;
+  sourceUrl: string;
+  capturedAt: ISODateTime;
+  assessment?: WorldPortfolioAssessment | null; // included when profileId is supplied
+}
+
+interface AirportsResponse { items: AirportReference[]; total: number; dataVersion: DataVersion; capturedAt: ISODateTime }
+
 interface WorldLayer {
   layerId: "events" | "exposure" | "facilities" | "hazards" | "airports";
   title: I18nText;

@@ -58,13 +58,6 @@ def candidate_findings(provider: CandidateProvider | None, profile, outcome, led
     return list(findings)
 
 
-def candidate_priorities(provider: CandidateProvider | None, profile, outcome, ledger) -> dict[str, int]:
-    result = {}
-    for finding in candidate_findings(provider, profile, outcome, ledger):
-        result[finding.topic] = max(result.get(finding.topic, 0), finding.priority)
-    return result
-
-
 @dataclass(frozen=True)
 class EventRelationship:
     event_reference: Relationship

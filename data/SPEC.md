@@ -41,14 +41,16 @@ T09 owns fetched documents/attention/filings; T11 events/facilities/hazards; T04
 
 DAT-01 all starter counts/keys. DAT-02 idempotent ingestion and source hash stability. DAT-03 staged failure cannot corrupt active version. DAT-04 release/reference-date separation. DAT-05 source traps mapped to passports. DAT-06 on-demand acceptance/short-history/rejection. DAT-07 metadata round-trips to `GET /datasets`. Done includes a small local snapshot, S3-upload-ready manifest and deterministic loader tests; no AWS access required for the first handoff.
 
-## Current state (T04, 2026-11-14)
+## Current state (2026-11-15)
 
-Snapshots `snap-20261113-starter` and `snap-20261114-sourced` (active) are published. The second keeps the organizer data unchanged (same dataset hashes) and adds 58 real Statistics Canada release dates for the Canada CPI series and an official source URL for 36 of the 44 theme assignments. Each version's exact team inputs are frozen under `data/inputs/<version>/`, so any committed version can be re-materialized. Manifests: `data/manifests/snap-20261113-starter.json` (hashes, counts, coverage, availability policies, checks, quality flags) and `data/manifests/active.json`. `raw/` and `normalized/` are gitignored and rebuilt from the manifest. Team metadata copied into each snapshot: `data/metadata/asset_themes.csv` (44 theme assumptions) and `data/metadata/macro_series.csv` (frequency class and revision status per series, from the organizer metadata). `macro_release_dates.csv` is optional and absent until O-05 is closed.
+Snapshots `snap-20261113-starter`, `snap-20261114-sourced`, `snap-20261115-globalfx` (active) and `snap-20261115-a1-fx-expanded` (opt-in through `APLOMB_DATA_VERSION`) are published. The two FX snapshots have `snap-20261114-sourced` as parent and add the Bank of Canada `fx_boc_global` dataset from the captures under `data/inputs/global-fx/` and `data/inputs/global-fx-a1/`. `snap-20261114-sourced` keeps the organizer data unchanged (same dataset hashes) and adds 58 real Statistics Canada release dates for the Canada CPI series and an official source URL for 36 of the 44 theme assignments. Each version's exact team inputs are frozen under `data/inputs/<version>/`, so any committed version can be re-materialized. Manifests: `data/manifests/snap-20261113-starter.json` (hashes, counts, coverage, availability policies, checks, quality flags) and `data/manifests/active.json`. `raw/` and `normalized/` are gitignored and rebuilt from the manifest. Team metadata copied into each snapshot: `data/metadata/asset_themes.csv` (44 theme assumptions) and `data/metadata/macro_series.csv` (frequency class and revision status per series, from the organizer metadata). `data/metadata/macro_release_dates.csv` holds the 58 Statistics Canada release dates (the same file is frozen under `data/inputs/snap-20261114-sourced/`).
 
-Materialize or verify the snapshot (idempotent; fails without changing anything if a source or hash differs):
+Materialize or verify the starter or sourced snapshot (idempotent; fails without changing anything if a source or hash differs):
 
 ```bash
 cd backend && python -m aplomb.datastore.ingest --source ../Datathon2026/alphaforge_starter --data-root ../data --version snap-20261114-sourced
 ```
+
+The ingestion CLI does not build the FX snapshots. `aplomb.datastore.global_fx.materialize_pinned_global_fx` rebuilds one from its committed manifest and capture, without network and without changing `active.json`; `npm run dev:api` calls it automatically when the selected version is missing.
 
 A changed source or metadata file needs a new version label: edit `data/metadata/`, then ingest a new label (its inputs are frozen automatically). Implementation details, availability rules and limits: [datastore §7](../backend/aplomb/datastore/SPEC.md).

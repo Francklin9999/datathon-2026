@@ -1,7 +1,9 @@
 /**
  * Bilingual labels for every catalog code the UI displays (contracts/catalog.md: "the i18n
  * dictionaries of the web app must contain a label for every code"). `Record<Code, …>` makes the
- * compiler reject a missing code; tests/labels.test.ts checks against the runtime catalog too.
+ * compiler reject a missing code; tests/web-logic.test.ts ("every displayed catalog code has a
+ * non-empty English and French label") checks the limitation, NEE reason, audit check and error
+ * tables against the runtime catalog too.
  */
 import type {
   AgentRole, AssetClass, AssetGroup, AuditCheckCode, CountryExposure, ErrorCode, EventCategory, EventLocation,
@@ -230,7 +232,7 @@ export const ERROR_CODE: Labels<ErrorCode> = {
   conflict: l('Conflict with the current version', 'Conflit avec la version actuelle'),
   forbidden_action: l('Not available: this is a simulation and no orders are placed', 'Non disponible : ceci est une simulation et aucun ordre n’est passé'),
   insufficient_data: l('Not enough data for this calculation', 'Données insuffisantes pour ce calcul'),
-  rate_limited: l('Too many requests; retrying more slowly', 'Trop de requêtes ; nouvel essai plus lent'),
+  rate_limited: l('Too many requests; wait a moment, then try again', 'Trop de requêtes ; patientez un instant puis réessayez'),
   upstream_unavailable: l('Service unavailable', 'Service indisponible'),
   feature_disabled: l('This feature is turned off', 'Cette fonction est désactivée'),
   internal: l('Unexpected server error', 'Erreur inattendue du serveur'),

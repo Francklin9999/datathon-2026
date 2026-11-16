@@ -11,20 +11,27 @@ import type { Profile } from '../../contracts/types';
 import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
 import { readPref } from '../../lib/session';
-import { readStrategies, type SavedStrategy } from '../../lib/strategies';
-import { KIND_ICON, useStrategySimulation } from '../strategies/StrategiesPage';
+import { automationState, readStrategies, type SavedStrategy } from '../../lib/strategies';
+import { KIND_ICON, useStrategiesUnavailable, useStrategySimulation } from '../strategies/StrategiesPage';
 
 function Automation({ profile, strategy }: { profile: Profile; strategy: SavedStrategy }) {
   const { tr } = useApp();
   const sim = useStrategySimulation(profile, strategy.config);
+  const unavailable = useStrategiesUnavailable();
   const Icon = KIND_ICON[strategy.config.kind];
   const next = sim.data?.nextAction;
+  const state = automationState(strategy.config, Boolean(next), Boolean(sim.error), sim.compat);
   return (
     <li className="auto-item">
       <span className={`strategy-icon kind-${strategy.config.kind}`} aria-hidden="true"><Icon size={17} strokeWidth={2} /></span>
       <span className="auto-name">{strategy.name}</span>
-      <span className="auto-next" {...(next?.due ? { 'data-due': 'true' } : {})}>
-        {next ? tr(next.summary) : sim.error ? tr({ en: 'Simulation unavailable', fr: 'Simulation indisponible' }) : tr({ en: 'Simulating…', fr: 'Simulation…' })}
+      <span className="auto-next" {...(state === 'next' && next?.due ? { 'data-due': 'true' } : {})}>
+        {state === 'outdated' && unavailable ? <span title={tr(unavailable.version)}>{tr(unavailable.badge)}</span>
+          : state === 'invalid' ? <Link href="/strategies/">{tr({ en: 'Settings need attention', fr: 'Réglages à corriger' })}</Link>
+            : state === 'next' && next ? tr(next.summary)
+              // The Strategies page says why (and offers Retry while it can help).
+              : state === 'unavailable' ? <Link href="/strategies/">{tr({ en: 'Simulation unavailable', fr: 'Simulation indisponible' })}</Link>
+                : tr({ en: 'Simulating…', fr: 'Simulation…' })}
       </span>
     </li>
   );
@@ -32,6 +39,7 @@ function Automation({ profile, strategy }: { profile: Profile; strategy: SavedSt
 
 export function AutomationsCard({ profile }: { profile: Profile }) {
   const { tr } = useApp();
+  const unavailable = useStrategiesUnavailable();
   const [list, setList] = useState<SavedStrategy[]>([]);
   useEffect(() => { setList(readStrategies(profile.profileId, readPref)); }, [profile.profileId]);
   const active = list.filter(s => s.active);
@@ -47,6 +55,7 @@ export function AutomationsCard({ profile }: { profile: Profile }) {
             ? tr({ en: 'Every strategy is paused.', fr: 'Toutes les stratégies sont en pause.' })
             : tr({ en: 'Rebalance, invest regularly or protect against a fall, tested on history.', fr: 'Rééquilibrer, investir régulièrement ou se protéger d’une baisse, testé sur l’historique.' })}</p>
           <Link href="/strategies/" className="btn btn-sm ink"><Plus aria-hidden="true" size={14} strokeWidth={2.25} />{tr({ en: 'Create a strategy', fr: 'Créer une stratégie' })}</Link>
+          {unavailable && <p className="small muted" title={tr(unavailable.version)}>{tr(unavailable.createNote)}</p>}
         </div>
       )}
     </Card>

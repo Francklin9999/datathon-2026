@@ -319,6 +319,20 @@ class Integrity(unittest.TestCase):
         with self.assertRaises(SnapshotIntegrityError):
             LocalDataStore(self.root).open("snap-20240101-syn")
 
+    def test_manifest_without_created_at_rejected(self):
+        path = self.root / "manifests" / "snap-20240101-syn.json"
+        m = json.loads(path.read_text(encoding="utf-8"))
+        del m["createdAt"]
+        path.write_text(json.dumps(m), encoding="utf-8")
+        with self.assertRaisesRegex(SnapshotIntegrityError, "createdAt"):
+            LocalDataStore(self.root).open("snap-20240101-syn")
+
+    def test_new_manifest_records_the_contract_version(self):
+        from aplomb.contracts import CONTRACT_VERSION
+
+        m = json.loads((self.root / "manifests" / "snap-20240101-syn.json").read_text(encoding="utf-8"))
+        self.assertEqual(m["contractVersion"], CONTRACT_VERSION)
+
     def test_missing_file_rejected(self):
         (self.root / "normalized" / "snap-20240101-syn" / "fx_usdcad_daily.csv").unlink()
         with self.assertRaises(SnapshotIntegrityError):

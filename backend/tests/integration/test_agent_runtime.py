@@ -1,18 +1,26 @@
-"""Real domain calculations, durable checkpoints and signing; synthetic model text only."""
+"""Real domain calculations, durable checkpoints and signing; synthetic model text only.
+
+Uses the production composition pieces of ``aplomb.api.runtime`` (preparer, worker services,
+gate and brief lookup)."""
 
 import uuid
 
 import pytest
 from aplomb.agents.models import AnalysisPlan, Generation
-from aplomb.agents.runtime import BriefProfiles, RunPreparer, make_worker_services
 from aplomb.agents.worker import make_handler
 from aplomb.api.composition import create_repositories
+from aplomb.api.runtime import RunPreparerImpl, brief_lookup, build_agent_services
 from aplomb.api.settings import Settings
 from aplomb.api.storage import MemoryStore
 from aplomb.contracts import api as a
 from aplomb.datastore import LocalDataStore
 from aplomb.optimizer.services import build_domain_services
 from tests.unit.datastore._support import STARTER_VERSION, starter_root
+
+
+def worker_services(settings, store, gateway, snapshot):
+    _, repository = create_repositories(settings, store)
+    return build_agent_services(settings, repository, snapshot, None, gateway)
 
 
 class SyntheticText:
@@ -41,7 +49,7 @@ class SyntheticText:
 def test_runtime_real_controls_signed_and_duplicate_safe(kind):
     settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
     store = MemoryStore()
-    profiles_repo, runs, _ = create_repositories(settings, store)
+    profiles_repo, runs = create_repositories(settings, store)
     def snapshot():
         return LocalDataStore(starter_root()).open(STARTER_VERSION)
     profiles, _ = build_domain_services(profiles_repo, snapshot)
@@ -53,7 +61,7 @@ def test_runtime_real_controls_signed_and_duplicate_safe(kind):
     else:
         body = a.CreatePortfolioBriefRunRequest.model_validate(request)
     sid = "s_" + str(uuid.uuid4())
-    prepared = RunPreparer(settings, profiles, snapshot)(sid, body)
+    prepared = RunPreparerImpl(profiles, snapshot, models_configured=True, settings=settings)(sid, body)
     from aplomb.api.services import RunCoordinator
     class Capture:
         def dispatch(self, run_id, generation):
@@ -61,7 +69,7 @@ def test_runtime_real_controls_signed_and_duplicate_safe(kind):
     dispatch = Capture()
     coordinator = RunCoordinator(runs, dispatch, lambda *_: prepared)
     queued = coordinator.create(sid, body, "same-request")
-    worker = make_handler(make_worker_services(settings, store, SyntheticText()))
+    worker = make_handler(worker_services(settings, store, SyntheticText(), snapshot))
     worker(dispatch.event)
     run = runs.get(sid, queued.run_id).run
     assert run.status == "succeeded", run.error
@@ -78,22 +86,23 @@ def test_runtime_real_controls_signed_and_duplicate_safe(kind):
         runs.get("s_" + str(uuid.uuid4()), queued.run_id)
     assert "NotFound" in type(exc.value).__name__
     if kind == "portfolio_brief":
-        wrapped = BriefProfiles(profiles, runs, snapshot)
-        assert wrapped.brief(sid, "robert", {}).run.run_id == run.run_id
+        find = brief_lookup(runs, profiles, snapshot, settings)
+        found, stale = find(sid, "robert", "en", {"code": "full"})
+        assert found.run_id == run.run_id and stale is False
         assert len(result.focus_cards) == 3
-        # A GSI may still return an old META under a new grouping during propagation.
-        stale = store.get("runs", "RUN#" + run.run_id, "META")
-        original_query = store.query
-        store.query = lambda table, pk, index=None: [stale] if index == "byProfile" else original_query(table, pk, index)
+        # A threshold edit changes the effective profile version: the stored brief becomes stale.
         profiles.patch_rule(sid, "robert", "cap.position", 11.0, None)
-        assert wrapped.brief(sid, "robert", {}).run is None
+        assert find(sid, "robert", "en", {"code": "full"})[1] is True
 
 
 def test_worker_rejects_changed_snapshot_manifest():
     settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
-    services = make_worker_services(settings, MemoryStore(), SyntheticText())
-    with pytest.raises(ValueError, match="manifest changed"):
-        services.gate_factory({"dataVersion": STARTER_VERSION, "asOf": "2026-11-12", "manifestHash": "invalid"})
+    def snapshot():
+        return LocalDataStore(starter_root()).open(STARTER_VERSION)
+    services = worker_services(settings, MemoryStore(), SyntheticText(), snapshot)
+    with pytest.raises(RuntimeError, match="manifest changed"):
+        services.gate_factory({"dataVersion": STARTER_VERSION, "asOf": "2026-11-12", "mode": "current",
+                               "manifestHash": "invalid"})
 
 
 def test_planner_cannot_smuggle_an_unknown_computation():
@@ -110,11 +119,24 @@ def test_model_or_policy_release_changes_brief_cache_identity():
     assert runtime_signature(settings) != runtime_signature(settings.model_copy(update={"max_llm_calls": 3}))
 
 
+def test_brief_identity_ignores_a_code_only_release():
+    """The worker pin (runtime_signature) changes with the build revision; the brief-cache identity
+    does not, so a code-only redeploy keeps serving the briefs already written."""
+    from aplomb.agents.runtime import brief_runtime_identity, runtime_signature
+    settings = Settings(model_strong="model-a", model_fast="writer-a")
+    released = settings.model_copy(update={"build_revision": "b" * 40})
+    assert runtime_signature(settings) != runtime_signature(released)
+    assert brief_runtime_identity(settings) == brief_runtime_identity(released)
+    for change in ({"model_strong": "model-b"}, {"model_fast": "writer-b"}, {"guardrail_version": "2"},
+                   {"max_llm_calls": 3}, {"run_hard_seconds": 120}, {"data_prefix": "other/"}):
+        assert brief_runtime_identity(settings) != brief_runtime_identity(settings.model_copy(update=change)), change
+
+
 def test_runtime_mismatch_fails_before_any_model_call():
     from aplomb.api.services import RunCoordinator
     settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
     store = MemoryStore()
-    profiles_repo, repo, _ = create_repositories(settings, store)
+    profiles_repo, repo = create_repositories(settings, store)
     def snapshot():
         return LocalDataStore(starter_root()).open(STARTER_VERSION)
     profiles, _ = build_domain_services(profiles_repo, snapshot)
@@ -124,21 +146,21 @@ def test_runtime_mismatch_fails_before_any_model_call():
     dispatch = Capture()
     request = a.CreateProfileDraftRunRequest(kind="profile_draft", text="A fictional librarian.", lang="en")
     sid = "s_" + str(uuid.uuid4())
-    queued = RunCoordinator(repo, dispatch, RunPreparer(settings, profiles, snapshot)).create(sid, request, None)
+    prepare = RunPreparerImpl(profiles, snapshot, models_configured=True, settings=settings)
+    queued = RunCoordinator(repo, dispatch, prepare).create(sid, request, None)
     changed = settings.model_copy(update={"model_strong": "different-release"})
-    make_handler(make_worker_services(changed, store, SyntheticText()))(dispatch.event)
+    make_handler(worker_services(changed, store, SyntheticText(), snapshot))(dispatch.event)
     run = repo.get(sid, queued.run_id).run
     assert run.status == "failed" and run.usage.llm_calls == 0
     assert "runtime configuration" in run.error.message
 
 
 def test_reviewed_rebalance_owns_all_local_facts_and_preserves_targets():
-    from aplomb.api.runtime import RunPreparerImpl
     from aplomb.api.services import RunCoordinator
 
     settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
     store = MemoryStore()
-    profiles_repo, runs, _ = create_repositories(settings, store)
+    profiles_repo, runs = create_repositories(settings, store)
 
     def snapshot():
         return LocalDataStore(starter_root()).open(STARTER_VERSION)
@@ -159,7 +181,7 @@ def test_reviewed_rebalance_owns_all_local_facts_and_preserves_targets():
     dispatch = Capture()
     prepare = RunPreparerImpl(profiles, snapshot, models_configured=True, settings=settings)
     queued = RunCoordinator(runs, dispatch, prepare).create(sid, body, "target-once")
-    make_handler(make_worker_services(settings, store, SyntheticText()))(dispatch.event)
+    make_handler(worker_services(settings, store, SyntheticText(), snapshot))(dispatch.event)
     run = runs.get(sid, queued.run_id).run
     assert run.status == "succeeded", run.error
     result = run.result.rebalance
@@ -185,7 +207,7 @@ def test_rebalance_local_ids_are_remapped_when_run_already_has_facts():
     from aplomb.ledger import Ledger
 
     settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
-    profiles_repo, _, _ = create_repositories(settings, MemoryStore())
+    profiles_repo, _ = create_repositories(settings, MemoryStore())
 
     def snapshot():
         return LocalDataStore(starter_root()).open(STARTER_VERSION)
@@ -211,7 +233,6 @@ def test_rebalance_local_ids_are_remapped_when_run_already_has_facts():
 
 
 def test_rebalance_model_failure_keeps_standalone_comparison_available():
-    from aplomb.api.runtime import RunPreparerImpl
     from aplomb.api.services import RunCoordinator
 
     class UnavailableModel:
@@ -225,7 +246,7 @@ def test_rebalance_model_failure_keeps_standalone_comparison_available():
 
     settings = Settings(data_version=STARTER_VERSION, data_dir=str(starter_root()))
     store = MemoryStore()
-    profiles_repo, runs, _ = create_repositories(settings, store)
+    profiles_repo, runs = create_repositories(settings, store)
 
     def snapshot():
         return LocalDataStore(starter_root()).open(STARTER_VERSION)
@@ -238,7 +259,7 @@ def test_rebalance_model_failure_keeps_standalone_comparison_available():
     dispatch = Capture()
     queued = RunCoordinator(runs, dispatch, RunPreparerImpl(profiles, snapshot, models_configured=True,
                                                             settings=settings)).create(sid, body, None)
-    make_handler(make_worker_services(settings, store, UnavailableModel()))(dispatch.event)
+    make_handler(worker_services(settings, store, UnavailableModel(), snapshot))(dispatch.event)
     run = runs.get(sid, queued.run_id).run
     assert run.status == "failed" and "SECRET" not in str(run.to_wire())
     comparison = checks.rebalance(sid, a.RebalanceRequest(profile_id="robert", profile_version=profile.version,

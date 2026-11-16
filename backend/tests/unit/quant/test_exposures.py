@@ -132,6 +132,8 @@ def test_strategic_candidates_are_ranked_and_facts_belong_to_result_ledger():
     assert not shortfall['claimIds']
     assert all(fid in result['facts'] for c in result['candidates'] for fid in c['factIds'])
     assert all(fid in result['facts'] for fact in result['facts'].values() for fid in fact['inputs'])
+    # QA 4.5b: the fact-ID remapping note is for code, not a limitation shown to the user.
+    assert not any('fact ID' in line or 'ledger' in line for line in result['limitations'])
 
 
 def test_target_funding_http_conserves_deposits_and_withdrawals():

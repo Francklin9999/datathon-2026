@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
 import { useApp } from '../../state/app';
 import { Card } from '../../components/common/Page';
 import { ExternalLink } from '../../components/common/ExternalLink';
@@ -28,8 +28,8 @@ const isListings = (v: unknown): v is { items: Listing[] } => obj(v) && Array.is
 const isCoverage = (v: unknown): v is Coverage => obj(v) && Array.isArray(v.asset_kinds) && Array.isArray(v.mic_routes);
 const today = () => new Date().toISOString().slice(0, 10);
 
-async function call(path: string, sessionId: string | null, method: 'GET' | 'POST' = 'GET'): Promise<unknown> {
-  const r = await fetch(`${API_BASE}${path}`, { method, headers: { 'X-Aplomb-Session': sessionId ?? '' } });
+async function call(path: string, method: 'GET' | 'POST' = 'GET'): Promise<unknown> {
+  const r = await researchFetch(path, { method });
   const body: unknown = await r.json().catch(() => null);
   if (!r.ok) {
     const message = obj(body) && obj(body.error) && typeof body.error.message === 'string' ? body.error.message : `HTTP ${r.status}`;
@@ -54,7 +54,7 @@ export function InstrumentMaster({ showCoinMetrics = false, showWikidata = false
   useEffect(() => {
     if (!sessionId) return;
     let live = true;
-    call('/intelligence/master/coverage', sessionId).then(b => { if (live && isCoverage(b)) setCoverage(b); }).catch(() => undefined);
+    call('/intelligence/master/coverage').then(b => { if (live && isCoverage(b)) setCoverage(b); }).catch(() => undefined);
     return () => { live = false; };
   }, [sessionId]);
 
@@ -65,7 +65,7 @@ export function InstrumentMaster({ showCoinMetrics = false, showWikidata = false
   async function load(code = isin.trim().toUpperCase()) {
     setBusy(true); setStatus(tr({ en: 'Loading…', fr: 'Chargement…' }));
     try {
-      const body = await call(`/intelligence/master/crosswalk?${new URLSearchParams({ isin: code, as_of: asOf })}`, sessionId);
+      const body = await call(`/intelligence/master/crosswalk?${new URLSearchParams({ isin: code, as_of: asOf })}`);
       if (!isCrosswalk(body)) throw new Error('invalid response');
       setData(body);
       setStatus(`${body.identifiers.length} ${tr({ en: 'identifiers', fr: 'identifiants' })} · ${body.listings.length} ${tr({ en: 'listing records', fr: 'fiches de cotation' })}`);
@@ -79,7 +79,7 @@ export function InstrumentMaster({ showCoinMetrics = false, showWikidata = false
     if (!data) return;
     setBusy(true); setStatus(`${label}…`);
     try {
-      const body = await call(path, sessionId, 'POST');
+      const body = await call(path, 'POST');
       const published = obj(body) && Array.isArray(body.published) ? body.published.length : 0;
       const state = obj(body) && typeof body.status === 'string' ? body.status : '';
       setBusy(false);
@@ -94,8 +94,8 @@ export function InstrumentMaster({ showCoinMetrics = false, showWikidata = false
   async function findAsset(publish: boolean) {
     setAssetStatus(tr({ en: 'Loading…', fr: 'Chargement…' })); setAssets(null);
     try {
-      if (publish) await call(`/intelligence/master/adapters/coinmetrics/${encodeURIComponent(asset)}`, sessionId, 'POST');
-      const body = await call(`/intelligence/listings?${new URLSearchParams({ as_of: today(), provider: 'coinmetrics', provider_asset_id: asset })}`, sessionId);
+      if (publish) await call(`/intelligence/master/adapters/coinmetrics/${encodeURIComponent(asset)}`, 'POST');
+      const body = await call(`/intelligence/listings?${new URLSearchParams({ as_of: today(), provider: 'coinmetrics', provider_asset_id: asset })}`);
       if (!isListings(body)) throw new Error('invalid response');
       setAssets(body.items);
       setAssetStatus(body.items.length ? '' : tr({ en: 'No published record for this provider asset in this session.', fr: 'Aucune fiche publiée pour cet actif dans cette session.' }));

@@ -4,7 +4,7 @@
 
 ## 1. Inputs and public services
 
-`presets(profile_id) -> ReplayPresetResponse` matches [HTTP §7](../../../contracts/api.md). `validate_asof(date, profile, snapshot) -> HistoricalContext`; `gate_report(context) -> GateReport`; `reveal(run, until) -> RevealResult`. Replay run creation and orchestration remain T03/T08 responsibilities. T04 owns the generic availability gate; this module chooses historical eligibility, restrictions and reveal isolation.
+`presets() -> ReplayPresetsResponse` matches [HTTP §7.1](../../../contracts/api.md): it is derived from the loaded snapshot alone and takes no profile (the service method receives only the session ID). `validate_asof(date, profile, snapshot) -> HistoricalContext`; `gate_report(context) -> GateReport`; `reveal(run, until) -> RevealResult`. Replay run creation and orchestration remain T03/T08 responsibilities. T04 owns the generic availability gate; this module chooses historical eligibility, restrictions and reveal isolation.
 
 ## 2. Eligibility and gate counts (`M_GATE_COUNT`)
 
@@ -32,7 +32,13 @@ Provide T15 presets with date-disabled reasons, gate report and separate reveal 
 
 ## 6. Implementation status (T12, 2026-11-15)
 
-Implemented in `backend/aplomb/timemachine/service.py`; the run composition that calls it is `backend/aplomb/api/runtime.py`.
+Replay is implemented in `backend/aplomb/timemachine/service.py`; the run composition that calls it is `backend/aplomb/api/runtime.py`, and `ReplayServiceImpl` is built in `backend/aplomb/api/domain.py`. The folder also holds:
+
+| Module | Content |
+|---|---|
+| `pit_routes.py` | `point_in_time_router(session, feature)`, mounted by `backend/aplomb/api/app.py`: `GET /v1/timemachine/vintages/status` (flag `time_machine`). Read-only; nothing it returns enters a run. The SEC point-in-time reconstruction was removed with the SEC sources; its three paths (`/v1/timemachine/point-in-time/{cik}`, `.../published-later`, `/v1/timemachine/sec-ticker-candidates`) stay registered because `contracts/api.md` lists them, and answer `status: unavailable`, `reason: sec_sources_removed` without fetching |
+| `vintages.py` | `alfred_access()`: ALFRED rights gate, reports `unavailable` unless `APLOMB_ALFRED_RIGHTS_CONFIRMED` and `APLOMB_FRED_KEY` are both set, and never fetches. `parse_observations` / `visible_at` validate ALFRED-style real-time periods; only their unit test calls them |
+| `records.py` | `PointInTimeRecords`: cutoff selector for source records with evidenced availability. No production caller; only its unit test uses it |
 
 | Call | Use |
 |---|---|
@@ -58,4 +64,4 @@ On the starter data the eligible range is 2022-11-22 to 2026-08-18. Presets: the
 
 ### 6.2 Verification
 
-`uv run pytest backend/tests/unit/timemachine` (23 tests, offline): TM-01 range from the master calendar, TM-02 future prices, FX and macro perturbed on a synthetic snapshot with identical historical facts, TM-05 stress 2022 `nee` before the window ends, TM-06 thresholds from pre-cutoff data, TM-07 reveal in a separate ledger and checked against an independent calculation, TM-08 run unchanged after reveal, TM-09 date and ownership validation. `backend/tests/integration/test_run_composition.py` runs a replay through the real workflow over HTTP: no research step, no fact available after the cutoff (TM-03, TM-04 through the registry and the audit), mandatory notices in the result (TM-10, backend part), then the reveal. Not verified: a replay written by a real Bedrock model.
+`uv run pytest backend/tests/unit/timemachine` (offline; `test_timemachine.py` for replay, plus `test_vintages.py` and `test_records.py`): TM-01 range from the master calendar, TM-02 future prices, FX and macro perturbed on a synthetic snapshot with identical historical facts, TM-05 stress 2022 `nee` before the window ends, TM-06 thresholds from pre-cutoff data, TM-07 reveal in a separate ledger and checked against an independent calculation, TM-08 run unchanged after reveal, TM-09 date and ownership validation. `backend/tests/integration/test_run_composition.py` runs a replay through the real workflow over HTTP: no research step, no fact available after the cutoff (TM-03, TM-04 through the registry and the audit), mandatory notices in the result (TM-10, backend part), then the reveal. Not verified: a replay written by a real Bedrock model.

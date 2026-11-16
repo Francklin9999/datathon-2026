@@ -140,10 +140,9 @@ export function pinColor(pin: GlobePin, selectedId: string | null): string {
 }
 
 /** Stage and sphere */
-export const STAGE_BACKGROUND = '#070A12';
 export const SPHERE_COLOR = '#0B1222';
 export const ATMOSPHERE_COLOR = '#4C6EF5';
-export const LAND_COLOR = 'rgba(148, 163, 196, 0.42)';
+const LAND_COLOR = 'rgba(148, 163, 196, 0.42)';
 export const LAND_HOVER_COLOR = 'rgba(214, 222, 240, 0.75)';
 
 /** Cobalt ramp for exposure, light to strong, by the share of the portfolio in a country. */
@@ -160,7 +159,7 @@ export function exposureColor(weightPct: number | undefined): string {
 }
 
 /** Events closer than this (degrees) share a spot. */
-export const STACK_PRECISION = 0.05;
+const STACK_PRECISION = 0.05;
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 /**

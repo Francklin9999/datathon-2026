@@ -1,7 +1,9 @@
-"""Bounded DeFi observations by exact provider identity; rights gates default closed.
+"""Bounded DeFi pool observations by exact provider identity; rights gates default closed.
 
-The endpoints expose selected observations, not raw feeds. A capture time is the
-only proven availability time. No reported liquidity or TVL is investment value.
+The endpoints expose selected DEX Screener pool observations, not raw feeds. A capture
+time is the only proven availability time. No reported liquidity is investment value.
+The DefiLlama protocol (TVL) lookup was removed with that provider (wiring audit,
+intelligence#2).
 """
 from __future__ import annotations
 
@@ -169,46 +171,6 @@ def pair(store, sid, chain, pool, *, get=fetch, rights=None, now=None):
     result = _capture(store, sid, 'dexscreener', url, raw, observation, captured)
     result['terms_url'] = 'https://docs.dexscreener.com/api/api-terms-and-conditions'
     result['docs_url'] = 'https://docs.dexscreener.com/api/reference'
-    return result
-
-
-def protocol(store, sid, slug, provider_id, *, get=fetch, rights=None, now=None):
-    """Fetch a provider protocol only when returned id exactly matches the requested id."""
-    if rights is None:
-        rights = os.getenv('APLOMB_DEFILLAMA_WRITTEN_DATA_RIGHTS') == 'true'
-    if not rights:
-        raise DefiSourceError('written_permission_required')
-    if not re.fullmatch(r'[a-z0-9][a-z0-9.-]{0,79}', slug or '') or not re.fullmatch(r'[A-Za-z0-9_#.-]{1,100}', provider_id or ''):
-        raise DefiSourceError('invalid_protocol_identity')
-    url = 'https://api.llama.fi/protocol/' + slug
-    raw = get(url)
-    row = strict_load(raw)
-    if not isinstance(row, dict) or str(row.get('id')) != provider_id:
-        raise DefiSourceError('source_identity_mismatch')
-    names = row.get('chains', [])
-    tvls = row.get('currentChainTvls', {})
-    if not isinstance(names, list) or len(names) > 300 or not isinstance(tvls, dict) or len(tvls) > 500:
-        raise DefiSourceError('invalid_source_response')
-    if any(not isinstance(name, str) or not name or len(name) > 80 for name in names):
-        raise DefiSourceError('invalid_source_response')
-    chain_values = []
-    for name, value in tvls.items():
-        if not isinstance(name, str) or not name or len(name) > 80:
-            raise DefiSourceError('invalid_source_response')
-        chain_values.append({'chain_label': name, 'tvl_usd': decimal_value(value)})
-    observation = {'protocol_slug': slug, 'provider_id': provider_id,
-                   'name': row.get('name')[:120] if isinstance(row.get('name'), str) else None,
-                   'category': row.get('category')[:120] if isinstance(row.get('category'), str) else None,
-                   'chain_labels': names, 'chain_tvls': chain_values}
-    captured = now or datetime.now(timezone.utc)
-    if captured.tzinfo is None or not math.isfinite(captured.timestamp()):
-        raise DefiSourceError('invalid_capture_time')
-    result = _capture(store, sid, 'defillama', url, raw, observation, captured)
-    result['terms_url'] = 'https://defillama.com/terms'
-    result['docs_url'] = 'https://api-docs.defillama.com/'
-    result['limitations'] = ['Provider-reported TVL is an estimate, not portfolio value or issuer revenue.',
-                             'Chain labels are provider dimensions and are not token or security crosswalks.',
-                             'Written permission for copying, retention, and display must cover this product.']
     return result
 
 

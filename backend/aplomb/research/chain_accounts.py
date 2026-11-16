@@ -194,9 +194,12 @@ def normalize(provider, identifier, body):
 
 
 def connection_status():
-    return [{'id': name, 'credential_present': bool(os.getenv(info['key'])),
+    # Same row shape as the keyed and stock providers. No official signup page is recorded for
+    # these accounts, so signup_url is None rather than a guessed link.
+    return [{'id': name, 'signup_url': None, 'documentation_url': info['docs'],
+             'credential_variable': info['key'], 'credential_present': bool(os.getenv(info['key'])),
              'rights_confirmed': os.getenv(info['key'].removesuffix('_KEY') + '_RIGHTS_CONFIRMED') == 'true',
-             'supported_operation': info['operation'], 'documentation_url': info['docs']}
+             'supported_operation': info['operation']}
             for name, info in PROVIDERS.items()]
 
 
@@ -246,29 +249,3 @@ def capture(store, sid, provider, identifier='', *, get=fetch, now=None):
             raise ChainSourceError('capture_integrity_failure') from None
         return prior['result']
     return result
-
-
-def chain_accounts_router(store, session_dependency):
-    from fastapi import APIRouter, Depends, Query
-
-    from aplomb.api.errors import ServiceError
-    from aplomb.api.limiter import SessionLimiter
-    router = APIRouter()
-    limiter = SessionLimiter(store)
-
-    @router.get('/v1/research/chain-connections')
-    def connections(_sid: str = Depends(session_dependency)):
-        return {'providers': connection_status()}
-
-    @router.get('/v1/research/chain-provider/{provider}')
-    def observation(provider: str, identifier: str = Query(default='', max_length=100), sid: str = Depends(session_dependency)):
-        limiter.take(sid, 'chain-account', 4, 60)
-        try:
-            return capture(store, sid, provider, identifier)
-        except ChainSourceError as exc:
-            reason = str(exc)
-            validation = reason in {'unsupported_provider', 'numeric_asset_id_required', 'ethereum_head_only', 'exact_ethereum_address_required'}
-            raise ServiceError('validation_error' if validation else 'upstream_unavailable',
-                               'Chain source request rejected' if validation else 'Chain source unavailable',
-                               {'reason': reason}) from None
-    return router

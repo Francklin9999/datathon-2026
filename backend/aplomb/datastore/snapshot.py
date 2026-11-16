@@ -110,7 +110,9 @@ def validate_manifest(manifest: dict, data_version: str) -> None:
         raise SnapshotIntegrityError(f"{data_version}: contract {manifest.get('contractVersion')!r} incompatible with {CONTRACT_VERSION}")
     if manifest.get("dataVersion") != data_version:
         raise SnapshotIntegrityError(f"manifest names {manifest.get('dataVersion')!r}, expected {data_version!r}")
-    datasets = manifest.get("datasets")
+    if not manifest.get("createdAt"):
+        raise SnapshotIntegrityError(f"{data_version}: manifest lacks createdAt")
+    datasets =manifest.get("datasets")
     if not isinstance(datasets, dict) or not datasets:
         raise SnapshotIntegrityError(f"{data_version}: manifest lists no datasets")
     for ds_id, meta in datasets.items():
@@ -148,8 +150,6 @@ class Snapshot:
         self._tables = tables
         self.data_version: str = version
         self.data_as_of: str = manifest["dataAsOf"]
-        self.created_at: str = manifest["createdAt"]
-        self.parent_version: str | None = manifest.get("parentVersion")
         self._passports = {p["datasetId"]: p for p in build_passports(manifest)}
 
     # Metadata ---------------------------------------------------------------------------------
@@ -216,10 +216,6 @@ class LocalDataStore:
         version = json.loads(path.read_text(encoding="utf-8")).get("dataVersion", "")
         _check_version_label(version)
         return version
-
-    def versions(self) -> list[str]:
-        folder = self.root / "manifests"
-        return sorted(p.stem for p in folder.glob("snap-*.json")) if folder.is_dir() else []
 
     def open(self, data_version: str) -> Snapshot:
         _check_version_label(data_version)

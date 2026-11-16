@@ -67,6 +67,8 @@ def test_expansion_keeps_prior_sources_and_archive_and_updates_duplicate_identit
     assert (base / "events.json").read_bytes() == original
     source = next(item for item in expanded.manifest["sources"] if item["id"] == "usgs_earthquakes")
     assert source["items"] == 3 and source["parsedItems"] == 2 and source["previousCaptures"]
+    # The per-source notIngested reasons of build_bundle are kept, not replaced by one generic line.
+    assert expanded.manifest["notIngested"] == load_bundle(base).manifest["notIngested"]
     with pytest.raises(ValueError, match="already exists"):
         expand_world_events.expand(base, out, captures, "2026-01-01", "2026-11-12", 5)
 

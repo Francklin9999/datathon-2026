@@ -79,13 +79,16 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
                 _t("Official releases are placed at the issuing country's centroid (country precision); earthquakes use the "
                    "catalog epicentre (point precision); EONET uses the first source-reported point, with no inferred country.",
                    "Les communiqués officiels sont placés au centroïde du pays émetteur (précision pays); les séismes "
-                   "utilisent l'épicentre du catalogue (précision point)."),
+                   "utilisent l'épicentre du catalogue (précision point); EONET utilise le premier point fourni par la source, "
+                   "sans pays inféré."),
                 _t("NASA EONET metadata is for visualization/general information. Spatial and temporal extents are approximations, not official event boundaries; original linked publishers have separate rights.",
                    "Les métadonnées NASA EONET servent à la visualisation et à l'information générale. Les emprises spatiales et temporelles sont approximatives, sans valeur officielle; les éditeurs liés ont leurs propres droits."),
                 _t("Importance is a display priority fixed at build time; it is not a market-impact estimate.",
                    "L'importance est une priorité d'affichage fixée à la construction; ce n'est pas une estimation "
                    "d'incidence sur les marchés."),
-                _t(f"Not loaded: {not_loaded}", f"Non chargé : {not_loaded}"),
+                # The reasons are the bundle manifest's English text, so the French line quotes them as recorded.
+                _t(f"Not in this event feed: {not_loaded}",
+                   f"Hors de ce fil d'événements (motifs du manifeste, en anglais) : {not_loaded}"),
             ],
             "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"],
             "availabilityRule": _t(
@@ -114,8 +117,10 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
             "rowCount": len(ds.hazards), "dataVersion": ds.version,
             "schema": [{"name": "hazard", "type": "object", "description": "Hazard wire fields (contracts/schemas.md §10)"}],
             "processing": [
-                _t(f"Earthquakes only ({magnitude}); wildfire detections (NASA FIRMS) are not loaded.",
-                   f"Séismes seulement ({magnitude}); les détections de feux (NASA FIRMS) ne sont pas chargées."),
+                _t(f"Earthquakes only ({magnitude}); wildfire detections (NASA FIRMS) are not part of this layer and are "
+                   "served as separate source observations.",
+                   f"Séismes seulement ({magnitude}); les détections de feux (NASA FIRMS) ne font pas partie de cette couche et "
+                   "sont servies comme observations de source distinctes."),
                 _t("Proximity to a hazard does not establish an effect on any holding.",
                    "La proximité d'un aléa n'établit aucun effet sur un titre."),
             ],
@@ -165,8 +170,10 @@ def world_passports(ds: WorldDataset) -> dict[str, dict]:
 
 
 def provider_passports() -> dict[str, dict]:
-    """Passports only for checksum-verified optional captures consumed by observations."""
-    rows, manifests = load_provider_snapshots()
+    """Passports only for checksum-verified optional captures consumed by observations.
+
+    A damaged capture removes only its own source's passport; intact sources keep theirs."""
+    rows, manifests = load_provider_snapshots(errors=[])
     counts: dict[str, int] = {}
     for row in rows:
         counts[row["sourceId"]] = counts.get(row["sourceId"], 0) + 1

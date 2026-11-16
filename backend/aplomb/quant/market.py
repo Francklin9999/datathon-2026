@@ -27,7 +27,6 @@ class Unavailable(Exception):
 @dataclass(frozen=True)
 class Series:
     ticker: str
-    listing_currency: str
     levels: tuple[float | None, ...]       # reporting currency, aligned to MarketData.dates
     avail: tuple[str | None, ...]          # availability of the latest row used per date
     fx_used: tuple[tuple[tuple[str, str, str, str], ...], ...]  # dataset, currency, observation date, availability
@@ -140,7 +139,7 @@ class MarketData:
                 levels.append(price * rate)
                 avail.append(max([stamp, *(ref[3] for ref in refs)]))
                 fx_used.append(refs)
-            s = Series(ticker, listing, tuple(levels), tuple(avail), tuple(fx_used), n_master, False)
+            s = Series(ticker, tuple(levels), tuple(avail), tuple(fx_used), n_master, False)
         self._series[ticker] = s
         return s
 
@@ -163,7 +162,7 @@ class MarketData:
             levels.append(rate)
             avail.append(max((ref[3] for ref in refs), default=None))
             fx_used.append(refs)
-        return Series(ticker, own, tuple(levels), tuple(avail), tuple(fx_used), len(self.dates), True)
+        return Series(ticker, tuple(levels), tuple(avail), tuple(fx_used), len(self.dates), True)
 
     def window_levels(self, ticker: str, i0: int, i1: int) -> list[float]:
         """Levels on [i0, i1]; ``Unavailable`` when any is missing or history is too short (A-21)."""

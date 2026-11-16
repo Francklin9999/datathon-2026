@@ -18,7 +18,7 @@ export const CORR_SCALE: Record<ThemeMode, CorrScale> = {
 type Rgb = [number, number, number];
 type Lab = [number, number, number];
 
-export function hexToRgb(hex: string): Rgb {
+function hexToRgb(hex: string): Rgb {
   const h = hex.replace('#', '');
   return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
 }
@@ -57,7 +57,7 @@ function oklabToRgb([L, a, b]: Lab): Rgb {
 }
 
 const hex2 = (n: number) => n.toString(16).padStart(2, '0');
-export const rgbToHex = ([r, g, b]: Rgb): string => `#${hex2(r)}${hex2(g)}${hex2(b)}`.toUpperCase();
+const rgbToHex =([r, g, b]: Rgb): string => `#${hex2(r)}${hex2(g)}${hex2(b)}`.toUpperCase();
 
 /** Relative luminance and WCAG contrast ratio. */
 export function luminance(hex: string): number {

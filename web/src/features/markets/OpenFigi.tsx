@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { API_BASE } from '../../api/index';
+import { researchFetch } from '../../api/index';
 import { Card } from '../../components/common/Page';
 import { useApp } from '../../state/app';
 
@@ -24,7 +24,7 @@ export function OpenFigi() {
     const query = new URLSearchParams({ isin: isin.trim().toUpperCase() });
     if (mic.trim()) query.set('mic', mic.trim().toUpperCase());
     try {
-      const response = await fetch(`${API_BASE}/intelligence/openfigi?${query}`, { headers: { 'X-Aplomb-Session': sessionId ?? '' } });
+      const response = await researchFetch(`/intelligence/openfigi?${query}`);
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json() as Result;
       if (!Array.isArray(data.mappings) || typeof data.source_sha256 !== 'string') throw new Error('invalid response');

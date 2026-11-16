@@ -128,6 +128,16 @@ def probe():
     }
 
 
+# The top-bar simulation note (SimPill): its title and sr-only text carry the full disclaimer.
+SIM_NOTE = re.compile(r'<p\b(?=[^>]*\bclass="(?:[^"]* )?sim-pill[ "])(?=[^>]*\brole="note")[^>]*>.*?</p>', re.S)
+
+
+def has_disclaimer(html):
+    """True when the page body renders the simulation note with both phrases; <head> metadata does not count."""
+    note = SIM_NOTE.search(html.partition("</head>")[2])
+    return bool(note) and all(phrase in note.group(0) for phrase in ("Simulation only.", "Not financial advice."))
+
+
 def static_export():
     class QuietHandler(SimpleHTTPRequestHandler):
         def log_message(self, *args):
@@ -148,8 +158,7 @@ def static_export():
             with urlopen(url, timeout=10) as response:
                 html = response.read().decode()
                 require(response.status == 200, f"Static route failed: {route}")
-                require("Simulation only." in html and "Not financial advice." in html,
-                        f"Missing disclaimer: {route}")
+                require(has_disclaimer(html), f"Missing disclaimer: {route}")
                 assets.update(re.findall(r'(?:src|href)="(/_next/static/[^"?]+)', html))
             checked.append(route or "/")
         require(bool(assets), "No static assets found")

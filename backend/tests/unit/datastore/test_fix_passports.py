@@ -219,6 +219,55 @@ class DevApiScript(unittest.TestCase):
         self.assertNotIn("APLOMB_EMPTY", server)
         self.assertNotIn("OTHER_KEY", server)
 
+    def test_env_file_version_is_the_one_materialized_and_served(self):
+        root = temp_root()
+        env_file = root / ".env"
+        env_file.write_text(f"APLOMB_DATA_VERSION={SOURCED}\n", encoding="utf-8")
+        active = json.loads((REPO / "data" / "manifests" / "active.json").read_text(encoding="utf-8"))["dataVersion"]
+        self.assertNotEqual(active, SOURCED)  # otherwise the test cannot tell the two sources apart
+        (root / "normalized" / active).mkdir(parents=True)  # only the active version is present
+        seen = self.run_script({"APLOMB_DATA_DIR": str(root)}, lambda command: 0, env_file=env_file)
+        self.assertEqual(seen["exit"], 0)
+        self.assertEqual(seen["ingest"][seen["ingest"].index("--version") + 1], SOURCED)
+        self.assertEqual(seen["server_env"]["APLOMB_DATA_VERSION"], SOURCED)
+
+    def test_unset_version_comes_from_the_datastore_active_pointer(self):
+        root = temp_root()
+        (root / "normalized" / SOURCED).mkdir(parents=True)  # nothing to materialize
+        with mock.patch.object(LocalDataStore, "active_version", autospec=True, return_value=SOURCED) as active:
+            seen = self.run_script({"APLOMB_DATA_DIR": str(root)}, lambda command: 1)
+        self.assertEqual(seen["exit"], 0)
+        self.assertEqual(Path(active.call_args.args[0].root), REPO / "data")  # the tracked pointer, not DATA_DIR
+        self.assertNotIn("ingest", seen)
+        self.assertEqual(seen["server_env"]["APLOMB_DATA_VERSION"], SOURCED)
+
+    def test_env_example_copied_to_env_keeps_the_dev_api_flags_and_active_version(self):
+        # README: dev:api reads the git-ignored .env; a verbatim copy of .env.example must not undo its defaults.
+        root = temp_root()
+        active = LocalDataStore(REPO / "data").active_version()
+        (root / "normalized" / active).mkdir(parents=True)  # nothing to materialize
+        seen = self.run_script({"APLOMB_DATA_DIR": str(root)}, lambda command: 1, env_file=REPO / ".env.example")
+        server = seen["server_env"]
+        self.assertEqual(seen["exit"], 0)
+        self.assertNotIn("ingest", seen)
+        self.assertEqual(server["APLOMB_DATA_VERSION"], active)
+        script = load_dev_api()
+        for flag in script.FEATURES:
+            self.assertEqual(server[f"APLOMB_FEATURE_{flag.upper()}"], "true", flag)
+        for flag in ("research_open_web", "guardrails"):  # opt-in only, in both places
+            self.assertNotIn(flag, script.FEATURES)
+            self.assertEqual(server[f"APLOMB_FEATURE_{flag.upper()}"], "false", flag)
+        self.assertEqual(server["APLOMB_ALLOWED_ORIGINS"], "http://localhost:3000,http://127.0.0.1:3000")
+
+    def test_env_example_lists_every_provider_permission_setting_switched_off(self):
+        from aplomb.datastore import financial_connectors as fc
+        documented = load_dev_api().read_env_file(REPO / ".env.example")
+        names = {fc.provider_status(p)["permissionSetting"] for p in fc.PROVIDERS.values()}
+        self.assertEqual(names, {f"APLOMB_SOURCE_{key}_RIGHTS_CONFIRMED"
+                                 for key in ("FAMA_FRENCH", "AQR", "CBOE", "OCC", "FINRA")})
+        for name in names:
+            self.assertEqual(documented.get(name), "false", name)  # documented, never asserted on the owner's behalf
+
     def test_missing_env_file_reads_nothing(self):
         self.assertEqual(load_dev_api().read_env_file(temp_root() / "absent.env"), {})
 
