@@ -1,7 +1,5 @@
-"""Source-aware security identity, entity relationships and look-through analytics."""
+"""Source-aware identity types, the GLEIF candidate client and the source-capabilities shim."""
 from .entities import Evidence, Relationship
 from .gleif import GLEIFClient, GLEIFError
-from .overlap import Holding, HoldingsSnapshot, portfolio_lookthrough
 
-__all__ = ["Evidence", "Relationship", "GLEIFClient", "GLEIFError",
-           "Holding", "HoldingsSnapshot", "portfolio_lookthrough"]
+__all__ = ["Evidence", "Relationship", "GLEIFClient", "GLEIFError"]

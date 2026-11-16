@@ -41,7 +41,7 @@ Owner: track **T01 (Contracts & integration)**. See `docs/04-TRACKS.md`.
 |---|---|---|
 | `schemas.md` types | `backend/aplomb/contracts/models.py` (Pydantic v2 models, one class per type, same names) | `web/src/contracts/types.ts` (one interface per type, same names) |
 | `catalog.md` enums | `backend/aplomb/contracts/catalog.py` (`StrEnum`s and constant tables) | `web/src/contracts/catalog.ts` |
-| `api.md` | Route handlers in `create_app` (`backend/aplomb/api/app.py`), plus the module routers it includes (`aplomb.quant.*_api`, `aplomb.datastore.financial_*_api`, `aplomb.intelligence.*`, `aplomb.research.*`, `aplomb.timemachine.pit_routes`) | `web/src/api/client.ts` has a function for the core endpoints, not for every route; the intelligence, research and time-machine routes are called from feature modules (`web/src/features/markets/`, `web/src/features/timemachine/`) |
+| `api.md` | Route handlers in `create_app` (`backend/aplomb/api/app.py`), plus the module routers it includes (`aplomb.quant.*_api`, `aplomb.datastore.financial_*_api`, `aplomb.intelligence.capability_routes`) | `web/src/api/client.ts` has a function for the core endpoints, not for every route; the source-capabilities shim is called from `web/src/features/markets/SourceAvailability.tsx` |
 | `fixtures/*.json` | loaded by contract tests in `backend/tests/contract/` | `profiles.json` and `run.decision.robert-tsla-25.json` are served in fixture mode (`web/src/api/fixtures.ts`); `world.events.sample.json` is read only by tests and `scripts/check_specs.py` |
 
 T01 writes the two mirrored files once and owns them. Other tracks import them and never redefine a type locally.
@@ -71,9 +71,9 @@ Some routes listed in `api.md` have no type in the generated registry. Their han
 | A1.8 requirements-scenario, A1.12 source-inputs, A1.13 target-funding, A1.14 providers, A1.15 provider capture | partial inline checks in `web/src/api/client.ts` |
 | A1.1 account-valuations | `web/src/api/readModels.ts` (`accountValuationsResult`) |
 | A1.16 stored provider capture | no web caller |
-| intelligence, research and time-machine routes ("Agent 2 research API additions" in `api.md`) | local checks in the calling feature modules |
+| `/intelligence/source-capabilities` shim ("Markets research source capabilities" in `api.md`) | local checks in `web/src/features/markets/SourceAvailability.tsx` |
 
-Since 1.6.0 the credentialed market routes (`/research/market-connections`, `/research/market-provider/{provider}`, `/research/tiingo/{symbol}`) and `/intelligence/regional` are in the registry, with typed `client.ts` methods. The three market payloads keep their snake_case keys (a documented exception to convention 1); their models switch the camelCase alias off.
+The credentialed market routes (`/research/market-connections`, `/research/market-provider/{provider}`, `/research/tiingo/{symbol}`), `/intelligence/regional` and `/intelligence/entities` were removed with the rest of the Markets research surface. Their models (`MarketConnectionsResponse`, `MarketObservationResponse`, `RegionalResearchResponse`, `EntitySearchResponse`) stay in the registry only while `web/src/api/client.ts` references them; no route returns them. The market models keep their snake_case keys (a documented exception to convention 1) and switch the camelCase alias off.
 
 A1.20 joint-plan declares the Pydantic model `JointPlanResult` (`backend/aplomb/quant/joint_plan_api.py`), but that model is not in the generated registry.
 

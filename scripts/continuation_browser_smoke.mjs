@@ -47,14 +47,6 @@ body=await evaluate('document.body.innerText');if(!body.includes('Reporting comp
 checks.push('Official ECCC emissions rendered without issuer claims');
 await evaluate(`document.getElementById('facilities')?.scrollIntoView({block:'start'})`);
 await fs.writeFile(out+'/browser-eccc-facilities.png',Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
-await send('Page.navigate',{url:root+'/markets/'});await delay(2500);
-await evaluate(`document.getElementById('entity-name').focus()`);await send('Input.insertText',{text:'Apple'});
-await evaluate(`Array.from(document.querySelectorAll('button')).find(x=>x.textContent==='Search GLEIF').click()`);
-for(let i=0;i<20;i++){await delay(1000);body=await evaluate('document.body.innerText');if(body.includes('Unmatched candidate'))break;}
-if(!body.includes('Unmatched candidate'))throw new Error('Entity candidate search failed');
-checks.push('Official GLEIF candidates rendered with unverified labels');
-await evaluate(`document.getElementById('entity-name').scrollIntoView({block:'start'})`);
-await fs.writeFile(out+'/browser-gleif.png',Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
 if(errors.length)throw new Error(JSON.stringify(errors));
 await fs.writeFile(out+'/browser-interactions.json',JSON.stringify({checks,errors},null,2)+'\n');
 console.log(JSON.stringify({checks,errors}));ws.close();

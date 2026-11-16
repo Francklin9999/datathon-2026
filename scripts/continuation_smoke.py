@@ -66,14 +66,11 @@ def main():
     facility_passport = call('GET', '/datasets/emissions_facilities', 'DatasetPassport')
     assert facility_passport['status'] == 'in_use' and facility_passport['dataVersion'] == facilities['dataVersion']
     call('GET', '/world/facilities?asOf=2020-01-01', 'ApiError', expected=422)
-    entity = call('GET', '/intelligence/entities?q=Apple&limit=3' , 'EntitySearchResponse')
-    assert entity['source']['provider'] == 'GLEIF' and entity['items']
-    assert all(r['matchStatus'] == 'candidate' for r in entity['items'])
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / 'http-smoke.json').write_text(json.dumps({'meta': meta, 'checks': results, 'profileCurrency': 'GBP',
-        'goals': goals, 'airportPassport': passport, 'facilityPassport': facility_passport, 'gleif': entity}, ensure_ascii=False, indent=2) + '\n')
+        'goals': goals, 'airportPassport': passport, 'facilityPassport': facility_passport}, ensure_ascii=False, indent=2) + '\n')
     print(json.dumps({'checks': len(results), 'currency': 'GBP', 'goals': len(goals['goals']),
-                      'airports': passport['rowCount'], 'gleifCandidates': len(entity['items'])}))
+                      'airports': passport['rowCount']}))
 
 
 if __name__ == '__main__':

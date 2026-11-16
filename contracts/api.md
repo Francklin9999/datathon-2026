@@ -41,15 +41,6 @@ Every non-2xx response has the body `ApiError`:
 |---|---|---|---|
 | 1.1 | GET `/health` | P0 | Liveness |
 | 1.2 | GET `/meta` | P0 | Versions, flags, disclaimer |
-| 2.6 | GET `/intelligence/entities` | P1 | Bounded official GLEIF legal-entity candidates; q 2–120 characters, limit 1–20; not a security-issuer link |
-| 2.7 | GET `/intelligence/listings` | P1 | Captured instrument-master listings at `as_of`; optional exact `ticker`, `mic`, `isin` filters |
-| 2.8 | GET `/intelligence/listings/{listingId}` | P1 | One captured listing record at `as_of` |
-| 2.10 | GET `/intelligence/wikidata-candidates` | P1 | Wikidata candidates for an exact `isin`; candidates only, unavailable without a source contact configuration |
-| 2.11 | GET `/intelligence/sec-structured` | P1 | Session-owned SEC structured disclosure feed capture; `503` when the source is unavailable |
-| 2.12 | GET `/intelligence/sec-data-library` | P1 | Session-owned SEC DERA data library capture; `503` when the source is unavailable |
-| 2.13 | GET `/intelligence/coinmetrics/{asset}` | P1 | Coin Metrics Community observation capture; `503` when unavailable or use is not permitted |
-| 2.14 | GET `/intelligence/disclosures/aapu` | P1 | Dated partial ETF look-through example at `as_of`; uncovered weights stay unknown |
-| 2.15 | GET `/intelligence/regional` | P1 | Regional research by `region`, `identifier`, `start`, `end`, `kind` (overview/financials/ownership), optional `fiscal_year` |
 | 2.1 | GET `/assets` | P0 | Search the universe |
 | 2.5 | GET `/assets/{ticker}/analytics` | P1 | Deterministic asset metrics and their facts; `currency`, `window`, optional `start`/`end` |
 | A1.1 | GET `/profiles/{profileId}/account-valuations` | P1 | Traded plus separately appraised private asset values |
@@ -740,54 +731,15 @@ All account operations require session ownership, optimistic version and profile
 `RebalanceRequest` contains `profileId`, the current `profileVersion`, the complete target `positions` and optional `window`. Target weights must sum to 100%; duplicate or unsupported securities, stale profiles and empty targets are rejected. This is a read-only comparison at constant modeled capital. Omitted holdings have zero final weight. Before/after policy results, metrics, allocation changes and the calculation ledger share the pinned snapshot and reporting currency. No maximum purchase-size boundary is inferred for a multi-asset rebalance. No orders, tax lots, execution costs, spreads, liquidity, new financing, independent model review or research are implied. Missing evidence remains insufficient. The existing incremental purchase endpoint retains its existing semantics.
 
 
-### Agent 2 research API additions (contract version remains 1.4.0)
+### Markets research source capabilities (shim)
 
-These additive research routes require the session header. Source captures use the existing session-owned store; source URLs, hashes, retrieval/availability, limitations and source-specific failure states remain inspectable. These research payloads use snake_case keys and are outside the generated registry: their handlers return plain dictionaries with no model in `backend/aplomb/contracts/`, so there are no generated types and `validateContract` cannot check them. The web reads them with local checks in each calling feature module; `contracts/README.md` ("Outside the generated registry") lists them with the A1.x routes in the same situation. Typing the routes of the table below is not done. Since 1.6.0 the credentialed market routes (next section) and GET `/intelligence/regional` (2.15) do have models and typed client methods. A route is not a claim of live source access or complete worldwide coverage. Rights-gated sources return unavailable until their documented entitlement is configured. See `docs/parallel/reports/agent-2/CONT-*.md` and `SOURCES.csv` for exact request arguments, source scope and verification.
+The Markets research routes were removed because they served only the Markets research panels, not the persona decision flow: the GLEIF entity, listing, instrument-master, Golden Copy, OpenFIGI, Wikidata, EU, registry, relationship, sentiment, Coin Metrics, DeFi, crypto-market, fund and regional routes under `/intelligence/`, the credentialed market routes under `/research/`, and GET `/timemachine/vintages/status`. One route remains until the web stops calling it. It requires the session header and fetches nothing.
 
 | Method and path | Purpose |
 |---|---|
-| GET `/intelligence/bitcoin-sentiment` | intelligence → bitcoin-sentiment |
-| GET `/intelligence/company-registry/{jurisdiction}/{number}` | intelligence → company-registry → {jurisdiction} → {number} |
-| GET `/intelligence/crypto-markets/venues` | intelligence → crypto-markets → venues |
-| GET `/intelligence/crypto-markets/vision/{symbol}/{day}` | intelligence → crypto-markets → vision → {symbol} → {day} |
-| GET `/intelligence/defi/pair/{chain}/{pool}` | intelligence → defi → pair → {chain} → {pool} |
-| GET `/intelligence/defi/sources` | intelligence → defi → sources |
-| GET `/intelligence/eu/eba-market-risk/{lei}` | intelligence → eu → eba-market-risk → {lei} |
-| GET `/intelligence/eu/esma-entity/{lei}` | intelligence → eu → esma-entity → {lei} |
-| GET `/intelligence/funds` | intelligence → funds |
-| GET `/intelligence/funds/{fund_id}` | intelligence → funds → {fund id} |
-| GET `/intelligence/gleif-golden/metadata` | intelligence → gleif-golden → metadata |
-| GET `/intelligence/master/coverage` | intelligence → master → coverage |
-| GET `/intelligence/master/crosswalk` | intelligence → master → crosswalk |
-| GET `/intelligence/openfigi` | intelligence → openfigi |
-| GET `/intelligence/relationships` | intelligence → relationships |
-| GET `/intelligence/relationships/captures/{sha256}` | intelligence → relationships → captures → {sha256} |
-| GET `/timemachine/vintages/status` | timemachine → vintages → status |
-| POST `/intelligence/funds/{series_id}` | intelligence → funds → {series id} |
-| POST `/intelligence/gleif-golden/delta/{lei}` | intelligence → gleif-golden → delta → {lei} |
-| POST `/intelligence/master/adapters/coinmetrics/{asset}` | intelligence → master → adapters → coinmetrics → {asset} |
-| POST `/intelligence/master/adapters/gleif-pair` | intelligence → master → adapters → gleif-pair |
-| POST `/intelligence/master/adapters/wikidata` | intelligence → master → adapters → wikidata |
-| GET `/intelligence/source-capabilities` | Source availability, signup/permission prerequisites and removed paid catalogue |
+| GET `/intelligence/source-capabilities` | `{ "families": [], "catalogue": { "rows": [], "source_count": 0 }, "note": "…" }` (snake_case keys, outside the generated registry): no research source family is available, so the Markets page shows no research panel |
 
-### Credentialed research sources
-
-All routes require `X-Aplomb-Session`, use server-side account credentials, and retain session-owned source captures. Provider symbols alone never prove a global issuer identity. Original publication before retrieval remains unknown.
-
-| Method and path | Behavior | Response (1.6.0) |
-|---|---|---|
-| GET `/research/market-connections` | Credential presence, supported operation and official signup links (`signup_url` is null where none is recorded: coinmarketcap, blockscout, alchemy, goldrush); no secret values. | `MarketConnectionsResponse` |
-| GET `/research/market-provider/{provider}` | Bounded, session-owned observations from a selected connected provider; `symbol`, optional `mic` and `kind`. | `MarketObservationResponse` |
-| GET `/research/tiingo/{symbol}` | Supported US non-fund equity metadata/history for `start` and `end`, bounded to one year; internal account use only. | `MarketObservationResponse` (with `sources` instead of `source_url`/`source_sha256`) |
-
-Typed in 1.6.0 (research#7) without changing a key: these three payloads, unlike the rest of the API, use **snake_case** keys, and their models (`backend/aplomb/contracts/api.py`) keep them. `MarketObservationResponse.observation` is provider-specific (`{ [key: string]: unknown }`): quote fields, `bars`, `company`, `statements`, chain `balances`/`chains`, as written in the bullets below. GET `/intelligence/regional` returns `RegionalResearchResponse` (camelCase, its keys unchanged too): `status` `ok` or `unavailable` (with `reason`), the capture frame, and the `prices`, `filings`, `company`, `financials` and `ownership` lists; amounts are exact decimal strings. In a 1.4.0 API the chain connection rows lacked `signup_url` and `credential_variable` and the tiingo row lacked `documentation_url`, so these keys are optional. Web client: `marketConnections`, `marketObservation`, `tiingoHistory`, `regionalResearch` in `web/src/api/client.ts`.
-
-- `GET /v1/research/market-provider/{provider}?symbol=...&mic=...&kind=...`: `alpha-vantage` supports `quote`, `overview`, `income`, `balance`, `cashflow`; `twelve-data` requires an exact MIC for thirty daily bars; `finnhub` returns a company profile. Other kinds are rejected for these two providers. Quota/entitlement errors are explicit and never replaced with fixtures.
-- `GET /v1/research/tiingo/{symbol}?start=YYYY-MM-DD&end=YYYY-MM-DD`: up to one year of supported US non-fund equity metadata/history. Internal account use only.
-
-The Markets connected-source form exposes these controls only for configured accounts. OpenDART regional filings now traverse up to fifty pages/5,000 records and fail explicitly if the interval cannot be completed, rather than return a partial first page. ESMA likewise completes exact-LEI queries up to 2,000 rows with stable counts and duplicate rejection.
-
-Selected-account extension: the same market-provider route also supports `fmp`, `eodhd`, `massive`, `marketstack`, `coinmarketcap`, `blockscout`, `alchemy`, `goldrush`. The `symbol` parameter is max120: use provider stock symbol (EODHD requires CODE.EXCHANGE), numeric CoinMarketCap asset ID, exact Ethereum address (Blockscout), `ethereum` (Alchemy) or `chains`/exact Ethereum address (GoldRush). These providers support only the default quote operation and reject MIC/other kinds. Sanitized RPC request method/body is retained alongside response evidence. Connected-source status lists implemented selected accounts only; FRED remains a non-fetching permission status. Unselected pending source controls and live crypto venue listings were removed by owner instruction; working public workflows remain.
+The 1.6.0 models of removed routes (`EntitySearchResponse`, `MarketConnectionsResponse`, `MarketObservationResponse`, `RegionalResearchResponse`) stay in the generated registry only while `web/src/api/client.ts` references them; no route returns them.
 
 ### Fictional investor locations and attributed 13F comparisons
 

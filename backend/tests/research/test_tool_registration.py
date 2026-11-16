@@ -51,7 +51,7 @@ def test_application_registry_offers_no_unusable_research_tool_and_describes_eac
     schemas = registry.schemas(RESEARCH)
     names = {item["name"] for item in schemas}
     assert {"web.fetch", "research.save_evidence", "world.search_events"} <= names
-    # SEC sources were removed by the owner (source_dispositions SRC-034..042); facilities need their flag.
+    # SEC sources were removed by the owner (source catalogue rows SRC-034..042); facilities need their flag.
     assert {"attention.pageviews", "etf.holdings", "emissions.facilities"}.isdisjoint(names)
     assert not {name for name in names if name.startswith("edgar.")}
     for item in schemas:

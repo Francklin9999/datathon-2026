@@ -1,36 +1,22 @@
-"""Security identity, temporal boundaries, documented exposure and provider failures."""
+"""Security identity, temporal boundaries and GLEIF candidate search failures."""
 import hashlib
 import json
 from datetime import date, datetime, timezone
 from pathlib import Path
 
 import pytest
-from aplomb.intelligence import (
-    Evidence,
-    GLEIFClient,
-    GLEIFError,
-    Holding,
-    HoldingsSnapshot,
-    Relationship,
-    portfolio_lookthrough,
-)
+from aplomb.intelligence import Evidence, GLEIFClient, GLEIFError, Relationship
 from aplomb.intelligence.entities import valid_isin, valid_lei
 from pydantic import ValidationError
 
 NOW = datetime(2026, 11, 15, tzinfo=timezone.utc)
 EVIDENCE = Evidence(source_id='issuer-file', url='https://example.org/holdings.csv', content_sha256='a' * 64,
                     available_at=NOW, retrieved_at=NOW, licence='test fixture')
-AAPL = 'isin:US0378331005'
-MSFT = 'isin:US5949181045'
-IVV = 'isin:US4642872000'
-SPY = 'isin:US78462F1030'
 
 
 def test_strong_identifiers_are_checksum_validated():
     assert valid_isin('US0378331005') and not valid_isin('US0378331004')
     assert valid_lei('HWUPKR0MPOU8FGXBT394') and not valid_lei('HWUPKR0MPOU8FGXBT395')
-    with pytest.raises(ValidationError):
-        Holding(security_id='AAPL', weight_pct=2)
 
 
 def test_relationships_require_a_rule_and_block_future_capture():
@@ -47,34 +33,6 @@ def test_relationships_require_a_rule_and_block_future_capture():
         Relationship(evidence_class='derived', **relation)
     with pytest.raises(ValidationError):
         Relationship(evidence_class='direct', **{**relation, 'valid_to': date(2024, 12, 31)})
-
-
-def test_lookthrough_combines_only_exact_ids_and_exposes_missing_data():
-    pos = [Holding(security_id=IVV, weight_pct=40), Holding(security_id=SPY, weight_pct=40),
-           Holding(security_id=AAPL, weight_pct=20)]
-    snapshots = [
-        HoldingsSnapshot(fund_id=IVV, effective_date=date(2026, 11, 12), evidence=EVIDENCE,
-                         holdings=[Holding(security_id=AAPL, weight_pct=10), Holding(security_id=MSFT, weight_pct=5)]),
-        HoldingsSnapshot(fund_id=SPY, effective_date=date(2026, 11, 12), evidence=EVIDENCE,
-                         holdings=[Holding(security_id=AAPL, weight_pct=5)]),
-    ]
-    out = portfolio_lookthrough(pos, snapshots, date(2026, 11, 15), fund_ids={IVV, SPY})
-    assert out['overlap'] == [AAPL]
-    assert next(x['weight_pct'] for x in out['exposures'] if x['security_id'] == AAPL) == pytest.approx(26)
-    assert out['unresolved_portfolio_weight_pct'] == pytest.approx(72)
-    historical = portfolio_lookthrough(pos, snapshots, date(2026, 11, 14), fund_ids={IVV, SPY}, historical=True)
-    assert len(historical['unavailable_funds']) == 2
-    assert historical['unresolved_portfolio_weight_pct'] == 80
-    assert historical['exposures'] == [{'security_id': AAPL, 'weight_pct': 20, 'contributing_funds': []}]
-
-
-def test_no_holdings_snapshot_never_becomes_zero_underlying_exposure():
-    out = portfolio_lookthrough([Holding(security_id=IVV, weight_pct=100)], [], NOW.date(), fund_ids={IVV})
-    assert out['exposures'] == []
-    assert out['unresolved_portfolio_weight_pct'] == 100
-    with pytest.raises(ValidationError):
-        HoldingsSnapshot(fund_id=IVV, effective_date=NOW.date(), evidence=EVIDENCE,
-                         holdings=[Holding(security_id=AAPL, weight_pct=10)], complete=True)
 
 
 def test_gleif_captured_search_keeps_candidates_and_source_hash():
