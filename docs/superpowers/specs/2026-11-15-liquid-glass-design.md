@@ -1,6 +1,6 @@
 # Aplomb — nettoyage, refonte « Liquid Glass » et tutoriel rejouable — design
 
-**Date :** 2026-11-15 · **Remplace :** [passe unslop](2026-11-15-unslop-dashboard-design.md) · **Suivi :** [progression](../plans/2026-11-15-liquid-glass.md) · **Références :** 3 captures de template fournies par l'utilisateur (Reports, Good morning, Activity)
+**Date :** 2026-11-15 · **Remplace :** [passe unslop](2026-11-15-unslop-dashboard-design.md) · **Suivi :** progression · **Références :** 3 captures de template fournies par l'utilisateur (Reports, Good morning, Activity)
 
 ## Contexte
 

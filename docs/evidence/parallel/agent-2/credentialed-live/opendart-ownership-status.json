@@ -1,5 +1,0 @@
-{
-  "status": "working",
-  "rows": 2661,
-  "note": "Initial 1MB cap refused source. Final bounded 8MB transport succeeded; no partial response returned."
-}

@@ -1,5 +1,7 @@
 # T08 agents and durable execution handoff
 
+> Historical team-process record. The review pages, agent briefs and evidence files it names were removed from the repository; they remain in git history.
+
 Implemented under `backend/aplomb/agents/`; no runtime import performs network I/O.
 Shared public models come from `aplomb.contracts`. The runtime does not load contract
 fixtures. Offline tests label their synthetic control providers explicitly.
@@ -106,7 +108,7 @@ Root integration separately executed a genuine persisted profile-draft worker th
 official AWS MCP bridge: `run_01M7E58536MMNMYHYQWWXFZ8X6`,
 `us.anthropic.claude-haiku-5-5`, one successful inference, input 5945/output 1327 tokens,
 actual plan/audit/sign, re-read from FileStore. See
-[`docs/evidence/agents-profile-draft-20261114.json`](evidence/agents-profile-draft-20261114.json).
+`docs/evidence/agents-profile-draft-20261114.json`.
 Earlier live probes exposed unsupported temperature and invalid optional-null output; they
 were failures, not successful executions. Root retains their separate metadata. No shell
 AWS SDK/CLI live call was made by this track. The real probe establishes fresh Bedrock

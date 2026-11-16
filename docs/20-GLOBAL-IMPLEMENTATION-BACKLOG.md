@@ -1,5 +1,7 @@
 # Remaining full-specification implementation
 
+> Historical team-process record. The review pages, agent briefs and evidence files it names were removed from the repository; they remain in git history.
+
 The full requested platform is **not complete**. This inventory prevents the source directory,
 new pages, or existing competition flows from being mistaken for all of the requested product.
 These are engineering requirements unless an external dependency is specifically identified in
@@ -26,6 +28,6 @@ These are engineering requirements unless an external dependency is specifically
 | 22 Acceptance | Existing full gate plus new focused tests and browser/API checks | Every expanded worldwide workflow, currency/source scenario and deployed contract match validated |
 | 23–25 Delivery | Audit of live release and added implementation; source/tests/docs retained | Full specification completion, then authorized deployment, current AWS demonstration/video and final complete acceptance report |
 
-The continuation added a validated CAD bridge for nine reporting currencies, a bounded GLEIF candidate-research feature with immutable captures, annual World Bank country context and an actual airport reference layer. It did not turn the identifier/overlap foundations into an issuer holdings integration. The next source-to-feature slices remain dated issuer holdings and crosswalks, reviewed facility-to-security relationships, further environmental registries, PortWatch, factors and broader market disclosures. Existing SEC/GDELT failures remain visible until acquisition actually succeeds. See [continuation execution record](21-CONTINUATION-EXECUTION.md).
+The continuation added a validated CAD bridge for nine reporting currencies, a bounded GLEIF candidate-research feature with immutable captures, annual World Bank country context and an actual airport reference layer. It did not turn the identifier/overlap foundations into an issuer holdings integration. The next source-to-feature slices remain dated issuer holdings and crosswalks, reviewed facility-to-security relationships, further environmental registries, PortWatch, factors and broader market disclosures. Existing SEC/GDELT failures remain visible until acquisition actually succeeds. See continuation execution record.
 
-[Investor accounts and complete target allocations](22-INVESTIGATION-CONTROLS.md) records the next implemented controls and their verification without treating them as completion of the entire specification.
+Investor accounts and complete target allocations records the next implemented controls and their verification without treating them as completion of the entire specification.

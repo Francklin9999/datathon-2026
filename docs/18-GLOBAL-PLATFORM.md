@@ -1,6 +1,8 @@
 # Global platform implementation — 2026-11-15
 
-The later [continuation execution record](21-CONTINUATION-EXECUTION.md) supersedes the currency, profile lifecycle, source and contract boundaries in the original batch below.
+> Historical team-process record. The review pages, agent briefs and evidence files it names were removed from the repository; they remain in git history.
+
+The later continuation execution record supersedes the currency, profile lifecycle, source and contract boundaries in the original batch below.
 
 This is a **partial implementation of the full master specification**, not a declaration that
 all 243 sources or the complete worldwide product are integrated. The owner requested the
@@ -15,7 +17,7 @@ UPDATE_COMPLETE, API/worker version 4, matching code hash
 `b7wWoaxy8zAHJ+xTifwlIutORrRGZFM4heQnTIWQhT4=`, API Gateway routing to API :4 and API
 dispatch targeting worker :4. Contract remains 1.0.0. The new source branch includes `d974f44`;
 no teammate change was overwritten. The initial version-3 evidence is retained as history.
-See [latest direct AWS readback](evidence/global-platform/aws-latest-release.json).
+See latest direct AWS readback.
 
 ## Initial live baseline, read independently
 
@@ -62,7 +64,7 @@ Focused tests cover arbitrary context, multiple/fractional goal horizons, sessio
 profile persistence, account switching/aggregation/stale versions, security metrics and custom
 windows, EONET locations and malformed records, exact discrete tail examples, variance
 identities and risk claim references. The complete repository gate and static build are
-recorded under [global-platform evidence](evidence/global-platform/).
+recorded under global-platform evidence.
 
 The static export builds successfully with the new Markets and Risk routes. Reproduce browser checks with `node scripts/global_browser_smoke.mjs` after starting the local API on 8001, the web app on 3001, and an isolated headless Chrome with remote debugging on 9224.
 

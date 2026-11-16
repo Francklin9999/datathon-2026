@@ -1,5 +1,7 @@
 # Full architecture audit — 2026-11-14
 
+> Historical team-process record. The review pages, agent briefs and evidence files it names were removed from the repository; they remain in git history.
+
 **Assessment: 82/100, launchable with caveats for the fictional-investor demo.** This is an engineering review of the checked-out source and the Aplomb AWS deployment, not a formal security certification or a load-test result. A larger public service needs the recovery and admission-control work below. Remote CI cannot verify the current uncommitted worktree.
 
 ## Findings and upgrades
@@ -48,4 +50,4 @@ No change weakens the code-owned quant/rule checks, numerical token grammar, req
 - Lambda versions and retained IAM policies are operationally frozen by deployment convention, not protected against a trusted administrator changing IAM manually.
 - A clarification answer currently starts a new wall-clock segment while inference/revision counters remain cumulative. If cumulative active wall time across human pauses becomes a requirement, persist consumed active time explicitly.
 
-See [architecture and demo guide](AWS-ARCHITECTURE.md), the [previous live evidence](../infra/evidence/aws-architecture-2026-11-14.json), and the [live audit-release evidence](../infra/evidence/full-architecture-audit-2026-11-14.json), and the [structured audit report](evidence/full-architecture-audit-20261114.json).
+See [architecture and demo guide](AWS-ARCHITECTURE.md), the [previous live evidence](../infra/evidence/aws-architecture-2026-11-14.json), and the [live audit-release evidence](../infra/evidence/full-architecture-audit-2026-11-14.json), and the structured audit report.

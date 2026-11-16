@@ -1,6 +1,0 @@
-{
-  "checkedAt": "2026-11-15T13:45:36.953966+00:00",
-  "action": "Read CloudFormation resources, Lambda configurations and API Gateway integration through official AWS MCP",
-  "status": "unavailable",
-  "reason": "Official AWS MCP reported expired or invalid AWS credentials. No AWS read response or mutation occurred."
-}

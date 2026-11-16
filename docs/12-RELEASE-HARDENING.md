@@ -1,5 +1,7 @@
 # Release hardening — 2026-11-15
 
+> Historical team-process record. The review pages, agent briefs and evidence files it names were removed from the repository; they remain in git history.
+
 Baseline: `9f103013e390533860b33b9ebea40750178a9ce9`. No tracked edits initially; existing untracked `.playwright-mcp/` preserved. Track owners below are responsibility areas from docs/04-TRACKS.md, not claims of active teammate ownership. No evidence of active edits was found in the initial Git state.
 
 ## Initial implementation inventory
@@ -50,7 +52,7 @@ The user requested the latest repository during this audit. Fetched and fast-for
 | `web/src/lib/ui/scope.ts` | Rejects impossible calendar dates that JavaScript otherwise rolls into another month. | Leap-year/date regression |
 | `backend/tests/ledger/test_sabotage_controlled.py` | Controlled fabricated-number, false-comparison and unsupported-interpretation attempts are struck. Review callbacks are explicitly scripted. | Three tests; no live sabotage claim |
 
-Detailed connector status: [external inventory](13-EXTERNAL-DATA-INVENTORY.md). Quantitative conclusions and limits: [trust audit](14-TRUST-AUDIT.md). Handoff behavior: [World-to-Decision notes](15-WORLD-DECISION-HANDOFF.md).
+Detailed connector status: [external inventory](13-EXTERNAL-DATA-INVENTORY.md). Quantitative conclusions and limits: trust audit. Handoff behavior: World-to-Decision notes.
 
 ## Commands and observed results
 
@@ -64,11 +66,11 @@ Detailed connector status: [external inventory](13-EXTERNAL-DATA-INVENTORY.md). 
 - Live Tiingo adapter: AAPL returned nine USD observations for 2026-11-02 through 2026-11-12. Key stays in ignored `.env`. No new Tiingo data was published to AWS or represented as live observations.
 - Live SEC: 403. GDELT: timed out at eight seconds. Neither is declared operational.
 
-Evidence: [gate](evidence/release-hardening/check.log), [build](evidence/release-hardening/build.log), [browser](evidence/release-hardening/browser.json), [live API run](evidence/release-hardening/live-smoke.json), [cloud readback](evidence/release-hardening/cloud-readback.json).
+Evidence: gate, build, browser, live API run, cloud readback.
 
 ## Deployment status
 
-Initial public frontend manifest identified `9f103013`; a final re-read identified `e27e0b62668752adafcdcee6b572d6d0a42a3b3c`, built at 2026-11-15T06:31:58Z. That upstream publication happened independently of this audit. The current hardening edits are uncommitted and **not deployed**. [Final frontend manifest](evidence/release-hardening/deployment-final.json).
+Initial public frontend manifest identified `9f103013`; a final re-read identified `e27e0b62668752adafcdcee6b572d6d0a42a3b3c`, built at 2026-11-15T06:31:58Z. That upstream publication happened independently of this audit. The current hardening edits are uncommitted and **not deployed**. Final frontend manifest.
 
 CloudFormation reports `UPDATE_COMPLETE`, stack revision `b0e6a15+architecture-audit-20261114`. API/worker code SHA-256 is `qGTy22/uscGZGaW/izrqc1Mrr/9YvqHS0aofOyFRcoQ=`; the API pins worker version `1`. Stack revision does not prove a matching source tree. The backend does not publish a coherent Git SHA in `/meta`.
 
@@ -102,15 +104,15 @@ Highest-impact next action: publish and identify a coherent reviewed backend/fro
 
 ## Continuation — latest observations supersede earlier deployment status
 
-The user confirmed a teammate actively owns AWS deployment. This audit therefore performs **no production deployment or configuration changes**. The teammate's release changed `/meta` during this session. World Explorer, hazards, Time Machine, goals and bilingual UI are now enabled; sabotage, open-web research, on-demand tickers and facilities remain off. The stack is `UPDATE_COMPLETE`, identifies revision `9f10301`, pins worker version **2**, and the worker code hash is `fXgpQWhFGgZdl8UgJ50zS0NV4gfuSnBhcphein7gNKQ=`. Frontend still identifies `e27e0b62668752adafcdcee6b572d6d0a42a3b3c`. Earlier disabled-feature statements in this report describe the initial observation only. See [current meta](evidence/release-hardening/meta-current.json).
+The user confirmed a teammate actively owns AWS deployment. This audit therefore performs **no production deployment or configuration changes**. The teammate's release changed `/meta` during this session. World Explorer, hazards, Time Machine, goals and bilingual UI are now enabled; sabotage, open-web research, on-demand tickers and facilities remain off. The stack is `UPDATE_COMPLETE`, identifies revision `9f10301`, pins worker version **2**, and the worker code hash is `fXgpQWhFGgZdl8UgJ50zS0NV4gfuSnBhcphein7gNKQ=`. Frontend still identifies `e27e0b62668752adafcdcee6b572d6d0a42a3b3c`. Earlier disabled-feature statements in this report describe the initial observation only. See current meta.
 
 **Confirmed P0 mismatch:** custom dashboard windows exist in the public frontend, but deployed Robert overview and performance both return HTTP 422 for `window=custom&start=2024-01-01&end=2025-01-01`. The local backend supports this query and has tests. Release owner must deploy compatible backend before claiming custom dates are working. Do not undo the teammate's frontend work.
 
 Additional genuine live checks:
 
 - Robert replay run `run_01M7EYY7494GJHJBZQDE6Y84W7`, cutoff 2023-06-30: succeeded with real models. All 69 checked facts had no availability date or period end after cutoff. Reveal twice produced equal outcomes, original response was unchanged, and another session received 404. This verifies tool-level constraints and immutability, not absence of model hindsight or source revisions.
-- Amira's already-met AI target: succeeded with `sc_goal_no_change`, no moves. Audit passed with strikes. [Sanitized optional-run evidence](evidence/release-hardening/live-optional.json).
-- Deployed World Explorer at 390 and 1440 px: no sampled overflow or page errors. A real Federal Reserve event brief completed with a signed report, but four fact sentences and two assumption sentences were struck. The original source returned HTTP 200. Holdings associations were shared-theme or listing-country proxies, not documented causal exposure. Our new persistent handoff is local only. [World handoff report](15-WORLD-DECISION-HANDOFF.md).
+- Amira's already-met AI target: succeeded with `sc_goal_no_change`, no moves. Audit passed with strikes. Sanitized optional-run evidence.
+- Deployed World Explorer at 390 and 1440 px: no sampled overflow or page errors. A real Federal Reserve event brief completed with a signed report, but four fact sentences and two assumption sentences were struck. The original source returned HTTP 200. Holdings associations were shared-theme or listing-country proxies, not documented causal exposure. Our new persistent handoff is local only. World handoff report.
 
 Additional local work:
 
@@ -129,6 +131,6 @@ Updated demonstration scope: real AWS Decision → signed audit/evidence and rea
 
 The last full `UV_CACHE_DIR=/tmp/aplomb-uv-cache npm run check` passed: **773 Python tests, 16 subtests, 177 web tests, 6 infrastructure tests**, generated contracts, lint, strict TypeScript, spec/control validation and CDK synthesis. One existing Mangum event-loop deprecation warning remains. `npm run build:web` passed. `UV_CACHE_DIR=/tmp/aplomb-uv-cache bash infra/scripts/package-backend.sh` passed, including imports inside the pinned AWS Python 3.12 x86_64 runtime container. Final logs replace the intermediate gate/build logs in this evidence directory.
 
-A local release archive and patch are prepared in `infra/.build/release-hardening/`: `lambda.zip`, `source.patch`, `manifest.json`. [Artifact digest evidence](evidence/release-hardening/artifact.json) records the dirty source baseline and hashes; it deliberately does not pretend the artifact is the clean base commit. The deployment owner must review and commit the intended source, set the full release identity, retain rollback versions and perform a paired release. Source work, tests and artifacts are concrete and reviewable; production publication remains with the teammate as requested.
+A local release archive and patch are prepared in `infra/.build/release-hardening/`: `lambda.zip`, `source.patch`, `manifest.json`. Artifact digest evidence records the dirty source baseline and hashes; it deliberately does not pretend the artifact is the clean base commit. The deployment owner must review and commit the intended source, set the full release identity, retain rollback versions and perform a paired release. Source work, tests and artifacts are concrete and reviewable; production publication remains with the teammate as requested.
 
-The [release-owner handoff](16-RELEASE-OWNER-HANDOFF.md) gives the exact P0 reproduction, packaging commands, release verification and rollback boundaries. The user-authorized Tiingo key remains in ignored `.env` with mode 0600 and is absent from the tracked diff and Lambda packaging paths. No credentials are included in the release report or artifact metadata.
+The release-owner handoff gives the exact P0 reproduction, packaging commands, release verification and rollback boundaries. The user-authorized Tiingo key remains in ignored `.env` with mode 0600 and is absent from the tracked diff and Lambda packaging paths. No credentials are included in the release report or artifact metadata.

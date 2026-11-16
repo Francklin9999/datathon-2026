@@ -1,7 +1,0 @@
-........................                                                 [100%]
-=============================== warnings summary ===============================
-backend/tests/integration/test_track_composition.py::test_api_gateway_v2_preserves_wire_errors_and_correlation_headers
-  /home/francklin99/Desktop/Coding/datathon-2026/.worktrees/research-audit/.venv/lib64/python3.12/site-packages/mangum/adapter.py:65: DeprecationWarning: There is no current event loop
-    asyncio.get_event_loop()
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
