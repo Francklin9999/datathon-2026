@@ -7,172 +7,52 @@
     {
       "file": "README.md",
       "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T04:49:23.652342+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
+      "capturedAt": "2026-11-16T03:19:50.460031+00:00",
+      "codeRevision": "8e560ef24c90b182a229c81d88969643d4073408",
       "runId": null,
-      "dataVersion": "snap-20261113-starter",
+      "dataVersion": "snap-20261115-globalfx",
       "kind": "illustrative",
-      "sha256": "66d3d8ff4370b56decf4d7313f89bd3124b24b578f18d5c7e8373d0e12144212"
-    },
-    {
-      "file": "acceptance.md",
-      "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T04:50:35.964972+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "illustrative",
-      "sha256": "7cffac90e0b18515472610f0cae2ee6a78cbd2d858901a71370b8d4c7724c56d"
+      "sha256": "c1576daa54f46e5db93587e15ceb0c169cb3a2219de30f11acb9eafbbbbcbf8f"
     },
     {
       "file": "demo.md",
       "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T04:49:23.652342+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
+      "capturedAt": "2026-11-16T03:19:50.460031+00:00",
+      "codeRevision": "8e560ef24c90b182a229c81d88969643d4073408",
       "runId": null,
-      "dataVersion": "snap-20261113-starter",
+      "dataVersion": "snap-20261115-globalfx",
       "kind": "illustrative",
-      "sha256": "981901a24fd4b56aa8d42be20aa83a4672eba2f12c9836189dfdad611a081c46"
-    },
-    {
-      "file": "evidence/browser-1440-decision-desk.png",
-      "description": "Local browser runtime capture",
-      "capturedAt": "2026-11-15T04:48:49.271Z",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "05dfe8c4960735db986c607bcea96f43f6952033ba5f2c3ab7f5755b6a99aeb6"
-    },
-    {
-      "file": "evidence/browser-375-world-explorer.png",
-      "description": "Local browser runtime capture",
-      "capturedAt": "2026-11-15T04:48:49.271Z",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "ec52f5929a5789176ae1a618ee1da8defd328d6bb3b3fd79109c2e0754de8ae1"
-    },
-    {
-      "file": "evidence/browser-decision-25.png",
-      "description": "Local browser runtime capture",
-      "capturedAt": "2026-11-15T04:48:49.271Z",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "b2bed7959ad4418f49d0d56c030e8b28e3740b4b95226f5be466302c19038d16"
-    },
-    {
-      "file": "evidence/browser-interrupted.json",
-      "description": "Interrupted browser attempt; service lifetime failure, not an application pass",
-      "capturedAt": "2026-11-15T04:46:18.459Z",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "04d552c4461ab77bf0677080631ae710dd506bab3517a700c3b097512caf4508"
-    },
-    {
-      "file": "evidence/browser.json",
-      "description": "Local browser runtime capture",
-      "capturedAt": "2026-11-15T04:48:49.271Z",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "fcc786508762f03d22a984b2b7ac8055d02b0e3210dcd8433c9add890d5cd6cc"
-    },
-    {
-      "file": "evidence/harness-tests.log",
-      "description": "Retained offline command output or measurement",
-      "capturedAt": "2026-11-15T04:40:36.417871+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "a116268f604ef80af7904ad79c3fb34968a0e98cf38cffec8b74dbcf45e56d98"
-    },
-    {
-      "file": "evidence/http-controls.json",
-      "description": "Retained offline command output or measurement",
-      "capturedAt": "2026-11-15T04:40:36.417871+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "bc3fb72cf3ca436d8543e1317ea68d8a2610a068f0b4f4ad3f171802a9bbe1fd"
-    },
-    {
-      "file": "evidence/http-controls.log",
-      "description": "Retained offline command output or measurement",
-      "capturedAt": "2026-11-15T04:40:36.417871+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "file": "evidence/integration.log",
-      "description": "Retained offline command output or measurement",
-      "capturedAt": "2026-11-15T04:40:36.417871+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "bc4d7bd01357382368f967f3f89dab11496d6e63db48c3de8ba0e0b5ca8a2dad"
-    },
-    {
-      "file": "evidence/report.json",
-      "description": "Retained offline command output or measurement",
-      "capturedAt": "2026-11-15T04:40:36.417871+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "247afe679baed5d22545ead11b0a0f99ab3ce9e51495366a9723f8158a61d354"
-    },
-    {
-      "file": "evidence/static-build.log",
-      "description": "Retained offline command output or measurement",
-      "capturedAt": "2026-11-15T04:40:36.417871+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
-      "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "889abbd1915298a36f937dec751f3f93530f125504999b4e973fde4215303621"
+      "sha256": "caaf433bda1db335a600be6dbff05856611f89c1c42cd70c579b4a6f07eb90d3"
     },
     {
       "file": "one-pager.md",
       "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T04:49:23.652342+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
+      "capturedAt": "2026-11-16T03:19:50.460031+00:00",
+      "codeRevision": "8e560ef24c90b182a229c81d88969643d4073408",
       "runId": null,
-      "dataVersion": "snap-20261113-starter",
+      "dataVersion": "snap-20261115-globalfx",
       "kind": "illustrative",
-      "sha256": "ac2f86e8508f6afea9d84a52abdc3edbfc8d31cd37e44be7391722ab7db17df3"
+      "sha256": "f2e6764ec374e822dc884c21be0a3111578c3cc8a2e39360fbbcc2f2ab4a137e"
     },
     {
       "file": "technical.md",
       "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T04:49:23.652342+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
+      "capturedAt": "2026-11-16T03:19:50.460031+00:00",
+      "codeRevision": "8e560ef24c90b182a229c81d88969643d4073408",
       "runId": null,
-      "dataVersion": "snap-20261113-starter",
+      "dataVersion": "snap-20261115-globalfx",
       "kind": "illustrative",
-      "sha256": "5a1336c1613ec47fc7779d5f4e4b48de2c12400173943a583faea16908b6c276"
+      "sha256": "8a95cda6e75608446eb4ea131b772ac56f2561cfe611e1b73822636293f9dd72"
     },
     {
       "file": "../../scripts/qa_smoke.py",
       "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T22:52:34+00:00",
-      "codeRevision": "932a1d553a58403d2003b6be5573fe1ae995ea01",
+      "capturedAt": "2026-11-16T03:19:50.460031+00:00",
+      "codeRevision": "8e560ef24c90b182a229c81d88969643d4073408",
       "runId": null,
       "dataVersion": "snap-20261113-starter",
       "kind": "illustrative",
-      "sha256": "d43e4530c1ad96a143ce20810f6653ba022295306b7e43dd0c8bd252c0ee8abd"
+      "sha256": "12608a3e4e2087f36e69a89661ed749cf0dad95951f4cbe6729ed4eb04ffd80d"
     },
     {
       "file": "../../scripts/check_specs.py",
@@ -236,14 +116,24 @@
       "sha256": "cedd528baf1d4bd8fbb4ee730f70e5cc44267b0c291b46bc1bb4b1c994659bcf"
     },
     {
-      "file": "evidence/final-verification.log",
-      "description": "Final specification integrity and T16 Python lint checks; Node syntax check also exited zero",
-      "capturedAt": "2026-11-15T04:50:36.601163+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
+      "file": "one-pager.pdf",
+      "description": "One-page PDF rendering of one-pager.md",
+      "capturedAt": "2026-11-16T03:19:50.460031+00:00",
+      "codeRevision": "8e560ef24c90b182a229c81d88969643d4073408",
       "runId": null,
-      "dataVersion": "snap-20261113-starter",
-      "kind": "offline-check",
-      "sha256": "85d153380f6dc140dbf7755aa07ebf40b081b84fe60d02cfc45b8ad6db2b4985"
+      "dataVersion": "snap-20261115-globalfx",
+      "kind": "illustrative",
+      "sha256": "eadbb14b1e0b45e444319043fcb490c226ab7f7789a239379ff87e62f5fc48e0"
+    },
+    {
+      "file": "technical.pdf",
+      "description": "PDF rendering of technical.md",
+      "capturedAt": "2026-11-16T03:19:50.460031+00:00",
+      "codeRevision": "8e560ef24c90b182a229c81d88969643d4073408",
+      "runId": null,
+      "dataVersion": "snap-20261115-globalfx",
+      "kind": "illustrative",
+      "sha256": "39d806d1c6fc84b0f3bc88c9ad074ece819505c62375993133c1eda7f860420f"
     }
   ]
 }

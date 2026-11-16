@@ -1,0 +1,39 @@
+{
+  "release": "8e560ef24c90b182a229c81d88969643d4073408",
+  "deployedAt": "2026-11-16T03:14:08Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "version": "18",
+  "contents": "Focus cleanup on top of main 47103a4 (which includes ba8d28e and the global profiles and 13F comparisons of 7926597): AgentCore Browser research tool removed; the Markets research backend removed (a source-capabilities shim reports no family); the profile-blind Risk calculators and provider feeds removed; World Explorer limited to the news, macro and environment observation modes, airport route removed, natural disasters in the events feed limited to earthquakes of magnitude 6.0 or more; ISR, Israel, West Bank and Gaza presented as PSE / Palestine by the backend (team decision); the planner's optional analyses executed and reported. Contract 1.6.0; data snap-20261115-globalfx.",
+  "flags": "Nine flags on: bilingual, frontier_chart, goal_requests, guardrails, profile_creator, sabotage_demo, time_machine, world_explorer, world_layer_hazards. research_open_web no longer has a provider and was dropped from the release features.",
+  "method": "Full gate on 8e560ef before release: check:generated, ruff, 1278 Python tests and 22 subtests, typecheck, 411 web tests, check_specs, 7 infra tests and synth, static build. Artifact packaged by infra/scripts/package-backend.sh in a clean WSL clone at 8e560ef with the Lambda Python 3.12 import check: deployments/8e560ef/lambda.zip, S3 version GUHUf6HJUAXTnduj5PdOvwQPVBP15f0m, sha256 ced708cba39e189b8677e698642fbf0238874eecee73f7e2a5e003288fa5063a, Lambda CodeSha256 ztcIy6OeGJuGd+aYZC+/AjiHTuzuc/fipeADKI+lBjo= (matches on API and worker); 38.1 MB zipped, 86.0 MB unzipped (184.9 MB before the World captures were removed). Release config derived from the deployed template of ba8d28e (models, Guardrail 685ahdwc4uye version 3, model ARNs, origins, source user agent, snapshot). Change set release-8e560ef reviewed before execution: per-release roles, policies, versions and async config replaced; the AgentCore browser grant and the retained investor versions of earlier manual releases leave the stack (all Retain, none deleted); both functions and the HTTP integration modified; invoke permission replaced; no table, bucket, distribution, alarm or queue change.",
+  "liveChecks": {
+    "meta": "contract 1.6.0, snap-20261115-globalfx, research_open_web false, X-Aplomb-Build 8e560ef",
+    "personas": "/check Robert TSLA +25: conflict, 6 conflicts, limit 6.0; Amira TSLA +10: tension, 0 conflicts; Mateo CNQ.TO +5: conflict on the Energy exclusion, 1 not enough evidence",
+    "palestine": "GET /v1/world/countries/ISR returns countryIso3 PSE, name Palestine",
+    "removed": "GET /v1/world/airports, /v1/risk/source-inputs and /v1/intelligence/entities answer 404; observations mode aviation answers 422; source-capabilities shim answers 200 with no family",
+    "kept": "profiles, robert overview, amira risk, strategic candidates, world events, observations (news), research/13f, world/investors and datasets answered 200",
+    "decision": {
+      "runId": "run_01M7H5M0HWSYBN5EDK3P36BR5F",
+      "request": "Robert TSLA +25, pro rata, English",
+      "status": "succeeded",
+      "seconds": 42,
+      "audit": "passed_with_strikes",
+      "signed": true,
+      "plannerAnalyses": [
+        "quant.asset_metrics",
+        "quant.correlation",
+        "quant.stress_replay"
+      ],
+      "quantSummary": "Computed 41 fact(s) (plan calculations: 3 run, 0 already mandatory, 0 skipped); 7 row(s) withheld by the date gate."
+    },
+    "isolation": "another session -> 404"
+  },
+  "limits": [
+    "The live site still runs the web build of main until the frontend agent removes the panels that call removed routes (docs/FRONTEND-HANDOFF.md); Markets research panels stay hidden through the shim, Risk calculator cards show their error state."
+  ],
+  "notVerified": [
+    "Event brief, replay/reveal, goal and audit-test runs were not repeated on this release."
+  ],
+  "rollback": "Update to the ba8d28e template recorded in the release-ba8d28e evidence; its roles, policies, versions and async config were retained."
+}

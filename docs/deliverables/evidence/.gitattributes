@@ -1,2 +1,0 @@
-# Retained command output is hashed byte-for-byte, including progress-line endings.
-*.log binary

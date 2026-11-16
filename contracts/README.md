@@ -2,7 +2,7 @@
 
 Everything that crosses a boundary between two tracks is defined here: JSON shapes, HTTP endpoints, run steps, tool signatures, enumerations and reference numbers. **If two tracks disagree, this folder wins.** If this folder is wrong, fix it here first, announce it, then change code.
 
-Owner: track **T01 (Contracts & integration)**. See `docs/04-TRACKS.md`.
+Owner: track **T01 (Contracts & integration)**.
 
 ## Files
 
@@ -56,7 +56,7 @@ Use `model.to_wire()` for Python payloads so omitted optional keys remain absent
 
 Wire validation covers shapes, closed enums, finite numbers, dates, identifiers, custom-window dates, funding donors, nonempty goal targets and nonempty rule patches. Calculation correctness, sums of portfolio weights, horizon ordering, resource existence, reference integrity, run transitions, and session authorization remain service responsibilities (T03–T12); fixture reference and numeric integrity are independently checked by `scripts/check_specs.py`. Contract validation does not replace those domain checks.
 
-T01's handoff and exact consumer imports are in [the integration handoff](../docs/T01-HANDOFF.md). No HTTP service or cloud deployment is implied by the generated schema registry.
+T01's handoff and exact consumer imports are in the integration handoff. No HTTP service or cloud deployment is implied by the generated schema registry.
 
 ### Outside the generated registry
 

@@ -1,6 +1,6 @@
 # Five-minute demonstration and capture sheet
 
-Record against one identified deployed revision. Keep the fictional-profile/simulation disclaimer visible. Record actual outcomes, including failures and struck sentences. Use the [acceptance report](acceptance.md) to select working features; record footage only after the corresponding flow succeeds.
+Record against one identified deployed revision. Keep the fictional-profile/simulation disclaimer visible. Record actual outcomes, including failures and struck sentences. Show only flows verified on the deployed release (see the latest file in `infra/evidence/`); record footage only after the corresponding flow succeeds.
 
 | Time | Action | Narration / evidence |
 |---|---|---|
@@ -8,8 +8,8 @@ Record against one identified deployed revision. Keep the fictional-profile/simu
 | 0:30–1:35 | Run +25-point TSLA, pro-rata | Show real timeline, deterministic conflicts and boundary. Use the deployed snapshot's actual figures. The starter control figures apply only when that snapshot is selected. |
 | 1:35–2:15 | Open one volatility fact; move to 10 points and compare Amira | Show method, source/version, inputs and dates. Explain differing plans and stale-brief indicator after an edit. |
 | 2:15–2:50 | Mateo +10 CNQ | Show Energy exclusion and unresolved controversy separately from financial checks. |
-| 2:50–3:30 | Open Evidence & Audit | Show genuine reference/claim checks and any removed sentence. Use sabotage only if its integrated feature is enabled and verified; otherwise inspect the actual audit. |
-| 3:30–4:10 | Best verified P1 flow, or deeper fact lineage | World feed/exposure or historical gate/reveal only if enabled and checked in this release. Explain missing impact or current-vintage limitations. |
+| 2:50–3:30 | Open Evidence & Audit | Show genuine reference/claim checks and any removed sentence. Run the audit test (enabled and caught live in English and French) and show the sentence it inserted being struck. |
+| 3:30–4:10 | Best verified P1 flow, or deeper fact lineage | Time Machine replay and reveal, or the World exposure of an official event; both are enabled in this release. Explain missing impact or current-vintage limitations. |
 | 4:10–5:00 | Correlate the same run across AWS | Show real model ID/usage, Lambda/CloudWatch metrics, S3 snapshot version and DynamoDB persisted result. Close with inspectable evidence as the product value. |
 
 ## Capture before account shutdown
@@ -26,7 +26,7 @@ Each new artifact must have a manifest entry: relative file, description, UTC ca
 
 ## Release review
 
-- Run the clean-checkout commands in the [pack guide](README.md); preserve the new report/logs. Resolve P0 blockers in acceptance.md.
+- Run `npm run check` from a clean checkout and keep the output.
 - In a real browser at 375, 768 and 1440 px, use keyboard navigation through all P0 flows. Check focus, dialogs, drawer close/return, disclaimer visibility, scrolling and static deep-link refresh. Record outcomes per row.
 - Exercise rapid slider changes, persona compare, threshold editing, stale briefs, session isolation and an actual failed tool/model step. Confirm no false completed progress.
 - Capture the deployed decision and cloud correlation above. Feature flags and navigation must agree; leave unavailable P1 features disabled. Do not enable sabotage solely for filming.

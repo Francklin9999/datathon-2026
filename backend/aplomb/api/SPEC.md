@@ -1,7 +1,7 @@
 # API, repositories and asynchronous dispatch
 
 Implementation status: T03 boundaries and deterministic adapter tests are implemented;
-see [handoff](../../../docs/T03-HANDOFF.md) for composition signatures, checkpoint limits,
+see handoff for composition signatures, checkpoint limits,
 verification and exact remaining domain dependencies. Default missing providers return
 typed unavailable errors; this does not claim completed deterministic checks or live workers.
 

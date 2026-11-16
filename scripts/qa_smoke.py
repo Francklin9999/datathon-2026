@@ -120,7 +120,7 @@ def probe():
         "environment": "in-process ASGI HTTP; temporary ingested starter snapshot; no models/providers",
         "dataVersion": VERSION, "asOf": "2026-11-12", "reportingCurrency": "CAD",
         "functionalControls": ["AT-01", "AT-02", "AT-03", "AT-04", "AT-05", "AT-18"],
-        "scope": "HTTP control assertions only; UI and other requirements remain in acceptance.md",
+        "scope": "HTTP control assertions only; UI and other requirements are outside this check",
         "constructionMs": construction_ms, "firstReadMs": first_read,
         "firstCheckMs": results[0][1], "warmReads": summary(reads, 500),
         "warmChecks": summary(checks, 1500),

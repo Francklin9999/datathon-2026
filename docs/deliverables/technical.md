@@ -1,62 +1,139 @@
-# Technical delivery note
+# Aplomb — technical documentation
 
-This document describes implemented boundaries and links to executable evidence. Use the [acceptance report](acceptance.md) for current status and the [AWS architecture](../AWS-ARCHITECTURE.md) for deployment details. All scenarios concern fictional portfolios and historical simulations.
+AlphaForge AI, Datathon 2026 · release `8e560ef` (API and worker version 18) · contract 1.6.0 · data snapshot `snap-20261115-globalfx` · live site https://d1r325uzu5fe7x.cloudfront.net · **Simulation only. Fictional profiles. Not financial advice.**
 
-## Request to audited result
+## 1. Problem and scope
 
-```mermaid
-sequenceDiagram
-    participant UI as Browser
-    participant API as API Lambda
-    participant DB as DynamoDB / S3
-    participant W as Worker
-    participant M as Bedrock
-    participant C as Python controls / ledger
-    UI->>API: Session + profile version + hypothetical request
-    API->>DB: Persist pinned context and idempotency reservation
-    API-->>UI: 202 with run ID
-    API->>W: Dispatch version-pinned work
-    W->>DB: Claim generation and lease
-    W->>M: Plan structured work
-    W->>C: Quant, rules, bounded scenarios
-    C-->>W: Facts with source and input lineage
-    W->>M: Write cited explanation, review interpretation
-    W->>C: Audit references, numbers, comparisons and claims
-    W->>M: Configured output guardrail
-    W->>DB: Freeze ledger digest and terminal result
-    UI->>API: Poll / fetch result and fact detail
-    API-->>UI: Actual steps, verified facts and audit
+Aplomb answers one question for a fictional investor: *does this hypothetical move fit the investor's own plan, and if not, how much would?* Code computes every number and every rule outcome; agents frame the request, gather official context, write the explanation and audit it; every figure in the result links to the data it came from.
+
+| Persona (case brief) | Plan used by Aplomb | What the case tests | What Aplomb shows (live API, TSLA funded pro rata) |
+|---|---|---|---|
+| Robert, 59, low–moderate risk, 3–5 years | Preserve capital; position cap 10%, fixed-income floor 35%, volatility budget 9%, crypto excluded, attention flag | Challenge a publicized request instead of agreeing | +25 pts: **6 rule conflicts** (position, sector, growth assets, volatility, 2022 stress, drawdown); largest compatible size **6.0 pts** |
+| Amira, 26, high risk, 15+ years | Growth; position cap 25%, crypto cap 15%, diversifiers floor 8% | "High risk" is not "anything goes" | +25 pts: 3 conflicts (diversifiers floor, volatility, 2022 stress), limit **11.0 pts**; +10 pts: tension only |
+| Mateo, 41, moderate, 8–12 years | Balanced; Energy excluded, controversy evidence required, crypto cap 5% | Non-financial preferences, not only return and risk | CNQ +5 pts: **conflict on the Energy exclusion** although 8 checks pass; controversy reported as *not enough evidence* |
+
+Supported requests: a move (ticker, size, funding), a goal ("reach X% in a theme"), a complete target allocation, a portfolio brief, a world-event brief, a historical replay (Time Machine), a profile draft from free text, the audit test, and deterministic standing-strategy simulations. Out of scope by design: orders or any execution tool, real client data, forecasts of future returns.
+
+## 2. Architecture
+
+```
+ Browser (Next.js static export, EN/FR)
+        │ HTTPS
+ CloudFront ──► S3 (private web bucket, origin access control)
+        │
+ API Gateway (HTTP API, throttled) ──► API Lambda (FastAPI, Python 3.12)
+        │                                 │  deterministic endpoints: overview, /check, strategies,
+        │                                 │  world, datasets; creates runs
+        │                                 ▼ async invoke (pinned worker version)
+        │                              Worker Lambda (agent workflow)
+        │                                 ├─► Amazon Bedrock: strong model, fast model, Guardrail
+        │                                 └─► allow-listed official web sources (HTTPS fetch)
+        ▼
+ DynamoDB (profiles, runs, cache) · S3 data bucket (immutable snapshots, evidence bundles,
+ release artifacts) · SQS (worker failure destination) · CloudWatch (logs, alarms, dashboard)
 ```
 
-The role taxonomy separates planning, research, writing, interpretation audit, extraction and profile drafting; these do not imply six model calls on every request. Quant, rule verdicts, scenario bounds, reference validation and signing are deterministic components. The durable record carries actual actors, model IDs, durations, errors and usage. Missing model configuration returns unavailable rather than a fixture result.
+| AWS service | Role in the flow | Why |
+|---|---|---|
+| CloudFront + S3 | Serve the static web app; private bucket behind origin access control | No server to run for the UI; versioned objects allow rollback |
+| API Gateway (HTTP API) | Public entry point with CORS and throttling (100 req/s, burst 200) | Managed TLS, limits and routing in front of Lambda |
+| AWS Lambda (API) | Validates every request against the contracts; deterministic analytics in milliseconds to seconds | Scales to zero; 30 s budget is enough for code-only endpoints |
+| AWS Lambda (worker) | Runs the agent workflow asynchronously, reserved concurrency 2, retry 1 | Agent runs take 40–60 s; isolation from the request path |
+| Amazon Bedrock | Strong model (`us.openai.gpt-6-astra`) plans, researches and reviews; fast model (`us.anthropic.claude-opus-5-5`) writes; Guardrail version 3 screens output | Managed models with IAM scoping to two exact inference profiles; no keys in code |
+| DynamoDB | Profiles, runs with checkpoints, cache; conditional writes for session ownership, idempotency and cancellation | Durable, serverless, on-demand capacity |
+| S3 (data bucket) | Immutable, hashed data snapshots; run evidence bundles; release artifacts | Each Lambda can read only its pinned snapshot prefix |
+| SQS + CloudWatch | Failed async deliveries kept; alarms and an operations dashboard keyed by run ID | Failures are visible instead of silent |
 
-The execution envelope allows at most two revise loops, one structural rewrite and a 180-second hard worker budget, with a 90-second target. Conditional ownership/generation fences prevent stale workers or cancellation races from overwriting terminal results. A crash after inference but before checkpointing can repeat a provider call; exactly-once inference is not claimed. Session IDs are bearer capabilities for demo state, not authenticated accounts.
+Infrastructure is AWS CDK (`infra/`). Each backend release is packaged in a clean Linux environment with an import check inside the AWS Lambda Python 3.12 image, synthesized, reviewed as a CloudFormation change set, executed, verified live and recorded with its rollback in `infra/evidence/`. Pushes to `main` rebuild and publish the site after the full test gate; publication checks the live API contract version first.
 
-## Methods and one traced figure
+## 3. Agents, coordination and controls
 
-The starter dataset has 40,049 price rows and 31 assets. Portfolio returns use adjusted prices aligned to the 1,228-day TSX/US calendar intersection, yielding 1,227 returns. USD values convert to CAD using the most recent available USD/CAD rate, without future filling. Portfolio weights are constant across the historical simulation. Volatility uses sample daily standard deviation times the square root of 252; drawdown uses the peak-to-trough decline of cumulative returns. The API reports positive drawdown magnitude and signed stress returns.
+A decision run is a fixed, observable sequence; each step is stored with its actor, model, tokens, tool calls, datasets read and duration.
 
-Trace Robert +25 TSLA, pro-rata, from the request to the explanation:
+```
+plan (LLM) → research (LLM + tools, ≤3 rounds) → quant (code) → risk check (code)
+   → [revise (LLM) → quant → risk, ≤2 times] → write (LLM) → audit (code + LLM + Guardrail) → sign (code)
+```
 
-1. Pin `snap-20261113-starter`, full window, CAD, as-of 2026-11-12 and the effective Robert profile version.
-2. The previously unheld target becomes weight 0.25. Each other weight is multiplied by 0.75; XBB.TO changes from 0.30 to 0.225. Weights sum to one.
-3. The datastore gate reads only visible adjusted-price/FX rows. Input receipts identify actual aligned observations and their digest. Quant computes weighted daily returns and historical volatility.
-4. Multiplying daily sample standard deviation by `sqrt(252)` and 100 gives the API volatility, which rounds to **16.96%**. The independent [reference calculation](../../contracts/controls/controls.py) and [control table](../../contracts/controls.md) supply the oracle at ±0.005 percentage points.
-5. The quant ledger records a `vol.annualized` fact with method, input fact IDs, currency, window, observation count, source/version and limitations. Rule checks refer to that fact and a separately recorded threshold fact. Fact IDs are assigned per run; there is no universal hard-coded ID for this number.
-6. The writer uses a fact segment. The auditor resolves the ID in the same run, checks permitted displays and verifies lineage. The UI opens `/runs/{runId}/facts/{factId}` for the cited segment. The [composed run test](../../backend/tests/integration/test_run_composition.py) checks every numeric segment resolves. A fresh browser click-through remains required.
+| Role | Actor | What it decides | What it cannot do |
+|---|---|---|---|
+| Planner | Strong model | Interprets the request, asks a clarifying question when an input is missing, chooses research questions, and selects up to four optional analyses from a closed list (correlation of the asset with current holdings, the asset's own metrics, a calendar-year return, an extra stress window) that the quant step runs and records as facts; any task it cannot run is reported as skipped with its reason | Change a rule, threshold, figure or the data snapshot |
+| Researcher | Strong model + tools | Which allow-listed sources to read (ten exact hosts: Bank of Canada, Federal Reserve, Statistics Canada, NASA EONET, GDELT, Wikimedia, SEC, iShares), fetched over HTTPS and which verbatim quotes to keep as evidence | Use a host outside the allow-list; cite a quote that is not in the fetched page (checked by A08) |
+| Quant | Python | Every number: returns, volatility, drawdown, stress, concentration, FX, size scan | — (no model involved) |
+| Risk officer | Python | Every enabled rule: pass, tension, conflict, not enough evidence; scenarios | — |
+| Writer | Fast model | Wording, in English or French, as typed segments that reference ledger facts | Write a number itself: figures are inserted from the ledger |
+| Auditor | Code + strong model + Guardrail | Strikes or rewrites unsupported sentences (one rewrite at most), then signs | Pass a brief with a failed blocking check |
 
-For existing targets, pro-rata redistribution excludes the target from the donor denominator. New-money size is expressed against the old value: weights divide by `1 + size/100`, while total value increases by that factor. Ordered donor funding depletes only nominated holdings and rejects insufficient donors. Grid boundaries stop before the first conflict; tension or missing evidence can remain. Goal searches screen at most eight assets and return at most three distinct candidates within the six-scenario ceiling. The historical minimum-variance frontier is illustrative.
+In live run `run_01M7H5M0HWSYBN5EDK3P36BR5F` (Robert, TSLA +25 points, release 8e560ef) the planner selected three optional analyses; the quant step ran them as tool calls (`quant.asset_metrics`, `quant.correlation`, `quant.stress_replay`) and its summary reads "plan calculations: 3 run, 0 already mandatory, 0 skipped". The verdict, the six conflicts and the 6.0-point limit are the same as with an empty plan, which a test asserts.
 
-## Trust and historical data
+Budgets per run: 90 s target and 180 s hard limit, at most 12 model calls, 12 research calls, 2 revisions, 1 rewrite and 6 scenarios. When a budget or a model fails, the run fails visibly; deterministic results stay available.
 
-Source text cannot grant tool authority. Research evidence records publisher, URL, retrieval/publication times, document references and verification. Quote checks depend on stored passages and source ownership. Missing controversy coverage remains `nee`; financial checks do not substitute for it. Exposure to an event does not establish its financial impact. [Research tests](../../backend/tests/research/test_research.py) exercise captured transports and hostile content; this QA run makes no live source call.
+Governance is enforced in code, not delegated to a model:
 
-Historical gates exclude future price rows and unavailable releases. A separate reveal computes later outcomes without changing the signed parent. Current-vintage macro limitations, survivorship and model knowledge remain visible. Adjusted prices are used as supplied; CNQ's adjustment anomaly is disclosed rather than silently corrected. Assumed risk thresholds, constant weights, sample dependence and no ETF constituent look-through constrain interpretation.
+- **Rules from the profile**: caps, floors, limits, exclusions, an evidence requirement (controversies) and an attention flag (Wikipedia page views). Thresholds are visible and editable by the user, never by an agent.
+- **Largest compatible size**: a contiguous scan on a 0.5-point grid that stops at the first conflict (`M_MAXSIZE_GRID`), so the answer to Robert is a limit, not just a refusal.
+- **Audit checks A01–A14**: references resolve (A01), no number outside referenced values (A02), comparisons true (A03), every fact sentence cites a fact (A04), mandatory facts/assumptions/limits sections (A05), simulation disclaimer (A06), no instructions, guarantees or predictions (A07), quotes found in the cached source (A08), interpretation review by the strong model (A09), Guardrail (A10), every fact available at the run's information date (A11), assumptions cover every conflict or tension (A12), limits cover every cited fact's limitations (A13), impact claims only with a measured price move (A14).
+- **Signing**: the signed brief carries the hash of the run ledger; any later change to recorded facts changes the hash.
+- **Audit test**: the "sabotage" mode inserts a code-built false sentence into a real brief and runs the real audit, which must catch it; all three modes were caught live in English and French.
+- **Isolation**: every run belongs to a browser session; another session receives 404.
 
-## Validation and release boundary
+## 4. Methods
 
-The [gate report](evidence/report.json) records environment, revision, commands, exits and log hashes. The integration gate covers generated contracts, lint, Python units/integration, web contract/logic tests, TypeScript, numeric references, links and infrastructure synthesis. The added HTTP probe checks primary personas and funding using real starter calculations without a model and publishes twenty-sample local latency distributions. The static gate loads nested routes without a Next.js server.
+Prices are adjusted daily closes on a master calendar of 1,228 trading days (2021-11-12 to 2026-11-12). USD prices are converted to CAD with the Bank of Canada rate of the same day or the last published one (`M_FX_BOC_FFILL`). Portfolios use constant weights (`M_PORT_CONST_WEIGHTS`).
 
-The optional [browser runner](../../tests/run_browser_smoke.py) serves a temporary starter-data API and static export with headless Chrome. Its [retained results](evidence/browser.json) cover all nine pages at three widths and actual deterministic Robert/Amira comparison. No model or fixture is supplied. Full signed-brief, accessibility and execution-refusal browser journeys remain pending.
+| Measure | Method |
+|---|---|
+| Annualized volatility | Sample standard deviation (n−1) of daily simple returns × √252 (`M_VOL_STDEV_252`) |
+| Maximum drawdown | Minimum of value ÷ running maximum − 1 (`M_MDD_PEAK_TROUGH`) |
+| 2022 stress | Constant-weight replay over calendar 2022, when stocks and bonds fell together (`M_STRESS_REPLAY`) |
+| Concentration | Weights by position, sector, asset group, theme, listing country and currency; HHI and effective number |
+| Correlation, VaR/ES | Pearson correlation of daily returns; historical 95% VaR and expected shortfall; variance shares |
+| Attention | Mean page views of the last 30 days ÷ mean of the previous 365 days (`M_ATTENTION_RATIO`), shown as public attention, not quality |
+| Strategies | Calendar or band rebalancing, contributions and a drawdown guard simulated on history against the untouched holdings (`M_STRATEGY_SIM`) |
 
-The earlier AWS capture uses a sourced snapshot and another release; do not present its timings or numeric results as current starter controls. Pending work includes remaining browser journeys, current deployed-UI decision with correlated cloud evidence, production parser/cold-start measurements, recorded video and final submission hosting. See [demo instructions](demo.md) for the capture manifest and pre-shutdown checklist.
+The **Time Machine** replays a decision as of a past date. A row is visible only if it was available before the start of the next UTC day after that date; monthly macro series without real release dates are excluded in historical mode. Later outcomes are revealed in a separate ledger, and the signed hash is re-checked.
+
+Two models were chosen by role: the strong model for planning, research and review, where reasoning quality matters; the fast model for writing, which happens on every run. Neither computes figures; the writer's grammar only allows references to ledger facts.
+
+## 5. Data
+
+| Data | Source | Use |
+|---|---|---|
+| 31 assets: 10 Canadian and 10 U.S. equities, 9 ETFs (equity, bonds, gold, one ESG-screened fund), Bitcoin, Ether | Case starter dataset | Universe and portfolios |
+| 40,049 daily prices, adjusted for dividends and splits | Yahoo Finance via yfinance (starter) | Returns, risk, stress |
+| Dividends and splits | Starter | Adjustment checks |
+| USD/CAD daily | Bank of Canada Valet API | Currency conversion |
+| Policy rates, 2- and 10-year yields, CPI (Canada, U.S.), U.S. unemployment | Bank of Canada, FRED (starter) | Macro context |
+| Global FX for 9 reporting currencies | Bank of Canada | Accounts in other currencies |
+| Page views | Wikimedia | Attention flag |
+| ETF holdings, research documents | Issuer files, official releases | Look-through, evidence |
+| World events and hazards | USGS, NASA, official releases, GDELT | Event briefs and country exposure; the feed keeps official releases and earthquakes of magnitude 6.0 or more (751 events) |
+
+Processing: the ingestion command validates and normalizes every source (duplicate dates, non-positive prices, gaps), then publishes an immutable snapshot whose manifest records each dataset's SHA-256, row counts, date range and availability rule. A **passport** per dataset (the Sources page) states its origin, licence, coverage, processing, checks and limitations. Known traps are disclosed rather than hidden: survivorship in the universe, forward-filled FX, revised macro series, Yahoo data that is not certified, missing ESG and controversy evidence, and listing country used as a proxy for economic exposure. Country codes ISR, and the place names Israel, West Bank and Gaza, are presented as PSE / Palestine by team decision; raw captures are left unchanged and the transformation is recorded in the passports.
+
+## 6. Explainability: one conclusion traced end to end
+
+Live run `run_01M7GYQAMCZP9RTJFW9N44QRNT` (Robert, TSLA +25 points, pro rata funding; release 1307604, whose computation path is unchanged in 8e560ef) succeeded in 52 s.
+
+1. **Sentence** (facts section): *"The requested after-move portfolio shows annualized volatility of 16.96% (2021-11-12 – 2026-11-12) and a largest peak-to-trough fall of 25.31%."* The writer produced text and two references; the figures were inserted from facts `F-011` and `F-012`.
+2. **Fact `F-011`**: metric `vol.annualized` of Robert's after-move portfolio in CAD, value 16.965%, method `M_VOL_STDEV_252`, 1,228 observations, inputs `F-009` (the position weights) and `F-010` (the gated source count), sources `prices_daily` (14,736 rows read) and `fx_usdcad_daily` (1,218 rows), availability 2026-11-12, provenance check `LED_PROVENANCE` passed, six attached limitations (sample window, survivorship, constant weights, Yahoo not certified, calendar intersection, FX forward fill).
+3. **Rule**: `limit.volatility` (R5) compares `F-011` with Robert's 9.00% budget (`F-029`): conflict, 7.96 points over.
+4. **Audit**: the sentence passed A01, A02, A04, A07 and A08; the brief passed the global checks (A05, A06, A09, A10, A11, A12, A13); 14 sentences checked, none struck; Guardrail applied with no action; the model review found nothing.
+5. **Signature and trace**: ledger hash `dc24d5d0…6fb` matches the stored checkpoint; 29 checkpoints; 6 of 12 model calls, 4 of 12 research calls, 42.8 s of 180 s; the research step reports 4 searches, 0 sources kept and 3 rejected, rather than claiming evidence it did not find.
+
+In the app, clicking 16.96% opens this fact with its method, inputs, sources and limitations; the Evidence page lists the audit, and the System page shows each step's model, tokens and timing.
+
+## 7. Validation
+
+- **Automated**: 1,278 Python tests (plus 22 subtests), 411 web tests and 7 infrastructure tests pass in the release gate (`npm run check`, also run by CI on every push). They include the API contracts, generated types checked against the documented schemas, every rule, the size scan, scripted agent runs with audit failures and the three audit-test modes, session isolation, idempotency, cancellation and the historical gate.
+- **Independent numeric controls**: `scripts/check_specs.py` and `contracts/controls/` recompute Robert's after-move volatility (16.96%), drawdown (25.31%) and 2022 stress (−21.88%) from the raw CSVs, independently of the application code.
+- **Live**: every release records its live checks in `infra/evidence/` (contract version, endpoints, a signed decision, session isolation, code hash of both functions).
+- **Sensitivity**: the size slider re-checks every rule as it moves; the same request can be compared across profiles; the Time Machine and strategies show behaviour on other dates and rules.
+
+## 8. Limitations and next steps
+
+Results describe a five-year historical sample and assumed plans, not forecasts. Economic exposure is approximated by listing country; ETF rules do not look through to constituents beyond the captured holdings; ESG and controversy evidence is thin, so Mateo's controversy check often ends as *not enough evidence*; event links never establish financial impact; research is limited to an allow-list of official sources; knowledge embedded in a model cannot be gated by date; the worker runs at most two analyses at once. Next steps: a licensed ESG and controversy source, more official sources with search, broader international listings, and streaming of run progress.
+
+## 9. Reproduce
+
+Requirements: Python 3.12 with uv, Node 22.19 or later. From the repository root: `uv sync --locked`, `npm ci`, `npm --prefix infra ci`, then `npm run check` (generated files, lint, tests, type checks, specification links, infra synth). Local run: `npm run dev:api` (materializes the pinned snapshot and starts the API) and `npm run dev:web`. Agent runs need Bedrock access (`APLOMB_MODEL_STRONG`, `APLOMB_MODEL_FAST`); every deterministic endpoint works without it. Configuration is documented in `.env.example`.

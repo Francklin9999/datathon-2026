@@ -132,7 +132,7 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, sec
     active coverage after HTTP 403 refusals (source catalogue rows SRC-034..SRC-042,
     "removed: owner excluded SEC access-refused sources"), so the application composition does not
     offer them and no research call is spent
-    on a refused source. ``sec=True`` is for an accepted SEC access (docs/19-OWNER-ACTIONS.md item 1)
+    on a refused source. ``sec=True`` is for an accepted SEC access
     and for tests."""
     from aplomb.agents.registry import ToolResult
     edgar = EdgarAdapter(service)
