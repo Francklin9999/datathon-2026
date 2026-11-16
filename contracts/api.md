@@ -192,7 +192,11 @@ Request: `{}`. Response `200`:
 
 ### 3.1 GET `/profiles` — P0
 
-`200` → `{ "items": Profile[] }`: the three defaults (with this session's threshold edits applied) followed by the session's custom profiles.
+`200` → `{ "items": Profile[] }`: the three packaged defaults, database-backed shared
+templates, then the session's custom profiles. Shared templates are loaded from
+`SHARED#PROFILES` in the existing profiles table. Default edits are session-specific
+overlays; they do not change another session's template. Shared defaults have the
+same copy, replacement, archive, and deletion protections as packaged defaults.
 
 ### 3.2 GET `/profiles/{profileId}` — P0
 
@@ -784,3 +788,52 @@ Typed in 1.6.0 (research#7) without changing a key: these three payloads, unlike
 The Markets connected-source form exposes these controls only for configured accounts. OpenDART regional filings now traverse up to fifty pages/5,000 records and fail explicitly if the interval cannot be completed, rather than return a partial first page. ESMA likewise completes exact-LEI queries up to 2,000 rows with stable counts and duplicate rejection.
 
 Selected-account extension: the same market-provider route also supports `fmp`, `eodhd`, `massive`, `marketstack`, `coinmarketcap`, `blockscout`, `alchemy`, `goldrush`. The `symbol` parameter is max120: use provider stock symbol (EODHD requires CODE.EXCHANGE), numeric CoinMarketCap asset ID, exact Ethereum address (Blockscout), `ethereum` (Alchemy) or `chains`/exact Ethereum address (GoldRush). These providers support only the default quote operation and reject MIC/other kinds. Sanitized RPC request method/body is retained alongside response evidence. Connected-source status lists implemented selected accounts only; FRED remains a non-fetching permission status. Unselected pending source controls and live crypto venue listings were removed by owner instruction; working public workflows remain.
+
+### Fictional investor locations and attributed 13F comparisons
+
+These additive research routes require `X-Aplomb-Session`. Their camelCase
+payloads are validated by local backend models and frontend guards, outside the
+generated contract registry. Records are read from the existing database.
+
+| Method and path | Behavior |
+|---|---|
+| GET `/world/investors` | `{ investors: [...] }`: shared fictional residences and account custody locations |
+| GET `/research/13f` | `{ items: [...] }`: attributed filing summaries, source links, dates, coverage and limitations |
+| GET `/research/13f/{filing_id}` | One summary plus all captured `holdings` |
+| POST `/profiles/{profile_id}/strategies/compare-13f` | Hypothetical comparison of the selected strategy with price-covered disclosed long positions |
+
+Map entries contain `profileId`, `name`, `investorType`, `isFictional: true`,
+`home: { label, country, lat, lon }`, and `wallets: [{ accountId, label, country,
+lat, lon }]`. Countries use ISO alpha-2 codes. Coordinates describe fictional
+residences and custody, independently of the portfolio's issuer geography.
+Public locations are validated against shared templates, not private account
+overlays.
+
+Filing summaries include `filingId`, `manager`, `associatedPerson`, `cik`,
+`accession`, `reportDate`, `filingDate`, `retrievedAt`, `sourceUrl`, `secUrl`,
+`sourceKind`, `holdingCount`, `optionCount`, `modeledHoldingCount`,
+`reportedValueUsd`, `modeledValueUsd`, `modeledCoveragePct`,
+`comparisonEligible`, `pointInTimeVerified: false`, and `limitations`.
+The stored `sourceKind` is `third_party_indexed_transcription`; the source's
+indexed rows are not verified original SEC information tables. Holding rows
+preserve ticker, issuer, share class, CUSIP, USD value, shares, principal, option
+type and indexed weight. An associated person's name does not identify their
+private holdings or net worth.
+
+The comparison body is `{ filingId, strategy: StrategyConfig, window?: WindowSpec }`.
+The response contains `filing`, `currency`, `requestedWindow`,
+`sample: { start, end, observations }`, `strategy: { series, returnPct }`,
+`benchmark: { series, returnPct, holdings }`, and `limitations`. Series contain
+`{ date, value }` points indexed to 100. Both sides use the profile's reporting
+currency and identical dates, starting on or after the indexed filing date.
+The strategy uses its time-weighted index, excluding external deposits and
+including configured trading costs. The benchmark holds the covered subset
+without rebalancing, fees or taxes. Options, unsupported securities and later
+trades are excluded, with the modeled proportion shown explicitly.
+
+This is a retrospective scenario: capture occurred after the price snapshot, so
+point-in-time availability and actual manager performance are not claimed.
+Unknown filings or session-private profiles return `404 not_found`.
+No covered long positions or fewer than two usable observations return
+`422 insufficient_data`; malformed stored captures return
+`503 upstream_unavailable`.

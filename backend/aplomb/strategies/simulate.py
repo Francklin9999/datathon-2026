@@ -109,6 +109,9 @@ def _set_holdings(book: Book, new: dict[str, float], cost_bps: float) -> tuple[l
     total = math.fsum(new.values())
     scale = (total - cost) / total if total > 0 else 1.0
     book.holdings = {t: new.get(t, 0.0) * scale for t in tickers if new.get(t, 0.0) > 0}
+    # The new total includes any deposit, which is a flow; only the cost is a return.
+    # The day's market return has already been recorded, so adjust that index entry.
+    book.index[-1] *= scale
     book.traded += traded
     book.costs += cost
     after = book.weights()

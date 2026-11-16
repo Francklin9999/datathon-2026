@@ -17,6 +17,7 @@ import { EVENT_CATEGORY, labelOf } from '../../lib/labels';
 import { fmtDate, fmtPct } from '../../lib/format';
 import { countryLabel, decodeCountries, isKnownIso3, regionIso3, type CountryFeature, type Topology } from '../../lib/geo';
 import { CATEGORY_COLORS, EXPOSURE_BREAKS, EXPOSURE_COLORS, OBSERVATION_COLORS, PIN_COLORS, pinColor, type GlobeHover, type GlobePin } from './globeStyle';
+import type { InvestorMapEntry } from './investorMap';
 import type { GlobeViewProps, MapCommand } from './GlobeView';
 import { eventSummary, WORLD_MODES, type GeographicArea } from '../../lib/world';
 import { sourceLang } from './WorldPanels';
@@ -70,6 +71,8 @@ export interface WorldGlobeProps {
   area: GeographicArea | null;
   onViewport: (bbox: string) => void;
   pins: readonly GlobePin[];
+  investors: readonly InvestorMapEntry[];
+  investorPins: readonly GlobePin[];
   selectedId: string | null;
   selectedGeometry: Record<string, unknown> | null;
   selectedCountry: string | null;
@@ -86,7 +89,7 @@ export interface WorldGlobeProps {
 }
 
 export function WorldGlobe({
-  pins, selectedId, selectedGeometry, selectedCountry, selectedEvent, exposure, exposureRows, counts, showHazards, hazardsLabel, onPin, onCountry, onOpenDetails, area, onViewport,
+  pins, investors, investorPins, selectedId, selectedGeometry, selectedCountry, selectedEvent, exposure, exposureRows, counts, showHazards, hazardsLabel, onPin, onCountry, onOpenDetails, area, onViewport,
 }: WorldGlobeProps) {
   const app = useApp();
   const { tr, lang } = app;
@@ -190,6 +193,7 @@ export function WorldGlobe({
   const previewEvent = hover?.pin?.event;
   const previewObservation = hover?.pin?.observation;
   const previewReference = hover?.pin?.reference;
+  const previewInvestor = hover?.pin?.investorLocation;
   const previewAssessment = previewObservation?.assessment ?? previewReference?.assessment;
   const selectedRow = selectedCountry ? rows.find(row => regionIso3(row.countryIso3) === selectedCountry) : undefined;
 
@@ -197,7 +201,7 @@ export function WorldGlobe({
     <p className="globe-fallback">{tr({ en: 'This browser has no WebGL, so the globe is off. The list beside it and the feed below show the same events and countries.', fr: 'Ce navigateur n’a pas WebGL : le globe est désactivé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>
   ) : (
     <GlobeBoundary fallback={<p className="globe-fallback">{tr({ en: 'The globe could not be loaded. The list beside it and the feed below show the same events and countries.', fr: 'Le globe n’a pas pu être chargé. La liste à côté et le fil en dessous montrent les mêmes événements et pays.' })}</p>}>
-      <GlobeView pins={pins} selectedId={selectedId} selectedGeometry={selectedGeometry} selectedCountry={selectedCountry} countries={countries} exposure={exposure}
+      <GlobeView pins={pins} investors={investors} selectedProfileId={app.profile?.profileId ?? null} selectedId={selectedId} selectedGeometry={selectedGeometry} selectedCountry={selectedCountry} countries={countries} exposure={exposure}
         rotate={rotate && !hover?.pin} reducedMotion={reducedMotion} lang={lang} height={height}
         onPin={pickPin} onCountry={onCountry} onHover={setHover} onInteract={stopRotation} area={area} command={command} onClusters={setClusterCount} onViewport={onViewport} onReady={markGlobeReady} />
     </GlobeBoundary>
@@ -227,7 +231,7 @@ export function WorldGlobe({
             {tr({ en: `+ ${counts.observations} source data points`, fr: `+ ${counts.observations} points de données sourcées` })}
           </span>}
         </div>
-        {(previewEvent || previewObservation || previewReference) && hover && <div className="world-event-hover" role="tooltip" style={{
+        {(previewEvent || previewObservation || previewReference || previewInvestor) && hover && <div className="world-event-hover" role="tooltip" style={{
           left: Math.max(12, Math.min((hover.x ?? 12) + 18, (hover.width ?? 324) - 312)),
           top: Math.max(12, Math.min((hover.y ?? 12) + 18, height - 260)),
         }}>
@@ -235,11 +239,11 @@ export function WorldGlobe({
             <span className="stage-dot" style={{ background: pinColor(hover.pin!, null) }} />
             {previewEvent ? labelOf(EVENT_CATEGORY, previewEvent.category, lang)
               : previewObservation ? tr(WORLD_MODES.find(mode => mode.id === previewObservation.mode)!.title)
-              : previewReference && tr(previewReference.sourceName)}
+              : previewReference ? tr(previewReference.sourceName) : tr({ en: 'Fictional location', fr: 'Lieu fictif' })}
           </p>
           <strong className="world-hover-title" lang={previewEvent ? sourceLang(previewEvent) : undefined}>{hover.pin?.label}</strong>
           <p className="world-hover-summary">{previewEvent ? eventSummary(previewEvent, lang)
-            : previewObservation?.summary ?? (previewReference && tr(previewReference.summary))}</p>
+            : previewObservation?.summary ?? (previewReference ? tr(previewReference.summary) : previewInvestor ? `${previewInvestor.location}, ${previewInvestor.country}` : null)}</p>
           {previewEvent?.portfolioRelevant !== undefined && <p className="world-hover-exposure">
             {previewEvent.portfolioRelevant
               ? tr({ en: 'Portfolio match identified', fr: 'Correspondance avec le portefeuille' })
@@ -252,6 +256,7 @@ export function WorldGlobe({
           </p>}
           <p className="world-hover-hint">{previewEvent
             ? tr({ en: 'Click for event details and portfolio exposure', fr: 'Cliquez pour les détails et l’exposition du portefeuille' })
+            : previewInvestor ? tr({ en: 'Click for location details', fr: 'Cliquez pour les détails du lieu' })
             : tr({ en: 'Click for source data and portfolio exposure', fr: 'Cliquez pour les données sourcées et l’exposition du portefeuille' })}</p>
         </div>}
         <p className="stage-overlay stage-hover">{hover?.pin?.event
@@ -312,6 +317,18 @@ export function WorldGlobe({
           </div>
         ) : null}
 
+        {investors.length > 0 && <div className="stage-block">
+          <h2 className="stage-heading">{tr({ en: 'Fictional investors and wallets', fr: 'Investisseurs et portefeuilles fictifs' })}</h2>
+          <ul className="stage-exposure">{investorPins.map(pin => <li key={pin.id}>
+            <button type="button" className="stage-row stage-investor-row" onClick={() => pickPin(pin)}>
+              <span className="stage-dot" style={{ background: pinColor(pin, null) }} aria-hidden="true" />
+              <span className="stage-row-name">{pin.investorLocation?.owner}
+                {pin.investorLocation?.selected && ` (${tr({ en: 'Selected profile', fr: 'Profil sélectionné' })})`}
+                {' · '}{pin.investorLocation?.kind === 'home' ? tr({ en: 'Residence', fr: 'Résidence' }) : `${tr({ en: 'Wallet custody', fr: 'Garde du portefeuille' })}: ${pin.investorLocation?.name}`}: {pin.investorLocation?.location}, {pin.investorLocation?.country}</span>
+            </button></li>)}</ul>
+          <p className="stage-note">{tr({ en: 'Fictional residence and custody links are separate from listing-country exposure. Larger markers identify the selected profile.', fr: 'Les liens fictifs de résidence et de garde sont distincts de l’exposition par pays de cotation. Les marqueurs plus grands désignent le profil sélectionné.' })}</p>
+        </div>}
+
         <div className="stage-block">
           <h2 className="stage-heading">{tr({ en: 'Where the money is', fr: 'Où est l’argent' })}</h2>
           {rows.length === 0 ? <p className="stage-text">{tr({ en: 'No country exposure returned.', fr: 'Aucune exposition par pays renvoyée.' })}</p> : (
@@ -334,6 +351,9 @@ export function WorldGlobe({
           <h2 className="stage-heading">{tr({ en: 'Reading the globe', fr: 'Lire le globe' })}</h2>
           <ul className="stage-legend">
             {observationModes.map(mode => <li key={`observation:${mode}`}><span className="stage-dot" style={{ background: OBSERVATION_COLORS[mode] }} aria-hidden="true" />{tr({ en: 'Data', fr: 'Données' })}: {tr(WORLD_MODES.find(item => item.id === mode)!.title)}</li>)}
+            {investors.length > 0 && <li><span className="stage-dot" style={{ background: '#F8D47A' }} aria-hidden="true" />{tr({ en: 'Fictional residence', fr: 'Résidence fictive' })}</li>}
+            {investors.length > 0 && <li><span className="stage-dot" style={{ background: '#6AE0CF' }} aria-hidden="true" />{tr({ en: 'Fictional wallet custody location', fr: 'Lieu fictif de garde du portefeuille' })}</li>}
+            {investors.length > 0 && <li><span className="stage-arc stage-investor-arc" aria-hidden="true" />{tr({ en: 'Fictional residence-to-wallet link', fr: 'Lien fictif entre la résidence et le portefeuille' })}</li>}
             {selectedGeometry && <li><span className="stage-dot" style={{ background: '#6AE0CF' }} aria-hidden="true" />{tr({ en: 'Selected source boundary', fr: 'Limite de source sélectionnée' })}</li>}
             <li><span className="stage-ramp" aria-hidden="true">{EXPOSURE_COLORS.map(c => <span key={c} style={{ background: c }} />)}</span>
               {tr({ en: `Share of the portfolio (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)`, fr: `Part du portefeuille (${EXPOSURE_BREAKS[0]}, ${EXPOSURE_BREAKS[1]}, ${EXPOSURE_BREAKS[2]} %)` })}</li>
@@ -344,7 +364,7 @@ export function WorldGlobe({
             ))}
             {showHazards && <li><span className="stage-dot" style={{ background: PIN_COLORS.hazard }} aria-hidden="true" />{hazardsLabel}</li>}
           </ul>
-          <p className="stage-note">{tr({ en: 'Arcs represent named-country and listing-country matches, including proxies. They do not establish business operations or financial impact.', fr: 'Les arcs représentent des correspondances de pays nommés et de cotation, y compris des approximations. Ils ne prouvent ni activité commerciale ni impact financier.' })}</p>
+          <p className="stage-note">{tr({ en: 'Event arcs represent named-country and listing-country matches, including proxies. They do not establish business operations or financial impact.', fr: 'Les arcs des événements représentent des correspondances de pays nommés et de cotation, y compris des approximations. Ils ne prouvent ni activité commerciale ni impact financier.' })}</p>
         </div>
       </div>
     </section>

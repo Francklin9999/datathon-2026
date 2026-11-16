@@ -133,12 +133,36 @@ class ProfileServiceImpl:
 
     # Reads ------------------------------------------------------------------------------------
 
+    @staticmethod
+    def _shared_profile(item: dict) -> m.Profile:
+        profile = m.Profile.model_validate(item["value"])
+        if not profile.is_default or profile.archived or profile.profile_id != item["profileId"] or item.get("overlay"):
+            raise ValueError("Invalid shared profile template")
+        return profile
+
+    def _default(self, profile_id: str) -> m.Profile | None:
+        if profile_id in self._defaults:
+            return self._defaults[profile_id]
+        item = self.repo.get_shared(profile_id)
+        if item is None:
+            return None
+        profile = self._shared_profile(item)
+        if profile.profile_id != profile_id:
+            raise ValueError("Shared profile template key does not match profile ID")
+        return profile
+
     def list(self, session_id: str) -> list[m.Profile]:
         out = [self.get(session_id, pid) for pid in self._defaults]
+        shared = sorted((self._shared_profile(item) for item in self.repo.list_shared()),
+                        key=lambda p: p.profile_id)
+        for profile in shared:
+            if profile.profile_id not in self._defaults:
+                out.append(self._merge(profile, self.repo.get(session_id, profile.profile_id, overlay=True)))
         customs = [item for item in self.repo.list(session_id) if not item.get("overlay")]
+        default_ids = {p.profile_id for p in out}
         for item in sorted(customs, key=lambda i: i["value"]["createdAt"]):
             profile = m.Profile.model_validate(item["value"])
-            if not profile.archived:
+            if not profile.archived and profile.profile_id not in default_ids:
                 out.append(profile)
         return out
 
@@ -385,9 +409,10 @@ class ProfileServiceImpl:
         return self._load(session_id, profile_id)[0]
 
     def _load(self, session_id: str, profile_id: str) -> tuple[m.Profile, dict | None]:
-        if profile_id in self._defaults:
+        default = self._default(profile_id)
+        if default is not None:
             overlay = self.repo.get(session_id, profile_id, overlay=True)
-            return self._merge(self._defaults[profile_id], overlay), overlay
+            return self._merge(default, overlay), overlay
         item = self.repo.get(session_id, profile_id)
         if item is None:
             raise NotFound(f"Unknown profile {profile_id}")
@@ -418,14 +443,17 @@ class ProfileServiceImpl:
                 if account["accountId"] == data.get("activeAccountId"):
                     account["portfolio"] = copy.deepcopy(data["portfolio"])
         if profile.is_default:
-            # Overlay = only what differs from the shipped default (profiles SPEC §2 "Storage").
-            base = self._defaults[profile.profile_id].to_wire()
+            # Overlay = only what differs from the shared or shipped template.
+            default = self._default(profile.profile_id)
+            if default is None:
+                raise NotFound(f"Unknown profile {profile.profile_id}")
+            base = default.to_wire()
             base_rules = {r["ruleId"]: r for r in base["rules"]}
             value = {"rules": {r["ruleId"]: r for r in data["rules"] if r != base_rules.get(r["ruleId"])},
                      "portfolio": data["portfolio"] if data["portfolio"] != base["portfolio"] else None,
                      "updatedAt": data["updatedAt"]}
             for field in ("accounts", "activeAccountId"):
-                if field in data:
+                if field in data and data[field] != base.get(field):
                     value[field] = copy.deepcopy(data[field])
             revision = stored["revision"] if stored else None
             saved = self.repo.save(session_id, profile.profile_id, value, revision, overlay=True)
@@ -501,9 +529,9 @@ class ProfileServiceImpl:
         return m.Profile.model_validate(data)
 
     def replace(self, session_id: str, profile_id: str, request: a.UpdateProfileRequest, version: int) -> m.Profile:
-        if profile_id in self._defaults:
-            raise Conflict("Default profiles cannot be replaced; edit rules or the portfolio instead")
         profile, stored = self._load(session_id, profile_id)
+        if profile.is_default:
+            raise Conflict("Default profiles cannot be replaced; edit rules or the portfolio instead")
         if profile.version != version:
             raise Conflict()
         if profile.active_account_id == "aggregate":
@@ -575,9 +603,9 @@ class ProfileServiceImpl:
         return m.Profile.model_validate(data)
 
     def delete(self, session_id: str, profile_id: str) -> None:
-        if profile_id in self._defaults:
+        profile, stored = self._load(session_id, profile_id)
+        if profile.is_default:
             raise Conflict("Default profiles cannot be deleted")
-        _, stored = self._load(session_id, profile_id)
         self.repo.delete(session_id, profile_id, stored["revision"])
 
     def create_account(self, session_id: str, profile_id: str, request: a.CreateAccountRequest) -> m.Profile:

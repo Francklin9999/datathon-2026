@@ -11,7 +11,7 @@ import type { EventCategory, I18nText, WorldEventItem, WorldObservation, WorldPo
 
 export interface GlobePin {
   id: string;
-  kind: 'event' | 'facility' | 'hazard' | 'airport' | 'cluster' | 'observation';
+  kind: 'event' | 'facility' | 'hazard' | 'airport' | 'cluster' | 'observation' | 'investor' | 'wallet';
   lat: number;
   lng: number;
   /** Plain text shown in the caption on hover. */
@@ -24,6 +24,7 @@ export interface GlobePin {
   /** The source event, used for the hover preview. */
   event?: WorldEventItem;
   observation?: WorldObservation;
+  investorLocation?: { kind: 'home' | 'wallet'; profileId: string; owner: string; selected: boolean; name: string; location: string; country: string };
   /** Source fields for optional reference-layer popups. */
   reference?: {
     sourceName: I18nText;
@@ -92,7 +93,7 @@ export function clusterPins(pins: readonly GlobePin[], altitude: number, selecte
   const cells = new Map<string, GlobePin[]>();
   const singles: GlobePin[] = [];
   for (const pin of valid) {
-    if (pin.id === selectedId) { singles.push(pin); continue; }
+    if (pin.id === selectedId || pin.kind === 'investor' || pin.kind === 'wallet') { singles.push(pin); continue; }
     const key = `${pin.kind}:${Math.floor((pin.lat + 90) / degrees)}:${Math.floor((pin.lng + 180) / degrees)}`;
     const cell = cells.get(key) ?? [];
     cell.push(pin);
@@ -132,6 +133,8 @@ export const PIN_COLORS = {
 export function pinColor(pin: GlobePin, selectedId: string | null): string {
   if (pin.id === selectedId) return PIN_COLORS.selected;
   if (pin.kind === 'cluster') return '#D8E8FF';
+  if (pin.kind === 'investor') return '#F8D47A';
+  if (pin.kind === 'wallet') return '#6AE0CF';
   if (pin.kind === 'observation') return OBSERVATION_COLORS[pin.observation?.mode ?? 'news'];
   if (pin.kind === 'facility') return PIN_COLORS.facility;
   if (pin.kind === 'hazard') return PIN_COLORS.hazard;

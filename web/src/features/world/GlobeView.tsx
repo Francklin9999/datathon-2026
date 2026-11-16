@@ -20,6 +20,7 @@ import Globe, { type GlobeMethods } from 'react-globe.gl';
 import type { Lang } from '../../contracts/types';
 import { countryCentroid, countryName, hexReadyCountries, outlineLabel, regionIso3, type CountryFeature } from '../../lib/geo';
 import { islandHexes } from '../../lib/geoHex';
+import type { InvestorMapEntry } from './investorMap';
 import { insideBbox, viewportBounds, type GeographicArea } from '../../lib/world';
 import {
   ATMOSPHERE_COLOR, CATEGORY_COLORS, LAND_HOVER_COLOR, PIN_RADIUS, REFERENCE_PIN_ALTITUDE, SPHERE_COLOR, exposureColor, labelOffset, pinColor,
@@ -34,6 +35,8 @@ export interface GlobeViewProps {
   onViewport: (bbox: string) => void;
   onReady: () => void;
   pins: readonly GlobePin[];
+  investors: readonly InvestorMapEntry[];
+  selectedProfileId: string | null;
   selectedId: string | null;
   selectedGeometry: Record<string, unknown> | null;
   selectedCountry: string | null;
@@ -131,7 +134,7 @@ function layoutLabels(globe: GlobeMethods, pins: readonly GlobePin[], labels: re
 const fmtPct = (value: number, lang: Lang) => `${new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : 'en-CA', { maximumFractionDigits: 0 }).format(value)}${lang === 'fr' ? ' %' : '%'}`;
 
 export default function GlobeView({
-  pins, selectedId, selectedGeometry: standaloneGeometry, selectedCountry, countries, exposure, rotate, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract, area, command, onClusters, onViewport, onReady,
+  pins, investors, selectedProfileId, selectedId, selectedGeometry: standaloneGeometry, selectedCountry, countries, exposure, rotate, reducedMotion, lang, height, onPin, onCountry, onHover, onInteract, area, command, onClusters, onViewport, onReady,
 }: GlobeViewProps) {
   const globe = useRef<GlobeMethods | undefined>(undefined);
   const holder = useRef<HTMLDivElement | null>(null);
@@ -175,8 +178,13 @@ export default function GlobeView({
 
   // Arcs: from an event to each country it names where the portfolio has weight (not to its own spot).
   const arcs = useMemo<Arc[]>(() => {
-    if (!exposure) return [];
     const out: Arc[] = [];
+    for (const investor of investors) for (const wallet of investor.wallets) {
+      if (wallet.lat === investor.home.lat && wallet.lon === investor.home.lon) continue;
+      out.push({ id: `wallet:${investor.profileId}:${wallet.accountId}`, startLat: investor.home.lat, startLng: investor.home.lon,
+        endLat: wallet.lat, endLng: wallet.lon, color: ['#F8D47A', '#6AE0CF'], selected: investor.profileId === selectedProfileId });
+    }
+    if (!exposure) return out;
     for (const pin of events) {
       for (const iso3 of (pin.related ?? []).map(code => regionIso3(code))) {
         const end = exposure.has(iso3) ? centroids.get(iso3) : undefined;
@@ -186,7 +194,7 @@ export default function GlobeView({
       }
     }
     return out;
-  }, [events, exposure, centroids, selectedId]);
+  }, [events, exposure, centroids, selectedId, investors, selectedProfileId]);
 
   const rings = useMemo<Ring[]>(() => {
     const pin = placed.find(item => item.id === selectedId);
@@ -314,7 +322,7 @@ export default function GlobeView({
     if (hoverKey.current === `pin:${p.id}`) return;
     hoverKey.current = `pin:${p.id}`;
     setHoverIso(null);
-    const anchor = globe.current?.getScreenCoords(p.lat, p.lng, p.kind === 'event' ? spikeAltitude(p.weight) : REFERENCE_PIN_ALTITUDE);
+    const anchor = globe.current?.getScreenCoords(p.lat, p.lng, p.kind === 'event' ? spikeAltitude(p.weight) : p.kind === 'investor' ? 0.08 : REFERENCE_PIN_ALTITUDE);
     onHover({ label: p.label, pin: original.get(p.id) ?? p, ...(anchor ? { x: anchor.x, y: anchor.y } : {}), width });
   }, [leaveSoon, onHover, original, width]);
   const clickCountry = useCallback((feature: object) => {
@@ -343,11 +351,13 @@ export default function GlobeView({
   const pointColor = useCallback((pin: object) => pinColor(pin as GlobePin, selectedId), [selectedId]);
   const pointAltitude = useCallback((pin: object) => {
     const p = pin as GlobePin;
-    return p.kind === 'event' ? spikeAltitude(p.weight) : REFERENCE_PIN_ALTITUDE;
+    return p.kind === 'event' ? spikeAltitude(p.weight) : p.kind === 'investor' ? 0.08 : REFERENCE_PIN_ALTITUDE;
   }, []);
   const pointRadius = useCallback((pin: object) => {
     const p = pin as GlobePin;
     if (p.id === selectedId) return PIN_RADIUS.selected;
+    if (p.kind === 'investor') return p.investorLocation?.selected ? 0.7 : 0.5;
+    if (p.kind === 'wallet') return p.investorLocation?.selected ? 0.5 : 0.35;
     if (p.kind === 'cluster') return Math.min(1.1, .35 + Math.log2(p.members?.length ?? 1) * .12);
     return p.kind === 'event' ? PIN_RADIUS.event : p.kind === 'hazard' ? quakeRadius(p.magnitude) : PIN_RADIUS.facility;
   }, [selectedId]);

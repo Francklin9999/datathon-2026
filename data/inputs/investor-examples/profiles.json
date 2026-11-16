@@ -1,0 +1,3415 @@
+[
+  {
+    "profileId": "p_0000000001",
+    "isDefault": true,
+    "origin": "user",
+    "name": "Sophie Tremblay",
+    "initial": "S",
+    "age": 67,
+    "occupation": null,
+    "riskLevel": "low",
+    "horizonYears": {
+      "min": 3.0,
+      "max": 6.0
+    },
+    "objective": "preserve",
+    "objectiveText": {
+      "en": "Preserve capital while keeping some growth potential.",
+      "fr": "Préserver le capital tout en gardant un potentiel de croissance."
+    },
+    "experience": "intermediate",
+    "reportingCurrency": "CAD",
+    "preferences": {
+      "themesOfInterest": [],
+      "excludedSectors": [],
+      "excludedAssetClasses": [
+        "crypto"
+      ],
+      "esgFocus": false,
+      "avoidControversies": false,
+      "avoidSpeculative": true,
+      "cryptoInterest": "none",
+      "wantsDiversification": true,
+      "notes": "Retired teacher; seeks near-term spending stability and avoids crypto."
+    },
+    "blurb": {
+      "en": "Custom fictional profile, low risk.",
+      "fr": "Profil fictif personnalisé, risque low."
+    },
+    "personaTest": null,
+    "investorContext": {
+      "country": "CA",
+      "investorType": "individual",
+      "investorTypeOrigin": "assumption",
+      "language": "en",
+      "liquidityNotes": "Retired teacher; seeks near-term spending stability and avoids crypto.",
+      "riskCapacityNotes": "Retired teacher; seeks near-term spending stability and avoids crypto.",
+      "riskCapacity": "low",
+      "riskCapacityOrigin": "assumption",
+      "riskToleranceOrigin": "assumption",
+      "inputOrigins": {
+        "name": "assumption",
+        "age": "assumption",
+        "riskLevel": "assumption",
+        "horizonYears": "assumption",
+        "objective": "assumption",
+        "experience": "assumption",
+        "reportingCurrency": "assumption",
+        "preferences": "assumption",
+        "portfolio": "assumption"
+      }
+    },
+    "accounts": [
+      {
+        "accountId": "acct_085bcfd73769",
+        "name": "Retirement income",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 240000.0,
+          "currency": "CAD",
+          "positions": [
+            {
+              "ticker": "XBB.TO",
+              "weightPct": 40.0
+            },
+            {
+              "ticker": "ZST.TO",
+              "weightPct": 30.0
+            },
+            {
+              "ticker": "XIU.TO",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "RY.TO",
+              "weightPct": 10.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:03Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_SOURCE_VERSION",
+            "ACCOUNT_FX_SOURCE_METADATA",
+            "ACCOUNT_FX_SOURCE_ROW",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "USD",
+          "nativeValue": 70000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "CAD",
+          "reportingValue": 99785.0,
+          "conversionRate": 1.4255,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:03Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": [
+            {
+              "currency": "USD",
+              "cadPerUnit": 1.4255,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_usdcad_daily",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet API series FXUSDCAD",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD/json",
+                "retrievedOn": "2026-11-13",
+                "licence": "Bank of Canada terms: https://www.bankofcanada.ca/terms/",
+                "rowsRead": 1
+              }
+            }
+          ]
+        },
+        "accountId": "acct_387d12c86ace",
+        "name": "US savings",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 99785.0,
+          "currency": "CAD",
+          "positions": [
+            {
+              "ticker": "AGG",
+              "weightPct": 45.0
+            },
+            {
+              "ticker": "SPY",
+              "weightPct": 30.0
+            },
+            {
+              "ticker": "JNJ",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "PG",
+              "weightPct": 10.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:03Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "CAD",
+          "nativeValue": 45000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "CAD",
+          "reportingValue": 45000.0,
+          "conversionRate": 1.0,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:04Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": []
+        },
+        "accountId": "acct_c2ab3f12492b",
+        "name": "Legacy reserve",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 45000.0,
+          "currency": "CAD",
+          "positions": [
+            {
+              "ticker": "ZST.TO",
+              "weightPct": 70.0
+            },
+            {
+              "ticker": "FTS.TO",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "GLD",
+              "weightPct": 10.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      }
+    ],
+    "activeAccountId": "aggregate",
+    "portfolio": {
+      "isFictional": true,
+      "totalValue": 384785.0,
+      "currency": "CAD",
+      "positions": [
+        {
+          "ticker": "XBB.TO",
+          "weightPct": 24.94899749210598
+        },
+        {
+          "ticker": "ZST.TO",
+          "weightPct": 26.89813792117676
+        },
+        {
+          "ticker": "XIU.TO",
+          "weightPct": 12.47449874605299
+        },
+        {
+          "ticker": "RY.TO",
+          "weightPct": 6.237249373026495
+        },
+        {
+          "ticker": "AGG",
+          "weightPct": 11.669698662889665
+        },
+        {
+          "ticker": "SPY",
+          "weightPct": 7.77979910859311
+        },
+        {
+          "ticker": "JNJ",
+          "weightPct": 3.889899554296555
+        },
+        {
+          "ticker": "PG",
+          "weightPct": 2.5932663695310367
+        },
+        {
+          "ticker": "FTS.TO",
+          "weightPct": 2.3389685148849355
+        },
+        {
+          "ticker": "GLD",
+          "weightPct": 1.1694842574424678
+        }
+      ],
+      "updatedAt": "2026-11-16T01:45:04Z"
+    },
+    "rules": [
+      {
+        "ruleId": "cap.position",
+        "code": "R1",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+          "fr": "Aucune action ni cryptoactif au-dessus de {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "Sized from the low volatility budget relative to the upper-quartile volatility of single stocks (A-03).",
+          "fr": "Établi à partir du budget de volatilité faible rapporté à la volatilité du quartile supérieur des actions (A-03)."
+        },
+        "metric": "weight.position.max_single",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 10.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_POSITION_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaStockQ3Pct), 5, 25)",
+          "inputs": {
+            "budgetPct": 6.0,
+            "sigmaStockQ3Pct": 31.2242880914325
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:03Z"
+      },
+      {
+        "ruleId": "cap.sector",
+        "code": "R2",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No sector above {threshold}% of the portfolio (directly held stocks)",
+          "fr": "Aucun secteur au-dessus de {threshold} % du portefeuille (actions détenues directement)"
+        },
+        "rationale": {
+          "en": "At least two names per sector at the position cap (A-04).",
+          "fr": "Au moins deux titres par secteur au plafond par position (A-04)."
+        },
+        "metric": "weight.sector.max",
+        "target": {
+          "dimension": "sector",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 20.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_SECTOR_CAP",
+          "formula": "min(40, 2 x positionCapPct)",
+          "inputs": {
+            "positionCapPct": 10.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:03Z"
+      },
+      {
+        "ruleId": "limit.volatility",
+        "code": "R3",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Portfolio volatility at most {threshold}% a year",
+          "fr": "Volatilité du portefeuille d'au plus {threshold} % par an"
+        },
+        "rationale": {
+          "en": "Volatility budget for a low risk level (A-02).",
+          "fr": "Budget de volatilité d'un niveau de risque faible (A-02)."
+        },
+        "metric": "vol.annualized",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 6.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 40.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_VOL_BUDGET",
+          "formula": "budget(riskLevel)",
+          "inputs": {
+            "riskLevel": "low",
+            "budgetPct": 6.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:03Z"
+      },
+      {
+        "ruleId": "limit.stress_2022",
+        "code": "R4",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "A repeat of 2022 may cost at most {threshold}% of the portfolio",
+          "fr": "Une répétition de 2022 peut coûter au plus {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "A shorter horizon leaves less time to recover from a 2022-like year (A-07).",
+          "fr": "Un horizon plus court laisse moins de temps pour se remettre d'une année comme 2022 (A-07)."
+        },
+        "metric": "stress.replay_2022",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 6.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 1.0,
+          "max": 60.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_STRESS_LIMIT",
+          "formula": "budgetPct x m(horizonMidpointYears)",
+          "inputs": {
+            "budgetPct": 6.0,
+            "horizonMidpointYears": 4.5,
+            "multiplier": 1.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:03Z"
+      },
+      {
+        "ruleId": "limit.drawdown",
+        "code": "R5",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Largest historical peak-to-trough fall at most {threshold}%",
+          "fr": "Plus forte baisse historique d'un sommet à un creux d'au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest tolerated fall set at twice the volatility budget (A-08).",
+          "fr": "Plus forte baisse tolérée fixée au double du budget de volatilité (A-08)."
+        },
+        "metric": "drawdown.max",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 12.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 80.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+          "formula": "2 x budgetPct",
+          "inputs": {
+            "budgetPct": 6.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:03Z"
+      },
+      {
+        "ruleId": "exclude.asset_class.crypto",
+        "code": "R6",
+        "type": "exclude",
+        "enabled": true,
+        "label": {
+          "en": "No crypto assets",
+          "fr": "Aucun cryptoactif"
+        },
+        "rationale": {
+          "en": "The profile shows no interest in crypto assets.",
+          "fr": "Le profil ne montre aucun intérêt pour les cryptoactifs."
+        },
+        "metric": "weight.asset_class",
+        "target": {
+          "dimension": "asset_class",
+          "key": "crypto"
+        },
+        "comparator": "==",
+        "threshold": 0.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": null,
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:03Z"
+      },
+      {
+        "ruleId": "flag.attention",
+        "code": "R7",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show when the requested asset is drawing unusual public attention",
+          "fr": "Signaler quand l'actif demandé attire une attention publique inhabituelle"
+        },
+        "rationale": {
+          "en": "Public attention is context, never a verdict on its own (A-19).",
+          "fr": "L'attention du public est un contexte, jamais un verdict à elle seule (A-19)."
+        },
+        "metric": "attention.pageviews_ratio",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "ratio",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:03Z"
+      },
+      {
+        "ruleId": "flag.rate_cycle",
+        "code": "R8",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show how the portfolio behaved while interest rates rose",
+          "fr": "Montrer le comportement du portefeuille pendant la hausse des taux"
+        },
+        "rationale": {
+          "en": "The rate-hiking cycle is replayed for information only (A-23).",
+          "fr": "Le cycle de hausse des taux est rejoué à titre informatif seulement (A-23)."
+        },
+        "metric": "stress.rate_cycle",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "pct",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:03Z"
+      },
+      {
+        "ruleId": "sim.only",
+        "code": "R9",
+        "type": "sim",
+        "enabled": true,
+        "label": {
+          "en": "Simulation only: no order is ever placed",
+          "fr": "Simulation seulement : aucun ordre n'est jamais passé"
+        },
+        "rationale": {
+          "en": "Aplomb is a simulation with fictional profiles; it never places orders.",
+          "fr": "Aplomb est une simulation avec des profils fictifs; il ne passe jamais d'ordres."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": false,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:03Z"
+      }
+    ],
+    "version": 1,
+    "createdAt": "2026-11-16T01:45:03Z",
+    "updatedAt": "2026-11-16T01:45:04Z"
+  },
+  {
+    "profileId": "p_0000000002",
+    "isDefault": true,
+    "origin": "user",
+    "name": "Amina Okafor",
+    "initial": "A",
+    "age": 35,
+    "occupation": null,
+    "riskLevel": "moderate_high",
+    "horizonYears": {
+      "min": 12.0,
+      "max": 20.0
+    },
+    "objective": "growth",
+    "objectiveText": {
+      "en": "Grow capital over the long term.",
+      "fr": "Faire croître le capital à long terme."
+    },
+    "experience": "advanced",
+    "reportingCurrency": "GBP",
+    "preferences": {
+      "themesOfInterest": [],
+      "excludedSectors": [],
+      "excludedAssetClasses": [],
+      "esgFocus": false,
+      "avoidControversies": false,
+      "avoidSpeculative": false,
+      "cryptoInterest": "low",
+      "wantsDiversification": true,
+      "notes": "London engineer building long-term wealth; welcomes growth and tolerates moderate volatility."
+    },
+    "blurb": {
+      "en": "Custom fictional profile, moderate-high risk.",
+      "fr": "Profil fictif personnalisé, risque moderate high."
+    },
+    "personaTest": null,
+    "investorContext": {
+      "country": "GB",
+      "investorType": "individual",
+      "investorTypeOrigin": "assumption",
+      "language": "en",
+      "liquidityNotes": "London engineer building long-term wealth; welcomes growth and tolerates moderate volatility.",
+      "riskCapacityNotes": "London engineer building long-term wealth; welcomes growth and tolerates moderate volatility.",
+      "riskCapacity": "moderate_high",
+      "riskCapacityOrigin": "assumption",
+      "riskToleranceOrigin": "assumption",
+      "inputOrigins": {
+        "name": "assumption",
+        "age": "assumption",
+        "riskLevel": "assumption",
+        "horizonYears": "assumption",
+        "objective": "assumption",
+        "experience": "assumption",
+        "reportingCurrency": "assumption",
+        "preferences": "assumption",
+        "portfolio": "assumption"
+      }
+    },
+    "accounts": [
+      {
+        "accountId": "acct_752065b63b83",
+        "name": "Long-term ISA",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 115000.0,
+          "currency": "GBP",
+          "positions": [
+            {
+              "ticker": "SPY",
+              "weightPct": 30.0
+            },
+            {
+              "ticker": "QQQ",
+              "weightPct": 25.0
+            },
+            {
+              "ticker": "MSFT",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "GOOGL",
+              "weightPct": 10.0
+            },
+            {
+              "ticker": "XIU.TO",
+              "weightPct": 10.0
+            },
+            {
+              "ticker": "GLD",
+              "weightPct": 10.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_SOURCE_VERSION",
+            "ACCOUNT_FX_SOURCE_METADATA",
+            "ACCOUNT_FX_SOURCE_ROW",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "USD",
+          "nativeValue": 55000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "GBP",
+          "reportingValue": 41539.94913637808,
+          "conversionRate": 0.7552718024796016,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:04Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": [
+            {
+              "currency": "USD",
+              "cadPerUnit": 1.4255,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_usdcad_daily",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet API series FXUSDCAD",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD/json",
+                "retrievedOn": "2026-11-13",
+                "licence": "Bank of Canada terms: https://www.bankofcanada.ca/terms/",
+                "rowsRead": 1
+              }
+            },
+            {
+              "currency": "GBP",
+              "cadPerUnit": 1.8874,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_boc_global",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet, daily indicative FX rates",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXEURCAD,FXGBPCAD,FXCHFCAD,FXJPYCAD,FXHKDCAD,FXSGDCAD,FXAUDCAD/json?start_date=2021-11-01&end_date=2026-11-12",
+                "retrievedOn": "2026-11-15",
+                "licence": "Bank of Canada terms; indicative rates and potential third-party rights",
+                "rowsRead": 1
+              }
+            }
+          ]
+        },
+        "accountId": "acct_69bb454b998f",
+        "name": "North American shares",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 41539.94913637808,
+          "currency": "GBP",
+          "positions": [
+            {
+              "ticker": "AAPL",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "NVDA",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "SHOP.TO",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "SPY",
+              "weightPct": 30.0
+            },
+            {
+              "ticker": "AGG",
+              "weightPct": 20.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "GBP",
+          "nativeValue": 35000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "GBP",
+          "reportingValue": 35000.0,
+          "conversionRate": 1.0,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:04Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": []
+        },
+        "accountId": "acct_a592db7ad6b3",
+        "name": "Stability sleeve",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 35000.0,
+          "currency": "GBP",
+          "positions": [
+            {
+              "ticker": "AGG",
+              "weightPct": 40.0
+            },
+            {
+              "ticker": "XBB.TO",
+              "weightPct": 30.0
+            },
+            {
+              "ticker": "ESGV",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "GLD",
+              "weightPct": 10.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      }
+    ],
+    "activeAccountId": "aggregate",
+    "portfolio": {
+      "isFictional": true,
+      "totalValue": 191539.94913637807,
+      "currency": "GBP",
+      "positions": [
+        {
+          "ticker": "SPY",
+          "weightPct": 24.518114864631237
+        },
+        {
+          "ticker": "QQQ",
+          "weightPct": 15.009923584938281
+        },
+        {
+          "ticker": "MSFT",
+          "weightPct": 9.00595415096297
+        },
+        {
+          "ticker": "GOOGL",
+          "weightPct": 6.003969433975312
+        },
+        {
+          "ticker": "XIU.TO",
+          "weightPct": 6.003969433975312
+        },
+        {
+          "ticker": "GLD",
+          "weightPct": 7.831264479098234
+        },
+        {
+          "ticker": "AAPL",
+          "weightPct": 4.337471041803534
+        },
+        {
+          "ticker": "NVDA",
+          "weightPct": 3.2531032813526504
+        },
+        {
+          "ticker": "SHOP.TO",
+          "weightPct": 3.2531032813526504
+        },
+        {
+          "ticker": "AGG",
+          "weightPct": 11.646651222295219
+        },
+        {
+          "ticker": "XBB.TO",
+          "weightPct": 5.481885135368763
+        },
+        {
+          "ticker": "ESGV",
+          "weightPct": 3.6545900902458426
+        }
+      ],
+      "updatedAt": "2026-11-16T01:45:04Z"
+    },
+    "rules": [
+      {
+        "ruleId": "cap.position",
+        "code": "R1",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+          "fr": "Aucune action ni cryptoactif au-dessus de {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "Sized from the moderate-to-high volatility budget relative to the upper-quartile volatility of single stocks (A-03).",
+          "fr": "Établi à partir du budget de volatilité modéré à élevé rapporté à la volatilité du quartile supérieur des actions (A-03)."
+        },
+        "metric": "weight.position.max_single",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 20.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_POSITION_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaStockQ3Pct), 5, 25)",
+          "inputs": {
+            "budgetPct": 16.0,
+            "sigmaStockQ3Pct": 31.97792277385713
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "cap.sector",
+        "code": "R2",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No sector above {threshold}% of the portfolio (directly held stocks)",
+          "fr": "Aucun secteur au-dessus de {threshold} % du portefeuille (actions détenues directement)"
+        },
+        "rationale": {
+          "en": "At least two names per sector at the position cap (A-04).",
+          "fr": "Au moins deux titres par secteur au plafond par position (A-04)."
+        },
+        "metric": "weight.sector.max",
+        "target": {
+          "dimension": "sector",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 40.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_SECTOR_CAP",
+          "formula": "min(40, 2 x positionCapPct)",
+          "inputs": {
+            "positionCapPct": 20.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "cap.asset_class.crypto",
+        "code": "R3",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "Crypto assets at most {threshold}%",
+          "fr": "Cryptoactifs à au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Crypto cap from the volatility budget relative to median crypto volatility, halved for low interest in speculation (A-05).",
+          "fr": "Plafond crypto tiré du budget de volatilité rapporté à la volatilité médiane des cryptos, réduit de moitié faute d'intérêt pour la spéculation (A-05)."
+        },
+        "metric": "weight.asset_group",
+        "target": {
+          "dimension": "asset_group",
+          "key": "crypto"
+        },
+        "comparator": "<=",
+        "threshold": 5.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_CRYPTO_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaCryptoMedianPct), 0, 25) halved, floor5",
+          "inputs": {
+            "budgetPct": 16.0,
+            "sigmaCryptoMedianPct": 59.67534657540882,
+            "halved": "true"
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "floor.diversifiers",
+        "code": "R4",
+        "type": "floor",
+        "enabled": true,
+        "label": {
+          "en": "Keep bonds, cash and gold together at {threshold}% or more",
+          "fr": "Garder obligations, encaisse et or ensemble à {threshold} % ou plus"
+        },
+        "rationale": {
+          "en": "The profile wants some diversification; the 8% level is a team assumption (A-10).",
+          "fr": "Le profil souhaite une certaine diversification; le niveau de 8 % est une hypothèse de l'équipe (A-10)."
+        },
+        "metric": "weight.diversifiers",
+        "target": {
+          "dimension": "asset_group",
+          "key": "fixed_income+cash+commodity"
+        },
+        "comparator": ">=",
+        "threshold": 8.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 1.0
+        },
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.volatility",
+        "code": "R5",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Portfolio volatility at most {threshold}% a year",
+          "fr": "Volatilité du portefeuille d'au plus {threshold} % par an"
+        },
+        "rationale": {
+          "en": "Volatility budget for a moderate-to-high risk level (A-02).",
+          "fr": "Budget de volatilité d'un niveau de risque modéré à élevé (A-02)."
+        },
+        "metric": "vol.annualized",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 16.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 40.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_VOL_BUDGET",
+          "formula": "budget(riskLevel)",
+          "inputs": {
+            "riskLevel": "moderate_high",
+            "budgetPct": 16.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.stress_2022",
+        "code": "R6",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "A repeat of 2022 may cost at most {threshold}% of the portfolio",
+          "fr": "Une répétition de 2022 peut coûter au plus {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "A shorter horizon leaves less time to recover from a 2022-like year (A-07).",
+          "fr": "Un horizon plus court laisse moins de temps pour se remettre d'une année comme 2022 (A-07)."
+        },
+        "metric": "stress.replay_2022",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 24.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 1.0,
+          "max": 60.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_STRESS_LIMIT",
+          "formula": "budgetPct x m(horizonMidpointYears)",
+          "inputs": {
+            "budgetPct": 16.0,
+            "horizonMidpointYears": 16.0,
+            "multiplier": 1.5
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.drawdown",
+        "code": "R7",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Largest historical peak-to-trough fall at most {threshold}%",
+          "fr": "Plus forte baisse historique d'un sommet à un creux d'au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest tolerated fall set at twice the volatility budget (A-08).",
+          "fr": "Plus forte baisse tolérée fixée au double du budget de volatilité (A-08)."
+        },
+        "metric": "drawdown.max",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 32.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 80.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+          "formula": "2 x budgetPct",
+          "inputs": {
+            "budgetPct": 16.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "flag.attention",
+        "code": "R8",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show when the requested asset is drawing unusual public attention",
+          "fr": "Signaler quand l'actif demandé attire une attention publique inhabituelle"
+        },
+        "rationale": {
+          "en": "Public attention is context, never a verdict on its own (A-19).",
+          "fr": "L'attention du public est un contexte, jamais un verdict à elle seule (A-19)."
+        },
+        "metric": "attention.pageviews_ratio",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "ratio",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "flag.rate_cycle",
+        "code": "R9",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show how the portfolio behaved while interest rates rose",
+          "fr": "Montrer le comportement du portefeuille pendant la hausse des taux"
+        },
+        "rationale": {
+          "en": "The rate-hiking cycle is replayed for information only (A-23).",
+          "fr": "Le cycle de hausse des taux est rejoué à titre informatif seulement (A-23)."
+        },
+        "metric": "stress.rate_cycle",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "pct",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "sim.only",
+        "code": "R10",
+        "type": "sim",
+        "enabled": true,
+        "label": {
+          "en": "Simulation only: no order is ever placed",
+          "fr": "Simulation seulement : aucun ordre n'est jamais passé"
+        },
+        "rationale": {
+          "en": "Aplomb is a simulation with fictional profiles; it never places orders.",
+          "fr": "Aplomb est une simulation avec des profils fictifs; il ne passe jamais d'ordres."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": false,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      }
+    ],
+    "version": 1,
+    "createdAt": "2026-11-16T01:45:04Z",
+    "updatedAt": "2026-11-16T01:45:04Z"
+  },
+  {
+    "profileId": "p_0000000003",
+    "isDefault": true,
+    "origin": "user",
+    "name": "Sakura Tanaka",
+    "initial": "S",
+    "age": 52,
+    "occupation": null,
+    "riskLevel": "moderate",
+    "horizonYears": {
+      "min": 10.0,
+      "max": 30.0
+    },
+    "objective": "balanced",
+    "objectiveText": {
+      "en": "Balanced capital growth over time.",
+      "fr": "Croissance équilibrée du capital dans le temps."
+    },
+    "experience": "advanced",
+    "reportingCurrency": "JPY",
+    "preferences": {
+      "themesOfInterest": [],
+      "excludedSectors": [],
+      "excludedAssetClasses": [],
+      "esgFocus": true,
+      "avoidControversies": true,
+      "avoidSpeculative": false,
+      "cryptoInterest": "none",
+      "wantsDiversification": true,
+      "notes": "Fictional investment director of a Japanese civic endowment; supports annual grants while preserving long-term purchasing power."
+    },
+    "blurb": {
+      "en": "Custom fictional profile, moderate risk.",
+      "fr": "Profil fictif personnalisé, risque moderate."
+    },
+    "personaTest": null,
+    "investorContext": {
+      "country": "JP",
+      "investorType": "endowment",
+      "investorTypeOrigin": "assumption",
+      "language": "en",
+      "liquidityNotes": "Fictional investment director of a Japanese civic endowment; supports annual grants while preserving long-term purchasing power.",
+      "riskCapacityNotes": "Fictional investment director of a Japanese civic endowment; supports annual grants while preserving long-term purchasing power.",
+      "riskCapacity": "moderate",
+      "riskCapacityOrigin": "assumption",
+      "riskToleranceOrigin": "assumption",
+      "inputOrigins": {
+        "name": "assumption",
+        "age": "assumption",
+        "riskLevel": "assumption",
+        "horizonYears": "assumption",
+        "objective": "assumption",
+        "experience": "assumption",
+        "reportingCurrency": "assumption",
+        "preferences": "assumption",
+        "portfolio": "assumption"
+      }
+    },
+    "accounts": [
+      {
+        "accountId": "acct_5b14ea20da9c",
+        "name": "Core endowment",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 450000000.0,
+          "currency": "JPY",
+          "positions": [
+            {
+              "ticker": "AGG",
+              "weightPct": 30.0
+            },
+            {
+              "ticker": "XBB.TO",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "SPY",
+              "weightPct": 25.0
+            },
+            {
+              "ticker": "XIU.TO",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "GLD",
+              "weightPct": 10.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_SOURCE_VERSION",
+            "ACCOUNT_FX_SOURCE_METADATA",
+            "ACCOUNT_FX_SOURCE_ROW",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "USD",
+          "nativeValue": 450000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "JPY",
+          "reportingValue": 71914237.66816144,
+          "conversionRate": 159.80941704035874,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:04Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": [
+            {
+              "currency": "USD",
+              "cadPerUnit": 1.4255,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_usdcad_daily",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet API series FXUSDCAD",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD/json",
+                "retrievedOn": "2026-11-13",
+                "licence": "Bank of Canada terms: https://www.bankofcanada.ca/terms/",
+                "rowsRead": 1
+              }
+            },
+            {
+              "currency": "JPY",
+              "cadPerUnit": 0.00892,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_boc_global",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet, daily indicative FX rates",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXEURCAD,FXGBPCAD,FXCHFCAD,FXJPYCAD,FXHKDCAD,FXSGDCAD,FXAUDCAD/json?start_date=2021-11-01&end_date=2026-11-12",
+                "retrievedOn": "2026-11-15",
+                "licence": "Bank of Canada terms; indicative rates and potential third-party rights",
+                "rowsRead": 1
+              }
+            }
+          ]
+        },
+        "accountId": "acct_252695550f62",
+        "name": "Grant liquidity",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 71914237.66816144,
+          "currency": "JPY",
+          "positions": [
+            {
+              "ticker": "AGG",
+              "weightPct": 45.0
+            },
+            {
+              "ticker": "ZST.TO",
+              "weightPct": 40.0
+            },
+            {
+              "ticker": "GLD",
+              "weightPct": 15.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "JPY",
+          "nativeValue": 120000000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "JPY",
+          "reportingValue": 120000000.0,
+          "conversionRate": 1.0,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:04Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": []
+        },
+        "accountId": "acct_3c5424302633",
+        "name": "Growth reserve",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 120000000.0,
+          "currency": "JPY",
+          "positions": [
+            {
+              "ticker": "ESGV",
+              "weightPct": 35.0
+            },
+            {
+              "ticker": "SPY",
+              "weightPct": 25.0
+            },
+            {
+              "ticker": "XIU.TO",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "MSFT",
+              "weightPct": 10.0
+            },
+            {
+              "ticker": "CNR.TO",
+              "weightPct": 10.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      }
+    ],
+    "activeAccountId": "aggregate",
+    "portfolio": {
+      "isFictional": true,
+      "totalValue": 641914237.6681614,
+      "currency": "JPY",
+      "positions": [
+        {
+          "ticker": "AGG",
+          "weightPct": 26.072237867574827
+        },
+        {
+          "ticker": "XBB.TO",
+          "weightPct": 14.020564542537167
+        },
+        {
+          "ticker": "SPY",
+          "weightPct": 22.199227192350516
+        },
+        {
+          "ticker": "XIU.TO",
+          "weightPct": 14.25424061824612
+        },
+        {
+          "ticker": "GLD",
+          "weightPct": 8.690745955858276
+        },
+        {
+          "ticker": "ZST.TO",
+          "weightPct": 4.481236492239178
+        },
+        {
+          "ticker": "ESGV",
+          "weightPct": 6.542930119850679
+        },
+        {
+          "ticker": "MSFT",
+          "weightPct": 1.8694086056716224
+        },
+        {
+          "ticker": "CNR.TO",
+          "weightPct": 1.8694086056716224
+        }
+      ],
+      "updatedAt": "2026-11-16T01:45:04Z"
+    },
+    "rules": [
+      {
+        "ruleId": "cap.position",
+        "code": "R1",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+          "fr": "Aucune action ni cryptoactif au-dessus de {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "Sized from the moderate volatility budget relative to the upper-quartile volatility of single stocks (A-03).",
+          "fr": "Établi à partir du budget de volatilité modéré rapporté à la volatilité du quartile supérieur des actions (A-03)."
+        },
+        "metric": "weight.position.max_single",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 15.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_POSITION_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaStockQ3Pct), 5, 25)",
+          "inputs": {
+            "budgetPct": 12.0,
+            "sigmaStockQ3Pct": 33.96809480744322
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "cap.sector",
+        "code": "R2",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No sector above {threshold}% of the portfolio (directly held stocks)",
+          "fr": "Aucun secteur au-dessus de {threshold} % du portefeuille (actions détenues directement)"
+        },
+        "rationale": {
+          "en": "At least two names per sector at the position cap (A-04).",
+          "fr": "Au moins deux titres par secteur au plafond par position (A-04)."
+        },
+        "metric": "weight.sector.max",
+        "target": {
+          "dimension": "sector",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 30.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_SECTOR_CAP",
+          "formula": "min(40, 2 x positionCapPct)",
+          "inputs": {
+            "positionCapPct": 15.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "cap.growth_assets",
+        "code": "R3",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "Stocks, equity funds and crypto together at most {threshold}%",
+          "fr": "Actions, fonds d'actions et crypto ensemble à au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest equity share of a broad reference mix that stays within the volatility budget (A-06).",
+          "fr": "Plus grande part d'actions d'un mélange de référence large qui respecte le budget de volatilité (A-06)."
+        },
+        "metric": "weight.growth_assets",
+        "target": {
+          "dimension": "asset_group",
+          "key": "equity+crypto"
+        },
+        "comparator": "<=",
+        "threshold": 45.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 5.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_GROWTH_CAP",
+          "formula": "max equity share e in 0,5,..,100 with vol(refMix(e)) <= budgetPct",
+          "inputs": {
+            "budgetPct": 12.0,
+            "referenceMix": "50% XIU.TO + 50% SPY, rest XBB.TO"
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "floor.fixed_income",
+        "code": "R4",
+        "type": "floor",
+        "enabled": true,
+        "label": {
+          "en": "Keep bonds and cash at {threshold}% or more",
+          "fr": "Garder obligations et encaisse à {threshold} % ou plus"
+        },
+        "rationale": {
+          "en": "Bonds and cash complement the growth-assets cap (A-06).",
+          "fr": "Obligations et encaisse complètent le plafond des actifs de croissance (A-06)."
+        },
+        "metric": "weight.fixed_income",
+        "target": {
+          "dimension": "asset_group",
+          "key": "fixed_income+cash"
+        },
+        "comparator": ">=",
+        "threshold": 45.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_GROWTH_CAP",
+          "formula": "max(0, 100 - growthCapPct - 10)",
+          "inputs": {
+            "growthCapPct": 45.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.volatility",
+        "code": "R5",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Portfolio volatility at most {threshold}% a year",
+          "fr": "Volatilité du portefeuille d'au plus {threshold} % par an"
+        },
+        "rationale": {
+          "en": "Volatility budget for a moderate risk level (A-02).",
+          "fr": "Budget de volatilité d'un niveau de risque modéré (A-02)."
+        },
+        "metric": "vol.annualized",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 12.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 40.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_VOL_BUDGET",
+          "formula": "budget(riskLevel)",
+          "inputs": {
+            "riskLevel": "moderate",
+            "budgetPct": 12.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.stress_2022",
+        "code": "R6",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "A repeat of 2022 may cost at most {threshold}% of the portfolio",
+          "fr": "Une répétition de 2022 peut coûter au plus {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "A shorter horizon leaves less time to recover from a 2022-like year (A-07).",
+          "fr": "Un horizon plus court laisse moins de temps pour se remettre d'une année comme 2022 (A-07)."
+        },
+        "metric": "stress.replay_2022",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 18.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 1.0,
+          "max": 60.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_STRESS_LIMIT",
+          "formula": "budgetPct x m(horizonMidpointYears)",
+          "inputs": {
+            "budgetPct": 12.0,
+            "horizonMidpointYears": 20.0,
+            "multiplier": 1.5
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.drawdown",
+        "code": "R7",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Largest historical peak-to-trough fall at most {threshold}%",
+          "fr": "Plus forte baisse historique d'un sommet à un creux d'au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest tolerated fall set at twice the volatility budget (A-08).",
+          "fr": "Plus forte baisse tolérée fixée au double du budget de volatilité (A-08)."
+        },
+        "metric": "drawdown.max",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 24.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 80.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+          "formula": "2 x budgetPct",
+          "inputs": {
+            "budgetPct": 12.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "exclude.asset_class.crypto",
+        "code": "R8",
+        "type": "exclude",
+        "enabled": true,
+        "label": {
+          "en": "No crypto assets",
+          "fr": "Aucun cryptoactif"
+        },
+        "rationale": {
+          "en": "The profile shows no interest in crypto assets.",
+          "fr": "Le profil ne montre aucun intérêt pour les cryptoactifs."
+        },
+        "metric": "weight.asset_class",
+        "target": {
+          "dimension": "asset_class",
+          "key": "crypto"
+        },
+        "comparator": "==",
+        "threshold": 0.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": null,
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "evidence.controversy",
+        "code": "R9",
+        "type": "evidence",
+        "enabled": true,
+        "label": {
+          "en": "No company involved in a significant environmental or social controversy (needs outside evidence)",
+          "fr": "Aucune société impliquée dans une controverse environnementale ou sociale importante (exige des preuves externes)"
+        },
+        "rationale": {
+          "en": "The profile avoids companies with significant controversies; this needs outside evidence.",
+          "fr": "Le profil évite les sociétés aux controverses importantes; cela exige des preuves externes."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "flag.attention",
+        "code": "R10",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show when the requested asset is drawing unusual public attention",
+          "fr": "Signaler quand l'actif demandé attire une attention publique inhabituelle"
+        },
+        "rationale": {
+          "en": "Public attention is context, never a verdict on its own (A-19).",
+          "fr": "L'attention du public est un contexte, jamais un verdict à elle seule (A-19)."
+        },
+        "metric": "attention.pageviews_ratio",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "ratio",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "flag.rate_cycle",
+        "code": "R11",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show how the portfolio behaved while interest rates rose",
+          "fr": "Montrer le comportement du portefeuille pendant la hausse des taux"
+        },
+        "rationale": {
+          "en": "The rate-hiking cycle is replayed for information only (A-23).",
+          "fr": "Le cycle de hausse des taux est rejoué à titre informatif seulement (A-23)."
+        },
+        "metric": "stress.rate_cycle",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "pct",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "sim.only",
+        "code": "R12",
+        "type": "sim",
+        "enabled": true,
+        "label": {
+          "en": "Simulation only: no order is ever placed",
+          "fr": "Simulation seulement : aucun ordre n'est jamais passé"
+        },
+        "rationale": {
+          "en": "Aplomb is a simulation with fictional profiles; it never places orders.",
+          "fr": "Aplomb est une simulation avec des profils fictifs; il ne passe jamais d'ordres."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": false,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      }
+    ],
+    "version": 1,
+    "createdAt": "2026-11-16T01:45:04Z",
+    "updatedAt": "2026-11-16T01:45:04Z"
+  },
+  {
+    "profileId": "p_0000000004",
+    "isDefault": true,
+    "origin": "user",
+    "name": "Luca Moretti",
+    "initial": "L",
+    "age": 48,
+    "occupation": null,
+    "riskLevel": "moderate",
+    "horizonYears": {
+      "min": 8.0,
+      "max": 20.0
+    },
+    "objective": "balanced",
+    "objectiveText": {
+      "en": "Balanced capital growth over time.",
+      "fr": "Croissance équilibrée du capital dans le temps."
+    },
+    "experience": "advanced",
+    "reportingCurrency": "EUR",
+    "preferences": {
+      "themesOfInterest": [],
+      "excludedSectors": [],
+      "excludedAssetClasses": [],
+      "esgFocus": false,
+      "avoidControversies": false,
+      "avoidSpeculative": false,
+      "cryptoInterest": "none",
+      "wantsDiversification": true,
+      "notes": "Fictional European family office; blends long-term equity exposure with capital preservation."
+    },
+    "blurb": {
+      "en": "Custom fictional profile, moderate risk.",
+      "fr": "Profil fictif personnalisé, risque moderate."
+    },
+    "personaTest": null,
+    "investorContext": {
+      "country": "IT",
+      "investorType": "family office",
+      "investorTypeOrigin": "assumption",
+      "language": "en",
+      "liquidityNotes": "Fictional European family office; blends long-term equity exposure with capital preservation.",
+      "riskCapacityNotes": "Fictional European family office; blends long-term equity exposure with capital preservation.",
+      "riskCapacity": "moderate",
+      "riskCapacityOrigin": "assumption",
+      "riskToleranceOrigin": "assumption",
+      "inputOrigins": {
+        "name": "assumption",
+        "age": "assumption",
+        "riskLevel": "assumption",
+        "horizonYears": "assumption",
+        "objective": "assumption",
+        "experience": "assumption",
+        "reportingCurrency": "assumption",
+        "preferences": "assumption",
+        "portfolio": "assumption"
+      }
+    },
+    "accounts": [
+      {
+        "accountId": "acct_3d07daa87716",
+        "name": "Diversified mandate",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 1800000.0,
+          "currency": "EUR",
+          "positions": [
+            {
+              "ticker": "SPY",
+              "weightPct": 25.0
+            },
+            {
+              "ticker": "XIU.TO",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "AGG",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "XBB.TO",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "GLD",
+              "weightPct": 15.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_SOURCE_VERSION",
+            "ACCOUNT_FX_SOURCE_METADATA",
+            "ACCOUNT_FX_SOURCE_ROW",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "USD",
+          "nativeValue": 600000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "EUR",
+          "reportingValue": 542324.519688035,
+          "conversionRate": 0.9038741994800583,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:04Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": [
+            {
+              "currency": "USD",
+              "cadPerUnit": 1.4255,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_usdcad_daily",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet API series FXUSDCAD",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD/json",
+                "retrievedOn": "2026-11-13",
+                "licence": "Bank of Canada terms: https://www.bankofcanada.ca/terms/",
+                "rowsRead": 1
+              }
+            },
+            {
+              "currency": "EUR",
+              "cadPerUnit": 1.5771,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_boc_global",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet, daily indicative FX rates",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXEURCAD,FXGBPCAD,FXCHFCAD,FXJPYCAD,FXHKDCAD,FXSGDCAD,FXAUDCAD/json?start_date=2021-11-01&end_date=2026-11-12",
+                "retrievedOn": "2026-11-15",
+                "licence": "Bank of Canada terms; indicative rates and potential third-party rights",
+                "rowsRead": 1
+              }
+            }
+          ]
+        },
+        "accountId": "acct_fceeeafb31ce",
+        "name": "North American equities",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 542324.519688035,
+          "currency": "EUR",
+          "positions": [
+            {
+              "ticker": "MSFT",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "JPM",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "CNR.TO",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "RY.TO",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "SPY",
+              "weightPct": 25.0
+            },
+            {
+              "ticker": "GLD",
+              "weightPct": 10.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_SOURCE_VERSION",
+            "ACCOUNT_FX_SOURCE_METADATA",
+            "ACCOUNT_FX_SOURCE_ROW",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "CHF",
+          "nativeValue": 450000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "EUR",
+          "reportingValue": 487321.66634962906,
+          "conversionRate": 1.082937036332509,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:04Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": [
+            {
+              "currency": "CHF",
+              "cadPerUnit": 1.7079,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_boc_global",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet, daily indicative FX rates",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXEURCAD,FXGBPCAD,FXCHFCAD,FXJPYCAD,FXHKDCAD,FXSGDCAD,FXAUDCAD/json?start_date=2021-11-01&end_date=2026-11-12",
+                "retrievedOn": "2026-11-15",
+                "licence": "Bank of Canada terms; indicative rates and potential third-party rights",
+                "rowsRead": 1
+              }
+            },
+            {
+              "currency": "EUR",
+              "cadPerUnit": 1.5771,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_boc_global",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet, daily indicative FX rates",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXEURCAD,FXGBPCAD,FXCHFCAD,FXJPYCAD,FXHKDCAD,FXSGDCAD,FXAUDCAD/json?start_date=2021-11-01&end_date=2026-11-12",
+                "retrievedOn": "2026-11-15",
+                "licence": "Bank of Canada terms; indicative rates and potential third-party rights",
+                "rowsRead": 1
+              }
+            }
+          ]
+        },
+        "accountId": "acct_71b6fe56cf57",
+        "name": "Capital reserve",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 487321.66634962906,
+          "currency": "EUR",
+          "positions": [
+            {
+              "ticker": "AGG",
+              "weightPct": 35.0
+            },
+            {
+              "ticker": "ZST.TO",
+              "weightPct": 35.0
+            },
+            {
+              "ticker": "XBB.TO",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "GLD",
+              "weightPct": 10.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      }
+    ],
+    "activeAccountId": "aggregate",
+    "portfolio": {
+      "isFictional": true,
+      "totalValue": 2829646.1860376643,
+      "currency": "EUR",
+      "positions": [
+        {
+          "ticker": "SPY",
+          "weightPct": 20.694499998319376
+        },
+        {
+          "ticker": "XIU.TO",
+          "weightPct": 12.722438648914821
+        },
+        {
+          "ticker": "AGG",
+          "weightPct": 18.75013865126769
+        },
+        {
+          "ticker": "XBB.TO",
+          "weightPct": 16.16683865025932
+        },
+        {
+          "ticker": "GLD",
+          "weightPct": 13.180609662228706
+        },
+        {
+          "ticker": "MSFT",
+          "weightPct": 3.8331613497406805
+        },
+        {
+          "ticker": "JPM",
+          "weightPct": 2.8748710123055097
+        },
+        {
+          "ticker": "CNR.TO",
+          "weightPct": 2.8748710123055097
+        },
+        {
+          "ticker": "RY.TO",
+          "weightPct": 2.8748710123055097
+        },
+        {
+          "ticker": "ZST.TO",
+          "weightPct": 6.027700002352869
+        }
+      ],
+      "updatedAt": "2026-11-16T01:45:04Z"
+    },
+    "rules": [
+      {
+        "ruleId": "cap.position",
+        "code": "R1",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+          "fr": "Aucune action ni cryptoactif au-dessus de {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "Sized from the moderate volatility budget relative to the upper-quartile volatility of single stocks (A-03).",
+          "fr": "Établi à partir du budget de volatilité modéré rapporté à la volatilité du quartile supérieur des actions (A-03)."
+        },
+        "metric": "weight.position.max_single",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 15.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_POSITION_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaStockQ3Pct), 5, 25)",
+          "inputs": {
+            "budgetPct": 12.0,
+            "sigmaStockQ3Pct": 32.32028562443111
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "cap.sector",
+        "code": "R2",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No sector above {threshold}% of the portfolio (directly held stocks)",
+          "fr": "Aucun secteur au-dessus de {threshold} % du portefeuille (actions détenues directement)"
+        },
+        "rationale": {
+          "en": "At least two names per sector at the position cap (A-04).",
+          "fr": "Au moins deux titres par secteur au plafond par position (A-04)."
+        },
+        "metric": "weight.sector.max",
+        "target": {
+          "dimension": "sector",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 30.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_SECTOR_CAP",
+          "formula": "min(40, 2 x positionCapPct)",
+          "inputs": {
+            "positionCapPct": 15.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "cap.growth_assets",
+        "code": "R3",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "Stocks, equity funds and crypto together at most {threshold}%",
+          "fr": "Actions, fonds d'actions et crypto ensemble à au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest equity share of a broad reference mix that stays within the volatility budget (A-06).",
+          "fr": "Plus grande part d'actions d'un mélange de référence large qui respecte le budget de volatilité (A-06)."
+        },
+        "metric": "weight.growth_assets",
+        "target": {
+          "dimension": "asset_group",
+          "key": "equity+crypto"
+        },
+        "comparator": "<=",
+        "threshold": 75.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 5.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_GROWTH_CAP",
+          "formula": "max equity share e in 0,5,..,100 with vol(refMix(e)) <= budgetPct",
+          "inputs": {
+            "budgetPct": 12.0,
+            "referenceMix": "50% XIU.TO + 50% SPY, rest XBB.TO"
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "floor.fixed_income",
+        "code": "R4",
+        "type": "floor",
+        "enabled": true,
+        "label": {
+          "en": "Keep bonds and cash at {threshold}% or more",
+          "fr": "Garder obligations et encaisse à {threshold} % ou plus"
+        },
+        "rationale": {
+          "en": "Bonds and cash complement the growth-assets cap (A-06).",
+          "fr": "Obligations et encaisse complètent le plafond des actifs de croissance (A-06)."
+        },
+        "metric": "weight.fixed_income",
+        "target": {
+          "dimension": "asset_group",
+          "key": "fixed_income+cash"
+        },
+        "comparator": ">=",
+        "threshold": 15.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_GROWTH_CAP",
+          "formula": "max(0, 100 - growthCapPct - 10)",
+          "inputs": {
+            "growthCapPct": 75.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.volatility",
+        "code": "R5",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Portfolio volatility at most {threshold}% a year",
+          "fr": "Volatilité du portefeuille d'au plus {threshold} % par an"
+        },
+        "rationale": {
+          "en": "Volatility budget for a moderate risk level (A-02).",
+          "fr": "Budget de volatilité d'un niveau de risque modéré (A-02)."
+        },
+        "metric": "vol.annualized",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 12.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 40.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_VOL_BUDGET",
+          "formula": "budget(riskLevel)",
+          "inputs": {
+            "riskLevel": "moderate",
+            "budgetPct": 12.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.stress_2022",
+        "code": "R6",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "A repeat of 2022 may cost at most {threshold}% of the portfolio",
+          "fr": "Une répétition de 2022 peut coûter au plus {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "A shorter horizon leaves less time to recover from a 2022-like year (A-07).",
+          "fr": "Un horizon plus court laisse moins de temps pour se remettre d'une année comme 2022 (A-07)."
+        },
+        "metric": "stress.replay_2022",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 18.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 1.0,
+          "max": 60.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_STRESS_LIMIT",
+          "formula": "budgetPct x m(horizonMidpointYears)",
+          "inputs": {
+            "budgetPct": 12.0,
+            "horizonMidpointYears": 14.0,
+            "multiplier": 1.5
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.drawdown",
+        "code": "R7",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Largest historical peak-to-trough fall at most {threshold}%",
+          "fr": "Plus forte baisse historique d'un sommet à un creux d'au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest tolerated fall set at twice the volatility budget (A-08).",
+          "fr": "Plus forte baisse tolérée fixée au double du budget de volatilité (A-08)."
+        },
+        "metric": "drawdown.max",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 24.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 80.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+          "formula": "2 x budgetPct",
+          "inputs": {
+            "budgetPct": 12.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "exclude.asset_class.crypto",
+        "code": "R8",
+        "type": "exclude",
+        "enabled": true,
+        "label": {
+          "en": "No crypto assets",
+          "fr": "Aucun cryptoactif"
+        },
+        "rationale": {
+          "en": "The profile shows no interest in crypto assets.",
+          "fr": "Le profil ne montre aucun intérêt pour les cryptoactifs."
+        },
+        "metric": "weight.asset_class",
+        "target": {
+          "dimension": "asset_class",
+          "key": "crypto"
+        },
+        "comparator": "==",
+        "threshold": 0.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": null,
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "flag.attention",
+        "code": "R9",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show when the requested asset is drawing unusual public attention",
+          "fr": "Signaler quand l'actif demandé attire une attention publique inhabituelle"
+        },
+        "rationale": {
+          "en": "Public attention is context, never a verdict on its own (A-19).",
+          "fr": "L'attention du public est un contexte, jamais un verdict à elle seule (A-19)."
+        },
+        "metric": "attention.pageviews_ratio",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "ratio",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "flag.rate_cycle",
+        "code": "R10",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show how the portfolio behaved while interest rates rose",
+          "fr": "Montrer le comportement du portefeuille pendant la hausse des taux"
+        },
+        "rationale": {
+          "en": "The rate-hiking cycle is replayed for information only (A-23).",
+          "fr": "Le cycle de hausse des taux est rejoué à titre informatif seulement (A-23)."
+        },
+        "metric": "stress.rate_cycle",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "pct",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "sim.only",
+        "code": "R11",
+        "type": "sim",
+        "enabled": true,
+        "label": {
+          "en": "Simulation only: no order is ever placed",
+          "fr": "Simulation seulement : aucun ordre n'est jamais passé"
+        },
+        "rationale": {
+          "en": "Aplomb is a simulation with fictional profiles; it never places orders.",
+          "fr": "Aplomb est une simulation avec des profils fictifs; il ne passe jamais d'ordres."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": false,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      }
+    ],
+    "version": 1,
+    "createdAt": "2026-11-16T01:45:04Z",
+    "updatedAt": "2026-11-16T01:45:04Z"
+  },
+  {
+    "profileId": "p_0000000005",
+    "isDefault": true,
+    "origin": "user",
+    "name": "Mei Tan",
+    "initial": "M",
+    "age": 29,
+    "occupation": null,
+    "riskLevel": "high",
+    "horizonYears": {
+      "min": 15.0,
+      "max": 30.0
+    },
+    "objective": "growth",
+    "objectiveText": {
+      "en": "Grow capital over the long term.",
+      "fr": "Faire croître le capital à long terme."
+    },
+    "experience": "intermediate",
+    "reportingCurrency": "SGD",
+    "preferences": {
+      "themesOfInterest": [
+        "ai",
+        "semiconductors",
+        "software",
+        "crypto"
+      ],
+      "excludedSectors": [],
+      "excludedAssetClasses": [],
+      "esgFocus": false,
+      "avoidControversies": false,
+      "avoidSpeculative": false,
+      "cryptoInterest": "open",
+      "wantsDiversification": true,
+      "notes": "Singapore founder with long horizon; growth and measured crypto exposure, separate reserve."
+    },
+    "blurb": {
+      "en": "Custom fictional profile, high risk.",
+      "fr": "Profil fictif personnalisé, risque high."
+    },
+    "personaTest": null,
+    "investorContext": {
+      "country": "SG",
+      "investorType": "individual",
+      "investorTypeOrigin": "assumption",
+      "language": "en",
+      "liquidityNotes": "Singapore founder with long horizon; growth and measured crypto exposure, separate reserve.",
+      "riskCapacityNotes": "Singapore founder with long horizon; growth and measured crypto exposure, separate reserve.",
+      "riskCapacity": "high",
+      "riskCapacityOrigin": "assumption",
+      "riskToleranceOrigin": "assumption",
+      "inputOrigins": {
+        "name": "assumption",
+        "age": "assumption",
+        "riskLevel": "assumption",
+        "horizonYears": "assumption",
+        "objective": "assumption",
+        "experience": "assumption",
+        "reportingCurrency": "assumption",
+        "preferences": "assumption",
+        "portfolio": "assumption"
+      }
+    },
+    "accounts": [
+      {
+        "accountId": "acct_c6b4f650be25",
+        "name": "Growth portfolio",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 160000.0,
+          "currency": "SGD",
+          "positions": [
+            {
+              "ticker": "QQQ",
+              "weightPct": 25.0
+            },
+            {
+              "ticker": "NVDA",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "MSFT",
+              "weightPct": 15.0
+            },
+            {
+              "ticker": "SHOP.TO",
+              "weightPct": 10.0
+            },
+            {
+              "ticker": "SPY",
+              "weightPct": 20.0
+            },
+            {
+              "ticker": "GLD",
+              "weightPct": 5.0
+            },
+            {
+              "ticker": "BTC-USD",
+              "weightPct": 7.0
+            },
+            {
+              "ticker": "ETH-USD",
+              "weightPct": 3.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:04Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_SOURCE_VERSION",
+            "ACCOUNT_FX_SOURCE_METADATA",
+            "ACCOUNT_FX_SOURCE_ROW",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "USD",
+          "nativeValue": 25000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "SGD",
+          "reportingValue": 32169.61545405308,
+          "conversionRate": 1.2867846181621232,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:05Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": [
+            {
+              "currency": "USD",
+              "cadPerUnit": 1.4255,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_usdcad_daily",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet API series FXUSDCAD",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXUSDCAD/json",
+                "retrievedOn": "2026-11-13",
+                "licence": "Bank of Canada terms: https://www.bankofcanada.ca/terms/",
+                "rowsRead": 1
+              }
+            },
+            {
+              "currency": "SGD",
+              "cadPerUnit": 1.1078,
+              "observedOn": "2026-11-12",
+              "availableAt": "2026-11-12T21:30:00.000Z",
+              "source": {
+                "datasetId": "fx_boc_global",
+                "dataVersion": "snap-20261115-globalfx",
+                "sourceName": "Bank of Canada Valet, daily indicative FX rates",
+                "sourceUrl": "https://www.bankofcanada.ca/valet/observations/FXEURCAD,FXGBPCAD,FXCHFCAD,FXJPYCAD,FXHKDCAD,FXSGDCAD,FXAUDCAD/json?start_date=2021-11-01&end_date=2026-11-12",
+                "retrievedOn": "2026-11-15",
+                "licence": "Bank of Canada terms; indicative rates and potential third-party rights",
+                "rowsRead": 1
+              }
+            }
+          ]
+        },
+        "accountId": "acct_2eb94f1bd336",
+        "name": "Digital assets",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 32169.61545405308,
+          "currency": "SGD",
+          "positions": [
+            {
+              "ticker": "BTC-USD",
+              "weightPct": 60.0
+            },
+            {
+              "ticker": "ETH-USD",
+              "weightPct": 40.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:05Z"
+        }
+      },
+      {
+        "nativeValuation": {
+          "mode": "current",
+          "verifiedChecks": [
+            "ACCOUNT_FX_SNAPSHOT",
+            "ACCOUNT_FX_CUTOFF",
+            "ACCOUNT_FX_QUOTE_SET",
+            "ACCOUNT_FX_DIRECTION",
+            "ACCOUNT_FX_MULTIPLICATION"
+          ],
+          "nativeCurrency": "SGD",
+          "nativeValue": 45000.0,
+          "nativeValueOrigin": "assumption",
+          "nativeValueSource": "Fictional demonstration assumption",
+          "reportingCurrency": "SGD",
+          "reportingValue": 45000.0,
+          "conversionRate": 1.0,
+          "valuationDate": "2026-11-12",
+          "capturedAt": "2026-11-16T01:45:05Z",
+          "dataVersion": "snap-20261115-globalfx",
+          "quotes": []
+        },
+        "accountId": "acct_509cc5b0fa46",
+        "name": "Reserve",
+        "portfolio": {
+          "isFictional": true,
+          "totalValue": 45000.0,
+          "currency": "SGD",
+          "positions": [
+            {
+              "ticker": "AGG",
+              "weightPct": 40.0
+            },
+            {
+              "ticker": "ZST.TO",
+              "weightPct": 35.0
+            },
+            {
+              "ticker": "XIU.TO",
+              "weightPct": 25.0
+            }
+          ],
+          "updatedAt": "2026-11-16T01:45:05Z"
+        }
+      }
+    ],
+    "activeAccountId": "aggregate",
+    "portfolio": {
+      "isFictional": true,
+      "totalValue": 237169.61545405307,
+      "currency": "SGD",
+      "positions": [
+        {
+          "ticker": "QQQ",
+          "weightPct": 16.86556683216835
+        },
+        {
+          "ticker": "NVDA",
+          "weightPct": 10.119340099301011
+        },
+        {
+          "ticker": "MSFT",
+          "weightPct": 10.119340099301011
+        },
+        {
+          "ticker": "SHOP.TO",
+          "weightPct": 6.74622673286734
+        },
+        {
+          "ticker": "SPY",
+          "weightPct": 13.49245346573468
+        },
+        {
+          "ticker": "GLD",
+          "weightPct": 3.37311336643367
+        },
+        {
+          "ticker": "BTC-USD",
+          "weightPct": 12.86074070408946
+        },
+        {
+          "ticker": "ETH-USD",
+          "weightPct": 7.449456013915083
+        },
+        {
+          "ticker": "AGG",
+          "weightPct": 7.589505074475758
+        },
+        {
+          "ticker": "ZST.TO",
+          "weightPct": 6.640816940166287
+        },
+        {
+          "ticker": "XIU.TO",
+          "weightPct": 4.743440671547349
+        }
+      ],
+      "updatedAt": "2026-11-16T01:45:05Z"
+    },
+    "rules": [
+      {
+        "ruleId": "cap.position",
+        "code": "R1",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No single stock or crypto asset above {threshold}% of the portfolio",
+          "fr": "Aucune action ni cryptoactif au-dessus de {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "Sized from the high volatility budget relative to the upper-quartile volatility of single stocks (A-03).",
+          "fr": "Établi à partir du budget de volatilité élevé rapporté à la volatilité du quartile supérieur des actions (A-03)."
+        },
+        "metric": "weight.position.max_single",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 25.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_POSITION_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaStockQ3Pct), 5, 25)",
+          "inputs": {
+            "budgetPct": 22.0,
+            "sigmaStockQ3Pct": 32.085533107334975
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "cap.sector",
+        "code": "R2",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "No sector above {threshold}% of the portfolio (directly held stocks)",
+          "fr": "Aucun secteur au-dessus de {threshold} % du portefeuille (actions détenues directement)"
+        },
+        "rationale": {
+          "en": "At least two names per sector at the position cap (A-04).",
+          "fr": "Au moins deux titres par secteur au plafond par position (A-04)."
+        },
+        "metric": "weight.sector.max",
+        "target": {
+          "dimension": "sector",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 40.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_SECTOR_CAP",
+          "formula": "min(40, 2 x positionCapPct)",
+          "inputs": {
+            "positionCapPct": 25.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "cap.asset_class.crypto",
+        "code": "R3",
+        "type": "cap",
+        "enabled": true,
+        "label": {
+          "en": "Crypto assets at most {threshold}%",
+          "fr": "Cryptoactifs à au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Crypto cap from the volatility budget relative to median crypto volatility (A-05).",
+          "fr": "Plafond crypto tiré du budget de volatilité rapporté à la volatilité médiane des cryptos (A-05)."
+        },
+        "metric": "weight.asset_group",
+        "target": {
+          "dimension": "asset_group",
+          "key": "crypto"
+        },
+        "comparator": "<=",
+        "threshold": 15.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 50.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_CRYPTO_CAP",
+          "formula": "clamp(round5(100 x 0.4 x budgetPct / sigmaCryptoMedianPct), 0, 25)",
+          "inputs": {
+            "budgetPct": 22.0,
+            "sigmaCryptoMedianPct": 60.04320422105028,
+            "halved": "false"
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "floor.diversifiers",
+        "code": "R4",
+        "type": "floor",
+        "enabled": true,
+        "label": {
+          "en": "Keep bonds, cash and gold together at {threshold}% or more",
+          "fr": "Garder obligations, encaisse et or ensemble à {threshold} % ou plus"
+        },
+        "rationale": {
+          "en": "The profile wants some diversification; the 8% level is a team assumption (A-10).",
+          "fr": "Le profil souhaite une certaine diversification; le niveau de 8 % est une hypothèse de l'équipe (A-10)."
+        },
+        "metric": "weight.diversifiers",
+        "target": {
+          "dimension": "asset_group",
+          "key": "fixed_income+cash+commodity"
+        },
+        "comparator": ">=",
+        "threshold": 8.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 0.0,
+          "max": 100.0,
+          "step": 1.0
+        },
+        "origin": "profile_preference",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.volatility",
+        "code": "R5",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Portfolio volatility at most {threshold}% a year",
+          "fr": "Volatilité du portefeuille d'au plus {threshold} % par an"
+        },
+        "rationale": {
+          "en": "Volatility budget for a high risk level (A-02).",
+          "fr": "Budget de volatilité d'un niveau de risque élevé (A-02)."
+        },
+        "metric": "vol.annualized",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 22.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 40.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_VOL_BUDGET",
+          "formula": "budget(riskLevel)",
+          "inputs": {
+            "riskLevel": "high",
+            "budgetPct": 22.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.stress_2022",
+        "code": "R6",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "A repeat of 2022 may cost at most {threshold}% of the portfolio",
+          "fr": "Une répétition de 2022 peut coûter au plus {threshold} % du portefeuille"
+        },
+        "rationale": {
+          "en": "A shorter horizon leaves less time to recover from a 2022-like year (A-07).",
+          "fr": "Un horizon plus court laisse moins de temps pour se remettre d'une année comme 2022 (A-07)."
+        },
+        "metric": "stress.replay_2022",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 33.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 1.0,
+          "max": 60.0,
+          "step": 0.5
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_STRESS_LIMIT",
+          "formula": "budgetPct x m(horizonMidpointYears)",
+          "inputs": {
+            "budgetPct": 22.0,
+            "horizonMidpointYears": 22.5,
+            "multiplier": 1.5
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "limit.drawdown",
+        "code": "R7",
+        "type": "limit",
+        "enabled": true,
+        "label": {
+          "en": "Largest historical peak-to-trough fall at most {threshold}%",
+          "fr": "Plus forte baisse historique d'un sommet à un creux d'au plus {threshold} %"
+        },
+        "rationale": {
+          "en": "Largest tolerated fall set at twice the volatility budget (A-08).",
+          "fr": "Plus forte baisse tolérée fixée au double du budget de volatilité (A-08)."
+        },
+        "metric": "drawdown.max",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "<=",
+        "threshold": 44.0,
+        "unit": "pct",
+        "editable": true,
+        "bounds": {
+          "min": 2.0,
+          "max": 80.0,
+          "step": 1.0
+        },
+        "origin": "derived",
+        "isAssumption": true,
+        "derivation": {
+          "methodId": "M_DERIVE_DRAWDOWN_LIMIT",
+          "formula": "2 x budgetPct",
+          "inputs": {
+            "budgetPct": 22.0
+          },
+          "dataVersion": "snap-20261115-globalfx",
+          "window": {
+            "code": "full"
+          }
+        },
+        "countsInVerdict": true,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "flag.attention",
+        "code": "R8",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show when the requested asset is drawing unusual public attention",
+          "fr": "Signaler quand l'actif demandé attire une attention publique inhabituelle"
+        },
+        "rationale": {
+          "en": "Public attention is context, never a verdict on its own (A-19).",
+          "fr": "L'attention du public est un contexte, jamais un verdict à elle seule (A-19)."
+        },
+        "metric": "attention.pageviews_ratio",
+        "target": {
+          "dimension": "position",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "ratio",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "flag.rate_cycle",
+        "code": "R9",
+        "type": "flag",
+        "enabled": true,
+        "label": {
+          "en": "Show how the portfolio behaved while interest rates rose",
+          "fr": "Montrer le comportement du portefeuille pendant la hausse des taux"
+        },
+        "rationale": {
+          "en": "The rate-hiking cycle is replayed for information only (A-23).",
+          "fr": "Le cycle de hausse des taux est rejoué à titre informatif seulement (A-23)."
+        },
+        "metric": "stress.rate_cycle",
+        "target": {
+          "dimension": "portfolio",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "pct",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": true,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      },
+      {
+        "ruleId": "sim.only",
+        "code": "R10",
+        "type": "sim",
+        "enabled": true,
+        "label": {
+          "en": "Simulation only: no order is ever placed",
+          "fr": "Simulation seulement : aucun ordre n'est jamais passé"
+        },
+        "rationale": {
+          "en": "Aplomb is a simulation with fictional profiles; it never places orders.",
+          "fr": "Aplomb est une simulation avec des profils fictifs; il ne passe jamais d'ordres."
+        },
+        "metric": null,
+        "target": {
+          "dimension": "none",
+          "key": null
+        },
+        "comparator": "none",
+        "threshold": null,
+        "unit": "text",
+        "editable": false,
+        "bounds": null,
+        "origin": "system",
+        "isAssumption": false,
+        "derivation": null,
+        "countsInVerdict": false,
+        "updatedAt": "2026-11-16T01:45:04Z"
+      }
+    ],
+    "version": 1,
+    "createdAt": "2026-11-16T01:45:04Z",
+    "updatedAt": "2026-11-16T01:45:05Z"
+  }
+]

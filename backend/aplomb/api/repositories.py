@@ -1,5 +1,7 @@
 """Session-scoped repositories and conditional durable worker checkpoints."""
 
+from __future__ import annotations
+
 import hashlib
 import secrets
 import time
@@ -623,7 +625,7 @@ class RunRepository:
 
 
 class ProfileRepository:
-    """T06 persists overlays/custom profiles; defaults remain T06's responsibility."""
+    """Persist session profiles and read globally shared profile templates."""
 
     def __init__(self, store: Store):
         self.store = store
@@ -637,6 +639,12 @@ class ProfileRepository:
 
     def list(self, session_id: str) -> list[dict]:
         return self.store.query("profiles", f"SESSION#{session_id}")
+
+    def get_shared(self, profile_id: str) -> dict | None:
+        return self.store.get("profiles", "SHARED#PROFILES", f"PROFILE#{profile_id}")
+
+    def list_shared(self) -> list[dict]:
+        return self.store.query("profiles", "SHARED#PROFILES")
 
     def save(
         self,

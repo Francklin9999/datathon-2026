@@ -9,7 +9,7 @@ import type { ApiError } from '../contracts/types';
 import { validateContract } from '../contracts/validate';
 import { ApiRequestError } from './errors';
 
-interface ResearchInit { method?: 'GET' | 'POST'; signal?: AbortSignal | undefined }
+interface ResearchInit { method?: 'GET' | 'POST'; signal?: AbortSignal | undefined; body?: unknown }
 type ResearchFetch = (path: string, init?: ResearchInit) => Promise<Response>;
 
 export function createResearchFetch(config: {
@@ -24,6 +24,10 @@ export function createResearchFetch(config: {
       headers: { Accept: 'application/json', 'X-Aplomb-Session': config.getSessionId() ?? '' },
     };
     if (init.signal) request.signal = init.signal;
+    if (init.body !== undefined) {
+      request.body = JSON.stringify(init.body);
+      request.headers = { ...request.headers, 'Content-Type': 'application/json' };
+    }
     return config.fetchImpl(`${config.baseUrl}${path}`, request);
   };
 }

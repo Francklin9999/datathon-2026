@@ -1,0 +1,174 @@
+{
+  "investors": [
+    {
+      "profileId": "p_0000000001",
+      "name": "Sophie Tremblay",
+      "investorType": "individual",
+      "home": {
+        "label": "Montréal",
+        "country": "CA",
+        "lat": 45.5019,
+        "lon": -73.5674
+      },
+      "wallets": [
+        {
+          "accountId": "acct_085bcfd73769",
+          "label": "Montréal",
+          "country": "CA",
+          "lat": 45.5019,
+          "lon": -73.5674
+        },
+        {
+          "accountId": "acct_387d12c86ace",
+          "label": "New York",
+          "country": "US",
+          "lat": 40.7128,
+          "lon": -74.006
+        },
+        {
+          "accountId": "acct_c2ab3f12492b",
+          "label": "Zurich",
+          "country": "CH",
+          "lat": 47.3769,
+          "lon": 8.5417
+        }
+      ]
+    },
+    {
+      "profileId": "p_0000000002",
+      "name": "Amina Okafor",
+      "investorType": "individual",
+      "home": {
+        "label": "London",
+        "country": "GB",
+        "lat": 51.5072,
+        "lon": -0.1276
+      },
+      "wallets": [
+        {
+          "accountId": "acct_752065b63b83",
+          "label": "London",
+          "country": "GB",
+          "lat": 51.5072,
+          "lon": -0.1276
+        },
+        {
+          "accountId": "acct_69bb454b998f",
+          "label": "Toronto",
+          "country": "CA",
+          "lat": 43.6532,
+          "lon": -79.3832
+        },
+        {
+          "accountId": "acct_a592db7ad6b3",
+          "label": "Frankfurt",
+          "country": "DE",
+          "lat": 50.1109,
+          "lon": 8.6821
+        }
+      ]
+    },
+    {
+      "profileId": "p_0000000003",
+      "name": "Sakura Tanaka",
+      "investorType": "endowment",
+      "home": {
+        "label": "Tokyo",
+        "country": "JP",
+        "lat": 35.6762,
+        "lon": 139.6503
+      },
+      "wallets": [
+        {
+          "accountId": "acct_5b14ea20da9c",
+          "label": "Tokyo",
+          "country": "JP",
+          "lat": 35.6762,
+          "lon": 139.6503
+        },
+        {
+          "accountId": "acct_252695550f62",
+          "label": "New York",
+          "country": "US",
+          "lat": 40.7128,
+          "lon": -74.006
+        },
+        {
+          "accountId": "acct_3c5424302633",
+          "label": "Singapore",
+          "country": "SG",
+          "lat": 1.3521,
+          "lon": 103.8198
+        }
+      ]
+    },
+    {
+      "profileId": "p_0000000004",
+      "name": "Luca Moretti",
+      "investorType": "family office",
+      "home": {
+        "label": "Milan",
+        "country": "IT",
+        "lat": 45.4642,
+        "lon": 9.19
+      },
+      "wallets": [
+        {
+          "accountId": "acct_3d07daa87716",
+          "label": "Milan",
+          "country": "IT",
+          "lat": 45.4642,
+          "lon": 9.19
+        },
+        {
+          "accountId": "acct_fceeeafb31ce",
+          "label": "New York",
+          "country": "US",
+          "lat": 40.7128,
+          "lon": -74.006
+        },
+        {
+          "accountId": "acct_71b6fe56cf57",
+          "label": "Zurich",
+          "country": "CH",
+          "lat": 47.3769,
+          "lon": 8.5417
+        }
+      ]
+    },
+    {
+      "profileId": "p_0000000005",
+      "name": "Mei Tan",
+      "investorType": "individual",
+      "home": {
+        "label": "Singapore",
+        "country": "SG",
+        "lat": 1.3521,
+        "lon": 103.8198
+      },
+      "wallets": [
+        {
+          "accountId": "acct_c6b4f650be25",
+          "label": "Singapore",
+          "country": "SG",
+          "lat": 1.3521,
+          "lon": 103.8198
+        },
+        {
+          "accountId": "acct_2eb94f1bd336",
+          "label": "Hong Kong",
+          "country": "HK",
+          "lat": 22.3193,
+          "lon": 114.1694
+        },
+        {
+          "accountId": "acct_509cc5b0fa46",
+          "label": "Sydney",
+          "country": "AU",
+          "lat": -33.8688,
+          "lon": 151.2093
+        }
+      ]
+    }
+  ]
+}

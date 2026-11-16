@@ -12,6 +12,7 @@ import type { I18NText, Lang, Profile, StrategyConfig, StrategySimulation, Strat
 import { getApiClient } from '../../api/index';
 import { profileKey, useApp } from '../../state/app';
 import { useQuery } from '../../state/useQuery';
+import { FundComparison } from './FundComparison';
 import { useFailureCount } from '../../state/useFailureCount';
 import { Card, PageHeader, ProfileGate } from '../../components/common/Page';
 import { Loading, Unavailable } from '../../components/common/States';
@@ -216,7 +217,7 @@ function KindPicker({ onPick, onCancel, note }: { onPick: (kind: StrategyKind) =
 function StrategyWorkspace({ profile, strategy, unavailable, onChange, onDelete }: {
   profile: Profile; strategy: SavedStrategy; unavailable: StrategiesUnavailable | null; onChange: (next: SavedStrategy) => void; onDelete: () => void;
 }) {
-  const { tr, lang } = useApp();
+  const { tr, lang, windowSpec } = useApp();
   // Settings apply after a short pause, so typing a number does not run a simulation per key.
   const [committed, setCommitted] = useState(strategy.config);
   useEffect(() => {
@@ -259,7 +260,7 @@ function StrategyWorkspace({ profile, strategy, unavailable, onChange, onDelete 
         <>
           {sim.loading && !sim.data && <Loading label={tr({ en: 'Simulating on history…', fr: 'Simulation sur l’historique…' })} />}
           {sim.error && <SimulationFailure error={sim.error} failures={failures} onRetry={sim.reload} />}
-          {sim.data && <Results sim={sim.data} profile={profile} lang={lang} stale={sim.loading} />}
+          {sim.data && <><Results sim={sim.data} profile={profile} lang={lang} stale={sim.loading} /><FundComparison profile={profile} strategy={sim.data.strategy} window={windowSpec} /></>}
         </>
       )}
     </div>

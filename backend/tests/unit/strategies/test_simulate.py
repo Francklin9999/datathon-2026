@@ -51,6 +51,18 @@ def test_costs_are_taken_from_the_portfolio():
     assert paid.strategy.value < free.strategy.value
 
 
+def test_rebalance_cost_reduces_the_index_on_the_trade_day():
+    returns = {"EQ": [0.5, 0.0], "BD": [0.0, 0.0]}
+    sim = run({"kind": "rebalance", "trigger": "band", "bandPts": 5, "costBps": 100}, returns, 3)
+    assert len(sim.actions) == 1
+    action = sim.actions[0]
+    assert action.cost == pytest.approx(2.4)
+    assert sim.strategy.index == pytest.approx([1.0, 1.2976, 1.2976])
+    assert sim.strategy.index[-1] == pytest.approx(sim.strategy.value / 1000.0)
+    assert book_metrics(sim.strategy)["twrPct"] == pytest.approx(29.76)
+    assert sim.baseline.index == pytest.approx([1.0, 1.3, 1.3])
+
+
 def test_band_acts_only_past_the_band():
     n = 42
     calm = {"EQ": [0.001] * (n - 1), "BD": [0.0] * (n - 1)}
@@ -78,6 +90,22 @@ def test_contributions_to_the_underweight_never_sell_and_are_not_returns():
     assert book_metrics(flat.strategy)["twrPct"] == pytest.approx(0.0, abs=1e-9)
 
 
+def test_contribution_costs_are_returns_but_deposits_are_not():
+    n = 44
+    returns = {"EQ": [0.0] * (n - 1), "BD": [0.0] * (n - 1)}
+    sim = run({"kind": "contribute", "amount": 100, "frequency": "monthly", "allocation": "target",
+               "costBps": 100}, returns, n)
+    assert len(sim.actions) == 2
+    assert [a.cost for a in sim.actions] == pytest.approx([1.0, 1.0])
+    first = 1099.0 / 1100.0
+    second = first * 1198.0 / 1199.0
+    assert sim.strategy.index[20:23] == pytest.approx([1.0, first, first])
+    assert sim.strategy.index[42:] == pytest.approx([second, second])
+    assert sim.strategy.value == pytest.approx(1198.0)
+    assert book_metrics(sim.strategy)["twrPct"] == pytest.approx((second - 1) * 100)
+    assert sim.baseline.index == pytest.approx([1.0] * n)
+
+
 def test_risk_guard_de_risks_after_the_fall_and_returns_after_recovery():
     n = 63
     crash = [0.0] * 5 + [-0.05] * 4 + [0.0] * 10 + [0.06] * 5 + [0.0] * (n - 1 - 24)
@@ -92,6 +120,19 @@ def test_risk_guard_de_risks_after_the_fall_and_returns_after_recovery():
     assert {t.ticker for t in de_risk.trades} == {"EQ", "BD"}
     # Protection lowers the deepest fall compared with doing nothing.
     assert book_metrics(sim.strategy)["maxDrawdownPct"] < book_metrics(sim.baseline)["maxDrawdownPct"]
+
+
+def test_risk_guard_trade_costs_are_recorded_in_the_index():
+    n = 63
+    crash = [0.0] * 5 + [-0.05] * 4 + [0.0] * 10 + [0.06] * 5 + [0.0] * (n - 1 - 24)
+    returns = {"EQ": crash, "BD": [0.0] * (n - 1)}
+    config = {"kind": "risk_guard", "triggerDrawdownPct": 8, "shiftPct": 50,
+              "reentryDrawdownPct": 2, "costBps": 50}
+    sim = run(config, returns, n, safe="BD")
+    assert [a.kind for a in sim.actions] == ["de_risk", "re_risk"]
+    assert all(action.cost > 0 for action in sim.actions)
+    # No external flows: index and portfolio value must agree on every day, including trades.
+    assert sim.strategy.index == pytest.approx([value / 1000.0 for value in sim.strategy.values])
 
 
 def test_next_action_reports_without_acting():

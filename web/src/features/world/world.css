@@ -37,3 +37,7 @@
   .world-event-details .event-title { font-size: 21px; }
   .world-event-exposure { padding: 14px; }
 }
+
+/* Fictional residence-to-wallet connections use their own legend colour. */
+.stage-arc.stage-investor-arc { border-color: #6AE0CF; }
+.stage-investor-row { grid-template-columns: auto minmax(0, 1fr); }

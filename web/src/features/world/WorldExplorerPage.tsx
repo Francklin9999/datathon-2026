@@ -15,7 +15,8 @@ import type {
   WorldExposureResponse, WorldLayer, WorldLayersResponse,
 } from '../../contracts/types';
 import { ThemeTag as THEMES } from '../../contracts/catalog';
-import { getApiClient } from '../../api/index';
+import { getApiClient, researchFetch } from '../../api/index';
+import { researchJson } from '../../api/research';
 import { asApiError, isAbort, type ApiRequestError } from '../../api/errors';
 import { profileKey, useApp } from '../../state/app';
 import { useAssetUniverse } from '../../state/useAssetUniverse';
@@ -45,6 +46,7 @@ import type { GlobePin } from './globeStyle';
 import { WorldNavigation } from './WorldNavigation';
 import { WorldObservations } from './WorldObservations';
 import { airportPin, facilityPin, hazardPin, ReferenceDetail } from './WorldReferences';
+import { investorMapPins, parseInvestorMap, type InvestorMapResponse } from './investorMap';
 import './world.css';
 
 const TITLE = { en: 'World Explorer', fr: 'Explorateur mondial' };
@@ -271,6 +273,13 @@ function WorldContent({ profile }: { profile: Profile }) {
   useEffect(() => { setFeedLimit(FEED_PAGE_SIZE); }, [feedKey, relevantOnly]);
   const feedEvents = visible.slice(0, feedLimit);
 
+  // Fictional custody locations are independent of listing-country exposure.
+  const [investorsOn, setInvestorsOn] = useState(true);
+  const investorMap = useQuery<InvestorMapResponse>(sessionId ? `world-investors|${sessionId}` : null,
+    async signal => parseInvestorMap(await researchJson(await researchFetch('/world/investors', { signal }), '/world/investors')));
+  const investors = useMemo(() => investorsOn ? investorMap.data?.investors ?? [] : [], [investorsOn, investorMap.data]);
+  const investorPins = useMemo(() => investorMapPins(investors, app.profiles, profile.profileId), [investors, app.profiles, profile.profileId]);
+
   // ----- exposure and optional layers -----
   const exposure = useQuery<WorldExposureResponse>(pKey ? `world-exposure|${pKey}` : null,
     signal => getApiClient().worldExposure(profile.profileId, signal));
@@ -310,6 +319,7 @@ function WorldContent({ profile }: { profile: Profile }) {
   const hazardPins = useMemo(() => (hazards.data?.items ?? []).slice(0, MAX_PINS), [hazards.data]);
   const pins = useMemo<GlobePin[]>(() => [
     ...observationPins,
+    ...investorPins,
     ...(eventsOn ? eventPins.map(event => ({
       id: event.eventId, kind: 'event' as const, lat: event.location.lat, lng: event.location.lon, label: event.title,
       countryLevel: event.location.precision === 'country', weight: event.importance,
@@ -318,7 +328,7 @@ function WorldContent({ profile }: { profile: Profile }) {
     ...(facilitiesOn ? facilityPins.map(facility => facilityPin(facility, facilities.data?.capturedAt)) : []),
     ...(hazardsOn ? hazardPins.map(hazardPin) : []),
     ...(airportsOn ? airportPins.map(airportPin) : []),
-  ], [observationPins, eventsOn, facilitiesOn, hazardsOn, airportsOn, eventPins, facilityPins, hazardPins, airportPins, facilities.data?.capturedAt]);
+  ], [observationPins, investorPins, eventsOn, facilitiesOn, hazardsOn, airportsOn, eventPins, facilityPins, hazardPins, airportPins, facilities.data?.capturedAt]);
 
   const selectedEvent = useMemo(() => (eventId ? loaded.find(event => event.eventId === eventId) ?? null : null), [eventId, loaded]);
   const openDetails = useCallback(() => {
@@ -369,6 +379,7 @@ function WorldContent({ profile }: { profile: Profile }) {
     const base = coverage ? { ...EMPTY_FILTERS, ...defaultRange(coverage) } : EMPTY_FILTERS;
     setDraft(base); setApplied(base); setFormIssue(null); setRelevantOnly(false); setArea(''); setMode('overview');
     setLayersOn({ events: true, exposure: true, facilities: false, hazards: false, airports: false });
+    setInvestorsOn(true);
   };
   const countryOptions = useMemo(() => {
     const codes = new Set<string>();
@@ -401,7 +412,7 @@ function WorldContent({ profile }: { profile: Profile }) {
       {!layers.loading && WORLD_MODES.find(item => item.id === mode)!.layers.filter(id => !layerStates[id as LayerId]?.enabled).map(id =>
         <p key={id} className="small" role="status">{labelOf(WORLD_LAYER, id, lang)}: {tr(LAYER_REASON[layerStates[id as LayerId]?.reason ?? 'not_listed'])}</p>)}
       <WorldGlobe pins={pins} selectedId={picked?.id ?? observationId ?? eventId} selectedGeometry={observationGeometry} selectedCountry={countryIso3 && isKnownIso3(countryIso3) ? regionIso3(countryIso3) : null}
-        selectedEvent={selectedEvent} exposure={isOn('exposure') ? exposureByIso3 : null} exposureRows={exposure.data?.items ?? []}
+        selectedEvent={selectedEvent} investors={investors} investorPins={investorPins} exposure={isOn('exposure') ? exposureByIso3 : null} exposureRows={exposure.data?.items ?? []}
         counts={{
           shown: eventPins.length, total: current ? feed.total : null, linked: relevantCount,
           observations: observationPins.length,
@@ -535,6 +546,11 @@ function WorldContent({ profile }: { profile: Profile }) {
                 title={tr({ en: 'The layer list could not be loaded. Optional layers stay off.', fr: 'La liste des couches n’a pas pu être chargée. Les couches facultatives restent désactivées.' })} />
             )}
             <ul className="layer-list">
+              <li><label className="layer-toggle"><input type="checkbox" checked={investorsOn} onChange={e => { setInvestorsOn(e.target.checked); if (!e.target.checked) setPicked(null); }} />
+                <span>{tr({ en: 'Fictional investors and wallets', fr: 'Investisseurs et portefeuilles fictifs' })}</span></label>
+                <p className="small muted">{tr({ en: 'Residence and custody locations are fictional; they are separate from listing-country exposure.', fr: 'Les lieux de résidence et de garde sont fictifs et distincts de l’exposition par pays de cotation.' })}</p>
+                {investorMap.error && <p className="small muted" role="status">{tr({ en: 'Investor locations could not be loaded.', fr: 'Les lieux des investisseurs n’ont pas pu être chargés.' })} <button type="button" onClick={investorMap.reload}>{tr({ en: 'Retry', fr: 'Réessayer' })}</button></p>}
+              </li>
               {LAYER_IDS.map(id => {
                 const state = layerStates[id];
                 const layer = state.layer;
@@ -633,6 +649,13 @@ function WorldContent({ profile }: { profile: Profile }) {
         {eventId && <EventPanel eventId={eventId} profile={profile} runId={runId}
           onSelectEvent={id => selectEvent(id, true)} onSelectCountry={iso3 => { closeEvent(); selectCountry(iso3); }}
           onRun={id => navigate({ runId: id })} />}
+      </Sheet>
+      <Sheet open={Boolean(picked?.investorLocation)} title={tr({ en: 'Fictional location', fr: 'Lieu fictif' })} origin={null} onClose={() => setPicked(null)}>
+        {picked?.investorLocation && <>
+          <p>{picked.investorLocation.owner}{picked.investorLocation.selected && ` · ${tr({ en: 'Selected profile', fr: 'Profil sélectionné' })}`}</p>
+          <p>{picked.investorLocation.kind === 'home' ? tr({ en: 'Residence', fr: 'Résidence' }) : `${tr({ en: 'Wallet custody', fr: 'Garde du portefeuille' })}: ${picked.investorLocation.name}`} · {picked.investorLocation.location}, {picked.investorLocation.country}</p>
+          <p>{tr({ en: 'Fictional location, separate from listing-country exposure.', fr: 'Lieu fictif, distinct de l’exposition par pays de cotation.' })}</p>
+        </>}
       </Sheet>
       <Sheet open={Boolean(picked?.reference)} title={tr({ en: 'Layer details', fr: 'Détails de la couche' })} origin={null} onClose={() => setPicked(null)}>
         {picked && <ReferenceDetail pin={picked} />}
