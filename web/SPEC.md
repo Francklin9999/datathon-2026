@@ -4,23 +4,28 @@
 
 ## 1. Routes and ownership
 
-| Static route | Owner | Page spec |
-|---|---|---|
-| `/` | T13 | [Home](page-specs/home.md) |
-| `/portfolio/` | T13 | [Portfolio](page-specs/portfolio.md) |
-| `/markets/` | unassigned | none yet (Markets & Stocks, `src/features/markets/MarketsPage.tsx`) |
-| `/risk-intelligence/` | unassigned | none yet (Risk Intelligence, `src/features/risk/RiskPage.tsx`) |
-| `/decision-desk/` | T14 | [Decision Desk](page-specs/decision-desk.md) |
-| `/strategies/` | T13 | [Strategies](page-specs/strategies.md) |
-| `/world-explorer/` | T15 | [World Explorer](page-specs/world-explorer.md) |
-| `/evidence-audit/` | T14 | [Evidence & Audit](page-specs/evidence-audit.md) |
-| `/time-machine/` | T15 | [Time Machine](page-specs/time-machine.md) |
-| `/agents-system/` | T15 | [Agents & System](page-specs/agents-system.md) |
-| `/profiles/` | T13 | [Profile creator](page-specs/profile-creator.md) |
-| `/investor-lab/` | T13 | [Investor Lab](page-specs/investor-lab.md) |
-| `/sources/` | T13 | [Sources](page-specs/sources.md) |
+| Static route | Menu entry (group › label) | Owner | Page spec |
+|---|---|---|---|
+| `/` | Overview › Home | T13 | [Home](page-specs/home.md) |
+| `/portfolio/` (`?tab=` holdings, risk, rules or accounts) | Plan › Portfolio | T13 | [Portfolio](page-specs/portfolio.md) |
+| `/decision-desk/` | Plan › Decide | T14 | [Decision Desk](page-specs/decision-desk.md) |
+| `/strategies/` | Plan › Strategies | T13 | [Strategies](page-specs/strategies.md) |
+| `/time-machine/` | Plan › Replay (flag `time_machine`) | T15 | [Time Machine](page-specs/time-machine.md) |
+| `/world-explorer/` | Explore › World (flag `world_explorer`) | T15 | [World Explorer](page-specs/world-explorer.md) |
+| `/evidence-audit/` | Trust › Evidence | T14 | [Evidence & Audit](page-specs/evidence-audit.md) |
+| `/agents-system/` | Trust › System | T15 | [Agents & System](page-specs/agents-system.md) |
+| `/sources/` | Footer › Sources | T13 | [Sources](page-specs/sources.md) |
+| `/labs/` (`?tool=`) | Footer › Labs | unassigned | none yet (Labs, `src/features/labs/LabsPage.tsx`; the tools in `registry.ts`) |
+| `/profiles/` | none: "Manage profiles" in the investor switcher (flag `profile_creator`) | T13 | [Profile creator](page-specs/profile-creator.md) |
+| `/investor-lab/` (`?mode=` quick, full or new; `?profileId=`) | none: "Test my profile" in the investor switcher and on Decide, "Create with Investor Lab" on Profiles | T13 | [Investor Lab](page-specs/investor-lab.md) |
+| `/markets/` | none (retired) | — | redirect to `/decision-desk/` |
+| `/risk-intelligence/` | none (retired) | — | redirect to `/portfolio/?tab=risk` |
 
-Ten primary sidebar pages (`NAV_ENTRIES` in `src/lib/ui/nav.ts`, icons in `src/components/shell/NavRail.tsx`, in this order: Home, Portfolio, Markets, Risk, Decide, Strategies, World, Evidence, Replay, System; World and Replay are hidden when their `world_explorer` / `time_machine` feature flag is off), then Sources as the last rail item; profiles via the persona menu ("Manage profiles", shown when `profile_creator` is on). Markets and Risk Intelligence arrived without an owner or page spec; until one is written they are still held to the §6 page states. Run IDs/profile IDs/fact IDs use query parameters on fixed routes; static export must not require unknown runtime dynamic routes. An unknown address gets the 404 page (`src/app/not-found.tsx`, exported as `404.html`): a page in the app shell with a title, one sentence and the same page list as the rail, in the active language.
+**Navigation.** The pages are grouped (`NAV_GROUPS` in `src/lib/ui/nav.ts`, icons in `src/components/shell/NavRail.tsx`, tested in `tests/nav-groups.test.ts`), in this order: Overview (Home); Plan (Portfolio, Decide, Strategies, Replay); Explore (World, drawn as the mini globe); Trust (Evidence, System); then a footer without heading, Sources and Labs. Every entry shows its label: a caption under the icon in the compact rail, beside it with the group headings in the expanded rail ([Design](DESIGN.md), Layout). Replay and World are hidden when their `time_machine` / `world_explorer` feature flag is off, once `/meta` has loaded; a group left empty is dropped. The phone menu drawer lists the same groups. Profiles open from the investor switcher ("Manage profiles", shown when `profile_creator` is on) and from the phone menu, not from the rail. Labs has no owner or page spec yet; until one is written it is still held to the §6 page states. Page by page, the kept sections, their API calls, requirements and grading criteria: [UI inventory](../docs/UI-INVENTORY.md).
+
+**Retired routes.** Markets and Risk Intelligence left the menu in the navigation overhaul (2026-11-15): instrument analytics moved to Decide's asset panel and Labs' instrument search, the risk diagnostics and the focus candidates to Portfolio's Risk tab, and the planning and comparison tools to Labs; the research connectors and risk calculators were removed with their API routes in release `8e560ef` ([UI inventory](../docs/UI-INVENTORY.md) §19). Their routes stay for old bookmarks. The static export has no server redirects, so each renders `Redirect` (`src/components/common/Redirect.tsx`), which replaces the address on the client with its `MOVED_ROUTES` target (`src/lib/redirect.ts`), merging the old query and hash into the target's own query (a parameter the target sets, such as `tab=risk`, wins), and shows a plain "This page moved to …" link meanwhile. Links that arrive as data (an API navigation target, such as the `/risk-intelligence/` that `backend/aplomb/quant/candidates.py` still returns) are rewritten with `currentHref` before they are shown. No page links to a retired route (`tests/nav-groups.test.ts`).
+
+Run IDs, profile IDs, fact IDs and page state use query parameters on fixed routes: Portfolio's `?tab=` and Labs' `?tool=` are kept with `history.replaceState` (`useTabParam`, `src/components/ui/Tabs.tsx`), so a link or a refresh lands on them; static export must not require unknown runtime dynamic routes. An unknown address gets the 404 page (`src/app/not-found.tsx`, exported as `404.html`): a page in the app shell with a title, one sentence and the same page list as the rail, Sources and Labs included, in the active language.
 
 ## 2. Shared shell and files
 
