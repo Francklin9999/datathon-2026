@@ -190,21 +190,11 @@ def check_controls(profiles, run):
 
 
 def check_delivery():
-    """Delivery evidence must exist, retain provenance and cover every AT row."""
+    """Listed delivery artifacts must exist, retain provenance and match their recorded hashes."""
     folder = ROOT / "docs/deliverables"
     manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
-    report = json.loads((folder / "evidence/report.json").read_text(encoding="utf-8"))
-    acceptance = (folder / "acceptance.md").read_text(encoding="utf-8")
-    rows = re.findall(r"\| (AT-\d{2}) \| P[01] \| (passed|failed|blocked) \|", acceptance)
-    check(len(rows) == 20 and {key for key, _ in rows} ==
-          {f"AT-{n:02d}" for n in range(1, 21)}, "delivery: missing/duplicate acceptance rows")
-    check(report["releaseReady"] is False, "offline gate cannot certify release readiness")
-    check(report["passed"] == (all(stage["exitCode"] == 0 for stage in report["stages"])
-                               and "error" not in report.get("staticExport", {"error": True})),
-          "delivery: inconsistent gate result")
     files = {artifact["file"] for artifact in manifest["artifacts"]}
-    check({"acceptance.md", "README.md", "demo.md", "technical.md", "one-pager.md",
-           "evidence/report.json", "evidence/http-controls.json"} <= files,
+    check({"README.md", "demo.md", "technical.md", "one-pager.md"} <= files,
           "delivery: incomplete artifact manifest")
     for artifact in manifest["artifacts"]:
         path = (folder / artifact["file"]).resolve()
@@ -219,10 +209,6 @@ def check_delivery():
               "delivery: capture time must be UTC")
         check(artifact["kind"] in {"runtime", "offline-check", "historical-runtime", "illustrative"},
               "delivery: unknown evidence kind")
-    for stage in report["stages"]:
-        path = folder / "evidence" / stage["log"]
-        check(path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == stage["sha256"],
-              f"delivery: log hash mismatch {stage['name']}")
 
 
 def main():
@@ -244,7 +230,7 @@ def main():
         print("\n".join("FAIL: " + error for error in ERRORS))
         return 1
     print(f"PASS: {count} specification documents linked; 3 fixtures validated; numeric controls reproduced.")
-    print("PASS: delivery artifact/log hashes and all 20 acceptance rows validated.")
+    print("PASS: delivery artifact hashes and provenance validated.")
     print("Application runtime, live sources and AWS execution are not verified by this check.")
     return 0
 

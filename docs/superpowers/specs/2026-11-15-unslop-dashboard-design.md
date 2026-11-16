@@ -1,6 +1,6 @@
 # Aplomb UI — unslop pass, configurable dashboard and data scope
 
-**Date:** 2026-11-15 · **Follows:** [2026-11-14 glass UI](2026-11-14-glass-ui-design.md) · **Design contract:** [web/DESIGN.md](../../../web/DESIGN.md)
+**Date:** 2026-11-15 · **Follows:** 2026-11-14 glass UI · **Design contract:** [web/DESIGN.md](../../../web/DESIGN.md)
 
 ## Requests (user)
 

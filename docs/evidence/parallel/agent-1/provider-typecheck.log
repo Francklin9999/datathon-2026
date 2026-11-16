@@ -1,8 +1,0 @@
-
-> aplomb@0.1.0 typecheck
-> npm run typecheck --workspace web
-
-
-> @aplomb/web@0.1.0 typecheck
-> tsc --noEmit
-

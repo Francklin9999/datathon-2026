@@ -1,9 +1,0 @@
-.......................                                                  [100%]
-=============================== warnings summary ===============================
-backend/tests/integration/test_run_composition.py::test_sabotage_child_is_isolated_and_reports_actual_strike
-  /home/francklin99/Desktop/Coding/datathon-2026/.worktrees/investor-quant/.venv/lib64/python3.12/site-packages/pydantic/main.py:520: UserWarning: Pydantic serializer warnings:
-    PydanticSerializationUnexpectedValue(Expected `enum` - serialized value may not be as expected [field_name='failed_checks', input_value='A02', input_type=str])
-    PydanticSerializationUnexpectedValue(Expected `enum` - serialized value may not be as expected [field_name='failed_checks', input_value='A04', input_type=str])
-    return self.__pydantic_serializer__.to_python(
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

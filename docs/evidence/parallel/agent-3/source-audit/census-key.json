@@ -1,5 +1,0 @@
-{
-  "checkedAt": "2026-11-15",
-  "endpoint": "https://api.census.gov/data/2023/acs/acs1?get=NAME,B01003_001E&for=state:06",
-  "finding": "A bounded one-state ACS query redirected to https://api.census.gov/data/missing_key.html and returned x-datawebapi-keyerror: 1. No account or key was used; SRC-097 is deferred."
-}

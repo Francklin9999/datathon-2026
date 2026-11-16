@@ -177,12 +177,12 @@
     {
       "file": "../../scripts/check_specs.py",
       "description": "Delivery document or reproducible QA source",
-      "capturedAt": "2026-11-15T04:50:35.964972+00:00",
-      "codeRevision": "7c4c457a9c3424f95f5e2e0e15993c7dfb5d3a52",
+      "capturedAt": "2026-11-16T01:27:32+00:00",
+      "codeRevision": "ba8d28e6265603fcef2818710ccec895253c3db1",
       "runId": null,
       "dataVersion": "snap-20261113-starter",
       "kind": "illustrative",
-      "sha256": "adc66e711fd2b1da38129994bacc471fbd19cf781f8e87a32db618fc31a27be2"
+      "sha256": "42cea30c8b96e1c245a37de4f07e3b695f84915b8133b119f86e90217d225b0c"
     },
     {
       "file": "../../tests/test_qa_smoke.py",

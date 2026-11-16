@@ -1,27 +1,29 @@
 # Three-agent execution and integration contract
 
+> Historical team-process record. The review pages, agent briefs and evidence files it names were removed from the repository; they remain in git history.
+
 The user requested the **entire worldwide Aplomb specification**, explicitly rejected an MVP or smallest version, and asked for three agents to work independently in parallel. Implement the full assigned scope. Priority determines order, not permission to omit later requirements. Do not stop after the first useful batch and call your whole assignment finished.
 
 The agents are prepared for the user to launch; preparing these files does not start them. Known baseline issues are assigned work, not permission to hide failing acceptance. No agent may deploy, merge another agent's branch, rewrite published history, or modify the root integration checkout. The user will return here for independent review and integration.
 
 ## Read order
 
-1. Your `AGENT-*` assignment below, this document, and [binding full-scope requirements](FULL-SCOPE.md).
-2. [Current remaining requirements](../20-GLOBAL-IMPLEMENTATION-BACKLOG.md), [latest investor controls](../22-INVESTIGATION-CONTROLS.md), [earlier continuation](../21-CONTINUATION-EXECUTION.md), [external owner actions](../19-OWNER-ACTIONS.md).
+1. Your `AGENT-*` assignment below, this document, and binding full-scope requirements.
+2. [Current remaining requirements](../20-GLOBAL-IMPLEMENTATION-BACKLOG.md), latest investor controls, earlier continuation, [external owner actions](../19-OWNER-ACTIONS.md).
 3. The actual code, relevant module `SPEC.md`, page specs and shared contracts. Older sixteen-track ownership/deadline cut rules describe a previous phase; this plan governs these three branches. The user's full-scope instruction supersedes old MVP cuts and old teammate-only deployment wording. Deployment is nevertheless reserved for final integration and the owner's full-completion condition.
-4. [Source directory](../../data/catalog/worldwide-apis.md), [Downloads-source ownership](SOURCE-OWNERS.csv), [all original master-source rows](MASTER-SOURCE-COVERAGE.md), and [shared interfaces](INTERFACES.md).
+4. [Source directory](../../data/catalog/worldwide-apis.md), Downloads-source ownership, all original master-source rows, and shared interfaces.
 
 ## Prepared isolation
 
 | Agent | Branch | Worktree relative to original repository | Assignment | Initial state |
 |---|---|---|---|---|
-| 1 | `codex/agent-1-investor-quant` | `.worktrees/investor-quant` | [Investor, quantitative engine, policy and decision controls](AGENT-1-INVESTOR-QUANT.md) | Ready |
-| 2 | `codex/agent-2-research-audit` | `.worktrees/research-audit` | [Research, identifiers, agents, audit and historical intelligence](AGENT-2-RESEARCH-AUDIT.md) | Ready |
-| 3 | `codex/agent-3-world-data` | `.worktrees/world-data` | [World Explorer, global observations, source integrations and ingestion](AGENT-3-WORLD-DATA.md) | Ready |
+| 1 | `codex/agent-1-investor-quant` | `.worktrees/investor-quant` | Investor, quantitative engine, policy and decision controls | Ready |
+| 2 | `codex/agent-2-research-audit` | `.worktrees/research-audit` | Research, identifiers, agents, audit and historical intelligence | Ready |
+| 3 | `codex/agent-3-world-data` | `.worktrees/world-data` | World Explorer, global observations, source integrations and ingestion | Ready |
 
 All start from the immutable-by-convention branch `codex/parallel-base-20261115`. Read and record `git rev-parse codex/parallel-base-20261115` in your handoff. Do not move that branch. Work only in your assigned worktree and branch. The root branch is `codex/global-platform-expansion`. The pre-existing root `.playwright-mcp/` is unrelated and must remain untouched.
 
-The baseline is contract 1.4.0 and incorporates teammate `origin/main` at `a9f6055` (glass UI, hex globe and cached reads), preserving native-currency accounts and complete-target checks. The merged full gate passed **852 Python tests + 16 subtests, 205 web tests and 6 infra tests**, and static export. See [baseline, production readback and known mobile issue](BASELINE.md). The earlier controls-only checkpoint was 845/180 and remains historical. Browser finance/world/nav checks passed; Decision Desk mobile acceptance has a diagnosed tooltip overflow explicitly assigned to Agent 1, not a blanket passing claim. Fresh public production metadata is **contract 1.1.0 / snap-20261114-sourced**; the teammate's checked-in release record says API/worker version 5. This is not a fresh independent AWS configuration read. Rediscover production before eventual deployment.
+The baseline is contract 1.4.0 and incorporates teammate `origin/main` at `a9f6055` (glass UI, hex globe and cached reads), preserving native-currency accounts and complete-target checks. The merged full gate passed **852 Python tests + 16 subtests, 205 web tests and 6 infra tests**, and static export. See baseline, production readback and known mobile issue. The earlier controls-only checkpoint was 845/180 and remains historical. Browser finance/world/nav checks passed; Decision Desk mobile acceptance has a diagnosed tooltip overflow explicitly assigned to Agent 1, not a blanket passing claim. Fresh public production metadata is **contract 1.1.0 / snap-20261114-sourced**; the teammate's checked-in release record says API/worker version 5. This is not a fresh independent AWS configuration read. Rediscover production before eventual deployment.
 
 ## Non-overlapping primary ownership
 

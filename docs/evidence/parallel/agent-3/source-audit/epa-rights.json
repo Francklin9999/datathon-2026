@@ -1,7 +1,0 @@
-{
-  "checkedAt": "2026-11-15",
-  "apiDocumentation": "https://www.epa.gov/enviro/envirofacts-data-service-api",
-  "dataEndpoint": "https://data.epa.gov/dmapservice/sems.envirofacts_site/fk_ref_state_code/equals/CA/0:200",
-  "disclaimer": "https://www.epa.gov/web-policies-and-procedures/epa-disclaimers",
-  "finding": "The documented public DMAP service returned JSON without login. EPA states that, unless otherwise specified, geospatial data produced by EPA is by default public domain. The adapter retains site IDs, names, source status, city, state and coordinates, omitting street addresses and unsupported conclusions."
-}

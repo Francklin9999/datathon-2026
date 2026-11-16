@@ -1,8 +1,8 @@
 # External data connector inventory
 
-Continuation: a teammate subsequently enabled World Explorer, hazards, replay, goals and bilingual UI in AWS. The table below records the initial baseline, except the ECCC, EPA, NASA FIRMS and IMF PortWatch rows, whose local columns were updated from the committed world bundle (their AWS column was not rechecked); current live results and remaining gaps are in [the release report](12-RELEASE-HARDENING.md#continuation--latest-observations-supersede-earlier-deployment-status). SEC/GDELT acquisition and public Tiingo publishing remain unverified/unavailable.
+Continuation: later releases enabled World Explorer, hazards, replay, goals, bilingual UI, the sabotage demo and open-web research in AWS. The table below records the initial baseline, except the ECCC, EPA, NASA FIRMS and IMF PortWatch rows, whose local columns were updated from the committed world bundle (their AWS column was not rechecked); the live checks of each backend release are recorded in [the AWS handoff](../infra/README.md). SEC/GDELT acquisition and public Tiingo publishing remain unverified/unavailable.
 
-Audit of the repository and `/v1/meta` on 2026-11-15. “Local” refers to implemented code and offline tests; it is not evidence of a successful current provider request or production operation. The deployed snapshot is `snap-20261114-sourced`; world and time-machine flags are off.
+Audit of the repository and `/v1/meta` on 2026-11-15. “Local” refers to implemented code and offline tests; it is not evidence of a successful current provider request or production operation. At that audit the deployed snapshot was `snap-20261114-sourced` with the world and time-machine flags off; release `1307604` runs `snap-20261115-globalfx` with them on.
 
 | Source | Local status and consumer | Coverage / freshness | Terms and limitations | AWS status |
 |---|---|---|---|---|
