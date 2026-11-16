@@ -29,9 +29,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 # Flags switched on for local work; /meta still advertises each only when its provider is available
 # (api/domain.py default_services): on-demand tickers needs APLOMB_TIINGO_TOKEN (the local data
-# directory is writable) and sabotage_demo needs both model IDs. Left off: research_open_web (AgentCore
-# browser; needs AWS credentials and a contact APLOMB_SOURCE_USER_AGENT) and guardrails (the API refuses
-# to start without APLOMB_GUARDRAIL_ID and _VERSION); set their APLOMB_FEATURE_* variables to opt in.
+# directory is writable) and sabotage_demo needs both model IDs. Left off: research_open_web (no provider
+# since the AgentCore Browser tool was removed; /meta reports it false) and guardrails (the API refuses
+# to start without APLOMB_GUARDRAIL_ID and _VERSION; set its APLOMB_FEATURE_* variable to opt in).
 FEATURES = ("bilingual", "world_explorer", "world_layer_hazards", "world_layer_facilities", "time_machine", "profile_creator",
             "goal_requests", "frontier_chart", "on_demand_tickers", "sabotage_demo")
 # Git-ignored local settings (for example APLOMB_TIINGO_TOKEN). Only APLOMB_* keys are read.

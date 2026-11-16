@@ -342,7 +342,7 @@ These lists can differ from this column. Fixture mode reports every flag off exc
 | `profile_creator` | true | cut 4 |
 | `goal_requests` | true | cut 4 |
 | `sabotage_demo` | true | — |
-| `research_open_web` | false; a release turns it on (O-02 closed for the Browser on 2026-11-15) | — |
+| `research_open_web` | false; no provider since the AgentCore Browser tool was removed, so `/meta` reports it false even when an environment sets it | — |
 | `guardrails` | false until O-03 is closed | — |
 | `on_demand_tickers` | true | — |
 | `frontier_chart` | true | — |

@@ -158,12 +158,7 @@ def default_services(settings: Settings, store=None, gateway=None,
         capabilities.add("guardrails")
     if runs is not None and (gateway is not None or (settings.model_strong and settings.model_fast)):
         capabilities.add("sabotage_demo")
-    from aplomb.research.core import contact_user_agent
-
-    if runs is not None and contact_user_agent(settings.source_user_agent):
-        # web.browse is registered with the research tools, which exist only with a contact user
-        # agent (the same rule as the worker): never advertise a browser the worker does not have.
-        capabilities.add("research_open_web")
+    # research_open_web has no provider (the AgentCore Browser tool was removed): never advertised.
     return Services(profiles=profiles, checks=checks, runs=runs, parser=parser, world=world, sabotage=runs.sabotage if runs else None,
                     replay=ReplayServiceImpl(snapshot, store=run_repo.store), datastore=WorldDatastoreService(snapshot, BundleProvider(), on_demand),
                     capabilities=capabilities)

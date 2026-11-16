@@ -514,19 +514,19 @@ def test_every_sabotage_mode_is_inserted_and_caught_by_the_real_audit(mode, code
     assert result["briefAfterAudit"]["audit"]["status"] != "failed"
 
 
-@pytest.mark.parametrize("user_agent,advertised", [
+@pytest.mark.parametrize("user_agent,registered", [
     (None, False),
     ("Aplomb datathon demo (github.com/example/repo)", False),   # no https:// and no email: research tools are absent
     ("Aplomb datathon demo (+https://example.org/contact)", True),
 ])
-def test_open_web_is_advertised_only_when_the_worker_registers_the_research_tools(user_agent, advertised):
+def test_open_web_is_never_advertised_and_research_needs_a_contact_user_agent(user_agent, registered):
     from aplomb.api.runtime import build_registry
 
-    cfg = settings().model_copy(update={"source_user_agent": user_agent})
+    cfg = settings().model_copy(update={"source_user_agent": user_agent})  # every flag on, research_open_web too
     client = TestClient(create_app(cfg, default_services(cfg, gateway=ScriptedGateway())))
     meta = client.get("/v1/meta", headers=session()).json()
-    assert meta["features"]["research_open_web"] is advertised
-    assert bool(build_registry(cfg).schemas({"web.browse"})) is advertised
+    assert meta["features"]["research_open_web"] is False  # no provider since the browser tool was removed
+    assert bool(build_registry(cfg).schemas({"web.fetch"})) is registered
 
 
 # Composition pins: brief cache identity, pinned snapshot date, Guardrail flag, AWS dispatch ------

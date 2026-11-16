@@ -20,7 +20,6 @@ RESEARCH = {
     "edgar.company_facts",
     "gdelt.search",
     "web.fetch",
-    "web.browse",
     "attention.pageviews",
     "emissions.facilities",
     "etf.holdings",

@@ -119,14 +119,6 @@ export class AplombStack extends Stack {
     api.addToRolePolicy(new iam.PolicyStatement({actions:['lambda:InvokeFunction'],resources:[`${worker.functionArn}:*`]}));
     if (application.guardrail) worker.addToRolePolicy(new iam.PolicyStatement({
       actions:['bedrock:ApplyGuardrail'],resources:[application.guardrail.arn,...(application.guardrail.profileResourceArns ?? [])]}));
-    // web.browse (flag research_open_web): the worker drives the AWS-managed AgentCore browser only.
-    // Its sessions are opened, driven over the signed automation stream, and stopped; no live view,
-    // no custom browser, no other session.
-    if (application.features?.includes('research_open_web')) worker.addToRolePolicy(new iam.PolicyStatement({
-      actions:['bedrock-agentcore:StartBrowserSession','bedrock-agentcore:StopBrowserSession',
-        'bedrock-agentcore:ConnectBrowserAutomationStream'],
-      resources:[`arn:${this.partition}:bedrock-agentcore:${this.region}:aws:browser/aws.browser.v1`,
-        `arn:${this.partition}:bedrock-agentcore:${this.region}:${this.account}:browser/aws.browser.v1`]}));
     for (const fn of [api,worker]) {
       for (const table of Object.values(tables)) {
         if (fn === worker && table !== tables.Runs) continue; // frozen inputs; worker only mutates run state
@@ -242,11 +234,9 @@ export function validateApplication(a) {
     throw new Error('dataAsOf must be the snapshot manifest date YYYY-MM-DD');
   }
   // Same rule as backend/aplomb/research/core.py contact_user_agent: without a contact the worker
-  // registers no research tool. The deployed config predates the rule, so that is a warning, and an
-  // error only when research_open_web is listed (that flag cannot work without one).
+  // registers no research tool. The deployed config predates the rule, so that is a warning.
   if (a.sourceUserAgent.length < 15 || !['@','https://'].some(mark=>a.sourceUserAgent.includes(mark))) {
     const message = 'sourceUserAgent needs a contact (an https:// URL or an email) and at least 15 characters';
-    if (a.features?.includes('research_open_web')) throw new Error(message);
     console.warn(`warning: ${message}; the worker will register no research tool`);
   }
   if (!a.dataPrefix.endsWith('/') || a.dataPrefix.startsWith('/') || a.dataPrefix.includes('..')) {

@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 
 from aplomb.agents.limits import Limits
-from aplomb.agents.registry import RESEARCH, ToolContext, ToolRegistry
+from aplomb.agents.registry import RESEARCH, ToolContext
 from aplomb.api.runtime import build_registry
 from aplomb.api.settings import Settings
 from aplomb.ledger import Ledger
@@ -15,7 +15,6 @@ from aplomb.research import (
     ResearchService,
     research_tool_handlers,
 )
-from aplomb.research.tools import WebBrowseArgs
 
 NOW = datetime(2026, 11, 14, tzinfo=timezone.utc)
 AS_OF = "2026-11-14"
@@ -53,7 +52,7 @@ def test_application_registry_offers_no_unusable_research_tool_and_describes_eac
     names = {item["name"] for item in schemas}
     assert {"web.fetch", "research.save_evidence", "world.search_events"} <= names
     # SEC sources were removed by the owner (source_dispositions SRC-034..042); facilities need their flag.
-    assert {"attention.pageviews", "etf.holdings", "web.browse", "emissions.facilities"}.isdisjoint(names)
+    assert {"attention.pageviews", "etf.holdings", "emissions.facilities"}.isdisjoint(names)
     assert not {name for name in names if name.startswith("edgar.")}
     for item in schemas:
         assert item["schema"].get("description", "").strip(), f"{item['name']} has no description for the model"
@@ -140,22 +139,11 @@ def test_facility_arguments_are_validated_when_the_capture_is_known():
 def test_every_research_binding_carries_a_description():
     svc = service()
     handlers = research_tool_handlers(
-        svc, browser=object(), sec=True,
+        svc, sec=True,
         attention=AttentionAdapter(svc, {"AAPL": ArticleMapping(*MAPPING, verified=True)}),
         etf=ETFAdapter(svc, {"IVV": HoldingsFile("https://www.ishares.com/file", NOW.date())}))
     for name, (schema, _) in handlers.items():
         assert (schema.model_json_schema().get("description") or "").strip(), name
-
-
-def test_browse_without_a_start_page_is_refused_before_a_research_call_is_charged():
-    assert "start_url" in WebBrowseArgs.model_json_schema()["required"]
-    registry = ToolRegistry()
-    for name, (schema, function) in research_tool_handlers(service(), browser=object()).items():
-        registry.register(name, schema, function)
-    ctx = context()
-    result = registry.execute("researcher", "web.browse", {"task": "policy rate"}, ctx)
-    assert not result.ok and "start_url" in result.error
-    assert ctx.limits.research_calls == 0
 
 
 def test_world_search_events_hands_the_historical_mode_to_the_service():

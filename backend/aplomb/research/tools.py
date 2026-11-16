@@ -3,7 +3,6 @@ import copy
 import json
 import math
 import re
-import time
 from collections import OrderedDict
 from contextlib import nullcontext
 from datetime import date
@@ -80,21 +79,6 @@ class WebFetchArgs(Args):
     max_chars: int = Field(default=6000, ge=1, le=6000)
 
 
-class WebBrowseArgs(Args):
-    """Read pages in a real browser (JavaScript rendered), on allow-listed official sites only."""
-
-    task: str = Field(max_length=1000, description="What to look for, in a few words; links are followed only when they name these words.")
-    # Required in the schema so a call without it is refused before a research call is charged;
-    # browser.browse still refuses an empty start page itself.
-    start_url: str = Field(min_length=1, max_length=2000, description="An https page on an allow-listed official site to start from.")
-    max_pages: int = Field(default=5, ge=1, le=5, description="Pages to read at most, the start page included.")
-
-
-# web.browse runs longer than the other research tools (a browser session and up to five pages):
-# the workflow grants it 40 s (agents.workflow.BROWSE_TOOL_SECONDS) and the browse stops before.
-BROWSE_SECONDS = 36
-
-
 class PageviewsArgs(Args):
     """Wikipedia attention ratio of one asset: mean daily page views of the last 30 days over the previous
     365, registered as a fact, for a ticker with a reviewed article mapping. Informational only."""
@@ -115,7 +99,7 @@ class SaveEvidenceArgs(Args):
     type: m.EvidenceType = Field(description="Kind of source document.")
     title: str = Field(max_length=300, description="Title of the source document.")
     publisher: str = Field(max_length=200, description="Publisher as named by the source; the stored publisher comes from the reviewed domain registry.")
-    url: str = Field(max_length=2000, description="The url returned by web.fetch, web.browse or edgar.filing_text earlier in this run.")
+    url: str = Field(max_length=2000, description="The url returned by web.fetch or edgar.filing_text earlier in this run.")
     published_at: date | None = Field(default=None, description="Publication date stated by the source (YYYY-MM-DD), if any.")
     quote: str = Field(min_length=1, max_length=400, description="Passage copied verbatim from that page, at most 400 characters.")
     claim: m.I18nText = Field(description="What the quote supports, in English (en) and in French (fr).")
@@ -140,9 +124,9 @@ def passages(document, query=None, max_chars=6000):
             "source_warning": "Untrusted source text; claims require saved verified quotes"}
 
 
-def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, browser=None, sec=False):
-    """Tool bindings. ``web.browse`` exists only with an AgentCore browser (flag ``research_open_web``);
-    ``attention.pageviews`` only with a verified article mapping and ``etf.holdings`` only with an issuer file.
+def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, sec=False):
+    """Tool bindings. ``attention.pageviews`` exists only with a verified article mapping and
+    ``etf.holdings`` only with an issuer file.
 
     The four ``edgar.*`` tools exist only with ``sec=True``. The owner removed every SEC source from
     active coverage after HTTP 403 refusals (intelligence/data/source_dispositions.json SRC-034..SRC-042,
@@ -196,15 +180,6 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, bro
             raise ResearchError("document_not_fetched_in_run")
         evidence_id = service.save_evidence(kw, document.document_id, rc, ctx.ledger)
         return ToolResult(True, "Verified same-run quote saved", evidence_ids=[evidence_id], data={"evidenceId": evidence_id})
-
-    def browse_pages(ctx, task, start_url, max_pages=5):
-        from .browser import browse
-        budget = BROWSE_SECONDS
-        limits = getattr(ctx, "limits", None)
-        if limits is not None and hasattr(limits, "remaining"):
-            budget = min(budget, limits.remaining(reserve=2))
-        data = browse(service, browser, task, start_url, max_pages, context(ctx), time.monotonic() + budget)
-        return ToolResult(True, f"Browsed {len(data['pages'])} allow-listed page(s); save a quote before citing", data=data)
 
     def company_facts(ctx, **kw):
         rc = context(ctx)
@@ -306,8 +281,6 @@ def research_tool_handlers(service, *, gdelt=None, attention=None, etf=None, bro
             "edgar.find_company": (FindCompanyArgs, find), "edgar.list_filings": (ListFilingsArgs, filings),
             "edgar.filing_text": (FilingTextArgs, filing), "edgar.company_facts": (CompanyFactsArgs, company_facts),
         })
-    if browser is not None:
-        bindings["web.browse"] = (WebBrowseArgs, browse_pages)
     # Without reviewed configuration (a verified ticker-to-article mapping, a dated issuer file) these
     # two tools can only answer an evidence gap; they are not offered, so no research call is spent on them.
     if any(mp.verified and mp.evidence_url and mp.entity_id for mp in getattr(attention, "mappings", {}).values()):
