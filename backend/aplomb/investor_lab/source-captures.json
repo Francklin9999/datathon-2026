@@ -1,0 +1,34 @@
+[
+  {
+    "quarter": "Q1",
+    "publishedAt": "2022-10-25",
+    "url": "https://www.microsoft.com/en-us/Investor/earnings/FY-2023-Q1/press-release-webcast",
+    "sha256": "6db12c9c0779c9df3e70691194e587c4a7af63dfa8292119cc0988bf9955c095",
+    "excerpt": "Revenue was $50.1 billion and increased 11% (up 16% in constant currency) · Operating income was $21.5 billion and increased 6% (up 15% in constant currency) · Net income was $17.6 billion and decreased 14% (down 8% in constant currency) · Diluted earnings per share was $2.35 and decreased 13% (down 7% in constant currency) “In a world facing increasing headwinds, digital technology is the ultimate tailwind,” said Satya Nadella, chairman and chief executive officer of Microsoft. “In this environment, we’re focused on helping our custo"
+  },
+  {
+    "quarter": "Q3",
+    "publishedAt": "2023-04-25",
+    "url": "https://www.microsoft.com/en-us/Investor/earnings/FY-2023-Q3/press-release-webcast",
+    "sha256": "99a39a5c823d02681e6c2e0fea979c009dc63cfdb20014abc33360fa7f0b20aa",
+    "excerpt": "Revenue was $52.9 billion and increased 7% (up 10% in constant currency) · Operating income was $22.4 billion and increased 10% (up 15% in constant currency) · Net income was $18.3 billion and increased 9% (up 14% in constant currency) · Diluted earnings per share was $2.45 and increased 10% (up 14% in constant currency) “The world's most advanced AI models are coming together with the world's most universal user interface - natural language - to create a new era of computing,” said Satya Nadella, chairman and chief executive officer "
+  },
+  {
+    "publishedAt": "2022-04-13",
+    "url": "https://www.bankofcanada.ca/2022/04/fad-press-release-2022-04-13/",
+    "sha256": "5b504177d1ee91bbeb706b02b068fa46031f1e57c8d5d44c956782e925261923",
+    "excerpt": "The Bank of Canada today increased its target for the overnight rate to 1% ... CPI inflation in Canada is 5.7%"
+  },
+  {
+    "publishedAt": "2022-10-26",
+    "url": "https://www.bankofcanada.ca/2022/10/fad-press-release-2022-10-26/",
+    "sha256": "8e737d7972289c6bbbac43c2c370307749cf304a61f230cbc0df12512156144d",
+    "excerpt": "The Bank of Canada today increased its target for the overnight rate to 3¾% ... In the last three months, CPI inflation has declined from 8.1% to 6.9% ... price pressures remain broadly based"
+  },
+  {
+    "publishedAt": "2023-04-12",
+    "url": "https://www.bankofcanada.ca/2023/04/fad-press-release-2023-04-12/",
+    "sha256": "7a529153eff04e99d6eefc707cf42c2558e10764d3c8b290a04da34c225a23a6",
+    "excerpt": "The Bank of Canada today held its target for the overnight rate at 4½% ... CPI inflation eased to 5.2% in February"
+  }
+]

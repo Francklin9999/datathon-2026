@@ -6,6 +6,7 @@
  * checks (409 keeps the unsaved form). No real contact or account information is requested.
  */
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import Link from 'next/link';
 import type { AssetClass, I18NText, Lang, PartialProfile, ProfileDraftResult, InvestmentGoal, Profile, ProfilesResponse, Run, ThemeTag } from '../../contracts/types';
 import { ThemeTag as THEMES } from '../../contracts/catalog';
 import { getApiClient } from '../../api/index';
@@ -217,6 +218,7 @@ function ProfilesContent() {
     <>
       <PageHeader tour="profiles-header" title={tr({ en: 'Fictional profiles', fr: 'Profils fictifs' })}>
         <p className="page-sub">{tr({ en: 'Fictional profiles only: don’t enter real personal details.', fr: 'Profils fictifs seulement : n’entrez aucune donnée personnelle réelle.' })}</p>
+        <Link className="btn" href="/investor-lab/?mode=new">{tr({ en: 'Create with Investor Lab', fr: 'Créer avec Investor Lab' })}</Link>
       </PageHeader>
 
       <Card title={tr({ en: 'Profiles in this session', fr: 'Profils de cette session' })} tour="profiles-list">
@@ -227,6 +229,8 @@ function ProfilesContent() {
               <strong>{p.name}</strong>{' '}
               <span className="small muted">· {p.isDefault ? tr({ en: 'default, read-only: edit a copy to change it', fr: 'par défaut, lecture seule : modifiez une copie pour le changer' }) : tr({ en: 'custom', fr: 'personnalisé' })} · {labelOf(RISK_LEVEL, p.riskLevel, lang)} · {horizonText(p, tr)} · {fmtMoney(p.portfolio.totalValue, p.portfolio.currency, lang)}</span>
               <div className="row-actions" style={{ marginTop: 4 }}>
+                <Link className="btn ghost btn-sm" href={`/investor-lab/?mode=quick&profileId=${encodeURIComponent(p.profileId)}`}>{tr({ en: 'Quick profile test', fr: 'Test rapide du profil' })}</Link>
+                <Link className="btn ghost btn-sm" href={`/investor-lab/?mode=full&profileId=${encodeURIComponent(p.profileId)}`}>{tr({ en: 'Full profile test', fr: 'Test complet du profil' })}</Link>
                 {!p.isDefault && <button type="button" className="btn ghost btn-sm" aria-label={tr({ en: `Edit ${p.name}`, fr: `Modifier ${p.name}` })}
                   onClick={() => openInForm(formFromProfile(p), { mode: 'update', profileId: p.profileId, version: p.version })}>{tr({ en: 'Edit', fr: 'Modifier' })}</button>}
                 <button type="button" className="btn ghost btn-sm" aria-label={tr({ en: `Edit a copy of ${p.name}`, fr: `Modifier une copie de ${p.name}` })}

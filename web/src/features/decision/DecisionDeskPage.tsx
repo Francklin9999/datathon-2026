@@ -207,6 +207,15 @@ function DeskContent({ profile }: { profile: Profile }) {
         <p className="page-sub">{tr({ en: 'Describe a move or fill in the form, then analyze the evidence. Nothing is ever executed.', fr: 'Décrivez un mouvement ou remplissez le formulaire, puis analysez les preuves. Rien n’est jamais exécuté.' })}</p>
       </PageHeader>
 
+      {feature('profile_creator') && <Card title={tr({ en: 'Your investment playbook', fr: 'Votre guide d’investissement' })}>
+        {profile.investorContext?.playbook ? <>
+          <p className="small"><strong>{tr({ en: 'Principle', fr: 'Principe' })}:</strong> {profile.investorContext.playbook.principle}</p>
+          <p className="small"><strong>{tr({ en: 'Revisit when', fr: 'Réexaminer lorsque' })}:</strong> {profile.investorContext.playbook.revisitTrigger}</p>
+          <Link href="/portfolio/?tab=rules#playbook">{tr({ en: 'Review your playbook and rules', fr: 'Examiner votre guide et vos règles' })}</Link>
+        </> : <p className="small">{tr({ en: 'Explore your decisions and create a playbook in Investor Lab.', fr: 'Explorez vos décisions et créez un guide dans Investor Lab.' })}{' '}
+          <Link href={`/investor-lab/?mode=quick&profileId=${encodeURIComponent(profile.profileId)}`}>{tr({ en: 'Test my profile', fr: 'Tester mon profil' })}</Link></p>}
+      </Card>}
+
       {contextEvent && <Card title={tr({ en: 'Investigation context', fr: 'Contexte de recherche' })}>
         <p className="small">{tr({ en: 'Event relevance does not establish financial impact. Review its sources before testing a hypothetical move.', fr: 'La pertinence de l’événement ne prouve pas une incidence financière. Examinez ses sources avant de tester un mouvement hypothétique.' })}</p>
         {foreignContext && <p className="stale-note">{tr({ en: 'This event was selected for another investor. Switch to that investor to restore its holding context.', fr: 'Cet événement a été sélectionné pour un autre investisseur. Basculez vers cet investisseur pour retrouver le contexte de la position.' })}
@@ -308,6 +317,10 @@ function DeskContent({ profile }: { profile: Profile }) {
             </p>
           )}
           {run && <DecisionRun run={run} stale={staleRun} />}
+          {feature('profile_creator') && run?.status === 'succeeded' && !otherProfileId && profile.investorContext?.playbook && <p className="small">
+            {tr({ en: 'Has this evidence changed what would make you revisit your plan?', fr: 'Ces preuves ont-elles changé ce qui vous amènerait à réexaminer votre plan ?' })}{' '}
+            <Link href="/portfolio/?tab=rules#playbook">{tr({ en: 'Review or edit your playbook', fr: 'Examiner ou modifier votre guide' })}</Link>
+          </p>}
         </Card>
       )}
     </>

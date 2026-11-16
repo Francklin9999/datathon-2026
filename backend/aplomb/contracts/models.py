@@ -46,6 +46,7 @@ from .catalog import (
     NeeReason,
     ThemeTag,
 )
+from .investor_lab import InvestmentPlaybook
 
 Currency = TypeAliasType("Currency", Annotated[String, Field(pattern=r"^[A-Z]{3}$")])
 Lang = TypeAliasType("Lang", Literal["en", "fr"])
@@ -391,6 +392,7 @@ class InvestorContext(WireModel):
     rebalancing: RebalancingPreferences | None = None
     horizons: list[InvestorHorizon] = Field(default_factory=list, max_length=50)
     requirements: list[InvestorRequirement] = Field(default_factory=list, max_length=100)
+    playbook: InvestmentPlaybook | None = None
 
     @model_validator(mode="after")
     def validate_capacity_origin(self):

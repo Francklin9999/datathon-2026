@@ -17,6 +17,7 @@
 | `/time-machine/` | T15 | [Time Machine](page-specs/time-machine.md) |
 | `/agents-system/` | T15 | [Agents & System](page-specs/agents-system.md) |
 | `/profiles/` | T13 | [Profile creator](page-specs/profile-creator.md) |
+| `/investor-lab/` | T13 | [Investor Lab](page-specs/investor-lab.md) |
 | `/sources/` | T13 | [Sources](page-specs/sources.md) |
 
 Ten primary sidebar pages (`NAV_ENTRIES` in `src/lib/ui/nav.ts`, icons in `src/components/shell/NavRail.tsx`, in this order: Home, Portfolio, Markets, Risk, Decide, Strategies, World, Evidence, Replay, System; World and Replay are hidden when their `world_explorer` / `time_machine` feature flag is off), then Sources as the last rail item; profiles via the persona menu ("Manage profiles", shown when `profile_creator` is on). Markets and Risk Intelligence arrived without an owner or page spec; until one is written they are still held to the §6 page states. Run IDs/profile IDs/fact IDs use query parameters on fixed routes; static export must not require unknown runtime dynamic routes. An unknown address gets the 404 page (`src/app/not-found.tsx`, exported as `404.html`): a page in the app shell with a title, one sentence and the same page list as the rail, in the active language.

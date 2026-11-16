@@ -8,6 +8,8 @@ import type {
   CreateRunRequest, DeriveRulesRequest, Lang, ParseRequest, RebalanceRequest, RulePatchRequest,
   SabotageRequest, UpdatePortfolioRequest, UpdateProfileRequest, WindowCode, AnswerRequest,
   RunKind, RevealRequest, StrategySimulateRequest, WindowSpec,
+  LabStartRequest, LabInitialRequest, LabConsultRequest, LabFinalRequest, LabContrastRequest,
+  LabConfirmRequest, LabPlaybookRequest,
 } from '../contracts/types';
 import { expandedResult } from './expandedInvestor';
 import { focusResult, targetsResult } from './focusModels';
@@ -243,6 +245,15 @@ export function createApiClient(config: ClientConfig) {
     riskDiagnostics: (profileId: string, window: WindowCode | WindowSpec, signal?: AbortSignal) =>
       call('RiskDiagnosticsResponse', 'GET', `/profiles/${enc(profileId)}/risk`, { query: windowQuery(window), signal }),
     profiles: (signal?: AbortSignal) => call('ProfilesResponse', 'GET', '/profiles', { signal }),
+    investorLabs: (signal?: AbortSignal) => call('LabSessionsResponse', 'GET', '/investor-lab', { signal }),
+    investorLab: (id: string, signal?: AbortSignal) => call('LabSession', 'GET', `/investor-lab/${enc(id)}`, { signal }),
+    startInvestorLab: (body: LabStartRequest) => call('LabSession', 'POST', '/investor-lab', { body }),
+    labInitial: (id: string, body: LabInitialRequest) => call('LabSession', 'POST', `/investor-lab/${enc(id)}/initial`, { body }),
+    labConsult: (id: string, body: LabConsultRequest) => call('LabSession', 'POST', `/investor-lab/${enc(id)}/consult`, { body }),
+    labFinal: (id: string, body: LabFinalRequest) => call('LabSession', 'POST', `/investor-lab/${enc(id)}/final`, { body }),
+    labContrast: (id: string, body: LabContrastRequest) => call('LabSession', 'POST', `/investor-lab/${enc(id)}/contrast`, { body }),
+    confirmInvestorLab: (id: string, body: LabConfirmRequest) => call('Profile', 'POST', `/investor-lab/${enc(id)}/confirm`, { body }),
+    updatePlaybook: (id: string, body: LabPlaybookRequest) => call('Profile', 'PUT', `/profiles/${enc(id)}/playbook`, { body }),
     profile: (profileId: string, signal?: AbortSignal) =>
       call('Profile', 'GET', `/profiles/${enc(profileId)}`, { signal }),
     createProfile: (body: CreateProfileRequest) => call('Profile', 'POST', '/profiles', { body }),

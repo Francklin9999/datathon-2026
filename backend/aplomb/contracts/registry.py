@@ -6,13 +6,13 @@ from enum import StrEnum
 from pydantic import Field, TypeAdapter, create_model
 from typing_extensions import TypeAliasType
 
-from . import CONTRACT_VERSION, api, base, models
+from . import CONTRACT_VERSION, api, base, investor_lab, models
 from .base import WireModel
 
 
 def contract_types() -> dict[str, type]:
     result = {}
-    for module in (base, models, api):
+    for module in (base, models, api, investor_lab):
         for name, value in vars(module).items():
             if name.startswith("_") or value is WireModel:
                 continue

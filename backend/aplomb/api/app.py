@@ -220,6 +220,8 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     app.include_router(capability_router(session))
     from aplomb.intelligence.investor_examples import investor_examples_router
     app.include_router(investor_examples_router(store, services.profiles, session))
+    from aplomb.investor_lab.routes import investor_lab_router
+    app.include_router(investor_lab_router(store, services.profiles, session, feature))
 
     @app.get("/v1/health", response_model=a.HealthResponse)
     def health():

@@ -57,9 +57,14 @@ export function PersonaSwitcher() {
         triggerClassName="persona-trigger" popoverClassName="persona-pop"
         {...(feature('profile_creator') ? {
           footer: (close: () => void) => (
-            <Link href="/profiles/" className="popover-action" onClick={close}>
-              <UserRound aria-hidden="true" size={16} strokeWidth={1.75} />{tr({ en: 'Manage profiles', fr: 'Gérer les profils' })}
-            </Link>
+            <>
+              <Link href={`/investor-lab/?mode=quick&profileId=${encodeURIComponent(profile.profileId)}`} className="popover-action" onClick={close}>
+                <UserRound aria-hidden="true" size={16} strokeWidth={1.75} />{tr({ en: 'Test my profile', fr: 'Tester mon profil' })}
+              </Link>
+              <Link href="/profiles/" className="popover-action" onClick={close}>
+                <UserRound aria-hidden="true" size={16} strokeWidth={1.75} />{tr({ en: 'Manage profiles', fr: 'Gérer les profils' })}
+              </Link>
+            </>
           ),
         } : {})}
         renderTrigger={selected => (

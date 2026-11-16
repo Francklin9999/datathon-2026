@@ -136,6 +136,16 @@ interface Profile {
 }
 ```
 
+### Investor Lab additions
+
+`InvestorContext.playbook` optionally stores `InvestmentPlaybook`: the user's decision principle, revisit condition, research interest, update time and dated `LabReviewRecord` history. Each review contains the stated situation, observations, explanation and explicit `LabSettingChange` entries.
+
+`LabSession` is the public exercise state. It contains mode, revision, stage, stated situation, masked chart and sleeves, the current company weight, available evidence, completed observations and review proposals. A `LabSetting` carries the setting key, current/proposed text, optional editable numeric value/bounds, cited bases and whether confirmation is required. Source identity and historical period are revealed at review.
+
+`LabDecision` records `hold | buy | sell | rebalance`, `targetPct`, a selected reason and a written explanation. `LabObservation` separates the initial decision, consulted evidence with reasons, final decision, revisit condition and contrasting answer. `LabSituation` keeps `riskCapacity` and `riskWillingness` separate.
+
+Exact fields, constraints and request bodies are generated from [the typed Lab models](../backend/aplomb/contracts/investor_lab.py) into the shared schema and TypeScript contracts.
+
 ### 4.1 PolicyRule
 
 ```ts

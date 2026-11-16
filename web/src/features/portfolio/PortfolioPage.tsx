@@ -35,6 +35,7 @@ import { CorrelationHeatmap } from './CorrelationHeatmap';
 import { CountUp } from '../../components/ui/CountUp';
 import { factIdFor, fmtMoney, fmtNumber, fmtPct, fmtSignedPct, fmtUnit } from '../../lib/format';
 import { disabledRules, planRuleRows } from '../../lib/planRules';
+import { InvestmentPlaybook } from '../investor-lab/InvestmentPlaybook';
 import { LOWEST_12M_INFO, LOWEST_12M_SHORT } from '../../lib/ui/figures';
 import { holdingReturnsOf } from '../../lib/overviewReturns';
 
@@ -101,6 +102,7 @@ function PortfolioContent({ profile }: { profile: Profile }) {
         </>}
         {tab === 'rules' && <>
           {overview.error && overviewState}
+          {app.feature('profile_creator') && <InvestmentPlaybook key={`${profile.profileId}|${profile.version}`} profile={profile} />}
           <Rules profile={profile} overview={overview.data} scope={scope} />
           <AddRule profile={profile} />
           <Frontier profile={profile} />

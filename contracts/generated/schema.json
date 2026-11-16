@@ -4867,6 +4867,37 @@
       "title": "InvestmentGoal",
       "type": "object"
     },
+    "InvestmentPlaybook": {
+      "properties": {
+        "principle": {
+          "type": "string"
+        },
+        "revisitTrigger": {
+          "type": "string"
+        },
+        "interest": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "reviews": {
+          "items": {
+            "$ref": "#/$defs/LabReviewRecord"
+          },
+          "maxItems": 30,
+          "type": "array"
+        }
+      },
+      "required": [
+        "principle",
+        "revisitTrigger",
+        "interest",
+        "updatedAt"
+      ],
+      "title": "InvestmentPlaybook",
+      "type": "object"
+    },
     "InvestorContext": {
       "description": "Optional global context. Jurisdiction is context, not a sourced tax policy.",
       "properties": {
@@ -5018,6 +5049,17 @@
           },
           "maxItems": 100,
           "type": "array"
+        },
+        "playbook": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InvestmentPlaybook"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "InvestorContext",
@@ -5146,6 +5188,879 @@
         "amount"
       ],
       "title": "InvestorRequirement",
+      "type": "object"
+    },
+    "LabAcceptedSetting": {
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "title": "LabAcceptedSetting",
+      "type": "object"
+    },
+    "LabConfirmRequest": {
+      "properties": {
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "accepted": {
+          "items": {
+            "$ref": "#/$defs/LabAcceptedSetting"
+          },
+          "maxItems": 100,
+          "type": "array"
+        },
+        "principle": {
+          "maxLength": 2000,
+          "minLength": 10,
+          "type": "string"
+        },
+        "revisitTrigger": {
+          "maxLength": 2000,
+          "minLength": 10,
+          "type": "string"
+        },
+        "explanation": {
+          "maxLength": 2000,
+          "minLength": 10,
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "accepted",
+        "principle",
+        "revisitTrigger",
+        "explanation"
+      ],
+      "title": "LabConfirmRequest",
+      "type": "object"
+    },
+    "LabConsultRequest": {
+      "properties": {
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "evidenceId": {
+          "type": "string"
+        },
+        "why": {
+          "maxLength": 1000,
+          "minLength": 5,
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "evidenceId",
+        "why"
+      ],
+      "title": "LabConsultRequest",
+      "type": "object"
+    },
+    "LabConsultation": {
+      "properties": {
+        "evidenceId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "why": {
+          "type": "string"
+        },
+        "consultedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        }
+      },
+      "required": [
+        "evidenceId",
+        "title",
+        "why",
+        "consultedAt"
+      ],
+      "title": "LabConsultation",
+      "type": "object"
+    },
+    "LabContrastRequest": {
+      "properties": {
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "decision": {
+          "$ref": "#/$defs/LabDecision"
+        }
+      },
+      "required": [
+        "version",
+        "decision"
+      ],
+      "title": "LabContrastRequest",
+      "type": "object"
+    },
+    "LabDecision": {
+      "properties": {
+        "action": {
+          "enum": [
+            "hold",
+            "buy",
+            "sell",
+            "rebalance"
+          ],
+          "type": "string"
+        },
+        "targetPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "reason": {
+          "enum": [
+            "cash_need",
+            "company_evidence",
+            "portfolio_balance",
+            "loss_discomfort",
+            "long_term",
+            "other"
+          ],
+          "type": "string"
+        },
+        "explanation": {
+          "maxLength": 2000,
+          "minLength": 10,
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "targetPct",
+        "reason",
+        "explanation"
+      ],
+      "title": "LabDecision",
+      "type": "object"
+    },
+    "LabEvidence": {
+      "properties": {
+        "evidenceId": {
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "exposures",
+            "company",
+            "macro",
+            "disclosure"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "relativeDate": {
+          "type": "string"
+        },
+        "sourceUrl": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "evidenceId",
+        "category",
+        "title",
+        "available",
+        "summary",
+        "relativeDate"
+      ],
+      "title": "LabEvidence",
+      "type": "object"
+    },
+    "LabFinalRequest": {
+      "properties": {
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "decision": {
+          "$ref": "#/$defs/LabDecision"
+        },
+        "revisitTrigger": {
+          "maxLength": 2000,
+          "minLength": 10,
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "decision",
+        "revisitTrigger"
+      ],
+      "title": "LabFinalRequest",
+      "type": "object"
+    },
+    "LabHolding": {
+      "properties": {
+        "ticker": {
+          "$ref": "#/$defs/Ticker"
+        },
+        "weightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "ticker",
+        "weightPct"
+      ],
+      "title": "LabHolding",
+      "type": "object"
+    },
+    "LabInitialRequest": {
+      "properties": {
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "decision": {
+          "$ref": "#/$defs/LabDecision"
+        }
+      },
+      "required": [
+        "version",
+        "decision"
+      ],
+      "title": "LabInitialRequest",
+      "type": "object"
+    },
+    "LabObservation": {
+      "properties": {
+        "checkpoint": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "startingPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "initial": {
+          "$ref": "#/$defs/LabDecision"
+        },
+        "consultations": {
+          "items": {
+            "$ref": "#/$defs/LabConsultation"
+          },
+          "type": "array"
+        },
+        "final": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LabDecision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "revisitTrigger": {
+          "default": "",
+          "type": "string"
+        },
+        "contrast": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LabDecision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "contrastPrompt": {
+          "default": "",
+          "type": "string"
+        },
+        "interpretation": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "checkpoint",
+        "title",
+        "startingPct",
+        "initial",
+        "consultations"
+      ],
+      "title": "LabObservation",
+      "type": "object"
+    },
+    "LabPlaybookRequest": {
+      "properties": {
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "principle": {
+          "maxLength": 2000,
+          "minLength": 10,
+          "type": "string"
+        },
+        "revisitTrigger": {
+          "maxLength": 2000,
+          "minLength": 10,
+          "type": "string"
+        },
+        "explanation": {
+          "maxLength": 2000,
+          "minLength": 10,
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "principle",
+        "revisitTrigger",
+        "explanation"
+      ],
+      "title": "LabPlaybookRequest",
+      "type": "object"
+    },
+    "LabPoint": {
+      "properties": {
+        "step": {
+          "type": "integer"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "step",
+        "value"
+      ],
+      "title": "LabPoint",
+      "type": "object"
+    },
+    "LabReviewRecord": {
+      "properties": {
+        "labId": {
+          "type": "string"
+        },
+        "confirmedAt": {
+          "$ref": "#/$defs/ISODateTime"
+        },
+        "mode": {
+          "enum": [
+            "new",
+            "quick",
+            "full"
+          ],
+          "type": "string"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "situation": {
+          "$ref": "#/$defs/LabSituation"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/LabObservation"
+          },
+          "type": "array"
+        },
+        "changes": {
+          "items": {
+            "$ref": "#/$defs/LabSettingChange"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "labId",
+        "confirmedAt",
+        "mode",
+        "explanation",
+        "situation",
+        "observations",
+        "changes"
+      ],
+      "title": "LabReviewRecord",
+      "type": "object"
+    },
+    "LabSession": {
+      "properties": {
+        "labId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        },
+        "mode": {
+          "enum": [
+            "new",
+            "quick",
+            "full"
+          ],
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "initial",
+            "research",
+            "contrast",
+            "review",
+            "saved"
+          ],
+          "type": "string"
+        },
+        "profileId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProfileId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "savedProfileId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProfileId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "situation": {
+          "$ref": "#/$defs/LabSituation"
+        },
+        "checkpoint": {
+          "type": "integer"
+        },
+        "checkpointCount": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "chart": {
+          "items": {
+            "$ref": "#/$defs/LabPoint"
+          },
+          "type": "array"
+        },
+        "sleeves": {
+          "items": {
+            "$ref": "#/$defs/LabSleeve"
+          },
+          "type": "array"
+        },
+        "focusPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/LabEvidence"
+          },
+          "type": "array"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/LabObservation"
+          },
+          "type": "array"
+        },
+        "settings": {
+          "items": {
+            "$ref": "#/$defs/LabSetting"
+          },
+          "type": "array"
+        },
+        "proposedPrinciple": {
+          "type": "string"
+        },
+        "proposedRevisitTrigger": {
+          "type": "string"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "reveal": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "labId",
+        "version",
+        "mode",
+        "stage",
+        "profileId",
+        "situation",
+        "checkpoint",
+        "checkpointCount",
+        "title",
+        "prompt",
+        "chart",
+        "sleeves",
+        "focusPct",
+        "evidence",
+        "observations",
+        "settings",
+        "proposedPrinciple",
+        "proposedRevisitTrigger",
+        "limitations",
+        "reveal"
+      ],
+      "title": "LabSession",
+      "type": "object"
+    },
+    "LabSessionsResponse": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/LabSession"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "LabSessionsResponse",
+      "type": "object"
+    },
+    "LabSetting": {
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "current": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "proposed": {
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "minimum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "maximum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "current",
+        "proposed",
+        "basis",
+        "explanation"
+      ],
+      "title": "LabSetting",
+      "type": "object"
+    },
+    "LabSettingChange": {
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "before": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "after": {
+          "type": "string"
+        },
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "before",
+        "after",
+        "basis"
+      ],
+      "title": "LabSettingChange",
+      "type": "object"
+    },
+    "LabSituation": {
+      "properties": {
+        "name": {
+          "maxLength": 40,
+          "minLength": 1,
+          "type": "string"
+        },
+        "objective": {
+          "enum": [
+            "preserve",
+            "balanced",
+            "growth"
+          ],
+          "type": "string"
+        },
+        "horizonYears": {
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "type": "number"
+        },
+        "cashNeedPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "cashNeedMonths": {
+          "anyOf": [
+            {
+              "maximum": 120,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "riskCapacity": {
+          "enum": [
+            "low",
+            "low_moderate",
+            "moderate",
+            "moderate_high",
+            "high"
+          ],
+          "type": "string"
+        },
+        "riskWillingness": {
+          "enum": [
+            "low",
+            "low_moderate",
+            "moderate",
+            "moderate_high",
+            "high"
+          ],
+          "type": "string"
+        },
+        "experience": {
+          "enum": [
+            "beginner",
+            "intermediate",
+            "advanced"
+          ],
+          "type": "string"
+        },
+        "interest": {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
+        },
+        "reportingCurrency": {
+          "pattern": "^[A-Z]{3}$",
+          "type": "string"
+        },
+        "capital": {
+          "default": 100000,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "holdings": {
+          "items": {
+            "$ref": "#/$defs/LabHolding"
+          },
+          "maxItems": 40,
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "objective",
+        "horizonYears",
+        "cashNeedPct",
+        "riskCapacity",
+        "riskWillingness",
+        "experience",
+        "interest",
+        "reportingCurrency"
+      ],
+      "title": "LabSituation",
+      "type": "object"
+    },
+    "LabSleeve": {
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "weightPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "label",
+        "weightPct"
+      ],
+      "title": "LabSleeve",
+      "type": "object"
+    },
+    "LabStartRequest": {
+      "properties": {
+        "mode": {
+          "enum": [
+            "new",
+            "quick",
+            "full"
+          ],
+          "type": "string"
+        },
+        "profileId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProfileId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profileVersion": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "situation": {
+          "$ref": "#/$defs/LabSituation"
+        }
+      },
+      "required": [
+        "mode",
+        "situation"
+      ],
+      "title": "LabStartRequest",
       "type": "object"
     },
     "LabelWeight": {
@@ -12731,6 +13646,9 @@
     "InvestmentGoal": {
       "$ref": "#/$defs/InvestmentGoal"
     },
+    "InvestmentPlaybook": {
+      "$ref": "#/$defs/InvestmentPlaybook"
+    },
     "InvestorContext": {
       "$ref": "#/$defs/InvestorContext"
     },
@@ -12739,6 +13657,69 @@
     },
     "InvestorRequirement": {
       "$ref": "#/$defs/InvestorRequirement"
+    },
+    "LabAcceptedSetting": {
+      "$ref": "#/$defs/LabAcceptedSetting"
+    },
+    "LabConfirmRequest": {
+      "$ref": "#/$defs/LabConfirmRequest"
+    },
+    "LabConsultRequest": {
+      "$ref": "#/$defs/LabConsultRequest"
+    },
+    "LabConsultation": {
+      "$ref": "#/$defs/LabConsultation"
+    },
+    "LabContrastRequest": {
+      "$ref": "#/$defs/LabContrastRequest"
+    },
+    "LabDecision": {
+      "$ref": "#/$defs/LabDecision"
+    },
+    "LabEvidence": {
+      "$ref": "#/$defs/LabEvidence"
+    },
+    "LabFinalRequest": {
+      "$ref": "#/$defs/LabFinalRequest"
+    },
+    "LabHolding": {
+      "$ref": "#/$defs/LabHolding"
+    },
+    "LabInitialRequest": {
+      "$ref": "#/$defs/LabInitialRequest"
+    },
+    "LabObservation": {
+      "$ref": "#/$defs/LabObservation"
+    },
+    "LabPlaybookRequest": {
+      "$ref": "#/$defs/LabPlaybookRequest"
+    },
+    "LabPoint": {
+      "$ref": "#/$defs/LabPoint"
+    },
+    "LabReviewRecord": {
+      "$ref": "#/$defs/LabReviewRecord"
+    },
+    "LabSession": {
+      "$ref": "#/$defs/LabSession"
+    },
+    "LabSessionsResponse": {
+      "$ref": "#/$defs/LabSessionsResponse"
+    },
+    "LabSetting": {
+      "$ref": "#/$defs/LabSetting"
+    },
+    "LabSettingChange": {
+      "$ref": "#/$defs/LabSettingChange"
+    },
+    "LabSituation": {
+      "$ref": "#/$defs/LabSituation"
+    },
+    "LabSleeve": {
+      "$ref": "#/$defs/LabSleeve"
+    },
+    "LabStartRequest": {
+      "$ref": "#/$defs/LabStartRequest"
     },
     "LabelWeight": {
       "$ref": "#/$defs/LabelWeight"
@@ -13391,9 +14372,31 @@
     "InitialPortfolio",
     "InputOrigin",
     "InvestmentGoal",
+    "InvestmentPlaybook",
     "InvestorContext",
     "InvestorHorizon",
     "InvestorRequirement",
+    "LabAcceptedSetting",
+    "LabConfirmRequest",
+    "LabConsultRequest",
+    "LabConsultation",
+    "LabContrastRequest",
+    "LabDecision",
+    "LabEvidence",
+    "LabFinalRequest",
+    "LabHolding",
+    "LabInitialRequest",
+    "LabObservation",
+    "LabPlaybookRequest",
+    "LabPoint",
+    "LabReviewRecord",
+    "LabSession",
+    "LabSessionsResponse",
+    "LabSetting",
+    "LabSettingChange",
+    "LabSituation",
+    "LabSleeve",
+    "LabStartRequest",
     "LabelWeight",
     "Lang",
     "LegendItem",
@@ -13571,9 +14574,9 @@
   "$id": "https://aplomb.local/contracts/1.6.0/schema.json",
   "x-contract-version": "1.6.0",
   "x-spec-sha256": {
-    "schemas.md": "c28b9abfda7c38c5d287d87b04a8653c81bdbea7cee39ebb728f355519f8a175",
+    "schemas.md": "ea30afb1eeefd7c50254ce874b80e2b2e57c5bb94aaecab6163c63a51c883005",
     "catalog.md": "a7ee608401ad047e6c859eeb258ac80c938cb58a0205648e03067ae90391f4f2",
-    "api.md": "2de9f14a8c333a456255296b7308c9953f54cba26da01e6258a6c88d10b4e93f",
+    "api.md": "67b55573e1fa61ebd23cc3bc75dfbbdec874bd6b2914d15c91ba0944e9061700",
     "run-events.md": "ef6e43bbf5e909784ef0b9a55cf1bbd9b446600f6f8f25bc3af6ec02add09562",
     "tools.md": "918c5351716b4a2c57f32cbb0665ceb9186d1b1430746a719377f6bad362e576"
   }

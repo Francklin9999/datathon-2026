@@ -82,6 +82,10 @@ Every non-2xx response has the body `ApiError`:
 | 3.11 | GET `/profiles/{profileId}/frontier` | P1 | Frontier chart data |
 | 3.12 | GET `/profiles/{profileId}/brief` | P0 | Latest cached portfolio brief |
 | 3.13 | POST `/profiles/{profileId}/strategies/simulate` | P1 | Simulate a standing strategy on history |
+| Lab | GET, POST `/investor-lab` | P1 | List session-owned Labs or start new/quick/full exercise |
+| Lab | GET `/investor-lab/{labId}` | P1 | Resume a masked historical exercise |
+| Lab | POST `/investor-lab/{labId}/{action}` | P1 | Record initial/consult/final/contrast or confirm reviewed settings |
+| Lab | PUT `/profiles/{profileId}/playbook` | P1 | Explicitly edit decision principles and record the reason |
 | 4.1 | POST `/requests/parse` | P0 | Free text → structured request |
 | 4.2 | POST `/check` | P0 | Deterministic rule check (slider, threshold edits) |
 | 4.2b | POST `/check/batch` | P0 | Up to five ordered independent checks; a pair also gets rule-by-rule `differences` |
@@ -168,6 +172,28 @@ Request: `{}`. Response `200`:
 ---
 
 ## 3. Profiles
+
+### Investor Lab and investment playbook
+
+All Lab endpoints require `profile_creator` and the normal session header.
+
+| Method and path | Request | Response |
+|---|---|---|
+| GET `/investor-lab` | — | `LabSessionsResponse` |
+| POST `/investor-lab` | `LabStartRequest` | `201 LabSession` |
+| GET `/investor-lab/{labId}` | — | `LabSession` |
+| POST `/investor-lab/{labId}/initial` | `LabInitialRequest` | `LabSession` |
+| POST `/investor-lab/{labId}/consult` | `LabConsultRequest` | `LabSession` |
+| POST `/investor-lab/{labId}/final` | `LabFinalRequest` | `LabSession` |
+| POST `/investor-lab/{labId}/contrast` | `LabContrastRequest` | `LabSession` |
+| POST `/investor-lab/{labId}/confirm` | `LabConfirmRequest` | `Profile` |
+| PUT `/profiles/{profileId}/playbook` | `LabPlaybookRequest` | `Profile` |
+
+Start accepts a `mode` (`new`, `quick`, `full`) and stated `situation`. Quick/full also require the selected profile ID and current profile version. All subsequent writes require the current Lab version. Confirmation supplies the explicit accepted setting keys/optional edited values, decision principle, revisit condition and explanation.
+
+A simulation never writes profile settings. Confirmation checks both revisions and saves the reviewed profile and Lab status in one transaction. An existing custom profile retains unrelated data; a default becomes a new custom profile. Repeating confirmation on a saved Lab returns its profile. Cross-session IDs return `404`; stale revisions and stage mismatches return `409`; invalid actions, acceptance sets or bounds return `422`.
+
+Public responses hide proxy identities, source URLs, calendar dates and future observations until review. Research cards appear only when available at the active checkpoint. The review includes proposal provenance and the evidence already consulted. Saved review history is stored in `Profile.investorContext.playbook`; direct playbook edits also append an explained review.
 
 ### 3.1 GET `/profiles` — P0
 

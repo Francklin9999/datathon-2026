@@ -739,9 +739,31 @@ export interface AplombContracts {
   InitialPortfolio: InitialPortfolio;
   InputOrigin: InputOrigin;
   InvestmentGoal: InvestmentGoal;
+  InvestmentPlaybook: InvestmentPlaybook;
   InvestorContext: InvestorContext;
   InvestorHorizon: InvestorHorizon;
   InvestorRequirement: InvestorRequirement;
+  LabAcceptedSetting: LabAcceptedSetting;
+  LabConfirmRequest: LabConfirmRequest;
+  LabConsultRequest: LabConsultRequest;
+  LabConsultation: LabConsultation;
+  LabContrastRequest: LabContrastRequest;
+  LabDecision: LabDecision;
+  LabEvidence: LabEvidence;
+  LabFinalRequest: LabFinalRequest;
+  LabHolding: LabHolding;
+  LabInitialRequest: LabInitialRequest;
+  LabObservation: LabObservation;
+  LabPlaybookRequest: LabPlaybookRequest;
+  LabPoint: LabPoint;
+  LabReviewRecord: LabReviewRecord;
+  LabSession: LabSession;
+  LabSessionsResponse: LabSessionsResponse;
+  LabSetting: LabSetting;
+  LabSettingChange: LabSettingChange;
+  LabSituation: LabSituation;
+  LabSleeve: LabSleeve;
+  LabStartRequest: LabStartRequest;
   LabelWeight: LabelWeight;
   Lang: Lang;
   LegendItem: LegendItem;
@@ -2073,6 +2095,7 @@ export interface InvestorContext {
    * @maxItems 100
    */
   requirements?: InvestorRequirement[];
+  playbook?: InvestmentPlaybook | null;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -2136,6 +2159,109 @@ export interface InvestorRequirement {
   dueDate?: ISODate | null;
   origin?: "user" | "imported" | "system_default" | "assumption" | "regulatory";
   sourceUrl?: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "InvestmentPlaybook".
+ */
+export interface InvestmentPlaybook {
+  principle: string;
+  revisitTrigger: string;
+  interest: string;
+  updatedAt: ISODateTime;
+  /**
+   * @maxItems 30
+   */
+  reviews?: LabReviewRecord[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabReviewRecord".
+ */
+export interface LabReviewRecord {
+  labId: string;
+  confirmedAt: ISODateTime;
+  mode: "new" | "quick" | "full";
+  explanation: string;
+  situation: LabSituation;
+  observations: LabObservation[];
+  changes: LabSettingChange[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabSituation".
+ */
+export interface LabSituation {
+  name: string;
+  objective: "preserve" | "balanced" | "growth";
+  horizonYears: number;
+  cashNeedPct: number;
+  cashNeedMonths?: number | null;
+  riskCapacity: "low" | "low_moderate" | "moderate" | "moderate_high" | "high";
+  riskWillingness: "low" | "low_moderate" | "moderate" | "moderate_high" | "high";
+  experience: "beginner" | "intermediate" | "advanced";
+  interest: string;
+  reportingCurrency: string;
+  capital?: number;
+  /**
+   * @maxItems 40
+   */
+  holdings?: LabHolding[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabHolding".
+ */
+export interface LabHolding {
+  ticker: Ticker;
+  weightPct: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabObservation".
+ */
+export interface LabObservation {
+  checkpoint: number;
+  title: string;
+  startingPct: number;
+  initial: LabDecision;
+  consultations: LabConsultation[];
+  final?: LabDecision | null;
+  revisitTrigger?: string;
+  contrast?: LabDecision | null;
+  contrastPrompt?: string;
+  interpretation?: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabDecision".
+ */
+export interface LabDecision {
+  action: "hold" | "buy" | "sell" | "rebalance";
+  targetPct: number;
+  reason: "cash_need" | "company_evidence" | "portfolio_balance" | "loss_discomfort" | "long_term" | "other";
+  explanation: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabConsultation".
+ */
+export interface LabConsultation {
+  evidenceId: string;
+  title: string;
+  why: string;
+  consultedAt: ISODateTime;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabSettingChange".
+ */
+export interface LabSettingChange {
+  key: string;
+  label: string;
+  before: string | null;
+  after: string;
+  basis: string[];
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
@@ -3331,6 +3457,161 @@ export interface InvestmentGoal {
   startDate?: ISODate | null;
   endDate?: ISODate | null;
   sourceUrl?: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabAcceptedSetting".
+ */
+export interface LabAcceptedSetting {
+  key: string;
+  value?: number | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabConfirmRequest".
+ */
+export interface LabConfirmRequest {
+  version: number;
+  /**
+   * @maxItems 100
+   */
+  accepted: LabAcceptedSetting[];
+  principle: string;
+  revisitTrigger: string;
+  explanation: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabConsultRequest".
+ */
+export interface LabConsultRequest {
+  version: number;
+  evidenceId: string;
+  why: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabContrastRequest".
+ */
+export interface LabContrastRequest {
+  version: number;
+  decision: LabDecision;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabEvidence".
+ */
+export interface LabEvidence {
+  evidenceId: string;
+  category: "exposures" | "company" | "macro" | "disclosure";
+  title: string;
+  available: boolean;
+  summary: string;
+  relativeDate: string;
+  sourceUrl?: string | null;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabFinalRequest".
+ */
+export interface LabFinalRequest {
+  version: number;
+  decision: LabDecision;
+  revisitTrigger: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabInitialRequest".
+ */
+export interface LabInitialRequest {
+  version: number;
+  decision: LabDecision;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabPlaybookRequest".
+ */
+export interface LabPlaybookRequest {
+  version: number;
+  principle: string;
+  revisitTrigger: string;
+  explanation: string;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabPoint".
+ */
+export interface LabPoint {
+  step: number;
+  value: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabSession".
+ */
+export interface LabSession {
+  labId: string;
+  version: number;
+  mode: "new" | "quick" | "full";
+  stage: "initial" | "research" | "contrast" | "review" | "saved";
+  profileId: ProfileId | null;
+  savedProfileId?: ProfileId | null;
+  situation: LabSituation;
+  checkpoint: number;
+  checkpointCount: number;
+  title: string;
+  prompt: string;
+  chart: LabPoint[];
+  sleeves: LabSleeve[];
+  focusPct: number;
+  evidence: LabEvidence[];
+  observations: LabObservation[];
+  settings: LabSetting[];
+  proposedPrinciple: string;
+  proposedRevisitTrigger: string;
+  limitations: string[];
+  reveal: string[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabSleeve".
+ */
+export interface LabSleeve {
+  label: string;
+  weightPct: number;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabSetting".
+ */
+export interface LabSetting {
+  key: string;
+  label: string;
+  current: string | null;
+  proposed: string;
+  value?: number | null;
+  minimum?: number | null;
+  maximum?: number | null;
+  basis: string[];
+  explanation: string;
+  required?: boolean;
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabSessionsResponse".
+ */
+export interface LabSessionsResponse {
+  items: LabSession[];
+}
+/**
+ * This interface was referenced by `AplombContracts`'s JSON-Schema
+ * via the `definition` "LabStartRequest".
+ */
+export interface LabStartRequest {
+  mode: "new" | "quick" | "full";
+  profileId?: ProfileId | null;
+  profileVersion?: number | null;
+  situation: LabSituation;
 }
 /**
  * This interface was referenced by `AplombContracts`'s JSON-Schema
