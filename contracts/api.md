@@ -82,9 +82,14 @@ Every non-2xx response has the body `ApiError`:
 | 3.11 | GET `/profiles/{profileId}/frontier` | P1 | Frontier chart data |
 | 3.12 | GET `/profiles/{profileId}/brief` | P0 | Latest cached portfolio brief |
 | 3.13 | POST `/profiles/{profileId}/strategies/simulate` | P1 | Simulate a standing strategy on history |
-| Lab | GET, POST `/investor-lab` | P1 | List session-owned Labs or start new/quick/full exercise |
+| Lab | GET `/investor-lab` | P1 | List session-owned Labs |
+| Lab | POST `/investor-lab` | P1 | Start a new, quick or full exercise |
 | Lab | GET `/investor-lab/{labId}` | P1 | Resume a masked historical exercise |
-| Lab | POST `/investor-lab/{labId}/{action}` | P1 | Record initial/consult/final/contrast or confirm reviewed settings |
+| Lab | POST `/investor-lab/{labId}/initial` | P1 | Record the initial action and target weight |
+| Lab | POST `/investor-lab/{labId}/consult` | P1 | Consult dated evidence at the current checkpoint |
+| Lab | POST `/investor-lab/{labId}/final` | P1 | Record the final action, explanation and revisit condition |
+| Lab | POST `/investor-lab/{labId}/contrast` | P1 | Record the contrasting scenario response |
+| Lab | POST `/investor-lab/{labId}/confirm` | P1 | Confirm reviewed settings and save the profile and playbook |
 | Lab | PUT `/profiles/{profileId}/playbook` | P1 | Explicitly edit decision principles and record the reason |
 | 4.1 | POST `/requests/parse` | P0 | Free text → structured request |
 | 4.2 | POST `/check` | P0 | Deterministic rule check (slider, threshold edits) |
