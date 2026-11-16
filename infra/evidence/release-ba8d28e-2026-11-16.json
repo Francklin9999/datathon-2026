@@ -1,0 +1,43 @@
+{
+  "release": "ba8d28e6265603fcef2818710ccec895253c3db1",
+  "deployedAt": "2026-11-16T01:17:00Z",
+  "stackName": "Aplomb",
+  "region": "us-east-1",
+  "version": "14",
+  "contents": "main at ba8d28e: the repository wiring audit and the deployed-site QA fixes (brief de-duplication and build-only staleness rule, profile-draft field grounding, research tool registry and honest failure counts, emissions.facilities gated by its capture date, retired routes removed with their contract rows), contract 1.6.0 (additive), on top of release 1307604 and the world expansion of a2cdd7e/3054df5. Snapshot snap-20261115-globalfx and the ten flags unchanged.",
+  "reason": "The site publishes ba8d28e (contract 1.6.0); ship the matching backend so the brief, profile-draft, research and contract changes take effect.",
+  "method": "Full gate on ba8d28e before the push: npm run check (ruff, pytest, tsc, web tests, specs, infra tests and synth) and the static build; browser smoke 36/36 routes at 375/768/1440 px and both Robert/Amira comparisons; QA smoke at 1300x924 and 390x844; Strategies and Home degrade cleanly against the 4f42460 (contract 1.4.0) API code. Artifact packaged by infra/scripts/package-backend.sh in a clean detached worktree at ba8d28e with the Lambda Python 3.12 import check (4660 files, risk input captures at /var/task/data/inputs): deployments/ba8d28e/lambda.zip, S3 version 3atDBzDZJPTnB_nJFZg0cDRPwTqxwGIs, sha256 a60f7a8dea1ea99e7d43853793b4cb379d2ecb922cbb46e7383ed3891246502a, Lambda CodeSha256 pg96jeoeqZ59Q4U3k7TLN50uy5Isu0bnOD7TiRJGUCo= (matches on API and worker). Release config rebuilt from the live stack (Lambda environment and IAM policy resources of version 13); only revision and artifact changed. Application template synthesized from ba8d28e; the deployment copy pins the uploaded artifact and drops the CDK bootstrap parameter/rule and CDKMetadata, as for 1307604. Change set release-ba8d28e reviewed before execution: per-release roles, policies, versions and async config replaced (previous ones Retain), both functions modified (code; APLOMB_BUILD_REVISION; new APLOMB_DATA_AS_OF=2026-11-12, the snapshot manifest date; APLOMB_RUN_TARGET_SECONDS dropped, its default is the same 90), HTTP API CORS adds retry-after to the exposed headers, integration modified, invoke permission replaced; IAM statements identical apart from the order of the same eight model ARNs; no table, bucket, distribution, alarm or queue change. AWS calls were made with boto3 under the datathon-2026 profile (WSParticipantRole) because the AWS MCP was not available in this session.",
+  "liveChecks": {
+    "meta": "contract 1.6.0, snap-20261115-globalfx, the same ten flags on, X-Aplomb-Build ba8d28e",
+    "endpoints": "health, profiles, robert overview (1y), world observations and datasets answered 200",
+    "strategies": "simulate answered 200 for rebalance (calendar, quarterly), contribute (monthly, underweight) and risk_guard on Robert, window 1y: 247 points each",
+    "decision": {
+      "runId": "run_01M7GZ20B0A1FQV26V5REQTER5",
+      "request": "Robert TSLA +25, pro rata, English",
+      "status": "succeeded",
+      "seconds": 39,
+      "steps": "plan, quant, risk_check, write, audit, sign (the planner asked no research question)",
+      "counts": "1 pass, 1 tension, 6 conflict, 3 info",
+      "verdict": "conflict",
+      "audit": "19 sentences checked, 0 struck, 0 repaired",
+      "signed": true
+    },
+    "eventBrief": {
+      "runId": "run_01M7GZ4YGHD92J8HGJGE7BFFFV",
+      "event": "evt_539e907647ee (monetary policy, Canada)",
+      "status": "succeeded",
+      "seconds": 98,
+      "research": "10 research calls with 3 tools (web.browse through AgentCore Browser, web.fetch, research.save_evidence); 5 sources saved; 3 tool calls failed",
+      "audit": "12 sentences checked, 0 struck, 0 repaired",
+      "signed": true
+    },
+    "isolation": "another session -> 404 for the decision run"
+  },
+  "limits": [
+    "Released from a session without the AWS MCP; the same CloudFormation and S3 API calls were made with boto3."
+  ],
+  "notVerified": [
+    "Portfolio brief runs and their server-side de-duplication, profile drafts, replay, goal and sabotage runs were not repeated on this release."
+  ],
+  "rollback": "Update to the 1307604 template (artifact deployments/1307604/lambda.zip version z0cO4r8yN9.M2Dx2zMpARAfPdvPAEdNL); its roles, policies, versions and async config were retained."
+}
