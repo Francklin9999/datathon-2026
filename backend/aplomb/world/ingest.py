@@ -321,10 +321,32 @@ def dump(value) -> str:
     return json.dumps(value, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
 
 
+# Event feed rule (team decision): the only natural-disaster events kept in the feed are USGS
+# earthquakes of magnitude 6.0 or more. Every captured earthquake stays in hazards.json (the
+# natural_hazards layer); NASA EONET natural events are not part of the feed.
+FEED_MIN_EARTHQUAKE_MAGNITUDE = 6.0
+FEED_RULE = ("natural_disaster events are kept only for USGS earthquakes of magnitude >= 6.0 (magnitude from the "
+             "catalog record in hazards.json); every captured earthquake stays in hazards.json")
+# Bundle sources whose events all come from one origin, so their kept item count is known.
+ORIGIN_SOURCES = {"usgs_earthquakes": "usgs", "nasa_eonet": "eonet"}
+
+
+def in_event_feed(event: dict, magnitudes: dict[str, float | None]) -> bool:
+    """``FEED_RULE``: a natural-disaster event stays only as a USGS earthquake of magnitude 6.0 or more."""
+    if event["category"] != "natural_disaster":
+        return True
+    magnitude = magnitudes.get(event["sources"][0]["url"])
+    return event["origin"] == "usgs" and magnitude is not None and magnitude >= FEED_MIN_EARTHQUAKE_MAGNITUDE
+
+
 def build_bundle(events: list[dict], hazards: list[dict], sources: list[dict], *, built_at: datetime, start: str, end: str, version_suffix: str = "") -> dict[str, str]:
     """File name -> content of an immutable bundle. Deterministic for the same inputs and clock."""
     version = f"snap-{built_at.strftime('%Y%m%d')}-world{version_suffix}"
+    magnitudes = {h["sourceUrl"]: h.get("magnitude") for h in hazards}
     events = [e for e in merge_events(events) if start <= e["occurredAt"] <= end]
+    excluded = {origin: sum(e["origin"] == origin and not in_event_feed(e, magnitudes) for e in events)
+                for origin in ORIGIN_SOURCES.values()}
+    events = [e for e in events if in_event_feed(e, magnitudes)]
     for ev in events:
         ev["importance"] = importance(ev, built_at.date())
         ev["datasetId"], ev["dataVersion"] = "world_events", version
@@ -332,6 +354,10 @@ def build_bundle(events: list[dict], hazards: list[dict], sources: list[dict], *
     by_id = {h["hazardId"]: h for h in hazards if start <= h["occurredAt"][:10] <= end}
     hazards = sorted(by_id.values(), key=lambda h: (h["occurredAt"], h["hazardId"]))
     files = {"events.json": dump(events), "hazards.json": dump(hazards)}
+    kept = _count(events, "origin")
+    sources = [{**s, "items": kept.get(ORIGIN_SOURCES[s["id"]], 0),
+                "excludedByFeedRule": excluded[ORIGIN_SOURCES[s["id"]]]}
+               if s["id"] in ORIGIN_SOURCES and s.get("status") == "ok" else s for s in sources]
 
     def span(dates: list[str]) -> dict | None:
         return {"start": min(dates), "end": max(dates)} if dates else None
@@ -349,11 +375,14 @@ def build_bundle(events: list[dict], hazards: list[dict], sources: list[dict], *
                                           "GDELT captures are separate world_gdelt_* source observations, not world events."},
             {"source": "ECCC / EPA facility emissions", "reason": "Not part of this bundle. ECCC facility emissions are served "
                                                           "separately as emissions_facilities; EPA facility emissions are not loaded."},
-            {"source": "NASA FIRMS wildfires", "reason": "Not part of this bundle. Bounded FIRMS MODIS detections are separate "
-                                                 "world_firms_* source observations, not world events."},
+            {"source": "NASA FIRMS wildfires", "reason": "Not part of this bundle. FIRMS MODIS detections are not served."},
+            {"source": "NASA EONET natural events; USGS earthquakes below magnitude 6.0",
+             "reason": "Not part of the event feed (team decision): the feed keeps natural disasters only as USGS "
+                       "earthquakes of magnitude 6.0 or more. Every captured earthquake stays in the natural_hazards layer."},
         ],
         "method": {"importance": "min(1, 0.45*official + 0.35*min(distinctPublishers,5)/5 + 0.20*max(0, 1-ageDays/30)) at builtAt",
                    "eventId": "evt_ + first 12 hex of SHA-1 of the canonical source URL",
+                   "naturalDisasterRule": FEED_RULE,
                    "trackingParamsRemoved": sorted(TRACKING_PARAMS)},
     }
     files["manifest.json"] = dump(manifest)

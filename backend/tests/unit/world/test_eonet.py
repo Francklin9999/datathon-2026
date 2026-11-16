@@ -20,8 +20,13 @@ def test_event_keeps_source_point_without_inferred_country_or_publication():
     assert row['location']['countryIso3'] is None
     assert row['location']['lat'] == -30
     assert row['publishedAt'] is None and row['relatedTickers'] == []
-    files = build_bundle(found, [], [], built_at=datetime(2026, 11, 15, tzinfo=timezone.utc), start='2026-01-01', end='2026-12-31')
-    WorldEvent.model_validate(json.loads(files['events.json'])[0])
+    WorldEvent.model_validate({**row, 'datasetId': 'world_events', 'dataVersion': 'snap-20261115-world'})
+    # Event feed rule: natural-disaster events are kept only as USGS earthquakes of magnitude 6.0 or more.
+    files = build_bundle(found, [], [{'id': 'nasa_eonet', 'status': 'ok', 'items': 1}],
+                         built_at=datetime(2026, 11, 15, tzinfo=timezone.utc), start='2026-01-01', end='2026-12-31')
+    assert json.loads(files['events.json']) == []
+    source = json.loads(files['manifest.json'])['sources'][0]
+    assert source['items'] == 0 and source['excludedByFeedRule'] == 1
 
 
 def test_invalid_point_polygon_and_untrusted_identity_are_rejected():
@@ -64,8 +69,9 @@ def test_rebuild_fetches_eonet_and_labels_the_version(tmp_path, monkeypatch):
     assert ingest.main(['--start', '2021-11-12', '--end', '2026-11-12', '--out', str(out)]) == 0
     manifest = json.loads((out / 'manifest.json').read_text(encoding='utf-8'))
     assert manifest['worldVersion'].endswith('-eonet-' + eonet['payloadSha256'][:8])
-    assert manifest['events']['byOrigin'] == {'eonet': 1}
-    assert any(s['id'] == 'nasa_eonet' and s['status'] == 'ok' for s in manifest['sources'])
+    assert manifest['events']['byOrigin'] == {}  # captured, then kept out of the event feed by its rule
+    assert any(s['id'] == 'nasa_eonet' and s['status'] == 'ok' and s['items'] == 0 and s['excludedByFeedRule'] == 1
+               for s in manifest['sources'])
 
 
 def test_first_observation_is_used_not_latest_track_location():

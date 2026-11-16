@@ -122,8 +122,7 @@ Every non-2xx response has the body `ApiError`:
 | 6.5 | GET `/world/countries/{iso3}` | P1 | Country panel |
 | 6.6 | GET `/world/facilities` | P1 | Emissions facilities |
 | 6.7 | GET `/world/hazards` | P1 | Earthquakes and wildfires (the packaged bundle currently holds USGS earthquakes only) |
-| 6.8 | GET `/world/observations` | P1 | Source-backed world observations; optional `profileId` adds a completed holdings assessment to every item. `mode`, `bbox`, `country`, `from`, `to`, `asOf`, `q`, `scope` (`all`/`providers`), `mapOnly` (boolean), `order` (`date`/`coverage`), `limit`, `cursor`. Coverage order interleaves source datasets and geographic cells; cursors bind these options and the assessed holdings. |
-| 6.9 | GET `/world/airports` | P1 | Static airport references and optional portfolio assessments |
+| 6.8 | GET `/world/observations` | P1 | Source-backed world observations (modes `news`, `macro`, `environment`); optional `profileId` adds a completed holdings assessment to every item. `mode`, `bbox`, `country`, `from`, `to`, `asOf`, `q`, `scope` (`all`/`providers`), `mapOnly` (boolean), `order` (`date`/`coverage`), `limit`, `cursor`. Coverage order interleaves source datasets and geographic cells; cursors bind these options and the assessed holdings. |
 | 7.1 | GET `/replay/presets` | P1 | Time Machine dates on offer |
 | 8.1 | GET `/datasets` | P0 | Data room |
 | 8.2 | GET `/datasets/{datasetId}` | P0 | One passport |
@@ -579,6 +578,10 @@ Query:
 
 `200` → `{ items: (WorldEvent & { portfolioRelevant?: boolean })[]; nextCursor: string | null; total: number; coverage: Period; dataVersion: DataVersion }`.
 
+The feed keeps natural disasters only as USGS earthquakes of magnitude 6.0 or more (rule applied when the bundle is built, `manifest.json` `method.naturalDisasterRule`); every captured earthquake stays in `/world/hazards`, and NASA EONET natural events are not in the feed.
+
+Country codes and names follow the team decision of `schemas.md` §10: source codes and names for Israel, the West Bank and Gaza are presented as `PSE` / Palestine, so `country=ISR` selects the `PSE` rows.
+
 `portfolioRelevant` uses the same matcher as the detail assessment: a held issuer is named, a holding shares a disclosed theme proxy, or its listing country is in the source's related countries. One match is sufficient. The flag identifies potential relevance; it does not establish financial impact.
 
 The cursor binds the filters, data version, profile and effective holdings. Switching profiles or editing the portfolio requires a fresh first page.
@@ -601,6 +604,8 @@ Query: `profileId` (required). `200` → `{ items: CountryExposure[]; basisNote:
 
 Query: `profileId`, `from`, `to`. `200` → `{ countryIso3: string; name: I18nText; exposure: CountryExposure | null; events: WorldEvent[] /* top 20 by importance */; macro: Fact[] /* policy rate, CPI where the country is CAN or USA */ }`.
 
+`GET /world/countries/ISR` answers the `PSE` (Palestine) panel (team decision, `schemas.md` §10). Its World Bank indicators are the World Bank's own `PSE` series (West Bank and Gaza); the ISR-coded rows are not served.
+
 ### 6.6 GET `/world/facilities` — flag `world_layer_facilities`
 
 Query: `profileId` (optional), `bbox`, `country`, `ticker`, `minEmissions`, `limit` (default 500, max 2,000). `200` → `{ items: Facility[]; total: number; reportingYear: number; limitations: LimitationCode[] }`. With `profileId`, every item includes `assessment` using the same holdings screen as §6.3.
@@ -611,17 +616,13 @@ Facility captures expose optional `capturedAt` and `dataVersion` alongside `repo
 
 Query: `profileId` (optional), `from`, `to`, `type`, `bbox`, `limit`. `200` → `{ items: Hazard[]; total: number }`. With `profileId`, every item includes `assessment`, reusing the related fields of the corresponding source event when available.
 
-`type` accepts `earthquake` or `wildfire`, but the packaged world bundle currently contains USGS earthquakes only, so `type=wildfire` returns an empty list. The packaged NASA FIRMS provider captures are not loaded as hazards.
+`type` accepts `earthquake` or `wildfire`, but the packaged world bundle currently contains USGS earthquakes only, so `type=wildfire` returns an empty list. No NASA FIRMS capture is packaged.
 
 ### 6.8 GET `/world/observations`
 
-Query: optional `profileId`, `mode`, `bbox`, `country` (repeatable), `from`, `to`, `asOf`, `q`, `scope` (`all` or `providers`, default `all`), `mapOnly` (boolean, default false), `order` (`date` or `coverage`, default `date`), `limit` (default 250, max 500), `cursor`. `200` → `WorldObservationsResponse` (`schemas.md` §10): `items`, `total`, `nextCursor`, `dataVersion`, `capturedAt` and `modes` (availability, count and reason per mode). Each `WorldObservation` keeps its original source URL, `retrievedAt`, optional `publishedAt`, `occurredAt` with its `timeBasis` (`source_observation`, `reference_period`, `event_date` or `capture_only`; `reference_period` marks a period display anchor, not an observed instant), `datasetId`, limitations, and either a point `location` or source polygon `geometry`. `location: null` means source point coordinates were not established; no pin is invented.
+Query: optional `profileId`, `mode` (`news`, `macro` or `environment`; any other value is `422 validation_error`), `bbox`, `country` (repeatable), `from`, `to`, `asOf`, `q`, `scope` (`all` or `providers`, default `all`), `mapOnly` (boolean, default false), `order` (`date` or `coverage`, default `date`), `limit` (default 250, max 500), `cursor`. `200` → `WorldObservationsResponse` (`schemas.md` §10): `items`, `total`, `nextCursor`, `dataVersion`, `capturedAt` and `modes` (availability, count and reason for each of the three modes). With `scope=all`, feed events are included: monetary policy and macro releases as `macro`, the feed earthquakes as `environment`, other categories as `news`. Aviation, trade and shipping, conflicts, energy, economic infrastructure and observation-level hazards are not served. Each `WorldObservation` keeps its original source URL, `retrievedAt`, optional `publishedAt`, `occurredAt` with its `timeBasis` (`source_observation`, `reference_period`, `event_date` or `capture_only`; `reference_period` marks a period display anchor, not an observed instant), `datasetId`, limitations, and either a point `location` or source polygon `geometry`. `location: null` means source point coordinates were not established; no pin is invented.
 
 With `profileId`, each item includes a completed `WorldPortfolioAssessment`, even when no holdings match or source geography is unavailable. Country resolution uses explicit source codes, names and supported place strings; GDELT FIPS codes are never interpreted as ISO alpha-2. Provider source coordinates, time basis, limitations and capture gating remain intact. A cursor binds the filters, source versions, profile and effective holdings; changing the portfolio requires a fresh first page. Omitting `profileId` preserves unscoped source access.
-
-### 6.9 GET `/world/airports`
-
-Current static references for large scheduled-service airports. Query: optional `profileId`, `country` (ISO3, repeatable), `bbox`, `q`, `limit` (1–2,000, default 2,000). `200` → `AirportsResponse` (`schemas.md` §10). Every returned reference includes `assessment` when `profileId` is supplied. `asOf` is rejected (`422 validation_error`): this captured reference has no historical vintages. Results keep the original source URL and capture time. The capture establishes neither aircraft movements nor an airport-to-company relationship or financial impact.
 
 ---
 

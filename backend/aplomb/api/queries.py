@@ -41,7 +41,6 @@ def parameters(request, kind: str) -> dict:
             "world_observations": (250, 500),
             "world_facilities": (500, 2000),
             "world_hazards": (500, 2000),
-            "world_airports": (2000, 2000),
         }
         if kind in limits:
             default, maximum = limits[kind]

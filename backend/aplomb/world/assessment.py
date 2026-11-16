@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 
-from .geo import UNKNOWN_COUNTRY, resolve_place_country
+from .geo import UNKNOWN_COUNTRY, present_iso3, resolve_place_country
 from .ingest import POLICY_THEMES, related_tickers
 
 # FIPS country codes retained by GDELT are not ISO alpha-2. Only explicit,
@@ -20,10 +20,7 @@ GDELT_FIPS_COUNTRIES = {
     "UP": "UKR", "IN": "IND", "PK": "PAK", "IT": "ITA", "SP": "ESP",
     "MX": "MEX", "BR": "BRA", "SF": "ZAF", "TU": "TUR", "KS": "KOR",
 }
-ELECTRICITY_DATASETS = {
-    "energy_wri_plants", "world_energy_charts_de_power",
-    "world_ember_monthly_generation_2026", "world_climate_trace_canada_electricity_co2",
-}
+ELECTRICITY_DATASETS = {"world_climate_trace_canada_electricity_co2"}
 THEME_RULES = {
     "ai": r"\bartificial intelligence\b",
     "semiconductors": r"\bsemiconductors?\b|\bchip manufacturing\b",
@@ -50,8 +47,8 @@ def source_context(record: dict, *, properties: dict | None = None) -> dict:
     props = properties or {}
     title = record.get("title", record.get("name", ""))
     source_id = record.get("datasetId", record.get("sourceId", ""))
-    countries = set(record.get("relatedCountries") or []) - {UNKNOWN_COUNTRY}
-    country = record.get("countryIso3") or (record.get("location") or {}).get("countryIso3")
+    countries = {present_iso3(code) for code in record.get("relatedCountries") or []} - {UNKNOWN_COUNTRY}
+    country = present_iso3(record.get("countryIso3") or (record.get("location") or {}).get("countryIso3"))
     if country and country != UNKNOWN_COUNTRY:
         countries.add(country)
     for key in ("sourceLocationName", "place", "sourceCountry", "sourceCountryName", "country"):
@@ -90,8 +87,6 @@ def source_context(record: dict, *, properties: dict | None = None) -> dict:
         themes.add("gold")
     if source_id in ELECTRICITY_DATASETS:
         themes.add("utilities")
-    if source_id == "energy_wri_plants" and props.get("primaryFuel") in {"Coal", "Gas", "Oil", "Petcoke"}:
-        themes.add("fossil_energy")
     if POLICY_WORDS.search(title):
         for iso3 in countries:
             themes.update(POLICY_THEMES.get(iso3, ()))

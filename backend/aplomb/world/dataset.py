@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .country_macro import load_snapshot
+from .geo import present_event, present_name, present_rows
 from .ingest import BUNDLE_DIR, content_hash
 
 
@@ -60,6 +61,12 @@ def load_bundle(directory: Path | str = BUNDLE_DIR) -> WorldDataset:
         country_macro, country_macro_manifest = load_snapshot(directory)
     except (OSError, KeyError, TypeError, ValueError) as exc:
         raise WorldDataError(f"World Bank snapshot unavailable: {exc}") from exc
+    # Team decision (geo.PRESENTED_AS), applied once here after every checksum passed: ISR, Israel,
+    # West Bank and Gaza are presented as PSE / Palestine. Where the World Bank has both an ISR and a
+    # PSE series for an indicator, its own PSE series is served and the ISR rows are withheld.
+    events = [present_event(event) for event in events]
+    hazards = [dict(hazard, title=present_name(hazard["title"])) for hazard in hazards]
+    country_macro = tuple(present_rows(country_macro, lambda row: row["indicatorId"])[0])
     return WorldDataset(manifest["worldVersion"], manifest["builtAt"], tuple(events), tuple(hazards), manifest,
                         country_macro, country_macro_manifest)
 

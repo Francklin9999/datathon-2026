@@ -22,12 +22,11 @@ from aplomb.contracts import api as a
 from aplomb.datastore import Snapshot
 from aplomb.quant.facts import FactContext, LocalLedger, fact_key, make_fact
 
-from .airports import filter_airports, load_airports
 from .assessment import source_context
 from .country_macro import INDICATORS
 from .dataset import WorldDataError, WorldDataset
 from .facilities import filter_facilities, load_facilities
-from .geo import UNKNOWN_COUNTRY, country_name, in_bbox
+from .geo import UNKNOWN_COUNTRY, country_name, in_bbox, present_iso3
 from .geo_boundaries import geometry_intersects_bbox
 from .relationships import event_geography
 
@@ -56,32 +55,28 @@ LINK_ORDER = ("named_in_source", "theme", "listing_country")
 # Manifest source record of an event, by the publisher of its primary source.
 SOURCE_BY_PUBLISHER = {"U.S. Geological Survey": "usgs_earthquakes", "Bank of Canada": "boc_press",
                        "Federal Reserve Board": "fed_monetary", "Statistics Canada": "statcan_daily", "NASA EONET": "nasa_eonet"}
-OBSERVATION_MODES = ("news", "macro", "trade", "energy", "hazards", "conflicts",
-                     "aviation", "environment", "infrastructure")
+# The World Explorer serves the modes that support the persona decisions: news, macro and markets,
+# and ESG and environment. Aviation, trade and shipping, conflicts, energy, economic infrastructure
+# and observation-level hazards are not served (earthquakes stay in the hazards layer).
+OBSERVATION_MODES = ("news", "macro", "environment")
 EVENT_MODES = {
-    "monetary_policy": "macro", "macro_release": "macro", "geopolitical": "conflicts",
-    "trade_regulation": "trade", "energy_commodities": "energy", "natural_disaster": "hazards",
+    "monetary_policy": "macro", "macro_release": "macro",
+    "natural_disaster": "environment",
+    "geopolitical": "news", "trade_regulation": "news", "energy_commodities": "news",
     "corporate": "news", "markets": "news", "other": "news",
 }
 PROVIDER_MODES = {
     "world_wikimedia_topic_pageviews": "news",
     "world_wikipedia_recent_changes": "news",
     "world_fda_drug_enforcement_counts": "news", "world_crossref_climate_bibliography": "news",
-    "world_ted_published_notice_metadata": "trade",
     "world_climate_trace_canada_electricity_co2": "environment",
-    "world_ecb_press": "macro", "world_uk_sanctions_updates": "conflicts",
-    "world_geoboundaries_fra_adm1": "infrastructure", "world_ucdp_ged_ukraine_2025": "conflicts",
+    "world_ecb_press": "macro",
     "world_nasa_cmr_modis_granules": "environment",
     "world_nasa_gibs_modis_tile": "environment",
-    "world_osm_eiffel_tower": "infrastructure",
-    "world_nominatim_eiffel_lookup": "infrastructure",
     "world_global_carbon_budget_2026": "environment",
-    "world_copernicus_activation_centroids": "hazards",
-    "world_firms_modis_europe": "hazards",
-    "world_firms_modis_australia_area": "hazards",
-    "world_geofabrik_monaco_transport": "infrastructure",
-    "world_hapi_inform_risk_2025": "hazards",
 }
+# Provider captures whose source geometry, not a point, decides a bounding-box match.
+GEOMETRY_DATASETS = frozenset({"world_nasa_cmr_modis_granules", "world_nasa_gibs_modis_tile"})
 
 
 def geographic_observation_order(rows: list[dict]) -> list[dict]:
@@ -158,7 +153,7 @@ class WorldServiceImpl:
     def _country_weights(holdings) -> dict[str, list[tuple[str, float]]]:
         out: dict[str, list[tuple[str, float]]] = {}
         for asset, weight in holdings:
-            out.setdefault(asset.country or UNKNOWN_COUNTRY, []).append((asset.ticker, weight))
+            out.setdefault(present_iso3(asset.country) or UNKNOWN_COUNTRY, []).append((asset.ticker, weight))
         return out
 
     def _assessment(self, context: dict, holdings, profile_id: str, *, source_record: bool = True) -> dict:
@@ -256,8 +251,8 @@ class WorldServiceImpl:
     def observations(self, session_id: str, query: dict) -> a.WorldObservationsResponse:
         """Bounded, source-backed world observations for mode and viewport exploration.
 
-        Static airport and facility references stay on their own endpoints: they
-        have no valid observation timestamp. Optional provider corruption only
+        Static facility references stay on their own endpoint: they have no valid
+        observation timestamp. Optional provider corruption only
         disables those providers; it does not break the core event feed.
         """
         ds = self.dataset()
@@ -285,7 +280,7 @@ class WorldServiceImpl:
         if type(map_only) is not bool:
             raise _invalid("mapOnly must be a boolean", "mapOnly")
         bbox = tuple(float(v) for v in query["bbox"].split(",")) if query.get("bbox") else None
-        countries = set(query.get("country") or [])
+        countries = {present_iso3(code) for code in query.get("country") or []}
         needle = (query.get("q") or "").strip().casefold()
         if len(needle) > 200:
             raise _invalid("search must contain at most 200 characters", "q")
@@ -336,8 +331,7 @@ class WorldServiceImpl:
                 "summary": _observation_summary(item),
                 "occurredAt": _utc_stamp(observed), "publishedAt": _utc_stamp(published) if published else None,
                 "timeBasis": ("reference_period" if reference_month else
-                             (("event_date" if item["sourceId"] == "world_ucdp_ged_ukraine_2025"
-                              else "reference_period" if props.get("temporalPrecision") else "source_observation")
+                             (("reference_period" if props.get("temporalPrecision") else "source_observation")
                              if item.get("observedAt") else
                              ("event_date" if published else "capture_only"))),
                 "retrievedAt": _utc_stamp(item["retrievedAt"]),
@@ -373,8 +367,7 @@ class WorldServiceImpl:
         if bbox:
             rows = [r for r in rows if (
                 geometry_intersects_bbox(r.get("geometry"), bbox)
-                if r["datasetId"] in {"world_geoboundaries_fra_adm1", "world_nasa_cmr_modis_granules",
-                                      "world_osm_eiffel_tower", "world_nasa_gibs_modis_tile"}
+                if r["datasetId"] in GEOMETRY_DATASETS
                 else r["location"] and in_bbox(r["location"]["lat"], r["location"]["lon"], bbox)
             )]
         if start:
@@ -430,18 +423,10 @@ class WorldServiceImpl:
         hazards_ok = ds is not None and bool(ds.hazards)
         categories = sorted(ds.manifest["events"]["byCategory"]) if events_ok else []
         try:
-            airport_rows, airport_meta = load_airports()
-        except (ValueError, OSError, KeyError):
-            airport_rows, airport_meta = [], None
-        try:
             facility_rows, facility_meta = load_facilities()
         except (ValueError, OSError, KeyError):
             facility_rows, facility_meta = [], None
         items = [
-            {"layerId": "airports", "title": _t("Airports · static reference", "Aéroports · référence statique"),
-             "tier": "P2", "available": bool(airport_rows), "datasetIds": ["world_airports"],
-             "legend": [{"label": _t("Large scheduled-service airport", "Grand aéroport avec service régulier"), "color": "#BCA9F5"}],
-             "count": len(airport_rows) if airport_meta else None, "coverage": None},
             {"layerId": "events", "title": _t("Events", "Événements"), "tier": "P1", "available": events_ok,
              "datasetIds": ["world_events"],
              "legend": [{"label": _t(*CATEGORY_LABELS[c]), "color": CATEGORY_COLORS[c]} for c in categories],
@@ -464,33 +449,11 @@ class WorldServiceImpl:
         ]
         return a.WorldLayersResponse.model_validate({"items": items})
 
-    def airports(self, session_id: str, query: dict) -> a.AirportsResponse:
-        try:
-            rows, meta = load_airports()
-        except (ValueError, OSError, KeyError) as exc:
-            raise unavailable("Airport snapshot failed integrity validation") from exc
-        if meta is None:
-            raise unavailable("Airport reference is not loaded")
-        # This capture is current reference data, never a historical reconstruction.
-        if query.get("asOf"):
-            raise _invalid("Airport reference does not support historical queries", "asOf")
-        countries = set(query.get("country") or [])
-        selected = filter_airports(rows, query=query.get("q", ""),
-            bbox=tuple(float(v) for v in query["bbox"].split(",")) if query.get("bbox") else None)
-        if countries:
-            selected = [row for row in selected if row["countryIso3"] in countries]
-        page = selected[:query.get("limit", 2000)]
-        if query.get("profileId"):
-            holdings = self._holdings(session_id, query["profileId"])
-            page = [dict(row, assessment=self._assessment(source_context(row), holdings, query["profileId"])) for row in page]
-        return a.AirportsResponse.model_validate({"items": page,
-            "total": len(selected), "dataVersion": meta["dataVersion"], "capturedAt": meta["capturedAt"]})
-
     # 6.2 events -------------------------------------------------------------------------------
 
     def _filter(self, ds: WorldDataset, query: dict, start: str, end: str) -> list[dict]:
         categories = set(query.get("category") or [])
-        countries = set(query.get("country") or [])
+        countries = {present_iso3(code) for code in query.get("country") or []}
         origins = set(query.get("origin") or [])
         allowed = {"gdelt", "official", "curated", "usgs", "firms", "live", "eonet"}
         if origins - allowed:
@@ -583,7 +546,7 @@ class WorldServiceImpl:
                     "is tagged with. Financial impact not established.",
                     f"Lien indirect (hypothèse de l’équipe) : le titre porte l’étiquette thématique {tags}, associée à "
                     f"{subject_fr}. Incidence financière non établie.")))
-            if asset.country and asset.country in event["relatedCountries"]:
+            if asset.country and present_iso3(asset.country) in event["relatedCountries"]:
                 place = country_name(asset.country)
                 links.append(("listing_country", _t(
                     f"Proxy link: listed on an exchange in {place['en']}. A listing location is not revenue or operational "
@@ -740,6 +703,7 @@ class WorldServiceImpl:
     def country(self, session_id: str, iso3: str, query: dict) -> a.WorldCountryResponse:
         if len(iso3) != 3 or not iso3.isascii() or not iso3.isalpha() or not iso3.isupper():
             raise _invalid("country must be an uppercase ISO 3166-1 alpha-3 code", "iso3")
+        iso3 = present_iso3(iso3)  # team decision: GET /world/countries/ISR is the PSE panel
         ds = self.dataset()
         start, end = self._range(ds, query, MAX_RANGE_DAYS)
         exposure = None
@@ -809,7 +773,7 @@ class WorldServiceImpl:
         ds = self.dataset()
         if historical and not self._capture_visible(ds, {"asOf": as_of}):
             return []
-        query = {"q": q, "country": [country] if country else None, "ticker": ticker}
+        query = {"q": q, "country": [present_iso3(country)] if country else None, "ticker": ticker}
         hi = min(x for x in (end, as_of, ds.coverage["end"]) if x)
         lo = start or ds.coverage["start"]
         return self._sorted(self._filter(ds, query, lo, hi), "importance")[:max(1, min(int(limit), 50))]
@@ -831,60 +795,10 @@ def _utc_stamp(value: str) -> str:
 def _observation_summary(row: dict) -> str:
     """Short code-owned description of recorded fields, never an AI summary."""
     props = row.get("properties") or {}
-    if row["sourceId"] == "world_hapi_inform_risk_2025":
-        return (f"INFORM 2025 national humanitarian risk index for {props['sourceCountryName']}: "
-                f"{props['overallRisk']:g} of 10, source risk class {props['riskClass']} "
-                f"and global rank {props['globalRank']}. This annual composite is not a "
-                "disaster event, forecast, issuer exposure or financial risk estimate. "
-                f"{props['attribution']}")
-    if row["sourceId"] == "world_eia_crude_production_2024":
-        return (f"EIA {props['referenceYear']} {props['product']} production: "
-                f"{props['productionThousandBarrelsPerDay']:g} thousand barrels per day. "
-                "This annual country average does not establish current production or issuer exposure. "
-                f"{props['attribution']}")
-    if row["sourceId"] == "world_ember_monthly_generation_2026":
-        return (f"Ember {props['referenceMonth']} {props['electricitySource']}: "
-                f"{props['generationTWh']:g} TWh. Country electricity generation is "
-                "a monthly aggregate, not current plant output or issuer exposure. "
-                f"{props['attribution']}")
-    if row["sourceId"] == "world_geofabrik_monaco_transport":
-        return (f"Geofabrik Monaco extract OpenStreetMap {props['featureClass']} "
-                f"point {props['osmId']}. The extract can include neighboring France; "
-                "the point does not establish an operating company or current service. "
-                f"{props['attribution']}")
-    if row["sourceId"] == "world_copernicus_activation_centroids":
-        return (f"Copernicus EMS activation {props['activationCode']}: {props['event']}. "
-                "The point is the source activation-area centroid, not the disaster epicenter "
-                "or damage boundary. Products and imagery are not loaded.")
-    if row["sourceId"] in {"world_firms_modis_europe", "world_firms_modis_australia_area"}:
-        return (f"NASA FIRMS {props['satellite']} MODIS thermal anomaly: "
-                f"{props['fireRadiativePowerMw']:g} MW radiative power. "
-                "The point is a satellite pixel center, not a confirmed wildfire, "
-                "fire perimeter or loss estimate.")
     if row["sourceId"] == "world_nyfed_sce_inflation_2024":
         return (f"{props['seriesTitle']}, United States, {props['referenceMonth']}: "
                 f"{props['value']:g} {props['unit']}. Household survey expectation, "
                 "not measured CPI inflation. Date is a monthly display anchor. "
-                f"{props['attribution']}")
-    if row["sourceId"] == "world_adsblol_heathrow_positions":
-        return (f"ADS-B.lol captured aircraft report {props['sourceHex']}; "
-                f"source position type {props.get('positionType') or 'unspecified'}, "
-                f"position age {props['positionAgeSeconds']:g} seconds at the source snapshot. "
-                "One Heathrow-area snapshot; no continuous tracking, verified operator "
-                f"or issuer relationship. {props['attribution']}")
-    if row["sourceId"] == "trade_marinecadastre_ais_2024_samples":
-        return (f"NOAA MarineCadastre {props['referenceYear']} annual AIS raster sample: "
-                f"{props['vesselTransitCount']:,} grid-cell transits. "
-                "This point is a selected raster query anchor, not a vessel position "
-                "or port boundary. Annual counts do not measure current traffic, "
-                f"distinct vessels or cargo volume. {props['attribution']}")
-    if row["sourceId"] == "world_osm_eiffel_tower":
-        return (f"OpenStreetMap way {props['osmId']} mapped Eiffel Tower footprint. "
-                "A map feature does not establish its operator or any issuer relationship. "
-                f"{props['attribution']}")
-    if row["sourceId"] == "world_nominatim_eiffel_lookup":
-        return (f"One permanently cached Nominatim lookup for {props['displayName']}. "
-                "The source point is a geocoder result, not an event location or ownership assertion. "
                 f"{props['attribution']}")
     if row["sourceId"] == "world_nasa_gibs_modis_tile":
         return (f"NASA Terra MODIS true-color overview tile dated {props['imageDay']}. "
@@ -896,11 +810,6 @@ def _observation_summary(row: dict) -> str:
                 f"{props['value']:,.2f} {props['unit']}. "
                 "Annual nominal national level; not real growth, an issuer metric or a live market signal. "
                 f"{props['attribution']}")
-    if row["sourceId"] == "world_energy_charts_de_power":
-        return (f"Fraunhofer Energy-Charts Germany {props['productionType']}: "
-                f"{props['value']:,.1f} {props['unit']} at a 15-minute source interval. "
-                "National power is not energy production in MWh or a specific plant's output. "
-                f"{props['attribution']}")
     if row["sourceId"] == "world_global_carbon_budget_2026":
         return (f"Global Carbon Budget 2026 {props['referenceYear']} "
                 f"{props['component']}: {props['value']:g} {props['unit']}. "
@@ -911,11 +820,6 @@ def _observation_summary(row: dict) -> str:
                 f"for {props['periodStart']} to {props['periodEnd']}. Historical single-station "
                 "concentration; not a current air-quality index or health assessment. "
                 f"Source flagged: {props['hasFlags']}. {props['attribution']}")
-    if row["sourceId"] == "world_openflights_airport_reference":
-        return (f"OpenFlights static airport reference {props['iata']} in "
-                f"{props['sourceCity']}, {props['sourceCountry']}. "
-                "Source reference coordinates; no aircraft movement, current operational status "
-                f"or issuer relationship is established. {props['attribution']}")
     if row["sourceId"] == "world_nasa_cmr_modis_granules":
         return (f"NASA MODIS Terra {props['producerGranuleId']} metadata; "
                 f"product coverage {props['observationPeriodStart']} to {props['observationPeriodEnd']}. "
@@ -927,13 +831,6 @@ def _observation_summary(row: dict) -> str:
                 f"user-classified pageviews on {props['referenceDate']} across all access types. "
                 "Topic attention count; does not identify reader location, unique people, sentiment "
                 f"or a confirmed event. {props['attribution']}")
-    if row["sourceId"] == "world_ted_published_notice_metadata":
-        return (f"TED published procurement notice {props['publicationNumber']}; "
-                f"source publication date {props['publicationDate']} (day precision); "
-                f"reported buyer countries: {', '.join(props['buyerCountries'])}. "
-                "Five-notice first-page sample; buyer country is not contract performance geography. "
-                "Publication does not establish an award or realized spending. "
-                f"{props['attribution']}")
     if row["sourceId"] == "world_fda_drug_enforcement_counts":
         return (f"FDA {props['classification']}: {props['recordCount']:,} matching drug enforcement records "
                 f"with report dates {props['queryPeriodStart']} to {props['queryPeriodEnd']}; "
@@ -950,16 +847,6 @@ def _observation_summary(row: dict) -> str:
                 f"{props['emissionsQuantity']:,.0f} {props['unit']} (release {props['dataRelease']}). "
                 "National estimate; may be revised. First-of-month midnight UTC is a display anchor "
                 "for the monthly reference period, not a measurement or publication time.")
-    if row["sourceId"] == "world_geoboundaries_fra_adm1":
-        return (f"geoBoundaries simplified {props['representedYear']} France ADM1 administrative boundary. "
-                "Metropolitan France sample; source polygon has no point coordinates.")
-    if row["sourceId"] == "world_ucdp_ged_ukraine_2025":
-        return (f"UCDP GED 26.1 Ukraine event {props['eventId']}, possible dates "
-                f"{props['dateStart']} to {props['dateEnd']}. Estimated fatalities: "
-                f"{props['fatalitiesBest']} best, {props['fatalitiesLow']}–{props['fatalitiesHigh']} range. "
-                f"Source location precision code {props['locationPrecision']}; "
-                f"date precision code {props['datePrecision']}. "
-                "Midnight UTC represents the earliest possible date, not an exact event time.")
     if row["sourceId"] == "world_ecb_press":
         return "ECB press release metadata from the current RSS feed."
     if row["sourceId"] == "world_wikipedia_recent_changes":
@@ -967,14 +854,6 @@ def _observation_summary(row: dict) -> str:
                 f"revision {props['revisionId']}; {props['oldBytes']:,} to {props['newBytes']:,} bytes. "
                 "Edit activity does not confirm a real-world event or establish geography or issuer relevance. "
                 f"{props['attribution']}")
-    if row["sourceId"] == "world_uk_sanctions_updates":
-        return "UK Sanctions List publication update note. Consult the current official list and applicable law."
-    if row["sourceId"] == "world_usgs_minerals":
-        return (f"USGS estimated {props['commodity']} mine production in {props['country']} for "
-                f"{props['referenceYear']}: {props['value']:g} {props['unit']}. Country total, not a mine location.")
-    if row["sourceId"] == "world_usgs_geojson":
-        return (f"USGS reported magnitude {props['magnitude']:g} earthquake epicenter. "
-                "Affected area, damage and issuer exposure are not established.")
     if row["sourceId"] == "world_ilo_unemployment_2024":
         return (f"ILOSTAT {props['referenceYear']} unemployment rate for {props['sourceCountry']}: "
                 f"{props['unemploymentRate']:g}% of the labor force, total sex, ages 15 and over. "
@@ -998,27 +877,6 @@ def _observation_summary(row: dict) -> str:
     if row["sourceId"] in {"world_gdelt_gkg_locations", "world_gdelt_geographic_mentions"}:
         return (f"GDELT machine-extracted article location mention: {props['sourceLocationName']}. "
                 "A mention is not an event location or verified article claim; publisher content was not fetched.")
-    if row["sourceId"] == "trade_un_comtrade_exports":
-        return (f"Source: UN Comtrade. {props['referenceYear']} merchandise exports from {props['reporterName']} "
-                f"to the world: US${props['valueUsd']:,.0f}. Country total; conditional reuse applies.")
-    if row["sourceId"] == "trade_wits_fuel_exports":
-        return (f"WITS, Source: UN Comtrade. {props['referenceYear']} fuel exports from Canada to the world: "
-                f"US${props['valueUsdThousands']:,.0f} thousand. Country total; conditional reuse applies.")
-    if row["sourceId"] == "trade_unctad_concentration":
-        return (f"United Nations Trade and Development Data Hub (UNCTAD), adapted by Aplomb: "
-                f"{props['referenceYear']} global export market concentration for "
-                f"{props['productLabel']}: {props['concentrationIndex']:.6f}. "
-                "Normalized index, not trade value or port activity.")
-    if row["category"] == "aviation":
-        return f"Airport weather observation at {props.get('stationId', 'station')}: {props.get('metar', 'report unavailable')}."
-    if row["category"] == "energy":
-        fuel = props.get("primaryFuel")
-        capacity = props.get("capacityMw")
-        return f"Power plant reference: {capacity} MW of {fuel} generation capacity." if fuel and capacity is not None else "Power plant reference."
-    if row["category"] == "trade":
-        return "Port location reference. Port activity and issuer exposure are not established."
-    if row["category"] == "hazards":
-        return f"Official alert: {props.get('event', 'hazard')}; severity {props.get('severity', 'not stated')}."
     if row["sourceId"] == "world_nasa_power":
         return (f"NASA POWER gridded daily 2 m temperature: {props['temperatureC']} °C "
                 f"for {props['date']} in local solar time. This is a modeled grid value, not a station measurement.")

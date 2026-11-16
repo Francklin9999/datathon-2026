@@ -1,7 +1,8 @@
 """Capture additional USGS events and build a verified expansion of the existing world bundle.
 
-The prior official releases, NASA events and earthquake archive are retained. A new output
-directory is required so the capture can be checked before replacing the packaged bundle.
+The prior official releases and earthquake archive are retained. Every captured earthquake is a
+hazard; the event feed keeps only USGS earthquakes of magnitude 6.0 or more (``ingest.FEED_RULE``).
+A new output directory is required so the capture can be checked before replacing the packaged bundle.
 """
 from __future__ import annotations
 
@@ -73,12 +74,8 @@ def expand(base: Path, out: Path, capture_dir: Path, start: str, end: str, minim
         WorldEvent.model_validate(event)
     for hazard in json.loads(files["hazards.json"]):
         Hazard.model_validate(hazard)
-    manifest = json.loads(files["manifest.json"])
-    next(item for item in manifest["sources"] if item["id"] == source["id"])["items"] = sum(
-        event["origin"] == "usgs" for event in events
-    )
-    # notIngested keeps build_bundle's per-source reasons (each names where that source is served instead).
-    files["manifest.json"] = json.dumps(manifest, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
+    # build_bundle applies the event feed rule (USGS earthquakes of magnitude 6.0 or more only) and
+    # records each source's kept items; notIngested keeps its per-source reasons.
     write_bundle(files, out)
     verified = load_bundle(out)
     return {

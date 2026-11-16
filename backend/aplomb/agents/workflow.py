@@ -64,7 +64,6 @@ class AgentServices:
     max_research_calls: int = 12
     max_revisions: int = 2
     candidate_provider: object = None
-    event_relationship_provider: object = None
 
 
 class Execution:
@@ -1285,49 +1284,9 @@ def _event_brief(e, ctx):
         x.model_copy(update={"impact": "measured_price_move", "impact_fact_id": moves[x.ticker]}) if x.ticker in moves else x
         for x in exposures
     ]
-    from datetime import date
-
-    from .bridges import event_hypotheses
-
-    provider = e.services.event_relationship_provider
-    review_limitations = [{
-        "en": "Geographic proximity or a shared name is not causation; financial impact is not established.",
-        "fr": "La proximité géographique ou un nom commun n'est pas une cause; l'effet financier n'est pas établi."}]
-    try:
-        with ctx.ledger.transaction():
-            hypotheses = event_hypotheses(provider, event, profile, date.fromisoformat(str(ctx.as_of)), ctx.ledger)
-        review_status = "not_configured" if provider is None else ("documented" if hypotheses else "none_found")
-    except Exception:
-        hypotheses = []
-        review_status = "failed"
-        e.state.setdefault("execution_limitations", []).append(
-            "Event relationship provider failed validation; no additional relationship was asserted.")
-        review_limitations.append({
-            "en": "The relationship source failed validation or was unavailable; no relationship was asserted.",
-            "fr": "La source de relations a échoué à la validation ou était indisponible; aucune relation n'est affirmée."})
-    if review_status == "not_configured":
-        review_limitations.append({
-            "en": "No documented event-to-issuer relationship source is connected for this run.",
-            "fr": "Aucune source documentée de liens événement-émetteur n'est connectée pour cette analyse."})
-    elif review_status == "none_found":
-        review_limitations.append({
-            "en": "No directly documented, date-eligible relationship was found; absence is not proof of no exposure.",
-            "fr": "Aucun lien directement documenté et disponible à la date n'a été trouvé; cela ne prouve pas l'absence d'exposition."})
-    relationship_review = {
-        "status": review_status,
-        "hypotheses": [{
-            "securityId": h["security_id"], "issuerId": h["issuer_id"], "evidenceIds": h["evidence_ids"],
-            # The adapter only ever returns not_established; enforce it again at the wire boundary.
-            "impact": "not_established",
-            "interpretation": {"en": "Documented relationship; financial impact is not established.",
-                               "fr": "Relation documentée; l'effet financier n'est pas établi."},
-        } for h in hypotheses],
-        "limitations": review_limitations,
-    }
-    if hypotheses:
-        e.state["ledger"] = ctx.ledger.checkpoint()
+    # No documented event-to-issuer relationship source is connected, so no relationship review is
+    # produced (EventBriefResult.relationshipReview stays absent); links are the code matches above.
     brief = _draft_and_audit(e, ctx, [], {
-        "documented_hypotheses": hypotheses,
         "event": event.to_wire(), "code_matched_holdings": [x.to_wire() for x in final],
         "limitations": ["LIM_IMPACT_NOT_ESTABLISHED"] + (["LIM_PRICE_MOVE_NOT_CAUSAL"] if moves else []),
         "measured_impact_fact_ids": sorted(moves.values()),
@@ -1338,8 +1297,7 @@ def _event_brief(e, ctx):
 
     def sign():
         statement = IMPACT_MEASURED if moves else IMPACT_NOT_ESTABLISHED if final else NO_LINKED_HOLDING
-        return m.EventBriefResult(event=event, exposures=final, brief=_signed(brief), impact_statement=statement,
-                                  relationship_review=m.EventRelationshipReview.model_validate(relationship_review))
+        return m.EventBriefResult(event=event, exposures=final, brief=_signed(brief), impact_statement=statement)
 
     result = e.step("sign", "auditor", "code", sign, summary=_sign_summary(brief))
     e.save(status="succeeded", result=m.EventBriefRunResult(kind="event_brief", event_brief=result).to_wire())

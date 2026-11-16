@@ -1,13 +1,10 @@
-"""Narrow, conservative ports for deterministic candidate and sourced event providers.
+"""Narrow, conservative port for a deterministic candidate provider.
 
 Providers are injected by composition after integration. Merely naming a company or geographic
 location does not establish a listed-security relationship or a financial impact.
 """
 from dataclasses import dataclass
-from datetime import date
 from typing import Literal, Protocol
-
-from aplomb.intelligence.entities import Relationship
 
 CANDIDATE_TOPICS = frozenset({"risk", "concentration", "plan", "fixed_income", "objective"})
 
@@ -56,53 +53,3 @@ def candidate_findings(provider: CandidateProvider | None, profile, outcome, led
         if (finding.topic == "objective") != (finding.objective is not None):
             raise ValueError("Objective findings require exactly one profile objective")
     return list(findings)
-
-
-@dataclass(frozen=True)
-class EventRelationship:
-    event_reference: Relationship
-    security_issuer: Relationship
-    evidence_ids: tuple[str, ...]
-
-
-class EventRelationshipProvider(Protocol):
-    def __call__(self, event, profile, as_of: date, ledger) -> list[EventRelationship]: ...
-
-
-def event_hypotheses(provider: EventRelationshipProvider | None, event, profile, as_of: date, ledger) -> list[dict]:
-    """Accept only direct, same-issuer, dated relationships with same-run verified evidence.
-
-    A hypothesis is an investigation lead, not a measured exposure or causal impact. Listing IDs
-    must be reconciled to the session portfolio by the integrating provider before display.
-    """
-    if provider is None:
-        return []
-    result = []
-    relationships = provider(event, profile, as_of, ledger)
-    available = ledger.export().evidence
-    if len(relationships) > 20:
-        raise ValueError("Event relationship provider exceeded result budget")
-    for item in relationships:
-        if not isinstance(item, EventRelationship):
-            raise ValueError("Invalid event relationship")
-        event_edge, issuer_edge = item.event_reference, item.security_issuer
-        if (event_edge.relation != "EVENT_REFERENCES_ENTITY" or event_edge.subject_id != event.event_id
-                or issuer_edge.relation != "SECURITY_ISSUED_BY" or event_edge.object_id != issuer_edge.object_id
-                or event_edge.evidence_class != "direct" or issuer_edge.evidence_class != "direct"):
-            raise ValueError("Event hypothesis requires a directly documented event and issuer identity")
-        for edge in (event_edge, issuer_edge):
-            if (edge.valid_from > as_of or (edge.valid_to and edge.valid_to < as_of)
-                    or not edge.evidence.visible(as_of, historical=True)):
-                raise ValueError("Event relationship unavailable at cutoff")
-        if not item.evidence_ids or any(eid not in available or available[eid].verification.status != "verified"
-                                        for eid in item.evidence_ids):
-            raise ValueError("Event relationship requires same-run verified evidence")
-        sources = {available[eid].url for eid in item.evidence_ids}
-        if not {event_edge.evidence.url, issuer_edge.evidence.url} <= sources:
-            raise ValueError("Run evidence does not support both documented relationships")
-        if any(date.fromisoformat(available[eid].retrieved_at[:10]) > as_of for eid in item.evidence_ids):
-            raise ValueError("Run evidence was retrieved after cutoff")
-        result.append({"security_id": issuer_edge.subject_id, "issuer_id": issuer_edge.object_id,
-                       "evidence_ids": list(item.evidence_ids), "impact": "not_established",
-                       "interpretation": "Documented relationship; financial impact is not established."})
-    return result

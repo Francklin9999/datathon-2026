@@ -10,6 +10,8 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
+from ..geo import present_record, present_rows
+
 DIRECTORY = Path(__file__).resolve().parents[1] / "bundle" / "providers"
 
 
@@ -116,6 +118,9 @@ def load_provider_snapshots(directory: Path = DIRECTORY, *, as_of: str | None = 
     With ``errors`` (a list), a damaged capture is recorded there as ``(datasetId, message)`` and its
     whole source is skipped, never replaced by an older version; other sources still load.
     Passing as_of gates at capture, never at an earlier observation/reference date.
+    Rows are returned as presented under the team's country decision (``geo.present_rows`` and
+    ``present_record``, after every checksum is verified); a source's manifest then carries
+    ``presentation`` counts so its passport can say so.
     """
     if not directory.exists():
         return (), ()
@@ -133,7 +138,19 @@ def load_provider_snapshots(directory: Path = DIRECTORY, *, as_of: str | None = 
             errors.append((source, str(exc) or type(exc).__name__))
     for source in failed:
         latest.pop(source, None)
-    return tuple(row for rows, _ in latest.values() for row in rows), tuple(m for _, m in latest.values())
+    presented = [_present(rows, manifest) for rows, manifest in latest.values()]
+    return tuple(row for rows, _ in presented for row in rows), tuple(m for _, m in presented)
+
+
+def _present(rows: list[dict], manifest: dict) -> tuple[list[dict], dict]:
+    """Verified rows as presented (geo team decision); the capture files are not changed."""
+    named = [present_record(row) for row in rows]
+    renamed = sum(new != old for new, old in zip(named, rows, strict=True))
+    served, coded = present_rows(named, lambda row: row["sourceId"])
+    if renamed or coded:
+        manifest = {**manifest, "presentation": {
+            "renamedRows": renamed, "isrRows": coded, "withheldIsrRows": len(named) - len(served)}}
+    return served, manifest
 
 
 def _load_capture(path: Path, as_of: str | None, latest: dict) -> None:

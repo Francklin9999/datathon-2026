@@ -2,7 +2,8 @@
 
 research#2/#3 (SEC research), intelligence#1 (mempool chain), #2 (DefiLlama protocol),
 #5 (live crypto venues), #6 (issuer holdings, Stooq), #10 (security-issuer) and #11
-(Golden Copy entity). The routes that still have a web caller keep answering.
+(Golden Copy entity). The routes that still have a web caller keep answering. The World Explorer
+keeps the persona modes only: the static airport reference is not served.
 """
 import importlib
 
@@ -30,6 +31,8 @@ REMOVED = [
     "/v1/intelligence/stooq/daily?symbol=aapl.us&start=2026-01-01&end=2026-02-01",
     "/v1/intelligence/security-issuer?isin=US0378331005&lei=HWUPKR0MPOU8FGXBT394",
     "/v1/intelligence/gleif-golden/entity/HWUPKR0MPOU8FGXBT394",
+    "/v1/world/airports",
+    "/v1/world/airports?profileId=robert&country=JPN",
 ]
 
 
@@ -50,6 +53,7 @@ def test_removed_route_is_not_registered(client, monkeypatch, path):
 @pytest.mark.parametrize("module", [
     "aplomb.research.sec_extra", "aplomb.research.company_routes", "aplomb.intelligence.chain_routes",
     "aplomb.intelligence.chain_public", "aplomb.intelligence.issuer_holdings", "aplomb.intelligence.stooq",
+    "aplomb.world.airports", "aplomb.world.providers.ucdp_static", "aplomb.world.providers.transport_extra",
 ])
 def test_removed_module_is_gone(module):
     with pytest.raises(ModuleNotFoundError):

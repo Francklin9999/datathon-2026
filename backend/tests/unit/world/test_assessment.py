@@ -43,8 +43,14 @@ def world():
     ({"title": "Other code system"}, {"sourceCountryFips": "CA"}, []),
     ({"title": "No listing country", "countryIso3": "ZZZ", "relatedCountries": ["ZZZ"]}, {}, []),
     ({"title": "Source area"}, {"sourceCountries": ["Japan", "Canada", "Japan"]}, ["CAN", "JPN"]),
-    ({"title": "Australian search-area pixel", "sourceId": "world_firms_modis_australia_area",
-      "latitude": -30, "longitude": 145}, {}, []),  # coordinates and search area do not create a country
+    ({"title": "Gridded sample point", "sourceId": "world_nasa_power",
+      "latitude": -30, "longitude": 145}, {}, []),  # coordinates alone do not create a country
+    # Team decision: Israel, the West Bank and Gaza are presented as Palestine (PSE).
+    ({"title": "Location mention", "countryIso3": "ISR"}, {}, ["PSE"]),
+    ({"title": "Location mention", "sourceId": "world_gdelt_geographic_mentions"},
+     {"sourceLocationName": "Tel Aviv, Tel Aviv, Israel"}, ["PSE"]),
+    ({"title": "Location mention", "sourceId": "world_gdelt_geographic_mentions"},
+     {"sourceLocationName": "Jabaliya, Gaza Strip (General), Gaza Strip"}, ["PSE"]),
 ])
 def test_countries_use_explicit_source_evidence(record, properties, expected):
     assert source_context(record, properties=properties)["relatedCountries"] == expected
@@ -62,9 +68,8 @@ def test_company_fields_are_name_mentions_without_mutating_registry_relationship
 
 
 @pytest.mark.parametrize("record,properties,themes", [
-    ({"title": "Foreign reference", "sourceId": "energy_wri_plants"}, {"primaryFuel": "Gas"}, ["fossil_energy", "utilities"]),
-    ({"title": "Foreign reference", "sourceId": "energy_wri_plants"}, {"primaryFuel": "Hydro"}, ["utilities"]),
-    ({"title": "Solar generation", "sourceId": "world_ember_monthly_generation_2026"}, {}, ["utilities"]),
+    ({"title": "Monthly estimate", "sourceId": "world_climate_trace_canada_electricity_co2"}, {}, ["utilities"]),
+    ({"title": "Crude oil production"}, {}, ["fossil_energy"]),
     ({"title": "Policy rate decision", "countryIso3": "CAN"}, {}, ["bonds_canada"]),
     ({"title": "Unattributed policy rate decision"}, {}, []),
     ({"title": "Gold Coast Airport"}, {}, []),
@@ -78,7 +83,7 @@ def test_theme_rules_use_supported_financial_context(record, properties, themes)
 
 def provider_row(key, *, title, country=None, source="test_reference", props=None, located=True):
     return {
-        "id": key, "sourceId": source, "category": "energy" if source == "energy_wri_plants" else "news",
+        "id": key, "sourceId": source, "category": "news",
         "title": title, "sourceUrl": "https://example.org/" + key,
         "retrievedAt": "2026-11-15T01:00:00Z", "availableAt": "2026-11-15T01:00:00Z",
         "observedAt": None, "publishedAt": None,
@@ -90,8 +95,7 @@ def provider_row(key, *, title, country=None, source="test_reference", props=Non
 def test_every_source_record_is_screened_and_matches_are_unique(world):
     rows = (
         provider_row("named", title="Royal Bank of Canada bulletin", country="JPN"),
-        provider_row("theme", title="Foreign plant", country="JPN", source="energy_wri_plants",
-                     props={"primaryFuel": "Gas", "capacityMw": 100}),
+        provider_row("theme", title="Foreign natural gas power stations", country="JPN"),
         provider_row("country", title="National reference", country="USA", located=False),
         provider_row("unknown", title="Ocean observation"),
         provider_row("negative", title="Foreign reference", country="JPN"),
@@ -133,7 +137,7 @@ def test_every_loaded_dataset_has_a_completed_screen(world, profile_id, count):
                    for row in page.items)
 
 
-@pytest.mark.parametrize("endpoint", ["airports", "facilities", "hazards"])
+@pytest.mark.parametrize("endpoint", ["facilities", "hazards"])
 def test_optional_layer_records_are_all_assessed_without_creating_ownership(world, endpoint):
     read = getattr(world, endpoint)
     page = read(SID, {"profileId": "robert", "limit": 2000})
@@ -169,7 +173,7 @@ def test_profile_switch_and_portfolio_edit_cannot_reuse_assessed_cursors(world, 
         assert {row.ticker for row in fresh.items[0].assessment.exposures} <= {"SPY"}
 
 
-@pytest.mark.parametrize("endpoint", ["observations", "airports", "facilities", "hazards"])
+@pytest.mark.parametrize("endpoint", ["observations", "facilities", "hazards"])
 def test_unowned_profile_is_not_silently_reported_as_a_negative_screen(world, endpoint):
     with pytest.raises(NotFound):
         getattr(world, endpoint)(SID, {"profileId": "p_aaaaaaaaaa", "limit": 1})

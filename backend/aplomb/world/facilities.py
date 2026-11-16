@@ -9,7 +9,7 @@ import math
 from pathlib import Path
 from urllib.parse import urlencode
 
-from .geo import in_bbox
+from .geo import in_bbox, present_iso3, present_rows
 
 PATH = '/substances/monitor/greenhouse-gas-reporting-program-ghgrp-facility-greenhouse-gas-ghg-data/PDGES-GHGRP-GHGEmissionsGES-2004-Present.csv'
 SOURCE = 'https://data-donnees.az.ec.gc.ca/api/file?' + urlencode({'path': PATH})
@@ -93,11 +93,12 @@ def load_facilities(directory: Path = DIRECTORY):
     meta, rows = json.loads(meta_path.read_text()), json.loads(content)
     if hashlib.sha256(content).hexdigest() != meta['sha256'] or len(rows) != meta['rowCount']:
         raise ValueError('Facility snapshot integrity failure')
-    return rows, meta
+    # Team decision (geo.PRESENTED_AS): an ISR-coded facility is presented under PSE.
+    return present_rows(rows, lambda row: row['facilityId'])[0], meta
 
 
 def filter_facilities(rows, query):
-    countries = set(query.get('country') or [])
+    countries = {present_iso3(code) for code in query.get('country') or []}
     bbox = tuple(float(v) for v in query['bbox'].split(',')) if query.get('bbox') else None
     needle = query.get('q', '').strip().casefold()
     return [r for r in rows if (not countries or r['countryIso3'] in countries)

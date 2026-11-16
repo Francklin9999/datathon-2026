@@ -16,7 +16,6 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .geodata_extra import _validate_geometry
 from .snapshot import DIRECTORY, load_provider_snapshots, publish, timestamp, validate_row
 
 OSM_URL = "https://api.openstreetmap.org/api/0.6/way/5013364/full.json"
@@ -48,6 +47,25 @@ URLS = {
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         raise ValueError("Unexpected geospatial provider redirect")
+
+
+def _validate_geometry(geometry: dict) -> None:
+    kind = geometry.get("type")
+    coords = geometry.get("coordinates")
+    if kind not in {"Polygon", "MultiPolygon"} or not isinstance(coords, list) or not coords:
+        raise ValueError("Expected nonempty polygon geometry")
+    polygons = [coords] if kind == "Polygon" else coords
+    for polygon in polygons:
+        if not isinstance(polygon, list) or not polygon:
+            raise ValueError("Empty polygon")
+        for ring in polygon:
+            if not isinstance(ring, list) or len(ring) < 4 or ring[0] != ring[-1]:
+                raise ValueError("Invalid polygon ring")
+            for point in ring:
+                if (not isinstance(point, list) or len(point) != 2
+                    or any(isinstance(x, bool) or not isinstance(x, (int, float)) or not math.isfinite(x) for x in point)
+                    or not -180 <= point[0] <= 180 or not -90 <= point[1] <= 90):
+                    raise ValueError("Invalid longitude or latitude")
 
 
 def fetch(url: str) -> bytes:

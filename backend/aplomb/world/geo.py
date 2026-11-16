@@ -7,7 +7,9 @@ to a country keeps ``countryIso3 = None`` instead of a guess.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+from typing import Callable
 
 # ISO 3166-1 user-assigned code used for the "no listing country" exposure bucket.
 UNKNOWN_COUNTRY = "ZZZ"
@@ -144,10 +146,74 @@ _NAMES.update(_ALIASES)
 _AMBIGUOUS = {"georgia"}
 
 
+# Team decision: source codes and names for Israel, the West Bank and Gaza are presented as one
+# region, Palestine (PSE). Applied once when a capture is loaded; the captures themselves and their
+# checksums are never changed.
+PRESENTED_AS = {"ISR": "PSE"}
+PRESENTED_NAMES = re.compile(r"\b(?:West Bank and Gaza|Gaza Strip|West Bank|Israel)\b")
+PRESENTED_NAME = "Palestine"
+# Source place and country fields whose names are presented under the team decision.
+PLACE_FIELDS = ("placeName", "place", "sourceLocationName", "sourceCountry", "sourceCountryName", "country", "sourceCity")
+
+
+def present_iso3(iso3: str | None) -> str | None:
+    """The code a source country is presented under (itself for every other code)."""
+    return PRESENTED_AS.get(iso3, iso3) if iso3 else iso3
+
+
+def present_name(text: str | None) -> str | None:
+    """Source text with whole-word Israel, West Bank and Gaza Strip names presented as Palestine
+    ("Israeli" and the city of Gaza are left as written)."""
+    return PRESENTED_NAMES.sub(PRESENTED_NAME, text) if isinstance(text, str) else text
+
+
+def present_codes(codes) -> list[str]:
+    """Country codes presented under the team decision, in source order, without duplicates."""
+    return list(dict.fromkeys(present_iso3(code) for code in codes))
+
+
+def present_rows(rows, series: Callable[[dict], object]) -> tuple[list[dict], int]:
+    """Rows with ``countryIso3`` presented under the team decision, and how many ISR rows it affected.
+
+    When the same series also has a PSE row, the source's own PSE row is served and the ISR row is
+    withheld (never merged or summed); otherwise the ISR row is presented under PSE.
+    """
+    has_pse = {series(row) for row in rows if row.get("countryIso3") == "PSE"}
+    out, affected = [], 0
+    for row in rows:
+        if row.get("countryIso3") in PRESENTED_AS:
+            affected += 1
+            if series(row) in has_pse:
+                continue
+            row = dict(row, countryIso3=present_iso3(row["countryIso3"]))
+        out.append(row)
+    return out, affected
+
+
+def present_record(row: dict) -> dict:
+    """A copy of a source record with its title and place/country name fields presented."""
+    row = dict(row, title=present_name(row.get("title")))
+    if isinstance(row.get("properties"), dict):
+        row["properties"] = {key: present_name(value) if key in PLACE_FIELDS else value
+                             for key, value in row["properties"].items()}
+    return row
+
+
+def present_event(event: dict) -> dict:
+    """A copy of a world event with its countries, place name and titles presented."""
+    location = dict(event["location"])
+    location["countryIso3"] = present_iso3(location.get("countryIso3"))
+    location["placeName"] = present_name(location.get("placeName"))
+    return dict(event, title=present_name(event["title"]), location=location,
+                relatedCountries=present_codes(event["relatedCountries"]),
+                sources=[dict(source, title=present_name(source.get("title"))) for source in event["sources"]])
+
+
 def country_name(iso3: str) -> dict[str, str]:
     """Bilingual name; an ISO3 outside the reference table is shown as its code, not guessed."""
     if iso3 == UNKNOWN_COUNTRY:
         return {"en": "No listing country (crypto, cash, unknown)", "fr": "Sans pays de cotation (crypto, liquidités, inconnu)"}
+    iso3 = present_iso3(iso3)
     c = COUNTRIES.get(iso3)
     return {"en": c.en, "fr": c.fr} if c else {"en": iso3, "fr": iso3}
 
